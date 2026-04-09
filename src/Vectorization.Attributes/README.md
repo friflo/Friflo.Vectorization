@@ -1,0 +1,1 @@
+# Friflo.Vectorization.Attributes

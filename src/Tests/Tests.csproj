@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <GenerateProgramFile>true</GenerateProgramFile>
+
+        <!-- packaging -->
+        <PublishRepositoryUrl>false</PublishRepositoryUrl>
+        <IsPackable>false</IsPackable>
+        <LangVersion>9</LangVersion>
+        <!-- packaging: end -->
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+      <DefineConstants>TRACE</DefineConstants>
+      <OutputPath>.bin\Debug\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+      <OutputPath>.bin\Release\</OutputPath>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Friflo.Engine.ECS" Version="3.6.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="**/*.meta" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
+    </ItemGroup>
+
+</Project>
