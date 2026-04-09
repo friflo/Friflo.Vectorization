@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -33,7 +34,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             if (symbol is not IMethodSymbol methodSymbol) {
                 return;
             }
-            var (fileName, source) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+            var (fileName, source, diagnostics) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+            foreach (var diagnostic in diagnostics) {
+                productionContext.ReportDiagnostic(diagnostic);
+            }
             productionContext.AddSource(fileName, SourceText.From(source, Encoding.UTF8));
         });
         
@@ -58,7 +62,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         });
     }
     
-    private static (string fileName, string source) GenerateMethod(SourceProductionContext spc, SemanticModel semanticModel, IMethodSymbol methodSymbol)
+    private static (string fileName, string source, List<Diagnostic> diagnostics)
+        GenerateMethod(SourceProductionContext _, SemanticModel semanticModel, IMethodSymbol methodSymbol)
     {
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
@@ -84,7 +89,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             components      = components,
             hash            = hash,
             ecsTypes        = types,
-            spc             = spc,
             semanticModel   = semanticModel
         };
         Vectorizer.Emit(query);
@@ -115,7 +119,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
         // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
         fileName = $"{fileName}{hash}.g.cs";
-        return (fileName, source);
+        return (fileName, source, query.diagnostics);
     }
     
     private static readonly SymbolDisplayFormat ClassNameFormat = new SymbolDisplayFormat(

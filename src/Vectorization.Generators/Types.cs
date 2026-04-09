@@ -34,7 +34,6 @@ public class Query
     public          ImmutableArray<IParameterSymbol>parameters;
     public          List<IParameterSymbol>          components;
     public          EcsTypes                        ecsTypes;
-    public          SourceProductionContext         spc;
     public          SemanticModel                   semanticModel;
     // --- generated output
     public readonly List<Diagnostic>                diagnostics = new();
@@ -67,16 +66,16 @@ public class Query
             location = methodSymbol.Locations.FirstOrDefault();
         }
         Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-        spc.ReportDiagnostic(diagnostic);
-        // diagnostics.Add(diagnostic);
+        // spc.ReportDiagnostic(diagnostic);
+        diagnostics.Add(diagnostic);
     }
     
     public void ReportDiagnosticSyntax(DiagnosticDescriptor descriptor, CSharpSyntaxNode syntaxNode, params object?[]? messageArgs)
     {
         var location = syntaxNode.GetLocation();
         Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-        spc.ReportDiagnostic(diagnostic);
-        // diagnostics.Add(diagnostic);
+        // spc.ReportDiagnostic(diagnostic);
+        diagnostics.Add(diagnostic);
     }
     
     public void AddParam(string name, bool isComponent, bool isScalar, bool isParam, int dimension)
