@@ -1,13 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: /*
-    [Vectorize][Query][OmitHash]
-    private static void IncompatibleParameterTypesError(ref Position2 pos1, ref Position3 pos3) {
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    }
-*/
- : (12,24)-(12,55),
+      Location: : (12,24)-(12,55),
       Message: Vectorization failed - Incompatible parameter types: 'Position2' and 'Position3',
       Severity: Warning,
       WarningLevel: 1,

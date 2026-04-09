@@ -67,8 +67,7 @@ public class Query
         }
         // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);
-        var data = new DiagnosticData(descriptor, location, messageArgs);
-        diagnostics.Add(data);
+        AddDiagnostic(descriptor, location, messageArgs);
     }
     
     public void ReportDiagnosticSyntax(DiagnosticDescriptor descriptor, CSharpSyntaxNode syntaxNode, params object?[]? messageArgs)
@@ -76,8 +75,24 @@ public class Query
         var location = syntaxNode.GetLocation();
         // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);
-        var data = new DiagnosticData(descriptor, location, messageArgs);
-        diagnostics.Add(data);
+        AddDiagnostic(descriptor, location, messageArgs);
+    }
+    
+    private void AddDiagnostic(DiagnosticDescriptor descriptor, Location? location, params object?[]? messageArgs)
+    {
+        var lineSpan = location.GetLineSpan();
+        var data = new DiagnosticData(
+                Descriptor:     descriptor,
+                FilePath:       lineSpan.Path,
+                StartOffset:    location.SourceSpan.Start,
+                Length:         location.SourceSpan.Length,
+                StartLine:      lineSpan.StartLinePosition.Line,
+                StartColumn:    lineSpan.StartLinePosition.Character,
+                EndLine:        lineSpan.EndLinePosition.Line,
+                EndColumn:      lineSpan.EndLinePosition.Character,
+                MessageArgs:    messageArgs
+            );
+        diagnostics.Add(data);   
     }
 
     public void AddParam(string name, bool isComponent, bool isScalar, bool isParam, int dimension)
@@ -160,7 +175,14 @@ public struct ConstValue
 
 public record struct DiagnosticData(
     DiagnosticDescriptor    Descriptor,
-    Location?               Location,
+    string                  FilePath,
+    // Location?              Location, // has reference to SyntaxTree. Too heavy in memory use. 
+    int                     StartOffset,
+    int                     Length,
+    int                     StartLine,      // Just an int
+    int                     StartColumn,    // Just an int
+    int                     EndLine,        // Just an int
+    int                     EndColumn,      // Just an int
     object?[]?              MessageArgs
 );
 

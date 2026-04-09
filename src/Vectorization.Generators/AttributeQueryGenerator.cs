@@ -34,9 +34,13 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             if (symbol is not IMethodSymbol methodSymbol) {
                 return;
             }
-            var (fileName, source, diagnostics) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
-            foreach (var data in diagnostics) {
-                Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, data.Location, data.MessageArgs);
+            var (fileName, source, diagnosticDatas) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+            foreach (var data in diagnosticDatas) {
+                var start       = new LinePosition(data.StartLine, data.StartColumn);
+                var end         = new LinePosition(data.EndLine, data.EndColumn);
+                var lineSpan    = new LinePositionSpan(start, end);
+                var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
+                Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
                 productionContext.ReportDiagnostic(diagnostic);
             }
             productionContext.AddSource(fileName, SourceText.From(source, Encoding.UTF8));

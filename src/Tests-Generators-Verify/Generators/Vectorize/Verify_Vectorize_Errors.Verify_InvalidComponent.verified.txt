@@ -1,13 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: /*
-    [Vectorize][Query][OmitHash]
-    void InvalidComponent(ref MyComponent1 component, float value) {
-                                           ^^^^^^^^^
-        component.a = value;
-*/
- : (11,43)-(11,52),
+      Location: : (11,43)-(11,52),
       Message: Vectorization failed - Expect component type 'MyComponent1' having a field named value at parameter 'component',
       Severity: Warning,
       WarningLevel: 1,

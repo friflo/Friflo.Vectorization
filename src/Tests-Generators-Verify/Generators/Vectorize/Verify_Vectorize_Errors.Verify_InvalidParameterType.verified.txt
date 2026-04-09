@@ -1,13 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: /*
-    [Vectorize][Query][OmitHash]
-    private static void IncompatibleParameterTypesError(ref Position2 pos1, Entity entity) {
-                                                                                   ^^^^^^
-    }
-*/
- : (11,83)-(11,89),
+      Location: : (11,83)-(11,89),
       Message: Vectorization failed - Invalid parameter type: 'Entity',
       Severity: Warning,
       WarningLevel: 1,

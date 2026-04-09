@@ -1,15 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: /*
-    private static void InvalidStatementError(ref FloatComponent position) {
-        if (position.value > 1f) {
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^
-        }
-^^^^^^^^^
-    }
-*/
- : (12,8)-(13,9),
+      Location: : (12,8)-(13,9),
       Message:
 Vectorization failed - statement not supported:         if (position.value > 1f) {
         }
