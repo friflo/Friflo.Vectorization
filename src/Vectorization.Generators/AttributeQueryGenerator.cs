@@ -33,8 +33,22 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             if (symbol is not IMethodSymbol methodSymbol) {
                 return;
             }
-            GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+            var (fileName, source) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+            productionContext.AddSource(fileName, SourceText.From(source, Encoding.UTF8));
         });
+        
+        /* var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Engine.ECS.QueryAttribute",
+            predicate: (node, _) => node is MethodDeclarationSyntax,
+            transform: (ctx, ct) => {
+                if (ctx.TargetSymbol is  IMethodSymbol methodSymbol) {
+                    // GenerateMethod(null, ctx.SemanticModel, methodSymbol);
+                }
+                return new EmissionResult("", "");
+            });
+        context.RegisterSourceOutput(methodDeclarations, (productionContext, emissionResult) => {
+            // GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+        }); */
         
         context.RegisterPostInitializationOutput(ctx => {
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
@@ -44,7 +58,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         });
     }
     
-    private static void GenerateMethod(SourceProductionContext spc, SemanticModel semanticModel, IMethodSymbol methodSymbol)
+    private static (string fileName, string source) GenerateMethod(SourceProductionContext spc, SemanticModel semanticModel, IMethodSymbol methodSymbol)
     {
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
@@ -100,7 +114,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             methodSymbol.ContainingType.ToDisplayString().Replace('<', '{').Replace('>', '}') + "/" +
             methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
         // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
-        spc.AddSource($"{fileName}{hash}.g.cs", SourceText.From(source, Encoding.UTF8));
+        fileName = $"{fileName}{hash}.g.cs";
+        return (fileName, source);
     }
     
     private static readonly SymbolDisplayFormat ClassNameFormat = new SymbolDisplayFormat(

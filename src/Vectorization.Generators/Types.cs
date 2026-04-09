@@ -37,6 +37,7 @@ public class Query
     public          SourceProductionContext         spc;
     public          SemanticModel                   semanticModel;
     // --- generated output
+    public readonly List<Diagnostic>                diagnostics = new();
     public          int                             vectorDimension;    // [3, 4]
     public          int                             laneCount;          // [3, 2]
     public          StringBuilder[]                 lanes;
@@ -65,15 +66,17 @@ public class Query
         if (location == null) {
             location = methodSymbol.Locations.FirstOrDefault();
         }
-        var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
+        Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         spc.ReportDiagnostic(diagnostic);
+        // diagnostics.Add(diagnostic);
     }
     
     public void ReportDiagnosticSyntax(DiagnosticDescriptor descriptor, CSharpSyntaxNode syntaxNode, params object?[]? messageArgs)
     {
         var location = syntaxNode.GetLocation();
-        var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
+        Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         spc.ReportDiagnostic(diagnostic);
+        // diagnostics.Add(diagnostic);
     }
     
     public void AddParam(string name, bool isComponent, bool isScalar, bool isParam, int dimension)
