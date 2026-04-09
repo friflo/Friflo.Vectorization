@@ -10,6 +10,59 @@ namespace Friflo.Vectorization.Generators;
 
 public partial class AttributeQueryGenerator
 {
+    private static void EmitQuerySource(
+        Query query,
+        out string ecsQueryMethod,
+        out string ecsQueryPrivate)
+    {
+        var attributeCode       = EmitQueryFilters(query.attributes);
+        var componentArgs       = EmitQueryArgs(query.components);
+        var chunkVariables      = EmitQueryChunkVariables(query.components);
+        var lambdaParameters    = EmitQueryLambdaParameters(query.parameters, query.ecsTypes);
+        var methodSignature     = EmitQueryMethodSignature(query.parameters, query.ecsTypes, query.vectorize);
+        var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
+        
+        var hash            = query.hash;
+        var methodSymbol    = query.methodSymbol;
+        var methodName      = query.methodSymbol.Name;
+        
+            ecsQueryMethod = $@"
+        /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
+        /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
+        public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
+        {{
+            var _query = _{methodName}_GetQuery{hash}(_store);
+            foreach (var chunk in _query.Chunks)
+            {{
+                var _entities = chunk.Entities;
+{chunkVariables}
+                int n = 0;{vectorizeBlock}
+                for (; n < _entities.Length; n++) {{
+                    {methodName}({lambdaParameters});
+                }}
+            }}
+            return _query;
+        }}";
+            ecsQueryPrivate = $@"
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        private static readonly int _{methodName}_Slot{hash} = EntityStore.UserDataNewSlot();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        private static ArchetypeQuery<{componentArgs}>
+            _{methodName}_GetQuery{hash}(EntityStore _store)
+        {{
+            var _query = (ArchetypeQuery<{componentArgs}>)
+                EntityStore.UserDataGet(_store, _{methodName}_Slot{hash});
+            if (_query != null) {{
+                return _query;
+            }}
+            _query = _store.Query<{componentArgs}>();
+{attributeCode}
+            EntityStore.UserDataSet(_store, _{methodName}_Slot{hash}, _query);
+            return _query;
+        }}";
+    }
+    
     private static string EmitQueryMethodSignature(ImmutableArray<IParameterSymbol> parameters, EcsTypes ecsTypes, bool vectorized)
     {
         var sb = new StringBuilder();
