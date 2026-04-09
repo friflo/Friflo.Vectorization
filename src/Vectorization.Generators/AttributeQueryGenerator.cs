@@ -22,34 +22,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             System.Diagnostics.Debugger.Launch();
         }
 #endif
-        // Filter for methods with the attribute
-        var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Engine.ECS.QueryAttribute",
-            predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => {
-                return ctx;
-            });
-        context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
-            var symbol = syntaxContext.TargetSymbol;
-            if (symbol is not IMethodSymbol methodSymbol) {
-                return;
-            }
-            var emissionResult = GenerateMethod(syntaxContext.SemanticModel, methodSymbol);
-            EmitResult(productionContext, emissionResult);
-        });
-        
-        /* var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Engine.ECS.QueryAttribute",
-            predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => {
-                if (ctx.TargetSymbol is  IMethodSymbol methodSymbol) {
-                    // GenerateMethod(null, ctx.SemanticModel, methodSymbol);
-                }
-                return new EmissionResult("", "");
-            });
-        context.RegisterSourceOutput(methodDeclarations, (productionContext, emissionResult) => {
-            // GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
-        }); */
+        RegisterStreamingTranspiler(context);
         
         context.RegisterPostInitializationOutput(ctx => {
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
@@ -58,6 +31,47 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
         });
     }
+    
+    private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
+    {
+        // Filter for methods with the attribute
+        var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Engine.ECS.QueryAttribute",
+            predicate: (node, _) => node is MethodDeclarationSyntax,
+            transform: (ctx, ct) => {
+                if (ctx.TargetSymbol is  IMethodSymbol methodSymbol) {
+                    return GenerateMethod(ctx.SemanticModel, methodSymbol);
+                }
+                return new EmissionResult();
+            });
+        context.RegisterSourceOutput(methodDeclarations, (productionContext, emissionResult) => {
+            EmitResult(productionContext, emissionResult);
+        });
+    }
+    
+    private static void RegisterTranspiler_BadCommonApproach(IncrementalGeneratorInitializationContext context)
+    {
+        var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Engine.ECS.QueryAttribute",
+            predicate: (node, _) => node is MethodDeclarationSyntax,
+            // returning ctx (GeneratorAttributeSyntaxContext) has real disadvantages:
+            // - Equality Check always fails (reference type)
+            //   => incremental compiler is triggered on every keystroke. Caching disabled
+            // - The compiler stores the heavy GeneratorAttributeSyntaxContext containing SemanticModel & entire Compilation
+            //   => GC cannot collect this fat tree of objects 
+            transform: (ctx, ct) => ctx);
+        
+            context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
+            var symbol = syntaxContext.TargetSymbol;
+            if (symbol is not IMethodSymbol methodSymbol) {
+                return;
+            }
+            var emissionResult = GenerateMethod(syntaxContext.SemanticModel, methodSymbol);
+            EmitResult(productionContext, emissionResult);
+        });
+    }
+
+    
     
     private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
     {
