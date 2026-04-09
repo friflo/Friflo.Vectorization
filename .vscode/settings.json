@@ -1,0 +1,28 @@
+{
+    "editor.wordWrap": "off",
+    "[markdown]": {
+        "editor.wordWrap": "off",
+    },
+	"files.exclude": {
+        "**/obj": true,
+		"**/bin": true,
+        "**/.vs": true,
+        "**/.run": true,
+        "**/.idea": true,
+        "**/*.user": true,
+        "**/*.DotSettings": true,
+        //
+        "**/.obj": true,
+		"**/.bin": true,
+        "**/*.csproj.xml": true,
+
+        // root files / folders
+        ".github": false,
+
+        // src folder
+        "src/.cspell.json": true,
+        "src/.editorconfig": true,
+        "src/.gitattributes": true,
+        "src/package-icon.png": true,
+    }
+}
