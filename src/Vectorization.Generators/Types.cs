@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -151,4 +152,35 @@ public struct ConstValue
     public string       name;
     public string       value;
     public ParamType    paramType;
+}
+
+public readonly struct EmissionResult : IEquatable<EmissionResult>
+{
+    public  readonly string Name;
+    public  readonly string Code;
+    private readonly int _cachedHash;
+
+    public EmissionResult(string name, string code)
+    {
+        Name = name;
+        Code = code;
+        _cachedHash = HashCode.Combine(name, code.GetHashCode());
+    }
+
+    // Direct call, no boxing
+    public bool Equals(EmissionResult other)
+    {
+        // 1. Check cached hash (O(1))
+        if (_cachedHash != other._cachedHash) return false;
+        
+        // 2. Check name (Short string)
+        if (Name != other.Name) return false;
+
+        // 3. Last resort: Check code (O(N))
+        return string.Equals(Code, other.Code);
+    }
+
+    // Required overrides (just in case)
+    public override bool Equals(object obj) => obj is EmissionResult other && Equals(other);
+    public override int GetHashCode() => _cachedHash;
 }

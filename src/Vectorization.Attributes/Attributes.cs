@@ -15,3 +15,6 @@ public sealed class VectorizeAttribute : Attribute { }
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class OmitHashAttribute : Attribute { }
 
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class SpanAttribute : Attribute { }
+

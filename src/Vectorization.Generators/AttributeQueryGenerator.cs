@@ -25,28 +25,35 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, _) => ctx
-        );
+            transform: (ctx, ct) => {
+                return ctx;
+            });
         context.RegisterPostInitializationOutput(ctx => {
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector2.g.cs",   Static.AvxVector2);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
         });
-        context.RegisterSourceOutput(methodDeclarations, GenerateSource);
+        context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
+            var symbol = syntaxContext.TargetSymbol;
+            if (symbol is not IMethodSymbol methodSymbol) {
+                return;
+            }
+            GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+        });
     }
     
-    private static void GenerateSource(SourceProductionContext spc, GeneratorAttributeSyntaxContext ctx)
+    private static void GenerateMethod(SourceProductionContext spc, SemanticModel semanticModel, IMethodSymbol methodSymbol)
     {
         // Get the symbol for the interfaces; ITag and IComponent
-        var compilation = ctx.SemanticModel.Compilation;
+        var compilation = semanticModel.Compilation;
         var types = new EcsTypes {
             componentInterface  = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.IComponent"),
             entityStruct        = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.Entity"),
             vectorizeAttribute  = compilation.GetTypeByMetadataName("Friflo.Vectorization.VectorizeAttribute"),
             omitHashAttribute   = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute"),
         };
-        var methodSymbol        = (IMethodSymbol)ctx.TargetSymbol;
+
         var className           = methodSymbol.ContainingType.ToDisplayString(ClassNameFormat);
         var isGlobalNamespace   = methodSymbol.ContainingNamespace.IsGlobalNamespace;
         var namespaceName       = methodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
@@ -63,7 +70,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             hash            = hash,
             ecsTypes        = types,
             spc             = spc,
-            semanticModel   = ctx.SemanticModel
+            semanticModel   = semanticModel
         };
         Vectorizer.Emit(query);
         

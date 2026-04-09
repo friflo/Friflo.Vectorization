@@ -6,8 +6,7 @@ using NUnit.Framework;
 
 namespace Tests.Generators.Lab;
 
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SpanAttribute : Attribute { }
+
 
 public static class Test_Lab_Tensor
 {
