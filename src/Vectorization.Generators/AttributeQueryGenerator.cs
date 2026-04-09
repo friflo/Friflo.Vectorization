@@ -34,8 +34,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             if (symbol is not IMethodSymbol methodSymbol) {
                 return;
             }
-            var (fileName, source, diagnosticDatas) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
-            foreach (var data in diagnosticDatas) {
+            var emissionResult = GenerateMethod(syntaxContext.SemanticModel, methodSymbol);
+            foreach (var data in emissionResult.Diagnostics) {
                 var start       = new LinePosition(data.StartLine, data.StartColumn);
                 var end         = new LinePosition(data.EndLine, data.EndColumn);
                 var lineSpan    = new LinePositionSpan(start, end);
@@ -43,7 +43,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
                 Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
                 productionContext.ReportDiagnostic(diagnostic);
             }
-            productionContext.AddSource(fileName, SourceText.From(source, Encoding.UTF8));
+            productionContext.AddSource(emissionResult.Name, SourceText.From(emissionResult.Code, Encoding.UTF8));
         });
         
         /* var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -67,8 +67,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         });
     }
     
-    private static (string fileName, string source, List<DiagnosticData> diagnostics)
-        GenerateMethod(SourceProductionContext _, SemanticModel semanticModel, IMethodSymbol methodSymbol)
+    private static EmissionResult GenerateMethod(SemanticModel semanticModel, IMethodSymbol methodSymbol)
     {
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
@@ -124,7 +123,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
         // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
         fileName = $"{fileName}{hash}.g.cs";
-        return (fileName, source, query.diagnostics);
+        return new EmissionResult(fileName, source, query.diagnostics);
     }
     
     private static readonly SymbolDisplayFormat ClassNameFormat = new SymbolDisplayFormat(

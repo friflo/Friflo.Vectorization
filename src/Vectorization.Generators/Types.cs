@@ -188,15 +188,20 @@ public record struct DiagnosticData(
 
 public readonly struct EmissionResult : IEquatable<EmissionResult>
 {
-    public  readonly string Name;
-    public  readonly string Code;
-    private readonly int _cachedHash;
+    public  readonly string                 Name;
+    public  readonly string                 Code;
+    public  readonly List<DiagnosticData>   Diagnostics;
+    private readonly int                    _cachedHash;
 
-    public EmissionResult(string name, string code)
+    public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
     {
         Name = name;
         Code = code;
-        _cachedHash = HashCode.Combine(name, code.GetHashCode());
+        Diagnostics = diagnostics;
+        int hash = 17;
+        hash = hash * 23 + (name?.GetHashCode() ?? 0);
+        hash = hash * 23 + (code?.GetHashCode() ?? 0);
+        _cachedHash = hash;
     }
 
     // Direct call, no boxing
