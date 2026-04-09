@@ -28,18 +28,19 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             transform: (ctx, ct) => {
                 return ctx;
             });
-        context.RegisterPostInitializationOutput(ctx => {
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector2.g.cs",   Static.AvxVector2);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
-        });
         context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
             var symbol = syntaxContext.TargetSymbol;
             if (symbol is not IMethodSymbol methodSymbol) {
                 return;
             }
             GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
+        });
+        
+        context.RegisterPostInitializationOutput(ctx => {
+            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
+            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector2.g.cs",   Static.AvxVector2);
+            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
+            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
         });
     }
     
