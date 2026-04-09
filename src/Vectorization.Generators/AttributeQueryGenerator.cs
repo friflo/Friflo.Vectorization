@@ -52,6 +52,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             var attributes          = methodSymbol.GetAttributes();
             var parameters          = methodSymbol.Parameters;
             var components          = GetQueryComponents(parameters, types);
+         // var spans               = GetVectorSpans(parameters, types);
             var hash                = GetHash(methodSymbol, attributes, types);
             var query = new Query {
                 methodSymbol    = methodSymbol,
@@ -66,6 +67,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Vectorizer.Emit(query);
             
             EmitQuerySource(query, out string ecsQueryMethod, out string ecsQueryPrivate);
+            
             var namespaces          = EmitNamespaces(query);
             
             // ----------------- ECS specific code generation
