@@ -10,7 +10,7 @@ using System.Runtime.Intrinsics.X86;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
-using Tests.Examples;
+using Tests.ECS;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Vectorize;

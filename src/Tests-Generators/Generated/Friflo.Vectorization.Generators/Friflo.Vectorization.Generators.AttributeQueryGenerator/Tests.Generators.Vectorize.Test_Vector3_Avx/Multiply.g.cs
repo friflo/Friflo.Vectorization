@@ -39,15 +39,15 @@ namespace Tests.Generators.Vectorize
         private static readonly int _Multiply_Slot = EntityStore.UserDataNewSlot();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity>
+        private static ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity>
             _Multiply_GetQuery(EntityStore _store)
         {
-            var _query = (ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity>)
+            var _query = (ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity>)
                 EntityStore.UserDataGet(_store, _Multiply_Slot);
             if (_query != null) {
                 return _query;
             }
-            _query = _store.Query<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity>();
+            _query = _store.Query<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity>();
 
             EntityStore.UserDataSet(_store, _Multiply_Slot, _query);
             return _query;
@@ -56,7 +56,7 @@ namespace Tests.Generators.Vectorize
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.Examples.Velocity> velocity)
+            Span<global::Tests.ECS.Velocity> velocity)
         {
             int i = 0;
             var end = position.Length - 8;
@@ -65,7 +65,7 @@ namespace Tests.Generators.Vectorize
             }
             // Vector layout: AoS
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
-            fixed (global::Tests.Examples.Velocity* velocity_first = velocity)
+            fixed (global::Tests.ECS.Velocity* velocity_first = velocity)
             {
                 for (; i <= end; i += 8)
                 {

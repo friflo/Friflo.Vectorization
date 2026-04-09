@@ -3,11 +3,6 @@ using Friflo.Engine.ECS;
 
 #pragma warning disable CS0649 // Field '...' is never assigned to, and will always have its default value
 
-namespace Tests.Examples {
-    
-public struct Velocity : IComponent { public Vector3 value; }
-
-}
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable RedundantTypeDeclarationBody
@@ -59,6 +54,8 @@ public struct Velocity2 : IComponent { public Vector2 value; }
 
 public struct Position1 : IComponent { public float value; }
 public struct Velocity1 : IComponent { public float value; }
+
+public struct Velocity : IComponent { public Vector3 value; }
 
 
 

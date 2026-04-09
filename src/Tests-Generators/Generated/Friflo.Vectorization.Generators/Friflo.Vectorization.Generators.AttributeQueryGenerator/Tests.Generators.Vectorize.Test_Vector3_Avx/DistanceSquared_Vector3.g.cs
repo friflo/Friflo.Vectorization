@@ -40,15 +40,15 @@ namespace Tests.Generators.Vectorize
         private static readonly int _DistanceSquared_Vector3_Slot = EntityStore.UserDataNewSlot();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity, global::Tests.ECS.FloatComponent>
+        private static ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity, global::Tests.ECS.FloatComponent>
             _DistanceSquared_Vector3_GetQuery(EntityStore _store)
         {
-            var _query = (ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity, global::Tests.ECS.FloatComponent>)
+            var _query = (ArchetypeQuery<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity, global::Tests.ECS.FloatComponent>)
                 EntityStore.UserDataGet(_store, _DistanceSquared_Vector3_Slot);
             if (_query != null) {
                 return _query;
             }
-            _query = _store.Query<global::Friflo.Engine.ECS.Position, global::Tests.Examples.Velocity, global::Tests.ECS.FloatComponent>();
+            _query = _store.Query<global::Friflo.Engine.ECS.Position, global::Tests.ECS.Velocity, global::Tests.ECS.FloatComponent>();
 
             EntityStore.UserDataSet(_store, _DistanceSquared_Vector3_Slot, _query);
             return _query;
@@ -57,7 +57,7 @@ namespace Tests.Generators.Vectorize
         [SkipLocalsInit]
         private static unsafe int _DistanceSquared_Vector3_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.Examples.Velocity> velocity,
+            Span<global::Tests.ECS.Velocity> velocity,
             Span<global::Tests.ECS.FloatComponent> length)
         {
             int i = 0;
@@ -72,7 +72,7 @@ namespace Tests.Generators.Vectorize
             Vector256<int> length_mask_2 = Vector256.Create(5, 5, 6, 6, 6, 7, 7, 7);
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
-            fixed (global::Tests.Examples.Velocity* velocity_first = velocity)
+            fixed (global::Tests.ECS.Velocity* velocity_first = velocity)
             fixed (global::Tests.ECS.FloatComponent* length_first = length)
             {
                 for (; i <= end; i += 8)
