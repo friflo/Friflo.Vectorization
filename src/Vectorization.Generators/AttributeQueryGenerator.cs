@@ -35,15 +35,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
                 return;
             }
             var emissionResult = GenerateMethod(syntaxContext.SemanticModel, methodSymbol);
-            foreach (var data in emissionResult.Diagnostics) {
-                var start       = new LinePosition(data.StartLine, data.StartColumn);
-                var end         = new LinePosition(data.EndLine, data.EndColumn);
-                var lineSpan    = new LinePositionSpan(start, end);
-                var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
-                Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
-                productionContext.ReportDiagnostic(diagnostic);
-            }
-            productionContext.AddSource(emissionResult.Name, SourceText.From(emissionResult.Code, Encoding.UTF8));
+            EmitResult(productionContext, emissionResult);
         });
         
         /* var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -65,6 +57,19 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
         });
+    }
+    
+    private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
+    {
+        foreach (var data in emissionResult.Diagnostics) {
+            var start       = new LinePosition(data.StartLine, data.StartColumn);
+            var end         = new LinePosition(data.EndLine, data.EndColumn);
+            var lineSpan    = new LinePositionSpan(start, end);
+            var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
+            Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
+            productionContext.ReportDiagnostic(diagnostic);
+        }
+        productionContext.AddSource(emissionResult.Name, SourceText.From(emissionResult.Code, Encoding.UTF8));
     }
     
     private static EmissionResult GenerateMethod(SemanticModel semanticModel, IMethodSymbol methodSymbol)
