@@ -35,7 +35,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
                 return;
             }
             var (fileName, source, diagnostics) = GenerateMethod(productionContext, syntaxContext.SemanticModel, methodSymbol);
-            foreach (var diagnostic in diagnostics) {
+            foreach (var data in diagnostics) {
+                Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, data.Location, data.MessageArgs);
                 productionContext.ReportDiagnostic(diagnostic);
             }
             productionContext.AddSource(fileName, SourceText.From(source, Encoding.UTF8));
@@ -62,7 +63,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         });
     }
     
-    private static (string fileName, string source, List<Diagnostic> diagnostics)
+    private static (string fileName, string source, List<DiagnosticData> diagnostics)
         GenerateMethod(SourceProductionContext _, SemanticModel semanticModel, IMethodSymbol methodSymbol)
     {
         // Get the symbol for the interfaces; ITag and IComponent

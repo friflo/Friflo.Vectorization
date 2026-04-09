@@ -36,7 +36,7 @@ public class Query
     public          EcsTypes                        ecsTypes;
     public          SemanticModel                   semanticModel;
     // --- generated output
-    public readonly List<Diagnostic>                diagnostics = new();
+    public readonly List<DiagnosticData>            diagnostics = new();
     public          int                             vectorDimension;    // [3, 4]
     public          int                             laneCount;          // [3, 2]
     public          StringBuilder[]                 lanes;
@@ -65,19 +65,21 @@ public class Query
         if (location == null) {
             location = methodSymbol.Locations.FirstOrDefault();
         }
-        Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
+        // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);
-        diagnostics.Add(diagnostic);
+        var data = new DiagnosticData(descriptor, location, messageArgs);
+        diagnostics.Add(data);
     }
     
     public void ReportDiagnosticSyntax(DiagnosticDescriptor descriptor, CSharpSyntaxNode syntaxNode, params object?[]? messageArgs)
     {
         var location = syntaxNode.GetLocation();
-        Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
+        // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);
-        diagnostics.Add(diagnostic);
+        var data = new DiagnosticData(descriptor, location, messageArgs);
+        diagnostics.Add(data);
     }
-    
+
     public void AddParam(string name, bool isComponent, bool isScalar, bool isParam, int dimension)
     {
         paramTypes.Add(name, new Param  { isComponent = isComponent, isScalar = isScalar, isParam = isParam, dimension = dimension });
@@ -155,6 +157,12 @@ public struct ConstValue
     public string       value;
     public ParamType    paramType;
 }
+
+public record struct DiagnosticData(
+    DiagnosticDescriptor    Descriptor,
+    Location?               Location,
+    object?[]?              MessageArgs
+);
 
 public readonly struct EmissionResult : IEquatable<EmissionResult>
 {
