@@ -12,7 +12,7 @@ Given a typical code snippet that can be optimized with vectorization.
 Languages like C/C++ or Rust can vectorize the method by executing 8 operations in one CPU cycle instead of 1.  
 C# has no auto vectorization and executes 1 operation per CPU cycle.
 ```cs
-static void MovePositionVector(float[] position, float[] velocity, float deltaTime) {
+static void MovePositionVector(Vector3[] position, Vector3[] velocity, float deltaTime) {
     for (int n = 0; n < position.Length; n++) {
         position[n] += velocity[n] * deltaTime;
     }
@@ -24,7 +24,7 @@ friflo Vectorization applies the same optimization by generation code similar to
 To enable this a similar method without a loop has to be annotated with `[Vectorize]`.
 ```cs
 [Vectorize]
-static void MovePosition([Span] ref position, [Span] float velocity, float deltaTime) {
+static void MovePosition([Span] ref Vector3 position, [Span] Vector3 velocity, float deltaTime) {
     position += velocity * deltaTime;
 }
 ```
