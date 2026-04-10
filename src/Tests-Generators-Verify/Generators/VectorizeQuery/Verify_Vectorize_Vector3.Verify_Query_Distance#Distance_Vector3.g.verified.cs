@@ -22,16 +22,15 @@ namespace VerifyVectorize
                 var _entities = chunk.Entities;
                 var positionSpan = chunk.Chunk1.Span;
                 var velocitySpan = chunk.Chunk2.Span;
-                var Span = chunk.Chunk3.Span;
-                var distanceSpan = chunk.Chunk4.Span;
+                var distanceSpan = chunk.Chunk3.Span;
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Distance_Vector3_Avx(positionSpan, velocitySpan, Span, distanceSpan);
+                    n = _Distance_Vector3_Avx(positionSpan, velocitySpan, distanceSpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    Distance_Vector3(positionSpan[n], velocitySpan[n], Span[n], ref distanceSpan[n]);
+                    Distance_Vector3(positionSpan[n], velocitySpan[n], ref distanceSpan[n]);
                 }
             }
             return _query;
@@ -42,15 +41,15 @@ namespace VerifyVectorize
         private static readonly int _Distance_Vector3_Slot = EntityStore.UserDataNewSlot();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance, global::VerifyVectorize.Distance>
+        private static ArchetypeQuery<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance>
             _Distance_Vector3_GetQuery(EntityStore _store)
         {
-            var _query = (ArchetypeQuery<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance, global::VerifyVectorize.Distance>)
+            var _query = (ArchetypeQuery<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance>)
                 EntityStore.UserDataGet(_store, _Distance_Vector3_Slot);
             if (_query != null) {
                 return _query;
             }
-            _query = _store.Query<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance, global::VerifyVectorize.Distance>();
+            _query = _store.Query<global::VerifyVectorize.Position3, global::VerifyVectorize.Position3, global::VerifyVectorize.Distance>();
 
             EntityStore.UserDataSet(_store, _Distance_Vector3_Slot, _query);
             return _query;
@@ -60,7 +59,6 @@ namespace VerifyVectorize
         private static unsafe int _Distance_Vector3_Avx(
             Span<global::VerifyVectorize.Position3> position,
             Span<global::VerifyVectorize.Position3> velocity,
-            Span<global::VerifyVectorize.Distance> ,
             Span<global::VerifyVectorize.Distance> distance)
         {
             int i = 0;
@@ -70,24 +68,18 @@ namespace VerifyVectorize
             }
             // Vector layout: SoA
             // --- Locals
-            Vector256<int> _mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
-            Vector256<int> _mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);
-            Vector256<int> _mask_2 = Vector256.Create(5, 5, 6, 6, 6, 7, 7, 7);
-
             Vector256<int> distance_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> distance_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);
             Vector256<int> distance_mask_2 = Vector256.Create(5, 5, 6, 6, 6, 7, 7, 7);
 
             fixed (global::VerifyVectorize.Position3* position_first = position)
             fixed (global::VerifyVectorize.Position3* velocity_first = velocity)
-            fixed (global::VerifyVectorize.Distance* _first = )
             fixed (global::VerifyVectorize.Distance* distance_first = distance)
             {
                 for (; i <= end; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);
-                    float* _ptr = (float*)(_first + i);
                     float* distance_ptr = (float*)(distance_first + i);
 
                     // --- 1. Load
@@ -100,8 +92,6 @@ namespace VerifyVectorize
                     Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8);   // Position3
                     Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);   // Position3
                     (velocity_0, velocity_1, velocity_2) = AvxVector3.Deinterleave(velocity_0, velocity_1, velocity_2);
-
-                    Vector256<float> _0 = Avx.LoadVector256(_ptr);      // Distance
 
                     Vector256<float> distance_0 = Avx.LoadVector256(distance_ptr);      // Distance
 

@@ -338,7 +338,7 @@ public partial class MyExample
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                private static void Distance_Vector3(Position3 position, Position3 velocity, Distance ref Distance distance)
+                private static void Distance_Vector3(Position3 position, Position3 velocity, ref Distance distance)
                 {
                     distance.value = Vector3.Distance(position.value, velocity.value);
                 }
