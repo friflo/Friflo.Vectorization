@@ -93,5 +93,5 @@ For feedback or support join [Discord](https://discord.gg/nFfrhgQkb8) or create 
 
 This project is licensed under MIT.  
 
-Friflo.Engine.ECS  
+friflo Vectorization 
 Copyright © 2026   Ullrich Praetz - https://github.com/friflo
