@@ -27,6 +27,12 @@ public struct EcsTypes
     }
 }
 
+public enum GenerateTrigger
+{
+    QueryAttribute,
+    VectorizedAttribute
+}
+
 public class Query
 {
     public          IMethodSymbol                   methodSymbol;

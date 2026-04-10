@@ -38,12 +38,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => {
-                if (ctx.TargetSymbol is  IMethodSymbol methodSymbol) {
-                    return GenerateMethod(ctx.SemanticModel, methodSymbol);
-                }
-                return new EmissionResult();
-            });
+            transform: (ctx, ct) => GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, GenerateTrigger.QueryAttribute));
         context.RegisterSourceOutput(methodDeclarations, (productionContext, emissionResult) => {
             EmitResult(productionContext, emissionResult);
         });
@@ -62,12 +57,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             transform: (ctx, ct) => ctx);
         
             context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
-            var symbol = syntaxContext.TargetSymbol;
-            if (symbol is not IMethodSymbol methodSymbol) {
-                return;
-            }
-            var emissionResult = GenerateMethod(syntaxContext.SemanticModel, methodSymbol);
-            EmitResult(productionContext, emissionResult);
+            var result = GenerateMethod(syntaxContext.SemanticModel, syntaxContext.TargetSymbol, GenerateTrigger.VectorizedAttribute);
+            EmitResult(productionContext, result);
         });
     }
 
@@ -86,8 +77,11 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         productionContext.AddSource(emissionResult.Name, SourceText.From(emissionResult.Code, Encoding.UTF8));
     }
     
-    private static EmissionResult GenerateMethod(SemanticModel semanticModel, IMethodSymbol methodSymbol)
+    private static EmissionResult GenerateMethod(SemanticModel semanticModel, ISymbol targetSymbol, GenerateTrigger trigger)
     {
+        if (targetSymbol is not IMethodSymbol methodSymbol) {
+            return new EmissionResult();
+        }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
         var types = new EcsTypes {
