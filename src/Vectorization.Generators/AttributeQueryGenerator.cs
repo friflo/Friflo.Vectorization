@@ -35,11 +35,19 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
     {
         // Filter for methods with the attribute
-        var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
+        var queryMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, GenerateTrigger.QueryAttribute));
-        context.RegisterSourceOutput(methodDeclarations, (productionContext, emissionResult) => {
+        context.RegisterSourceOutput(queryMethod, (productionContext, emissionResult) => {
+            EmitResult(productionContext, emissionResult);
+        });
+        
+        var vectorizeMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Vectorization.VectorizeAttribute",
+            predicate: (node, _) => node is MethodDeclarationSyntax,
+            transform: (ctx, ct) => GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, GenerateTrigger.VectorizeAttribute));
+        context.RegisterSourceOutput(vectorizeMethod, (productionContext, emissionResult) => {
             EmitResult(productionContext, emissionResult);
         });
     }
@@ -66,6 +74,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     
     private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
     {
+        if (emissionResult.code == "") {
+            return;
+        }
         foreach (var data in emissionResult.diagnostics) {
             var start       = new LinePosition(data.StartLine, data.StartColumn);
             var end         = new LinePosition(data.EndLine, data.EndColumn);
@@ -83,10 +94,11 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             return new EmissionResult("", "", []);
         }
         var attributes          = methodSymbol.GetAttributes();
-        if (trigger == GenerateTrigger.VectorizedAttribute) {
+        if (trigger == GenerateTrigger.VectorizeAttribute) {
             if (Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute")) {
                 return new EmissionResult("", "", []);
             }
+            return new EmissionResult("", "", []);
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;

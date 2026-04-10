@@ -11,7 +11,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Tensor
 {
     // Friflo.Vectorization.Generators
-    [Vectorize]
+    // [Vectorize]
     private static void MultiplyAdd([Span] ref float a, [Span] float b, float c) {
         a = (a * b) + c;
     }

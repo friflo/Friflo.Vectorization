@@ -30,7 +30,7 @@ public struct EcsTypes
 public enum GenerateTrigger
 {
     QueryAttribute,
-    VectorizedAttribute
+    VectorizeAttribute
 }
 
 public class Query
