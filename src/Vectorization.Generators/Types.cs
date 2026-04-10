@@ -41,7 +41,7 @@ public class Query
     public          bool                            hasVectorizeAttribute;
     public          ImmutableArray<AttributeData>   attributes;
     public          ImmutableArray<IParameterSymbol>parameters;
-    public          List<IParameterSymbol>          components;
+    public          List<IParameterSymbol>          components;                     // TODO rename -> spans
     public          EcsTypes                        ecsTypes;
     public          SemanticModel                   semanticModel;
     // --- generated output

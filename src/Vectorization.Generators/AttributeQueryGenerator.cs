@@ -95,10 +95,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         }
         var vectorMode = VectorMode.None;
         var attributes = methodSymbol.GetAttributes();
-        bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute");
+        bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
         bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
         if (trigger == GenerateTrigger.VectorizeAttribute) {
-            if (!hasQueryAttribute) {
+            if (hasQueryAttribute) {
                 return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
             }
             vectorMode = VectorMode.Vector;
@@ -118,7 +118,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var isGlobalNamespace   = methodSymbol.ContainingNamespace.IsGlobalNamespace;
         var namespaceName       = methodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
         var parameters          = methodSymbol.Parameters;
-        var components          = GetQueryComponents(parameters, types);
+        var spans               = GetVectorSpans(parameters, types, vectorMode);
      // var spans               = GetVectorSpans(parameters, types);
         var hash                = GetHash(methodSymbol, attributes, types);
         var query = new Query {
@@ -128,7 +128,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             hasVectorizeAttribute   = hasVectorizeAttribute,
             attributes              = attributes,
             parameters              = parameters, 
-            components              = components,
+            components              = spans,
             hash                    = hash,
             ecsTypes                = types,
             semanticModel           = semanticModel

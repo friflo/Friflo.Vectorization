@@ -19,7 +19,7 @@ namespace Tests.Generators.Vectorize;
 public static class Test_Vectorize_Lab
 {
     // [Query]
-    [Vectorize]
+    // [Vectorize]
     private static void MoveVectorized(ref Position position, in Velocity velocity, float deltaTime) {
         position.value += velocity.value * deltaTime;
     }
