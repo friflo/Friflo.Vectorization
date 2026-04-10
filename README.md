@@ -39,7 +39,7 @@ The generated shadow method can now be called with:
 
 ### Supported operations
 - All common operators for `float`, `Vector2`, `Vector3` and `Vector4`. These are: `+`, `-`, `*`, `/`.
-- The common methods from `float`, `Vector2`, `Vector3` and `Vector4`.
+- The common methods from `MathF`, `Vector2`, `Vector3` and `Vector4`.
 
 
 ### Vector specific optimization
