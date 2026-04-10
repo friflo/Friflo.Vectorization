@@ -79,8 +79,6 @@ In this case the generated code requires `Friflo.Engine.ECS` as a dependency.
 
 <br/>
 
-*Support this project?*  
-Leave a ⭐ at  [friflo Vectorization](https://github.com/friflo/Friflo.Vectorization)
 
 ## Feedback
 
@@ -88,6 +86,9 @@ Currently the most common used math operations are implemented. Will add missing
 For feedback or support join [Discord](https://discord.gg/nFfrhgQkb8) or create an issue.
 
 <br/>
+
+*Support this project?*  
+Leave a ⭐ at  [friflo Vectorization](https://github.com/friflo/Friflo.Vectorization)
 
 **License**
 
