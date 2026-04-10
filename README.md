@@ -4,7 +4,7 @@
 friflo Vectorization is a C# source generator used to vectorize idiomatic **floating point** math
 for **x86-64** processors from **Intel** and **AMD** using **AVX**.  
 It is basically the counter part for *auto vectorization* used in languages like C/C++ and Rust.  
-It brings the optimizations enabled by Unity Burst to the **.NET** platform.  
+It enables similar optimizations like Unity Burst on the **.NET** platform.  
 By applying vectorization the performance of math operations can be improved by magnitudes.
 
 **Example**  
@@ -58,7 +58,7 @@ The code generator detect these cases and apply **SoA** conversion only if neede
 
 ### Notes
 
-friflo Vectorization is implemented as an incremental generator.  
+friflo Vectorization is implemented as an incremental C# generator.  
 In IDE's like Rider or Visual Studio methods are only updated if they are edited.  
 If a method cannot be vectorized a compiler message is generated. E.g. when using a `Console.WriteLine()`.
 
