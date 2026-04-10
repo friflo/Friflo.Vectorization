@@ -57,7 +57,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             transform: (ctx, ct) => ctx);
         
             context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
-            var result = GenerateMethod(syntaxContext.SemanticModel, syntaxContext.TargetSymbol, GenerateTrigger.VectorizedAttribute);
+            var result = GenerateMethod(syntaxContext.SemanticModel, syntaxContext.TargetSymbol, GenerateTrigger.QueryAttribute);
             EmitResult(productionContext, result);
         });
     }
@@ -66,7 +66,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     
     private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
     {
-        foreach (var data in emissionResult.Diagnostics) {
+        foreach (var data in emissionResult.diagnostics) {
             var start       = new LinePosition(data.StartLine, data.StartColumn);
             var end         = new LinePosition(data.EndLine, data.EndColumn);
             var lineSpan    = new LinePositionSpan(start, end);
@@ -74,13 +74,19 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
             productionContext.ReportDiagnostic(diagnostic);
         }
-        productionContext.AddSource(emissionResult.Name, SourceText.From(emissionResult.Code, Encoding.UTF8));
+        productionContext.AddSource(emissionResult.name, SourceText.From(emissionResult.code, Encoding.UTF8));
     }
     
     private static EmissionResult GenerateMethod(SemanticModel semanticModel, ISymbol targetSymbol, GenerateTrigger trigger)
     {
         if (targetSymbol is not IMethodSymbol methodSymbol) {
-            return new EmissionResult();
+            return new EmissionResult("", "", []);
+        }
+        var attributes          = methodSymbol.GetAttributes();
+        if (trigger == GenerateTrigger.VectorizedAttribute) {
+            if (Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute")) {
+                return new EmissionResult("", "", []);
+            }
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
@@ -94,7 +100,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var className           = methodSymbol.ContainingType.ToDisplayString(ClassNameFormat);
         var isGlobalNamespace   = methodSymbol.ContainingNamespace.IsGlobalNamespace;
         var namespaceName       = methodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
-        var attributes          = methodSymbol.GetAttributes();
         var parameters          = methodSymbol.Parameters;
         var components          = GetQueryComponents(parameters, types);
      // var spans               = GetVectorSpans(parameters, types);

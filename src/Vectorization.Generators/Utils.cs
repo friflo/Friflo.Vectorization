@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -60,10 +61,10 @@ public static class Utils
         return null;
     }
     
-    public static bool HasAttribute(Query query, string attributeName)
+    public static bool HasAttribute(ImmutableArray<AttributeData> attributes, string attributeName)
     {
         attributeName = "global::" + attributeName;
-        foreach (var attributeData in query.attributes) {
+        foreach (var attributeData in attributes) {
             if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == attributeName) {
                 return true;
             }
