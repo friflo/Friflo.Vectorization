@@ -42,13 +42,13 @@ The generated shadow method can be called with:
 
 ### Vector specific optimization
 
-Some combinations of math operations have specific AVX command to speedup execution.  
+Some combinations of math operations have specific AVX commands to speedup execution.  
 The source generator detect these patterns and use these specific commands.  
 Currently implemented:
 - `(a * b) + c`
 - `1 / Sqrt(a)`
 
-The instructions sets in AVX used for vectorization are designed to operate on *Struct of Arrays* - **SoA**.  
+The AVX instruction set used for vectorization are designed to operate on *Struct of Arrays* - **SoA**.  
 An application typically uses arrays of `Vector3` or `Vector4`. Their memory layout is *Array of Structs* - **AoS**.  
 **SoA** requires typically less AVX instructions for execution.  
 In case of **AoS** vector data need to converted to **SoA** which requires additional instructions slowing down execution.
