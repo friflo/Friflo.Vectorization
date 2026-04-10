@@ -48,7 +48,7 @@ Currently implemented:
 - `(a * b) + c`
 - `1 / Sqrt(a)`
 
-The AVX instruction set used for vectorization are designed to operate on *Struct of Arrays* - **SoA**.  
+The AVX instruction set used for vectorization is designed to operate on *Struct of Arrays* - **SoA**.  
 An application typically uses arrays of `Vector3` or `Vector4`. Their memory layout is *Array of Structs* - **AoS**.  
 **SoA** requires typically less AVX instructions for execution.  
 In case of **AoS** vector data need to converted to **SoA** which requires additional instructions slowing down execution.
