@@ -12,47 +12,21 @@ namespace VerifyVectorize
 {
     public partial class MyExample
     {
-        /// <summary>Query method generated for: <see cref="MoveExample"/>.</summary>
-        /// <returns>The executed <see cref="ArchetypeQuery"/> for debugging purposes</returns>
-        public ArchetypeQuery MoveExampleQuery(EntityStore _store, ref float position, float velocity, bool vectorized = true)
+        /// <summary>Vector method generated for: <see cref="MoveExample"/>.</summary>
+        public void MoveExampleVector(Span<float> position, Span<float> velocity, bool vectorized = true)
         {
-            var _query = _MoveExample_GetQuery(_store);
-            foreach (var chunk in _query.Chunks)
-            {
-                var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.Span;
-                var velocitySpan = chunk.Chunk2.Span;
-                int n = 0;
-                if (!vectorized) goto EntityLoop;
+            int n = 0;
+            if (vectorized) {
                 if (Avx.IsSupported) {
                     n = _MoveExample_Avx(positionSpan, velocitySpan);
                 }
-            EntityLoop:
-                for (; n < _entities.Length; n++) {
-                    MoveExample(ref position, velocity);
-                }
             }
-            return _query;
+            for (; n < _entities.Length; n++) {
+                MoveExample(ref position, velocity);
+            }
         }
 
     #region private members
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private static readonly int _MoveExample_Slot = EntityStore.UserDataNewSlot();
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery<float, float>
-            _MoveExample_GetQuery(EntityStore _store)
-        {
-            var _query = (ArchetypeQuery<float, float>)
-                EntityStore.UserDataGet(_store, _MoveExample_Slot);
-            if (_query != null) {
-                return _query;
-            }
-            _query = _store.Query<float, float>();
-
-            EntityStore.UserDataSet(_store, _MoveExample_Slot, _query);
-            return _query;
-        }
 
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(

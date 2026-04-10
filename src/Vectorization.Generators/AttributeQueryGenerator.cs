@@ -134,8 +134,13 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         };
         Vectorizer.Emit(query);
         
-        EmitQuerySource(query, out string ecsQueryMethod, out string ecsQueryPrivate);
-        
+        var ecsQueryMethod = "";
+        var ecsQueryPrivate = "";
+        if (vectorMode == VectorMode.Query) {
+            EmitQuerySource(query, out ecsQueryMethod, out ecsQueryPrivate);
+        } else {
+            EmitVectorSource(query, out ecsQueryMethod);
+        }
         var namespaces          = EmitNamespaces(query);
 
         // ----------------- General code generation
