@@ -66,7 +66,9 @@ friflo Vectorization is implemented as an incremental C# generator.
 In IDE's like Rider or Visual Studio methods are only updated if they are edited.  
 If a method cannot be vectorized a compiler message is generated. E.g. when using a `Console.WriteLine()`.
 
-The generated C# code has no dependencies on other libraries. It only uses **.NET** BCL API.
+The generated C# code has no dependencies on other libraries. It only uses **.NET** BCL API.  
+To get an impression of the generated C# code check the files in the
+[`Generated`](./src/Tests-Generators/Generated/Friflo.Vectorization.Generators/Friflo.Vectorization.Generators.AttributeQueryGenerator/) folder.
 
 <br/>
 
