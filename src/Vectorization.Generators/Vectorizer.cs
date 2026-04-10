@@ -146,7 +146,7 @@ public static partial class Vectorizer
                 }
                 break;
             case SpecialType.System_Single:
-                return (SpecialType.None, 1,  ParamType.Scalar);
+                return (SpecialType.System_Single, 1,  ParamType.Scalar);
         }
         return (specialType, 0,  ParamType.None);
     }
