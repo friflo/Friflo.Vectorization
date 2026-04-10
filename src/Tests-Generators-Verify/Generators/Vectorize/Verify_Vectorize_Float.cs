@@ -41,8 +41,8 @@ namespace VerifyVectorize;
 public partial class MyExample
 {
     [Vectorize]  [OmitHash]
-    void MoveExample([Span] ref float position, [Span] float velocity) {
-        position *= velocity;
+    void MoveExample([Span] ref float position, [Span] float velocity, float deltaTime) {
+        position += velocity * deltaTime;
     }
 }
 """;

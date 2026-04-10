@@ -119,9 +119,9 @@ public static partial class Vectorizer
                 }
                 var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type);
                 result.Add(vectorType);
-            } else { 
+            } else {
                 isSpan = query.vectorMode == VectorMode.Vector &&
-                         Utils.HasAttribute(query.attributes, "Friflo.Vectorization.VectorizeAttribute");
+                         Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
                 var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type);
                 result.Add(vectorType);
             }

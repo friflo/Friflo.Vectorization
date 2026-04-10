@@ -13,17 +13,17 @@ namespace VerifyVectorize
     public partial class MyExample
     {
         /// <summary>Vector method generated for: <see cref="MoveExample"/>.</summary>
-        public void MoveExampleVector(Span<float> position, Span<float> velocity, bool vectorized = true)
+        public void MoveExampleVector(Span<float> position, Span<float> velocity, float deltaTime, bool vectorized = true)
         {
             int n = 0;
             if (vectorized) {
                 if (Avx.IsSupported) {
-                    n = _MoveExample_Avx(position, velocity);
+                    n = _MoveExample_Avx(position, velocity, deltaTime);
                 }
             }
             int len = position.Length;
             for (; n < len; n++) {
-                MoveExample(ref position[n], velocity[n]);
+                MoveExample(ref position[n], velocity[n], deltaTime);
             }
         }
 
@@ -32,7 +32,8 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(
             Span<float> position,
-            Span<float> velocity)
+            Span<float> velocity,
+            float deltaTime)
         {
             int i = 0;
             var end = position.Length - 32;
@@ -40,6 +41,9 @@ namespace VerifyVectorize
                 return 0;
             }
             // Vector layout: AoS
+            // --- Locals
+            var deltaTime_scalar = Vector256.Create(deltaTime);
+
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
@@ -60,11 +64,11 @@ namespace VerifyVectorize
                     Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + 24);  // Single
 
                     // --- 2. Compute
-                    // position *= velocity;
-                    position_0 = Avx.Multiply(position_0, velocity_0);
-                    position_1 = Avx.Multiply(position_1, velocity_1);
-                    position_2 = Avx.Multiply(position_2, velocity_2);
-                    position_3 = Avx.Multiply(position_3, velocity_3);
+                    // position += velocity * deltaTime;
+                    position_0 = Fma.MultiplyAdd(velocity_0, deltaTime_scalar, position_0);
+                    position_1 = Fma.MultiplyAdd(velocity_1, deltaTime_scalar, position_1);
+                    position_2 = Fma.MultiplyAdd(velocity_2, deltaTime_scalar, position_2);
+                    position_3 = Fma.MultiplyAdd(velocity_3, deltaTime_scalar, position_3);
 
                     // --- 3. Store
                     Avx.Store(position_ptr +  0, position_0);
