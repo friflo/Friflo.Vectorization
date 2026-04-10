@@ -13,7 +13,7 @@ public static partial class Vectorizer
 {
     public static bool Emit(Query query)
     {
-        if (!Utils.HasAttribute(query, query.ecsTypes.vectorizeAttribute)) {
+        if (!Utils.HasAttribute(query, "Friflo.Vectorization.VectorizeAttribute")) {
             return false;
         }
         var vectorTypes = GetVectorTypes(query);

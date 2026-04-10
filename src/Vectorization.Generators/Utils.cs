@@ -60,11 +60,10 @@ public static class Utils
         return null;
     }
     
-    public static bool HasAttribute(Query query, INamedTypeSymbol attributeSymbol)
+    public static bool HasAttribute(Query query, string attributeName)
     {
-        var attributeName = attributeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        attributeName = "global::" + attributeName;
         foreach (var attributeData in query.attributes) {
-            // if (SymbolEqualityComparer.Default.Equals(attributeSymbol, attributeData.AttributeClass)) return true;
             if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == attributeName) {
                 return true;
             }
