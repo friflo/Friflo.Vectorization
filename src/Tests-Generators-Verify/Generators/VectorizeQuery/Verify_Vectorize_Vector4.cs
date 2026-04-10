@@ -9,9 +9,9 @@ using VerifyNUnit;
 using VerifyTests;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Vectorize;
+namespace Tests.Generators.VectorizeQuery;
 
-public static class Verify_Vectorize_Float
+public static class Verify_Vectorize_Vector4
 {
     private static async Task Verify(string code)
     {
@@ -38,13 +38,13 @@ using Friflo.Vectorization;
 
 namespace VerifyVectorize;
 
-public struct Position1 : IComponent { public float value; }
-public struct Velocity1 : IComponent { public float value; }
+public struct Position4 : IComponent { public Vector4 value; }
+public struct Velocity4 : IComponent { public Vector4 value; }
 
 public partial class MyExample
 {
     [Vectorize][Query][OmitHash]
-    void MoveExample(ref Position1 position, in Velocity1 velocity) {
+    void MoveExample(ref Position4 position, in Velocity4 velocity) {
         position.value *= velocity.value;
     }
 }
@@ -63,13 +63,13 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
-            public struct Velocity1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
+            public struct Velocity4 : IComponent { public Vector4 value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void MoveExample(ref Position1 position, in Velocity1 velocity, float deltaTime) {
+                void MoveExample(ref Position4 position, in Velocity4 velocity, float deltaTime) {
                     position.value *= velocity.value * deltaTime;
                 }
             }
@@ -88,13 +88,13 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
-            public struct Velocity1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
+            public struct Velocity4 : IComponent { public Vector4 value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, float vector) {
+                void AssignVector(ref Position4 position, Velocity4 vector) {
                     position.value = vector;
                 }
             }
@@ -114,13 +114,13 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
-            public struct Velocity1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
+            public struct Velocity4 : IComponent { public Vector4 value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, in Velocity1 velocity, float deltaTime) {
+                void AssignVector(ref Position4 position, in Velocity4 velocity, float deltaTime) {
                     position.value += velocity.value * deltaTime;
                 }
             }
@@ -139,13 +139,13 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
-            public struct Velocity1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
+            public struct Velocity4 : IComponent { public Vector4 value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, in Velocity1 velocity, float deltaTime) {
+                void AssignVector(ref Position4 position, in Velocity4 velocity, float deltaTime) {
                     position.value = velocity.value * deltaTime + position.value;
                 }
             }
@@ -164,13 +164,13 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
             public struct FloatComponent : IComponent { public float value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, in FloatComponent factor) {
+                void AssignVector(ref Position4 position, in FloatComponent factor) {
                     position.value = position.value * factor.value;
                 }
             }
@@ -179,74 +179,23 @@ public partial class MyExample
     }
     
     [Test]
-    public static async Task  Verify_Query_Min()
+    public static async Task  Verify_Query_Multiply_Matrix4x4()
     {
         var code =
             """
-            using System;
             using System.Numerics;
             using Friflo.Engine.ECS;
             using Friflo.Vectorization;
             
             namespace VerifyVectorize;
 
-            public struct Position1 : IComponent { public float value; }
+            public struct Position4 : IComponent { public Vector4 value; }
 
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, float max) {
-                    position.value = MathF.Min(position.value, max);
-                }
-            }
-            """;
-        await Verify(code);
-    }
-    
-    [Test]
-    public static async Task  Verify_Query_Clamp()
-    {
-        var code =
-            """
-            using System;
-            using System.Numerics;
-            using Friflo.Engine.ECS;
-            using Friflo.Vectorization;
-            
-            namespace VerifyVectorize;
-
-            public struct Position1 : IComponent { public float value; }
-
-            public partial class MyExample
-            {
-                [Vectorize][Query]  [OmitHash]
-                void AssignVector(ref Position1 position, float min, float max) {
-                    position.value = Math.Clamp(position.value, min, max);
-                }
-            }
-            """;
-        await Verify(code);
-    }
-    
-    [Test]
-    public static async Task  Verify_Query_Const()
-    {
-        var code =
-            """
-            using System;
-            using System.Numerics;
-            using Friflo.Engine.ECS;
-            using Friflo.Vectorization;
-            
-            namespace VerifyVectorize;
-
-            public struct Position1 : IComponent { public float value; }
-
-            public partial class MyExample
-            {
-                [Vectorize][Query]  [OmitHash]
-                void AssignConst(ref Position1 position) {
-                    position.value = 1;
+                void Multiply_Matrix4x4(ref Position4 position, in Matrix4x4 transform) {
+                    position.value = Vector4.Transform(position.value, transform);
                 }
             }
             """;

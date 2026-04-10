@@ -9,7 +9,7 @@ using VerifyNUnit;
 using VerifyTests;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Vectorize;
+namespace Tests.Generators.VectorizeQuery;
 
 public static class Verify_Vectorize_Locals
 {
