@@ -15,7 +15,7 @@ namespace Tests.Generators.Vectorize;
 public static partial class Test_Float_Avx
 {
     // -----------------------------------------------------------------------------------------------------
-    // [Vectorize] [OmitHash]
+    [Vectorize] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
         position *= velocity;
     } 
@@ -30,8 +30,8 @@ public static partial class Test_Float_Avx
             position[n] = positionVector[n] = n;
             velocity[n] = n + 100;
         }
-        // MultiplyVector(position,        velocity);
-        // MultiplyVector(positionVector,  velocity, false);
+        MultiplyVector(position,        velocity, false);
+        MultiplyVector(positionVector,  velocity);
         
         for (int n = 0; n < 128; n++) {
             Assert.That(position[n], Is.EqualTo(positionVector[n]));

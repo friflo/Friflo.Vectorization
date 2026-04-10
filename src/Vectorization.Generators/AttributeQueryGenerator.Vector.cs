@@ -1,8 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
@@ -14,8 +12,8 @@ public partial class AttributeQueryGenerator
         Query query,
         out string vectorMethod)
     {
-        var lambdaParameters    = EmitVectorLambdaParameters(query.parameters, query.ecsTypes);
-        var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.ecsTypes, query.vectorize);
+        var lambdaParameters    = EmitVectorLambdaParameters(query.vectorTypes);
+        var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorize);
         var vectorizeBlock      = EmitVectorBlock(query);
         
         var methodSymbol    = query.methodSymbol;
@@ -26,7 +24,8 @@ public partial class AttributeQueryGenerator
         public {(methodSymbol.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
             int n = 0;{vectorizeBlock}
-            for (; n < _entities.Length; n++) {{
+            int len = {query.vectorTypes[0].parameter.Name}.Length;
+            for (; n < len; n++) {{
                 {methodName}({lambdaParameters});
             }}
         }}";
@@ -45,7 +44,6 @@ public partial class AttributeQueryGenerator
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
                 sb.Append(parameter.Name);
-                sb.Append("Span");
                 continue;
             }
             Utils.AppendRefKind(sb, parameter.RefKind);
@@ -60,7 +58,7 @@ public partial class AttributeQueryGenerator
         return source;
     }
     
-    private static string EmitVectorMethodSignature(VectorType[] vectorTypes, EcsTypes ecsTypes, bool vectorized)
+    private static string EmitVectorMethodSignature(VectorType[] vectorTypes, bool vectorized)
     {
         var sb = new StringBuilder();
         foreach (var vectorType in vectorTypes) {
@@ -81,27 +79,19 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static string EmitVectorLambdaParameters(ImmutableArray<IParameterSymbol> parameters, EcsTypes ecsTypes)
+    private static string EmitVectorLambdaParameters(VectorType[] vectorTypes)
     {
         var sb = new StringBuilder();
-        foreach (var parameter in parameters) {
+        foreach (var vectorType in vectorTypes) {
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = ecsTypes.IsComponent(parameter.Type);
-            if (isComponent) {
-                Utils.AppendRefKind(sb, parameter.RefKind);
-                sb.Append(parameter.Name);
-                sb.Append("Span[n]");
+            Utils.AppendRefKind(sb, vectorType.parameter.RefKind);
+            if (vectorType.isSpan) {
+                sb.Append($"{vectorType.parameter.Name}[n]");
                 continue;
             }
-            bool isEntity = ecsTypes.IsEntityParameter(parameter); 
-            if (isEntity) {
-                sb.Append("_entities.EntityAt(n)");
-                continue;
-            }
-            Utils.AppendRefKind(sb, parameter.RefKind);
-            sb.Append(parameter.Name);
+            sb.Append(vectorType.parameter.Name);
         }
         return sb.ToString();
     }
