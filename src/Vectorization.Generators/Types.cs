@@ -36,6 +36,7 @@ public enum GenerateTrigger
 public class Query
 {
     public          IMethodSymbol                   methodSymbol;
+    public          VectorMode                      vectorMode;
     public          bool                            hasQueryAttribute;      
     public          bool                            hasVectorizeAttribute;
     public          ImmutableArray<AttributeData>   attributes;
@@ -156,6 +157,12 @@ public struct Param
     public bool isScalar;
     public bool isParam;
     public int  dimension;
+}
+
+public enum VectorMode {
+    None,
+    Vector,
+    Query
 }
 
 public struct VectorType

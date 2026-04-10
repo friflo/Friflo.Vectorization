@@ -93,11 +93,17 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         if (targetSymbol is not IMethodSymbol methodSymbol) {
             return new EmissionResult("", "", []);
         }
+        var vectorMode = VectorMode.None;
         var attributes = methodSymbol.GetAttributes();
         bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute");
         bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
-        if (trigger == GenerateTrigger.VectorizeAttribute && !hasQueryAttribute) {
-            return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
+        if (trigger == GenerateTrigger.VectorizeAttribute) {
+            if (!hasQueryAttribute) {
+                return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
+            }
+            vectorMode = VectorMode.Vector;
+        } else {
+            vectorMode = VectorMode.Query;
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
@@ -117,6 +123,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var hash                = GetHash(methodSymbol, attributes, types);
         var query = new Query {
             methodSymbol            = methodSymbol,
+            vectorMode              = vectorMode,
             hasQueryAttribute       = hasQueryAttribute,
             hasVectorizeAttribute   = hasVectorizeAttribute,
             attributes              = attributes,
