@@ -1,3 +1,4 @@
+[![Discord](https://img.shields.io/discord/1209072279904976896?label=Discord&logo=discord&logoColor=white&labelColor=5E6AE9&color=4149A1)](https://discord.gg/nFfrhgQkb8)
 
 # friflo Vectorization
 
@@ -80,6 +81,11 @@ In this case the generated code requires `Friflo.Engine.ECS` as a dependency.
 
 *Support this project?*  
 Leave a ⭐ at  [friflo Vectorization](https://github.com/friflo/Friflo.Vectorization)
+
+## Feedback
+
+Currently the most common used math operations are implemented. Will add missing methods over time.  
+For feedback or support join [Discord](https://discord.gg/nFfrhgQkb8) or create an issue.
 
 <br/>
 
