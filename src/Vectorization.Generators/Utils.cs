@@ -60,6 +60,18 @@ public static class Utils
         return null;
     }
     
+    public static bool HasAttribute(Query query, INamedTypeSymbol attributeSymbol)
+    {
+        var attributeName = attributeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        foreach (var attributeData in query.attributes) {
+            // if (SymbolEqualityComparer.Default.Equals(attributeSymbol, attributeData.AttributeClass)) return true;
+            if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == attributeName) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static  bool InterleaveVector3(StringBuilder sb, string nm, Query query)
     {
         switch (query.vectorDimension) {

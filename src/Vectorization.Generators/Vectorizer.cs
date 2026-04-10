@@ -13,13 +13,7 @@ public static partial class Vectorizer
 {
     public static bool Emit(Query query)
     {
-        var search = query.ecsTypes.vectorizeAttribute.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        bool found = false;
-        foreach (var attributeData in query.attributes) {
-            // if (SymbolEqualityComparer.Default.Equals(types.vectorizeAttribute, attributeData.AttributeClass)) found = true;
-            if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == search) found = true;
-        }
-        if (!found) {
+        if (!Utils.HasAttribute(query, query.ecsTypes.vectorizeAttribute)) {
             return false;
         }
         var vectorTypes = GetVectorTypes(query);
