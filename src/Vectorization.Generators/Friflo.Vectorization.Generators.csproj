@@ -23,8 +23,8 @@
     <Authors>Ullrich Praetz</Authors>
     <Description>Source Generator to generate Query methods for: friflo ECS</Description>
     <Copyright>Ullrich Praetz</Copyright>
-    <PackageProjectUrl>https://github.com/friflo/Friflo.Engine.ECS</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/friflo/Friflo.Engine.ECS</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/friflo/Friflo.Vectorization</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/friflo/Friflo.Vectorization</RepositoryUrl>
     <PackageTags>ecs, entity-component-system, gamedev, game-engine, unity, godot, monogame, fna, stride, flax, dots, entt, flecs</PackageTags>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageIconUrl></PackageIconUrl>

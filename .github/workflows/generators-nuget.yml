@@ -1,0 +1,62 @@
+name: Generators-nuget
+
+on:
+  push:
+    tags:
+    - 'generators-v*'
+  
+env:
+  PACKAGE_DIRECTORY: ${{ github.workspace }}/output
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Restore dependencies
+      working-directory: ./
+      run: dotnet restore
+
+    - name: Set VERSION from git tag 
+      run: |
+        TAG=${{ github.ref_name }}
+        echo TAG: ${TAG}
+        echo "VERSION=${TAG#generators-v}" >> $GITHUB_ENV     # remove prefix 'generators-v'
+
+    - name: Set FILE_VER from VERSION
+      run: |
+        echo VERSION: ${VERSION}
+        echo "FILE_VER=${VERSION%\-*}" >> $GITHUB_ENV     # remove suffix e.g. '-preview.1'
+
+    - name: Echo versions
+      run: |
+        echo package version: ${VERSION} FILE_VER: ${FILE_VER}
+
+    - name: Build
+      working-directory: ./
+      run: |
+        echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
+        dotnet build --no-restore /p:Version=${FILE_VER} /p:FileVersion=${FILE_VER} /p:AssemblyVersion=${FILE_VER} -c Release
+
+    - name: Test
+      working-directory: ./
+      run: dotnet test --no-build --verbosity normal -c Release
+
+    - name: Pack
+      working-directory: ./
+      run: dotnet pack --no-restore --no-build -p:PackageVersion=${VERSION} -p:SymbolPackageFormat=snupkg -p:PackageOutputPath=${{ env.PACKAGE_DIRECTORY }} -c Release
+
+    - name: Push
+      working-directory: ./
+      run: |
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Attributes.${VERSION}.nupkg  --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Generators.${VERSION}.nupkg  --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+
+
+    
