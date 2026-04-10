@@ -21,7 +21,7 @@ static void MovePositionVector(Vector3[] position, Vector3[] velocity, float del
 ```
 <br/>
 
-friflo Vectorization applies the same optimization by generation code similar to C/C++ or Rust compilers.  
+friflo Vectorization applies the same optimization by generation C# code similar to C/C++ or Rust compilers.  
 To enable this a similar method without a loop has to be annotated with `[Vectorize]`.
 ```cs
 [Vectorize]
@@ -65,7 +65,7 @@ friflo Vectorization is implemented as an incremental C# generator.
 In IDE's like Rider or Visual Studio methods are only updated if they are edited.  
 If a method cannot be vectorized a compiler message is generated. E.g. when using a `Console.WriteLine()`.
 
-The generated code has no dependencies on other libraries. It only uses **.NET** BCL API.
+The generated C# code has no dependencies on other libraries. It only uses **.NET** BCL API.
 
 <br/>
 
@@ -75,7 +75,7 @@ The generated code has no dependencies on other libraries. It only uses **.NET**
 This project started as a sub project of [friflo ECS](https://github.com/friflo/Friflo.Engine.ECS).  
 In this context it is used to vectorize `[Query]` methods.
 See [friflo ECS - Query Generator](https://friflo.gitbook.io/friflo.engine.ecs/documentation/query-optimization#query-generator).  
-In this case the generated code requires `Friflo.Engine.ECS` as a dependency.
+In this case the generated C# code requires `Friflo.Engine.ECS` as a dependency.
 
 <br/>
 
