@@ -35,9 +35,10 @@ The generated shadow method can be called with:
 ```
 
 
-## Supported operations
+### Supported operations
 - All common `float` operators: `+`, `-`, `*`, `/`.
 - The common methods from `Vector2`, `Vector3` and `Vector4`.
+
 
 ### Vector specific optimization
 
@@ -64,6 +65,8 @@ In IDE's like Rider or Visual Studio methods are only updated if they are edited
 If a method cannot be vectorized a compiler message is generated. E.g. when using a `Console.WriteLine()`.
 
 The generate code has no dependencies on other libraries. It only uses methods from the .NET BCL.
+
+<br/>
 
 
 ## friflo ECS
