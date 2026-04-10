@@ -93,11 +93,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         if (targetSymbol is not IMethodSymbol methodSymbol) {
             return new EmissionResult("", "", []);
         }
-        var attributes          = methodSymbol.GetAttributes();
-        if (trigger == GenerateTrigger.VectorizeAttribute) {
-            if (Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute")) {
-                return new EmissionResult("", "", []);
-            }
+        var attributes = methodSymbol.GetAttributes();
+        bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute");
+        bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
+        if (trigger == GenerateTrigger.VectorizeAttribute && !hasQueryAttribute) {
             return new EmissionResult("", "", []);
         }
         // Get the symbol for the interfaces; ITag and IComponent
@@ -117,13 +116,15 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
      // var spans               = GetVectorSpans(parameters, types);
         var hash                = GetHash(methodSymbol, attributes, types);
         var query = new Query {
-            methodSymbol    = methodSymbol,
-            attributes      = attributes,
-            parameters      = parameters, 
-            components      = components,
-            hash            = hash,
-            ecsTypes        = types,
-            semanticModel   = semanticModel
+            methodSymbol            = methodSymbol,
+            hasQueryAttribute       = hasQueryAttribute,
+            hasVectorizeAttribute   = hasVectorizeAttribute,
+            attributes              = attributes,
+            parameters              = parameters, 
+            components              = components,
+            hash                    = hash,
+            ecsTypes                = types,
+            semanticModel           = semanticModel
         };
         Vectorizer.Emit(query);
         

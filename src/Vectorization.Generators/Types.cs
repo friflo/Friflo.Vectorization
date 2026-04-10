@@ -36,6 +36,8 @@ public enum GenerateTrigger
 public class Query
 {
     public          IMethodSymbol                   methodSymbol;
+    public          bool                            hasQueryAttribute;      
+    public          bool                            hasVectorizeAttribute;
     public          ImmutableArray<AttributeData>   attributes;
     public          ImmutableArray<IParameterSymbol>parameters;
     public          List<IParameterSymbol>          components;
