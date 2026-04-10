@@ -56,16 +56,24 @@ Many math operation like  `+`, `-`, `*`, `/` can be executed without this conver
 Some `Vector3` methods like `Dot()`, `Length()`, `Normalize()` and `Cross()` require **SoA**.  
 The code generator detect these cases and apply **SoA** conversion only if needed.  
 
+
 ### Notes
 
 friflo Vectorization is implemented as an incremental C# generator.  
 In IDE's like Rider or Visual Studio methods are only updated if they are edited.  
 If a method cannot be vectorized a compiler message is generated. E.g. when using a `Console.WriteLine()`.
 
+The generate code has no dependencies on other libraries. It only uses methods from the .NET BCL.
 
 
+## friflo ECS
 
-<br/><br/>
+This project started as a sub project of [friflo ECS](https://github.com/friflo/Friflo.Engine.ECS).  
+In this context it is used to vectorize `[Query]` methods.
+See [friflo ECS - Query Generator](https://friflo.gitbook.io/friflo.engine.ecs/documentation/query-optimization#query-generator).  
+In this case the generated code requires `Friflo.Engine.ECS` as a dependency.
+
+<br/>
 
 *Support this project?*  
 Leave a ⭐ at  [friflo Vectorization](https://github.com/friflo/Friflo.Vectorization)
