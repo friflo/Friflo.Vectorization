@@ -162,7 +162,7 @@ public struct VectorType
 {
     public IParameterSymbol parameter;
     public string           fullQualifiedName;
-    public bool             isComponent;
+    public bool             isSpan;
     public bool             isScalar;
     public ITypeSymbol      valueType;
     public SpecialType      valueSpecialType;

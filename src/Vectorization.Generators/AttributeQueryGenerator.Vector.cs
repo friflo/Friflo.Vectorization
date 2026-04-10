@@ -51,7 +51,7 @@ public partial class AttributeQueryGenerator
                 sb.Append(", ");
             }
             var parameter = vectorType.parameter;
-            if (vectorType.isComponent) {
+            if (vectorType.isSpan) {
                 sb.Append(parameter.Name);
                 sb.Append("Span");
                 continue;

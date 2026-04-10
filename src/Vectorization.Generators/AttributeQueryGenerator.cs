@@ -97,7 +97,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Vectorization.QueryAttribute");
         bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
         if (trigger == GenerateTrigger.VectorizeAttribute && !hasQueryAttribute) {
-            return new EmissionResult("", "", []);
+            return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;

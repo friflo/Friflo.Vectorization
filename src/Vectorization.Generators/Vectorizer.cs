@@ -68,7 +68,7 @@ public static partial class Vectorizer
     private static bool TraverseBody(Query query)
     {
         foreach (var type in query.vectorTypes) {
-            query.AddParam(type.parameter.Name, type.isComponent, type.isScalar, true, type.dimension);
+            query.AddParam(type.parameter.Name, type.isSpan, type.isScalar, true, type.dimension);
         }
         foreach (var syntaxReference in query.methodSymbol.DeclaringSyntaxReferences)
         {
@@ -104,8 +104,8 @@ public static partial class Vectorizer
         {
             var type = parameter.Type;
             var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            bool isComponent = query.ecsTypes.IsComponent(type);
-            if (isComponent) {
+            bool isSpan = query.ecsTypes.IsComponent(type);
+            if (isSpan) {
                 IFieldSymbol? valueField = null;
                 foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
                     if (field.Name == "value" || field.Name == "Value") {
@@ -151,9 +151,9 @@ public static partial class Vectorizer
         return (specialType, 0,  ParamType.None);
     }
     
-    private static VectorType CreateVectorType(IParameterSymbol parameter, string fullQualifiedName, bool isComponent, ITypeSymbol valueType)
+    private static VectorType CreateVectorType(IParameterSymbol parameter, string fullQualifiedName, bool isSpan, ITypeSymbol valueType)
     {
-        bool isScalar   = !isComponent;
+        bool isScalar   = !isSpan;
         var (specialType, dimension, paramType) = GetTypeDim(valueType);
         if (dimension == 3) {
             isScalar    = false;
@@ -161,7 +161,7 @@ public static partial class Vectorizer
         return new VectorType {
             parameter           = parameter,
             fullQualifiedName   = fullQualifiedName,
-            isComponent         = isComponent,
+            isSpan              = isSpan,
             isScalar            = isScalar,  
             valueType           = valueType,
             valueSpecialType    = specialType, 
@@ -180,7 +180,7 @@ public static partial class Vectorizer
                 success = false;
                 query.ReportDiagnosticSymbol(Errors.InvalidParameterType, vectorType.parameter, vectorType.parameter.Type.Name);
             }
-            if (!vectorType.isComponent && vectorType.dimension == 1) {
+            if (!vectorType.isSpan && vectorType.dimension == 1) {
                 continue;
             }
             if (dimension == 0) {
@@ -208,7 +208,7 @@ public static partial class Vectorizer
                 sb.Append(", ");
             }
             var parameter = vectorType.parameter;
-            if (vectorType.isComponent) {
+            if (vectorType.isSpan) {
                 sb.Append(parameter.Name);
                 sb.Append("Span");
                 continue;
@@ -265,7 +265,7 @@ public static partial class Vectorizer
             if (signature.Length > 0) {
                 signature.Append(",");
             }
-            if (vectorType.isComponent) {
+            if (vectorType.isSpan) {
                 if (vectorType.paramType == ParamType.Scalar) {
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
@@ -400,7 +400,7 @@ public static partial class Vectorizer
     
     private static void EmitLoadComponentVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
-        if (!vectorType.isComponent) {
+        if (!vectorType.isSpan) {
             return;
         }
         var laneCount = query.laneCount;
@@ -473,7 +473,7 @@ $"""
     
     private static void EmitStoreComponentVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
-        if (!vectorType.isComponent) {
+        if (!vectorType.isSpan) {
             return;
         }
         var name = vectorType.parameter.Name;
