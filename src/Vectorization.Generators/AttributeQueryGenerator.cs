@@ -209,7 +209,7 @@ using Friflo.Vectorization.Intrinsics;";
         var source =
 $@"using System;
 using System.ComponentModel;{intrinsics}
-using Friflo.Engine.ECS;";
+{(query.vectorMode == VectorMode.Query ? "using Friflo.Engine.ECS;" : "")}";
         return source;
     }
 }
