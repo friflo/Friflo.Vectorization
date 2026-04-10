@@ -30,8 +30,8 @@ static void MovePosition([Span] ref Vector3 position, [Span] Vector3 velocity, f
     position += velocity * deltaTime;
 }
 ```
-The source generator now creates a vectorized method suffixed `Vector` with the same signature as in the initial example.  
-The generated shadow method can be called with:
+The source generator now creates a vectorized method suffixed `Vector`. It has the same parameters as the example on the top.
+The generated shadow method can now be called with:
 ```cs
     MovePositionVector(positions, velocities, deltaTime);
 ```
