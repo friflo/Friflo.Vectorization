@@ -16,8 +16,8 @@ public partial class AttributeQueryGenerator
         out string ecsQueryPrivate)
     {
         var attributeCode       = EmitQueryFilters(query.attributes);
-        var componentArgs       = EmitQueryArgs(query.components);
-        var chunkVariables      = EmitQueryChunkVariables(query.components);
+        var componentArgs       = EmitQueryArgs(query.spans);
+        var chunkVariables      = EmitQueryChunkVariables(query.spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query.parameters, query.ecsTypes);
         var methodSignature     = EmitQueryMethodSignature(query.parameters, query.ecsTypes, query.vectorize);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);

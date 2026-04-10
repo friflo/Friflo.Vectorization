@@ -119,7 +119,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var namespaceName       = methodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
         var parameters          = methodSymbol.Parameters;
         var spans               = GetVectorSpans(parameters, types, vectorMode);
-     // var spans               = GetVectorSpans(parameters, types);
         var hash                = GetHash(methodSymbol, attributes, types);
         var query = new Query {
             methodSymbol            = methodSymbol,
@@ -128,7 +127,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             hasVectorizeAttribute   = hasVectorizeAttribute,
             attributes              = attributes,
             parameters              = parameters, 
-            components              = spans,
+            spans                   = spans,
             hash                    = hash,
             ecsTypes                = types,
             semanticModel           = semanticModel

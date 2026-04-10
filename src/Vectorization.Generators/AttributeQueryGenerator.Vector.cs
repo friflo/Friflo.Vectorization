@@ -118,17 +118,4 @@ public partial class AttributeQueryGenerator
         }
         return sb.ToString();
     }
-    
-    private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters, EcsTypes ecsTypes)
-    {
-        var result = new List<IParameterSymbol>();
-        foreach (var parameter in parameters)
-        {
-            bool isComponent = ecsTypes.IsComponent(parameter.Type);
-            if (isComponent) {
-                result.Add(parameter);   
-            }
-        }
-        return result;
-    }
 }

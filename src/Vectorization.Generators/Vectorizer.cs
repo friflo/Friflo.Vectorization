@@ -319,16 +319,16 @@ public static partial class Vectorizer
         
         // --- fixed block
         var @fixed = new StringBuilder();
-        foreach (var component in query.components) {
-            var type = component.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            @fixed.Append($"            fixed ({type}* {component.Name}_first = {component.Name})");
+        foreach (var span in query.spans) {
+            var type = span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
             @fixed.AppendLine();
         }
         // --- pointer block
         var pointer = new StringBuilder();
-        foreach (var component in query.components) {
+        foreach (var span in query.spans) {
             pointer.AppendLine();
-            pointer.Append($"                    float* {component.Name}_ptr = (float*)({component.Name}_first + i);");
+            pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + i);");
         }
         var elementStep = query.vectorDimension switch {
             1 => 32,
@@ -347,7 +347,7 @@ public static partial class Vectorizer
         private static unsafe int _{query.methodSymbol.Name}_Avx{query.hash}({signature})
         {{
             int i = 0;
-            var end = {query.components[0].Name}.Length - {elementStep};
+            var end = {query.spans[0].Name}.Length - {elementStep};
             if (i > end) {{
                 return 0;
             }}
