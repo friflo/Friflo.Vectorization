@@ -7,6 +7,8 @@ using Friflo.Vectorization;
 using Tests.ECS;
 using Tests.Generators.Benchmark;
 
+// ReSharper disable InconsistentNaming
+
 [BenchmarkCategory("Vector4")]
 [MemoryDiagnoser] // Tracks GC allocations
 // [Config(typeof(Config))]
@@ -67,7 +69,7 @@ public partial class Bench_Vector4
     public void Vector4_MultiplyAdd_ForEachEntity()
     {
         var deltaTime = 0.1f;
-        query.ForEachEntity((ref Position4 position, ref Velocity4 velocity, Entity entity) => {
+        query.ForEachEntity((ref Position4 position, ref Velocity4 velocity, Entity _) => {
             position.value = velocity.value * deltaTime + position.value;
         });
     }

@@ -6,6 +6,7 @@ using Friflo.Vectorization;
 using Tests.ECS;
 using Tests.Generators.Benchmark;
 
+// ReSharper disable InconsistentNaming
 
 [BenchmarkCategory("float")]
 [MemoryDiagnoser] // Tracks GC allocations
@@ -64,7 +65,7 @@ public partial class Bench_Float
     public void Float_MultiplyAdd_ForEachEntity()
     {
         var deltaTime = 0.1f;
-        query.ForEachEntity((ref Position1 position, ref Velocity1 velocity, Entity entity) => {
+        query.ForEachEntity((ref Position1 position, ref Velocity1 velocity, Entity _) => {
             position.value = velocity.value * deltaTime + position.value;
         });
     }
