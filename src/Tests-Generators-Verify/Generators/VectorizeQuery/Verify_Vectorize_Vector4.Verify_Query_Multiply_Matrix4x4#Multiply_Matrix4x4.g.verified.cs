@@ -86,10 +86,10 @@ namespace VerifyVectorize
 
                     // --- 2. Compute
                     // position.value = Vector4.Transform(position.value, transform);
-                    position_0 = AvxUtils.TransformVector4PairAVX(position_0, transform_0, transform_1, transform_2, transform_3);
-                    position_1 = AvxUtils.TransformVector4PairAVX(position_1, transform_0, transform_1, transform_2, transform_3);
-                    position_2 = AvxUtils.TransformVector4PairAVX(position_2, transform_0, transform_1, transform_2, transform_3);
-                    position_3 = AvxUtils.TransformVector4PairAVX(position_3, transform_0, transform_1, transform_2, transform_3);
+                    position_0 = AvxVector4.TransformVector4PairAVX2(position_0, transform_0, transform_1, transform_2, transform_3);
+                    position_1 = AvxVector4.TransformVector4PairAVX2(position_1, transform_0, transform_1, transform_2, transform_3);
+                    position_2 = AvxVector4.TransformVector4PairAVX2(position_2, transform_0, transform_1, transform_2, transform_3);
+                    position_3 = AvxVector4.TransformVector4PairAVX2(position_3, transform_0, transform_1, transform_2, transform_3);
 
                     // --- 3. Store
                     Avx.Store(position_ptr +  0, position_0);

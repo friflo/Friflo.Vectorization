@@ -235,10 +235,10 @@ public static class Test_Lab_Matrix
                 Vector256<float> input_3 = Avx.LoadVector256(input_ptr + 24);
                 
                 // Process 4 pairs of vectors
-                var res_0 = TransformVector4PairAVX(input_0, col0, col1, col2, col3);    // fOut + (i + 0) * 4, 
-                var res_1 = TransformVector4PairAVX(input_1, col0, col1, col2, col3);    // fOut + (i + 2) * 4, 
-                var res_2 = TransformVector4PairAVX(input_2, col0, col1, col2, col3);    // fOut + (i + 4) * 4, 
-                var res_3 = TransformVector4PairAVX(input_3, col0, col1, col2, col3);    // fOut + (i + 6) * 4, 
+                var res_0 = AvxVector4.TransformVector4PairAVX2(input_0, col0, col1, col2, col3);    // fOut + (i + 0) * 4, 
+                var res_1 = AvxVector4.TransformVector4PairAVX2(input_1, col0, col1, col2, col3);    // fOut + (i + 2) * 4, 
+                var res_2 = AvxVector4.TransformVector4PairAVX2(input_2, col0, col1, col2, col3);    // fOut + (i + 4) * 4, 
+                var res_3 = AvxVector4.TransformVector4PairAVX2(input_3, col0, col1, col2, col3);    // fOut + (i + 6) * 4, 
                 
                 Avx.Store(result_ptr + 0, res_0);
                 Avx.Store(result_ptr + 8, res_1);
@@ -254,7 +254,7 @@ public static class Test_Lab_Matrix
         }
     }
 
-    private static Vector256<float> TransformVector4PairAVX(Vector256<float> v, // float* inputPtr, float* outputPtr, 
+    private static Vector256<float> TransformVector4PairAVX_xxx(Vector256<float> v, // float* inputPtr, float* outputPtr, 
         Vector256<float> c0, Vector256<float> c1, Vector256<float> c2, Vector256<float> c3)
     {
         // Load two Vector4s into one Vector256
@@ -282,19 +282,6 @@ public static class Test_Lab_Matrix
         // Store the two resulting Vector4s
         // Avx.Store(outputPtr, res);
     }
-    
-    [SkipLocalsInit]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector256<float> TransformVector4PairAVX2(
-        Vector256<float> v, Vector256<float> c0, Vector256<float> c1, Vector256<float> c2, Vector256<float> c3)
-    {
-        // Shuffle/Broadcast components
-        // We use Avx.Shuffle to pick x,y,z,w and broadcast them across the 4 lanes for each vector
-        Vector256<float> xxxx = Avx.Shuffle(v, v, 0b00_00_00_00); 
-        Vector256<float> yyyy = Avx.Shuffle(v, v, 0b01_01_01_01);
-        Vector256<float> zzzz = Avx.Shuffle(v, v, 0b10_10_10_10);
-        Vector256<float> wwww = Avx.Shuffle(v, v, 0b11_11_11_11);
-        return Fma.MultiplyAdd(wwww, c3, Fma.MultiplyAdd(zzzz, c2, Fma.MultiplyAdd(yyyy, c1, Avx.Multiply(xxxx, c0))));
-    }
+
 }
 

@@ -84,7 +84,7 @@ public static partial class Vectorizer
         }
         return true; */
         var args = argumentSyntax.Arguments;
-        lanes.Append("AvxUtils.TransformVector4PairAVX(");
+        lanes.Append("AvxVector4.TransformVector4PairAVX2(");
         if (!Compute(lanes, query, args[0].Expression)) {
             return false;
         }
