@@ -21,7 +21,9 @@ public static class Verify_Vectorize_Vector4
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run
-        var runResult = driver.RunGenerators(compilation);
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
@@ -95,7 +97,7 @@ public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
                 void AssignVector(ref Position4 position, Velocity4 vector) {
-                    position.value = vector;
+                    position.value = vector.value;
                 }
             }
             """;

@@ -21,7 +21,9 @@ public static class Verify_Vectorize_Vector2
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run
-        var runResult = driver.RunGenerators(compilation);
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
@@ -317,10 +319,11 @@ public partial class MyExample
 
             public partial class MyExample
             {
-            [Vectorize][Query]  [OmitHash]
-            private static void Cross_Vector2(ref Position2 position, Velocity2 velocity, ref FloatComponent scalar)
-            {
-                scalar.value = Vector2.Cross(position.value, velocity.value);
+                [Vectorize][Query]  [OmitHash]
+                private static void Cross_Vector2(ref Position2 position, Velocity2 velocity, ref FloatComponent scalar)
+                {
+                    scalar.value = Vector2.Cross(position.value, velocity.value);
+                }
             }
             """;
         await Verify(code);

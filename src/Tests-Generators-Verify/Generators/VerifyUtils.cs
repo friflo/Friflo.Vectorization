@@ -1,42 +1,52 @@
-using System.Threading.Tasks;
+using System;
+using System.IO;
+using System.Linq;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
-using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using VerifyNUnit;
-using VerifyTests;
+
 
 namespace Tests.Generators;
 
 public static class VerifyUtils
 {
-    public static async Task VerifyQuery(string source)
-    {
-        // 1. Setup (Helper method suggested for readability)
-        var compilation = CreateCompilation(source);
-        var generator = new AttributeQueryGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-
-        // 2. Run
-        var runResult = driver.RunGenerators(compilation);
-
-        // 3. Verify (NUnit adapter)
-        // This creates: MyGeneratorTests.Generator_Snapshot_Test.verified.txt
-        await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
-    }
- 
-    
     public static Compilation CreateCompilation(string source)
     {
-        return CSharpCompilation.Create("TestProj",
-            new[] { CSharpSyntaxTree.ParseText(source) },
-            new[] {
-                MetadataReference.CreateFromFile(typeof(VectorizeAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IComponent).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Numerics.Vector3).Assembly.Location)
+        // 1. Get the directory where the core libraries live
+        var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+        return CSharpCompilation.Create(
+            assemblyName: "TestProj",
+            syntaxTrees: new[] { CSharpSyntaxTree.ParseText(source) },
+            references: new[] {
+                MetadataReference.CreateFromFile(typeof(VectorizeAttribute).Assembly.Location),     // Friflo.Vectorization.Attributes
+                MetadataReference.CreateFromFile(typeof(IComponent).Assembly.Location),             // Friflo.Engine.ECS
+                MetadataReference.CreateFromFile(typeof(MathF).Assembly.Location),                  // System
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Numerics.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Numerics.Vectors.dll")),
+                
+                // 2. The 'Contract' assemblies (The Maps)
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll")), // Fixes Attribute/ValueType
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "mscorlib.dll")),       // Fixes legacy types
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "netstandard.dll")),    // Fixes library compatibility
+                
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.Intrinsics.dll"))
             },
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new CSharpCompilationOptions(
+                outputKind: OutputKind.DynamicallyLinkedLibrary,
+                allowUnsafe: true));
+    }
+    
+    public static void CheckOutputCompilation(Compilation outputCompilation)
+    {
+        var compileErrors = outputCompilation.GetDiagnostics()
+        .Where(d => d.Severity == DiagnosticSeverity.Error)
+        .ToList();
+        if (compileErrors.Any()) {
+            var errorMessages = string.Join("\n", compileErrors.Select(e => e.GetMessage()));
+            throw new Exception($"Generated code failed to compile:\n{errorMessages}");
+        }
     }
 
     public static bool IgnoreStaticSource(GeneratedSourceResult result)

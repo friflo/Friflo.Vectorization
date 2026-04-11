@@ -21,7 +21,9 @@ public static class Verify_Vectorize_Float
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run
-        var runResult = driver.RunGenerators(compilation);
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);

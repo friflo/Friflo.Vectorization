@@ -21,7 +21,9 @@ public static class Verify_Vectorize_Errors
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run
-        var runResult = driver.RunGenerators(compilation);
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
@@ -56,6 +58,7 @@ public partial class MyExample
     {
         var code =
         """
+        using System;
         using System.Numerics;
         using Friflo.Engine.ECS;
         using Friflo.Vectorization;
@@ -68,7 +71,7 @@ public partial class MyExample
         {
             [Vectorize][Query][OmitHash]
             private static void OperationUnsupportedError(ref Position1 comp, float value) {
-                comp.value = MathF.Sin(value);
+                comp.value = (float)Math.Sin(value);
             }
         }
         """;
