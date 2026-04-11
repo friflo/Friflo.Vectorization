@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
@@ -212,6 +213,24 @@ $@"using System;
 using System.ComponentModel;{intrinsics}
 {(query.vectorMode == VectorMode.Query ? "using Friflo.Engine.ECS;" : "")}";
         return source;
+    }
+    
+    private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters,
+        EcsTypes ecsTypes, VectorMode vectorMode)
+    {
+        var result = new List<IParameterSymbol>();
+        foreach (var parameter in parameters)
+        {
+            bool isSpan = vectorMode switch {
+                VectorMode.Query    => ecsTypes.IsComponent(parameter.Type),
+                VectorMode.Vector   => Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
+                _                   => false
+            };
+            if (isSpan) {
+                result.Add(parameter);   
+            }
+        }
+        return result;
     }
 }
 

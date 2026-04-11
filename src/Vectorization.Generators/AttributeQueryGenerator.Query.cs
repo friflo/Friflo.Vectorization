@@ -145,24 +145,6 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters,
-        EcsTypes ecsTypes, VectorMode vectorMode)
-    {
-        var result = new List<IParameterSymbol>();
-        foreach (var parameter in parameters)
-        {
-            bool isSpan = vectorMode switch {
-                VectorMode.Query    => ecsTypes.IsComponent(parameter.Type),
-                VectorMode.Vector   => Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
-                _                   => false
-            };
-            if (isSpan) {
-                result.Add(parameter);   
-            }
-        }
-        return result;
-    }
-    
     private static string EmitQueryFilters(ImmutableArray<AttributeData> attributes)
     {
         var sb = new StringBuilder();
