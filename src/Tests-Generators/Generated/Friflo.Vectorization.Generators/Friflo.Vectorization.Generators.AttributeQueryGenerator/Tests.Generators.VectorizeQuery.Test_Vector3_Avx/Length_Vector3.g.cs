@@ -55,7 +55,7 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Length_Vector3_Avx(
-            Span<global::Friflo.Engine.ECS.Position> position,
+            ReadOnlySpan<global::Friflo.Engine.ECS.Position> position,
             Span<global::Tests.ECS.FloatComponent> length)
         {
             int i = 0;

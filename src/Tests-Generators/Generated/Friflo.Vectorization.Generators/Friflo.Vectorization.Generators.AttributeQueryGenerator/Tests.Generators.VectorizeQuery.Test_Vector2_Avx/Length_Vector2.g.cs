@@ -55,7 +55,7 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Length_Vector2_Avx(
-            Span<global::Tests.ECS.Position2> position,
+            ReadOnlySpan<global::Tests.ECS.Position2> position,
             Span<global::Tests.ECS.FloatComponent2> length)
         {
             int i = 0;

@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Normalize_Avx(
             Span<global::VerifyVectorize.Position3> position,
-            Span<global::VerifyVectorize.Velocity3> velocity)
+            ReadOnlySpan<global::VerifyVectorize.Velocity3> velocity)
         {
             int i = 0;
             var end = position.Length - 8;

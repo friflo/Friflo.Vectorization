@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _MixedLocals_Avx(
             Span<global::Tests.ECS.Position2> position,
-            Span<global::Tests.ECS.FloatComponent> scalarComp,
+            ReadOnlySpan<global::Tests.ECS.FloatComponent> scalarComp,
             global::System.Numerics.Vector2 vec,
             float scalar)
         {

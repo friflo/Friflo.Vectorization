@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _MultiplyVector_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.ECS.Velocity> velocity,
+            ReadOnlySpan<global::Tests.ECS.Velocity> velocity,
             global::System.Numerics.Vector3 vector3)
         {
             int i = 0;

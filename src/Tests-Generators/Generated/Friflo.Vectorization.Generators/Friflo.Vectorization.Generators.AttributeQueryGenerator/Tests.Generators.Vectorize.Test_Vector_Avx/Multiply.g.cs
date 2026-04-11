@@ -31,7 +31,7 @@ namespace Tests.Generators.Vectorize
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(
             Span<global::System.Numerics.Vector3> position,
-            Span<global::System.Numerics.Vector3> velocity,
+            ReadOnlySpan<global::System.Numerics.Vector3> velocity,
             float deltaTime)
         {
             int i = 0;

@@ -57,8 +57,8 @@ namespace VerifyVectorize
 
         [SkipLocalsInit]
         private static unsafe int _Distance_Vector3_Avx(
-            Span<global::VerifyVectorize.Position3> position,
-            Span<global::VerifyVectorize.Position3> velocity,
+            ReadOnlySpan<global::VerifyVectorize.Position3> position,
+            ReadOnlySpan<global::VerifyVectorize.Position3> velocity,
             Span<global::VerifyVectorize.Distance> distance)
         {
             int i = 0;

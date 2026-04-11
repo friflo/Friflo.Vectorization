@@ -271,7 +271,8 @@ public static partial class Vectorizer
                 if (vectorType.paramType == ParamType.Scalar) {
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
-                signature.Append($"\n            Span<{vectorType.fullQualifiedName}> {parameter.Name}");
+                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
+                signature.Append($"\n            {span}<{vectorType.fullQualifiedName}> {parameter.Name}");
                 continue;
             }
             signature.Append("\n            ");

@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.ECS.Velocity> velocity)
+            ReadOnlySpan<global::Tests.ECS.Velocity> velocity)
         {
             int i = 0;
             var end = position.Length - 8;

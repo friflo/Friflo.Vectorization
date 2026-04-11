@@ -58,7 +58,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Cross_Vector2_Avx(
             Span<global::VerifyVectorize.Position2> position,
-            Span<global::VerifyVectorize.Velocity2> velocity,
+            ReadOnlySpan<global::VerifyVectorize.Velocity2> velocity,
             Span<global::VerifyVectorize.FloatComponent> scalar)
         {
             int i = 0;

@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::VerifyVectorize.Velocity> velocity,
+            ReadOnlySpan<global::VerifyVectorize.Velocity> velocity,
             float deltaTime)
         {
             int i = 0;

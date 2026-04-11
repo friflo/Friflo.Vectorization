@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _MethodReciprocalSqrt_Avx(
             Span<global::VerifyVectorize.Position1> position,
-            Span<global::VerifyVectorize.Velocity1> velocity,
+            ReadOnlySpan<global::VerifyVectorize.Velocity1> velocity,
             float value)
         {
             int i = 0;

@@ -31,7 +31,7 @@ namespace Tests.Generators.Vectorize
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(
             Span<float> position,
-            Span<float> velocity)
+            ReadOnlySpan<float> velocity)
         {
             int i = 0;
             var end = position.Length - 32;

@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _MultiplyDeltaTime_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.ECS.Velocity> velocity,
+            ReadOnlySpan<global::Tests.ECS.Velocity> velocity,
             float deltaTime)
         {
             int i = 0;

@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(
             Span<global::VerifyVectorize.Position4> position,
-            Span<global::VerifyVectorize.Velocity4> vector)
+            ReadOnlySpan<global::VerifyVectorize.Velocity4> vector)
         {
             int i = 0;
             var end = position.Length - 8;

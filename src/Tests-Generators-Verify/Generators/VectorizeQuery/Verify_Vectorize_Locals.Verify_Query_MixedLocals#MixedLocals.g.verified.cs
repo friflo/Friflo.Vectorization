@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _MixedLocals_Avx(
             Span<global::VerifyVectorize.Position2> position,
-            Span<global::VerifyVectorize.FloatComponent> scalarComp,
+            ReadOnlySpan<global::VerifyVectorize.FloatComponent> scalarComp,
             global::System.Numerics.Vector2 vec,
             float scalar)
         {

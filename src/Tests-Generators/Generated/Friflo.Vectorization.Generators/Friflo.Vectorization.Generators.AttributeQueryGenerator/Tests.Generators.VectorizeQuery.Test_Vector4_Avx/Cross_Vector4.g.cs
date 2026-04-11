@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _Cross_Vector4_Avx(
             Span<global::Tests.ECS.Position4> position,
-            Span<global::Tests.ECS.Velocity4> velocity)
+            ReadOnlySpan<global::Tests.ECS.Velocity4> velocity)
         {
             int i = 0;
             var end = position.Length - 8;

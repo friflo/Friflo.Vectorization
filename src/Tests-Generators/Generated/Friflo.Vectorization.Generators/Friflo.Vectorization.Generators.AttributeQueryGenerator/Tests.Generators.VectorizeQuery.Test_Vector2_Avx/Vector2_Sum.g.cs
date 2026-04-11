@@ -54,7 +54,7 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Vector2_Sum_Avx(
-            Span<global::Tests.ECS.Position2> position,
+            ReadOnlySpan<global::Tests.ECS.Position2> position,
             ref global::System.Numerics.Vector2 sum)
         {
             int i = 0;

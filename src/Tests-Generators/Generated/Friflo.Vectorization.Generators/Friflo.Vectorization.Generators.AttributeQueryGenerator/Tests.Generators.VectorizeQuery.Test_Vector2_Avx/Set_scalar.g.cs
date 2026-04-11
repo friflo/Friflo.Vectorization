@@ -56,9 +56,9 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Set_scalar_Avx(
-            Span<global::Tests.ECS.Position2> position,
+            ReadOnlySpan<global::Tests.ECS.Position2> position,
             Span<global::Tests.ECS.FloatComponent> flt,
-            Span<global::Tests.ECS.FloatComponent2> flt2)
+            ReadOnlySpan<global::Tests.ECS.FloatComponent2> flt2)
         {
             int i = 0;
             var end = position.Length - 16;

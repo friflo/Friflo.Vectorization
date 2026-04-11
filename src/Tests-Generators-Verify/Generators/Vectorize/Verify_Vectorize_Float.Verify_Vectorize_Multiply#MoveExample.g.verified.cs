@@ -32,7 +32,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(
             Span<float> position,
-            Span<float> velocity,
+            ReadOnlySpan<float> velocity,
             float deltaTime)
         {
             int i = 0;

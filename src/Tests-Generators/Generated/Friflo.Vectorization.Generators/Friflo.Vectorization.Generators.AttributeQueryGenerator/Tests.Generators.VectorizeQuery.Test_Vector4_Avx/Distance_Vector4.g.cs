@@ -56,8 +56,8 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Distance_Vector4_Avx(
-            Span<global::Tests.ECS.Position4> position,
-            Span<global::Tests.ECS.Velocity4> velocity,
+            ReadOnlySpan<global::Tests.ECS.Position4> position,
+            ReadOnlySpan<global::Tests.ECS.Velocity4> velocity,
             Span<global::Tests.ECS.FloatComponent> length)
         {
             int i = 0;

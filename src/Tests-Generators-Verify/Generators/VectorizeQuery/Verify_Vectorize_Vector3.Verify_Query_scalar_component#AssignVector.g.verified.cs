@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(
             Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::VerifyVectorize.FloatComponent> factor)
+            ReadOnlySpan<global::VerifyVectorize.FloatComponent> factor)
         {
             int i = 0;
             var end = position.Length - 8;

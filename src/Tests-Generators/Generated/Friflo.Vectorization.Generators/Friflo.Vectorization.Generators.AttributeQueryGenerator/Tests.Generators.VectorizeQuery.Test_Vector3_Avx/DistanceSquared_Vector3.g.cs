@@ -56,8 +56,8 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _DistanceSquared_Vector3_Avx(
-            Span<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.ECS.Velocity> velocity,
+            ReadOnlySpan<global::Friflo.Engine.ECS.Position> position,
+            ReadOnlySpan<global::Tests.ECS.Velocity> velocity,
             Span<global::Tests.ECS.FloatComponent> length)
         {
             int i = 0;

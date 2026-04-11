@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _Float_Sin_Avx(
             Span<global::Tests.ECS.Position1> position,
-            Span<global::Tests.ECS.Velocity1> velocity)
+            ReadOnlySpan<global::Tests.ECS.Velocity1> velocity)
         {
             int i = 0;
             var end = position.Length - 32;

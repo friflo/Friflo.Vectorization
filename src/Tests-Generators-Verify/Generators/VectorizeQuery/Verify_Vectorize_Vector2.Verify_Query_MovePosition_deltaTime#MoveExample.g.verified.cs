@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(
             Span<global::VerifyVectorize.Position2> position,
-            Span<global::VerifyVectorize.Velocity2> velocity,
+            ReadOnlySpan<global::VerifyVectorize.Velocity2> velocity,
             float deltaTime)
         {
             int i = 0;

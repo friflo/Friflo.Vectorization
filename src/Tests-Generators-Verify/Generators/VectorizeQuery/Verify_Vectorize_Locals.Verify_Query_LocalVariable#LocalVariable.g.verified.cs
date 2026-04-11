@@ -57,7 +57,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _LocalVariable_Avx(
             Span<global::VerifyVectorize.Position1> position,
-            Span<global::VerifyVectorize.Velocity1> velocity)
+            ReadOnlySpan<global::VerifyVectorize.Velocity1> velocity)
         {
             int i = 0;
             var end = position.Length - 32;

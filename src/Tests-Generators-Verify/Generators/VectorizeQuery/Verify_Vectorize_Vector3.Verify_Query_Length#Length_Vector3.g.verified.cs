@@ -56,7 +56,7 @@ namespace VerifyVectorize
 
         [SkipLocalsInit]
         private static unsafe int _Length_Vector3_Avx(
-            Span<global::VerifyVectorize.Position3> position,
+            ReadOnlySpan<global::VerifyVectorize.Position3> position,
             Span<global::VerifyVectorize.FloatComponent> length)
         {
             int i = 0;
