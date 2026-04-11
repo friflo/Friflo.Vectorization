@@ -1,11 +1,12 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public partial class Static
 {
-    internal static readonly string Code = @"
+    internal static readonly string AvxUtils = @"
 using static System.MathF;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;

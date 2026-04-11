@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -25,7 +26,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         // RegisterTranspiler_BadCommonApproach(context);
         
         context.RegisterPostInitializationOutput(ctx => {
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.Code);
+            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.AvxUtils);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector2.g.cs",   Static.AvxVector2);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
             ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
@@ -38,20 +39,17 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var queryMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, GenerateTrigger.QueryAttribute));
-        context.RegisterSourceOutput(queryMethod, (productionContext, emissionResult) => {
-            EmitResult(productionContext, emissionResult);
-        });
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.QueryAttribute));
+        context.RegisterSourceOutput(queryMethod, EmitResult);
         
         var vectorizeMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.VectorizeAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, GenerateTrigger.VectorizeAttribute));
-        context.RegisterSourceOutput(vectorizeMethod, (productionContext, emissionResult) => {
-            EmitResult(productionContext, emissionResult);
-        });
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
+        context.RegisterSourceOutput(vectorizeMethod, EmitResult);
     }
     
+    // ReSharper disable once UnusedMember.Local
     private static void RegisterTranspiler_BadCommonApproach(IncrementalGeneratorInitializationContext context)
     {
         var methodDeclarations = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -62,7 +60,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             //   => incremental compiler is triggered on every keystroke. Caching disabled
             // - The compiler stores the heavy GeneratorAttributeSyntaxContext containing SemanticModel & entire Compilation
             //   => GC cannot collect this fat tree of objects 
-            transform: (ctx, ct) => ctx);
+            transform: (ctx, _) => ctx);
         
             context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
             var result = GenerateMethod(syntaxContext.SemanticModel, syntaxContext.TargetSymbol, GenerateTrigger.QueryAttribute);
@@ -88,12 +86,16 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         productionContext.AddSource(emissionResult.name, SourceText.From(emissionResult.code, Encoding.UTF8));
     }
     
+    private static EmissionResult TransformAttribute(GeneratorAttributeSyntaxContext ctx, CancellationToken _, GenerateTrigger trigger) {
+        return GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, trigger);
+    }
+    
     private static EmissionResult GenerateMethod(SemanticModel semanticModel, ISymbol targetSymbol, GenerateTrigger trigger)
     {
         if (targetSymbol is not IMethodSymbol methodSymbol) {
             return new EmissionResult("", "", []);
         }
-        var vectorMode = VectorMode.None;
+        VectorMode vectorMode;
         var attributes = methodSymbol.GetAttributes();
         bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
         bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
@@ -134,7 +136,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         };
         Vectorizer.Emit(query);
         
-        var ecsQueryMethod = "";
+        string ecsQueryMethod;
         var ecsQueryPrivate = "";
         if (vectorMode == VectorMode.Query) {
             EmitQuerySource(query, out ecsQueryMethod, out ecsQueryPrivate);
