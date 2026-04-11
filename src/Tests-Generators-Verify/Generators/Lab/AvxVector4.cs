@@ -24,6 +24,42 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
+    public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
+        Transform8Vector4SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, Vector256<float> vW, float* matrixPtr)
+    {
+        // --- Result X-Components ---
+        // x' = x*m00 + y*m10 + z*m20 + w*m30
+        Vector256<float> resX = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 0));
+        resX = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 4), resX);
+        resX = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 8), resX);
+        resX = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 12), resX);
+
+        // --- Result Y-Components ---
+        // y' = x*m01 + y*m11 + z*m21 + w*m31
+        Vector256<float> resY = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 1));
+        resY = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 5), resY);
+        resY = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 9), resY);
+        resY = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 13), resY);
+
+        // --- Result Z-Components ---
+        // z' = x*m02 + y*m12 + z*m22 + w*m32
+        Vector256<float> resZ = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 2));
+        resZ = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 6), resZ);
+        resZ = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 10), resZ);
+        resZ = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 14), resZ);
+
+        // --- Result W-Components ---
+        // w' = x*m03 + y*m13 + z*m23 + w*m33
+        Vector256<float> resW = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 3));
+        resW = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 7), resW);
+        resW = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 11), resW);
+        resW = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 15), resW);
+
+        return (resX, resY, resZ, resW);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SkipLocalsInit]
     public static (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) Deinterleave(
         Vector256<float> v0, // [X0 Y0 Z0 W0 | X1 Y1 Z1 W1]
         Vector256<float> v1, // [X2 Y2 Z2 W2 | X3 Y3 Z3 W3]

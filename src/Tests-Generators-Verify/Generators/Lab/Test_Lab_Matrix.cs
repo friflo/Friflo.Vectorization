@@ -29,6 +29,9 @@ public static class Test_Lab_Matrix
         for (int n = 0; n < 1024; n++) {
             position[n] = new Vector4(n, 2 * n, n + 10, 0);
         }
+        var result1 = new Vector4[1024];
+        TransformVector4Array_SoA_Avx(position, matrix, result1);
+            
         var result2 = new Vector4[1024];
         TransformVector4Array_Unroll2_Avx(position, matrix, result2);
         
@@ -38,7 +41,8 @@ public static class Test_Lab_Matrix
         var result_naive = new Vector4[1024];
         TransformVector4Array_naive(position, matrix, result_naive);
         
-        for (int n =  0; n < position.Length; n++) {
+        for (int n =  0; n < position.Length; n++) {            
+            Assert.That(result1[n], Is.EqualTo(result_naive[n]));
             Assert.That(result2[n], Is.EqualTo(result_naive[n]));
             Assert.That(result4[n], Is.EqualTo(result_naive[n]));
             // Avx implementation has precision errors
@@ -87,6 +91,39 @@ public static class Test_Lab_Matrix
         int len = src.Length;
         for (int i = 0; i < len; i++) {
             dst[i] = Vector4.Transform(src[i], matrix);
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static unsafe void TransformVector4Array_SoA_Avx(Vector4[] src, Matrix4x4 matrix, Vector4[] dst)
+    {
+        int i = 0;
+        var end = src.Length - 8;
+        float* matrixPtr = (float*)&matrix;
+        
+        fixed (Vector4* src_first = src)
+        fixed (Vector4* dst_first = dst)
+        {
+            for (; i <= end; i += 8)
+            {
+                var src_ptr = (float*)(src_first + i);
+                var dst_ptr = (float*)(dst_first + i);
+                
+                Vector256<float> v0 = Avx.LoadVector256(src_ptr);
+                Vector256<float> v1 = Avx.LoadVector256(src_ptr + 8);
+                Vector256<float> v2 = Avx.LoadVector256(src_ptr + 16);
+                Vector256<float> v3 = Avx.LoadVector256(src_ptr + 24);
+                (v0, v1, v2, v3) = AvxVector4.Deinterleave(v0, v1, v2, v3);
+                
+                (v0, v1, v2, v3) = AvxVector4.Transform8Vector4SoA(v0, v1, v2, v3, matrixPtr);
+                
+                (v0, v1, v2, v3) = AvxVector4.Interleave(v0, v1, v2, v3);
+                
+                Avx.Store(dst_ptr,       v0);
+                Avx.Store(dst_ptr +  8,  v1);
+                Avx.Store(dst_ptr + 16,  v2);
+                Avx.Store(dst_ptr + 24,  v3);
+            }
         }
     }
     
