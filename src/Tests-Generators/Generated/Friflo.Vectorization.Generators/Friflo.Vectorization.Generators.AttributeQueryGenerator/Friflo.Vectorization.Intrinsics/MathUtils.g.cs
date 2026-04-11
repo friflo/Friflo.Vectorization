@@ -5,7 +5,7 @@ using static System.MathF;
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvokeAsExtensionMember
 
-namespace Generators.Static;
+namespace Friflo.Vectorization.Intrinsics;
 
 public static class MathUtils {
     // ------ Trigonometry

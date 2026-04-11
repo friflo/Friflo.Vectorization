@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+using Generators.Static;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming

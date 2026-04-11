@@ -1,9 +1,8 @@
-﻿
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.Intrinsics;
 
 public static class AvxVector2
@@ -67,7 +66,7 @@ public static class AvxVector2
 
         return (v0, v1);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static (Vector256<float> x, Vector256<float> y) 
@@ -100,7 +99,7 @@ public static class AvxVector2
             Avx.Multiply(vy, rsqrt)
         );
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy)
@@ -115,7 +114,7 @@ public static class AvxVector2
         // 2. Return the square root
         return Avx.Sqrt(lengthSq);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Distance(

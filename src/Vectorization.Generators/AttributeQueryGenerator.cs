@@ -27,10 +27,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         // RegisterTranspiler_BadCommonApproach(context);
         
         context.RegisterPostInitializationOutput(ctx => {
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxUtils.g.cs",     Static.AvxUtils);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector2.g.cs",   Static.AvxVector2);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector3.g.cs",   Static.AvxVector3);
-            ctx.AddSource("Friflo.Vectorization.Intrinsics/AvxVector4.g.cs",   Static.AvxVector4);
+            Utils.AddSource(ctx, "AvxVector2.g.cs");
+            Utils.AddSource(ctx, "AvxVector3.g.cs");
+            Utils.AddSource(ctx, "AvxVector4.g.cs");
+            Utils.AddSource(ctx, "MathUtils.g.cs");
         });
     }
     

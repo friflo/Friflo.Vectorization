@@ -4,7 +4,7 @@ using System.Runtime.Intrinsics.X86;
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvokeAsExtensionMember
 
-namespace Tests.Generators.Lab;
+namespace Generators.Static;
 
 public static class AvxVector4
 {

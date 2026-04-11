@@ -75,5 +75,12 @@
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector2.cs">  <Link>Files\AvxVector2.g.cs</Link> </EmbeddedResource>
+    <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector3.cs">  <Link>Files\AvxVector3.g.cs</Link> </EmbeddedResource>
+    <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector4.cs">  <Link>Files\AvxVector4.g.cs</Link> </EmbeddedResource>
+    <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\MathUtils.cs">   <Link>Files\MathUtils.g.cs</Link>  </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

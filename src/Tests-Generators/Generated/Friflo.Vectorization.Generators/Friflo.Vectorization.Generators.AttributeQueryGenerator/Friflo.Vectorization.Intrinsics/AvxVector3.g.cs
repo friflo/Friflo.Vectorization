@@ -1,5 +1,4 @@
-﻿
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 // ReSharper disable InconsistentNaming
@@ -8,6 +7,42 @@ namespace Friflo.Vectorization.Intrinsics;
 
 public static class AvxVector3
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SkipLocalsInit]
+    public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
+        Transform8Vector3SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, float* matrixPtr)
+    {
+        // For a Vector3 Position Transform, we assume input W = 1.0.
+        // This means the initial value for our sum is the translation column (Row 3) of the matrix.
+        
+        // --- Result X-Components ---
+        // x' = x*m00 + y*m10 + z*m20 + (1.0)*m30
+        Vector256<float> resX = Avx.Add(Avx.BroadcastScalarToVector256(matrixPtr + 12), Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 0)));
+        resX = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 4), resX);
+        resX = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 8), resX);
+
+        // --- Result Y-Components ---
+        // y' = x*m01 + y*m11 + z*m21 + (1.0)*m31
+        Vector256<float> resY = Avx.Add(Avx.BroadcastScalarToVector256(matrixPtr + 13), Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 1)));
+        resY = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 5), resY);
+        resY = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 9), resY);
+
+        // --- Result Z-Components ---
+        // z' = x*m02 + y*m12 + z*m22 + (1.0)*m32
+        Vector256<float> resZ = Avx.Add(Avx.BroadcastScalarToVector256(matrixPtr + 14), Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 2)));
+        resZ = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 6), resZ);
+        resZ = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 10), resZ);
+
+        // --- Result W-Components ---
+        // w' = x*m03 + y*m13 + z*m23 + (1.0)*m33
+        // Note: If this is a standard affine transform, w' often remains 1.0.
+        Vector256<float> resW = Avx.Add(Avx.BroadcastScalarToVector256(matrixPtr + 15), Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 3)));
+        resW = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 7), resW);
+        resW = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 11), resW);
+
+        return (resX, resY, resZ, resW);
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static   (Vector256<float>  X, Vector256<float>  Y, Vector256<float>  Z)
@@ -95,7 +130,8 @@ public static class AvxVector3
 
         return (v0, v1, v2);
     }
-
+    
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static (Vector256<float>, Vector256<float>, Vector256<float>) Normalize(
@@ -132,7 +168,7 @@ public static class AvxVector3
         
         return (normX, normY,  normZ);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy, Vector256<float> vz)
@@ -151,7 +187,7 @@ public static class AvxVector3
         // 2. Return the square root of the sum
         return Avx.Sqrt(lengthSq);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Distance(
@@ -200,5 +236,4 @@ public static class AvxVector3
 
         return distSq;
     }
-
 }

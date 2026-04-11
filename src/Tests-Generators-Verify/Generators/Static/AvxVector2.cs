@@ -3,7 +3,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Lab;
+namespace Generators.Static;
 
 public static class AvxVector2
 {

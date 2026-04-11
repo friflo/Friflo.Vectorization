@@ -1,8 +1,8 @@
-﻿
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 // ReSharper disable InconsistentNaming
+// ReSharper disable InvokeAsExtensionMember
 
 namespace Friflo.Vectorization.Intrinsics;
 
@@ -21,7 +21,43 @@ public static class AvxVector4
         Vector256<float> wwww = Avx.Shuffle(v, v, 0b11_11_11_11);
         return Fma.MultiplyAdd(wwww, c3, Fma.MultiplyAdd(zzzz, c2, Fma.MultiplyAdd(yyyy, c1, Avx.Multiply(xxxx, c0))));
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SkipLocalsInit]
+    public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
+        Transform8Vector4SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, Vector256<float> vW, float* matrixPtr)
+    {
+        // --- Result X-Components ---
+        // x' = x*m00 + y*m10 + z*m20 + w*m30
+        Vector256<float> resX = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 0));
+        resX = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 4), resX);
+        resX = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 8), resX);
+        resX = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 12), resX);
 
+        // --- Result Y-Components ---
+        // y' = x*m01 + y*m11 + z*m21 + w*m31
+        Vector256<float> resY = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 1));
+        resY = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 5), resY);
+        resY = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 9), resY);
+        resY = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 13), resY);
+
+        // --- Result Z-Components ---
+        // z' = x*m02 + y*m12 + z*m22 + w*m32
+        Vector256<float> resZ = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 2));
+        resZ = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 6), resZ);
+        resZ = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 10), resZ);
+        resZ = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 14), resZ);
+
+        // --- Result W-Components ---
+        // w' = x*m03 + y*m13 + z*m23 + w*m33
+        Vector256<float> resW = Avx.Multiply(vX, Avx.BroadcastScalarToVector256(matrixPtr + 3));
+        resW = Fma.MultiplyAdd(vY, Avx.BroadcastScalarToVector256(matrixPtr + 7), resW);
+        resW = Fma.MultiplyAdd(vZ, Avx.BroadcastScalarToVector256(matrixPtr + 11), resW);
+        resW = Fma.MultiplyAdd(vW, Avx.BroadcastScalarToVector256(matrixPtr + 15), resW);
+
+        return (resX, resY, resZ, resW);
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) Deinterleave(
@@ -122,7 +158,7 @@ public static class AvxVector4
 
         return (v0, v1, v2, v3);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static (Vector256<float> x, Vector256<float> y, Vector256<float> z, Vector256<float> w) 
@@ -157,7 +193,7 @@ public static class AvxVector4
             Avx.Multiply(vw, rsqrt)
         );
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Length(
@@ -183,7 +219,7 @@ public static class AvxVector4
         // 2. Compute the square root for the final lengths
         return Avx.Sqrt(lengthSq);
     }
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static Vector256<float> Distance(
@@ -232,4 +268,6 @@ public static class AvxVector4
 
         return distSq;
     }
+    
+    
 }

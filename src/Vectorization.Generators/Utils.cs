@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -161,5 +164,33 @@ public static class Utils
         for (int n = 0; n < sb.Length; n++) {
             sb[n].Append(text);
         }
+    }
+    
+    public static void AddSource(IncrementalGeneratorPostInitializationContext ctx, string fileName)
+    {
+        string originalCode = GetContent($"Friflo.Vectorization.Generators.Files.{fileName}");
+        var sourcePath = $"Friflo.Vectorization.Intrinsics/{fileName}";
+        string newCode = originalCode.Replace("Generators.Static", "Friflo.Vectorization.Intrinsics");
+        ctx.AddSource(sourcePath, newCode);
+    }
+    
+    private static string GetContent(string fileName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        
+        // This attempts to find the resource by checking if the name ends with your filename
+        // This is safer than hardcoding the full namespace path.
+        var resourceName = assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+
+        if (resourceName == null)
+        {
+            var available = string.Join(", ", assembly.GetManifestResourceNames());
+            throw new Exception($"Resource '{fileName}' not found. Available resources: {available}");
+        }
+
+        using Stream stream = assembly.GetManifestResourceStream(resourceName);
+        using StreamReader reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }
