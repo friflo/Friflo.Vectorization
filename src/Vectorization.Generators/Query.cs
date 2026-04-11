@@ -16,7 +16,6 @@ public class Query
 {
     public          IMethodSymbol                   methodSymbol;
     public          VectorMode                      vectorMode;
-    public          bool                            hasQueryAttribute;      
     public          bool                            hasVectorizeAttribute;
     public          ImmutableArray<AttributeData>   attributes;
     public          ImmutableArray<IParameterSymbol>parameters;

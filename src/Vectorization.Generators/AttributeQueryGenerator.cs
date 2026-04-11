@@ -125,7 +125,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var query = new Query {
             methodSymbol            = methodSymbol,
             vectorMode              = vectorMode,
-            hasQueryAttribute       = hasQueryAttribute,
             hasVectorizeAttribute   = hasVectorizeAttribute,
             attributes              = attributes,
             parameters              = parameters, 
