@@ -12,14 +12,14 @@ namespace Tests.Generators.Vectorize;
 
 
 
-public static partial class Test_Vector_Avx
+public static partial class Test_Vector4_Avx
 {
     // -----------------------------------------------------------------------------------------------------
     [Vectorize] [OmitHash]
     private static void Multiply([Span] ref Vector3 position, [Span] Vector3 velocity, float deltaTime) {
         position += velocity * deltaTime;
-    } 
-        
+    }
+
     [Test]
     public static void Test_Avx_Multiply()
     {

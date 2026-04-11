@@ -185,7 +185,7 @@ public static partial class Vectorizer
             if (!vectorType.isSpan && vectorType.dimension == 1) {
                 continue;
             }
-            if (dimension == 0) {
+            if (dimension == 0 || dimension == 1) {
                 dimension = vectorType.dimension;
                 currentParameter = vectorType.parameter;
                 continue;

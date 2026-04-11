@@ -9,7 +9,7 @@ using Friflo.Vectorization.Intrinsics;
 
 namespace Tests.Generators.Vectorize
 {
-    public partial class Test_Vector_Avx
+    public partial class Test_Vector4_Avx
     {
         /// <summary>Vector method generated for: <see cref="Multiply"/>.</summary>
         public static void MultiplyVector(Span<global::System.Numerics.Vector3> position, ReadOnlySpan<global::System.Numerics.Vector3> velocity, float deltaTime, bool vectorized = true)
