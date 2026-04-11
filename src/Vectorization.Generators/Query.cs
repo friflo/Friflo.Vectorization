@@ -1,7 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,27 +11,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Friflo.Vectorization.Generators;
 
-public struct EcsTypes
-{
-    public INamedTypeSymbol componentInterface;
-    public INamedTypeSymbol entityStruct;
-    public INamedTypeSymbol vectorizeAttribute;
-    public INamedTypeSymbol omitHashAttribute;
-    
-    public bool IsEntityParameter(IParameterSymbol parameter) {
-        return parameter.Name == "entity" && SymbolEqualityComparer.Default.Equals(parameter.Type, entityStruct);
-    }
-
-    public bool IsComponent(ITypeSymbol typeSymbol) {
-        return typeSymbol.AllInterfaces.Contains(componentInterface);
-    }
-}
-
-public enum GenerateTrigger
-{
-    QueryAttribute,
-    VectorizeAttribute
-}
 
 public class Query
 {
@@ -143,6 +122,12 @@ public class Query
     }
 }
 
+public enum GenerateTrigger
+{
+    QueryAttribute,
+    VectorizeAttribute
+}
+
 public enum ParamType
 {
     None,
@@ -181,58 +166,18 @@ public struct VectorType
     }
 }
 
-public struct ConstValue
+public struct EcsTypes
 {
-    public string       name;
-    public string       value;
-    public ParamType    paramType;
-}
-
-public record struct DiagnosticData(
-    DiagnosticDescriptor    Descriptor,
-    string                  FilePath,
-    // Location?              Location, // has reference to SyntaxTree. Too heavy in memory use. 
-    int                     StartOffset,
-    int                     Length,
-    int                     StartLine,      // Just an int
-    int                     StartColumn,    // Just an int
-    int                     EndLine,        // Just an int
-    int                     EndColumn,      // Just an int
-    object?[]?              MessageArgs
-);
-
-public readonly struct EmissionResult : IEquatable<EmissionResult>
-{
-    public  readonly string                 name;
-    public  readonly string                 code;
-    public  readonly List<DiagnosticData>   diagnostics;
-    private readonly int                    _cachedHash;
-
-    public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
-    {
-        this.name = name;
-        this.code = code;
-        this.diagnostics = diagnostics;
-        int hash = 17;
-        hash = hash * 23 + (name?.GetHashCode() ?? 0);
-        hash = hash * 23 + (code?.GetHashCode() ?? 0);
-        _cachedHash = hash;
+    public INamedTypeSymbol componentInterface;
+    public INamedTypeSymbol entityStruct;
+    public INamedTypeSymbol vectorizeAttribute;
+    public INamedTypeSymbol omitHashAttribute;
+    
+    public bool IsEntityParameter(IParameterSymbol parameter) {
+        return parameter.Name == "entity" && SymbolEqualityComparer.Default.Equals(parameter.Type, entityStruct);
     }
 
-    // Direct call, no boxing
-    public bool Equals(EmissionResult other)
-    {
-        // 1. Check cached hash (O(1))
-        if (_cachedHash != other._cachedHash) return false;
-        
-        // 2. Check name (Short string)
-        if (name != other.name) return false;
-
-        // 3. Last resort: Check code (O(N))
-        return string.Equals(code, other.code);
+    public bool IsComponent(ITypeSymbol typeSymbol) {
+        return typeSymbol.AllInterfaces.Contains(componentInterface);
     }
-
-    // Required overrides (just in case)
-    public override bool Equals(object obj) => obj is EmissionResult other && Equals(other);
-    public override int GetHashCode() => _cachedHash;
 }
