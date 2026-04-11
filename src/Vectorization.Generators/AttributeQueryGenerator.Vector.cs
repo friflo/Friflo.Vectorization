@@ -65,13 +65,15 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            string type = vectorType.parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var parameter = vectorType.parameter;
+            string type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.isSpan) {
-                sb.Append($"Span<{type}> {vectorType.parameter.Name}");
+                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
+                sb.Append($"{span}<{type}> {parameter.Name}");
                 continue;
             }
-            Utils.AppendRefKind(sb, vectorType.parameter.RefKind);
-            sb.Append($"{type} {vectorType.parameter.Name}");
+            Utils.AppendRefKind(sb, parameter.RefKind);
+            sb.Append($"{type} {parameter.Name}");
         }
         if (vectorized) {
             sb.Append(", bool vectorized = true");
@@ -86,12 +88,13 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            Utils.AppendRefKind(sb, vectorType.parameter.RefKind);
+            var parameter = vectorType.parameter;
+            Utils.AppendRefKind(sb, parameter.RefKind);
             if (vectorType.isSpan) {
-                sb.Append($"{vectorType.parameter.Name}[n]");
+                sb.Append($"{parameter.Name}[n]");
                 continue;
             }
-            sb.Append(vectorType.parameter.Name);
+            sb.Append(parameter.Name);
         }
         return sb.ToString();
     }

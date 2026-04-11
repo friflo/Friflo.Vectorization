@@ -12,7 +12,7 @@ namespace Tests.Generators.Vectorize
     public partial class Test_Float_Avx
     {
         /// <summary>Vector method generated for: <see cref="Multiply"/>.</summary>
-        public static void MultiplyVector(Span<float> position, Span<float> velocity, bool vectorized = true)
+        public static void MultiplyVector(Span<float> position, ReadOnlySpan<float> velocity, bool vectorized = true)
         {
             int n = 0;
             if (vectorized) {

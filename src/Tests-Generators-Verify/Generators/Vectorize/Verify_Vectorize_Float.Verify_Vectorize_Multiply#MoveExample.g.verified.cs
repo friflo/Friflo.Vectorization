@@ -13,7 +13,7 @@ namespace VerifyVectorize
     public partial class MyExample
     {
         /// <summary>Vector method generated for: <see cref="MoveExample"/>.</summary>
-        public void MoveExampleVector(Span<float> position, Span<float> velocity, float deltaTime, bool vectorized = true)
+        public void MoveExampleVector(Span<float> position, ReadOnlySpan<float> velocity, float deltaTime, bool vectorized = true)
         {
             int n = 0;
             if (vectorized) {

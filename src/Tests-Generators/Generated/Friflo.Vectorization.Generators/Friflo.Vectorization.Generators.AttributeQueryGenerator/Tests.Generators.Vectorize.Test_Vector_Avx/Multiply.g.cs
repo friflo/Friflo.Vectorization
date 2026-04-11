@@ -12,7 +12,7 @@ namespace Tests.Generators.Vectorize
     public partial class Test_Vector_Avx
     {
         /// <summary>Vector method generated for: <see cref="Multiply"/>.</summary>
-        public static void MultiplyVector(Span<global::System.Numerics.Vector3> position, Span<global::System.Numerics.Vector3> velocity, float deltaTime, bool vectorized = true)
+        public static void MultiplyVector(Span<global::System.Numerics.Vector3> position, ReadOnlySpan<global::System.Numerics.Vector3> velocity, float deltaTime, bool vectorized = true)
         {
             int n = 0;
             if (vectorized) {
