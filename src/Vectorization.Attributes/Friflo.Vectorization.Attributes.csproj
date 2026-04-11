@@ -8,9 +8,11 @@
     <RootNamespace>Friflo.Vectorization.Attributes</RootNamespace>
     <AssemblyName>Friflo.Vectorization.Attributes</AssemblyName>
     <LangVersion>14.0</LangVersion>
-      
+    
+    <!--
     <IsTrimmable>true</IsTrimmable>
     <IsAotCompatible>true</IsAotCompatible>
+    -->
 
     <!-- packaging -->
     <PackageVersion>0.0.0</PackageVersion>
