@@ -26,6 +26,9 @@ public partial class Bench_Vector4
     private EntityStore store;
     private ArchetypeQuery<Position4,Velocity4> query;
     private Matrix4x4 matrix;
+    private Vector4[] vec1 = new Vector4[Constants.VectorCount];
+    private Vector4[] vec2 = new Vector4[Constants.VectorCount];
+    private Vector4[] result = new Vector4[Constants.VectorCount];
 
     const int EntityCount = Constants.EntityCount;
     
@@ -48,6 +51,10 @@ public partial class Bench_Vector4
         );
         Matrix4x4 trans = Matrix4x4.CreateTranslation(new Vector3(1f, 2f, 3f));
         matrix = Matrix4x4.Multiply(rot, trans);
+        for (int n = 0; n < vec1.Length; n++) {
+            vec1[n] = new Vector4(n, n + 1000, n + 2000, n + 3000);
+            vec2[n] = new Vector4(n, n * 2 , n * 3, n * 4);
+        }
     }
 
     [Benchmark]
@@ -104,7 +111,7 @@ public partial class Bench_Vector4
     }
     
     [Benchmark]
-    public void Vector3_Lerp_Vectorize()
+    public void Vector4_Lerp_Vectorize()
     {
         Vector4LerpQuery(store, 0.1f);
     }
@@ -113,5 +120,19 @@ public partial class Bench_Vector4
     [Vectorize] [OmitHash]
     private static void Vector4Cross([Span] ref Vector4 result, [Span] Vector4 vec1, [Span] Vector4 vec2) {
         result = Vector4.Cross(vec1, vec2);
+    }
+    
+    [Benchmark]
+    public void Vector4_Cross_for()
+    {
+        for (int n = 0; n < vec1.Length; n++) {
+            result[n] = Vector4.Cross(vec1[n], vec2[n]);
+        }
+    }
+    
+    [Benchmark]
+    public void Vector4_Cross_Vectorize()
+    {
+        Vector4CrossVector(result, vec1, vec2);
     }
 }
