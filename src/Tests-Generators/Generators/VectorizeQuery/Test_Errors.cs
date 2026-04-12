@@ -71,7 +71,7 @@ public static partial class Test_Errors
     
     // --- Expect:    ECSGEN007: No Query method generated - At least one component parameter must be specified
     [Query][OmitHash] 
-    private static void InvalidStatementError() {
+    private static void MissingComponentError() {
 
     }
 
