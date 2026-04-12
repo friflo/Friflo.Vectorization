@@ -149,23 +149,5 @@ public partial class MyExample
             """;
         await Verify(code);
     }
-    
-    [Test]
-    public static async Task  Verify_MissingComponentParameter()
-    {
-        var code =
-            """
-            using Friflo.Engine.ECS;
-            using Friflo.Vectorization;
-            
-            namespace VerifyVectorize;
 
-            public partial class MyExample
-            {
-                [Query][OmitHash]
-                private static void MissingComponentError() { }
-            }
-            """;
-        await Verify(code);
-    }
 }

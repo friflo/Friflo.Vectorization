@@ -3,6 +3,7 @@
 
 using System;
 using Friflo.Engine.ECS;
+using Friflo.Vectorization;
 using NUnit.Framework;
 using Tests.ECS;
 
@@ -54,7 +55,25 @@ public partial class MyExample
     void TestFilters(ref Position position) {
         position.x = 1;
     }
+    
+    [Query]
+    [AllTags<TestTag>] [OmitHash]
+    static void NoComponent(Entity entity, ref int count) {
+        count++;
+    }
+    
+    [Test]
+    public static void Test_NoComponent()
+    {
+        var store = new EntityStore();
+        store.CreateEntity(Tags.Get<TestTag, TestTag2>());
+        store.CreateEntity(new Position());
 
+        int count = 0;
+        NoComponentQuery(store, ref count);
+        
+        Assert.That(1, Is.EqualTo(count));
+    }
 }
 
 public static class Test_QueryGenerator

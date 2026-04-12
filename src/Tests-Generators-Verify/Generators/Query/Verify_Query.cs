@@ -13,6 +13,22 @@ namespace Tests.Generators.Query;
 
 public static class Verify_Query
 {
+    private static async Task Verify(string code)
+    {
+        // 1. Setup (Helper method suggested for readability)
+        var compilation = VerifyUtils.CreateCompilation(code);
+        var generator = new AttributeQueryGenerator();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // 2. Run
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
+
+        // 3. Verify (NUnit adapter)
+        await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
+    }
+    
     [Test]
     public static async Task  Verify_Query_MovePosition()
     {
@@ -32,16 +48,25 @@ public partial class MyExample
     }
 }
 """;
-        // 2. Setup (Helper method suggested for readability)
-        var compilation = VerifyUtils.CreateCompilation(code);
-        var generator = new AttributeQueryGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        await Verify(code);
+    }
+    
+    [Test]
+    public static async Task  Verify_NoComponentParameter()
+    {
+        var code =
+            """
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyQuery;
 
-        // 3. Run
-        var runResult = driver.RunGenerators(compilation);
-
-        // 4. Verify (NUnit adapter)
-        // This creates: MyGeneratorTests.Generator_Snapshot_Test.verified.txt
-        await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
+            public partial class MyExample
+            {
+                [Query][OmitHash]
+                private static void NoComponentParameter() { }
+            }
+            """;
+        await Verify(code);
     }
 }

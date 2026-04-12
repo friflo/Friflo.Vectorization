@@ -18,7 +18,7 @@ public partial class AttributeQueryGenerator
         var attributeCode       = EmitQueryFilters(query.attributes);
         var componentArgs       = EmitQueryArgs(query.spans);
         var chunkVariables      = EmitQueryChunkVariables(query.spans);
-        var lambdaParameters    = EmitQueryLambdaParameters(query.parameters, query.ecsTypes);
+        var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.parameters, query.ecsTypes, query.vectorize);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         
@@ -26,6 +26,21 @@ public partial class AttributeQueryGenerator
         var methodSymbol    = query.methodSymbol;
         var methodName      = query.methodSymbol.Name;
         
+        if (query.spans.Count == 0)
+        {
+            ecsQueryMethod = $@"
+        /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
+        /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
+        public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
+        {{
+            var _query = _{methodName}_GetQuery{hash}(_store);
+            foreach (var entity in _query.Entities)
+            {{
+                {methodName}({lambdaParameters});
+            }}
+            return _query;
+        }}";
+        } else {
             ecsQueryMethod = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
         /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
@@ -43,20 +58,21 @@ public partial class AttributeQueryGenerator
             }}
             return _query;
         }}";
-            ecsQueryPrivate = $@"
+        }
+        ecsQueryPrivate = $@"
         [EditorBrowsable(EditorBrowsableState.Never)]
         private static readonly int _{methodName}_Slot{hash} = EntityStore.UserDataNewSlot();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery<{componentArgs}>
+        private static ArchetypeQuery{componentArgs}
             _{methodName}_GetQuery{hash}(EntityStore _store)
         {{
-            var _query = (ArchetypeQuery<{componentArgs}>)
+            var _query = (ArchetypeQuery{componentArgs})
                 EntityStore.UserDataGet(_store, _{methodName}_Slot{hash});
             if (_query != null) {{
                 return _query;
             }}
-            _query = _store.Query<{componentArgs}>();
+            _query = _store.Query{componentArgs}();
 {attributeCode}
             EntityStore.UserDataSet(_store, _{methodName}_Slot{hash}, _query);
             return _query;
@@ -91,14 +107,19 @@ public partial class AttributeQueryGenerator
     
     private static string EmitQueryArgs(List<IParameterSymbol> components)
     {
+        if (components.Count == 0) {
+            return "";
+        }
         var sb = new StringBuilder();
+        sb.Append("<");
         foreach (var component in components) {
-            if (sb.Length > 0) {
+            if (sb.Length > 1) {
                 sb.Append(", ");
             }
             string type = component.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             sb.Append(type);
         }
+        sb.Append(">");
         return sb.ToString();
     }
     
@@ -120,23 +141,23 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static string EmitQueryLambdaParameters(ImmutableArray<IParameterSymbol> parameters, EcsTypes ecsTypes)
+    private static string EmitQueryLambdaParameters(Query query)
     {
         var sb = new StringBuilder();
-        foreach (var parameter in parameters) {
+        foreach (var parameter in query.parameters) {
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = ecsTypes.IsComponent(parameter.Type);
+            bool isComponent = query.ecsTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 Utils.AppendRefKind(sb, parameter.RefKind);
                 sb.Append(parameter.Name);
                 sb.Append("Span[n]");
                 continue;
             }
-            bool isEntity = ecsTypes.IsEntityParameter(parameter); 
+            bool isEntity = query.ecsTypes.IsEntityParameter(parameter); 
             if (isEntity) {
-                sb.Append("_entities.EntityAt(n)");
+                sb.Append(query.spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
             Utils.AppendRefKind(sb, parameter.RefKind);
