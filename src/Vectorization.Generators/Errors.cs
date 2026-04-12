@@ -52,5 +52,14 @@ public static class Errors
         defaultSeverity: DiagnosticSeverity.Warning, 
         isEnabledByDefault: true
     );
+    
+    public static readonly DiagnosticDescriptor MissingSpanParameter = new (
+        id: "ECSGEN006",
+        title: "Missing [Span] parameter",
+        messageFormat: "No Vector method generated - At least one [Span] parameter must be specified",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning, 
+        isEnabledByDefault: true
+    );
 
 }

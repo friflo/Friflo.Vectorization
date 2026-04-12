@@ -108,4 +108,10 @@ public partial class Bench_Vector4
     {
         Vector4LerpQuery(store, 0.1f);
     }
+    
+    // ------------------------------------- Cross -------------------------------------
+    [Vectorize] [OmitHash]
+    private static void Vector4Cross([Span] ref Vector4 result, [Span] Vector4 vec1, [Span] Vector4 vec2) {
+        result = Vector4.Cross(vec1, vec2);
+    }
 }

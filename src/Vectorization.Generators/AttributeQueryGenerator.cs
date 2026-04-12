@@ -73,9 +73,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     
     private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
     {
-        if (emissionResult.code == "") {
-            return;
-        }
         foreach (var data in emissionResult.diagnostics) {
             var start       = new LinePosition(data.StartLine, data.StartColumn);
             var end         = new LinePosition(data.EndLine, data.EndColumn);
@@ -83,6 +80,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
             Diagnostic diagnostic = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
             productionContext.ReportDiagnostic(diagnostic);
+        }
+        if (emissionResult.code == "") {
+            return;
         }
         productionContext.AddSource(emissionResult.name, SourceText.From(emissionResult.code, Encoding.UTF8));
     }
@@ -141,6 +141,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         if (vectorMode == VectorMode.Query) {
             EmitQuerySource(query, out ecsQueryMethod, out ecsQueryPrivate);
         } else {
+            if (!query.vectorize) {
+                return new EmissionResult("", "", query.diagnostics);
+            }
             EmitVectorSource(query, out ecsQueryMethod);
         }
         var namespaces          = EmitNamespaces(query);
@@ -159,11 +162,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     }}
 {(isGlobalNamespace ? "" : "}")}
 ";
-        var fileName =
-            methodSymbol.ContainingType.ToDisplayString().Replace('<', '{').Replace('>', '}') + "/" +
-            methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
-        // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
-        fileName = $"{fileName}{hash}.g.cs";
+        var fileName = CreateFileName(methodSymbol, hash);
+
         return new EmissionResult(fileName, source, query.diagnostics);
     }
     
@@ -196,6 +196,15 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         }
         var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         return "_" + Utils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
+    }
+    
+    private static string CreateFileName(IMethodSymbol methodSymbol, string hash)
+    {
+        var fileName =
+            methodSymbol.ContainingType.ToDisplayString().Replace('<', '{').Replace('>', '}') + "/" +
+            methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
+        // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
+        return $"{fileName}{hash}.g.cs";
     }
     
     private static string EmitNamespaces(Query query)

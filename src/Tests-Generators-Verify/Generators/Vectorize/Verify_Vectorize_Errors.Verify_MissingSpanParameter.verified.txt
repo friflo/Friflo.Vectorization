@@ -1,0 +1,18 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (8,24)-(8,35),
+      Message: No Vector method generated - At least one [Span] parameter must be specified,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: ECSGEN006,
+        Title: Missing [Span] parameter,
+        MessageFormat: No Vector method generated - At least one [Span] parameter must be specified,
+        Category: Usage,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

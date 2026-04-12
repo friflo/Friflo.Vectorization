@@ -26,6 +26,10 @@ public static partial class Vectorizer
         }
         query.vectorTypes = vectorTypes;
         query.vectorDimension = vectorTypeDimension;
+        if (query.spans.Count == 0) {
+            query.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
+            return false;
+        }
         query.laneCount = query.vectorDimension switch {
             // Aiming for loop unroll factor 4 which is typically the Sweet Spot
             1 => 4,
