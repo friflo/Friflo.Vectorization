@@ -139,6 +139,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         string ecsQueryMethod;
         var ecsQueryPrivate = "";
         if (vectorMode == VectorMode.Query) {
+            if (query.spans.Count == 0) {
+                query.ReportDiagnosticSymbol(Errors.MissingComponentParameter, null, []);
+                return new EmissionResult("", "", query.diagnostics);
+            }
             EmitQuerySource(query, out ecsQueryMethod, out ecsQueryPrivate);
         } else {
             if (!query.vectorize) {

@@ -68,5 +68,11 @@ public static partial class Test_Errors
     public static void InvalidStatementError_Call() {
         InvalidStatementErrorQuery(new EntityStore());
     }
+    
+    // --- Expect:    ECSGEN007: No Query method generated - At least one component parameter must be specified
+    [Query][OmitHash] 
+    private static void InvalidStatementError() {
+
+    }
 
 }

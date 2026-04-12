@@ -61,5 +61,14 @@ public static class Errors
         defaultSeverity: DiagnosticSeverity.Warning, 
         isEnabledByDefault: true
     );
+    
+    public static readonly DiagnosticDescriptor MissingComponentParameter = new (
+        id: "ECSGEN007",
+        title: "Missing component parameter",
+        messageFormat: "No Query method generated - At least one component parameter must be specified",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning, 
+        isEnabledByDefault: true
+    );
 
 }
