@@ -26,7 +26,7 @@ public static partial class Vectorizer
         }
         query.vectorTypes = vectorTypes;
         query.vectorDimension = vectorTypeDimension;
-        if (query.spans.Count == 0) {
+        if (query.vectorMode == VectorMode.Vector && query.spans.Count == 0) {
             query.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
             return false;
         }
