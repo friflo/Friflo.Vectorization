@@ -4,7 +4,7 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
-namespace Tests.Generators.Benchmark;
+namespace Bench;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class CommentAttribute : Attribute

@@ -4,9 +4,9 @@ using BenchmarkDotNet.Configs;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using Tests.ECS;
-using Tests.Generators.Benchmark;
 
 // ReSharper disable InconsistentNaming
+namespace Bench;
 
 [BenchmarkCategory("Vector2")]
 [MemoryDiagnoser] // Tracks GC allocations

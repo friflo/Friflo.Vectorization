@@ -1,12 +1,15 @@
+using System;
 using System.Numerics;
+using Bench.Lab;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
+using NUnit.Framework;
 using Tests.ECS;
-using Tests.Generators.Benchmark;
 
 // ReSharper disable InconsistentNaming
+namespace Bench;
 
 [BenchmarkCategory("Vector3")]
 [MemoryDiagnoser] // Tracks GC allocations
@@ -27,18 +30,40 @@ public partial class Bench_Vector3
 
     const int EntityCount = Constants.EntityCount;
     
+    private Vector3[]   vec1    = new Vector3[Constants.VectorCount];
+    private float[]     vec1_x  = new float[Constants.VectorCount];
+    private float[]     vec1_y  = new float[Constants.VectorCount];
+    private float[]     vec1_z  = new float[Constants.VectorCount];
+    private Matrix4x4   matrix;
+    
+    
     [Vectorize][Query]  [OmitHash]
     private static void MultiplyAdd(ref Position position, ref Velocity velocity, float deltaTime) {
         position.value = velocity.value * deltaTime + position.value;
     }
 
     [GlobalSetup]
+    [SetUp]
     public void Setup() {
         store = new EntityStore();
         for (int n = 0; n < EntityCount; n++) {
             store.CreateEntity(new Position(n,n,n), new Velocity { value = new Vector3(1,2,3)}, new FloatComponent { value = n });
         }
         query = store.Query<Position, Velocity>();
+        
+        Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
+            10f * (MathF.PI / 180.0f), // Yaw
+            20f * (MathF.PI / 180.0f), // Pitch
+            30f * (MathF.PI / 180.0f)  // Roll
+        );
+        Matrix4x4 trans = Matrix4x4.CreateTranslation(new Vector3(1f, 2f, 3f));
+        matrix = Matrix4x4.Multiply(rot, trans);
+        for (int n = 0; n < vec1.Length; n++) {
+            vec1[n] = new Vector3(n, n + 1000, n + 2000);
+            vec1_x[n] = vec1[n].X;
+            vec1_y[n] = vec1[n].Y;
+            vec1_z[n] = vec1[n].Z;
+        }
     }
 
     [Benchmark]
@@ -82,4 +107,27 @@ public partial class Bench_Vector3
     {
         Vector3LerpQuery(store, 0.1f);
     }
+    
+    // ------------------------------------- Transform ------------------------------
+    [Benchmark]
+    [Test]
+    public unsafe void Vector3_Transform_SoA()
+    {
+        fixed(float* vec1_x_ptr = vec1_x)
+        fixed(float* vec1_y_ptr = vec1_y)
+        fixed(float* vec1_z_ptr = vec1_z) {
+            Lab_Vector3_TransformSoA.TransformSoA(vec1_x_ptr,vec1_y_ptr,vec1_z_ptr, vec1_x.Length, matrix);
+        }
+    }
+    
+    [Benchmark]
+    [Test]
+    public unsafe void Vector3_Transform_AoS()
+    {
+        fixed(Vector3* vec_ptr = vec1)
+        {
+            Lab_Vector3_TransformAoS.TransformAoS(vec_ptr, vec1.Length, matrix);
+        }
+    }
+    
 }
