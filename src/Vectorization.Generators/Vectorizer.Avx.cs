@@ -78,7 +78,7 @@ public static partial class Vectorizer
             typeSymbol = fieldSymbol.Type;
         }
         // SOA
-        var (specialType, dimension, dimParamType) = GetTypeDim(typeSymbol);
+        var (specialType, dimension, dimParamType) = VectorType.GetTypeDim(typeSymbol);
         if (query.useSoA && !query.paramTypes.ContainsKey(parameterName)) {
             query.AddParam(parameterName, false, true, false, dimension);    
         }

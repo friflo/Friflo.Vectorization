@@ -127,14 +127,6 @@ public enum GenerateTrigger
     VectorizeAttribute
 }
 
-public enum ParamType
-{
-    None,
-    Scalar,
-    Vector,
-    Matrix4x4
-}
-
 public struct Param
 {
     public bool isComponent;
@@ -147,22 +139,6 @@ public enum VectorMode {
     None,
     Vector,
     Query
-}
-
-public struct VectorType
-{
-    public IParameterSymbol parameter;
-    public string           fullQualifiedName;
-    public bool             isSpan;
-    public bool             isScalar;
-    public ITypeSymbol      valueType;
-    public SpecialType      valueSpecialType;
-    public ParamType        paramType;
-    public int              dimension;
-
-    public override string ToString() {
-        return $"{parameter} : {valueType.Name} ({(paramType == ParamType.Vector ? "vector" : "scalar")})";
-    }
 }
 
 public struct NamedTypes
