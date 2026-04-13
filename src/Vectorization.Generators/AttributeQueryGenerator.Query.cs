@@ -19,7 +19,7 @@ public partial class AttributeQueryGenerator
         var componentArgs       = EmitQueryArgs(query.spans);
         var chunkVariables      = EmitQueryChunkVariables(query.spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
-        var methodSignature     = EmitQueryMethodSignature(query.parameters, query.ecsTypes, query.vectorize);
+        var methodSignature     = EmitQueryMethodSignature(query.parameters, query.namedTypes, query.vectorize);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         
         var hash            = query.hash;
@@ -79,16 +79,16 @@ public partial class AttributeQueryGenerator
         }}";
     }
     
-    private static string EmitQueryMethodSignature(ImmutableArray<IParameterSymbol> parameters, EcsTypes ecsTypes, bool vectorized)
+    private static string EmitQueryMethodSignature(ImmutableArray<IParameterSymbol> parameters, NamedTypes namedTypes, bool vectorized)
     {
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
         foreach (var parameter in parameters) {
-            bool isComponent = ecsTypes.IsComponent(parameter.Type);
+            bool isComponent = namedTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 continue;
             }
-            bool isEntity = ecsTypes.IsEntityParameter(parameter);
+            bool isEntity = namedTypes.IsEntityParameter(parameter);
             if (isEntity) {
                 continue;
             }
@@ -148,14 +148,14 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = query.ecsTypes.IsComponent(parameter.Type);
+            bool isComponent = query.namedTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 Utils.AppendRefKind(sb, parameter.RefKind);
                 sb.Append(parameter.Name);
                 sb.Append("Span[n]");
                 continue;
             }
-            bool isEntity = query.ecsTypes.IsEntityParameter(parameter); 
+            bool isEntity = query.namedTypes.IsEntityParameter(parameter); 
             if (isEntity) {
                 sb.Append(query.spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;

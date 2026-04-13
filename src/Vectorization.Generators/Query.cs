@@ -20,7 +20,7 @@ public class Query
     public          ImmutableArray<AttributeData>   attributes;
     public          ImmutableArray<IParameterSymbol>parameters;
     public          List<IParameterSymbol>          spans;
-    public          EcsTypes                        ecsTypes;
+    public          NamedTypes                      namedTypes;
     public          SemanticModel                   semanticModel;
     // --- generated output
     public readonly List<DiagnosticData>            diagnostics = new();
@@ -165,7 +165,7 @@ public struct VectorType
     }
 }
 
-public struct EcsTypes
+public struct NamedTypes
 {
     public INamedTypeSymbol componentInterface;
     public INamedTypeSymbol entityStruct;

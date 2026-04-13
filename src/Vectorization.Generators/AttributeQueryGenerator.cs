@@ -110,7 +110,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation = semanticModel.Compilation;
-        var types = new EcsTypes {
+        var types = new NamedTypes {
             componentInterface  = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.IComponent"),
             entityStruct        = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.Entity"),
             omitHashAttribute   = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute"),
@@ -130,7 +130,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             parameters              = parameters, 
             spans                   = spans,
             hash                    = hash,
-            ecsTypes                = types,
+            namedTypes              = types,
             semanticModel           = semanticModel
         };
         Vectorizer.Emit(query);
@@ -182,9 +182,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     );
     
     // made required static symbols unique to prevent duplicate symbol names
-    private static string GetHash(IMethodSymbol methodSymbol, ImmutableArray<AttributeData> attributes, EcsTypes ecsTypes)
+    private static string GetHash(IMethodSymbol methodSymbol, ImmutableArray<AttributeData> attributes, NamedTypes namedTypes)
     {
-        var search = ecsTypes.omitHashAttribute.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var search = namedTypes.omitHashAttribute.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         bool found = false;
         foreach (var attributeData in attributes) {
             // if (SymbolEqualityComparer.Default.Equals(ecsTypes.omitHashAttribute, attributeData.AttributeClass)) found = true;
@@ -224,13 +224,13 @@ using System.ComponentModel;{intrinsics}
     }
     
     private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters,
-        EcsTypes ecsTypes, VectorMode vectorMode)
+        NamedTypes namedTypes, VectorMode vectorMode)
     {
         var result = new List<IParameterSymbol>();
         foreach (var parameter in parameters)
         {
             bool isSpan = vectorMode switch {
-                VectorMode.Query    => ecsTypes.IsComponent(parameter.Type),
+                VectorMode.Query    => namedTypes.IsComponent(parameter.Type),
                 VectorMode.Vector   => Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
                 _                   => false
             };

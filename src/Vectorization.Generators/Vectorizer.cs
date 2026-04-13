@@ -108,7 +108,7 @@ public static partial class Vectorizer
         {
             var type = parameter.Type;
             var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            bool isSpan = query.vectorMode == VectorMode.Query && query.ecsTypes.IsComponent(type);
+            bool isSpan = query.vectorMode == VectorMode.Query && query.namedTypes.IsComponent(type);
             if (isSpan) {
                 IFieldSymbol? valueField = null;
                 foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
