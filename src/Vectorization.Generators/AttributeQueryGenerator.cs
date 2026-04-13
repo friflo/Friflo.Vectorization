@@ -125,7 +125,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var query = new Query {
             methodSymbol            = methodSymbol,
             vectorMode              = vectorMode,
-            hasVectorizeAttribute   = hasVectorizeAttribute,
             attributes              = attributes,
             parameters              = parameters, 
             spans                   = spans,
@@ -133,8 +132,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             namedTypes              = types,
             semanticModel           = semanticModel
         };
-        Vectorizer.Emit(query);
-        
+        if (hasVectorizeAttribute) {
+            Vectorizer.Emit(query);
+        }
         string shadowMethodSource;
         var privateSource = "";
         if (vectorMode == VectorMode.Query) {

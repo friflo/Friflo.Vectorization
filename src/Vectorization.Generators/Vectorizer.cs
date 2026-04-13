@@ -13,9 +13,6 @@ public static partial class Vectorizer
 {
     public static bool Emit(Query query)
     {
-        if (!query.hasVectorizeAttribute) {
-            return false;
-        }
         var vectorTypes = VectorType.GetVectorTypes(query);
         if (vectorTypes == null) {
             return false;
