@@ -33,11 +33,11 @@ public struct VectorType
     public static VectorType[]? GetVectorTypes(Query query)
     {
         var result = new List<VectorType>();
-        foreach (var parameter in query.parameters)
+        foreach (var parameter in query.Parameters)
         {
             var type = parameter.Type;
             var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            bool isSpan = query.vectorMode == VectorMode.Query && query.namedTypes.IsComponent(type);
+            bool isSpan = query.VectorMode == VectorMode.Query && query.NamedTypes.IsComponent(type);
             if (isSpan) {
                 IFieldSymbol? valueField = null;
                 foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
@@ -53,7 +53,7 @@ public struct VectorType
                 var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type);
                 result.Add(vectorType);
             } else {
-                isSpan = query.vectorMode == VectorMode.Vector &&
+                isSpan = query.VectorMode == VectorMode.Vector &&
                          Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
                 var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type);
                 result.Add(vectorType);

@@ -123,14 +123,14 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var spans               = GetVectorSpans(parameters, types, vectorMode);
         var hash                = GetHash(methodSymbol, attributes, types);
         var query = new Query {
-            methodSymbol            = methodSymbol,
-            vectorMode              = vectorMode,
-            attributes              = attributes,
-            parameters              = parameters, 
-            spans                   = spans,
-            hash                    = hash,
-            namedTypes              = types,
-            semanticModel           = semanticModel
+            MethodSymbol    = methodSymbol,
+            VectorMode      = vectorMode,
+            Attributes      = attributes,
+            Parameters      = parameters, 
+            Spans           = spans,
+            Hash            = hash,
+            NamedTypes      = types,
+            SemanticModel   = semanticModel
         };
         if (hasVectorizeAttribute) {
             Vectorizer.Emit(query);
@@ -219,7 +219,7 @@ using Friflo.Vectorization.Intrinsics;";
         var source =
 $@"using System;
 using System.ComponentModel;{intrinsics}
-{(query.vectorMode == VectorMode.Query ? "using Friflo.Engine.ECS;" : "")}";
+{(query.VectorMode == VectorMode.Query ? "using Friflo.Engine.ECS;" : "")}";
         return source;
     }
     

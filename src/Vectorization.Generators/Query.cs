@@ -14,20 +14,20 @@ namespace Friflo.Vectorization.Generators;
 
 public class Query
 {
-    public          IMethodSymbol                   methodSymbol;
-    public          VectorMode                      vectorMode;
-    public          ImmutableArray<AttributeData>   attributes;
-    public          ImmutableArray<IParameterSymbol>parameters;
-    public          List<IParameterSymbol>          spans;
-    public          NamedTypes                      namedTypes;
-    public          SemanticModel                   semanticModel;
+    public required IMethodSymbol                   MethodSymbol    { get; init; }
+    public required VectorMode                      VectorMode      { get; init; }
+    public required ImmutableArray<AttributeData>   Attributes      { get; init; }
+    public required ImmutableArray<IParameterSymbol>Parameters      { get; init; }
+    public required List<IParameterSymbol>          Spans           { get; init; }
+    public required NamedTypes                      NamedTypes      { get; init; }
+    public required SemanticModel                   SemanticModel   { get; init; }
+    public required string                          Hash            { get; init; }
     // --- generated output
     public readonly List<DiagnosticData>            diagnostics = new();
     public          int                             vectorDimension;    // [3, 4]
     public          int                             laneCount;          // [3, 2]
     public          StringBuilder[]                 lanes;
     public          VectorType[]                    vectorTypes;
-    public          string                          hash;
     public          bool                            vectorize;
     public          string                          avxMethod = "";
     public readonly Dictionary<string, Param>       paramTypes = new ();
@@ -49,7 +49,7 @@ public class Query
     {
         var location = locationSymbol?.Locations.FirstOrDefault();
         if (location == null) {
-            location = methodSymbol.Locations.FirstOrDefault();
+            location = MethodSymbol.Locations.FirstOrDefault();
         }
         // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);

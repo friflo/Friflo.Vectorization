@@ -21,7 +21,7 @@ public static partial class Vectorizer
         if (memberExpression is not IdentifierNameSyntax identifierNameSyntax) {
             return false;
         }
-        var symbolInfo = query.semanticModel.GetSymbolInfo(memberAccess);
+        var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
         var symbol = symbolInfo.Symbol;
         var isStatic = symbol != null && symbol.IsStatic;
         if (isStatic)
@@ -120,7 +120,7 @@ public static partial class Vectorizer
         }
         var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
-        var leftSymbol = query.semanticModel.GetSymbolInfo(assignment.Left).Symbol;
+        var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
         lanes = CreateLanes(query, leftSymbol, left);
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
         if (kind == SyntaxKind.AddAssignmentExpression && 
@@ -228,7 +228,7 @@ public static partial class Vectorizer
     {
         if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
         {
-            var symbolInfo = query.semanticModel.GetSymbolInfo(memberAccess);
+            var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
             if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
                 return methodSymbol.ToDisplayString();
             }

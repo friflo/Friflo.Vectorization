@@ -23,7 +23,7 @@ public static partial class Vectorizer
         }
         query.vectorTypes = vectorTypes;
         query.vectorDimension = vectorTypeDimension;
-        if (query.vectorMode == VectorMode.Vector && query.spans.Count == 0) {
+        if (query.VectorMode == VectorMode.Vector && query.Spans.Count == 0) {
             query.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
             return false;
         }
@@ -71,7 +71,7 @@ public static partial class Vectorizer
         foreach (var type in query.vectorTypes) {
             query.AddParam(type.parameter.Name, type.isSpan, type.isScalar, true, type.dimension);
         }
-        foreach (var syntaxReference in query.methodSymbol.DeclaringSyntaxReferences)
+        foreach (var syntaxReference in query.MethodSymbol.DeclaringSyntaxReferences)
         {
             SyntaxNode node = syntaxReference.GetSyntax();
             if (node is MethodDeclarationSyntax methodDeclarationSyntax) {
@@ -120,7 +120,7 @@ public static partial class Vectorizer
         var source = $@"
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {{
-                    n = _{query.methodSymbol.Name}_Avx{query.hash}({sb});
+                    n = _{query.MethodSymbol.Name}_Avx{query.Hash}({sb});
                 }}
             EntityLoop:";
         return source;
@@ -134,7 +134,7 @@ public static partial class Vectorizer
                 var initializerExpression = variable.Initializer?.Value;
                 if (initializerExpression != null) {
                     var variableName = variable.Identifier.Text;
-                    var symbol = query.semanticModel.GetDeclaredSymbol(variable);
+                    var symbol = query.SemanticModel.GetDeclaredSymbol(variable);
                     lanes = CreateLanes(query, symbol, variableName);
                     for (int n = 0; n < lanes.Length; n++) {
                         lanes[n].Append($"var {variableName}_{n} = ");
@@ -219,14 +219,14 @@ public static partial class Vectorizer
         
         // --- fixed block
         var @fixed = new StringBuilder();
-        foreach (var span in query.spans) {
+        foreach (var span in query.Spans) {
             var type = span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
             @fixed.AppendLine();
         }
         // --- pointer block
         var pointer = new StringBuilder();
-        foreach (var span in query.spans) {
+        foreach (var span in query.Spans) {
             pointer.AppendLine();
             pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + i);");
         }
@@ -244,10 +244,10 @@ public static partial class Vectorizer
 
         var source = $@"
         [SkipLocalsInit]
-        private static unsafe int _{query.methodSymbol.Name}_Avx{query.hash}({signature})
+        private static unsafe int _{query.MethodSymbol.Name}_Avx{query.Hash}({signature})
         {{
             int i = 0;
-            var end = {query.spans[0].Name}.Length - {elementStep};
+            var end = {query.Spans[0].Name}.Length - {elementStep};
             if (i > end) {{
                 return 0;
             }}

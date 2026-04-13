@@ -15,18 +15,18 @@ public partial class AttributeQueryGenerator
         out string shadowMethodSource,
         out string privateSource)
     {
-        var attributeCode       = EmitQueryFilters(query.attributes);
-        var componentArgs       = EmitQueryArgs(query.spans);
-        var chunkVariables      = EmitQueryChunkVariables(query.spans);
+        var attributeCode       = EmitQueryFilters(query.Attributes);
+        var componentArgs       = EmitQueryArgs(query.Spans);
+        var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
-        var methodSignature     = EmitQueryMethodSignature(query.parameters, query.namedTypes, query.vectorize);
+        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorize);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         
-        var hash            = query.hash;
-        var methodSymbol    = query.methodSymbol;
-        var methodName      = query.methodSymbol.Name;
+        var hash            = query.Hash;
+        var methodSymbol    = query.MethodSymbol;
+        var methodName      = query.MethodSymbol.Name;
         
-        if (query.spans.Count == 0)
+        if (query.Spans.Count == 0)
         {
             shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
@@ -144,20 +144,20 @@ public partial class AttributeQueryGenerator
     private static string EmitQueryLambdaParameters(Query query)
     {
         var sb = new StringBuilder();
-        foreach (var parameter in query.parameters) {
+        foreach (var parameter in query.Parameters) {
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = query.namedTypes.IsComponent(parameter.Type);
+            bool isComponent = query.NamedTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 Utils.AppendRefKind(sb, parameter.RefKind);
                 sb.Append(parameter.Name);
                 sb.Append("Span[n]");
                 continue;
             }
-            bool isEntity = query.namedTypes.IsEntityParameter(parameter); 
+            bool isEntity = query.NamedTypes.IsEntityParameter(parameter); 
             if (isEntity) {
-                sb.Append(query.spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
+                sb.Append(query.Spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
             Utils.AppendRefKind(sb, parameter.RefKind);

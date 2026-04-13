@@ -16,8 +16,8 @@ public partial class AttributeQueryGenerator
         var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorize);
         var vectorizeBlock      = EmitVectorBlock(query);
         
-        var methodSymbol    = query.methodSymbol;
-        var methodName      = query.methodSymbol.Name;
+        var methodSymbol    = query.MethodSymbol;
+        var methodName      = query.MethodSymbol.Name;
         
             shadowMethodSource = $@"
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
@@ -52,7 +52,7 @@ public partial class AttributeQueryGenerator
         var source = $@"
             if (vectorized) {{
                 if (Avx.IsSupported) {{
-                    n = _{query.methodSymbol.Name}_Avx{query.hash}({sb});
+                    n = _{query.MethodSymbol.Name}_Avx{query.Hash}({sb});
                 }}
             }}";
         return source;
