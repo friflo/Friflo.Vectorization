@@ -113,7 +113,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var types = new EcsTypes {
             componentInterface  = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.IComponent"),
             entityStruct        = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.Entity"),
-            vectorizeAttribute  = compilation.GetTypeByMetadataName("Friflo.Vectorization.VectorizeAttribute"),
             omitHashAttribute   = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute"),
         };
 
@@ -136,15 +135,15 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         };
         Vectorizer.Emit(query);
         
-        string ecsQueryMethod;
-        var ecsQueryPrivate = "";
+        string shadowMethodSource;
+        var privateSource = "";
         if (vectorMode == VectorMode.Query) {
-            EmitQuerySource(query, out ecsQueryMethod, out ecsQueryPrivate);
+            EmitQuerySource(query, out shadowMethodSource, out privateSource);
         } else {
             if (!query.vectorize) {
                 return new EmissionResult("", "", query.diagnostics);
             }
-            EmitVectorSource(query, out ecsQueryMethod);
+            EmitVectorSource(query, out shadowMethodSource);
         }
         var namespaces          = EmitNamespaces(query);
 
@@ -154,9 +153,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
 
 {(isGlobalNamespace ? "" : $"namespace {namespaceName}\r\n{{")}
     public partial class {className}
-    {{{ecsQueryMethod}
+    {{{shadowMethodSource}
 
-    #region private members{ecsQueryPrivate}
+    #region private members{privateSource}
 {query.avxMethod}
     #endregion
     }}

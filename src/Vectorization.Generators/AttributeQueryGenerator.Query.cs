@@ -12,8 +12,8 @@ public partial class AttributeQueryGenerator
 {
     private static void EmitQuerySource(
         Query query,
-        out string ecsQueryMethod,
-        out string ecsQueryPrivate)
+        out string shadowMethodSource,
+        out string privateSource)
     {
         var attributeCode       = EmitQueryFilters(query.attributes);
         var componentArgs       = EmitQueryArgs(query.spans);
@@ -28,7 +28,7 @@ public partial class AttributeQueryGenerator
         
         if (query.spans.Count == 0)
         {
-            ecsQueryMethod = $@"
+            shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
         /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
         public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
@@ -41,7 +41,7 @@ public partial class AttributeQueryGenerator
             return _query;
         }}";
         } else {
-            ecsQueryMethod = $@"
+            shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
         /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
         public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
@@ -59,7 +59,7 @@ public partial class AttributeQueryGenerator
             return _query;
         }}";
         }
-        ecsQueryPrivate = $@"
+        privateSource = $@"
         [EditorBrowsable(EditorBrowsableState.Never)]
         private static readonly int _{methodName}_Slot{hash} = EntityStore.UserDataNewSlot();
 

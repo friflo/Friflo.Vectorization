@@ -10,7 +10,7 @@ public partial class AttributeQueryGenerator
 {
     private static void EmitVectorSource(
         Query query,
-        out string vectorMethod)
+        out string shadowMethodSource)
     {
         var lambdaParameters    = EmitVectorLambdaParameters(query.vectorTypes);
         var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorize);
@@ -19,7 +19,7 @@ public partial class AttributeQueryGenerator
         var methodSymbol    = query.methodSymbol;
         var methodName      = query.methodSymbol.Name;
         
-            vectorMethod = $@"
+            shadowMethodSource = $@"
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(methodSymbol.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
