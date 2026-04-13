@@ -19,7 +19,7 @@ public partial class AttributeQueryGenerator
         var componentArgs       = EmitQueryArgs(query.Spans);
         var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
-        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorize);
+        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         
         var hash            = query.Hash;

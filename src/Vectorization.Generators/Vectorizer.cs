@@ -46,7 +46,7 @@ public static partial class Vectorizer
                 return false;
             }
         }
-        query.vectorize = true;
+        query.vectorized = true;
         return true;
     }
     
@@ -100,7 +100,7 @@ public static partial class Vectorizer
     
     public static string EmitVectorizeBlock(Query query)
     {
-        if (!query.vectorize) {
+        if (!query.vectorized) {
             return "";
         }
         var sb = new StringBuilder();

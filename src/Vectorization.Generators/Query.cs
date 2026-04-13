@@ -28,7 +28,7 @@ public class Query
     public          int                             laneCount;          // [3, 2]
     public          StringBuilder[]                 lanes;
     public          VectorType[]                    vectorTypes;
-    public          bool                            vectorize;
+    public          bool                            vectorized;
     public          string                          avxMethod = "";
     public readonly Dictionary<string, Param>       paramTypes = new ();
     public readonly StringBuilder                   locals = new ();

@@ -140,7 +140,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         if (vectorMode == VectorMode.Query) {
             EmitQuerySource(query, out shadowMethodSource, out privateSource);
         } else {
-            if (!query.vectorize) {
+            if (!query.vectorized) {
                 return new EmissionResult("", "", query.diagnostics);
             }
             EmitVectorSource(query, out shadowMethodSource);
@@ -209,7 +209,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     private static string EmitNamespaces(Query query)
     {
         var intrinsics = "";
-        if (query.vectorize) {
+        if (query.vectorized) {
             intrinsics =@"
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;

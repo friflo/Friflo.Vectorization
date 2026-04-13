@@ -13,7 +13,7 @@ public partial class AttributeQueryGenerator
         out string shadowMethodSource)
     {
         var lambdaParameters    = EmitVectorLambdaParameters(query.vectorTypes);
-        var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorize);
+        var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorized);
         var vectorizeBlock      = EmitVectorBlock(query);
         
         var methodSymbol    = query.MethodSymbol;
@@ -33,7 +33,7 @@ public partial class AttributeQueryGenerator
     
     private static string EmitVectorBlock(Query query)
     {
-        if (!query.vectorize) {
+        if (!query.vectorized) {
             return "";
         }
         var sb = new StringBuilder();
