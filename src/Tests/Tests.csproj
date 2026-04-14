@@ -28,6 +28,8 @@
 
     <ItemGroup>
         <PackageReference Include="Friflo.Engine.ECS" Version="3.6.0" />
+        <!-- <ProjectReference Include="..\..\..\Friflo.Engine.ECS\src\ECS\Friflo.Engine.ECS.csproj" /> -->
+
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageReference Include="NUnit" Version="3.13.3" />
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />

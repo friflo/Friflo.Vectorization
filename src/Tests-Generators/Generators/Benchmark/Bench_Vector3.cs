@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Bench.Lab;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
@@ -10,6 +11,13 @@ using Tests.ECS;
 
 // ReSharper disable InconsistentNaming
 namespace Bench;
+
+
+// [SoA]
+struct Pos3SoA : IComponent
+{
+    public Vector3 value;
+}
 
 [BenchmarkCategory("Vector3")]
 [MemoryDiagnoser] // Tracks GC allocations
@@ -26,7 +34,8 @@ public partial class Bench_Vector3
     }
     
     private EntityStore store;
-    private ArchetypeQuery<Position,Velocity> query;
+    private ArchetypeQuery<Position,Velocity>   query;
+    private ArchetypeQuery<Pos3SoA>             queryPos3SoA;
 
     const int EntityCount = Constants.EntityCount;
     
@@ -47,9 +56,15 @@ public partial class Bench_Vector3
     public void Setup() {
         store = new EntityStore();
         for (int n = 0; n < EntityCount; n++) {
-            store.CreateEntity(new Position(n,n,n), new Velocity { value = new Vector3(1,2,3)}, new FloatComponent { value = n });
+            store.CreateEntity(
+                new Position(n,n,n),
+                new Velocity { value = new Vector3(1,2,3)},
+                new FloatComponent { value = n },
+                new Pos3SoA { value = new Vector3(n, n + 10_000,  n + 20_000)}
+                );
         }
         query = store.Query<Position, Velocity>();
+        queryPos3SoA = store.Query<Pos3SoA>();
         
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
             10f * (MathF.PI / 180.0f), // Yaw
@@ -129,5 +144,33 @@ public partial class Bench_Vector3
             Lab_Vector3_TransformAoS.TransformAoS(vec_ptr, vec1.Length, matrix);
         }
     }
+    
+    /* [Benchmark]
+    [Test]
+    public unsafe void Vector3_Transform_ECS_SoA()
+    {
+        foreach (var (pos3SoA, entities) in queryPos3SoA.Chunks)
+        {
+            var lanes = pos3SoA.GetLanesSoA();
+            fixed(float* vec_ptr = lanes)
+            {
+                // if (logLanePtr) { LogLanePtr(vec_ptr); logLanePtr = false; }
+                var stride = lanes.Length / 3;
+                Lab_Vector3_TransformEcsSoA.TransformSoA(vec_ptr, entities.Length, stride, matrix);    
+            }
+        }
+    } */
+    
+    private bool logLanePtr = true;
+    
+    private  static unsafe void LogLanePtr(float* ptr)
+    {
+        long address = (long)ptr;
+        bool isAligned = (address % 32) == 0;
+        Console.WriteLine($"Base Address: {address:X} - 32-Byte Aligned: {isAligned}");
+    }
+
+    
+
     
 }
