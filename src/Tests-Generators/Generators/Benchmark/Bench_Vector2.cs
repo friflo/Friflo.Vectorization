@@ -136,7 +136,7 @@ public partial class Bench_Vector2
             fixed(float* vec_ptr = lanes)
             {
                 // if (logLanePtr) { LogLanePtr(vec_ptr); logLanePtr = false; }
-                var stride = lanes.Length / 2;
+                var stride = pos2SoA.GetStrideSoA();
                 Lab_Vector2_TransformSoA.TransformVector2_SoA(vec_ptr, stride, entities.Length, ref matrix);    
             }
         }

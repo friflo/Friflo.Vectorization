@@ -153,7 +153,7 @@ public partial class Bench_Vector3
             fixed(float* vec_ptr = lanes)
             {
                 // if (logLanePtr) { LogLanePtr(vec_ptr); logLanePtr = false; }
-                var stride = lanes.Length / 3;
+                var stride = pos3SoA.GetStrideSoA();
                 Lab_Vector3_TransformEcsSoA.TransformSoA(vec_ptr, entities.Length, stride, matrix);    
             }
         }
