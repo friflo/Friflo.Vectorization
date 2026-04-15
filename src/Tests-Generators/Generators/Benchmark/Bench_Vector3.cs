@@ -13,11 +13,9 @@ using Tests.ECS;
 namespace Bench;
 
 
-// [SoA]
-struct Pos3SoA : IComponent
-{
-    public Vector3 value;
-}
+[SoA] struct Pos2SoA : IComponent { public Vector2 value; }
+[SoA] struct Pos3SoA : IComponent { public Vector3 value; }
+[SoA] struct Pos4SoA : IComponent { public Vector4 value; }
 
 [BenchmarkCategory("Vector3")]
 [MemoryDiagnoser] // Tracks GC allocations
@@ -145,7 +143,7 @@ public partial class Bench_Vector3
         }
     }
     
-    /* [Benchmark]
+    [Benchmark]
     [Test]
     public unsafe void Vector3_Transform_ECS_SoA()
     {
@@ -159,7 +157,7 @@ public partial class Bench_Vector3
                 Lab_Vector3_TransformEcsSoA.TransformSoA(vec_ptr, entities.Length, stride, matrix);    
             }
         }
-    } */
+    }
     
     private bool logLanePtr = true;
     
