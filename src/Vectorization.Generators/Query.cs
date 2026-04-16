@@ -18,17 +18,16 @@ namespace Friflo.Vectorization.Generators;
 //      Otherwise -> MixedAdapter
 // Strategy
 //  NativeSoA:      Result from Traversal is final. No second pass. "Golden Path"
-//  VerticalAoS:    Transform, Cross, Normalize trigger a second pass -> Horizontal (Escalation)
+//  VerticalAoS:    Escalates -> Horizontal on:  Transform, Cross, Normalize
 //  MixedAdapter:   Second MixedAdapter pass required to apply Deinterleave() / Interleave()
 //  Horizontal:     Escalated from VerticalAoS. Its result is final.
 public enum ExecutionStrategy
 {
-    NativeSoA    = 0, // Operation: Any                                     [Layout: [SoA] All]     - lane-native speed
-    VerticalAoS  = 1, // Operation: Add, Sub, Mul, Div, Abs, Sqrt, RecSqrt  [Layout: AoS-Vertical]  - lane-native speed
-                      //            Min, Max, Clamp, Cmp, BitWise, FMA  
-    MixedAdapter = 2, // Operation: Any                                     [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
-    Horizontal   = 3  // Operation: Transform, Cross, Normalize             [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
-}                     //            Dot, Length, Distance
+    NativeSoA    = 0, // [Layout: [SoA] All]     - lane-native speed
+    VerticalAoS  = 1, // [Layout: AoS-Vertical]  - lane-native speed
+    MixedAdapter = 2, // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
+    Horizontal   = 3  // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
+}
 
 public class Query
 {
