@@ -63,8 +63,8 @@ public static partial class Vectorizer
             // 2. Pass
             ResetQueryState(query);
             success = initialStrategy switch {
-                Strategy.VerticalAoS    => Emit_VerticalAoS(query),
-                Strategy.MixedAdapter   => Emit_Horizontal(query),
+                Strategy.VerticalAoS    => Emit_Horizontal(query),
+                Strategy.MixedAdapter   => Emit_MixedAdapter(query),
             };
             if (!success) {
                 return false;
