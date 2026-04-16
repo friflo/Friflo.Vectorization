@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Friflo.Vectorization.Generators;
 
 // --- 3+1 Strategy architecture ---
-// The initial Strategy depends on VectorLayout (SoA, AoS)of the vector parameter:
+// The initial Strategy depends on VectorLayout (SoA, AoS) of the vector parameters:
 //      Only SoA  -> NativeSoA
 //      Only Aos  -> VerticalAoS
 //      Otherwise -> MixedAdapter
