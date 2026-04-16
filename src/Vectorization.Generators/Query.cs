@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.Generators;
 //  NativeSoA:      Result from Traversal is final. No second pass. "Golden Path"
 //  VerticalAoS:    Transform, Cross, Normalize trigger a second pass -> Horizontal (Escalation)
 //  MixedAdapter:   Second MixedAdapter pass required to apply Deinterleave() / Interleave()
-//  Horizontal:     Escalated from VerticalAoS. Its results is final.
+//  Horizontal:     Escalated from VerticalAoS. Its result is final.
 public enum ExecutionStrategy
 {
     NativeSoA    = 0, // Operation: Any                                     [Layout: [SoA] All]     - lane-native speed
