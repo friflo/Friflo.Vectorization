@@ -50,21 +50,36 @@ public static partial class Vectorizer
             _ => -1
         };
 
-        // 1. Phase: generate AoS
-        if (!TraverseBody(query)) {
+        // 1. Pass
+        var success = initialStrategy switch {
+            Strategy.NativeSoA      => Emit_NativeSoA(query),
+            Strategy.VerticalAoS    => Emit_VerticalAoS(query),
+            Strategy.MixedAdapter   => Emit_MixedAdapter(query),
+        };
+        if (!success) {
             return false;
         }
         if (query.requireDeinterleave) {
-            // 2. Phase: generate SoA
-            if (!TraverseBodySoA(query)) {
+            // 2. Pass
+            ResetQueryState(query);
+            success = initialStrategy switch {
+                Strategy.VerticalAoS    => Emit_VerticalAoS(query),
+                Strategy.MixedAdapter   => Emit_Horizontal(query),
+            };
+            if (!success) {
                 return false;
             }
         }
         query.vectorized = true;
         return true;
     }
+    private static bool Emit_NativeSoA   (Query query) => TraverseBody(query);
+    private static bool Emit_VerticalAoS (Query query) => TraverseBody(query);
+    private static bool Emit_MixedAdapter(Query query) => TraverseBody(query);
+    private static bool Emit_Horizontal  (Query query) => TraverseBody(query);
     
-    private static bool TraverseBodySoA(Query query)
+    
+    private static void ResetQueryState(Query query)
     {
         // Reset query state created by previous traversal. Generated code require Deinterleave() / Interleave()
         query.useDeinterleave = true;
@@ -75,9 +90,6 @@ public static partial class Vectorizer
         query.computeTemp.Clear();
         query.computeTempCount = 0;
         query.constLocalsCount = 0;
-        
-        // 2. Phase: generate SoA
-        return TraverseBody(query);
     }
     
     private static bool TraverseBody(Query query)
