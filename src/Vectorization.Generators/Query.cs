@@ -123,10 +123,11 @@ public class Query
 public enum ExecutionStrategy
 {
     NativeSoA    = 0, // Operation: Any                                     [Layout: [SoA] All]     - lane-native speed
-    VerticalAoS  = 1, // Operation: Add, Sub, Mul, (Dot, Length, Distance)  [Layout: AoS-Vertical]  - lane-native speed
+    VerticalAoS  = 1, // Operation: Add, Sub, Mul, Div, Abs, Sqrt, RecSqrt  [Layout: AoS-Vertical]  - lane-native speed
+                      //            Min, Max, Clamp, Cmp, BitWise, FMA  
     MixedAdapter = 2, // Operation: Any                                     [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
     Horizontal   = 3  // Operation: Transform, Cross, Normalize             [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
-}
+}                     //            Dot, Length, Distance
 
 public enum GenerateTrigger
 {
