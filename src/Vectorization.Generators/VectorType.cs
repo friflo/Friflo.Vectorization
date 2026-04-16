@@ -14,6 +14,14 @@ public enum ParamType
     Matrix4x4
 }
 
+public enum VectorLayout : byte
+{
+    /// <summary> Interleaved: [X, Y, Z, X, Y, Z] - Best for random access. </summary>
+    AoS = 0,
+    /// <summary> Parallel: [X, X...], [Y, Y...], [Z, Z...] - Best for SIMD. </summary>
+    SoA = 1
+}
+
 public struct VectorType
 {
     public IParameterSymbol parameter;
@@ -24,6 +32,7 @@ public struct VectorType
     public SpecialType      valueSpecialType;
     public ParamType        paramType;
     public int              dimension;
+    public VectorLayout     layout;
 
     public override string ToString() {
         return $"{parameter} : {valueType.Name} ({(paramType == ParamType.Vector ? "vector" : "scalar")})";
@@ -50,12 +59,14 @@ public struct VectorType
                     query.ReportDiagnosticSymbol(Errors.InvalidComponentType, parameter, type.Name, parameter.Name);
                     return null;
                 }
-                var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type);
+                var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type, VectorLayout.AoS);
                 result.Add(vectorType);
             } else {
                 isSpan = query.VectorMode == VectorMode.Vector &&
                          Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type);
+                var layout = Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute") ? 
+                                VectorLayout.SoA : VectorLayout.AoS;
+                var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type, layout);
                 result.Add(vectorType);
             }
         }
@@ -86,7 +97,7 @@ public struct VectorType
         return (specialType, 0,  ParamType.None);
     }
     
-    private static VectorType CreateVectorType(IParameterSymbol parameter, string fullQualifiedName, bool isSpan, ITypeSymbol valueType)
+    private static VectorType CreateVectorType(IParameterSymbol parameter, string fullQualifiedName, bool isSpan, ITypeSymbol valueType, VectorLayout layout)
     {
         bool isScalar   = !isSpan;
         var (specialType, dimension, paramType) = GetTypeDim(valueType);
@@ -102,6 +113,7 @@ public struct VectorType
             valueSpecialType    = specialType, 
             paramType           = paramType,
             dimension           = dimension, 
+            layout              = layout
         };
     }
     

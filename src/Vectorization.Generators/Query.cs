@@ -120,6 +120,14 @@ public class Query
     }
 }
 
+public enum ExecutionStrategy
+{
+    NativeSoA    = 0, // Operation: Any                 [Layout: [SoA] All]     - lane-native speed
+    VerticalAoS  = 1, // Operation: Add, Sub, Mul       [Layout: AoS-Vertical]  - lane-native speed
+    MixedAdapter = 2, // Operation: Any                 [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
+    Horizontal   = 3  // Operation: Transform, Cross    [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
+}
+
 public enum GenerateTrigger
 {
     QueryAttribute,
