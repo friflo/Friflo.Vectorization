@@ -11,6 +11,24 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Friflo.Vectorization.Generators;
 
+// --- 3+1 Strategy architecture ---
+// The initial Strategy depends on VectorLayout (SoA, AoS)of the vector parameter:
+//      Only SoA  -> NativeSoA
+//      Only Aos  -> VerticalAoS
+//      Otherwise -> MixedAdapter
+// Strategy
+//  NativeSoA:      Result from Traversal is final. No second pass. "Golden Path"
+//  VerticalAoS:    Transform, Cross, Normalize trigger a second pass -> Horizontal (Escalation)
+//  MixedAdapter:   Second MixedAdapter pass required to apply Deinterleave() / Interleave()
+//  Horizontal:     Escalated from VerticalAoS. Its results is final.
+public enum ExecutionStrategy
+{
+    NativeSoA    = 0, // Operation: Any                                     [Layout: [SoA] All]     - lane-native speed
+    VerticalAoS  = 1, // Operation: Add, Sub, Mul, Div, Abs, Sqrt, RecSqrt  [Layout: AoS-Vertical]  - lane-native speed
+                      //            Min, Max, Clamp, Cmp, BitWise, FMA  
+    MixedAdapter = 2, // Operation: Any                                     [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
+    Horizontal   = 3  // Operation: Transform, Cross, Normalize             [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
+}                     //            Dot, Length, Distance
 
 public class Query
 {
@@ -119,19 +137,6 @@ public class Query
         return $"{name}_{i}";
     }
 }
-
-// NativeSoA:       Result from Traversal is final. No second pass. "Golden Path"
-// VerticalAoS:     Transform, Cross, Normalize trigger a second pass -> Horizontal (Escalation)
-// MixedAdapter:    Second MixedAdapter pass required to apply Deinterleave() / Interleave()
-// Horizontal:      Escalated from VerticalAoS. Its results is final.
-public enum ExecutionStrategy
-{
-    NativeSoA    = 0, // Operation: Any                                     [Layout: [SoA] All]     - lane-native speed
-    VerticalAoS  = 1, // Operation: Add, Sub, Mul, Div, Abs, Sqrt, RecSqrt  [Layout: AoS-Vertical]  - lane-native speed
-                      //            Min, Max, Clamp, Cmp, BitWise, FMA  
-    MixedAdapter = 2, // Operation: Any                                     [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
-    Horizontal   = 3  // Operation: Transform, Cross, Normalize             [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
-}                     //            Dot, Length, Distance
 
 public enum GenerateTrigger
 {
