@@ -35,8 +35,8 @@ public class Query
     public readonly StringBuilder                   computeTemp = new ();
     public          int                             computeTempCount;
     public          int                             constLocalsCount;
-    public          bool                            requireSoA;
-    public          bool                            useSoA; // true: SoA   false: AoS
+    public          bool                            requireDeinterleave;
+    public          bool                            useDeinterleave; // true: SoA   false: AoS
 
     public string AddConst() {
         return $"const{constLocalsCount++}";
@@ -88,7 +88,7 @@ public class Query
     
     public string GetVectorName(string name, int i)
     {
-        if (!useSoA) {
+        if (!useDeinterleave) {
             if (paramTypes.TryGetValue(name, out var paramSoa)) {
                 if (paramSoa.isScalar) {
                     return $"{name}_scalar";

@@ -40,7 +40,7 @@ public static partial class Vectorizer
         if (!TraverseBody(query)) {
             return false;
         }
-        if (query.requireSoA) {
+        if (query.requireDeinterleave) {
             // 2. Phase: generate SoA
             if (!TraverseBodySoA(query)) {
                 return false;
@@ -53,7 +53,7 @@ public static partial class Vectorizer
     private static bool TraverseBodySoA(Query query)
     {
         // Reset query state created by previous traversal. Generated code require Deinterleave() / Interleave()
-        query.useSoA = true;
+        query.useDeinterleave = true;
         query.avxMethod = "";
         query.lanes = null;
         query.paramTypes.Clear();
@@ -251,7 +251,7 @@ public static partial class Vectorizer
             if (i > end) {{
                 return 0;
             }}
-            // Vector layout: {(query.useSoA ? "SoA" : "AoS")}
+            // Vector layout: {(query.useDeinterleave ? "SoA" : "AoS")}
 {localBlock}{@fixed}            {{
                 for (; i <= end; i += {elementStep})
                 {{{pointer}
@@ -356,7 +356,7 @@ $"""
                 source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");
             }
         }
-        if (query.useSoA && vectorType.dimension > 1) {  // SOA
+        if (query.useDeinterleave && vectorType.dimension > 1) {  // SOA
             switch (query.vectorDimension) {
                 case 2:
                     source.AppendLine($"                    ({name}_0, {name}_1) = AvxVector2.Deinterleave({name}_0, {name}_1);");
@@ -379,7 +379,7 @@ $"""
             return;
         }
         var name = vectorType.parameter.Name;
-        if (query.useSoA) {
+        if (query.useDeinterleave) {
             switch (vectorType.dimension) {
                 case 1:
                     break;

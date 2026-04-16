@@ -82,7 +82,7 @@ public static class Utils
                 sb.AppendLine($"  XXX       var {nm}_scalar = Vector256.Create({nm});");
                 return true;
             case 2:
-                if (query.useSoA) {
+                if (query.useDeinterleave) {
                     sb.AppendLine($"            var {nm}_0 = Vector256.Create({nm}.X);");
                     sb.AppendLine($"            var {nm}_1 = Vector256.Create({nm}.Y);");
                 } else {

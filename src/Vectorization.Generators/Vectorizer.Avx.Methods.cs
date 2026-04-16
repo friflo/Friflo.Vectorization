@@ -237,7 +237,7 @@ public static partial class Vectorizer
     
     private static bool Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
-        query.requireSoA = true;
+        query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a)) {
             return false;
@@ -262,7 +262,7 @@ public static partial class Vectorizer
     
     private static bool Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
-        query.requireSoA = true;
+        query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0)) {
             return false;
@@ -297,7 +297,7 @@ public static partial class Vectorizer
     
     private static bool Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
-        query.requireSoA = true;
+        query.requireDeinterleave = true;
         if (!Compute_AddTemp(query, invocation.Expression, "Length this", out var arg0)) {
             return false;
         }
@@ -340,7 +340,7 @@ public static partial class Vectorizer
 
     private static bool Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
     {
-        query.requireSoA = true;
+        query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0)) {
             return false;

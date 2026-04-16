@@ -398,7 +398,9 @@ public static partial class Test_Vector4_Avx
         foreach (var entity in store.Entities)
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
-            Assert.That(entity.GetComponent<FloatComponent>(), Is.EqualTo(entityVectorized.GetComponent<FloatComponent>()));
+            var val1 = entity.GetComponent<FloatComponent>().value;
+            var val2 = entityVectorized.GetComponent<FloatComponent>().value;
+            Assert.That(val2, Is.EqualTo(val1));
         }
     }
     

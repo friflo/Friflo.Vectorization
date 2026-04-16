@@ -46,7 +46,7 @@ public static partial class Vectorizer
             var name = identifierNameSyntax.Identifier.Text;
             if (query.paramTypes.TryGetValue(name, out var paramType)) { // SOA
                 if (paramType.dimension == 1 && query.vectorDimension > 1) {
-                    query.requireSoA = true;
+                    query.requireDeinterleave = true;
                 }
             }
             for (int i = 0; i < lanes.Length; i++) {
@@ -79,10 +79,10 @@ public static partial class Vectorizer
         }
         // SOA
         var (specialType, dimension, dimParamType) = VectorType.GetTypeDim(typeSymbol);
-        if (query.useSoA && !query.paramTypes.ContainsKey(parameterName)) {
+        if (query.useDeinterleave && !query.paramTypes.ContainsKey(parameterName)) {
             query.AddParam(parameterName, false, true, false, dimension);    
         }
-        if (query.useSoA && dimension == 1) {
+        if (query.useDeinterleave && dimension == 1) {
             laneCount = 2;
         }
         if (query.paramTypes.TryGetValue(parameterName, out var paramType)) {
