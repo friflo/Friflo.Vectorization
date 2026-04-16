@@ -23,15 +23,15 @@ public partial class AttributeQueryGenerator
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         
         var hash            = query.Hash;
-        var methodSymbol    = query.MethodSymbol;
-        var methodName      = query.MethodSymbol.Name;
+        var blueprintMethod = query.BlueprintMethod;
+        var methodName      = query.BlueprintMethod.Name;
         
         if (query.Spans.Count == 0)
         {
             shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
         /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
-        public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
+        public {(blueprintMethod.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
         {{
             var _query = _{methodName}_GetQuery{hash}(_store);
             foreach (var entity in _query.Entities)
@@ -44,7 +44,7 @@ public partial class AttributeQueryGenerator
             shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
         /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
-        public {(methodSymbol.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
+        public {(blueprintMethod.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
         {{
             var _query = _{methodName}_GetQuery{hash}(_store);
             foreach (var chunk in _query.Chunks)

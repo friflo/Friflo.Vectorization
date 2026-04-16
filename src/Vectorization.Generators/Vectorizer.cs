@@ -71,7 +71,7 @@ public static partial class Vectorizer
         foreach (var type in query.vectorTypes) {
             query.AddParam(type.parameter.Name, type.isSpan, type.isScalar, true, type.dimension);
         }
-        foreach (var syntaxReference in query.MethodSymbol.DeclaringSyntaxReferences)
+        foreach (var syntaxReference in query.BlueprintMethod.DeclaringSyntaxReferences)
         {
             SyntaxNode node = syntaxReference.GetSyntax();
             if (node is MethodDeclarationSyntax methodDeclarationSyntax) {
@@ -120,7 +120,7 @@ public static partial class Vectorizer
         var source = $@"
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {{
-                    n = _{query.MethodSymbol.Name}_Avx{query.Hash}({sb});
+                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}({sb});
                 }}
             EntityLoop:";
         return source;
@@ -244,7 +244,7 @@ public static partial class Vectorizer
 
         var source = $@"
         [SkipLocalsInit]
-        private static unsafe int _{query.MethodSymbol.Name}_Avx{query.Hash}({signature})
+        private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}({signature})
         {{
             int i = 0;
             var end = {query.Spans[0].Name}.Length - {elementStep};

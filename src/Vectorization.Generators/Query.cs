@@ -14,7 +14,7 @@ namespace Friflo.Vectorization.Generators;
 
 public class Query
 {
-    public required IMethodSymbol                   MethodSymbol    { get; init; }
+    public required IMethodSymbol                   BlueprintMethod    { get; init; }
     public required VectorMode                      VectorMode      { get; init; }
     public required ImmutableArray<AttributeData>   Attributes      { get; init; }
     public required ImmutableArray<IParameterSymbol>Parameters      { get; init; }
@@ -49,7 +49,7 @@ public class Query
     {
         var location = locationSymbol?.Locations.FirstOrDefault();
         if (location == null) {
-            location = MethodSymbol.Locations.FirstOrDefault();
+            location = BlueprintMethod.Locations.FirstOrDefault();
         }
         // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
         // spc.ReportDiagnostic(diagnostic);

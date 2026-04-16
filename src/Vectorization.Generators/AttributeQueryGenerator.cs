@@ -93,11 +93,11 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     
     private static EmissionResult GenerateMethod(SemanticModel semanticModel, ISymbol targetSymbol, GenerateTrigger trigger)
     {
-        if (targetSymbol is not IMethodSymbol methodSymbol) {
+        if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new EmissionResult("", "", []);
         }
         VectorMode vectorMode;
-        var attributes = methodSymbol.GetAttributes();
+        var attributes = blueprintMethod.GetAttributes();
         bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
         bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
         if (trigger == GenerateTrigger.VectorizeAttribute) {
@@ -116,14 +116,14 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             omitHashAttribute   = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute"),
         };
 
-        var className           = methodSymbol.ContainingType.ToDisplayString(ClassNameFormat);
-        var isGlobalNamespace   = methodSymbol.ContainingNamespace.IsGlobalNamespace;
-        var namespaceName       = methodSymbol.ContainingType.ContainingNamespace.ToDisplayString();
-        var parameters          = methodSymbol.Parameters;
+        var className           = blueprintMethod.ContainingType.ToDisplayString(ClassNameFormat);
+        var isGlobalNamespace   = blueprintMethod.ContainingNamespace.IsGlobalNamespace;
+        var namespaceName       = blueprintMethod.ContainingType.ContainingNamespace.ToDisplayString();
+        var parameters          = blueprintMethod.Parameters;
         var spans               = GetVectorSpans(parameters, types, vectorMode);
-        var hash                = GetHash(methodSymbol, attributes, types);
+        var hash                = GetHash(blueprintMethod, attributes, types);
         var query = new Query {
-            MethodSymbol    = methodSymbol,
+            BlueprintMethod = blueprintMethod,
             VectorMode      = vectorMode,
             Attributes      = attributes,
             Parameters      = parameters, 
@@ -161,7 +161,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     }}
 {(isGlobalNamespace ? "" : "}")}
 ";
-        var fileName = CreateFileName(methodSymbol, hash);
+        var fileName = CreateFileName(blueprintMethod, hash);
 
         return new EmissionResult(fileName, source, query.diagnostics);
     }

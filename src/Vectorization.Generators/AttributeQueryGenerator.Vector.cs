@@ -16,12 +16,12 @@ public partial class AttributeQueryGenerator
         var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorized);
         var vectorizeBlock      = EmitVectorBlock(query);
         
-        var methodSymbol    = query.MethodSymbol;
-        var methodName      = query.MethodSymbol.Name;
+        var blueprintMethod = query.BlueprintMethod;
+        var methodName      = query.BlueprintMethod.Name;
         
             shadowMethodSource = $@"
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
-        public {(methodSymbol.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
+        public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
             int n = 0;{vectorizeBlock}
             int len = {query.vectorTypes[0].parameter.Name}.Length;
@@ -52,7 +52,7 @@ public partial class AttributeQueryGenerator
         var source = $@"
             if (vectorized) {{
                 if (Avx.IsSupported) {{
-                    n = _{query.MethodSymbol.Name}_Avx{query.Hash}({sb});
+                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}({sb});
                 }}
             }}";
         return source;
