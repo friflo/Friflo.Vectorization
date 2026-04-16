@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -21,6 +22,19 @@ public static partial class Vectorizer
         if (vectorTypeDimension == 0) {
             return false;
         }
+        // --- Phase 1: Layout Analysis ---
+        Strategy initialStrategy;
+        bool allSoA = vectorTypes.All(p => p.layout == VectorLayout.SoA);
+        bool allAoS = vectorTypes.All(p => p.layout == VectorLayout.AoS);
+        if (allSoA) {
+            initialStrategy = Strategy.NativeSoA;
+        } else if (allAoS) {
+            initialStrategy = Strategy.VerticalAoS;
+        } else {
+            initialStrategy = Strategy.MixedAdapter;
+        }
+        query.strategy = initialStrategy;
+        
         query.vectorTypes = vectorTypes;
         query.vectorDimension = vectorTypeDimension;
         if (query.VectorMode == VectorMode.Vector && query.Spans.Count == 0) {

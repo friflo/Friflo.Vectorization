@@ -18,10 +18,10 @@ namespace Friflo.Vectorization.Generators;
 //      Otherwise -> MixedAdapter
 // Strategy
 //  NativeSoA:      Result from Traversal is final. No second pass. "Golden Path"
-//  VerticalAoS:    Escalates -> Horizontal on:  Transform, Cross, Normalize
+//  VerticalAoS:    Escalates -> Horizontal on:  Transform, Cross, Normalize, Dot, Length, Distance
 //  MixedAdapter:   Second MixedAdapter pass required to apply Deinterleave() / Interleave()
 //  Horizontal:     Escalated from VerticalAoS. Its result is final.
-public enum ExecutionStrategy
+public enum Strategy
 {
     NativeSoA    = 0, // [Layout: [SoA] All]     - lane-native speed
     VerticalAoS  = 1, // [Layout: AoS-Vertical]  - lane-native speed
@@ -40,6 +40,7 @@ public class Query
     public required SemanticModel                   SemanticModel   { get; init; }
     public required string                          Hash            { get; init; }
     // --- generated output
+    public          Strategy               strategy;
     public readonly List<DiagnosticData>            diagnostics = new();
     public          int                             vectorDimension;    // [3, 4]
     public          int                             laneCount;          // [3, 2]
