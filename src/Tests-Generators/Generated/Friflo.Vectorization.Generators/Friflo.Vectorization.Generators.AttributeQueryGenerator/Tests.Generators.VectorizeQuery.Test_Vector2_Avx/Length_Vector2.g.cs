@@ -84,8 +84,8 @@ namespace Tests.Generators.VectorizeQuery
                     (position_0, position_1) = AvxVector2.Deinterleave(position_0, position_1);
                     (position_2, position_3) = AvxVector2.Deinterleave(position_2, position_3);
 
-                    Vector256<float> length_0 = default;  // FloatComponent2
-                    Vector256<float> length_1 = default;  // FloatComponent2
+                    Vector256<float> length_0;  // FloatComponent2
+                    Vector256<float> length_1;  // FloatComponent2
 
                     // --- 2. Compute
                     // length.value = position.value.Length();

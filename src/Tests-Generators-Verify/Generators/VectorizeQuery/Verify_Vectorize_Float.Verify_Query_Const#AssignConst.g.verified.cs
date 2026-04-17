@@ -73,10 +73,10 @@ namespace VerifyVectorize
                     float* position_ptr = (float*)(position_first + i);
 
                     // --- 1. Load
-                    Vector256<float> position_0 = default;  // Position1
-                    Vector256<float> position_1 = default;  // Position1
-                    Vector256<float> position_2 = default;  // Position1
-                    Vector256<float> position_3 = default;  // Position1
+                    Vector256<float> position_0;  // Position1
+                    Vector256<float> position_1;  // Position1
+                    Vector256<float> position_2;  // Position1
+                    Vector256<float> position_3;  // Position1
 
                     // --- 2. Compute
                     // position.value = 1;

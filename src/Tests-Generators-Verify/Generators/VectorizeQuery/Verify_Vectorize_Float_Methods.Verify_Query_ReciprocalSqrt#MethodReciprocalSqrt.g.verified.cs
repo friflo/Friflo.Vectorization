@@ -80,10 +80,10 @@ namespace VerifyVectorize
                     float* velocity_ptr = (float*)(velocity_first + i);
 
                     // --- 1. Load
-                    Vector256<float> position_0 = default;  // Position1
-                    Vector256<float> position_1 = default;  // Position1
-                    Vector256<float> position_2 = default;  // Position1
-                    Vector256<float> position_3 = default;  // Position1
+                    Vector256<float> position_0;  // Position1
+                    Vector256<float> position_1;  // Position1
+                    Vector256<float> position_2;  // Position1
+                    Vector256<float> position_3;  // Position1
 
                     Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr +  0);  // Velocity1
                     Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8);  // Velocity1

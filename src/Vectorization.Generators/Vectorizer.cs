@@ -334,7 +334,7 @@ public static partial class Vectorizer
                     // case: vector is write only
                     var count = vectorType.dimension == 1 ? query.scalarLaneCount : laneCount;
                     for (int n = 0; n < count; n++) {
-                        source.AppendLine($"                    Vector256<float> {name}_{n} = default;  // {typeName}");
+                        source.AppendLine($"                    Vector256<float> {name}_{n};  // {typeName}");
                     }
                     source.AppendLine();
                     return;

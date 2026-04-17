@@ -84,7 +84,7 @@ namespace VerifyVectorize
                     Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16);   // Position3
                     (position_0, position_1, position_2) = AvxVector3.Deinterleave(position_0, position_1, position_2);
 
-                    Vector256<float> length_0 = default;  // FloatComponent
+                    Vector256<float> length_0;  // FloatComponent
 
                     // --- 2. Compute
                     // length.value = position.value.Length();

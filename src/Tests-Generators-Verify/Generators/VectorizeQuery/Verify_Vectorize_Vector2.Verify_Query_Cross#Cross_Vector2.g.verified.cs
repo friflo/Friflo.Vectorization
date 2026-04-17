@@ -96,8 +96,8 @@ namespace VerifyVectorize
                     (velocity_0, velocity_1) = AvxVector2.Deinterleave(velocity_0, velocity_1);
                     (velocity_2, velocity_3) = AvxVector2.Deinterleave(velocity_2, velocity_3);
 
-                    Vector256<float> scalar_0 = default;  // FloatComponent
-                    Vector256<float> scalar_1 = default;  // FloatComponent
+                    Vector256<float> scalar_0;  // FloatComponent
+                    Vector256<float> scalar_1;  // FloatComponent
 
                     // --- 2. Compute
                     // scalar.value = Vector2.Cross(position.value, velocity.value);

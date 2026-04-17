@@ -91,8 +91,8 @@ namespace Tests.Generators.VectorizeQuery
                     (position_0, position_1) = AvxVector2.Deinterleave(position_0, position_1);
                     (position_2, position_3) = AvxVector2.Deinterleave(position_2, position_3);
 
-                    Vector256<float> flt_0 = default;  // FloatComponent
-                    Vector256<float> flt_1 = default;  // FloatComponent
+                    Vector256<float> flt_0;  // FloatComponent
+                    Vector256<float> flt_1;  // FloatComponent
 
                     Vector256<float> flt2_0 = Avx.LoadVector256(flt2_ptr);      // FloatComponent2
                     Vector256<float> flt2_1 = Avx.LoadVector256(flt2_ptr + 8);  // FloatComponent2

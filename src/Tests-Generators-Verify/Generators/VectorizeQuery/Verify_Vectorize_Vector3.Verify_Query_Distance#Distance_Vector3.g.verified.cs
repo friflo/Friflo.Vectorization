@@ -93,7 +93,7 @@ namespace VerifyVectorize
                     Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);   // Position3
                     (velocity_0, velocity_1, velocity_2) = AvxVector3.Deinterleave(velocity_0, velocity_1, velocity_2);
 
-                    Vector256<float> distance_0 = default;  // Distance
+                    Vector256<float> distance_0;  // Distance
 
                     // --- 2. Compute
                     // distance.value = Vector3.Distance(position.value, velocity.value);
