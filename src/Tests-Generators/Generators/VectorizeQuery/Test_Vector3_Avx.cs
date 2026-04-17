@@ -533,7 +533,7 @@ public static partial class Test_Vector3_Avx
         position.value *= velocity.value;
     }
 
-    [Test][Ignore("implement SoA")]
+    [Test]
     public static void Test_Mixed_Vector3()
     {
         var store = CreateTestStore();
