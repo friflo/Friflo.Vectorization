@@ -30,7 +30,7 @@ namespace VerifyVectorize
             EntityLoop:
                 for (; n < _entities.Length; n++) {
                     var velocityAoS = chunk.Chunk2.GetSoA(n);
-                    Mixed_Vector3(ref positionSpan[n], velocitySpan[n]);
+                    Mixed_Vector3(ref positionSpan[n], velocityAoS);
                     chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
@@ -68,7 +68,7 @@ namespace VerifyVectorize
             }
             // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
             fixed (global::VerifyVectorize.Position3* position_first = position)
-            fixed (global::VerifyVectorize.Pos3SoA* velocity_first = velocity)
+            fixed (float* velocity_first = velocity)
             {
                 for (; i <= end; i += 8)
                 {

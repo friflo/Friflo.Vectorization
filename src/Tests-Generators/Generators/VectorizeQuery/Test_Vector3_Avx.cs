@@ -527,13 +527,13 @@ public static partial class Test_Vector3_Avx
     }
     
     // -----------------------------------------------------------------------------------------------------
-    /* [Vectorize][Query]  [OmitHash]
+    [Vectorize][Query]  [OmitHash]
     private static void Mixed_Vector3(ref Position position, Pos3SoA velocity)
     {
         position.value *= velocity.value;
     }
 
-    [Test]
+    [Test][Ignore("implement SoA")]
     public static void Test_Mixed_Vector3()
     {
         var store = CreateTestStore();
@@ -546,7 +546,7 @@ public static partial class Test_Vector3_Avx
         foreach (var entity in store.Entities)
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
-            Assert.That(entity.GetComponent<FloatComponent>(), Is.EqualTo(entityVectorized.GetComponent<FloatComponent>()));
+            Assert.That(entity.GetComponent<Position>().value, Is.EqualTo(entityVectorized.GetComponent<Position>().value));
         }
-    } */
+    }
 }

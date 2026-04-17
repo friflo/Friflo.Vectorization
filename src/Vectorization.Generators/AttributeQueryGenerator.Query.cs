@@ -152,8 +152,11 @@ public partial class AttributeQueryGenerator
             bool isComponent = query.NamedTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 Utils.AppendRefKind(sb, parameter.RefKind);
-                sb.Append(parameter.Name);
-                sb.Append("Span[n]");
+                if (Utils.HasAttribute(parameter.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
+                    sb.Append($"{parameter.Name}AoS");
+                    continue;
+                }
+                sb.Append($"{parameter.Name}Span[n]");
                 continue;
             }
             bool isEntity = query.NamedTypes.IsEntityParameter(parameter); 

@@ -29,7 +29,7 @@ namespace Tests.Generators.VectorizeQuery
             EntityLoop:
                 for (; n < _entities.Length; n++) {
                     var velocityAoS = chunk.Chunk2.GetSoA(n);
-                    Mixed_Vector3(ref positionSpan[n], velocitySpan[n]);
+                    Mixed_Vector3(ref positionSpan[n], velocityAoS);
                     chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
@@ -67,7 +67,7 @@ namespace Tests.Generators.VectorizeQuery
             }
             // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
-            fixed (global::Tests.ECS.Pos3SoA* velocity_first = velocity)
+            fixed (float* velocity_first = velocity)
             {
                 for (; i <= end; i += 8)
                 {

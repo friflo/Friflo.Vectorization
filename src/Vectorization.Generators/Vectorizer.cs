@@ -259,7 +259,9 @@ public static partial class Vectorizer
         // --- fixed block
         var @fixed = new StringBuilder();
         foreach (var span in query.Spans) {
-            var type = span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var type = Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")
+                ? "float"
+                : span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
             @fixed.AppendLine();
         }
