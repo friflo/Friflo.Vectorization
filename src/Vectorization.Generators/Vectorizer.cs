@@ -83,9 +83,11 @@ public static partial class Vectorizer
     private static bool Emit_NativeSoA   (Query query) => TraverseBody(query);
     private static bool Emit_VerticalAoS (Query query) => TraverseBody(query);
     private static bool Emit_MixedAdapter(Query query) => TraverseBody(query);
-    private static bool Emit_Horizontal  (Query query) => TraverseBody(query);
-    
-    
+    private static bool Emit_Horizontal  (Query query) {
+        query.strategy = Strategy.Horizontal;
+        return TraverseBody(query);
+    }
+
     private static void ResetQueryState(Query query)
     {
         // Reset query state created by previous traversal. Generated code require Deinterleave() / Interleave()
@@ -274,7 +276,13 @@ public static partial class Vectorizer
         var vectorizeBlock = EmitLoopBody(query, compute, body, step);
 
         Utils.TrimEnd(vectorizeBlock);
-
+        
+        var strategyComment = query.strategy switch {
+            Strategy.NativeSoA      => "// [Layout: [SoA] All]     - lane-native speed",
+            Strategy.VerticalAoS    => "// [Layout: AoS-Vertical]  - lane-native speed",
+            Strategy.MixedAdapter   => "// [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty",
+            Strategy.Horizontal     => "// [Layout: Horizontal]    - lane-native speed + Deinterleave penalty",
+        };
         var source = $@"
         [SkipLocalsInit]
         private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}({signature})
@@ -284,7 +292,7 @@ public static partial class Vectorizer
             if (i > end) {{
                 return 0;
             }}
-            // Vector layout: {(query.useDeinterleave ? "SoA" : "AoS")}
+            {strategyComment}
 {localBlock}{@fixed}            {{
                 for (; i <= end; i += {elementStep})
                 {{{pointer}

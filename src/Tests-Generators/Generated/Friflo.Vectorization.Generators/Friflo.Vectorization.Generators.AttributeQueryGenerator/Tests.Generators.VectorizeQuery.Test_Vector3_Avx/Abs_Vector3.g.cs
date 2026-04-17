@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var const0 = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()
 

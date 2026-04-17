@@ -63,7 +63,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var min_0 = Vector256.Create(min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X, min.Y);
             var min_1 = Vector256.Create(min.Z, min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X);

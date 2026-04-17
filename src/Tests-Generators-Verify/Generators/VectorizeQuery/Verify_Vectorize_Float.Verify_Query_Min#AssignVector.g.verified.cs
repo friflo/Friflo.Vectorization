@@ -63,7 +63,7 @@ namespace VerifyVectorize
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var max_scalar = Vector256.Create(max);
 

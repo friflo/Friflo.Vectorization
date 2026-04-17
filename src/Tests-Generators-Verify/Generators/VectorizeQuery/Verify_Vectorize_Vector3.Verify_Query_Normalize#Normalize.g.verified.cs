@@ -64,7 +64,7 @@ namespace VerifyVectorize
             if (i > end) {
                 return 0;
             }
-            // Vector layout: SoA
+            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::VerifyVectorize.Position3* position_first = position)
             fixed (global::VerifyVectorize.Velocity3* velocity_first = velocity)
             {

@@ -63,7 +63,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var dst_0 = Vector256.Create(dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y);
             var dst_1 = Vector256.Create(dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X);

@@ -63,7 +63,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: SoA
+            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::Tests.ECS.Position4* position_first = position)
             fixed (global::Tests.ECS.Velocity4* velocity_first = velocity)
             {

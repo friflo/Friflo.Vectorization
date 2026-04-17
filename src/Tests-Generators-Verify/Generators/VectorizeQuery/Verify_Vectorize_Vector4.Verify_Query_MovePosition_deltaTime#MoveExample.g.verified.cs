@@ -65,7 +65,7 @@ namespace VerifyVectorize
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var deltaTime_scalar = Vector256.Create(deltaTime);
 

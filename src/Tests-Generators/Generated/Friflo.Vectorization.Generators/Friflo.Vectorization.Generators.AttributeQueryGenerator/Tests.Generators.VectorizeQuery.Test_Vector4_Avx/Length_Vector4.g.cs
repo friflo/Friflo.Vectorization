@@ -63,7 +63,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: SoA
+            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 0, 1, 1, 1, 1);
             Vector256<int> length_mask_1 = Vector256.Create(2, 2, 2, 2, 3, 3, 3, 3);

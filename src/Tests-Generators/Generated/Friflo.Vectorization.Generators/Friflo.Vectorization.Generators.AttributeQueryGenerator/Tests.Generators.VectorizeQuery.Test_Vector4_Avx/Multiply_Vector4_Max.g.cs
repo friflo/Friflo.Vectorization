@@ -62,7 +62,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> min_half = Vector128.Create(min.X, min.Y, min.Z, min.W);
             var min_scalar = Avx.InsertVector128(min_half.ToVector256(), min_half, 1);

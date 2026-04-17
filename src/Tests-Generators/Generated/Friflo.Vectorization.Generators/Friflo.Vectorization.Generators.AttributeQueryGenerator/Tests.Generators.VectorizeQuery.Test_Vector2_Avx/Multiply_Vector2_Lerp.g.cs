@@ -63,7 +63,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> dst_half = Vector128.Create(dst.X, dst.Y, dst.X, dst.Y);
             var dst_scalar = Avx.InsertVector128(dst_half.ToVector256(), dst_half, 1);

@@ -38,7 +38,7 @@ namespace Tests.Generators.Vectorize
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {

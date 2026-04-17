@@ -40,7 +40,7 @@ namespace VerifyVectorize
             if (i > end) {
                 return 0;
             }
-            // Vector layout: SoA
+            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::System.Numerics.Vector4* result_first = result)
             fixed (global::System.Numerics.Vector4* vec1_first = vec1)
             fixed (global::System.Numerics.Vector4* vec2_first = vec2)

@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
             if (i > end) {
                 return 0;
             }
-            // Vector layout: AoS
+            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             {
                 for (; i <= end; i += 8)
