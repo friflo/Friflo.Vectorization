@@ -22,7 +22,7 @@ public enum VectorLayout : byte
     SoA = 1
 }
 
-public struct VectorType
+public class VectorType
 {
     public IParameterSymbol parameter;
     public string           fullQualifiedName;

@@ -42,14 +42,16 @@ public class Query
     // --- generated output
     public          Strategy               strategy;
     public readonly List<DiagnosticData>            diagnostics = new();
-    public          int                             vectorDimension;    // [3, 4]
-    public          int                             laneCount;          // [3, 2]
+    public          int                             vectorDimension;    // [1, 2, 3, 4]
+    public          int                             laneCount;          // [4, 4, 3, 4]
+    public          int                             scalarLaneCount;    // [4, 2, 1, 1]
     public          StringBuilder[]                 lanes;
     public          VectorType[]                    vectorTypes;
     public          bool                            vectorized;
     public          string                          avxMethod = "";
+    public readonly HashSet<string>                 readVectors = [];  // vectors that are used on the Right-Hand Side (RHS) of an expression
     public readonly List<string>                    dirtyVectors = []; // contains vectors that are stored. Meaning they are "dirty"
-    public readonly HashSet<string>                 dirtyVectorsSet = [];
+    public readonly Dictionary<string, bool>        dirtyVectorsSet = []; // value: true => Load required
     
     public readonly Dictionary<string, Param>       paramTypes = new ();
     public readonly StringBuilder                   locals = new ();
@@ -59,6 +61,16 @@ public class Query
     public          bool                            requireDeinterleave;
     public          bool                            useDeinterleave; // true: SoA   false: AoS
 
+    
+    public void AddDirty(string vectorName)
+    {
+        if (!dirtyVectorsSet.ContainsKey(vectorName)) {
+            dirtyVectors.Add(vectorName); // DIRTY
+            var loadRequired = readVectors.Contains(vectorName);
+            dirtyVectorsSet.Add(vectorName, loadRequired);
+        }
+    }
+    
     public string AddConst() {
         return $"const{constLocalsCount++}";
     }

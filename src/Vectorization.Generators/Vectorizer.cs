@@ -48,6 +48,14 @@ public static partial class Vectorizer
             4 => 4,
             _ => -1
         };
+        query.scalarLaneCount = query.vectorDimension switch {
+            // Aiming for loop unroll factor 4 which is typically the Sweet Spot
+            1 => 4,
+            2 => 2,
+            3 => 1,
+            4 => 1,
+            _ =>-1
+        };
 
         // 1. Pass
         var success = initialStrategy switch {
@@ -321,6 +329,17 @@ public static partial class Vectorizer
         var typeName = vectorType.parameter.Type.Name;
         if (vectorType.paramType == ParamType.Scalar)
         {
+            if (query.dirtyVectorsSet.TryGetValue(vectorType.parameter.Name, out var loadRequired)) {
+                if (!loadRequired) {
+                    // case: vector is write only
+                    var count = vectorType.dimension == 1 ? query.scalarLaneCount : laneCount;
+                    for (int n = 0; n < count; n++) {
+                        source.AppendLine($"                    Vector256<float> {name}_{n} = default;  // {typeName}");
+                    }
+                    source.AppendLine();
+                    return;
+                }
+            }
             switch (query.vectorDimension)
             {
                 case 1:
@@ -387,7 +406,7 @@ $"""
     private static void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
         var vectorType = query.vectorTypes.FirstOrDefault(v => v.parameter.Name == dirtyVector);
-        if (vectorType.parameter == null) {
+        if (vectorType == null) {
             return;
         }
         if (!vectorType.isSpan) {

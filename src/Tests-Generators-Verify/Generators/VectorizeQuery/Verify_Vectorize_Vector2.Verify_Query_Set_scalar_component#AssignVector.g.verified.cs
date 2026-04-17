@@ -92,8 +92,8 @@ namespace VerifyVectorize
                     (position_0, position_1) = AvxVector2.Deinterleave(position_0, position_1);
                     (position_2, position_3) = AvxVector2.Deinterleave(position_2, position_3);
 
-                    Vector256<float> factor_0 = Avx.LoadVector256(factor_ptr);      // FloatComponent
-                    Vector256<float> factor_1 = Avx.LoadVector256(factor_ptr + 8);  // FloatComponent
+                    Vector256<float> factor_0 = default;  // FloatComponent
+                    Vector256<float> factor_1 = default;  // FloatComponent
 
                     Vector256<float> factor2_0 = Avx.LoadVector256(factor2_ptr);      // FloatComponent2
                     Vector256<float> factor2_1 = Avx.LoadVector256(factor2_ptr + 8);  // FloatComponent2

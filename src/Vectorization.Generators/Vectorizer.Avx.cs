@@ -44,6 +44,7 @@ public static partial class Vectorizer
             }
         } else {
             var name = identifierNameSyntax.Identifier.Text;
+            query.readVectors.Add(name);
             if (query.paramTypes.TryGetValue(name, out var paramType)) { // SOA
                 if (paramType.dimension == 1 && query.vectorDimension > 1) {
                     query.requireDeinterleave = true;
@@ -120,9 +121,8 @@ public static partial class Vectorizer
         }
         var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
-        if (!query.dirtyVectorsSet.Contains(left)) {
-            query.dirtyVectors.Add(left); // DIRTY
-            query.dirtyVectorsSet.Add(left);
+        if (kind != SyntaxKind.SimpleAssignmentExpression) {
+            query.readVectors.Add(left);  // e.g. += -=
         }
         var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
         lanes = CreateLanes(query, leftSymbol, left);
@@ -145,6 +145,7 @@ public static partial class Vectorizer
                 var vectorName = query.GetVectorName(left, i);
                 lanes[i].Append($", {vectorName});");
             }
+            query.AddDirty(left);
             return true;
         }
         for (int i = 0; i < lanes.Length; i++) {
@@ -159,6 +160,7 @@ public static partial class Vectorizer
             return false;
         }
         lanes.Append(kind == SyntaxKind.SimpleAssignmentExpression ? ";" : ");");
+        query.AddDirty(left);
         return true;
     }
 

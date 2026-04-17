@@ -95,7 +95,7 @@ namespace Tests.Generators.VectorizeQuery
                     Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + 24);   // Velocity4
                     (velocity_0, velocity_1, velocity_2, velocity_3) = AvxVector4.Deinterleave(velocity_0, velocity_1, velocity_2, velocity_3);
 
-                    Vector256<float> length_0 = Avx.LoadVector256(length_ptr);      // FloatComponent
+                    Vector256<float> length_0 = default;  // FloatComponent
 
                     // --- 2. Compute
                     // length.value = Vector4.Distance(position.value, velocity.value);
