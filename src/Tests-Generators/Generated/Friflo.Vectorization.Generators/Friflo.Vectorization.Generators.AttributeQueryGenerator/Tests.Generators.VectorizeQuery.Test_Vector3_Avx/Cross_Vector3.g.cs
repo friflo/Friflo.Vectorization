@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Cross_Vector3_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::Tests.ECS.Velocity* velocity_first = velocity)
             {

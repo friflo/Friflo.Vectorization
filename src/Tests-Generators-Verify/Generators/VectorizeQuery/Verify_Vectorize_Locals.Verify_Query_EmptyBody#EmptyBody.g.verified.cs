@@ -53,6 +53,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _EmptyBody_Avx(int count,
             Span<global::VerifyVectorize.Position1> position)
@@ -62,7 +63,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::VerifyVectorize.Position1* position_first = position)
             {
                 for (; i <= count; i += 32)

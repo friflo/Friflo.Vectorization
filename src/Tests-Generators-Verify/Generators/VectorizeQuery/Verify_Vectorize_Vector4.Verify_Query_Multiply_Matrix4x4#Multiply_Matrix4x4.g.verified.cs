@@ -53,6 +53,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Matrix4x4_Avx(int count,
             Span<global::VerifyVectorize.Position4> position,
@@ -63,7 +64,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             // Load Matrix columns into 256-bit registers (each column duplicated)
             // [Col0.x, Col0.y, Col0.z, Col0.w, Col0.x, Col0.y, Col0.z, Col0.w]

@@ -52,6 +52,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Float_Clamp_Avx(int count,
             Span<global::Tests.ECS.Position1> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var min_scalar = Vector256.Create(min);
 

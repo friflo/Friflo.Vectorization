@@ -53,6 +53,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Access_static_Avx(int count,
             Span<global::VerifyVectorize.Position3> position)
@@ -62,7 +63,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var const0 = System.Numerics.Vector3.Pi; // static
             var const0_0 = Vector256.Create(const0.X, const0.Y, const0.Z, const0.X, const0.Y, const0.Z, const0.X, const0.Y);

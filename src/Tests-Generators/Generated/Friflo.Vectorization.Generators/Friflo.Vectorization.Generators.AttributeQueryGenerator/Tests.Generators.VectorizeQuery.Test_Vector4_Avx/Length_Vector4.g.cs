@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Length_Vector4_Avx(int count,
             ReadOnlySpan<global::Tests.ECS.Position4> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 0, 1, 1, 1, 1);
             Vector256<int> length_mask_1 = Vector256.Create(2, 2, 2, 2, 3, 3, 3, 3);

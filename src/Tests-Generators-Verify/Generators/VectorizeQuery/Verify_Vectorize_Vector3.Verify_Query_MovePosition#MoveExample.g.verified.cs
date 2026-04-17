@@ -54,6 +54,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
@@ -64,7 +65,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::VerifyVectorize.Velocity* velocity_first = velocity)
             {

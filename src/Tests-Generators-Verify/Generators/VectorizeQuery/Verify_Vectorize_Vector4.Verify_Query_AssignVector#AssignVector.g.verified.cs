@@ -54,6 +54,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(int count,
             Span<global::VerifyVectorize.Position4> position,
@@ -64,7 +65,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::VerifyVectorize.Position4* position_first = position)
             fixed (global::VerifyVectorize.Velocity4* vector_first = vector)
             {

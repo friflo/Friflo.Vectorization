@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Cross_Vector4_Avx(int count,
             Span<global::Tests.ECS.Position4> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::Tests.ECS.Position4* position_first = position)
             fixed (global::Tests.ECS.Velocity4* velocity_first = velocity)
             {

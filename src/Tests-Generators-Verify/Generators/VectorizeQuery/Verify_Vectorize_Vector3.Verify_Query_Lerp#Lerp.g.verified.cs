@@ -53,6 +53,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Lerp_Avx(int count,
             Span<global::VerifyVectorize.Position3> position,
@@ -64,7 +65,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var vec_0 = Vector256.Create(vec.X, vec.Y, vec.Z, vec.X, vec.Y, vec.Z, vec.X, vec.Y);
             var vec_1 = Vector256.Create(vec.Z, vec.X, vec.Y, vec.Z, vec.X, vec.Y, vec.Z, vec.X);

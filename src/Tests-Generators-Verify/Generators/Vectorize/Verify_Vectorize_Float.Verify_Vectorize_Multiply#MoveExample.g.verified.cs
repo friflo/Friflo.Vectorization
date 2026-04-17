@@ -29,6 +29,7 @@ namespace VerifyVectorize
 
     #region private members
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _MoveExample_Avx(int count,
             Span<float> position,
@@ -40,7 +41,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var deltaTime_scalar = Vector256.Create(deltaTime);
 

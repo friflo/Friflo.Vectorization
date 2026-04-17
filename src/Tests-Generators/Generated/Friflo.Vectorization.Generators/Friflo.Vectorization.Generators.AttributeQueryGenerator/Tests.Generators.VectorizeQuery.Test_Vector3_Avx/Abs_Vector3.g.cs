@@ -52,6 +52,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Abs_Vector3_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position)
@@ -61,7 +62,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var const0 = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()
 

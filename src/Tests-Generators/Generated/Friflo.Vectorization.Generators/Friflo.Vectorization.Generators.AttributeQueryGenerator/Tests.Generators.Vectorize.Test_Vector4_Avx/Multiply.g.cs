@@ -28,6 +28,7 @@ namespace Tests.Generators.Vectorize
 
     #region private members
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(int count,
             Span<global::System.Numerics.Vector3> position,
@@ -39,7 +40,6 @@ namespace Tests.Generators.Vectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var deltaTime_scalar = Vector256.Create(deltaTime);
 

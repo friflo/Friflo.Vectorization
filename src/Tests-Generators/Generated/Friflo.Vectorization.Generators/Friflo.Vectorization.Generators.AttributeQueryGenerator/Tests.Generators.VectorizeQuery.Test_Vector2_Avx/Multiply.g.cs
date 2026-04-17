@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::Tests.ECS.Position2* position_first = position)
             fixed (global::Tests.ECS.Velocity2* velocity_first = velocity)
             {

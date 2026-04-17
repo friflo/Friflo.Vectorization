@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _MultiplyVector_Avx(int count,
             Span<global::Tests.ECS.Position4> position,
@@ -64,7 +65,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> vector4_half = Vector128.Create(vector4.X, vector4.Y, vector4.Z, vector4.W);
             var vector4_scalar = Avx.InsertVector128(vector4_half.ToVector256(), vector4_half, 1);

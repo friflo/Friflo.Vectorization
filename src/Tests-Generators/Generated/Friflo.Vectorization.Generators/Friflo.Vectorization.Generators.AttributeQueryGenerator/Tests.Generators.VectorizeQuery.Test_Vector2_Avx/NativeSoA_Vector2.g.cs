@@ -57,6 +57,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: [SoA] All]     - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _NativeSoA_Vector2_Avx(int count,
             Span<float> position,
@@ -69,7 +70,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: [SoA] All]     - lane-native speed
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {

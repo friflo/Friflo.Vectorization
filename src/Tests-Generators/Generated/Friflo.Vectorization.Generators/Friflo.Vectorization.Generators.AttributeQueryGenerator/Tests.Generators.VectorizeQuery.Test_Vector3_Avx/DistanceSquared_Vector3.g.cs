@@ -54,6 +54,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _DistanceSquared_Vector3_Avx(int count,
             ReadOnlySpan<global::Friflo.Engine.ECS.Position> position,
@@ -65,7 +66,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> length_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);

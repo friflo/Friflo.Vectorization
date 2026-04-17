@@ -54,6 +54,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
@@ -64,7 +65,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             // --- Locals
             Vector256<int> factor_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> factor_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);

@@ -54,6 +54,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Normalize_Avx(int count,
             Span<global::VerifyVectorize.Position3> position,
@@ -64,7 +65,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             fixed (global::VerifyVectorize.Position3* position_first = position)
             fixed (global::VerifyVectorize.Velocity3* velocity_first = velocity)
             {

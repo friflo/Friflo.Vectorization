@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _MixedLocals_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
@@ -65,7 +66,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
             // --- Locals
             Vector256<int> scalarComp_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);
             Vector256<int> scalarComp_mask_hi = Vector256.Create( 4, 4, 5, 5, 6, 6, 7, 7);

@@ -28,6 +28,7 @@ namespace Tests.Generators.Vectorize
 
     #region private members
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Vector3_Dot_Avx(int count,
             Span<float> result,
@@ -39,7 +40,6 @@ namespace Tests.Generators.Vectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector256<int> result_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> result_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);

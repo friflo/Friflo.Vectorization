@@ -58,6 +58,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: [SoA] All]     - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(int count,
             Span<float> position,
@@ -70,7 +71,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: [SoA] All]     - lane-native speed
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {

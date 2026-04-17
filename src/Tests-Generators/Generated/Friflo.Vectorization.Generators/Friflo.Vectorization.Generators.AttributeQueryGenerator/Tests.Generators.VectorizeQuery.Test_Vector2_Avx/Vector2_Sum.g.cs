@@ -52,6 +52,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Vector2_Sum_Avx(int count,
             ReadOnlySpan<global::Tests.ECS.Position2> position,
@@ -62,7 +63,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> sum_half = Vector128.Create(sum.X, sum.Y, sum.X, sum.Y);
             var sum_scalar = Avx.InsertVector128(sum_half.ToVector256(), sum_half, 1);

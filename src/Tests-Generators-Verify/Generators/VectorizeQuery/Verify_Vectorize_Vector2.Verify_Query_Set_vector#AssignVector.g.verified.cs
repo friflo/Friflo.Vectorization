@@ -53,6 +53,7 @@ namespace VerifyVectorize
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _AssignVector_Avx(int count,
             ReadOnlySpan<global::VerifyVectorize.Position2> position,
@@ -63,7 +64,6 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> sum_half = Vector128.Create(sum.X, sum.Y, sum.X, sum.Y);
             var sum_scalar = Avx.InsertVector128(sum_half.ToVector256(), sum_half, 1);

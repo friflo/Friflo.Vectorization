@@ -52,6 +52,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Vector2_Min_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
@@ -62,7 +63,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             Vector128<float> min_half = Vector128.Create(min.X, min.Y, min.X, min.Y);
             var min_scalar = Avx.InsertVector128(min_half.ToVector256(), min_half, 1);

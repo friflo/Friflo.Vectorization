@@ -52,6 +52,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Vector3_Clamp_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var min_0 = Vector256.Create(min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X, min.Y);
             var min_1 = Vector256.Create(min.Z, min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X);

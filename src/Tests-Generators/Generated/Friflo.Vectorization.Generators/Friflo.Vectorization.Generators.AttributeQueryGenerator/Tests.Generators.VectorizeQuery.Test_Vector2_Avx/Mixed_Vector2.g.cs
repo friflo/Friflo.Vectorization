@@ -56,6 +56,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector2_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
@@ -68,7 +69,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
             fixed (global::Tests.ECS.Position2* position_first = position)
             fixed (global::Tests.ECS.Velocity2* velocity_first = velocity)
             fixed (float* pos2SoA_first = pos2SoA)

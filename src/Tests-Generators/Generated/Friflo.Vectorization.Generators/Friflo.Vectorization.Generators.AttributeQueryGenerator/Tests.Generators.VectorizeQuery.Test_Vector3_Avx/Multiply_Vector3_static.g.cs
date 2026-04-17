@@ -53,6 +53,7 @@ namespace Tests.Generators.VectorizeQuery
             return _query;
         }
 
+        // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Multiply_Vector3_static_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
@@ -63,7 +64,6 @@ namespace Tests.Generators.VectorizeQuery
             if (i > count) {
                 return 0;
             }
-            // [Layout: AoS-Vertical]  - lane-native speed
             // --- Locals
             var const0 = System.Numerics.Vector3.Pi; // static
             var const0_0 = Vector256.Create(const0.X, const0.Y, const0.Z, const0.X, const0.Y, const0.Z, const0.X, const0.Y);

@@ -290,6 +290,7 @@ public static partial class Vectorizer
             Strategy.Horizontal     => "// [Layout: Horizontal]    - lane-native speed + Deinterleave penalty",
         };
         var source = $@"
+        {strategyComment}
         [SkipLocalsInit]
         private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}(int count{signature})
         {{
@@ -298,7 +299,6 @@ public static partial class Vectorizer
             if (i > count) {{
                 return 0;
             }}
-            {strategyComment}
 {localBlock}{@fixed}            {{
                 for (; i <= count; i += {elementStep})
                 {{{pointer}
