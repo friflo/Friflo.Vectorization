@@ -13,10 +13,6 @@ using Tests.ECS;
 namespace Bench;
 
 
-[SoA] struct Pos2SoA : IComponent { public Vector2 value; }
-[SoA] struct Pos3SoA : IComponent { public Vector3 value; }
-[SoA] struct Pos4SoA : IComponent { public Vector4 value; }
-
 [BenchmarkCategory("Vector3")]
 [MemoryDiagnoser] // Tracks GC allocations
 // [Config(typeof(Config))]
