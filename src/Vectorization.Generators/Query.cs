@@ -48,6 +48,9 @@ public class Query
     public          VectorType[]                    vectorTypes;
     public          bool                            vectorized;
     public          string                          avxMethod = "";
+    public readonly List<string>                    dirtyVectors = []; // contains vectors that are stored. Meaning they are "dirty"
+    public readonly HashSet<string>                 dirtyVectorsSet = [];
+    
     public readonly Dictionary<string, Param>       paramTypes = new ();
     public readonly StringBuilder                   locals = new ();
     public readonly StringBuilder                   computeTemp = new ();

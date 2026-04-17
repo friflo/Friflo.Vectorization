@@ -1,7 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -306,22 +305,8 @@ public static partial class Vectorizer
         if (body == null) {
             return source;
         }
-        var assignmentVariables = new List<string>();
-        foreach (var statement in body.Statements) {
-            if (statement is ExpressionStatementSyntax expressionStatement) {
-                if (expressionStatement.Expression is not AssignmentExpressionSyntax assignmentExpressionSyntax) {
-                    // source.AppendLine("                    // found no assignment");
-                    continue;
-                }
-                var name = Utils.GetMemberName(assignmentExpressionSyntax.Left).Identifier.Text;
-                assignmentVariables.Add(name);
-            }
-        }
-        foreach (var vectorType in query.vectorTypes) {
-            if (!assignmentVariables.Contains(vectorType.parameter.Name)) {
-                continue;
-            }
-            EmitStoreVector(source, query, vectorType, step);
+        foreach (var dirtyVector in query.dirtyVectors) {
+            EmitStoreVector(source, query, dirtyVector, step); // DIRTY
         }
         return source;
     }
@@ -399,8 +384,12 @@ $"""
         source.AppendLine();
     }
     
-    private static void EmitStoreVector(StringBuilder source, Query query, VectorType vectorType, int step)
+    private static void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
+        var vectorType = query.vectorTypes.FirstOrDefault(v => v.parameter.Name == dirtyVector);
+        if (vectorType.parameter == null) {
+            return;
+        }
         if (!vectorType.isSpan) {
             return;
         }

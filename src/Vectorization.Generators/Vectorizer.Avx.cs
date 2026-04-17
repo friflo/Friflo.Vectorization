@@ -120,6 +120,10 @@ public static partial class Vectorizer
         }
         var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
+        if (!query.dirtyVectorsSet.Contains(left)) {
+            query.dirtyVectors.Add(left); // DIRTY
+            query.dirtyVectorsSet.Add(left);
+        }
         var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
         lanes = CreateLanes(query, leftSymbol, left);
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
