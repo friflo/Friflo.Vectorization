@@ -139,14 +139,17 @@ public static partial class Vectorizer
             return "";
         }
         var sb = new StringBuilder();
-        foreach (var vectorType in query.vectorTypes) {
+        for (int n = 0; n < query.vectorTypes.Length; n++) {
+            var vectorType = query.vectorTypes[n];
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
-                sb.Append(parameter.Name);
-                sb.Append("Span");
+                sb.Append($"{parameter.Name}Span");
+                if (vectorType.layout == VectorLayout.SoA) {
+                    sb.Append($", chunk.Chunk{n+1}.GetStrideSoA()");
+                }
                 continue;
             }
             Utils.AppendRefKind(sb, parameter.RefKind);
@@ -206,7 +209,8 @@ public static partial class Vectorizer
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
                 if (vectorType.layout == VectorLayout.SoA) {
-                    signature.Append($"\n            Span<float> {parameter.Name}");    
+                    signature.Append($"\n            Span<float> {parameter.Name},");
+                    signature.Append($"\n            int {parameter.Name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";

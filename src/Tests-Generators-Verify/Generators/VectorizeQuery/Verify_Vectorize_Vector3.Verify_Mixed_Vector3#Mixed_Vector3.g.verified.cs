@@ -25,7 +25,7 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Mixed_Vector3_Avx(positionSpan, velocitySpan);
+                    n = _Mixed_Vector3_Avx(positionSpan, velocitySpan, chunk.Chunk2.GetStrideSoA());
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -59,7 +59,8 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(
             Span<global::VerifyVectorize.Position3> position,
-            Span<float> velocity)
+            Span<float> velocity,
+            int velocity_stride)
         {
             int i = 0;
             var end = position.Length - 8;
