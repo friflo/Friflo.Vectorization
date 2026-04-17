@@ -23,7 +23,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Multiply_Vector3_Clamp_Avx(positionSpan, min, max);
+                    n = _Multiply_Vector3_Clamp_Avx(_entities.Length, positionSpan, min, max);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -53,14 +53,14 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Multiply_Vector3_Clamp_Avx(
+        private static unsafe int _Multiply_Vector3_Clamp_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
             global::System.Numerics.Vector3 min,
             global::System.Numerics.Vector3 max)
         {
             int i = 0;
-            var end = position.Length - 8;
-            if (i > end) {
+            count -= 8;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
@@ -75,7 +75,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             {
-                for (; i <= end; i += 8)
+                for (; i <= count; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

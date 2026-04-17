@@ -14,14 +14,14 @@ namespace Tests.Generators.Vectorize
         /// <summary>Vector method generated for: <see cref="Multiply"/>.</summary>
         public static void MultiplyVector(Span<float> position, ReadOnlySpan<float> velocity, bool vectorized = true)
         {
+            int count = position.Length;
             int n = 0;
             if (vectorized) {
                 if (Avx.IsSupported) {
-                    n = _Multiply_Avx(position, velocity);
+                    n = _Multiply_Avx(count, position, velocity);
                 }
             }
-            int len = position.Length;
-            for (; n < len; n++) {
+            for (; n < count; n++) {
                 Multiply(ref position[n], velocity[n]);
             }
         }
@@ -29,20 +29,20 @@ namespace Tests.Generators.Vectorize
     #region private members
 
         [SkipLocalsInit]
-        private static unsafe int _Multiply_Avx(
+        private static unsafe int _Multiply_Avx(int count,
             Span<float> position,
             ReadOnlySpan<float> velocity)
         {
             int i = 0;
-            var end = position.Length - 32;
-            if (i > end) {
+            count -= 32;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
-                for (; i <= end; i += 32)
+                for (; i <= count; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

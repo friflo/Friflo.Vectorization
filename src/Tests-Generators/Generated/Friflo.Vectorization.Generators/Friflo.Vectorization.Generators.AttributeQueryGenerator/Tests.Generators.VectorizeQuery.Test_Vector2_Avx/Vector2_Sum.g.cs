@@ -23,7 +23,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Vector2_Sum_Avx(positionSpan, ref sum);
+                    n = _Vector2_Sum_Avx(_entities.Length, positionSpan, ref sum);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -53,13 +53,13 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Vector2_Sum_Avx(
+        private static unsafe int _Vector2_Sum_Avx(int count,
             ReadOnlySpan<global::Tests.ECS.Position2> position,
             ref global::System.Numerics.Vector2 sum)
         {
             int i = 0;
-            var end = position.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
@@ -69,7 +69,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Tests.ECS.Position2* position_first = position)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

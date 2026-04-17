@@ -24,7 +24,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _MixedLocals_Avx(positionSpan, scalarCompSpan, vec, scalar);
+                    n = _MixedLocals_Avx(_entities.Length, positionSpan, scalarCompSpan, vec, scalar);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -54,15 +54,15 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _MixedLocals_Avx(
+        private static unsafe int _MixedLocals_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
             ReadOnlySpan<global::Tests.ECS.FloatComponent> scalarComp,
             global::System.Numerics.Vector2 vec,
             float scalar)
         {
             int i = 0;
-            var end = position.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -78,7 +78,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Position2* position_first = position)
             fixed (global::Tests.ECS.FloatComponent* scalarComp_first = scalarComp)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* scalarComp_ptr = (float*)(scalarComp_first + i);

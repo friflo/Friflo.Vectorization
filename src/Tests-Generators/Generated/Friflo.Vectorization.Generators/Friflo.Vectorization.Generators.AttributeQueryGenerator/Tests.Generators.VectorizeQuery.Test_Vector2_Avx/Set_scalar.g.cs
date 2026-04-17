@@ -25,7 +25,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Set_scalar_Avx(positionSpan, fltSpan, flt2Span);
+                    n = _Set_scalar_Avx(_entities.Length, positionSpan, fltSpan, flt2Span);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -55,14 +55,14 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Set_scalar_Avx(
+        private static unsafe int _Set_scalar_Avx(int count,
             ReadOnlySpan<global::Tests.ECS.Position2> position,
             Span<global::Tests.ECS.FloatComponent> flt,
             ReadOnlySpan<global::Tests.ECS.FloatComponent2> flt2)
         {
             int i = 0;
-            var end = position.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -77,7 +77,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.FloatComponent* flt_first = flt)
             fixed (global::Tests.ECS.FloatComponent2* flt2_first = flt2)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* flt_ptr = (float*)(flt_first + i);

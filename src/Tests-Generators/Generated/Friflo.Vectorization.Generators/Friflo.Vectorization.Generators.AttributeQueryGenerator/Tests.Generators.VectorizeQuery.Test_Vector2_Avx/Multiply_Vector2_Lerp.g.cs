@@ -23,7 +23,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Multiply_Vector2_Lerp_Avx(srcSpan, dst, amount);
+                    n = _Multiply_Vector2_Lerp_Avx(_entities.Length, srcSpan, dst, amount);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -53,14 +53,14 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Multiply_Vector2_Lerp_Avx(
+        private static unsafe int _Multiply_Vector2_Lerp_Avx(int count,
             Span<global::Tests.ECS.Position2> src,
             global::System.Numerics.Vector2 dst,
             float amount)
         {
             int i = 0;
-            var end = src.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
@@ -72,7 +72,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Tests.ECS.Position2* src_first = src)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* src_ptr = (float*)(src_first + i);
 

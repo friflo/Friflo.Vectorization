@@ -15,14 +15,14 @@ namespace VerifyVectorize
         /// <summary>Vector method generated for: <see cref="MoveExample"/>.</summary>
         public void MoveExampleVector(Span<float> position, ReadOnlySpan<float> velocity, float deltaTime, bool vectorized = true)
         {
+            int count = position.Length;
             int n = 0;
             if (vectorized) {
                 if (Avx.IsSupported) {
-                    n = _MoveExample_Avx(position, velocity, deltaTime);
+                    n = _MoveExample_Avx(count, position, velocity, deltaTime);
                 }
             }
-            int len = position.Length;
-            for (; n < len; n++) {
+            for (; n < count; n++) {
                 MoveExample(ref position[n], velocity[n], deltaTime);
             }
         }
@@ -30,14 +30,14 @@ namespace VerifyVectorize
     #region private members
 
         [SkipLocalsInit]
-        private static unsafe int _MoveExample_Avx(
+        private static unsafe int _MoveExample_Avx(int count,
             Span<float> position,
             ReadOnlySpan<float> velocity,
             float deltaTime)
         {
             int i = 0;
-            var end = position.Length - 32;
-            if (i > end) {
+            count -= 32;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
@@ -47,7 +47,7 @@ namespace VerifyVectorize
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
-                for (; i <= end; i += 32)
+                for (; i <= count; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

@@ -23,9 +23,9 @@ public partial class AttributeQueryGenerator
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
+            int count = {query.vectorTypes[0].parameter.Name}.Length;
             int n = 0;{vectorizeBlock}
-            int len = {query.vectorTypes[0].parameter.Name}.Length;
-            for (; n < len; n++) {{
+            for (; n < count; n++) {{
                 {methodName}({lambdaParameters});
             }}
         }}";
@@ -37,10 +37,9 @@ public partial class AttributeQueryGenerator
             return "";
         }
         var sb = new StringBuilder();
+        sb.Append("count");
         foreach (var vectorType in query.vectorTypes) {
-            if (sb.Length > 0) {
-                sb.Append(", ");
-            }
+            sb.Append(", ");
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
                 sb.Append(parameter.Name);

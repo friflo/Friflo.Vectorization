@@ -25,7 +25,7 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _LocalVariable_Avx(positionSpan, velocitySpan);
+                    n = _LocalVariable_Avx(_entities.Length, positionSpan, velocitySpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -55,20 +55,20 @@ namespace VerifyVectorize
         }
 
         [SkipLocalsInit]
-        private static unsafe int _LocalVariable_Avx(
+        private static unsafe int _LocalVariable_Avx(int count,
             Span<global::VerifyVectorize.Position1> position,
             ReadOnlySpan<global::VerifyVectorize.Velocity1> velocity)
         {
             int i = 0;
-            var end = position.Length - 32;
-            if (i > end) {
+            count -= 32;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-Vertical]  - lane-native speed
             fixed (global::VerifyVectorize.Position1* position_first = position)
             fixed (global::VerifyVectorize.Velocity1* velocity_first = velocity)
             {
-                for (; i <= end; i += 32)
+                for (; i <= count; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

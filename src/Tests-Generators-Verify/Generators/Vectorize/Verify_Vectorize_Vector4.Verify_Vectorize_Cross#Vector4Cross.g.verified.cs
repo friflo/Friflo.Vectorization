@@ -15,14 +15,14 @@ namespace VerifyVectorize
         /// <summary>Vector method generated for: <see cref="Vector4Cross"/>.</summary>
         public static void Vector4CrossVector(Span<global::System.Numerics.Vector4> result, ReadOnlySpan<global::System.Numerics.Vector4> vec1, ReadOnlySpan<global::System.Numerics.Vector4> vec2, bool vectorized = true)
         {
+            int count = result.Length;
             int n = 0;
             if (vectorized) {
                 if (Avx.IsSupported) {
-                    n = _Vector4Cross_Avx(result, vec1, vec2);
+                    n = _Vector4Cross_Avx(count, result, vec1, vec2);
                 }
             }
-            int len = result.Length;
-            for (; n < len; n++) {
+            for (; n < count; n++) {
                 Vector4Cross(ref result[n], vec1[n], vec2[n]);
             }
         }
@@ -30,14 +30,14 @@ namespace VerifyVectorize
     #region private members
 
         [SkipLocalsInit]
-        private static unsafe int _Vector4Cross_Avx(
+        private static unsafe int _Vector4Cross_Avx(int count,
             Span<global::System.Numerics.Vector4> result,
             ReadOnlySpan<global::System.Numerics.Vector4> vec1,
             ReadOnlySpan<global::System.Numerics.Vector4> vec2)
         {
             int i = 0;
-            var end = result.Length - 8;
-            if (i > end) {
+            count -= 8;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -45,7 +45,7 @@ namespace VerifyVectorize
             fixed (global::System.Numerics.Vector4* vec1_first = vec1)
             fixed (global::System.Numerics.Vector4* vec2_first = vec2)
             {
-                for (; i <= end; i += 8)
+                for (; i <= count; i += 8)
                 {
                     float* result_ptr = (float*)(result_first + i);
                     float* vec1_ptr = (float*)(vec1_first + i);

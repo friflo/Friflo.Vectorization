@@ -25,7 +25,7 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Mixed_Vector3_Avx(positionSpan, chunk.Chunk1.GetStrideSoA(), velocitySpan, chunk.Chunk2.GetStrideSoA());
+                    n = _Mixed_Vector3_Avx(_entities.Length, positionSpan, chunk.Chunk1.GetStrideSoA(), velocitySpan, chunk.Chunk2.GetStrideSoA());
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -59,22 +59,22 @@ namespace VerifyVectorize
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Mixed_Vector3_Avx(
+        private static unsafe int _Mixed_Vector3_Avx(int count,
             Span<float> position,
             int position_stride,
             Span<float> velocity,
             int velocity_stride)
         {
             int i = 0;
-            var end = position.Length - 8;
-            if (i > end) {
+            count -= 8;
+            if (i > count) {
                 return 0;
             }
             // [Layout: [SoA] All]     - lane-native speed
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
-                for (; i <= end; i += 8)
+                for (; i <= count; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

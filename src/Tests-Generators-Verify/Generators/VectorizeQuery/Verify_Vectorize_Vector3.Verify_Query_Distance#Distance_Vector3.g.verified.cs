@@ -26,7 +26,7 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Distance_Vector3_Avx(positionSpan, velocitySpan, distanceSpan);
+                    n = _Distance_Vector3_Avx(_entities.Length, positionSpan, velocitySpan, distanceSpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -56,14 +56,14 @@ namespace VerifyVectorize
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Distance_Vector3_Avx(
+        private static unsafe int _Distance_Vector3_Avx(int count,
             ReadOnlySpan<global::VerifyVectorize.Position3> position,
             ReadOnlySpan<global::VerifyVectorize.Position3> velocity,
             Span<global::VerifyVectorize.Distance> distance)
         {
             int i = 0;
-            var end = position.Length - 8;
-            if (i > end) {
+            count -= 8;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -76,7 +76,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Position3* velocity_first = velocity)
             fixed (global::VerifyVectorize.Distance* distance_first = distance)
             {
-                for (; i <= end; i += 8)
+                for (; i <= count; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

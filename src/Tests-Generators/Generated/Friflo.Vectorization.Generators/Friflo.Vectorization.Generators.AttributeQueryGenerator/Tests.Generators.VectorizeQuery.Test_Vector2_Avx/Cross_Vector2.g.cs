@@ -25,7 +25,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Cross_Vector2_Avx(positionSpan, velocitySpan, scalarSpan);
+                    n = _Cross_Vector2_Avx(_entities.Length, positionSpan, velocitySpan, scalarSpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -55,14 +55,14 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Cross_Vector2_Avx(
+        private static unsafe int _Cross_Vector2_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
             ReadOnlySpan<global::Tests.ECS.Velocity2> velocity,
             Span<global::Tests.ECS.FloatComponent> scalar)
         {
             int i = 0;
-            var end = position.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -74,7 +74,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Velocity2* velocity_first = velocity)
             fixed (global::Tests.ECS.FloatComponent* scalar_first = scalar)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

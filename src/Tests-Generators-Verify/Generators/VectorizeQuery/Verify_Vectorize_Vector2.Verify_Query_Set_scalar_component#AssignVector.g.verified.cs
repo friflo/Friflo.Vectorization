@@ -26,7 +26,7 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _AssignVector_Avx(positionSpan, factorSpan, factor2Span);
+                    n = _AssignVector_Avx(_entities.Length, positionSpan, factorSpan, factor2Span);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -56,14 +56,14 @@ namespace VerifyVectorize
         }
 
         [SkipLocalsInit]
-        private static unsafe int _AssignVector_Avx(
+        private static unsafe int _AssignVector_Avx(int count,
             ReadOnlySpan<global::VerifyVectorize.Position2> position,
             Span<global::VerifyVectorize.FloatComponent> factor,
             ReadOnlySpan<global::VerifyVectorize.FloatComponent2> factor2)
         {
             int i = 0;
-            var end = position.Length - 16;
-            if (i > end) {
+            count -= 16;
+            if (i > count) {
                 return 0;
             }
             // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
@@ -78,7 +78,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.FloatComponent* factor_first = factor)
             fixed (global::VerifyVectorize.FloatComponent2* factor2_first = factor2)
             {
-                for (; i <= end; i += 16)
+                for (; i <= count; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* factor_ptr = (float*)(factor_first + i);

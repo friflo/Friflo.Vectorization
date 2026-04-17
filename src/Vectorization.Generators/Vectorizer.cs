@@ -141,9 +141,7 @@ public static partial class Vectorizer
         var sb = new StringBuilder();
         for (int n = 0; n < query.vectorTypes.Length; n++) {
             var vectorType = query.vectorTypes[n];
-            if (sb.Length > 0) {
-                sb.Append(", ");
-            }
+            sb.Append(", ");
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
                 sb.Append($"{parameter.Name}Span");
@@ -158,7 +156,7 @@ public static partial class Vectorizer
         var source = $@"
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {{
-                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}({sb});
+                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}(_entities.Length{sb});
                 }}
             EntityLoop:";
         return source;
@@ -201,9 +199,7 @@ public static partial class Vectorizer
         var signature = new StringBuilder();
         foreach (var vectorType in query.vectorTypes) {
             var parameter = vectorType.parameter;
-            if (signature.Length > 0) {
-                signature.Append(",");
-            }
+            signature.Append(",");
             if (vectorType.isSpan) {
                 if (vectorType.paramType == ParamType.Scalar) {
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
@@ -295,16 +291,16 @@ public static partial class Vectorizer
         };
         var source = $@"
         [SkipLocalsInit]
-        private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}({signature})
+        private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}(int count{signature})
         {{
             int i = 0;
-            var end = {query.Spans[0].Name}.Length - {elementStep};
-            if (i > end) {{
+            count -= {elementStep};
+            if (i > count) {{
                 return 0;
             }}
             {strategyComment}
 {localBlock}{@fixed}            {{
-                for (; i <= end; i += {elementStep})
+                for (; i <= count; i += {elementStep})
                 {{{pointer}
 {vectorizeBlock}
                 }}

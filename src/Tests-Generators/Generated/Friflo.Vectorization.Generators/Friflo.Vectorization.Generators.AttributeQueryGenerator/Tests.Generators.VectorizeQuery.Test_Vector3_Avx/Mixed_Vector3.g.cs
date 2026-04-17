@@ -24,7 +24,7 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Mixed_Vector3_Avx(positionSpan, velocitySpan, chunk.Chunk2.GetStrideSoA());
+                    n = _Mixed_Vector3_Avx(_entities.Length, positionSpan, velocitySpan, chunk.Chunk2.GetStrideSoA());
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
@@ -56,21 +56,21 @@ namespace Tests.Generators.VectorizeQuery
         }
 
         [SkipLocalsInit]
-        private static unsafe int _Mixed_Vector3_Avx(
+        private static unsafe int _Mixed_Vector3_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position,
             Span<float> velocity,
             int velocity_stride)
         {
             int i = 0;
-            var end = position.Length - 8;
-            if (i > end) {
+            count -= 8;
+            if (i > count) {
                 return 0;
             }
             // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (float* velocity_first = velocity)
             {
-                for (; i <= end; i += 8)
+                for (; i <= count; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);
