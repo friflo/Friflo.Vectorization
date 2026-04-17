@@ -396,11 +396,29 @@ $"""
                     break;
             }
         } else {
-            for (int n = 0; n < laneCount; n++) {
-                if (vectorType.layout == VectorLayout.SoA) {
-                    source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {name}_stride * {n});   // {typeName}");
-                } else {
-                    source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");    
+            var lanesSoA = query.vectorDimension == 2 ? 2 : 1;
+            var elementStep = query.vectorDimension switch {
+                1 => 32,
+                2 => 16,
+                3 => 8,
+                4 => 8,
+                _ => -1,
+            };
+            if (vectorType.dimension == 2 && vectorType.layout == VectorLayout.SoA) {
+                source.AppendLine(
+$"""
+                    Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // xxxxxxxx {typeName}
+                    Vector256<float> {name}_2 = Avx.LoadVector256({name}_ptr + 8);  // xxxxxxxx
+                    Vector256<float> {name}_1 = Avx.LoadVector256({name}_ptr + {name}_stride    ); // yyyyyyyy
+                    Vector256<float> {name}_3 = Avx.LoadVector256({name}_ptr + {name}_stride + 8); // yyyyyyyy
+""");
+            } else {
+                for (int n = 0; n < laneCount; n++) {
+                    if (vectorType.layout == VectorLayout.SoA) {
+                        source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {name}_stride * {n});   // {typeName}");
+                    } else {
+                        source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");    
+                    }
                 }
             }
         }

@@ -48,8 +48,9 @@ public static partial class Test_Vector2_Avx
                 new Position2 { value = new Vector2(n, n + 100)},
                 new Velocity2 { value = new Vector2(n + 200, n + 300)},
                 new FloatComponent  { value = n },
-                new FloatComponent2 { value = 2 * n }
-                );
+                new FloatComponent2 { value = 2 * n },
+                new Pos2SoA { value = new Vector2(n, n + 1000)},
+                new Vel2SoA { value = new Vector2(n * 0.1f, n * 0.2f)});
         }
         return store;
     }
@@ -486,5 +487,53 @@ public static partial class Test_Vector2_Avx
             Assert.That(entity.GetComponent<FloatComponent>(), Is.EqualTo(entityVectorized.GetComponent<FloatComponent>()));
         }
     }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void Mixed_Vector2(ref Position2 position, Velocity2 velocity, Pos2SoA pos2SoA)
+    {
+        position.value = velocity.value * pos2SoA.value;
+    }
+
+    [Test]
+    public static void Test_Mixed_Vector2()
+    {
+        var store = CreateTestStore();
+        Mixed_Vector2Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = Mixed_Vector2Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetComponent<Position2>().value, Is.EqualTo(entityVectorized.GetComponent<Position2>().value));
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------------------------
+    /* [Vectorize][Query]  [OmitHash]
+    private static void NativeSoA_Vector2(ref Pos2SoA position, Vel2SoA velocity)
+    {
+        position.value *= velocity.value;
+    }
+
+    [Test]
+    public static void Test_NativeSoA_Vector2()
+    {
+        var store = CreateTestStore();
+        NativeSoA_Vector2Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = NativeSoA_Vector2Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetComponent<Pos2SoA>().value, Is.EqualTo(entityVectorized.GetComponent<Pos2SoA>().value));
+        }
+    } */
 
 }
