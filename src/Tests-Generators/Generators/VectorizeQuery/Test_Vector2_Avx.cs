@@ -513,7 +513,7 @@ public static partial class Test_Vector2_Avx
     }
     
     // -----------------------------------------------------------------------------------------------------
-    /* [Vectorize][Query]  [OmitHash]
+    [Vectorize][Query]  [OmitHash]
     private static void NativeSoA_Vector2(ref Pos2SoA position, Vel2SoA velocity)
     {
         position.value *= velocity.value;
@@ -532,8 +532,8 @@ public static partial class Test_Vector2_Avx
         foreach (var entity in store.Entities)
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
-            Assert.That(entity.GetComponent<Pos2SoA>().value, Is.EqualTo(entityVectorized.GetComponent<Pos2SoA>().value));
+            Assert.That(entity.GetSoA<Pos2SoA>().value, Is.EqualTo(entityVectorized.GetSoA<Pos2SoA>().value));
         }
-    } */
+    }
 
 }

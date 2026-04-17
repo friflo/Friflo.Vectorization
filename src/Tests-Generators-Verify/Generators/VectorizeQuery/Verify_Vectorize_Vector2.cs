@@ -355,5 +355,31 @@ public partial class MyExample
         await Verify(code);
     }
     
+    [Test]
+    public static async Task  Verify_NativeSoA_Vector2()
+    {
+        var code =
+            """
+            using System.Numerics;
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyVectorize;
+
+            [SoA] public struct Vel2SoA : IComponent { public Vector2 value; }
+            [SoA] public struct Pos2SoA : IComponent { public Vector2 value; }
+
+            public partial class MyExample
+            {
+                [Vectorize][Query]  [OmitHash]
+                private static void Mixed_Vector3(ref Pos2SoA position, Vel2SoA velocity)
+                {
+                    position.value *= velocity.value;
+                }
+            }
+            """;
+        await Verify(code);
+    }
+    
 
 }

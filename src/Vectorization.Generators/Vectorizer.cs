@@ -469,20 +469,31 @@ $"""
                     break;
             }
         }
-        var laneCount = query.laneCount;
-        if (vectorType.dimension == 1) {
-            laneCount = query.vectorDimension switch {
-                2 => 2,
-                3 => 1,
-                4 => 1,
-                _ => laneCount
-            };
-        }
-        for (int n = 0; n < laneCount; n++) {
-            if (vectorType.layout == VectorLayout.SoA) {
-                source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
-            } else {
-                source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
+        if (vectorType.dimension == 2 && vectorType.layout == VectorLayout.SoA)
+        {
+                source.AppendLine(
+$"""
+                    Avx.Store({name}_ptr,     {name}_0); // xxxxxxxx
+                    Avx.Store({name}_ptr + 8, {name}_2); // xxxxxxxx
+                    Avx.Store({name}_ptr + {name}_stride    , {name}_1); // yyyyyyyy
+                    Avx.Store({name}_ptr + {name}_stride + 8, {name}_3); // yyyyyyyy
+""");
+        } else {
+            var laneCount = query.laneCount;
+            if (vectorType.dimension == 1) {
+                laneCount = query.vectorDimension switch {
+                    2 => 2,
+                    3 => 1,
+                    4 => 1,
+                    _ => laneCount
+                };
+            }
+            for (int n = 0; n < laneCount; n++) {
+                if (vectorType.layout == VectorLayout.SoA) {
+                    source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
+                } else {
+                    source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
+                }
             }
         }
         source.AppendLine();
