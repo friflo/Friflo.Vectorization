@@ -49,7 +49,9 @@ public static partial class Test_Vector3_Avx
                 new Position(n,n+1,n+2),
                 new Velocity { value = new Vector3(1,2,3)},
                 new FloatComponent { value = n },
-                new Pos3SoA { value = new Vector3(n, n + 1000, n+2000)});
+                new Pos3SoA { value = new Vector3(n, n + 1000, n+2000)},
+                new Vel3SoA { value = new Vector3(n * 0.1f, n * 0.2f, n * 0.3f)}
+                );
         }
         return store;
     }
@@ -541,6 +543,30 @@ public static partial class Test_Vector3_Avx
 
         var storeVectorized = CreateTestStore();
         var query = Mixed_Vector3Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetComponent<Position>().value, Is.EqualTo(entityVectorized.GetComponent<Position>().value));
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void NativeSoA_Vector3(ref Pos3SoA position, Vel3SoA velocity)
+    {
+        position.value *= velocity.value;
+    }
+
+    [Test]
+    public static void Test_NativeSoA_Vector3()
+    {
+        var store = CreateTestStore();
+        NativeSoA_Vector3Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = NativeSoA_Vector3Query(storeVectorized);
 
         Assert.That(query.Count, Is.EqualTo(EntityCount));
         foreach (var entity in store.Entities)

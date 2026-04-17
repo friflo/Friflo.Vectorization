@@ -505,7 +505,11 @@ $"""
             }
         } else {
             for (int n = 0; n < laneCount; n++) {
-                source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
+                if (vectorType.layout == VectorLayout.SoA) {
+                    source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
+                } else {
+                    source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
+                }
             }
         }
         source.AppendLine();

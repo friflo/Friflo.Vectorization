@@ -374,6 +374,32 @@ public partial class MyExample
             """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_NativeSoA_Vector3()
+    {
+        var code =
+            """
+            using System.Numerics;
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyVectorize;
+
+            [SoA] public struct Pos3SoA : IComponent { public Vector3 value; }
+            [SoA] public struct Vel3SoA : IComponent { public Vector3 value; }
+
+            public partial class MyExample
+            {
+                [Vectorize][Query]  [OmitHash]
+                private static void Mixed_Vector3(ref Pos3SoA position, Vel3SoA velocity)
+                {
+                    position.value *= velocity.value;
+                }
+            }
+            """;
+        await Verify(code);
+    }
 }
 
 
