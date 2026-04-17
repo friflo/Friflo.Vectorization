@@ -59,14 +59,14 @@ public class VectorType
                     query.ReportDiagnosticSymbol(Errors.InvalidComponentType, parameter, type.Name, parameter.Name);
                     return null;
                 }
-                var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type, VectorLayout.AoS);
+                var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute") ? 
+                                VectorLayout.SoA : VectorLayout.AoS;
+                var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type, layout);
                 result.Add(vectorType);
             } else {
                 isSpan = query.VectorMode == VectorMode.Vector &&
                          Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                var layout = Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute") ? 
-                                VectorLayout.SoA : VectorLayout.AoS;
-                var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type, layout);
+                var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type, VectorLayout.AoS);
                 result.Add(vectorType);
             }
         }

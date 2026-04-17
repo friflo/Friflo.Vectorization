@@ -394,7 +394,9 @@ $"""
                 source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");
             }
         }
-        if (query.useDeinterleave && vectorType.dimension > 1) {  // SOA
+        if (query.useDeinterleave && vectorType.dimension > 1 ||
+            query.strategy == Strategy.MixedAdapter && vectorType.layout == VectorLayout.AoS)
+        {
             switch (query.vectorDimension) {
                 case 2:
                     source.AppendLine($"                    ({name}_0, {name}_1) = AvxVector2.Deinterleave({name}_0, {name}_1);");
@@ -421,7 +423,9 @@ $"""
             return;
         }
         var name = vectorType.parameter.Name;
-        if (query.useDeinterleave) {
+        if (query.useDeinterleave ||
+            query.strategy == Strategy.MixedAdapter && vectorType.layout == VectorLayout.AoS)
+        {
             switch (vectorType.dimension) {
                 case 1:
                     break;

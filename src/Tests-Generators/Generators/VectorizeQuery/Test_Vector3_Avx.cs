@@ -45,7 +45,11 @@ public static partial class Test_Vector3_Avx
     {
         var store = new EntityStore();
         for (int n = 0; n < EntityCount; n++) {
-            store.CreateEntity(new Position(n,n+1,n+2), new Velocity { value = new Vector3(1,2,3)}, new FloatComponent { value = n });
+            store.CreateEntity(
+                new Position(n,n+1,n+2),
+                new Velocity { value = new Vector3(1,2,3)},
+                new FloatComponent { value = n },
+                new Pos3SoA { value = new Vector3(n, n + 1000, n+2000)});
         }
         return store;
     }
@@ -513,6 +517,30 @@ public static partial class Test_Vector3_Avx
 
         var storeVectorized = CreateTestStore();
         var query = DistanceSquared_Vector3Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetComponent<FloatComponent>(), Is.EqualTo(entityVectorized.GetComponent<FloatComponent>()));
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void Mixed_Vector3(Position position, ref Pos3SoA velocity)
+    {
+        velocity.value *= position.value;
+    }
+
+    [Test]
+    public static void Test_Mixed_Vector3()
+    {
+        var store = CreateTestStore();
+        Mixed_Vector3Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = Mixed_Vector3Query(storeVectorized);
 
         Assert.That(query.Count, Is.EqualTo(EntityCount));
         foreach (var entity in store.Entities)
