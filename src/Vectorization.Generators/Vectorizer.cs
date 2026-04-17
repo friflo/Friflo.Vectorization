@@ -466,50 +466,11 @@ $"""
                 _ => laneCount
             };
         }
-        if (vectorType.paramType == ParamType.Scalar)
-        {
-            switch (vectorType.dimension)
-            {
-                case 1:
-                    for (int n = 0; n < laneCount; n++) {
-                        source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
-                    }
-                    break;
-                case 2:
-                    for (int n = 0; n < laneCount; n++) {
-                        source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
-                    } /*
-                    source.AppendLine(
-$"""
-                    Vector256<float> {name}_scalar_01 = Avx.LoadVector256({name}_ptr);
-                    Vector256<float> {name}_scalar_23 = Avx.LoadVector256({name}_ptr + 8);
-                    Vector256<float> {name}_0 = Avx2.PermuteVar8x32({name}_scalar_01, {name}_mask_lo);
-                    Vector256<float> {name}_1 = Avx2.PermuteVar8x32({name}_scalar_01, {name}_mask_hi);
-                    Vector256<float> {name}_2 = Avx2.PermuteVar8x32({name}_scalar_23, {name}_mask_lo);
-                    Vector256<float> {name}_3 = Avx2.PermuteVar8x32({name}_scalar_23, {name}_mask_hi);
-"""); */
-                    break;
-                default:
-                    for (int n = 0; n < laneCount; n++) {
-                        if (vectorType.layout == VectorLayout.SoA) {
-                            source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
-                        } else {
-                            source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
-                        }
-                    }
-                    /* source.AppendLine($"                    Vector256<float> {name}_scalar = Avx.LoadVector256({name}_ptr);");
-                    for (int n = 0; n < laneCount; n++) {
-                        source.AppendLine($"                    Vector256<float> {name}_{n} = Avx2.PermuteVar8x32({name}_scalar, {name}_mask_{n});");
-                    } */
-                    break;
-            }
-        } else {
-            for (int n = 0; n < laneCount; n++) {
-                if (vectorType.layout == VectorLayout.SoA) {
-                    source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
-                } else {
-                    source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
-                }
+        for (int n = 0; n < laneCount; n++) {
+            if (vectorType.layout == VectorLayout.SoA) {
+                source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
+            } else {
+                source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
             }
         }
         source.AppendLine();
