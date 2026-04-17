@@ -24,6 +24,7 @@ public enum VectorLayout : byte
 
 public class VectorType
 {
+    public string           name;
     public IParameterSymbol parameter;
     public string           fullQualifiedName;
     public bool             isSpan;
@@ -105,6 +106,7 @@ public class VectorType
             isScalar    = false;
         }
         return new VectorType {
+            name                = parameter.Name, 
             parameter           = parameter,
             fullQualifiedName   = fullQualifiedName,
             isSpan              = isSpan,

@@ -21,7 +21,7 @@ namespace VerifyVectorize
             {
                 var _entities = chunk.Entities;
                 var positionSpan = chunk.Chunk1.Span;
-                var velocitySpan = chunk.Chunk2.Span;
+                var velocitySpan = chunk.Chunk2.GetLanesSoA();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
@@ -29,7 +29,9 @@ namespace VerifyVectorize
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
+                    var velocityAoS = chunk.Chunk2.GetSoA(n);
                     Mixed_Vector3(ref positionSpan[n], velocitySpan[n]);
+                    chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
             return _query;
@@ -57,7 +59,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(
             Span<global::VerifyVectorize.Position3> position,
-            ReadOnlySpan<global::VerifyVectorize.Pos3SoA> velocity)
+            Span<float> velocity)
         {
             int i = 0;
             var end = position.Length - 8;

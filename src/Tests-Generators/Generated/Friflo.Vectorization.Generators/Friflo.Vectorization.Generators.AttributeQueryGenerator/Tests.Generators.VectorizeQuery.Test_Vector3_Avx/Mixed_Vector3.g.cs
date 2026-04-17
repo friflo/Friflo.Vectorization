@@ -20,7 +20,7 @@ namespace Tests.Generators.VectorizeQuery
             {
                 var _entities = chunk.Entities;
                 var positionSpan = chunk.Chunk1.Span;
-                var velocitySpan = chunk.Chunk2.Span;
+                var velocitySpan = chunk.Chunk2.GetLanesSoA();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
@@ -28,7 +28,9 @@ namespace Tests.Generators.VectorizeQuery
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    Mixed_Vector3(positionSpan[n], ref velocitySpan[n]);
+                    var velocityAoS = chunk.Chunk2.GetSoA(n);
+                    Mixed_Vector3(ref positionSpan[n], velocitySpan[n]);
+                    chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
             return _query;
@@ -55,8 +57,8 @@ namespace Tests.Generators.VectorizeQuery
 
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(
-            ReadOnlySpan<global::Friflo.Engine.ECS.Position> position,
-            Span<global::Tests.ECS.Pos3SoA> velocity)
+            Span<global::Friflo.Engine.ECS.Position> position,
+            Span<float> velocity)
         {
             int i = 0;
             var end = position.Length - 8;
@@ -83,15 +85,16 @@ namespace Tests.Generators.VectorizeQuery
                     Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);   // Pos3SoA
 
                     // --- 2. Compute
-                    // velocity.value *= position.value;
-                    velocity_0 = Avx.Multiply(velocity_0, position_0);
-                    velocity_1 = Avx.Multiply(velocity_1, position_1);
-                    velocity_2 = Avx.Multiply(velocity_2, position_2);
+                    // position.value *= velocity.value;
+                    position_0 = Avx.Multiply(position_0, velocity_0);
+                    position_1 = Avx.Multiply(position_1, velocity_1);
+                    position_2 = Avx.Multiply(position_2, velocity_2);
 
                     // --- 3. Store
-                    Avx.Store(velocity_ptr +  0, velocity_0);
-                    Avx.Store(velocity_ptr +  8, velocity_1);
-                    Avx.Store(velocity_ptr + 16, velocity_2);
+                    (position_0, position_1, position_2) = AvxVector3.Interleave(position_0, position_1, position_2);
+                    Avx.Store(position_ptr +  0, position_0);
+                    Avx.Store(position_ptr +  8, position_1);
+                    Avx.Store(position_ptr + 16, position_2);
                 }
             }
             return i;

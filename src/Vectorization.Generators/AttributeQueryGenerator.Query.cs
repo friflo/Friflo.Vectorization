@@ -21,6 +21,7 @@ public partial class AttributeQueryGenerator
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
+        EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
         
         var hash            = query.Hash;
         var blueprintMethod = query.BlueprintMethod;
@@ -53,8 +54,8 @@ public partial class AttributeQueryGenerator
 {chunkVariables}
                 int n = 0;{vectorizeBlock}
                 for (; n < _entities.Length; n++) {{
-                    {methodName}({lambdaParameters});
-                }}
+{getterAoS}                    {methodName}({lambdaParameters});
+{setterAoS}                }}
             }}
             return _query;
         }}";
@@ -132,11 +133,11 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.AppendLine("");
             }
-            sb.Append("                var ");
-            sb.Append(component.Name);
-            sb.Append("Span = chunk.Chunk");
-            sb.Append(index++);
-            sb.Append(".Span;");
+            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
+                sb.Append($"                var {component.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
+                continue;
+            }
+            sb.Append($"                var {component.Name}Span = chunk.Chunk{index++}.Span;");
         }
         return sb.ToString();
     }
@@ -198,5 +199,19 @@ public partial class AttributeQueryGenerator
             }
         }
         return sb.ToString();
+    }
+    
+    private static void EmitSoAGetterAndSetter(List<IParameterSymbol> components, out StringBuilder getterAoS, out StringBuilder setterAoS)
+    {
+        getterAoS = new StringBuilder();
+        setterAoS = new StringBuilder();
+        var index = 1;
+        foreach (var component in components) {
+            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
+                getterAoS.AppendLine($"                    var {component.Name}AoS = chunk.Chunk{index}.GetSoA(n);");
+                setterAoS.AppendLine($"                    chunk.Chunk{index}.SetSoA(n, {component.Name}AoS);");
+            }
+            index++;
+        }
     }
 }
