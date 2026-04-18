@@ -203,4 +203,30 @@ public partial class MyExample
             """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Mixed_Vector4()
+    {
+        var code =
+            """
+            using System.Numerics;
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyVectorize;
+
+            public struct Position4 : IComponent { public Vector4 value; }
+            [SoA] public struct Pos4SoA : IComponent { public Vector4 value; }
+
+            public partial class MyExample
+            {
+                [Vectorize][Query]  [OmitHash]
+                private static void Mixed_Vector4(ref Position4 position, Pos4SoA velocity)
+                {
+                    position.value *= velocity.value;
+                }
+            }
+            """;
+        await Verify(code);
+    }
 }

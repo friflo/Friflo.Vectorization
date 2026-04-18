@@ -45,7 +45,13 @@ public static partial class Test_Vector4_Avx
     {
         var store = new EntityStore();
         for (int n = 0; n < EntityCount; n++) {
-            store.CreateEntity(new Position4 { value = new Vector4(n,n+1,n+2,n+3)}, new Velocity4 { value = new Vector4(1,2,3,4)}, new FloatComponent { value = n });
+            store.CreateEntity(
+                new Position4 { value = new Vector4(n,n+1,n+2,n+3)},
+                new Velocity4 { value = new Vector4(1,2,3,4)},
+                new FloatComponent { value = n },
+                new Pos4SoA { value = new Vector4(n, n + 1000, n+2000, n+3000)},
+                new Vel4SoA { value = new Vector4(n * 0.1f, n * 0.2f, n * 0.3f, n * 0.4f)}
+                );
         }
         return store;
     }
@@ -432,6 +438,30 @@ public static partial class Test_Vector4_Avx
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
             Assert.That(entity.GetComponent<Position4>(), Is.EqualTo(entityVectorized.GetComponent<Position4>()));
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void Mixed_Vector4(ref Position4 position, Pos4SoA velocity)
+    {
+        position.value *= velocity.value;
+    }
+
+    [Test]
+    public static void Test_Mixed_Vector4()
+    {
+        var store = CreateTestStore();
+        Mixed_Vector4Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = Mixed_Vector4Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetComponent<Position4>().value, Is.EqualTo(entityVectorized.GetComponent<Position4>().value));
         }
     }
 }
