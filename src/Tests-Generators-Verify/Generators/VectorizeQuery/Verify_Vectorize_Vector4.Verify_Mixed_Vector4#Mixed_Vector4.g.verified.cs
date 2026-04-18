@@ -20,7 +20,7 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.Span;
+                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
                 var velocitySpan = chunk.Chunk2.GetLanesSoA();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
@@ -63,6 +63,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (velocity.Length < paddedCount + velocity_stride * 3) VectorUtils.ThrowBufferTooSmall();
 
             fixed (global::VerifyVectorize.Position4* position_first = position)
             fixed (float* velocity_first = velocity)

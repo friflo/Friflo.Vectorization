@@ -41,6 +41,9 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
+            if (position.Length < count) VectorUtils.ThrowBufferTooSmall();
+            if (velocity.Length < count) VectorUtils.ThrowBufferTooSmall();
+
             // --- Locals
             var deltaTime_scalar = Vector256.Create(deltaTime);
 

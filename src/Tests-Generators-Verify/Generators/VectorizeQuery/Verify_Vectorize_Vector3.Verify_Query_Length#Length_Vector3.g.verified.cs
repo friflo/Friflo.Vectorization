@@ -20,8 +20,8 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.Span;
-                var lengthSpan = chunk.Chunk2.Span;
+                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var lengthSpan = chunk.Chunk2.ArchetypeComponents.AsSpan();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
@@ -62,6 +62,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (length.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
 
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);

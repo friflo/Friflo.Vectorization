@@ -19,7 +19,7 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var srcSpan = chunk.Chunk1.Span;
+                var srcSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
@@ -61,6 +61,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
+            if (src.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
 
             // --- Locals
             var dst_0 = Vector256.Create(dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y);

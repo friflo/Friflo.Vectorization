@@ -15,7 +15,7 @@ namespace Tests.Generators.Query.Duplicate
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.Span;
+                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     MoveExample(ref positionSpan[n], _entities.EntityAt(n));

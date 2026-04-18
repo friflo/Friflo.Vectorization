@@ -16,7 +16,7 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var componentSpan = chunk.Chunk1.Span;
+                var componentSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     InvalidComponent(ref componentSpan[n], value);

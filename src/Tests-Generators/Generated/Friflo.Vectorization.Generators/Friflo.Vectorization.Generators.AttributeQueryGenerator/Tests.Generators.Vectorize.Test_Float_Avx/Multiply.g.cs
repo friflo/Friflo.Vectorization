@@ -39,6 +39,9 @@ namespace Tests.Generators.Vectorize
             if (i > count) {
                 return 0;
             }
+            if (position.Length < count) VectorUtils.ThrowBufferTooSmall();
+            if (velocity.Length < count) VectorUtils.ThrowBufferTooSmall();
+
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {

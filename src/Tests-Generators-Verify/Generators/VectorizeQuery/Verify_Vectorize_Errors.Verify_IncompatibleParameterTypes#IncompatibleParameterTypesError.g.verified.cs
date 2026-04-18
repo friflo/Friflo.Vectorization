@@ -16,8 +16,8 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var pos1Span = chunk.Chunk1.Span;
-                var pos3Span = chunk.Chunk2.Span;
+                var pos1Span = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var pos3Span = chunk.Chunk2.ArchetypeComponents.AsSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     IncompatibleParameterTypesError(ref pos1Span[n], ref pos3Span[n]);

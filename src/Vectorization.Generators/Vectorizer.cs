@@ -273,6 +273,7 @@ public static partial class Vectorizer
             Strategy.MixedAdapter   => "// [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty",
             Strategy.Horizontal     => "// [Layout: Horizontal]    - lane-native speed + Deinterleave penalty",
         };
+        var guards = EmitLengthGuards(query, elementStep);
         bool isQuery = query.VectorMode == VectorMode.Query;
         var source = $@"
         {strategyComment}
@@ -285,7 +286,8 @@ public static partial class Vectorizer
             count -= {elementStep};
             if (i > count) {{
                 return 0;
-            }}")}
+            }}
+")}{guards}
 {localBlock}{@fixed}            {{
                 for (; {(isQuery ? "i < paddedCount" : "i <= count")}; i += {elementStep})
                 {{{pointer}
@@ -296,6 +298,22 @@ public static partial class Vectorizer
         }}
 ";
         query.avxMethod = source;
+    }
+    
+    private static StringBuilder EmitLengthGuards(Query query, int elementStep)
+    {
+        var sb = new StringBuilder();
+        var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";
+        foreach (var vectorType in query.vectorTypes) {
+            if (!vectorType.isSpan) continue;
+            var name = vectorType.name;
+            if (vectorType.layout == VectorLayout.SoA) {
+                sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall();");
+            } else {
+                sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall();");
+            }
+        }
+        return sb;
     }
     
     private static StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)

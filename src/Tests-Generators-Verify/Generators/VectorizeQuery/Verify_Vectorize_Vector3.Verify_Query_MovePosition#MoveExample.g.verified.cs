@@ -20,8 +20,8 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.Span;
-                var velocitySpan = chunk.Chunk2.Span;
+                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var velocitySpan = chunk.Chunk2.ArchetypeComponents.AsSpan();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
@@ -62,6 +62,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::VerifyVectorize.Velocity* velocity_first = velocity)

@@ -64,6 +64,8 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
+            if (position.Length < paddedCount + position_stride * 1) VectorUtils.ThrowBufferTooSmall();
+            if (velocity.Length < paddedCount + velocity_stride * 1) VectorUtils.ThrowBufferTooSmall();
 
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
