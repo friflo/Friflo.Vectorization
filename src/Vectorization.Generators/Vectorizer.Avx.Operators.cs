@@ -11,63 +11,6 @@ namespace Friflo.Vectorization.Generators;
 
 public static partial class Vectorizer
 {
-    private static bool Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
-    {
-        var memberExpression = memberAccess.Expression;
-        if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
-        	// Required to for: Vector3.Length()
-            return Compute_MemberAccess(lanes, query, childMemberAccess);
-        }
-        if (memberExpression is not IdentifierNameSyntax identifierNameSyntax) {
-            return false;
-        }
-        var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
-        var symbol = symbolInfo.Symbol;
-        var isStatic = symbol != null && symbol.IsStatic;
-        if (isStatic)
-        {
-            // var value = symbol!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var value = $"{symbol.ContainingType.ToDisplayString()}.{symbol.Name}"; 
-            var name = query.AddConst();
-            /* if (symbol is IPropertySymbol typeSymbol) {
-                var paramType = typeSymbol.Type.SpecialType == SpecialType.System_Single ? ParamType.Scalar : ParamType.Vector;
-                query.paramTypes.Add(name, paramType);
-            } */ 
-            query.locals.AppendLine($"            var {name} = {value}; // static");
-            var isScalar = Utils.InterleaveVector3(query.locals, name, query);
-            query.AddParam(name, false, isScalar, false, 0);
-            query.locals.AppendLine();
-            
-            for (int n = 0; n < lanes.Length; n++) {
-                var vectorName = query.GetVectorName(name, n);
-                lanes[n].Append(vectorName);
-            }
-        } else {
-            var name = identifierNameSyntax.Identifier.Text;
-            query.readVectors.Add(name);
-            if (query.paramTypes.TryGetValue(name, out var paramType)) { // SOA
-                if (paramType.dimension == 1 && query.vectorDimension > 1) {
-                    query.requireDeinterleave = true;
-                }
-            }
-            for (int i = 0; i < lanes.Length; i++) {
-                var vectorName = query.GetVectorName(name, i);
-                lanes[i].Append(vectorName);
-            }
-        }
-        return true;
-    }
-    
-    private static bool Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
-    {
-        var name = identifierName.Identifier.Text;
-        for (int i = 0; i < lanes.Length; i++) {
-            var vectorName = query.GetVectorName(name, i);
-            lanes[i].Append(vectorName);
-        }
-        return true;
-    }
-    
     private static StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {
         var laneCount = query.laneCount;
@@ -108,11 +51,11 @@ public static partial class Vectorizer
         var kind = assignment.Kind();
         var avxOperation = kind switch
         {
-            SyntaxKind.SimpleAssignmentExpression   => "",
-            SyntaxKind.AddAssignmentExpression      => "Avx.Add",
-            SyntaxKind.SubtractAssignmentExpression => "Avx.Subtract",
-            SyntaxKind.MultiplyAssignmentExpression => "Avx.Multiply",
-            SyntaxKind.DivideAssignmentExpression   => "Avx.Divide",
+            SyntaxKind.SimpleAssignmentExpression   => "",              // =
+            SyntaxKind.AddAssignmentExpression      => "Avx.Add",       // +=
+            SyntaxKind.SubtractAssignmentExpression => "Avx.Subtract",  // -=
+            SyntaxKind.MultiplyAssignmentExpression => "Avx.Multiply",  // *=
+            SyntaxKind.DivideAssignmentExpression   => "Avx.Divide",    // /=
             _                                       => null
         };
         if (avxOperation is null) {
@@ -169,10 +112,10 @@ public static partial class Vectorizer
         var kind = binary.Kind();
         var avxOperation = kind switch
         {
-            SyntaxKind.AddExpression      => "Add",
-            SyntaxKind.SubtractExpression => "Subtract",
-            SyntaxKind.MultiplyExpression => "Multiply",
-            SyntaxKind.DivideExpression   => "Divide",
+            SyntaxKind.AddExpression      => "Add",         // +
+            SyntaxKind.SubtractExpression => "Subtract",    // -
+            SyntaxKind.MultiplyExpression => "Multiply",    // *
+            SyntaxKind.DivideExpression   => "Divide",      // /
             _                             => null
         };
         if (avxOperation is null) {
@@ -227,29 +170,6 @@ public static partial class Vectorizer
             return false;
         }
         lanes.Append(")");
-        return true;
-    }
-
-    private static string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
-    {
-        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-        {
-            var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
-            if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
-                return methodSymbol.ToDisplayString();
-            }
-        }
-        return null;
-    }
-
-    private static bool Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
-    {
-        var name = query.AddConst();
-        query.locals.AppendLine($"            var {name}_scalar = Vector256.Create<float>({literal.Token.Text}); // literal");
-        query.locals.AppendLine();
-        for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"{name}_scalar");
-        }
         return true;
     }
 }
