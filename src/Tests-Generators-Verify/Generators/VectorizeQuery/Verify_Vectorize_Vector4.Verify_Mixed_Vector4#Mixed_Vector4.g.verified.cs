@@ -31,7 +31,6 @@ namespace VerifyVectorize
                 for (; n < _entities.Length; n++) {
                     var velocityAoS = chunk.Chunk2.GetSoA(n);
                     Mixed_Vector4(ref positionSpan[n], velocityAoS);
-                    chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
             return _query;

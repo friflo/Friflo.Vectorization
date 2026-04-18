@@ -212,7 +212,9 @@ public partial class AttributeQueryGenerator
         foreach (var component in components) {
             if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
                 getterAoS.AppendLine($"                    var {component.Name}AoS = chunk.Chunk{index}.GetSoA(n);");
-                setterAoS.AppendLine($"                    chunk.Chunk{index}.SetSoA(n, {component.Name}AoS);");
+                if (component.RefKind == RefKind.Ref) {
+                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetSoA(n, {component.Name}AoS);");
+                }
             }
             index++;
         }

@@ -32,7 +32,6 @@ namespace Tests.Generators.VectorizeQuery
                     var velocityAoS = chunk.Chunk2.GetSoA(n);
                     NativeSoA_Vector2(ref positionAoS, velocityAoS);
                     chunk.Chunk1.SetSoA(n, positionAoS);
-                    chunk.Chunk2.SetSoA(n, velocityAoS);
                 }
             }
             return _query;

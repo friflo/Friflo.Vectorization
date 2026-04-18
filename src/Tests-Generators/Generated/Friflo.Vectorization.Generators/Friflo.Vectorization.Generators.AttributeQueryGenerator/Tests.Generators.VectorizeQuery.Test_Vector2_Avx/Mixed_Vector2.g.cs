@@ -31,7 +31,6 @@ namespace Tests.Generators.VectorizeQuery
                 for (; n < _entities.Length; n++) {
                     var pos2SoAAoS = chunk.Chunk3.GetSoA(n);
                     Mixed_Vector2(ref positionSpan[n], velocitySpan[n], pos2SoAAoS);
-                    chunk.Chunk3.SetSoA(n, pos2SoAAoS);
                 }
             }
             return _query;
