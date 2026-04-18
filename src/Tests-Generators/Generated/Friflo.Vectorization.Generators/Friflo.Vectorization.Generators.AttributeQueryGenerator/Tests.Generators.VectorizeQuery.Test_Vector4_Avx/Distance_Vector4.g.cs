@@ -61,11 +61,9 @@ namespace Tests.Generators.VectorizeQuery
             ReadOnlySpan<global::Tests.ECS.Velocity4> velocity,
             Span<global::Tests.ECS.FloatComponent> length)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 0, 1, 1, 1, 1);
             Vector256<int> length_mask_1 = Vector256.Create(2, 2, 2, 2, 3, 3, 3, 3);
@@ -76,7 +74,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Velocity4* velocity_first = velocity)
             fixed (global::Tests.ECS.FloatComponent* length_first = length)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

@@ -61,18 +61,16 @@ namespace VerifyVectorize
             ReadOnlySpan<global::VerifyVectorize.Velocity4> velocity,
             float deltaTime)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var deltaTime_scalar = Vector256.Create(deltaTime);
 
             fixed (global::VerifyVectorize.Position4* position_first = position)
             fixed (global::VerifyVectorize.Velocity4* velocity_first = velocity)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

@@ -59,15 +59,13 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Tests.ECS.Position1> position,
             Span<global::Tests.ECS.FloatComponent> factor)
         {
+            int paddedCount = (count + 31) & ~31;
             int i = 0;
-            count -= 32;
-            if (i > count) {
-                return 0;
-            }
+
             fixed (global::Tests.ECS.Position1* position_first = position)
             fixed (global::Tests.ECS.FloatComponent* factor_first = factor)
             {
-                for (; i <= count; i += 32)
+                for (; i < paddedCount; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* factor_ptr = (float*)(factor_first + i);

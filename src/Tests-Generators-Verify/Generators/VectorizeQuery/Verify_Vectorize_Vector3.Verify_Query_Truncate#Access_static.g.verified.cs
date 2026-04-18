@@ -58,14 +58,12 @@ namespace VerifyVectorize
         private static unsafe int _Access_static_Avx(int count,
             Span<global::VerifyVectorize.Position3> position)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             fixed (global::VerifyVectorize.Position3* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

@@ -60,11 +60,9 @@ namespace Tests.Generators.VectorizeQuery
             ReadOnlySpan<global::Tests.ECS.Velocity> velocity,
             global::System.Numerics.Vector3 vector3)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var vector3_0 = Vector256.Create(vector3.X, vector3.Y, vector3.Z, vector3.X, vector3.Y, vector3.Z, vector3.X, vector3.Y);
             var vector3_1 = Vector256.Create(vector3.Z, vector3.X, vector3.Y, vector3.Z, vector3.X, vector3.Y, vector3.Z, vector3.X);
@@ -73,7 +71,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::Tests.ECS.Velocity* velocity_first = velocity)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

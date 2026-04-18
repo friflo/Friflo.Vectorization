@@ -61,11 +61,9 @@ namespace VerifyVectorize
             ReadOnlySpan<global::VerifyVectorize.Velocity1> velocity,
             float value)
         {
+            int paddedCount = (count + 31) & ~31;
             int i = 0;
-            count -= 32;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var value_scalar = Vector256.Create(value);
 
@@ -74,7 +72,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Position1* position_first = position)
             fixed (global::VerifyVectorize.Velocity1* velocity_first = velocity)
             {
-                for (; i <= count; i += 32)
+                for (; i < paddedCount; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

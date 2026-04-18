@@ -57,17 +57,15 @@ namespace Tests.Generators.VectorizeQuery
         private static unsafe int _Abs_Vector3_Avx(int count,
             Span<global::Friflo.Engine.ECS.Position> position)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var const0 = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

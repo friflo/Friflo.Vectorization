@@ -59,11 +59,9 @@ namespace Tests.Generators.VectorizeQuery
             global::System.Numerics.Vector3 dst,
             global::System.Numerics.Vector3 amount)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var dst_0 = Vector256.Create(dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y);
             var dst_1 = Vector256.Create(dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X);
@@ -75,7 +73,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Friflo.Engine.ECS.Position* src_first = src)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* src_ptr = (float*)(src_first + i);
 

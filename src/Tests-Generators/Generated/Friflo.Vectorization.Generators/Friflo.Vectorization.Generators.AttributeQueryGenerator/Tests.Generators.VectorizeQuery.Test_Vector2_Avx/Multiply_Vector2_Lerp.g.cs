@@ -59,11 +59,9 @@ namespace Tests.Generators.VectorizeQuery
             global::System.Numerics.Vector2 dst,
             float amount)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector128<float> dst_half = Vector128.Create(dst.X, dst.Y, dst.X, dst.Y);
             var dst_scalar = Avx.InsertVector128(dst_half.ToVector256(), dst_half, 1);
@@ -72,7 +70,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Tests.ECS.Position2* src_first = src)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* src_ptr = (float*)(src_first + i);
 

@@ -59,11 +59,9 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Tests.ECS.Position4> position,
             Span<global::Tests.ECS.FloatComponent> factor)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> factor_mask_0 = Vector256.Create(0, 0, 0, 0, 1, 1, 1, 1);
             Vector256<int> factor_mask_1 = Vector256.Create(2, 2, 2, 2, 3, 3, 3, 3);
@@ -73,7 +71,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Position4* position_first = position)
             fixed (global::Tests.ECS.FloatComponent* factor_first = factor)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* factor_ptr = (float*)(factor_first + i);

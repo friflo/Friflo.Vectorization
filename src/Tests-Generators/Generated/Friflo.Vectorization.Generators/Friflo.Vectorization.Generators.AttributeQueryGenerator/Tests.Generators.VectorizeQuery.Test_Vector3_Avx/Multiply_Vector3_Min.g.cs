@@ -58,11 +58,9 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Friflo.Engine.ECS.Position> position,
             global::System.Numerics.Vector3 min)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var min_0 = Vector256.Create(min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X, min.Y);
             var min_1 = Vector256.Create(min.Z, min.X, min.Y, min.Z, min.X, min.Y, min.Z, min.X);
@@ -70,7 +68,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

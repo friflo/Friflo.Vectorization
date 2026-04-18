@@ -60,11 +60,9 @@ namespace VerifyVectorize
             ReadOnlySpan<global::VerifyVectorize.Position3> position,
             Span<global::VerifyVectorize.FloatComponent> length)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> length_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> length_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);
@@ -73,7 +71,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Position3* position_first = position)
             fixed (global::VerifyVectorize.FloatComponent* length_first = length)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* length_ptr = (float*)(length_first + i);

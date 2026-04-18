@@ -60,11 +60,9 @@ namespace VerifyVectorize
             global::System.Numerics.Vector3 vec,
             global::System.Numerics.Vector3 amount)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var vec_0 = Vector256.Create(vec.X, vec.Y, vec.Z, vec.X, vec.Y, vec.Z, vec.X, vec.Y);
             var vec_1 = Vector256.Create(vec.Z, vec.X, vec.Y, vec.Z, vec.X, vec.Y, vec.Z, vec.X);
@@ -76,7 +74,7 @@ namespace VerifyVectorize
 
             fixed (global::VerifyVectorize.Position3* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

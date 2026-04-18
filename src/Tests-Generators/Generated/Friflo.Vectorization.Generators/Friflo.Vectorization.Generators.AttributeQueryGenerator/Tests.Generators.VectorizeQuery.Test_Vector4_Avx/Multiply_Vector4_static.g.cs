@@ -59,11 +59,9 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Tests.ECS.Position4> position,
             Span<global::Tests.ECS.Velocity4> velocity)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var const0 = System.Numerics.Vector4.Pi; // static
             Vector128<float> const0_half = Vector128.Create(const0.X, const0.Y, const0.Z, const0.W);
@@ -72,7 +70,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Position4* position_first = position)
             fixed (global::Tests.ECS.Velocity4* velocity_first = velocity)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

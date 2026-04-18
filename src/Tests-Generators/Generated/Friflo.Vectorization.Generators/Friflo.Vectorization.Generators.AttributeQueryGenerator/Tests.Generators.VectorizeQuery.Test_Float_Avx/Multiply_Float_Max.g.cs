@@ -58,17 +58,15 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Tests.ECS.Position1> position,
             float min)
         {
+            int paddedCount = (count + 31) & ~31;
             int i = 0;
-            count -= 32;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var min_scalar = Vector256.Create(min);
 
             fixed (global::Tests.ECS.Position1* position_first = position)
             {
-                for (; i <= count; i += 32)
+                for (; i < paddedCount; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

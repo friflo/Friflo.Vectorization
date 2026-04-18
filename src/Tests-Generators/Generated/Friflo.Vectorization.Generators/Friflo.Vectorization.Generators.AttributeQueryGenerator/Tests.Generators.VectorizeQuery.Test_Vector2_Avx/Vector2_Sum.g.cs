@@ -58,18 +58,16 @@ namespace Tests.Generators.VectorizeQuery
             ReadOnlySpan<global::Tests.ECS.Position2> position,
             ref global::System.Numerics.Vector2 sum)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector128<float> sum_half = Vector128.Create(sum.X, sum.Y, sum.X, sum.Y);
             var sum_scalar = Avx.InsertVector128(sum_half.ToVector256(), sum_half, 1);
 
             fixed (global::Tests.ECS.Position2* position_first = position)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

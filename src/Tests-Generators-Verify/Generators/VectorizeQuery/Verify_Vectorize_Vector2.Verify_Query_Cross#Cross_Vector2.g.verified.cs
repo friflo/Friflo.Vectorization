@@ -62,11 +62,9 @@ namespace VerifyVectorize
             ReadOnlySpan<global::VerifyVectorize.Velocity2> velocity,
             Span<global::VerifyVectorize.FloatComponent> scalar)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> scalar_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);
             Vector256<int> scalar_mask_hi = Vector256.Create( 4, 4, 5, 5, 6, 6, 7, 7);
@@ -75,7 +73,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Velocity2* velocity_first = velocity)
             fixed (global::VerifyVectorize.FloatComponent* scalar_first = scalar)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

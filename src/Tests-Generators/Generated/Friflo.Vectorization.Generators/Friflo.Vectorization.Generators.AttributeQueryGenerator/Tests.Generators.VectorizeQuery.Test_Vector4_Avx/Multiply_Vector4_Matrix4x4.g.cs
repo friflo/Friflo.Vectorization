@@ -58,11 +58,9 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Tests.ECS.Position4> position,
             in global::System.Numerics.Matrix4x4 matrix)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             // Load Matrix columns into 256-bit registers (each column duplicated)
             // [Col0.x, Col0.y, Col0.z, Col0.w, Col0.x, Col0.y, Col0.z, Col0.w]
@@ -73,7 +71,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Tests.ECS.Position4* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

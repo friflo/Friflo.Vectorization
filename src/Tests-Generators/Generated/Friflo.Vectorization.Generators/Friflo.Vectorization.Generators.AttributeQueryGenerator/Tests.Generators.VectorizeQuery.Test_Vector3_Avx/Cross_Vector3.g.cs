@@ -59,15 +59,13 @@ namespace Tests.Generators.VectorizeQuery
             Span<global::Friflo.Engine.ECS.Position> position,
             ReadOnlySpan<global::Tests.ECS.Velocity> velocity)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::Tests.ECS.Velocity* velocity_first = velocity)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

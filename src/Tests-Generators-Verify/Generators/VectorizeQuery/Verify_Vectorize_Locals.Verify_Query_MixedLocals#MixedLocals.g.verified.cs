@@ -62,11 +62,9 @@ namespace VerifyVectorize
             global::System.Numerics.Vector2 vec,
             float scalar)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> scalarComp_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);
             Vector256<int> scalarComp_mask_hi = Vector256.Create( 4, 4, 5, 5, 6, 6, 7, 7);
@@ -79,7 +77,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Position2* position_first = position)
             fixed (global::VerifyVectorize.FloatComponent* scalarComp_first = scalarComp)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* scalarComp_ptr = (float*)(scalarComp_first + i);

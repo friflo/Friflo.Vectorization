@@ -62,11 +62,9 @@ namespace VerifyVectorize
             ReadOnlySpan<global::VerifyVectorize.Position3> velocity,
             Span<global::VerifyVectorize.Distance> distance)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> distance_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);
             Vector256<int> distance_mask_1 = Vector256.Create(2, 3, 3, 3, 4, 4, 4, 5);
@@ -76,7 +74,7 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Position3* velocity_first = velocity)
             fixed (global::VerifyVectorize.Distance* distance_first = distance)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

@@ -60,15 +60,13 @@ namespace VerifyVectorize
             Span<global::VerifyVectorize.Position4> position,
             ReadOnlySpan<global::VerifyVectorize.Velocity4> vector)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             fixed (global::VerifyVectorize.Position4* position_first = position)
             fixed (global::VerifyVectorize.Velocity4* vector_first = vector)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* vector_ptr = (float*)(vector_first + i);

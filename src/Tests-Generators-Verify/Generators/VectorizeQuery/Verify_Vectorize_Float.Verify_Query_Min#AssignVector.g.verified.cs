@@ -59,17 +59,15 @@ namespace VerifyVectorize
             Span<global::VerifyVectorize.Position1> position,
             float max)
         {
+            int paddedCount = (count + 31) & ~31;
             int i = 0;
-            count -= 32;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var max_scalar = Vector256.Create(max);
 
             fixed (global::VerifyVectorize.Position1* position_first = position)
             {
-                for (; i <= count; i += 32)
+                for (; i < paddedCount; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

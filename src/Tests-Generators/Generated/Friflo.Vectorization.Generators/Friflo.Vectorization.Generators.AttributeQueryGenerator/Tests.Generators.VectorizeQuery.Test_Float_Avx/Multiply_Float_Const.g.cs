@@ -57,17 +57,15 @@ namespace Tests.Generators.VectorizeQuery
         private static unsafe int _Multiply_Float_Const_Avx(int count,
             Span<global::Tests.ECS.Position1> position)
         {
+            int paddedCount = (count + 31) & ~31;
             int i = 0;
-            count -= 32;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             var const0_scalar = Vector256.Create<float>(1f); // literal
 
             fixed (global::Tests.ECS.Position1* position_first = position)
             {
-                for (; i <= count; i += 32)
+                for (; i < paddedCount; i += 32)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

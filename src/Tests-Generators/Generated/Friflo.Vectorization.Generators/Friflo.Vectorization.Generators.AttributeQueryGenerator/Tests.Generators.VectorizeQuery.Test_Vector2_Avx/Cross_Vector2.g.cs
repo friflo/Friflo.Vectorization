@@ -61,11 +61,9 @@ namespace Tests.Generators.VectorizeQuery
             ReadOnlySpan<global::Tests.ECS.Velocity2> velocity,
             Span<global::Tests.ECS.FloatComponent> scalar)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector256<int> scalar_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);
             Vector256<int> scalar_mask_hi = Vector256.Create( 4, 4, 5, 5, 6, 6, 7, 7);
@@ -74,7 +72,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Velocity2* velocity_first = velocity)
             fixed (global::Tests.ECS.FloatComponent* scalar_first = scalar)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

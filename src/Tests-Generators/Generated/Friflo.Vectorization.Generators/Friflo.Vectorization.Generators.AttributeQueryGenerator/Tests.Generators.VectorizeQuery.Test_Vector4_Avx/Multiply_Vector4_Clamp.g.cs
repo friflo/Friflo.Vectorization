@@ -59,11 +59,9 @@ namespace Tests.Generators.VectorizeQuery
             global::System.Numerics.Vector4 min,
             global::System.Numerics.Vector4 max)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector128<float> min_half = Vector128.Create(min.X, min.Y, min.Z, min.W);
             var min_scalar = Avx.InsertVector128(min_half.ToVector256(), min_half, 1);
@@ -73,7 +71,7 @@ namespace Tests.Generators.VectorizeQuery
 
             fixed (global::Tests.ECS.Position4* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

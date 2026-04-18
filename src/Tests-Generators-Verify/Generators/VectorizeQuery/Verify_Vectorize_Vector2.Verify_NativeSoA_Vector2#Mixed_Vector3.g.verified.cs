@@ -63,15 +63,13 @@ namespace VerifyVectorize
             Span<float> position, int position_stride,
             Span<float> velocity, int velocity_stride)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

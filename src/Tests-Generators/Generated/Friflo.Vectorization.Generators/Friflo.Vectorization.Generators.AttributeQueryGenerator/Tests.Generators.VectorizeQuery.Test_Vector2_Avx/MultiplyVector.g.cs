@@ -60,11 +60,9 @@ namespace Tests.Generators.VectorizeQuery
             ReadOnlySpan<global::Tests.ECS.Velocity2> velocity,
             global::System.Numerics.Vector2 vector3)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector128<float> vector3_half = Vector128.Create(vector3.X, vector3.Y, vector3.X, vector3.Y);
             var vector3_scalar = Avx.InsertVector128(vector3_half.ToVector256(), vector3_half, 1);
@@ -72,7 +70,7 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Position2* position_first = position)
             fixed (global::Tests.ECS.Velocity2* velocity_first = velocity)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
                     float* velocity_ptr = (float*)(velocity_first + i);

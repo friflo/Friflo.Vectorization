@@ -59,11 +59,9 @@ namespace VerifyVectorize
             Span<global::VerifyVectorize.Position4> position,
             in global::System.Numerics.Matrix4x4 transform)
         {
+            int paddedCount = (count + 7) & ~7;
             int i = 0;
-            count -= 8;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             // Load Matrix columns into 256-bit registers (each column duplicated)
             // [Col0.x, Col0.y, Col0.z, Col0.w, Col0.x, Col0.y, Col0.z, Col0.w]
@@ -74,7 +72,7 @@ namespace VerifyVectorize
 
             fixed (global::VerifyVectorize.Position4* position_first = position)
             {
-                for (; i <= count; i += 8)
+                for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
 

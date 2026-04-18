@@ -60,11 +60,9 @@ namespace VerifyVectorize
             global::System.Numerics.Vector2 vec,
             float amount)
         {
+            int paddedCount = (count + 15) & ~15;
             int i = 0;
-            count -= 16;
-            if (i > count) {
-                return 0;
-            }
+
             // --- Locals
             Vector128<float> vec_half = Vector128.Create(vec.X, vec.Y, vec.X, vec.Y);
             var vec_scalar = Avx.InsertVector128(vec_half.ToVector256(), vec_half, 1);
@@ -73,7 +71,7 @@ namespace VerifyVectorize
 
             fixed (global::VerifyVectorize.Position2* position_first = position)
             {
-                for (; i <= count; i += 16)
+                for (; i < paddedCount; i += 16)
                 {
                     float* position_ptr = (float*)(position_first + i);
 
