@@ -396,14 +396,6 @@ $"""
                     break;
             }
         } else {
-            var lanesSoA = query.vectorDimension == 2 ? 2 : 1;
-            var elementStep = query.vectorDimension switch {
-                1 => 32,
-                2 => 16,
-                3 => 8,
-                4 => 8,
-                _ => -1,
-            };
             if (vectorType.dimension == 2 && vectorType.layout == VectorLayout.SoA) {
                 source.AppendLine(
 $"""
