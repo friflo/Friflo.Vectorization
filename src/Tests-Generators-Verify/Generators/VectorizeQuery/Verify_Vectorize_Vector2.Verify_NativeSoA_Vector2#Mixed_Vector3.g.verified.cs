@@ -60,10 +60,8 @@ namespace VerifyVectorize
         // [Layout: [SoA] All]     - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(int count,
-            Span<float> position,
-            int position_stride,
-            Span<float> velocity,
-            int velocity_stride)
+            Span<float> position, int position_stride,
+            Span<float> velocity, int velocity_stride)
         {
             int i = 0;
             count -= 16;

@@ -59,10 +59,8 @@ namespace Tests.Generators.VectorizeQuery
         // [Layout: [SoA] All]     - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _NativeSoA_Vector2_Avx(int count,
-            Span<float> position,
-            int position_stride,
-            Span<float> velocity,
-            int velocity_stride)
+            Span<float> position, int position_stride,
+            Span<float> velocity, int velocity_stride)
         {
             int i = 0;
             count -= 16;

@@ -205,8 +205,7 @@ public static partial class Vectorizer
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
                 if (vectorType.layout == VectorLayout.SoA) {
-                    signature.Append($"\n            Span<float> {parameter.Name},");
-                    signature.Append($"\n            int {parameter.Name}_stride");
+                    signature.Append($"\n            Span<float> {parameter.Name}, int {parameter.Name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";

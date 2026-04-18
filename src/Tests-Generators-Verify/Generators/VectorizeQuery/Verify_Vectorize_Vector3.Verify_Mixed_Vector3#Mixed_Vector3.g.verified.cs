@@ -59,8 +59,7 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(int count,
             Span<global::VerifyVectorize.Position3> position,
-            Span<float> velocity,
-            int velocity_stride)
+            Span<float> velocity, int velocity_stride)
         {
             int i = 0;
             count -= 8;

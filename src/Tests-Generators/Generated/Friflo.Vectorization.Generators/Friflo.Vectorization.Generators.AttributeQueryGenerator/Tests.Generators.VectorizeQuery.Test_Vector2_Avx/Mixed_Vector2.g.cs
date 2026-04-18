@@ -60,8 +60,7 @@ namespace Tests.Generators.VectorizeQuery
         private static unsafe int _Mixed_Vector2_Avx(int count,
             Span<global::Tests.ECS.Position2> position,
             ReadOnlySpan<global::Tests.ECS.Velocity2> velocity,
-            Span<float> pos2SoA,
-            int pos2SoA_stride)
+            Span<float> pos2SoA, int pos2SoA_stride)
         {
             int i = 0;
             count -= 16;

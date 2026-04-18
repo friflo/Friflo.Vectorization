@@ -58,8 +58,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector4_Avx(int count,
             Span<global::Tests.ECS.Position4> position,
-            Span<float> velocity,
-            int velocity_stride)
+            Span<float> velocity, int velocity_stride)
         {
             int i = 0;
             count -= 8;
