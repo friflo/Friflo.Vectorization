@@ -273,18 +273,21 @@ public static partial class Vectorizer
             Strategy.MixedAdapter   => "// [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty",
             Strategy.Horizontal     => "// [Layout: Horizontal]    - lane-native speed + Deinterleave penalty",
         };
+        bool isQuery = false; // query.VectorMode == VectorMode.Query;
         var source = $@"
         {strategyComment}
         [SkipLocalsInit]
         private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}(int count{signature})
         {{
+            {(isQuery ? $@"int paddedCount = (count + {step - 1}) & ~{step - 1};
             int i = 0;
+" : $@"int i = 0;
             count -= {elementStep};
             if (i > count) {{
                 return 0;
-            }}
+            }}")}
 {localBlock}{@fixed}            {{
-                for (; i <= count; i += {elementStep})
+                for (; {(isQuery ? "i < paddedCount" : "i <= count")}; i += {elementStep})
                 {{{pointer}
 {vectorizeBlock}
                 }}

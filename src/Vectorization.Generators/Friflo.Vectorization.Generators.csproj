@@ -81,6 +81,7 @@
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector3.cs">  <Link>Files\AvxVector3.g.cs</Link> </EmbeddedResource>
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector4.cs">  <Link>Files\AvxVector4.g.cs</Link> </EmbeddedResource>
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\MathUtils.cs">   <Link>Files\MathUtils.g.cs</Link>  </EmbeddedResource>
+    <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\VectorUtils.cs"> <Link>Files\VectorUtils.g.cs</Link></EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -31,6 +31,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Utils.AddSource(ctx, "AvxVector3.g.cs");
             Utils.AddSource(ctx, "AvxVector4.g.cs");
             Utils.AddSource(ctx, "MathUtils.g.cs");
+            Utils.AddSource(ctx, "VectorUtils.g.cs");
         });
     }
     
