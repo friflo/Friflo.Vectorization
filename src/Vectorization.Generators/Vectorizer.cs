@@ -232,21 +232,6 @@ public static partial class Vectorizer
                     break;
             }
         }
-        // local variables
-        /* if (body != null) {
-            foreach (var statement in body.Statements) {
-                // Is local declaration - e.g.     var local = value;
-                if (statement is LocalDeclarationStatementSyntax localDecl) {
-                    foreach (var variable in localDecl.Declaration.Variables) {
-                        var variableName = variable.Identifier.Text;
-                        for (int n = 0; n < query.laneCount; n++) {
-                            locals.AppendLine($"            Vector256<float> {variableName}_{n};");
-                        }
-                        locals.AppendLine();
-                    }
-                }
-            }
-        } */
         // const locals
         locals.Append(query.locals);
 
