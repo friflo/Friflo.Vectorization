@@ -572,7 +572,7 @@ public static partial class Test_Vector3_Avx
         foreach (var entity in store.Entities)
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
-            Assert.That(entity.GetComponent<Position>().value, Is.EqualTo(entityVectorized.GetComponent<Position>().value));
+            Assert.That(entity.GetSoA<Pos3SoA>().value, Is.EqualTo(entityVectorized.GetSoA<Pos3SoA>().value));
         }
     }
 }

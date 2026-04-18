@@ -464,4 +464,28 @@ public static partial class Test_Vector4_Avx
             Assert.That(entity.GetComponent<Position4>().value, Is.EqualTo(entityVectorized.GetComponent<Position4>().value));
         }
     }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void NativeSoA_Vector4(ref Pos4SoA position, Vel4SoA velocity)
+    {
+        position.value *= velocity.value;
+    }
+
+    [Test]
+    public static void Test_NativeSoA_Vector4()
+    {
+        var store = CreateTestStore();
+        NativeSoA_Vector4Query(store, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = NativeSoA_Vector4Query(storeVectorized);
+
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            Assert.That(entity.GetSoA<Pos4SoA>().value, Is.EqualTo(entityVectorized.GetSoA<Pos4SoA>().value));
+        }
+    }
 }
