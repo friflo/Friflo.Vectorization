@@ -188,3 +188,33 @@ public struct NamedTypes
         return typeSymbol.AllInterfaces.Contains(componentInterface);
     }
 }
+
+public enum DataShape { 
+    None,     // Initial state
+    Vector,  // [X, Y, Z, W] - Interleaved AoS
+    Scalar,  // [S, S, S, S] - Broadcasted result (from Dot, Length, etc.)
+    FixMe,   // removed after refactor
+}
+
+public readonly struct ComputeResult 
+{
+    public readonly DataShape   Shape;
+    public readonly bool        IsValid;
+
+    private ComputeResult(DataShape shape, bool valid) 
+    {
+        Shape = shape;
+        IsValid = valid;
+    }
+
+    public static ComputeResult Invalid => new ComputeResult(DataShape.None, false);
+    public static ComputeResult Vector  => new ComputeResult(DataShape.Vector, true);
+    public static ComputeResult Scalar  => new ComputeResult(DataShape.Scalar, true);
+    
+    public static implicit operator ComputeResult(DataShape shape) => new (shape, shape != DataShape.None);
+
+    // This enables: if (!result) { return ...; }
+    public static bool operator !(ComputeResult x) => !x.IsValid;
+
+    // DO NOT define 'operator true', 'operator false', or 'implicit operator bool'.
+}

@@ -46,7 +46,7 @@ public static partial class Vectorizer
         return lanes;
     }
     
-    private static bool Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
+    private static ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
     {
         var kind = assignment.Kind();
         var avxOperation = kind switch
@@ -60,7 +60,7 @@ public static partial class Vectorizer
         };
         if (avxOperation is null) {
             query.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
-            return false;
+            return ComputeResult.Invalid;
         }
         var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
@@ -78,18 +78,18 @@ public static partial class Vectorizer
                 lanes[i].Append($"{vectorName} = Fma.MultiplyAdd(");
             }
             if (!Compute(lanes, query, assignBinary.Left)) {
-                return false;
+                return ComputeResult.Invalid;
             }
             lanes.Append(", ");
             if (!Compute(lanes, query, assignBinary.Right)) {
-                return false;
+                return ComputeResult.Invalid;
             }
             for (int i = 0; i < lanes.Length; i++) {
                 var vectorName = query.GetVectorName(left, i);
                 lanes[i].Append($", {vectorName});");
             }
             query.AddDirty(left);
-            return true;
+            return DataShape.FixMe;
         }
         for (int i = 0; i < lanes.Length; i++) {
             var vectorName = query.GetVectorName(left, i);
@@ -100,14 +100,14 @@ public static partial class Vectorizer
             }
         }
         if (!Compute(lanes, query, assignment.Right)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(kind == SyntaxKind.SimpleAssignmentExpression ? ";" : ");");
         query.AddDirty(left);
-        return true;
+        return DataShape.FixMe;
     }
 
-    private static bool Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
+    private static ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
     {
         var kind = binary.Kind();
         var avxOperation = kind switch
@@ -120,7 +120,7 @@ public static partial class Vectorizer
         };
         if (avxOperation is null) {
             query.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
-            return false;
+            return ComputeResult.Invalid;
         }
 
         // is reciprocal square root:     left / Sqrt(right) 
@@ -130,14 +130,14 @@ public static partial class Vectorizer
             {
                 lanes.Append("Avx.Multiply(Avx.ReciprocalSqrt(");
                 if (!Compute(lanes, query, rightInvocation.ArgumentList.Arguments[0].Expression)) {
-                    return false;
+                    return ComputeResult.Invalid;
                 }
                 lanes.Append("), ");
                 if (!Compute(lanes, query, binary.Left)) {
-                    return false;
+                    return ComputeResult.Invalid;
                 }
                 lanes.Append(")");
-                return true;
+                return DataShape.FixMe;
             }
         }
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
@@ -146,30 +146,30 @@ public static partial class Vectorizer
         {
             lanes.Append("Fma.MultiplyAdd(");
             if (!Compute(lanes, query, multiplyBinary.Left)) {
-                return false;
+                return ComputeResult.Invalid;
             }
             lanes.Append(", ");
             if (!Compute(lanes, query, multiplyBinary.Right)) {
-                return false;
+                return ComputeResult.Invalid;
             }
             lanes.Append(", ");
             if (!Compute(lanes, query, binary.Right)) {
-                return false;
+                return ComputeResult.Invalid;
             }
             lanes.Append(")");
-            return true;
+            return DataShape.FixMe;
         }
         for (int i = 0; i < lanes.Length; i++) {
             lanes[i].Append($"Avx.{avxOperation}(");
         }
         if (!Compute(lanes, query, binary.Left)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", ");
         if (!Compute(lanes, query, binary.Right)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
 }

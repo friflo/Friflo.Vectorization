@@ -11,7 +11,7 @@ namespace Friflo.Vectorization.Generators;
 
 public static partial class Vectorizer
 {
-    private static bool Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
+    private static ComputeResult Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
     {
         var memberExpression = memberAccess.Expression;
         if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
@@ -19,7 +19,7 @@ public static partial class Vectorizer
             return Compute_MemberAccess(lanes, query, childMemberAccess);
         }
         if (memberExpression is not IdentifierNameSyntax identifierNameSyntax) {
-            return false;
+            return ComputeResult.Invalid;
         }
         var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
         var symbol = symbolInfo.Symbol;
@@ -55,17 +55,17 @@ public static partial class Vectorizer
                 lanes[i].Append(vectorName);
             }
         }
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
+    private static ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
     {
         var name = identifierName.Identifier.Text;
         for (int i = 0; i < lanes.Length; i++) {
             var vectorName = query.GetVectorName(name, i);
             lanes[i].Append(vectorName);
         }
-        return true;
+        return DataShape.FixMe;
     }
     
 
@@ -81,7 +81,7 @@ public static partial class Vectorizer
         return null;
     }
 
-    private static bool Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
+    private static ComputeResult Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name}_scalar = Vector256.Create<float>({literal.Token.Text}); // literal");
@@ -89,6 +89,6 @@ public static partial class Vectorizer
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"{name}_scalar");
         }
-        return true;
+        return ComputeResult.Scalar;
     }
 }

@@ -186,7 +186,10 @@ public static partial class Vectorizer
         // Assignment - e.g.     position.value = value;
         if (statement is ExpressionStatementSyntax expressionStatement) {
             var expressionSyntax = expressionStatement.Expression;
-            return Compute(lanes, query, expressionSyntax);
+            if (!Compute(lanes, query, expressionSyntax)) {
+                return false;
+            }
+            return true;
         }
         query.ReportDiagnosticSyntax(Errors.StatementUnsupported, statement, statement.ToFullString());
         return false;
@@ -338,7 +341,7 @@ public static partial class Vectorizer
         return source;
     }
     
-    private static bool Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
+    private static ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
     {
         if (syntax is AssignmentExpressionSyntax assignment) {
             return Compute_Assignment(lanes, query, assignment);
@@ -359,6 +362,6 @@ public static partial class Vectorizer
             return Compute_Literal(lanes, query, literal);
         }
         query.ReportDiagnosticSyntax(Errors.OperationUnsupported, syntax, syntax.ToFullString());
-        return false;
+        return ComputeResult.Invalid;
     }
 }

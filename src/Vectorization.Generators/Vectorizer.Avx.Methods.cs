@@ -9,7 +9,7 @@ namespace Friflo.Vectorization.Generators;
 
 public static partial class Vectorizer
 {
-    private static bool Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
+    private static ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         var methodName = GetMethodName(query, invocation);
         var methodReduced = methodName?.Replace("System.Numerics.Vector2", "Vector")
@@ -71,13 +71,13 @@ public static partial class Vectorizer
                 return Method_Vector4_Transform(lanes, query, argList);
         }
         query.ReportDiagnosticSyntax(Errors.OperationUnsupported, invocation, invocation.ToFullString());
-        return false;
+        return ComputeResult.Invalid;
     }
 
-    private static bool Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         if (query.vectorDimension != 4) {
-            return false;
+            return ComputeResult.Invalid;
         }
         /* for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"AvxUtils.TransformVector4PairAVX2(default, default, default, default, default)");
@@ -86,7 +86,7 @@ public static partial class Vectorizer
         var args = argumentSyntax.Arguments;
         lanes.Append("AvxVector4.TransformVector4PairAVX2(");
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
             var matrixName = identifierNameSyntax.Identifier.Text;
@@ -94,69 +94,69 @@ public static partial class Vectorizer
                 lanes[n].Append($", {matrixName}_0, {matrixName}_1, {matrixName}_2, {matrixName}_3)");
             }
         }
-        return true;
+        return DataShape.FixMe;
     }
 
-    private static bool Method_MinMax(StringBuilder[] lanes, Query query, string op, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, string op, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"Avx.{op}(");
         }
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", ");
         if (!Compute(lanes, query, args[1].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Clamp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         lanes.Append("Avx.Min(");
         if (!Compute(lanes, query, args[2].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", Avx.Max(");
         if (!Compute(lanes, query, args[1].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", ");
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append("))");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         lanes.Append("Fma.MultiplyAdd(");
         if (!Compute(lanes, query, args[2].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", Avx.Subtract(");
         if (!Compute(lanes, query, args[1].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(", ");
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append("), ");
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
 
-    private static bool Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
@@ -164,59 +164,59 @@ public static partial class Vectorizer
         lanes.Append("Avx.And(");
         var args = argumentSyntax.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($", {name})");
         }
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Truncate(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Truncate(");    // alternative: Avx.RoundToNearestInteger(v, 0x03 | 0x08);
         var args = argumentSyntax.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Floor(");       // alternative: Avx.RoundToNearestInteger(value, 0x01 | 0x08);
         var args = argumentSyntax.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Ceiling(");     // alternative:  Avx.RoundToNearestInteger(value, 0x02 | 0x08);
         var args = argumentSyntax.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Round(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Round(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Round(");       // alternative:  Avx.RoundToNearestInteger(value, 0x00 | 0x08);
         var args = argumentSyntax.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
 
-    private static bool Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
     {
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"{method}(");
@@ -228,22 +228,22 @@ public static partial class Vectorizer
                 lanes.Append(", ");
             }
             if (!Compute(lanes, query, args[i].Expression)) {
-                return false;
+                return ComputeResult.Invalid;
             }
         }
         lanes.Append(")");
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         if (!Compute_AddTemp(query, args[1].Expression, "Cross arg[1]", out var b)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         if (query.vectorDimension == 2) {
             lanes[0].Append($"Fma.MultiplySubtract({a}_0, {b}_1, Avx.Multiply({a}_1, {b}_0))");
@@ -257,15 +257,15 @@ public static partial class Vectorizer
                 lanes[3].Append($"Avx.Multiply({a}_3, {b}_3)");
             }
         }
-        return true;
+        return DataShape.FixMe;
     }
     
-    private static bool Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         var result = query.AddTemp();
         switch (query.vectorDimension)
@@ -277,47 +277,47 @@ public static partial class Vectorizer
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3");
-                return true;
+                return DataShape.FixMe;
             case 3:
                 query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2) = AvxVector3.Normalize({arg0}_0, {arg0}_1, {arg0}_2);");
                 lanes[0].Append($"{result}_0");
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
-                return true;
+                return DataShape.FixMe;
             case 4:
                 query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.Normalize({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3);");
                 lanes[0].Append($"{result}_0");
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3");
-                return true;
+                return DataShape.FixMe;
         }
-        return false;
+        return ComputeResult.Invalid;
     }
     
-    private static bool Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
+    private static ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         query.requireDeinterleave = true;
         if (!Compute_AddTemp(query, invocation.Expression, "Length this", out var arg0)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         switch (query.vectorDimension)
         {
             case 2:
                 lanes[0].Append($"AvxVector2.Length({arg0}_0, {arg0}_1)");
                 lanes[1].Append($"AvxVector2.Length({arg0}_2, {arg0}_3)");
-                return true;
+                return DataShape.FixMe;
             case 3:
                 lanes[0].Append($"AvxVector3.Length({arg0}_0, {arg0}_1, {arg0}_2)");
-                return true;
+                return DataShape.FixMe;
             case 4:
                 lanes[0].Append($"AvxVector4.Length({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3)");
-                return true;
+                return DataShape.FixMe;
         }
-        return false;
+        return ComputeResult.Invalid;
     }
     
-    private static bool Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp)
+    private static ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp)
     {
         temp = query.AddTemp();
         var tempLanes = new StringBuilder[query.laneCount];
@@ -327,7 +327,7 @@ public static partial class Vectorizer
             tempLanes[n].Append($"                    Vector256<float> {temp}_{n} = ");
         }
         if (!Compute(tempLanes, query, expressionSyntax)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         tempLanes.Append(";");
         for (int n = 0; n < tempLanes.Length; n++) {
@@ -335,32 +335,32 @@ public static partial class Vectorizer
             query.computeTemp.AppendLine();
         }
         query.computeTemp.AppendLine();
-        return true;
+        return DataShape.FixMe;
     } 
 
-    private static bool Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
+    private static ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         if (!Compute_AddTemp(query, args[1].Expression, $"{method} arg[1]", out var arg1)) {
-            return false;
+            return ComputeResult.Invalid;
         }
         switch (query.vectorDimension)
         {
             case 2:
                 lanes[0].Append($"AvxVector2.{method}({arg0}_0,{arg0}_1, {arg1}_0,{arg1}_1)");
                 lanes[1].Append($"AvxVector2.{method}({arg0}_2,{arg0}_3, {arg1}_2,{arg1}_3)");
-                return true;
+                return DataShape.FixMe;
             case 3:
                 lanes[0].Append($"AvxVector3.{method}({arg0}_0,{arg0}_1,{arg0}_2, {arg1}_0,{arg1}_1,{arg1}_2)");
-                return true;
+                return DataShape.FixMe;
             case 4:
                 lanes[0].Append($"AvxVector4.{method}({arg0}_0,{arg0}_1,{arg0}_2,{arg0}_3, {arg1}_0,{arg1}_1,{arg1}_2,{arg1}_3)");
-                return true;
+                return DataShape.FixMe;
         }
-        return false;
+        return ComputeResult.Invalid;
     }
 }

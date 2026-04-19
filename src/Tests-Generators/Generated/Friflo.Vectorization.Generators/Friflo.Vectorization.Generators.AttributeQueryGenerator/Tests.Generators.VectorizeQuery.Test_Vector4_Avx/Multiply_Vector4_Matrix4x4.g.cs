@@ -13,7 +13,7 @@ namespace Tests.Generators.VectorizeQuery
     {
         /// <summary>Query method generated for: <see cref="Multiply_Vector4_Matrix4x4"/>.</summary>
         /// <returns>The executed <see cref="ArchetypeQuery"/> for debugging purposes</returns>
-        public static ArchetypeQuery Multiply_Vector4_Matrix4x4Query(EntityStore _store, in global::System.Numerics.Matrix4x4 matrix, bool vectorized = true)
+        public static ArchetypeQuery Multiply_Vector4_Matrix4x4Query(EntityStore _store, global::System.Numerics.Matrix4x4 matrix, bool vectorized = true)
         {
             var _query = _Multiply_Vector4_Matrix4x4_GetQuery(_store);
             foreach (var chunk in _query.Chunks)
@@ -23,11 +23,11 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Multiply_Vector4_Matrix4x4_Avx(_entities.Length, positionSpan, in matrix);
+                    n = _Multiply_Vector4_Matrix4x4_Avx(_entities.Length, positionSpan, matrix);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    Multiply_Vector4_Matrix4x4(ref positionSpan[n], in matrix);
+                    Multiply_Vector4_Matrix4x4(ref positionSpan[n], matrix);
                 }
             }
             return _query;
@@ -56,7 +56,7 @@ namespace Tests.Generators.VectorizeQuery
         [SkipLocalsInit]
         private static unsafe int _Multiply_Vector4_Matrix4x4_Avx(int count,
             Span<global::Tests.ECS.Position4> position,
-            in global::System.Numerics.Matrix4x4 matrix)
+            global::System.Numerics.Matrix4x4 matrix)
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
@@ -64,11 +64,11 @@ namespace Tests.Generators.VectorizeQuery
 
             // --- Locals
             // Load Matrix columns into 256-bit registers (each column duplicated)
-            // [Col0.x, Col0.y, Col0.z, Col0.w, Col0.x, Col0.y, Col0.z, Col0.w]
-            Vector256<float> matrix_0 = Vector256.Create(matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M11, matrix.M12, matrix.M13, matrix.M14);
-            Vector256<float> matrix_1 = Vector256.Create(matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M21, matrix.M22, matrix.M23, matrix.M24);
-            Vector256<float> matrix_2 = Vector256.Create(matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M31, matrix.M32, matrix.M33, matrix.M34);
-            Vector256<float> matrix_3 = Vector256.Create(matrix.M41, matrix.M42, matrix.M43, matrix.M44, matrix.M41, matrix.M42, matrix.M43, matrix.M44);
+            float* matrix_ptr = (float*)&matrix;
+            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256(matrix_ptr + 0);
+            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256(matrix_ptr + 4);
+            Vector256<float> matrix_2 = Avx.BroadcastVector128ToVector256(matrix_ptr + 8);
+            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256(matrix_ptr + 12);
 
             fixed (global::Tests.ECS.Position4* position_first = position)
             {
