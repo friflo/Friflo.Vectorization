@@ -10,7 +10,7 @@ public static class AvxVector4
 {
     [SkipLocalsInit]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector256<float> TransformVector4PairAVX2(
+    public static Vector256<float> TransformMatrixAoS(
         Vector256<float> v, Vector256<float> c0, Vector256<float> c1, Vector256<float> c2, Vector256<float> c3)
     {
         // Shuffle/Broadcast components

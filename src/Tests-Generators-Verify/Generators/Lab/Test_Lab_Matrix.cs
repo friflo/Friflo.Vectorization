@@ -273,10 +273,10 @@ public static class Test_Lab_Matrix
                 Vector256<float> input_3 = Avx.LoadVector256(input_ptr + 24);
                 
                 // Process 4 pairs of vectors
-                var res_0 = AvxVector4.TransformVector4PairAVX2(input_0, col0, col1, col2, col3);    // fOut + (i + 0) * 4, 
-                var res_1 = AvxVector4.TransformVector4PairAVX2(input_1, col0, col1, col2, col3);    // fOut + (i + 2) * 4, 
-                var res_2 = AvxVector4.TransformVector4PairAVX2(input_2, col0, col1, col2, col3);    // fOut + (i + 4) * 4, 
-                var res_3 = AvxVector4.TransformVector4PairAVX2(input_3, col0, col1, col2, col3);    // fOut + (i + 6) * 4, 
+                var res_0 = AvxVector4.TransformMatrixAoS(input_0, col0, col1, col2, col3);    // fOut + (i + 0) * 4, 
+                var res_1 = AvxVector4.TransformMatrixAoS(input_1, col0, col1, col2, col3);    // fOut + (i + 2) * 4, 
+                var res_2 = AvxVector4.TransformMatrixAoS(input_2, col0, col1, col2, col3);    // fOut + (i + 4) * 4, 
+                var res_3 = AvxVector4.TransformMatrixAoS(input_3, col0, col1, col2, col3);    // fOut + (i + 6) * 4, 
                 
                 Avx.Store(result_ptr + 0, res_0);
                 Avx.Store(result_ptr + 8, res_1);
