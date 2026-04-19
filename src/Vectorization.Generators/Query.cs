@@ -18,8 +18,9 @@ namespace Friflo.Vectorization.Generators;
 //      Otherwise -> MixedAdapter
 // Strategy
 //  NativeSoA:      Result from Traversal is final. No second pass. "Golden Path"
-//  VerticalAoS:    Escalates to Horizontal always on: Transform | Dot,Cross | Distance, Length, LengthSquared | Normalize | Slerp, Reflect
-//               or Escalates to Horizontal whenever an operation’s required input shape deviates from the passed parameter's data shape
+//  VerticalAoS:    Escalates to Horizontal always on: Dot, Cross | Distance, Length, LengthSquared | Normalize | Slerp, Reflect
+//   				Transform get special treatment (no escalation)
+//                  (outdated: Escalates to Horizontal whenever an operation’s required input shape deviates from the passed parameter's data shape)
 //  MixedAdapter:   Second MixedAdapter pass required to apply Deinterleave() / Interleave()
 //  Horizontal:     Escalated from VerticalAoS. Its result is final.
 public enum Strategy
