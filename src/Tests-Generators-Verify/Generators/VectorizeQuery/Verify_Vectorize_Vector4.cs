@@ -196,7 +196,7 @@ public partial class MyExample
             public partial class MyExample
             {
                 [Vectorize][Query]  [OmitHash]
-                void Multiply_Matrix4x4(ref Position4 position, in Matrix4x4 transform) {
+                void Multiply_Matrix4x4(ref Position4 position, Matrix4x4 transform) {
                     position.value = Vector4.Transform(position.value, transform);
                 }
             }
