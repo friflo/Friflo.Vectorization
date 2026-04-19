@@ -326,7 +326,8 @@ public static partial class Vectorizer
             tempLanes[n] = new StringBuilder();
             tempLanes[n].Append($"                    Vector256<float> {temp}_{n} = ");
         }
-        if (!Compute(tempLanes, query, expressionSyntax)) {
+        var shape = Compute(tempLanes, query, expressionSyntax); 
+        if (!shape) {
             return ComputeResult.Invalid;
         }
         tempLanes.Append(";");
@@ -335,7 +336,7 @@ public static partial class Vectorizer
             query.computeTemp.AppendLine();
         }
         query.computeTemp.AppendLine();
-        return DataShape.FixMe;
+        return shape;
     } 
 
     private static ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
