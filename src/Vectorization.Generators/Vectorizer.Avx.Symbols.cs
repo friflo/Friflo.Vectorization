@@ -23,6 +23,7 @@ public static partial class Vectorizer
         }
         var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
         var symbol = symbolInfo.Symbol;
+        var shape = GetShapeFromExpression(query, memberAccess);
         var isStatic = symbol != null && symbol.IsStatic;
         if (isStatic)
         {
@@ -55,7 +56,7 @@ public static partial class Vectorizer
                 lanes[i].Append(vectorName);
             }
         }
-        return DataShape.FixMe;
+        return shape;
     }
     
     private static ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
@@ -65,7 +66,7 @@ public static partial class Vectorizer
             var vectorName = query.GetVectorName(name, i);
             lanes[i].Append(vectorName);
         }
-        return DataShape.FixMe;
+        return GetShapeFromExpression(query, identifierName);
     }
     
 
@@ -90,5 +91,29 @@ public static partial class Vectorizer
             lanes[n].Append($"{name}_scalar");
         }
         return ComputeResult.Scalar;
+    }
+    
+    private static DataShape GetShapeFromExpression(Query query, ExpressionSyntax expression) 
+    {
+        var typeInfo = query.SemanticModel.GetTypeInfo(expression);
+        var type = typeInfo.Type;
+        if (type != null) {
+            return GetSystemShape(type);
+        }
+        return DataShape.None;
+    }
+    
+    private static DataShape GetSystemShape(ITypeSymbol type)
+    {
+        if (type.SpecialType == SpecialType.System_Single) {
+            return DataShape.Scalar;
+        }
+        string name = type.ToDisplayString();
+        return name switch {
+            "System.Numerics.Vector2" => DataShape.Vector,
+            "System.Numerics.Vector3" => DataShape.Vector,
+            "System.Numerics.Vector4" => DataShape.Vector,
+            _ => DataShape.None
+        };
     }
 }

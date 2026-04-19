@@ -193,7 +193,6 @@ public enum DataShape {
     None,     // Initial state
     Vector,  // [X, Y, Z, W] - Interleaved AoS
     Scalar,  // [S, S, S, S] - Broadcasted result (from Dot, Length, etc.)
-    FixMe,   // removed after refactor
 }
 
 public readonly struct ComputeResult 

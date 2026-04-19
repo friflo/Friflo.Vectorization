@@ -68,6 +68,7 @@ public static partial class Vectorizer
             query.readVectors.Add(left);  // e.g. += -=
         }
         var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
+        var leftShape = GetShapeFromExpression(query, assignment.Left);
         lanes = CreateLanes(query, leftSymbol, left);
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
         if (kind == SyntaxKind.AddAssignmentExpression && 
@@ -89,7 +90,7 @@ public static partial class Vectorizer
                 lanes[i].Append($", {vectorName});");
             }
             query.AddDirty(left);
-            return DataShape.FixMe;
+            return leftShape;
         }
         for (int i = 0; i < lanes.Length; i++) {
             var vectorName = query.GetVectorName(left, i);
@@ -104,7 +105,7 @@ public static partial class Vectorizer
         }
         lanes.Append(kind == SyntaxKind.SimpleAssignmentExpression ? ";" : ");");
         query.AddDirty(left);
-        return DataShape.FixMe;
+        return leftShape;
     }
 
     private static ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
@@ -122,6 +123,7 @@ public static partial class Vectorizer
             query.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
+        var shape = GetShapeFromExpression(query, binary);
 
         // is reciprocal square root:     left / Sqrt(right) 
         if (kind == SyntaxKind.DivideExpression) {
@@ -137,7 +139,7 @@ public static partial class Vectorizer
                     return ComputeResult.Invalid;
                 }
                 lanes.Append(")");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
             }
         }
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
@@ -157,7 +159,7 @@ public static partial class Vectorizer
                 return ComputeResult.Invalid;
             }
             lanes.Append(")");
-            return DataShape.FixMe;
+            return shape;
         }
         for (int i = 0; i < lanes.Length; i++) {
             lanes[i].Append($"Avx.{avxOperation}(");
@@ -170,6 +172,6 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return shape;
     }
 }
