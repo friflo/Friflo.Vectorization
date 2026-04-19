@@ -472,6 +472,8 @@ public static partial class Test_Vector4_Avx
         }
     }
     
+    
+    
     // -----------------------------------------------------------------------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void Mixed_Vector4(ref Position4 position, Pos4SoA velocity)

@@ -92,11 +92,10 @@ namespace Tests.Generators.VectorizeQuery
                     Vector256<float> temp0_2 = position_2;
                     Vector256<float> temp0_3 = position_3;
 
-                    var (temp1_0, temp1_1, temp1_2, temp1_3) = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, matrix_0, matrix_1, matrix_2, matrix_3);
-                    position_0 = temp1_0;
-                    position_1 = temp1_1;
-                    position_2 = temp1_2;
-                    position_3 = temp1_3;
+                    position_0 = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, Vector256.Create(matrix.M11), Vector256.Create(matrix.M21), Vector256.Create(matrix.M31), Vector256.Create(matrix.M41));
+                    position_1 = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, Vector256.Create(matrix.M12), Vector256.Create(matrix.M22), Vector256.Create(matrix.M32), Vector256.Create(matrix.M42));
+                    position_2 = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, Vector256.Create(matrix.M13), Vector256.Create(matrix.M23), Vector256.Create(matrix.M33), Vector256.Create(matrix.M43));
+                    position_3 = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, Vector256.Create(matrix.M14), Vector256.Create(matrix.M24), Vector256.Create(matrix.M34), Vector256.Create(matrix.M44));
 
                     // --- 3. Store
                     Avx.Store(position_ptr + position_stride * 0, position_0);

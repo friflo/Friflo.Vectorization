@@ -23,36 +23,17 @@ public static class AvxVector4
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (Vector256<float> x, Vector256<float> y, Vector256<float> z, Vector256<float> w)
-        TransformMatrixSoA(
-            Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw,
-            Vector256<float> r0, Vector256<float> r1, Vector256<float> r2, Vector256<float> r3)
+
+    public static Vector256<float> TransformMatrixSoA(
+        Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw,
+        Vector256<float> mX, Vector256<float> mY, Vector256<float> mZ, Vector256<float> mW)
     {
-        // LANE X
-        var rx = Avx.Multiply(vx, Vector256.Create(r0.GetElement(0)));
-        rx = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(0)), rx);
-        rx = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(0)), rx);
-        rx = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(0)), rx);
-
-        // LANE Y
-        var ry = Avx.Multiply(vx, Vector256.Create(r0.GetElement(1)));
-        ry = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(1)), ry);
-        ry = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(1)), ry);
-        ry = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(1)), ry);
-
-        // LANE Z
-        var rz = Avx.Multiply(vx, Vector256.Create(r0.GetElement(2)));
-        rz = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(2)), rz);
-        rz = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(2)), rz);
-        rz = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(2)), rz);
-
-        // LANE W
-        var rw = Avx.Multiply(vx, Vector256.Create(r0.GetElement(3)));
-        rw = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(3)), rw);
-        rw = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(3)), rw);
-        rw = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(3)), rw);
-
-        return (rx, ry, rz, rw);
+        // Pure FMA: (vx * mX) + (vy * mY) + (vz * mZ) + (vw * mW)
+        var res = Avx.Multiply(vx, mX);
+        res = Fma.MultiplyAdd(vy, mY, res);
+        res = Fma.MultiplyAdd(vz, mZ, res);
+        res = Fma.MultiplyAdd(vw, mW, res);
+        return res;
     }
 
     

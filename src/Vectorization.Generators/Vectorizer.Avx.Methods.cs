@@ -91,12 +91,17 @@ public static partial class Vectorizer
                     lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_2, {m}_3)");
                 }
             } else {
-                var result = query.AddTemp();
+                /* var result = query.AddTemp();
                 query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.TransformMatrixSoA({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3, {m}_0, {m}_1, {m}_2, {m}_3);");
                 lanes[0].Append($"{result}_0");
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
-                lanes[3].Append($"{result}_3");
+                lanes[3].Append($"{result}_3"); */
+                lanes.Append("AvxVector4.TransformMatrixSoA(");
+                for (int n = 0; n < lanes.Length; n++) {
+                    var i = n + 1;
+                    lanes[n].Append($"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
+                }
             }
         }
         return DataShape.Vector;
