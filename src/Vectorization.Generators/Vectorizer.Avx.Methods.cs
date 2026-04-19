@@ -79,19 +79,18 @@ public static partial class Vectorizer
         if (query.vectorDimension != 4) {
             return ComputeResult.Invalid;
         }
-        /* for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"AvxUtils.TransformVector4PairAVX2(default, default, default, default, default)");
-        }
-        return true; */
         var args = argumentSyntax.Arguments;
-        lanes.Append("AvxVector4.TransformMatrixAoS(");
-        if (!Compute(lanes, query, args[0].Expression)) {
+        if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0)) {
             return ComputeResult.Invalid;
         }
+        lanes.Append("AvxVector4.TransformMatrixAoS(");
+        /* if (!Compute(lanes, query, args[0].Expression)) {
+            return ComputeResult.Invalid;
+        } */
         if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
             var matrixName = identifierNameSyntax.Identifier.Text;
             for (int n = 0; n < lanes.Length; n++) {
-                lanes[n].Append($", {matrixName}_0, {matrixName}_1, {matrixName}_2, {matrixName}_3)");
+                lanes[n].Append($"{arg0}_{n}, {matrixName}_0, {matrixName}_1, {matrixName}_2, {matrixName}_3)");
             }
         }
         return DataShape.Vector;

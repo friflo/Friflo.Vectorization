@@ -84,10 +84,16 @@ namespace Tests.Generators.VectorizeQuery
 
                     // --- 2. Compute
                     // position.value = Vector4.Transform(position.value, matrix);
-                    position_0 = AvxVector4.TransformMatrixAoS(position_0, matrix_0, matrix_1, matrix_2, matrix_3);
-                    position_1 = AvxVector4.TransformMatrixAoS(position_1, matrix_0, matrix_1, matrix_2, matrix_3);
-                    position_2 = AvxVector4.TransformMatrixAoS(position_2, matrix_0, matrix_1, matrix_2, matrix_3);
-                    position_3 = AvxVector4.TransformMatrixAoS(position_3, matrix_0, matrix_1, matrix_2, matrix_3);
+                    //   Transform arg[0]
+                    Vector256<float> temp0_0 = position_0;
+                    Vector256<float> temp0_1 = position_1;
+                    Vector256<float> temp0_2 = position_2;
+                    Vector256<float> temp0_3 = position_3;
+
+                    position_0 = AvxVector4.TransformMatrixAoS(temp0_0, matrix_0, matrix_1, matrix_2, matrix_3);
+                    position_1 = AvxVector4.TransformMatrixAoS(temp0_1, matrix_0, matrix_1, matrix_2, matrix_3);
+                    position_2 = AvxVector4.TransformMatrixAoS(temp0_2, matrix_0, matrix_1, matrix_2, matrix_3);
+                    position_3 = AvxVector4.TransformMatrixAoS(temp0_3, matrix_0, matrix_1, matrix_2, matrix_3);
 
                     // --- 3. Store
                     Avx.Store(position_ptr +  0, position_0);
