@@ -11,11 +11,11 @@ namespace Tests.Generators.VectorizeQuery
 {
     public partial class Test_Vector4_Avx
     {
-        /// <summary>Query method generated for: <see cref="Multiply_Vector4_Matrix4x4"/>.</summary>
+        /// <summary>Query method generated for: <see cref="Multiply_Vector4_Matrix4x4_AoS"/>.</summary>
         /// <returns>The executed <see cref="ArchetypeQuery"/> for debugging purposes</returns>
-        public static ArchetypeQuery Multiply_Vector4_Matrix4x4Query(EntityStore _store, global::System.Numerics.Matrix4x4 matrix, bool vectorized = true)
+        public static ArchetypeQuery Multiply_Vector4_Matrix4x4_AoSQuery(EntityStore _store, global::System.Numerics.Matrix4x4 matrix, bool vectorized = true)
         {
-            var _query = _Multiply_Vector4_Matrix4x4_GetQuery(_store);
+            var _query = _Multiply_Vector4_Matrix4x4_AoS_GetQuery(_store);
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
@@ -23,11 +23,11 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Multiply_Vector4_Matrix4x4_Avx(_entities.Length, positionSpan, matrix);
+                    n = _Multiply_Vector4_Matrix4x4_AoS_Avx(_entities.Length, positionSpan, matrix);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    Multiply_Vector4_Matrix4x4(ref positionSpan[n], matrix);
+                    Multiply_Vector4_Matrix4x4_AoS(ref positionSpan[n], matrix);
                 }
             }
             return _query;
@@ -35,26 +35,26 @@ namespace Tests.Generators.VectorizeQuery
 
     #region private members
         [EditorBrowsable(EditorBrowsableState.Never)]
-        private static readonly int _Multiply_Vector4_Matrix4x4_Slot = EntityStore.UserDataNewSlot();
+        private static readonly int _Multiply_Vector4_Matrix4x4_AoS_Slot = EntityStore.UserDataNewSlot();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         private static ArchetypeQuery<global::Tests.ECS.Position4>
-            _Multiply_Vector4_Matrix4x4_GetQuery(EntityStore _store)
+            _Multiply_Vector4_Matrix4x4_AoS_GetQuery(EntityStore _store)
         {
             var _query = (ArchetypeQuery<global::Tests.ECS.Position4>)
-                EntityStore.UserDataGet(_store, _Multiply_Vector4_Matrix4x4_Slot);
+                EntityStore.UserDataGet(_store, _Multiply_Vector4_Matrix4x4_AoS_Slot);
             if (_query != null) {
                 return _query;
             }
             _query = _store.Query<global::Tests.ECS.Position4>();
 
-            EntityStore.UserDataSet(_store, _Multiply_Vector4_Matrix4x4_Slot, _query);
+            EntityStore.UserDataSet(_store, _Multiply_Vector4_Matrix4x4_AoS_Slot, _query);
             return _query;
         }
 
         // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
-        private static unsafe int _Multiply_Vector4_Matrix4x4_Avx(int count,
+        private static unsafe int _Multiply_Vector4_Matrix4x4_AoS_Avx(int count,
             Span<global::Tests.ECS.Position4> position,
             global::System.Numerics.Matrix4x4 matrix)
         {

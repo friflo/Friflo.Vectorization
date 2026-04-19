@@ -83,14 +83,20 @@ public static partial class Vectorizer
         if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0)) {
             return ComputeResult.Invalid;
         }
-        lanes.Append("AvxVector4.TransformMatrixAoS(");
-        /* if (!Compute(lanes, query, args[0].Expression)) {
-            return ComputeResult.Invalid;
-        } */
         if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
-            var matrixName = identifierNameSyntax.Identifier.Text;
-            for (int n = 0; n < lanes.Length; n++) {
-                lanes[n].Append($"{arg0}_{n}, {matrixName}_0, {matrixName}_1, {matrixName}_2, {matrixName}_3)");
+            var m = identifierNameSyntax.Identifier.Text;
+            if (query.strategy == Strategy.VerticalAoS) {
+                lanes.Append("AvxVector4.TransformMatrixAoS(");
+                for (int n = 0; n < lanes.Length; n++) {
+                    lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_2, {m}_3)");
+                }
+            } else {
+                var result = query.AddTemp();
+                query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.TransformMatrixSoA({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3, {m}_0, {m}_1, {m}_2, {m}_3);");
+                lanes[0].Append($"{result}_0");
+                lanes[1].Append($"{result}_1");
+                lanes[2].Append($"{result}_2");
+                lanes[3].Append($"{result}_3");
             }
         }
         return DataShape.Vector;
