@@ -23,6 +23,40 @@ public static class AvxVector4
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static (Vector256<float> x, Vector256<float> y, Vector256<float> z, Vector256<float> w)
+        TransformMatrixSoA(
+            Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw,
+            Vector256<float> r0, Vector256<float> r1, Vector256<float> r2, Vector256<float> r3)
+    {
+        // LANE X
+        var rx = Avx.Multiply(vx, Vector256.Create(r0.GetElement(0)));
+        rx = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(0)), rx);
+        rx = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(0)), rx);
+        rx = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(0)), rx);
+
+        // LANE Y
+        var ry = Avx.Multiply(vx, Vector256.Create(r0.GetElement(1)));
+        ry = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(1)), ry);
+        ry = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(1)), ry);
+        ry = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(1)), ry);
+
+        // LANE Z
+        var rz = Avx.Multiply(vx, Vector256.Create(r0.GetElement(2)));
+        rz = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(2)), rz);
+        rz = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(2)), rz);
+        rz = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(2)), rz);
+
+        // LANE W
+        var rw = Avx.Multiply(vx, Vector256.Create(r0.GetElement(3)));
+        rw = Fma.MultiplyAdd (vy, Vector256.Create(r1.GetElement(3)), rw);
+        rw = Fma.MultiplyAdd (vz, Vector256.Create(r2.GetElement(3)), rw);
+        rw = Fma.MultiplyAdd (vw, Vector256.Create(r3.GetElement(3)), rw);
+
+        return (rx, ry, rz, rw);
+    }
+
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
         Transform8Vector4SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, Vector256<float> vW, float* matrixPtr)
