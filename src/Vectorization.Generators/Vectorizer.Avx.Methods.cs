@@ -29,12 +29,12 @@ public static partial class Vectorizer
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, "MathUtils.AcoshMathF",  argList);
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, "MathUtils.AtanhMathF",  argList);
             
-            case "Vector.Abs(Vector)":
-            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query,                          argList);
-            case "Vector.Truncate(Vector)":
-            case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query,                          argList);
-            case "Vector.Round(Vector)":
-            case "System.MathF.Round(float)":       return Method_Round     (lanes, query,                          argList);
+            case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, DataShape.Vector,        argList);
+            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, DataShape.Scalar,        argList);
+            case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, DataShape.Vector,        argList);
+            case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, DataShape.Scalar,        argList);
+            case "Vector.Round(Vector)":            return Method_Round     (lanes, query, DataShape.Vector,        argList);
+            case "System.MathF.Round(float)":       return Method_Round     (lanes, query, DataShape.Scalar,        argList);
             case "System.MathF.Floor(float)":       return Method_Floor     (lanes, query,                          argList);
             case "System.MathF.Ceiling(float)":     return Method_Ceiling   (lanes, query,                          argList);
             
@@ -45,14 +45,14 @@ public static partial class Vectorizer
             case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, "MathUtils.PowMathF",    argList);
             case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, "Avx.Sqrt",              argList);
             
-            case "System.MathF.Min(float, float)":
-            case "Vector.Min(Vector, Vector)":              return Method_MinMax(lanes, query, "Min", argList);
+            case "System.MathF.Min(float, float)":          return Method_MinMax(lanes, query, DataShape.Scalar, "Min", argList);
+            case "Vector.Min(Vector, Vector)":              return Method_MinMax(lanes, query, DataShape.Vector, "Min", argList);
             
-            case "System.MathF.Max(float, float)":
-            case "Vector.Max(Vector, Vector)":              return Method_MinMax(lanes, query, "Max", argList);
+            case "System.MathF.Max(float, float)":          return Method_MinMax(lanes, query, DataShape.Scalar, "Max", argList);
+            case "Vector.Max(Vector, Vector)":              return Method_MinMax(lanes, query, DataShape.Vector, "Max", argList);
             
-            case "System.Math.Clamp(float, float, float)":
-            case "Vector.Clamp(Vector, Vector, Vector)":    return Method_Clamp     (lanes, query, argList);
+            case "System.Math.Clamp(float, float, float)":  return Method_Clamp     (lanes, query, DataShape.Scalar, argList);
+            case "Vector.Clamp(Vector, Vector, Vector)":    return Method_Clamp     (lanes, query, DataShape.Vector, argList);
             
             case "Vector.Lerp(Vector, Vector, float)":
             case "Vector.Lerp(Vector, Vector, Vector)":     return Method_Lerp      (lanes, query, argList);
@@ -94,10 +94,10 @@ public static partial class Vectorizer
                 lanes[n].Append($", {matrixName}_0, {matrixName}_1, {matrixName}_2, {matrixName}_3)");
             }
         }
-        return DataShape.FixMe;
+        return DataShape.Vector;
     }
 
-    private static ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, string op, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, DataShape shape, string op, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         for (int n = 0; n < lanes.Length; n++) {
@@ -111,10 +111,10 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return shape;
     }
     
-    private static ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         lanes.Append("Avx.Min(");
@@ -130,7 +130,7 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append("))");
-        return DataShape.FixMe;
+        return shape;
     }
     
     private static ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
@@ -153,10 +153,10 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return DataShape.Vector;
     }
 
-    private static ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Abs(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
@@ -169,10 +169,10 @@ public static partial class Vectorizer
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($", {name})");
         }
-        return DataShape.FixMe;
+        return shape;
     }
     
-    private static ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Truncate(");    // alternative: Avx.RoundToNearestInteger(v, 0x03 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -180,7 +180,7 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return shape;
     }
     
     private static ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
@@ -191,7 +191,7 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return DataShape.Scalar;
     }
     
     private static ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
@@ -202,10 +202,10 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return DataShape.Scalar;
     }
     
-    private static ComputeResult Method_Round(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    private static ComputeResult Method_Round(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Round(");       // alternative:  Avx.RoundToNearestInteger(value, 0x00 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -213,7 +213,7 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return shape;
     }
 
     private static ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
@@ -232,7 +232,7 @@ public static partial class Vectorizer
             }
         }
         lanes.Append(")");
-        return DataShape.FixMe;
+        return DataShape.Scalar;
     }
     
     private static ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
@@ -257,7 +257,7 @@ public static partial class Vectorizer
                 lanes[3].Append($"Avx.Multiply({a}_3, {b}_3)");
             }
         }
-        return DataShape.FixMe;
+        return DataShape.Vector;
     }
     
     private static ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
@@ -277,20 +277,20 @@ public static partial class Vectorizer
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3");
-                return DataShape.FixMe;
+                return DataShape.Vector;
             case 3:
                 query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2) = AvxVector3.Normalize({arg0}_0, {arg0}_1, {arg0}_2);");
                 lanes[0].Append($"{result}_0");
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
-                return DataShape.FixMe;
+                return DataShape.Vector;
             case 4:
                 query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.Normalize({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3);");
                 lanes[0].Append($"{result}_0");
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3");
-                return DataShape.FixMe;
+                return DataShape.Vector;
         }
         return ComputeResult.Invalid;
     }
@@ -306,13 +306,13 @@ public static partial class Vectorizer
             case 2:
                 lanes[0].Append($"AvxVector2.Length({arg0}_0, {arg0}_1)");
                 lanes[1].Append($"AvxVector2.Length({arg0}_2, {arg0}_3)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
             case 3:
                 lanes[0].Append($"AvxVector3.Length({arg0}_0, {arg0}_1, {arg0}_2)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
             case 4:
                 lanes[0].Append($"AvxVector4.Length({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
         }
         return ComputeResult.Invalid;
     }
@@ -353,13 +353,13 @@ public static partial class Vectorizer
             case 2:
                 lanes[0].Append($"AvxVector2.{method}({arg0}_0,{arg0}_1, {arg1}_0,{arg1}_1)");
                 lanes[1].Append($"AvxVector2.{method}({arg0}_2,{arg0}_3, {arg1}_2,{arg1}_3)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
             case 3:
                 lanes[0].Append($"AvxVector3.{method}({arg0}_0,{arg0}_1,{arg0}_2, {arg1}_0,{arg1}_1,{arg1}_2)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
             case 4:
                 lanes[0].Append($"AvxVector4.{method}({arg0}_0,{arg0}_1,{arg0}_2,{arg0}_3, {arg1}_0,{arg1}_1,{arg1}_2,{arg1}_3)");
-                return DataShape.FixMe;
+                return DataShape.Scalar;
         }
         return ComputeResult.Invalid;
     }
