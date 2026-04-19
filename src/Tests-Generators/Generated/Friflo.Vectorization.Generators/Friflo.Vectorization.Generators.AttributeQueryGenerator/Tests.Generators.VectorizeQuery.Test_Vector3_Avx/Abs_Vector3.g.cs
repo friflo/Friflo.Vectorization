@@ -59,7 +59,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             var const0 = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()

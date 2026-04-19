@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             Vector128<float> min_half = Vector128.Create(min.X, min.Y, min.Z, min.W);

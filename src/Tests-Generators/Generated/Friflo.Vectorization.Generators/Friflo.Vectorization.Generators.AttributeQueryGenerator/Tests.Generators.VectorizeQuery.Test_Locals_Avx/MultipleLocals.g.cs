@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 31) & ~31;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             var factor_scalar = Vector256.Create(factor);

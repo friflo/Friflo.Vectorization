@@ -41,9 +41,9 @@ namespace VerifyVectorize
             if (i > count) {
                 return 0;
             }
-            if (result.Length < count) VectorUtils.ThrowBufferTooSmall();
-            if (vec1.Length < count) VectorUtils.ThrowBufferTooSmall();
-            if (vec2.Length < count) VectorUtils.ThrowBufferTooSmall();
+            if (result.Length < count) VectorUtils.ThrowBufferTooSmall(nameof(result));
+            if (vec1.Length < count) VectorUtils.ThrowBufferTooSmall(nameof(vec1));
+            if (vec2.Length < count) VectorUtils.ThrowBufferTooSmall(nameof(vec2));
 
             fixed (global::System.Numerics.Vector4* result_first = result)
             fixed (global::System.Numerics.Vector4* vec1_first = vec1)

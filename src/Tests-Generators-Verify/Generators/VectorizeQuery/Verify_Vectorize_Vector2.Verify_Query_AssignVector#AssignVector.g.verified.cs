@@ -61,7 +61,7 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             Vector128<float> vector_half = Vector128.Create(vector.X, vector.Y, vector.X, vector.Y);

@@ -61,8 +61,8 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::Tests.ECS.Velocity* velocity_first = velocity)

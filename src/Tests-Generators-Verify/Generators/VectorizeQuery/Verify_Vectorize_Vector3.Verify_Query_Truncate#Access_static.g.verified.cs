@@ -60,7 +60,7 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             fixed (global::VerifyVectorize.Position3* position_first = position)
             {

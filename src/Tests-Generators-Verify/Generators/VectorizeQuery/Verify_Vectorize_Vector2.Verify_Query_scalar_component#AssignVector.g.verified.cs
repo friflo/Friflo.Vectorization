@@ -62,8 +62,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (factor.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (factor.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(factor));
 
             // --- Locals
             Vector256<int> factor_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);

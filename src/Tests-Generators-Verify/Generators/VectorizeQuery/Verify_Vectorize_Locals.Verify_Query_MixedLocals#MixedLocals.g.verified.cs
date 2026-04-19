@@ -64,8 +64,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (scalarComp.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (scalarComp.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(scalarComp));
 
             // --- Locals
             Vector256<int> scalarComp_mask_lo = Vector256.Create( 0, 0, 1, 1, 2, 2, 3, 3);

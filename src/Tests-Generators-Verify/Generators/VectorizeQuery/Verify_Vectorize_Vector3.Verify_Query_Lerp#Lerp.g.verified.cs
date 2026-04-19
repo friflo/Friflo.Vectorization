@@ -62,7 +62,7 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             var vec_0 = Vector256.Create(vec.X, vec.Y, vec.Z, vec.X, vec.Y, vec.Z, vec.X, vec.Y);

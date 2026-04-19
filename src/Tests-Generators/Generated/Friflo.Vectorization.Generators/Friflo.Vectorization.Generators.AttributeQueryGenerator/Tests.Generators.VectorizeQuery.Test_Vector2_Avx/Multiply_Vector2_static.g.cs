@@ -61,8 +61,8 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
 
             // --- Locals
             var const0 = System.Numerics.Vector2.Pi; // static

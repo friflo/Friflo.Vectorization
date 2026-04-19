@@ -9,5 +9,8 @@ internal static class VectorUtils
 {
     [DoesNotReturn]
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal static void ThrowBufferTooSmall() => throw new IndexOutOfRangeException();
+    internal static void ThrowBufferTooSmall(string paramName)
+    {
+        throw new IndexOutOfRangeException($"Buffer '{paramName}' is too small for SIMD alignment.");
+    }
 }

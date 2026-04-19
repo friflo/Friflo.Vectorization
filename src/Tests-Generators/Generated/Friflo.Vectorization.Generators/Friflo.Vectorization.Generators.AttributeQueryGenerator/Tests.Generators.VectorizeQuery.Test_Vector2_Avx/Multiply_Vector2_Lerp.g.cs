@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (src.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (src.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(src));
 
             // --- Locals
             Vector128<float> dst_half = Vector128.Create(dst.X, dst.Y, dst.X, dst.Y);

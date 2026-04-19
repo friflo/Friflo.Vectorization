@@ -308,9 +308,9 @@ public static partial class Vectorizer
             if (!vectorType.isSpan) continue;
             var name = vectorType.name;
             if (vectorType.layout == VectorLayout.SoA) {
-                sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall();");
+                sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             } else {
-                sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall();");
+                sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             }
         }
         return sb;

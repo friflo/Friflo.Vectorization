@@ -64,9 +64,9 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (distance.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
+            if (distance.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(distance));
 
             // --- Locals
             Vector256<int> distance_mask_0 = Vector256.Create(0, 0, 0, 1, 1, 1, 2, 2);

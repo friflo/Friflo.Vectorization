@@ -61,7 +61,7 @@ namespace Tests.Generators.VectorizeQuery
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (src.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (src.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(src));
 
             // --- Locals
             var dst_0 = Vector256.Create(dst.X, dst.Y, dst.Z, dst.X, dst.Y, dst.Z, dst.X, dst.Y);

@@ -63,8 +63,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (velocity.Length < paddedCount + velocity_stride * 1) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (velocity.Length < paddedCount + velocity_stride * 1) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
 
             fixed (global::VerifyVectorize.Position2* position_first = position)
             fixed (float* velocity_first = velocity)

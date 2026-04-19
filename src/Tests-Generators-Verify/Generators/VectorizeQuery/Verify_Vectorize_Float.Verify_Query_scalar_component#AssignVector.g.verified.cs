@@ -62,8 +62,8 @@ namespace VerifyVectorize
         {
             int paddedCount = (count + 31) & ~31;
             int i = 0;
-            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
-            if (factor.Length < paddedCount) VectorUtils.ThrowBufferTooSmall();
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (factor.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(factor));
 
             fixed (global::VerifyVectorize.Position1* position_first = position)
             fixed (global::VerifyVectorize.FloatComponent* factor_first = factor)
