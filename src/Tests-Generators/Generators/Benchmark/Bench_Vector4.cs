@@ -55,7 +55,11 @@ public partial class Bench_Vector4
     public void Setup() {
         store = new EntityStore();
         for (int n = 0; n < EntityCount; n++) {
-            store.CreateEntity(new Position4 { value = new Vector4(n,n,n,n)}, new Velocity4 { value = new Vector4(1,2,3,4)}, new FloatComponent { value = n });
+            store.CreateEntity(
+                new Position4 { value = new Vector4(n,n,n,n)},
+                new Velocity4 { value = new Vector4(1,2,3,4)},
+                new FloatComponent { value = n },
+                new Pos4SoA() { value = new Vector4(n,n,n,n) });
         }
         query = store.Query<Position4, Velocity4>();
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
@@ -102,20 +106,31 @@ public partial class Bench_Vector4
     }
 
     [Vectorize][Query]  [OmitHash]
-    private static void TransformMatrix4x4(ref Position4 position, Matrix4x4 matrix) {
+    private static void TransformMatrix4x4_AoS(ref Position4 position, Matrix4x4 matrix) {
         position.value = Vector4.Transform(position.value, matrix);
     }
     
     [Benchmark]
-    public void Vector4_Transform_Matrix4x4_Query()
+    public void Vector4_TransformMatrix4x4()
     {
-        TransformMatrix4x4Query(store, matrix, false);
+        TransformMatrix4x4_AoSQuery(store, matrix, false);
     }
     
-    [Benchmark]
-    public void Vector4_Transform_Matrix4x4_Vectorized()
+    [Benchmark] [Test]
+    public void Vector4_TransformMatrix4x4_AoS_Vectorized()
     {
-        TransformMatrix4x4Query(store, matrix);
+        var query = TransformMatrix4x4_AoSQuery(store, matrix);
+    }
+    
+    [Vectorize][Query]  [OmitHash]
+    private static void TransformMatrix4x4_SoA(ref Pos4SoA position, Matrix4x4 matrix) {
+        position.value = Vector4.Transform(position.value, matrix);
+    }
+    
+    [Benchmark] [Test]
+    public void Vector4_TransformMatrix4x4_SoA_Vectorized()
+    {
+        var query = TransformMatrix4x4_SoAQuery(store, matrix);
     }
     
     // ------------------------------------- Lerp -------------------------------------
