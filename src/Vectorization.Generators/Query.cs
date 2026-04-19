@@ -200,6 +200,8 @@ public readonly struct ComputeResult
     public readonly DataShape   Shape;
     public readonly bool        IsValid;
 
+    public override string ToString() => IsValid ? Shape.ToString() : "Invalid";
+
     private ComputeResult(DataShape shape, bool valid) 
     {
         Shape = shape;
