@@ -274,7 +274,7 @@ public static partial class Vectorizer
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0, false)) {
+        if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0, true)) {
             return ComputeResult.Invalid;
         }
         var result = query.AddTemp();

@@ -85,15 +85,10 @@ namespace Tests.Generators.VectorizeQuery
 
                     // --- 2. Compute
                     // position.value = Vector3.Normalize(velocity.value);
-                    //   Normalize arg[0]
-                    Vector256<float> temp0_0 = velocity_0;
-                    Vector256<float> temp0_1 = velocity_1;
-                    Vector256<float> temp0_2 = velocity_2;
-
-                    var (temp1_0, temp1_1, temp1_2) = AvxVector3.Normalize(temp0_0, temp0_1, temp0_2);
-                    position_0 = temp1_0;
-                    position_1 = temp1_1;
-                    position_2 = temp1_2;
+                    var (temp0_0, temp0_1, temp0_2) = AvxVector3.Normalize(velocity_0, velocity_1, velocity_2);
+                    position_0 = temp0_0;
+                    position_1 = temp0_1;
+                    position_2 = temp0_2;
 
                     // --- 3. Store
                     (position_0, position_1, position_2) = AvxVector3.Interleave(position_0, position_1, position_2);
