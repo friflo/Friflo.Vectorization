@@ -125,20 +125,4 @@ public partial class Bench_Vector2
             Lab_Vector2_TransformAoS.TransformVector2_AoS((float*)vec_ptr, vec1.Length, ref matrix);
         }
     }
-    
-    [Benchmark]
-    [Test]
-    public unsafe void Vector2_Transform_ECS_SoA()
-    {
-        foreach (var (pos2SoA, entities) in queryPos2SoA.Chunks)
-        {
-            var lanes = pos2SoA.GetLanesSoA();
-            fixed(float* vec_ptr = lanes)
-            {
-                // if (logLanePtr) { LogLanePtr(vec_ptr); logLanePtr = false; }
-                var stride = pos2SoA.GetStrideSoA();
-                Lab_Vector2_TransformSoA.TransformVector2_SoA(vec_ptr, stride, entities.Length, ref matrix);    
-            }
-        }
-    }
 }

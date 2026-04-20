@@ -123,14 +123,14 @@ public partial class Bench_Vector4
     }
     
     [Vectorize][Query]  [OmitHash]
-    private static void TransformMatrix4x4_SoA(ref Pos4SoA position, Matrix4x4 matrix) {
+    private static void TransformMatrix4x4_AoSoA(ref Pos4SoA position, Matrix4x4 matrix) {
         position.value = Vector4.Transform(position.value, matrix);
     }
     
     [Benchmark] [Test]
-    public void Vector4_TransformMatrix4x4_SoA_Vectorized()
+    public void Vector4_TransformMatrix4x4_AoSoA_Vectorized()
     {
-        var query = TransformMatrix4x4_SoAQuery(store, matrix);
+        var query = TransformMatrix4x4_AoSoAQuery(store, matrix);
     }
     
     // ------------------------------------- Lerp -------------------------------------

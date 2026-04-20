@@ -133,7 +133,7 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.AppendLine("");
             }
-            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
+            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
                 sb.Append($"                var {component.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
                 continue;
             }
@@ -152,8 +152,8 @@ public partial class AttributeQueryGenerator
             bool isComponent = query.NamedTypes.IsComponent(parameter.Type);
             if (isComponent) {
                 Utils.AppendRefKind(sb, parameter.RefKind);
-                if (Utils.HasAttribute(parameter.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
-                    sb.Append($"{parameter.Name}AoS");
+                if (Utils.HasAttribute(parameter.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                    sb.Append($"{parameter.Name}AoS");                                                          // TODO fix name SoA
                     continue;
                 }
                 sb.Append($"{parameter.Name}Span[n]");
@@ -210,10 +210,10 @@ public partial class AttributeQueryGenerator
         setterAoS = new StringBuilder();
         var index = 1;
         foreach (var component in components) {
-            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")) {
-                getterAoS.AppendLine($"                    var {component.Name}AoS = chunk.Chunk{index}.GetSoA(n);");
+            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                getterAoS.AppendLine($"                    var {component.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
                 if (component.RefKind == RefKind.Ref) {
-                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetSoA(n, {component.Name}AoS);");
+                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {component.Name}AoS);");
                 }
             }
             index++;

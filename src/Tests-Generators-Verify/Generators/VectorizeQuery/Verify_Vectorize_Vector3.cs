@@ -361,7 +361,7 @@ public partial class MyExample
             namespace VerifyVectorize;
 
             public struct Position3 : IComponent { public Vector3 value; }
-            [SoA] public struct Pos3SoA : IComponent { public Vector3 value; }
+            [AoSoA] public struct Pos3SoA : IComponent { public Vector3 value; }
 
             public partial class MyExample
             {
@@ -386,8 +386,8 @@ public partial class MyExample
             
             namespace VerifyVectorize;
 
-            [SoA] public struct Pos3SoA : IComponent { public Vector3 value; }
-            [SoA] public struct Vel3SoA : IComponent { public Vector3 value; }
+            [AoSoA] public struct Pos3SoA : IComponent { public Vector3 value; }
+            [AoSoA] public struct Vel3SoA : IComponent { public Vector3 value; }
 
             public partial class MyExample
             {

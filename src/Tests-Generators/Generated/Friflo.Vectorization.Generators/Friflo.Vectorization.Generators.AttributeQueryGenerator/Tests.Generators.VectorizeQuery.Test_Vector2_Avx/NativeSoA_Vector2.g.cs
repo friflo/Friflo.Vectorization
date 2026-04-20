@@ -24,14 +24,14 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _NativeSoA_Vector2_Avx(_entities.Length, positionSpan, chunk.Chunk1.GetStrideSoA(), velocitySpan, chunk.Chunk2.GetStrideSoA());
+                    n = _NativeSoA_Vector2_Avx(_entities.Length, positionSpan, velocitySpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    var positionAoS = chunk.Chunk1.GetSoA(n);
-                    var velocityAoS = chunk.Chunk2.GetSoA(n);
+                    var positionAoS = chunk.Chunk1.GetAoSoA(n);
+                    var velocityAoS = chunk.Chunk2.GetAoSoA(n);
                     NativeSoA_Vector2(ref positionAoS, velocityAoS);
-                    chunk.Chunk1.SetSoA(n, positionAoS);
+                    chunk.Chunk1.SetAoSoA(n, positionAoS);
                 }
             }
             return _query;
@@ -59,32 +59,32 @@ namespace Tests.Generators.VectorizeQuery
         // [Layout: [SoA] All]     - lane-native speed
         [SkipLocalsInit]
         private static unsafe int _NativeSoA_Vector2_Avx(int count,
-            Span<float> position, int position_stride,
-            Span<float> velocity, int velocity_stride)
+            Span<float> position,
+            Span<float> velocity)
         {
             int paddedCount = (count + 15) & ~15;
             int i = 0;
-            if (position.Length < paddedCount + position_stride * 1) VectorUtils.ThrowBufferTooSmall(nameof(position));
-            if (velocity.Length < paddedCount + velocity_stride * 1) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
 
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
                 for (; i < paddedCount; i += 16)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* velocity_ptr = (float*)(velocity_first + i);
+                    float* position_ptr = (float*)(position_first + (i << 1));
+                    float* velocity_ptr = (float*)(velocity_first + (i << 1));
 
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr);      // xxxxxxxx Pos2SoA
-                    Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 8);  // xxxxxxxx
-                    Vector256<float> position_1 = Avx.LoadVector256(position_ptr + position_stride    ); // yyyyyyyy
-                    Vector256<float> position_3 = Avx.LoadVector256(position_ptr + position_stride + 8); // yyyyyyyy
+                    Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8); // yyyyyyyy
+                    Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16); // xxxxxxxx
+                    Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24); // yyyyyyyy
 
                     Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr);      // xxxxxxxx Vel2SoA
-                    Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 8);  // xxxxxxxx
-                    Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr + velocity_stride    ); // yyyyyyyy
-                    Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + velocity_stride + 8); // yyyyyyyy
+                    Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8); // yyyyyyyy
+                    Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16); // xxxxxxxx
+                    Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + 24); // yyyyyyyy
 
                     // --- 2. Compute
                     // position.value *= velocity.value;
@@ -94,10 +94,10 @@ namespace Tests.Generators.VectorizeQuery
                     position_3 = Avx.Multiply(position_3, velocity_3);
 
                     // --- 3. Store
-                    Avx.Store(position_ptr,     position_0); // xxxxxxxx
-                    Avx.Store(position_ptr + 8, position_2); // xxxxxxxx
-                    Avx.Store(position_ptr + position_stride    , position_1); // yyyyyyyy
-                    Avx.Store(position_ptr + position_stride + 8, position_3); // yyyyyyyy
+                    Avx.Store(position_ptr,      position_0); // xxxxxxxx
+                    Avx.Store(position_ptr +  8, position_1); // yyyyyyyy
+                    Avx.Store(position_ptr + 16, position_2); // xxxxxxxx
+                    Avx.Store(position_ptr + 24, position_3); // yyyyyyyy
                 }
             }
             return i;

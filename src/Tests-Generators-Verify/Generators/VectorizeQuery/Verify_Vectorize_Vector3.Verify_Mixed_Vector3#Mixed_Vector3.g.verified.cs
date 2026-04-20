@@ -25,11 +25,11 @@ namespace VerifyVectorize
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Mixed_Vector3_Avx(_entities.Length, positionSpan, velocitySpan, chunk.Chunk2.GetStrideSoA());
+                    n = _Mixed_Vector3_Avx(_entities.Length, positionSpan, velocitySpan);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    var velocityAoS = chunk.Chunk2.GetSoA(n);
+                    var velocityAoS = chunk.Chunk2.GetAoSoA(n);
                     Mixed_Vector3(ref positionSpan[n], velocityAoS);
                 }
             }
@@ -59,12 +59,12 @@ namespace VerifyVectorize
         [SkipLocalsInit]
         private static unsafe int _Mixed_Vector3_Avx(int count,
             Span<global::VerifyVectorize.Position3> position,
-            Span<float> velocity, int velocity_stride)
+            Span<float> velocity)
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
             if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
-            if (velocity.Length < paddedCount + velocity_stride * 2) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
+            if (velocity.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
 
             fixed (global::VerifyVectorize.Position3* position_first = position)
             fixed (float* velocity_first = velocity)
@@ -72,7 +72,7 @@ namespace VerifyVectorize
                 for (; i < paddedCount; i += 8)
                 {
                     float* position_ptr = (float*)(position_first + i);
-                    float* velocity_ptr = (float*)(velocity_first + i);
+                    float* velocity_ptr = (float*)(velocity_first + ((i >> 3) * 24));
 
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position3
@@ -80,9 +80,9 @@ namespace VerifyVectorize
                     Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16);   // Position3
                     (position_0, position_1, position_2) = AvxVector3.Deinterleave(position_0, position_1, position_2);
 
-                    Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr + velocity_stride * 0);   // Pos3SoA
-                    Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr + velocity_stride * 1);   // Pos3SoA
-                    Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + velocity_stride * 2);   // Pos3SoA
+                    Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr +  0);   // Pos3SoA
+                    Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8);   // Pos3SoA
+                    Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);   // Pos3SoA
 
                     // --- 2. Compute
                     // position.value *= velocity.value;

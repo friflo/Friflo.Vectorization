@@ -58,13 +58,13 @@ public struct Velocity1 : IComponent { public float value; }
 public struct Velocity : IComponent { public Vector3 value; }
 
 
-[SoA] public struct Pos2SoA : IComponent { public Vector2 value; }
-[SoA] public struct Pos3SoA : IComponent { public Vector3 value; }
-[SoA] public struct Pos4SoA : IComponent { public Vector4 value; }
+[AoSoA] public struct Pos2SoA : IComponent { public Vector2 value; }
+[AoSoA] public struct Pos3SoA : IComponent { public Vector3 value; }
+[AoSoA] public struct Pos4SoA : IComponent { public Vector4 value; }
 
-[SoA] public struct Vel2SoA : IComponent { public Vector2 value; }
-[SoA] public struct Vel3SoA : IComponent { public Vector3 value; }
-[SoA] public struct Vel4SoA : IComponent { public Vector4 value; }
+[AoSoA] public struct Vel2SoA : IComponent { public Vector2 value; }
+[AoSoA] public struct Vel3SoA : IComponent { public Vector3 value; }
+[AoSoA] public struct Vel4SoA : IComponent { public Vector4 value; }
 
 // ------------------------------------------------ tags
 [TagName("test-tag")]

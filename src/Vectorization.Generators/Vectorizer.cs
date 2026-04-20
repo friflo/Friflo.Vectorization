@@ -145,9 +145,9 @@ public static partial class Vectorizer
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
                 sb.Append($"{parameter.Name}Span");
-                if (vectorType.layout == VectorLayout.SoA) {
+                /* if (vectorType.layout == VectorLayout.SoA) {
                     sb.Append($", chunk.Chunk{n+1}.GetStrideSoA()");
-                }
+                } */
                 continue;
             }
             Utils.AppendRefKind(sb, parameter.RefKind);
@@ -208,7 +208,7 @@ public static partial class Vectorizer
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
                 if (vectorType.layout == VectorLayout.SoA) {
-                    signature.Append($"\n            Span<float> {parameter.Name}, int {parameter.Name}_stride");
+                    signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
@@ -246,7 +246,7 @@ public static partial class Vectorizer
         // --- fixed block
         var @fixed = new StringBuilder();
         foreach (var span in query.Spans) {
-            var type = Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute")
+            var type = Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")
                 ? "float"
                 : span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
@@ -256,7 +256,17 @@ public static partial class Vectorizer
         var pointer = new StringBuilder();
         foreach (var span in query.Spans) {
             pointer.AppendLine();
-            pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + i);");
+            if (Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                var offset = query.vectorDimension switch {
+                    2 => "(i << 1)",
+                    3 => "((i >> 3) * 24)",
+                    4 => "((i >> 3) << 5)",
+                    _ => null
+                };
+                pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + {offset});");
+            } else {
+                pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + i);");
+            }
         }
         var elementStep = query.vectorDimension switch {
             1 => 32,
@@ -311,7 +321,8 @@ public static partial class Vectorizer
             if (!vectorType.isSpan) continue;
             var name = vectorType.name;
             if (vectorType.layout == VectorLayout.SoA) {
-                sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
+                // sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
+                sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             } else {
                 sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             }

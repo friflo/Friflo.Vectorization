@@ -76,14 +76,14 @@ $"""
                 source.AppendLine(
 $"""
                     Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // xxxxxxxx {typeName}
-                    Vector256<float> {name}_2 = Avx.LoadVector256({name}_ptr + 8);  // xxxxxxxx
-                    Vector256<float> {name}_1 = Avx.LoadVector256({name}_ptr + {name}_stride    ); // yyyyyyyy
-                    Vector256<float> {name}_3 = Avx.LoadVector256({name}_ptr + {name}_stride + 8); // yyyyyyyy
+                    Vector256<float> {name}_1 = Avx.LoadVector256({name}_ptr +  8); // yyyyyyyy
+                    Vector256<float> {name}_2 = Avx.LoadVector256({name}_ptr + 16); // xxxxxxxx
+                    Vector256<float> {name}_3 = Avx.LoadVector256({name}_ptr + 24); // yyyyyyyy
 """);
             } else {
                 for (int n = 0; n < laneCount; n++) {
                     if (vectorType.layout == VectorLayout.SoA) {
-                        source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {name}_stride * {n});   // {typeName}");
+                        source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");
                     } else {
                         source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");    
                     }
@@ -141,10 +141,10 @@ $"""
         {
                 source.AppendLine(
 $"""
-                    Avx.Store({name}_ptr,     {name}_0); // xxxxxxxx
-                    Avx.Store({name}_ptr + 8, {name}_2); // xxxxxxxx
-                    Avx.Store({name}_ptr + {name}_stride    , {name}_1); // yyyyyyyy
-                    Avx.Store({name}_ptr + {name}_stride + 8, {name}_3); // yyyyyyyy
+                    Avx.Store({name}_ptr,      {name}_0); // xxxxxxxx
+                    Avx.Store({name}_ptr +  8, {name}_1); // yyyyyyyy
+                    Avx.Store({name}_ptr + 16, {name}_2); // xxxxxxxx
+                    Avx.Store({name}_ptr + 24, {name}_3); // yyyyyyyy
 """);
         } else {
             var laneCount = query.laneCount;
@@ -158,7 +158,7 @@ $"""
             }
             for (int n = 0; n < laneCount; n++) {
                 if (vectorType.layout == VectorLayout.SoA) {
-                    source.AppendLine($"                    Avx.Store({name}_ptr + {name}_stride * {n}, {name}_{n});");
+                    source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
                 } else {
                     source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
                 }

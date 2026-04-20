@@ -138,23 +138,7 @@ public partial class Bench_Vector3
             Lab_Vector3_TransformAoS.TransformAoS(vec_ptr, vec1.Length, matrix);
         }
     }
-    
-    [Benchmark]
-    [Test]
-    public unsafe void Vector3_Transform_ECS_SoA()
-    {
-        foreach (var (pos3SoA, entities) in queryPos3SoA.Chunks)
-        {
-            var lanes = pos3SoA.GetLanesSoA();
-            fixed(float* vec_ptr = lanes)
-            {
-                // if (logLanePtr) { LogLanePtr(vec_ptr); logLanePtr = false; }
-                var stride = pos3SoA.GetStrideSoA();
-                Lab_Vector3_TransformEcsSoA.TransformSoA(vec_ptr, entities.Length, stride, matrix);    
-            }
-        }
-    }
-    
+   
     private bool logLanePtr = true;
     
     private  static unsafe void LogLanePtr(float* ptr)

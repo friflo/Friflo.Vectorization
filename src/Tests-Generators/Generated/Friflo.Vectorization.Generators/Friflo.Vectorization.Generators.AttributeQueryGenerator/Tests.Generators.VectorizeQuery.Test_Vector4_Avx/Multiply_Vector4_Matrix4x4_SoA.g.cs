@@ -23,13 +23,13 @@ namespace Tests.Generators.VectorizeQuery
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
-                    n = _Multiply_Vector4_Matrix4x4_SoA_Avx(_entities.Length, positionSpan, chunk.Chunk1.GetStrideSoA(), matrix);
+                    n = _Multiply_Vector4_Matrix4x4_SoA_Avx(_entities.Length, positionSpan, matrix);
                 }
             EntityLoop:
                 for (; n < _entities.Length; n++) {
-                    var positionAoS = chunk.Chunk1.GetSoA(n);
+                    var positionAoS = chunk.Chunk1.GetAoSoA(n);
                     Multiply_Vector4_Matrix4x4_SoA(ref positionAoS, matrix);
-                    chunk.Chunk1.SetSoA(n, positionAoS);
+                    chunk.Chunk1.SetAoSoA(n, positionAoS);
                 }
             }
             return _query;
@@ -57,12 +57,12 @@ namespace Tests.Generators.VectorizeQuery
         // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
         [SkipLocalsInit]
         private static unsafe int _Multiply_Vector4_Matrix4x4_SoA_Avx(int count,
-            Span<float> position, int position_stride,
+            Span<float> position,
             global::System.Numerics.Matrix4x4 matrix)
         {
             int paddedCount = (count + 7) & ~7;
             int i = 0;
-            if (position.Length < paddedCount + position_stride * 3) VectorUtils.ThrowBufferTooSmall(nameof(position));
+            if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
             // Load Matrix columns into 256-bit registers (each column duplicated)
@@ -76,13 +76,13 @@ namespace Tests.Generators.VectorizeQuery
             {
                 for (; i < paddedCount; i += 8)
                 {
-                    float* position_ptr = (float*)(position_first + i);
+                    float* position_ptr = (float*)(position_first + ((i >> 3) << 5));
 
                     // --- 1. Load
-                    Vector256<float> position_0 = Avx.LoadVector256(position_ptr + position_stride * 0);   // Pos4SoA
-                    Vector256<float> position_1 = Avx.LoadVector256(position_ptr + position_stride * 1);   // Pos4SoA
-                    Vector256<float> position_2 = Avx.LoadVector256(position_ptr + position_stride * 2);   // Pos4SoA
-                    Vector256<float> position_3 = Avx.LoadVector256(position_ptr + position_stride * 3);   // Pos4SoA
+                    Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Pos4SoA
+                    Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Pos4SoA
+                    Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16);   // Pos4SoA
+                    Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24);   // Pos4SoA
 
                     // --- 2. Compute
                     // position.value = Vector4.Transform(position.value, matrix);
@@ -98,10 +98,10 @@ namespace Tests.Generators.VectorizeQuery
                     position_3 = AvxVector4.TransformMatrixSoA(temp0_0, temp0_1, temp0_2, temp0_3, Vector256.Create(matrix.M14), Vector256.Create(matrix.M24), Vector256.Create(matrix.M34), Vector256.Create(matrix.M44));
 
                     // --- 3. Store
-                    Avx.Store(position_ptr + position_stride * 0, position_0);
-                    Avx.Store(position_ptr + position_stride * 1, position_1);
-                    Avx.Store(position_ptr + position_stride * 2, position_2);
-                    Avx.Store(position_ptr + position_stride * 3, position_3);
+                    Avx.Store(position_ptr +  0, position_0);
+                    Avx.Store(position_ptr +  8, position_1);
+                    Avx.Store(position_ptr + 16, position_2);
+                    Avx.Store(position_ptr + 24, position_3);
                 }
             }
             return i;

@@ -60,7 +60,7 @@ public class VectorType
                     query.ReportDiagnosticSymbol(Errors.InvalidComponentType, parameter, type.Name, parameter.Name);
                     return null;
                 }
-                var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.SoAAttribute") ? 
+                var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
                                 VectorLayout.SoA : VectorLayout.AoS;
                 var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type, layout);
                 result.Add(vectorType);
