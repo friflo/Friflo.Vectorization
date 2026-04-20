@@ -308,7 +308,11 @@ public static partial class Vectorizer
     private static ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         query.requireDeinterleave = true;
-        if (!Compute_AddTemp(query, invocation.Expression, "Length this", out var arg0)) {
+        var expression = invocation.Expression;
+        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess) {
+            expression = memberAccess.Expression;
+        }
+        if (!Compute_AddTemp(query, expression, "Length this", out var arg0)) {
             return ComputeResult.Invalid;
         }
         switch (query.vectorDimension)
@@ -329,6 +333,13 @@ public static partial class Vectorizer
     
     private static ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp)
     {
+        /* if (expressionSyntax is MemberAccessExpressionSyntax memberAccess) {
+            var memberExpression = memberAccess.Expression;
+            if (memberExpression is IdentifierNameSyntax identifierName) {
+                temp = identifierName.Identifier.Text;
+                return GetShapeFromExpression(query, expressionSyntax);
+            }
+        } */
         temp = query.AddTemp();
         var tempLanes = new StringBuilder[query.laneCount];
         query.computeTemp.AppendLine($"                    //   {comment}");

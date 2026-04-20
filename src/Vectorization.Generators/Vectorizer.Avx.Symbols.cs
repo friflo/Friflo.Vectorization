@@ -14,10 +14,10 @@ public static partial class Vectorizer
     private static ComputeResult Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
     {
         var memberExpression = memberAccess.Expression;
-        if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
+        /* if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
         	// Required to for: Vector3.Length()
             return Compute_MemberAccess(lanes, query, childMemberAccess);
-        }
+        } */
         if (memberExpression is not IdentifierNameSyntax identifierNameSyntax) {
             return ComputeResult.Invalid;
         }
