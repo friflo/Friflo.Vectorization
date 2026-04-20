@@ -80,7 +80,7 @@ public static partial class Vectorizer
             return ComputeResult.Invalid;
         }
         var args = argumentSyntax.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0)) {
+        if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0, false)) {
             return ComputeResult.Invalid;
         }
         if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
@@ -249,10 +249,10 @@ public static partial class Vectorizer
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a)) {
+        if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a, false)) {
             return ComputeResult.Invalid;
         }
-        if (!Compute_AddTemp(query, args[1].Expression, "Cross arg[1]", out var b)) {
+        if (!Compute_AddTemp(query, args[1].Expression, "Cross arg[1]", out var b, false)) {
             return ComputeResult.Invalid;
         }
         if (query.vectorDimension == 2) {
@@ -274,7 +274,7 @@ public static partial class Vectorizer
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0)) {
+        if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0, false)) {
             return ComputeResult.Invalid;
         }
         var result = query.AddTemp();
@@ -312,7 +312,7 @@ public static partial class Vectorizer
         if (invocation.Expression is MemberAccessExpressionSyntax memberAccess) {
             expression = memberAccess.Expression;
         }
-        if (!Compute_AddTemp(query, expression, "Length this", out var arg0)) {
+        if (!Compute_AddTemp(query, expression, "Length this", out var arg0, true)) {
             return ComputeResult.Invalid;
         }
         switch (query.vectorDimension)
@@ -331,15 +331,15 @@ public static partial class Vectorizer
         return ComputeResult.Invalid;
     }
     
-    private static ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp)
+    private static ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier)
     {
-        /* if (expressionSyntax is MemberAccessExpressionSyntax memberAccess) {
+        if (useIdentifier && expressionSyntax is MemberAccessExpressionSyntax memberAccess) {
             var memberExpression = memberAccess.Expression;
             if (memberExpression is IdentifierNameSyntax identifierName) {
                 temp = identifierName.Identifier.Text;
                 return GetShapeFromExpression(query, expressionSyntax);
             }
-        } */
+        }
         temp = query.AddTemp();
         var tempLanes = new StringBuilder[query.laneCount];
         query.computeTemp.AppendLine($"                    //   {comment}");
@@ -364,10 +364,10 @@ public static partial class Vectorizer
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0)) {
+        if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0, true)) {
             return ComputeResult.Invalid;
         }
-        if (!Compute_AddTemp(query, args[1].Expression, $"{method} arg[1]", out var arg1)) {
+        if (!Compute_AddTemp(query, args[1].Expression, $"{method} arg[1]", out var arg1, true)) {
             return ComputeResult.Invalid;
         }
         switch (query.vectorDimension)

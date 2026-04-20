@@ -89,13 +89,7 @@ namespace Tests.Generators.VectorizeQuery
 
                     // --- 2. Compute
                     // length.value = position.value.Length();
-                    //   Length this
-                    Vector256<float> temp0_0 = position_0;
-                    Vector256<float> temp0_1 = position_1;
-                    Vector256<float> temp0_2 = position_2;
-                    Vector256<float> temp0_3 = position_3;
-
-                    length_0 = AvxVector4.Length(temp0_0, temp0_1, temp0_2, temp0_3);
+                    length_0 = AvxVector4.Length(position_0, position_1, position_2, position_3);
 
                     // --- 3. Store
                     Avx.Store(length_ptr +  0, length_0);

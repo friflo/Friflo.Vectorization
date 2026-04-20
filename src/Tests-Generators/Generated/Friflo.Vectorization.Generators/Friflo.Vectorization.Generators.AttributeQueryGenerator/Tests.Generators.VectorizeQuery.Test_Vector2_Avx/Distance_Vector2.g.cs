@@ -101,20 +101,8 @@ namespace Tests.Generators.VectorizeQuery
 
                     // --- 2. Compute
                     // length.value = Vector2.Distance(position.value, velocity.value);
-                    //   Distance arg[0]
-                    Vector256<float> temp0_0 = position_0;
-                    Vector256<float> temp0_1 = position_1;
-                    Vector256<float> temp0_2 = position_2;
-                    Vector256<float> temp0_3 = position_3;
-
-                    //   Distance arg[1]
-                    Vector256<float> temp1_0 = velocity_0;
-                    Vector256<float> temp1_1 = velocity_1;
-                    Vector256<float> temp1_2 = velocity_2;
-                    Vector256<float> temp1_3 = velocity_3;
-
-                    length_0 = AvxVector2.Distance(temp0_0,temp0_1, temp1_0,temp1_1);
-                    length_1 = AvxVector2.Distance(temp0_2,temp0_3, temp1_2,temp1_3);
+                    length_0 = AvxVector2.Distance(position_0,position_1, velocity_0,velocity_1);
+                    length_1 = AvxVector2.Distance(position_2,position_3, velocity_2,velocity_3);
 
                     // --- 3. Store
                     Avx.Store(length_ptr +  0, length_0);

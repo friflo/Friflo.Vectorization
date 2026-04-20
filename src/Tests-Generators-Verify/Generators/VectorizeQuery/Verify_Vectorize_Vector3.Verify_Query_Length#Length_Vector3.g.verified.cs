@@ -88,12 +88,7 @@ namespace VerifyVectorize
 
                     // --- 2. Compute
                     // length.value = position.value.Length();
-                    //   Length this
-                    Vector256<float> temp0_0 = position_0;
-                    Vector256<float> temp0_1 = position_1;
-                    Vector256<float> temp0_2 = position_2;
-
-                    length_0 = AvxVector3.Length(temp0_0, temp0_1, temp0_2);
+                    length_0 = AvxVector3.Length(position_0, position_1, position_2);
 
                     // --- 3. Store
                     Avx.Store(length_ptr +  0, length_0);
