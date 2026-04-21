@@ -102,14 +102,22 @@ public static partial class Vectorizer
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3"); */
-                var vectors = dim switch {
-                    3 => $"{arg0}_0, {arg0}_1, {arg0}_2",
-                    4 => $"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3"
-                };
+
                 lanes.Append($"AvxVector{dim}.TransformMatrixSoA(");
-                for (int n = 0; n < lanes.Length; n++) {
-                    var i = n + 1;
-                    lanes[n].Append($"{vectors}, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
+                if (dim==2) {
+                    lanes[0].Append($"{arg0}_0, {arg0}_1, Vector256.Create({m}.M11), Vector256.Create({m}.M21), Vector256.Create({m}.M41))");
+                    lanes[1].Append($"{arg0}_0, {arg0}_1, Vector256.Create({m}.M12), Vector256.Create({m}.M22), Vector256.Create({m}.M42))");
+                    lanes[2].Append($"{arg0}_2, {arg0}_3, Vector256.Create({m}.M11), Vector256.Create({m}.M21), Vector256.Create({m}.M41))");
+                    lanes[3].Append($"{arg0}_2, {arg0}_3, Vector256.Create({m}.M12), Vector256.Create({m}.M22), Vector256.Create({m}.M42))");
+                } else {
+                    for (int n = 0; n < lanes.Length; n++) {
+                        var i = n + 1;
+                        var vectors = dim switch {
+                            3 => $"{arg0}_0, {arg0}_1, {arg0}_2",
+                            4 => $"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3"
+                        };
+                        lanes[n].Append($"{vectors}, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
+                    }
                 }
             }
         }

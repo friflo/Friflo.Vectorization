@@ -7,6 +7,19 @@ namespace Generators.Static;
 
 public static class AvxVector2
 {
+    
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector256<float> TransformMatrixSoA(
+        Vector256<float> vx, Vector256<float> vy,
+        Vector256<float> mX, Vector256<float> mY, Vector256<float> mW)
+    {
+        // Start with the translation (mW) to save one FMA/Multiply
+        var res = Fma.MultiplyAdd(vx, mX, mW);
+        res = Fma.MultiplyAdd(vy, mY, res);
+        return res;
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public static (Vector256<float> X, Vector256<float> Y) Deinterleave(
