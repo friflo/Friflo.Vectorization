@@ -65,12 +65,15 @@ namespace Tests.Generators.VectorizeQuery
             if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
-            // Load Matrix columns into 256-bit registers (each column duplicated)
-            float* matrix_ptr = (float*)&matrix;
-            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256(matrix_ptr + 0);
-            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256(matrix_ptr + 4);
-            Vector256<float> matrix_2 = Avx.BroadcastVector128ToVector256(matrix_ptr + 8);
-            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256(matrix_ptr + 12);
+            // We use BroadcastScalarToVector128 to grab the first TWO floats of each row 
+            // and repeat them across the 256-bit register.
+            Vector128<float> matrix_row1 = Vector128.Create(matrix.M11, matrix.M12, matrix.M11, matrix.M12);
+            Vector128<float> matrix_row2 = Vector128.Create(matrix.M21, matrix.M22, matrix.M21, matrix.M22);
+            Vector128<float> matrix_row4 = Vector128.Create(matrix.M41, matrix.M42, matrix.M41, matrix.M42);
+
+            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256((float*)&matrix_row1);
+            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256((float*)&matrix_row2);
+            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256((float*)&matrix_row4);                    
 
             fixed (float* position_first = position)
             {

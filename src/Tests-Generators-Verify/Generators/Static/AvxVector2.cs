@@ -7,7 +7,27 @@ namespace Generators.Static;
 
 public static class AvxVector2
 {
-    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector256<float> TransformMatrixAoS(
+        Vector256<float> v, 
+        Vector256<float> rowX, Vector256<float> rowY, Vector256<float> rowT)
+    {
+        // 1. Create Broadcast X: [x0, x0, x1, x1...]
+        // Control mask 0b10100000 (2, 2, 0, 0 in pairs) 
+        var vx = Avx.Shuffle(v, v, 0b10100000); 
+
+        // 2. Create Broadcast Y: [y0, y0, y1, y1...]
+        // Control mask 0b11110101 (3, 3, 1, 1 in pairs)
+        var vy = Avx.Shuffle(v, v, 0b11110101);
+
+        // 3. Vertical FMA
+        // res = (vx * rowX) + rowT
+        var res = Fma.MultiplyAdd(vx, rowX, rowT);
+        // res = (vy * rowY) + res
+        res = Fma.MultiplyAdd(vy, rowY, res);
+
+        return res;
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector256<float> TransformMatrixSoA(

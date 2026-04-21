@@ -133,14 +133,33 @@ public static class Utils
         }
     }
 
-    public static void LoadMatrix(StringBuilder sb, string nm)
+    public static void LoadMatrix(StringBuilder sb, string m, int queryVectorDimension)
     {
-        sb.AppendLine($"            // Load Matrix columns into 256-bit registers (each column duplicated)");
-        sb.AppendLine($"            float* {nm}_ptr = (float*)&{nm};");
-        sb.AppendLine($"            Vector256<float> {nm}_0 = Avx.BroadcastVector128ToVector256({nm}_ptr + 0);");
-        sb.AppendLine($"            Vector256<float> {nm}_1 = Avx.BroadcastVector128ToVector256({nm}_ptr + 4);");
-        sb.AppendLine($"            Vector256<float> {nm}_2 = Avx.BroadcastVector128ToVector256({nm}_ptr + 8);");
-        sb.AppendLine($"            Vector256<float> {nm}_3 = Avx.BroadcastVector128ToVector256({nm}_ptr + 12);");
+        switch (queryVectorDimension)
+        {
+            case 2:
+                sb.AppendLine(
+$"""
+            // We use BroadcastScalarToVector128 to grab the first TWO floats of each row 
+            // and repeat them across the 256-bit register.
+            Vector128<float> {m}_row1 = Vector128.Create({m}.M11, {m}.M12, {m}.M11, {m}.M12);
+            Vector128<float> {m}_row2 = Vector128.Create({m}.M21, {m}.M22, {m}.M21, {m}.M22);
+            Vector128<float> {m}_row4 = Vector128.Create({m}.M41, {m}.M42, {m}.M41, {m}.M42);
+
+            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256((float*)&{m}_row1);
+            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256((float*)&{m}_row2);
+            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256((float*)&{m}_row4);                    
+""");
+                break;
+            case 4:
+                sb.AppendLine($"            // Load Matrix columns into 256-bit registers (each column duplicated)");
+                sb.AppendLine($"            float* {m}_ptr = (float*)&{m};");
+                sb.AppendLine($"            Vector256<float> {m}_0 = Avx.BroadcastVector128ToVector256({m}_ptr + 0);");
+                sb.AppendLine($"            Vector256<float> {m}_1 = Avx.BroadcastVector128ToVector256({m}_ptr + 4);");
+                sb.AppendLine($"            Vector256<float> {m}_2 = Avx.BroadcastVector128ToVector256({m}_ptr + 8);");
+                sb.AppendLine($"            Vector256<float> {m}_3 = Avx.BroadcastVector128ToVector256({m}_ptr + 12);");
+                break;
+        }
 /*
     Vector256<float> col0 = Vector256.Create(matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M11, matrix.M12, matrix.M13, matrix.M14);
     Vector256<float> col1 = Vector256.Create(matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M21, matrix.M22, matrix.M23, matrix.M24);

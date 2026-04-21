@@ -63,12 +63,6 @@ namespace Tests.Generators.VectorizeQuery
             if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
-            // Load Matrix columns into 256-bit registers (each column duplicated)
-            float* matrix_ptr = (float*)&matrix;
-            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256(matrix_ptr + 0);
-            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256(matrix_ptr + 4);
-            Vector256<float> matrix_2 = Avx.BroadcastVector128ToVector256(matrix_ptr + 8);
-            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256(matrix_ptr + 12);
 
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             {

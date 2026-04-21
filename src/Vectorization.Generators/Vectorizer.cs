@@ -230,7 +230,7 @@ public static partial class Vectorizer
                     locals.AppendLine();
                     break;
                 case ParamType.Matrix4x4:
-                    Utils.LoadMatrix(locals, parameter.Name);
+                    Utils.LoadMatrix(locals, parameter.Name, query.vectorDimension);
                     locals.AppendLine();
                     break;
             }

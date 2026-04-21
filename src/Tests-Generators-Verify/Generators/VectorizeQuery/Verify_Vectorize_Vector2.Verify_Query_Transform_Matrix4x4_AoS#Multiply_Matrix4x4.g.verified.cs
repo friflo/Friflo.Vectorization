@@ -66,12 +66,15 @@ namespace VerifyVectorize
             if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
             // --- Locals
-            // Load Matrix columns into 256-bit registers (each column duplicated)
-            float* transform_ptr = (float*)&transform;
-            Vector256<float> transform_0 = Avx.BroadcastVector128ToVector256(transform_ptr + 0);
-            Vector256<float> transform_1 = Avx.BroadcastVector128ToVector256(transform_ptr + 4);
-            Vector256<float> transform_2 = Avx.BroadcastVector128ToVector256(transform_ptr + 8);
-            Vector256<float> transform_3 = Avx.BroadcastVector128ToVector256(transform_ptr + 12);
+            // We use BroadcastScalarToVector128 to grab the first TWO floats of each row 
+            // and repeat them across the 256-bit register.
+            Vector128<float> transform_row1 = Vector128.Create(transform.M11, transform.M12, transform.M11, transform.M12);
+            Vector128<float> transform_row2 = Vector128.Create(transform.M21, transform.M22, transform.M21, transform.M22);
+            Vector128<float> transform_row4 = Vector128.Create(transform.M41, transform.M42, transform.M41, transform.M42);
+
+            Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256((float*)&transform_row1);
+            Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256((float*)&transform_row2);
+            Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256((float*)&transform_row4);                    
 
             fixed (float* position_first = position)
             {

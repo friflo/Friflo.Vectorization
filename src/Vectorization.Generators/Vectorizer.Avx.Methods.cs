@@ -91,9 +91,13 @@ public static partial class Vectorizer
         if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
             var m = identifierNameSyntax.Identifier.Text;
             if (query.strategy == Strategy.VerticalAoS) {
-                lanes.Append("AvxVector4.TransformMatrixAoS(");
+                lanes.Append($"AvxVector{dim}.TransformMatrixAoS(");
                 for (int n = 0; n < lanes.Length; n++) {
-                    lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_2, {m}_3)");
+                    if (dim == 2) {
+                        lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_3)");
+                    } else {
+                        lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_2, {m}_3)");
+                    }
                 }
             } else {
                 /* var result = query.AddTemp();

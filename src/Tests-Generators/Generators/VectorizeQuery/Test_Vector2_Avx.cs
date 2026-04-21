@@ -490,6 +490,42 @@ public static partial class Test_Vector2_Avx
     
     // -----------------------------------------------------------------------------------------------------
     [Vectorize][Query]  [OmitHash]
+    private static void Transform_Vector2_Matrix4x4_AoS(ref Position2 position, Matrix4x4 matrix) {
+        position.value = Vector2.Transform(position.value, matrix);
+        // AoS will trigger escalation to Horizontal
+    }
+    
+    [Test]
+    public static void Test_Transform_Vector2_Matrix4x4_AoS()
+    {
+        Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
+            10f * (MathF.PI / 180.0f), // Yaw
+            20f * (MathF.PI / 180.0f), // Pitch
+            30f * (MathF.PI / 180.0f)  // Roll
+        );
+        Matrix4x4 trans = Matrix4x4.CreateTranslation(new Vector3(1f, 2f, 3f));
+        var matrix = Matrix4x4.Multiply(rot, trans);
+        
+        var store = CreateTestStore();
+        Transform_Vector2_Matrix4x4_AoSQuery(store, matrix, false);
+
+        var storeVectorized = CreateTestStore();
+        var query = Transform_Vector2_Matrix4x4_AoSQuery(storeVectorized, matrix);
+        
+        Assert.That(query.Count, Is.EqualTo(EntityCount));
+        foreach (var entity in store.Entities)
+        {
+            var entityVectorized = storeVectorized.GetEntityById(entity.Id);
+            var val1 = entity.GetComponent<Position2>().value;
+            var val2 = entityVectorized.GetComponent<Position2>().value;
+            if (!AreEqual(val1, val2, 1e-4f)) {
+                Assert.Fail("not equal");
+            }
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
     private static void Transform_Vector2_Matrix4x4_SoA(ref Pos2SoA position, Matrix4x4 matrix) {
         position.value = Vector2.Transform(position.value, matrix);
         // AoS will trigger escalation to Horizontal
