@@ -105,6 +105,7 @@ public partial class Bench_Vector4
         });
     }
 
+    // ---------------------------------------------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void TransformMatrix4x4_AoS(ref Position4 position, Matrix4x4 matrix) {
         position.value = Vector4.Transform(position.value, matrix);
