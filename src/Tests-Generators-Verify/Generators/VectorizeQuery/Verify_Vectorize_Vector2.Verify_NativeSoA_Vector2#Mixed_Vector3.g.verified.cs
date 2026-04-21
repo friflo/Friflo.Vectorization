@@ -71,11 +71,11 @@ namespace VerifyVectorize
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
+                float* position_ptr = (float*)position_first;
+                float* velocity_ptr = (float*)velocity_first;
+
                 for (; i < paddedCount; i += 16)
                 {
-                    float* position_ptr = (float*)(position_first + (i << 1));
-                    float* velocity_ptr = (float*)(velocity_first + (i << 1));
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr);      // xxxxxxxx Pos2SoA
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8); // yyyyyyyy
@@ -99,6 +99,9 @@ namespace VerifyVectorize
                     Avx.Store(position_ptr +  8, position_1); // yyyyyyyy
                     Avx.Store(position_ptr + 16, position_2); // xxxxxxxx
                     Avx.Store(position_ptr + 24, position_3); // yyyyyyyy
+
+                    position_ptr += 32;
+                    velocity_ptr += 32;
                 }
             }
             return i;

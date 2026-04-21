@@ -53,12 +53,12 @@ namespace Tests.Generators.Vectorize
             fixed (global::System.Numerics.Vector3* vec1_first = vec1)
             fixed (global::System.Numerics.Vector3* vec2_first = vec2)
             {
+                float* result_ptr = (float*)result_first;
+                float* vec1_ptr = (float*)vec1_first;
+                float* vec2_ptr = (float*)vec2_first;
+
                 for (; i <= count; i += 8)
                 {
-                    float* result_ptr = (float*)(result_first + i);
-                    float* vec1_ptr = (float*)(vec1_first + i);
-                    float* vec2_ptr = (float*)(vec2_first + i);
-
                     // --- 1. Load
                     Vector256<float> result_0 = Avx.LoadVector256(result_ptr);      // Single
 
@@ -73,6 +73,10 @@ namespace Tests.Generators.Vectorize
                     // --- 2. Compute
 
                     // --- 3. Store
+
+                    result_ptr += 8;
+                    vec1_ptr += 24;
+                    vec2_ptr += 24;
                 }
             }
             return i;

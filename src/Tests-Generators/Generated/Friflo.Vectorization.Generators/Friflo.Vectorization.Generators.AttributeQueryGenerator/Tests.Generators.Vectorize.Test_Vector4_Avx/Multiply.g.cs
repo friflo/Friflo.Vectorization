@@ -49,11 +49,11 @@ namespace Tests.Generators.Vectorize
             fixed (global::System.Numerics.Vector3* position_first = position)
             fixed (global::System.Numerics.Vector3* velocity_first = velocity)
             {
+                float* position_ptr = (float*)position_first;
+                float* velocity_ptr = (float*)velocity_first;
+
                 for (; i <= count; i += 8)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* velocity_ptr = (float*)(velocity_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Vector3
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Vector3
@@ -73,6 +73,9 @@ namespace Tests.Generators.Vectorize
                     Avx.Store(position_ptr +  0, position_0);
                     Avx.Store(position_ptr +  8, position_1);
                     Avx.Store(position_ptr + 16, position_2);
+
+                    position_ptr += 24;
+                    velocity_ptr += 24;
                 }
             }
             return i;

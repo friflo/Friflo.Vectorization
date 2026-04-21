@@ -73,11 +73,11 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.Position4* position_first = position)
             fixed (global::Tests.ECS.FloatComponent* length_first = length)
             {
+                float* position_ptr = (float*)position_first;
+                float* length_ptr = (float*)length_first;
+
                 for (; i < paddedCount; i += 8)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* length_ptr = (float*)(length_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position4
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Position4
@@ -93,6 +93,9 @@ namespace Tests.Generators.VectorizeQuery
 
                     // --- 3. Store
                     Avx.Store(length_ptr +  0, length_0);
+
+                    position_ptr += 32;
+                    length_ptr += 8;
                 }
             }
             return i;

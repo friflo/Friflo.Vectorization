@@ -252,21 +252,16 @@ public static partial class Vectorizer
             @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
             @fixed.AppendLine();
         }
-        // --- pointer block
-        var pointer = new StringBuilder();
-        foreach (var span in query.Spans) {
-            pointer.AppendLine();
-            if (Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                var offset = query.vectorDimension switch {
-                    2 => "(i << 1)",
-                    3 => "((i >> 3) * 24)",
-                    4 => "((i >> 3) << 5)",
-                    _ => null
-                };
-                pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + {offset});");
-            } else {
-                pointer.Append($"                    float* {span.Name}_ptr = (float*)({span.Name}_first + i);");
-            }
+        // --- pointer assignment
+        var pointerAssignment = new StringBuilder();
+        var pointerIncrement  = new StringBuilder();
+        foreach (var vectorType in query.vectorTypes) {
+            if (!vectorType.isSpan) continue;
+            pointerAssignment.AppendLine();
+            pointerAssignment.Append($"                float* {vectorType.name}_ptr = (float*){vectorType.name}_first;");
+            
+            var increment = vectorType.dimension * query.scalarLaneCount * 8;
+            pointerIncrement.AppendLine($"                    {vectorType.name}_ptr += {increment};");
         }
         var elementStep = query.vectorDimension switch {
             1 => 32,
@@ -301,11 +296,13 @@ public static partial class Vectorizer
                 return 0;
             }}
 ")}{guards}
-{localBlock}{@fixed}            {{
+{localBlock}{@fixed}            {{{pointerAssignment}
+
                 for (; {(isQuery ? "i < paddedCount" : "i <= count")}; i += {elementStep})
-                {{{pointer}
+                {{
 {vectorizeBlock}
-                }}
+
+{pointerIncrement}                }}
             }}
             return i;
         }}
@@ -333,7 +330,6 @@ public static partial class Vectorizer
     private static StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
-        source.AppendLine();
         source.AppendLine("                    // --- 1. Load");
         foreach (var vectorType in query.vectorTypes) {
             EmitLoadVector(source, query, vectorType, step);

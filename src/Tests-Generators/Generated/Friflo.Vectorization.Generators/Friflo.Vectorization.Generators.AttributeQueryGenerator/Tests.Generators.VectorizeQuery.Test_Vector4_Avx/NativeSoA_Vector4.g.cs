@@ -70,11 +70,11 @@ namespace Tests.Generators.VectorizeQuery
             fixed (float* position_first = position)
             fixed (float* velocity_first = velocity)
             {
+                float* position_ptr = (float*)position_first;
+                float* velocity_ptr = (float*)velocity_first;
+
                 for (; i < paddedCount; i += 8)
                 {
-                    float* position_ptr = (float*)(position_first + ((i >> 3) << 5));
-                    float* velocity_ptr = (float*)(velocity_first + ((i >> 3) << 5));
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Pos4SoA
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Pos4SoA
@@ -98,6 +98,9 @@ namespace Tests.Generators.VectorizeQuery
                     Avx.Store(position_ptr +  8, position_1);
                     Avx.Store(position_ptr + 16, position_2);
                     Avx.Store(position_ptr + 24, position_3);
+
+                    position_ptr += 32;
+                    velocity_ptr += 32;
                 }
             }
             return i;

@@ -73,10 +73,10 @@ namespace VerifyVectorize
 
             fixed (global::VerifyVectorize.Position2* position_first = position)
             {
+                float* position_ptr = (float*)position_first;
+
                 for (; i < paddedCount; i += 16)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position2
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Position2
@@ -95,6 +95,8 @@ namespace VerifyVectorize
                     Avx.Store(position_ptr +  8, position_1);
                     Avx.Store(position_ptr + 16, position_2);
                     Avx.Store(position_ptr + 24, position_3);
+
+                    position_ptr += 32;
                 }
             }
             return i;

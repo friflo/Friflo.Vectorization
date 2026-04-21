@@ -78,12 +78,12 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Tests.ECS.FloatComponent* flt_first = flt)
             fixed (global::Tests.ECS.FloatComponent2* flt2_first = flt2)
             {
+                float* position_ptr = (float*)position_first;
+                float* flt_ptr = (float*)flt_first;
+                float* flt2_ptr = (float*)flt2_first;
+
                 for (; i < paddedCount; i += 16)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* flt_ptr = (float*)(flt_first + i);
-                    float* flt2_ptr = (float*)(flt2_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position2
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Position2
@@ -106,6 +106,10 @@ namespace Tests.Generators.VectorizeQuery
                     // --- 3. Store
                     Avx.Store(flt_ptr +  0, flt_0);
                     Avx.Store(flt_ptr +  8, flt_1);
+
+                    position_ptr += 32;
+                    flt_ptr += 16;
+                    flt2_ptr += 16;
                 }
             }
             return i;

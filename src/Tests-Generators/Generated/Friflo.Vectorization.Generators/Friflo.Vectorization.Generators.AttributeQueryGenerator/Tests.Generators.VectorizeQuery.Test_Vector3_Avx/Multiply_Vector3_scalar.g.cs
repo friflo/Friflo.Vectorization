@@ -72,11 +72,11 @@ namespace Tests.Generators.VectorizeQuery
             fixed (global::Friflo.Engine.ECS.Position* position_first = position)
             fixed (global::Tests.ECS.FloatComponent* factor_first = factor)
             {
+                float* position_ptr = (float*)position_first;
+                float* factor_ptr = (float*)factor_first;
+
                 for (; i < paddedCount; i += 8)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* factor_ptr = (float*)(factor_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Position
@@ -96,6 +96,9 @@ namespace Tests.Generators.VectorizeQuery
                     Avx.Store(position_ptr +  0, position_0);
                     Avx.Store(position_ptr +  8, position_1);
                     Avx.Store(position_ptr + 16, position_2);
+
+                    position_ptr += 24;
+                    factor_ptr += 8;
                 }
             }
             return i;

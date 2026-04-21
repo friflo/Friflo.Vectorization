@@ -76,12 +76,12 @@ namespace VerifyVectorize
             fixed (global::VerifyVectorize.Velocity2* velocity_first = velocity)
             fixed (global::VerifyVectorize.FloatComponent* scalar_first = scalar)
             {
+                float* position_ptr = (float*)position_first;
+                float* velocity_ptr = (float*)velocity_first;
+                float* scalar_ptr = (float*)scalar_first;
+
                 for (; i < paddedCount; i += 16)
                 {
-                    float* position_ptr = (float*)(position_first + i);
-                    float* velocity_ptr = (float*)(velocity_first + i);
-                    float* scalar_ptr = (float*)(scalar_first + i);
-
                     // --- 1. Load
                     Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);   // Position2
                     Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);   // Position2
@@ -120,6 +120,10 @@ namespace VerifyVectorize
                     // --- 3. Store
                     Avx.Store(scalar_ptr +  0, scalar_0);
                     Avx.Store(scalar_ptr +  8, scalar_1);
+
+                    position_ptr += 32;
+                    velocity_ptr += 32;
+                    scalar_ptr += 16;
                 }
             }
             return i;
