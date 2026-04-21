@@ -76,9 +76,14 @@ public static partial class Vectorizer
 
     private static ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
-        if (query.vectorDimension != 4) {
-            return ComputeResult.Invalid;
+        var dim = query.vectorDimension;
+        if (query.strategy == Strategy.VerticalAoS && dim == 3) {
+            query.requireDeinterleave = true; // no way to handle a 12 byte AoS efficient in the fast path
+            return ComputeResult.Vector;
         }
+        /*if (query.vectorDimension != 4) {
+            return ComputeResult.Invalid;
+        } */
         var args = argumentSyntax.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0, false)) {
             return ComputeResult.Invalid;
@@ -97,10 +102,14 @@ public static partial class Vectorizer
                 lanes[1].Append($"{result}_1");
                 lanes[2].Append($"{result}_2");
                 lanes[3].Append($"{result}_3"); */
-                lanes.Append("AvxVector4.TransformMatrixSoA(");
+                var vectors = dim switch {
+                    3 => $"{arg0}_0, {arg0}_1, {arg0}_2",
+                    4 => $"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3"
+                };
+                lanes.Append($"AvxVector{dim}.TransformMatrixSoA(");
                 for (int n = 0; n < lanes.Length; n++) {
                     var i = n + 1;
-                    lanes[n].Append($"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
+                    lanes[n].Append($"{vectors}, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
                 }
             }
         }

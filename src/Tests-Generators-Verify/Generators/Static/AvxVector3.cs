@@ -7,6 +7,18 @@ namespace Generators.Static;
 
 public static class AvxVector3
 {
+    public static Vector256<float> TransformMatrixSoA(
+        Vector256<float> vx, Vector256<float> vy, Vector256<float> vz,
+        Vector256<float> mX, Vector256<float> mY, Vector256<float> mZ, Vector256<float> mT)
+    {
+        // Math: (vx * mX) + (vy * mY) + (vz * mZ) + mT
+        // We start with mT (the translation) to save one FMA step
+        var res = Fma.MultiplyAdd(vx, mX, mT);
+        res = Fma.MultiplyAdd(vy, mY, res);
+        res = Fma.MultiplyAdd(vz, mZ, res);
+        return res;
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
     public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 

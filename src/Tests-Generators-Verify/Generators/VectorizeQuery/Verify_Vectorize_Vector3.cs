@@ -350,6 +350,30 @@ public partial class MyExample
     }
     
     [Test]
+    public static async Task  Verify_Query_Transform_Matrix4x4_AoS()
+    {
+        var code =
+            """
+            using System.Numerics;
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyVectorize;
+
+            public struct Position3 : IComponent { public Vector3 value; }
+
+            public partial class MyExample
+            {
+                [Vectorize][Query]  [OmitHash]
+                void Multiply_Matrix4x4(ref Position3 position, Matrix4x4 transform) {
+                    position.value = Vector3.Transform(position.value, transform);
+                }
+            }
+            """;
+        await Verify(code);
+    }
+    
+    [Test]
     public static async Task  Verify_Mixed_Vector3()
     {
         var code =

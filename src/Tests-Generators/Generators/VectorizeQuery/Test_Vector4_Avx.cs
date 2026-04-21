@@ -441,7 +441,7 @@ public static partial class Test_Vector4_Avx
         }
     }
     
-        // -----------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void Multiply_Vector4_Matrix4x4_SoA(ref Pos4SoA position, Matrix4x4 matrix) {
         position.value = Vector4.Transform(position.value, matrix);

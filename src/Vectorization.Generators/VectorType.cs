@@ -89,7 +89,7 @@ public class VectorType
                     case "global::System.Numerics.Vector2":     return (SpecialType.System_Single, 2,  ParamType.Vector);
                     case "global::System.Numerics.Vector3":     return (SpecialType.System_Single, 3,  ParamType.Vector);
                     case "global::System.Numerics.Vector4":     return (SpecialType.System_Single, 4,  ParamType.Vector);
-                    case "global::System.Numerics.Matrix4x4":   return (SpecialType.System_Single, 4,  ParamType.Matrix4x4);
+                    case "global::System.Numerics.Matrix4x4":   return (SpecialType.System_Single, 0,  ParamType.Matrix4x4);
                 }
                 break;
             case SpecialType.System_Single:
