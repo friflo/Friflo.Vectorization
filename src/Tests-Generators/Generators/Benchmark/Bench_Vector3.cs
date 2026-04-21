@@ -99,6 +99,32 @@ public partial class Bench_Vector3
         });
     }
     
+    // ---------------------------------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void TransformMatrix4x4_AoS(ref Position position, Matrix4x4 matrix) {
+        position.value = Vector3.Transform(position.value, matrix);
+    }
+    
+    [Benchmark]
+    public void Vector3_TransformMatrix4x4_Scalar() {
+        TransformMatrix4x4_AoSQuery(store, matrix, false);
+    }
+    
+    [Benchmark] [Test]
+    public void Vector3_TransformMatrix4x4_AoS_Vectorized() {
+        TransformMatrix4x4_AoSQuery(store, matrix);
+    }
+    
+    [Vectorize][Query]  [OmitHash]
+    private static void TransformMatrix4x4_AoSoA(ref Pos3SoA position, Matrix4x4 matrix) {
+        position.value = Vector3.Transform(position.value, matrix);
+    }
+    
+    [Benchmark] [Test]
+    public void Vector3_TransformMatrix4x4_AoSoA_Vectorized() {
+        TransformMatrix4x4_AoSoAQuery(store, matrix);
+    }
+    
     // ------------------------------------- Lerp -------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void Vector3Lerp(ref Position position, ref Velocity velocity, float amount) {
