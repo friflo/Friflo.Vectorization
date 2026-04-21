@@ -7,6 +7,8 @@ namespace Friflo.Vectorization.Intrinsics;
 
 public static class AvxVector3
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SkipLocalsInit]
     public static Vector256<float> TransformMatrixSoA(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz,
         Vector256<float> mX, Vector256<float> mY, Vector256<float> mZ, Vector256<float> mT)
