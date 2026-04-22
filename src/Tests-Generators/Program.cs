@@ -10,12 +10,16 @@ using Perfolizer.Horology;
 
 // BenchmarkRunner.Run<Bench_Vector3>();
 
+/*
 
-var bench = new Bench_Vector4();
+Console.WriteLine("Tests-Generators-Code - Vectorization!");
+Console.ReadLine();
+
+var bench = new Bench_Vector2();
 bench.Setup();
 while (true) {
-    bench.Vector4_TransformMatrix4x4_AoSoA_Vectorized();
-}
+    bench.Vector2_TransformMatrix4x4_AoSoA_Vectorized();
+} */
 
 
 ManualConfig customConfig = DefaultConfig.Instance
