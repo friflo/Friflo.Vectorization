@@ -1,4 +1,6 @@
+using System;
 using System.Reflection;
+using Bench;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Order;
@@ -7,6 +9,13 @@ using BenchmarkDotNet.Running;
 using Perfolizer.Horology;
 
 // BenchmarkRunner.Run<Bench_Vector3>();
+
+
+var bench = new Bench_Vector4();
+bench.Setup();
+while (true) {
+    bench.Vector4_TransformMatrix4x4_AoSoA_Vectorized();
+}
 
 
 ManualConfig customConfig = DefaultConfig.Instance
