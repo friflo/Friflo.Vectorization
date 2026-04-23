@@ -100,7 +100,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         VectorMode vectorMode;
         var attributes = blueprintMethod.GetAttributes();
         bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
-        bool hasVectorizeAttribute  = Utils.HasAttribute(attributes, "Friflo.Vectorization.VectorizeAttribute");
+        var  vectorizeData          = Utils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
+
         if (trigger == GenerateTrigger.VectorizeAttribute) {
             if (hasQueryAttribute) {
                 return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
@@ -125,6 +126,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var hash                = GetHash(blueprintMethod, attributes, types);
         var query = new Query {
             BlueprintMethod = blueprintMethod,
+            CustomMethod    = GetCustomMethod(vectorizeData),
             VectorMode      = vectorMode,
             Attributes      = attributes,
             Parameters      = parameters, 
@@ -133,7 +135,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             NamedTypes      = types,
             SemanticModel   = semanticModel
         };
-        if (hasVectorizeAttribute) {
+        if (vectorizeData != null) {
             Vectorizer.Emit(query);
         }
         string shadowMethodSource;
@@ -240,6 +242,17 @@ using System.ComponentModel;{intrinsics}
             }
         }
         return result;
+    }
+    
+    private static string? GetCustomMethod(AttributeData? vectorizeData)
+    {
+        if (vectorizeData == null) return null;
+        var args = vectorizeData.ConstructorArguments;
+        if (args.Length > 0) {
+            var value = args[0].Value;
+            return value as string;
+        }
+        return null;
     }
 }
 

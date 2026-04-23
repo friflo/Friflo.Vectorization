@@ -75,6 +75,17 @@ public static class Utils
         return false;
     }
     
+    public static  AttributeData? GetAttributeData(ImmutableArray<AttributeData> attributes, string attributeName)
+    {
+        attributeName = "global::" + attributeName;
+        foreach (var attributeData in attributes) {
+            if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == attributeName) {
+                return attributeData;
+            }
+        }
+        return null;
+    }
+    
     public static  bool InterleaveVector3(StringBuilder sb, string nm, Query query)
     {
         switch (query.vectorDimension) {

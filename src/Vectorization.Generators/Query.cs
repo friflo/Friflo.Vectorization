@@ -33,7 +33,8 @@ public enum Strategy
 
 public class Query
 {
-    public required IMethodSymbol                   BlueprintMethod    { get; init; }
+    public required IMethodSymbol                   BlueprintMethod { get; init; }
+    public required string?                         CustomMethod    { get; init; }
     public required VectorMode                      VectorMode      { get; init; }
     public required ImmutableArray<AttributeData>   Attributes      { get; init; }
     public required ImmutableArray<IParameterSymbol>Parameters      { get; init; }

@@ -153,10 +153,11 @@ public static partial class Vectorizer
             Utils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.Name);
         }
+        var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
         var source = $@"
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {{
-                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}(_entities.Length{sb});
+                    n = {avxMethod}(_entities.Length{sb});
                 }}
             EntityLoop:";
         return source;

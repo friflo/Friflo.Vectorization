@@ -405,5 +405,34 @@ public partial class MyExample
         await Verify(code);
     }
     
+    [Test]
+    public static async Task  Verify_CustomMethod_Vector2()
+    {
+        var code =
+            """
+            using System;
+            using System.Numerics;
+            using Friflo.Engine.ECS;
+            using Friflo.Vectorization;
+            
+            namespace VerifyVectorize;
+
+            [AoSoA] public struct Vel2SoA : IComponent { public Vector2 value; }
+            [AoSoA] public struct Pos2SoA : IComponent { public Vector2 value; }
+
+            public partial class MyExample
+            {
+                [Vectorize("MyMethod")][Query]  [OmitHash]
+                private static void Mixed_Vector3(ref Pos2SoA position, Vel2SoA velocity)
+                {
+                    position.value *= velocity.value;
+                }
+                
+                private static unsafe int MyMethod(int count, Span<float> position, Span<float> velocity) { return 0; }
+            }
+            """;
+        await Verify(code);
+    }
+    
 
 }

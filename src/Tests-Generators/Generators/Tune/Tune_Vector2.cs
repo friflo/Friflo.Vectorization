@@ -66,7 +66,7 @@ public partial class Tune_Vector2
         TransformMatrix4x4_AoSoAQuery(store, matrix4x4);
     }
     
-       // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
+    // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
     [SkipLocalsInit]
     private static unsafe int TransformRhythm(int count, Span<float> position, Matrix4x4 matrix)
     {
