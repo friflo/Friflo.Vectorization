@@ -1,26 +1,20 @@
 using System;
 using System.Reflection;
-using Bench;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Perfolizer.Horology;
+using Tune;
+
+string tuneMethod = Environment.GetEnvironmentVariable("TUNE_METHOD");
+
+if (tuneMethod != null) {
+    TuneMethod.Execute(tuneMethod);
+    return;
+}
 
 // BenchmarkRunner.Run<Bench_Vector3>();
-
-/*
-
-Console.WriteLine("Tests-Generators-Code - Vectorization!");
-Console.ReadLine();
-
-var bench = new Bench_Vector2();
-bench.Setup();
-while (true) {
-    bench.Vector2_TransformMatrix4x4_AoSoA_Vectorized();
-} */
-
 
 ManualConfig customConfig = DefaultConfig.Instance
     .WithOption(ConfigOptions.JoinSummary, true)
