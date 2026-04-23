@@ -7,6 +7,9 @@ using BenchmarkDotNet.Running;
 using Perfolizer.Horology;
 using Tune;
 
+// TUNE_METHOD defined in environment variables enables to analyze the same method
+// used for BenchmarkDotNet in Intel VTune Profiler. E.g.
+// >    set TUNE_METHOD=Tune.Tune_Vector2.Vector2_TransformRhythm
 string tuneMethod = Environment.GetEnvironmentVariable("TUNE_METHOD");
 
 if (tuneMethod != null) {
