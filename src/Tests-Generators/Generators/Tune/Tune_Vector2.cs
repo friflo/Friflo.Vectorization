@@ -5,7 +5,6 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Bench;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using Friflo.Vectorization.Intrinsics;
@@ -17,18 +16,8 @@ namespace Tune;
 
 [BenchmarkCategory("Vector2")]
 [MemoryDiagnoser] // Tracks GC allocations
-// [Config(typeof(Config))]
 public partial class Tune_Vector2
 {
-    private class Config : ManualConfig
-    {
-        public Config() 
-        {
-            // Add the standard columns + our new Comment column
-            AddColumn(new CommentColumn()); 
-        } 
-    }
-    
     private EntityStore store;
     const int EntityCount = Constants.EntityCount;
 
@@ -62,7 +51,7 @@ public partial class Tune_Vector2
     }
     
     [Benchmark] [Test]
-    public void Vector2_TransformMatrix4x4_AoSoA_Vectorized() {
+    public void Vector2_TransformRhythm() {
         TransformMatrix4x4_AoSoAQuery(store, matrix4x4);
     }
     
