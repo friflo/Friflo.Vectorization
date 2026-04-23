@@ -54,8 +54,8 @@ public partial class Tune_Float
         // --- Locals
         var deltaTime_scalar = Vector256.Create(deltaTime);
 
-        fixed (global::Tests.ECS.FloatComponent* position_first = position)
-        fixed (global::Tests.ECS.FloatComponent* velocity_first = velocity)
+        fixed (FloatComponent* position_first = position)
+        fixed (FloatComponent* velocity_first = velocity)
         {
             float* position_ptr = (float*)position_first;
             float* velocity_ptr = (float*)velocity_first;
