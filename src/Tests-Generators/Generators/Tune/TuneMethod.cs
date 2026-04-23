@@ -5,6 +5,10 @@ namespace Tune;
 
 public static class TuneMethod
 {
+    /// <summary>
+    /// Executes passed method in while(true) loop to enable profiling with VTune.<br/>
+    /// <see href="https://github.com/friflo/Friflo.Vectorization/blob/main/docs/Intel-VTune-Profiler.md">How to use: Intel VTune Profile</see>.
+    /// </summary>
     public static void Execute(string tuneMethod)
     {
         Console.WriteLine($"Tests-Generators-Code: TUNE_METHOD = {tuneMethod}");
