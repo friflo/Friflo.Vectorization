@@ -7,14 +7,14 @@
   at: https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html
 - Enable **Hardware Event-Based Sampling** (HEBS)
 - Open a Command Prompt as Administrator
-- Install HEBS drivers
+- Install HEBS drivers see: [Install the Sampling Drivers for Windows Targets](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2025-4/install-sampling-drivers-for-windows-targets.html)
 - `cd C:\Program Files (x86)\Intel\oneAPI\vtune\latest\bin64`
     | Task                      | Command
     | ------------------------- | ------------------------- 
     | Check Compatibility       | `amplxe-sepreg.exe -c`
     | Check Status              | `amplxe-sepreg.exe -s`
-    | Check Install Drivers     | `amplxe-sepreg.exe -i`
-    | Uninstall Compatibility   | `amplxe-sepreg.exe -u`
+    | Install Drivers           | `amplxe-sepreg.exe -i`
+    | Uninstall Drivers         | `amplxe-sepreg.exe -u`
 
 
 ## Preparation
