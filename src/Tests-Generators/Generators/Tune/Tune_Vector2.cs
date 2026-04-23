@@ -45,7 +45,7 @@ public partial class Tune_Vector2
     }
     
     // ---------------------------------------------------------------------------
-    [Vectorize(nameof(TransformRhythm))][Query]  [OmitHash]
+    [Vectorize(nameof(StaggeredRhythm))][Query]  [OmitHash]
     private static void TransformMatrix4x4_AoSoA(ref Pos2SoA position, Matrix4x4 matrix) {
         position.value = Vector2.Transform(position.value, matrix);
     }
@@ -56,7 +56,7 @@ public partial class Tune_Vector2
     }
     
     // - Broadcast matrix vector at method head
-    // - Interleaved Load/Comput/Store blocks
+    // - Interleaved Load/Comput/Store blocks (2-block unroll)
     // - Used LoadAlignedVector256() instead of LoadVector256()
     // - (most significant) Used distinct local variables for the second half of the unroll to enable Out-of-Order Execution
     [SkipLocalsInit]
@@ -80,40 +80,101 @@ public partial class Tune_Vector2
 
             for (; i < paddedCount; i += 16)
             {
-                // --- BLOCK 1: Load First Half ---
-                var x0 = Avx.LoadAlignedVector256(pPtr);        // vmovaps ymm6, [pPtr]
-                var y0 = Avx.LoadAlignedVector256(pPtr + 8);    // vmovaps ymm7, [pPtr + 32]
+                // --- STEP 1: All Loads first (Port 2/3) ---
+                var x0 = Avx.LoadAlignedVector256(pPtr);        
+                var y0 = Avx.LoadAlignedVector256(pPtr + 8);    
+                var x1 = Avx.LoadAlignedVector256(pPtr + 16);   
+                var y1 = Avx.LoadAlignedVector256(pPtr + 24);   
 
-                // --- BLOCK 2: Math First Half (Interleaved) ---
-                // x' = x*m11 + y*m21 + m41
-                var resX0 = Fma.MultiplyAdd(x0, m11, m41);      // vfmadd213ps ymm6, ymm1, ymm5
-                resX0 = Fma.MultiplyAdd(y0, m21, resX0);        // vfmadd231ps ymm6, ymm7, ymm3
+                // --- STEP 2: Interleaved Math (Port 0/1/5) ---
+                // Start X calculations for both blocks to saturate FMAs
+                var rx0 = Fma.MultiplyAdd(x0, m11, m41);
+                var rx1 = Fma.MultiplyAdd(x1, m11, m41); // Independent of rx0
                 
-                // y' = x*m12 + y*m22 + m42
-                var resY0 = Fma.MultiplyAdd(x0, m12, m42);      // vfmadd213ps ymm11, ymm2, ymm10
-                resY0 = Fma.MultiplyAdd(y0, m22, resY0);        // vfmadd231ps ymm11, ymm7, ymm4
+                // Start Y calculations
+                var ry0 = Fma.MultiplyAdd(x0, m12, m42);
+                var ry1 = Fma.MultiplyAdd(x1, m12, m42); // Independent of ry0
 
-                // --- BLOCK 3: Load Second Half (Hiding Math A Latency) ---
-                var x1 = Avx.LoadAlignedVector256(pPtr + 16);   // vmovaps ymm8, [pPtr + 64]
-                var y1 = Avx.LoadAlignedVector256(pPtr + 24);   // vmovaps ymm9, [pPtr + 96]
+                // Finalize X
+                rx0 = Fma.MultiplyAdd(y0, m21, rx0);
+                rx1 = Fma.MultiplyAdd(y1, m21, rx1);
 
-                // --- BLOCK 4: Store First Half ---
-                Avx.StoreAligned(pPtr, resX0);                  // vmovaps [pPtr], ymm6
-                Avx.StoreAligned(pPtr + 8, resY0);              // vmovaps [pPtr + 32], ymm11
+                // Finalize Y
+                ry0 = Fma.MultiplyAdd(y0, m22, ry0);
+                ry1 = Fma.MultiplyAdd(y1, m22, ry1);
 
-                // --- BLOCK 5: Math Second Half ---
-                var resX1 = Fma.MultiplyAdd(x1, m11, m41);      // vfmadd213ps ymm8, ymm1, ymm5
-                resX1 = Fma.MultiplyAdd(y1, m21, resX1);        // vfmadd231ps ymm8, ymm9, ymm3
+                // --- STEP 3: All Stores last (Port 4/7) ---
+                Avx.StoreAligned(pPtr, rx0);
+                Avx.StoreAligned(pPtr + 8, ry0);
+                Avx.StoreAligned(pPtr + 16, rx1);
+                Avx.StoreAligned(pPtr + 24, ry1);
 
-                var resY1 = Fma.MultiplyAdd(x1, m12, m42);      // vfmadd213ps ymm12, ymm2, ymm10
-                resY1 = Fma.MultiplyAdd(y1, m22, resY1);        // vfmadd231ps ymm12, ymm9, ymm4
-
-                // --- BLOCK 6: Store Second Half ---
-                Avx.StoreAligned(pPtr + 16, resX1);             // vmovaps [pPtr + 64], ymm8
-                Avx.StoreAligned(pPtr + 24, resY1);             // vmovaps [pPtr + 96], ymm12
-
-                pPtr += 32;                                     // add rdi, 128
+                pPtr += 32;
             }
+        }
+        return i;
+    }
+    
+    // - LSD (Loop Stream Detector) 2-block staggering rhythm
+    // - Hiding FMA Latency. 
+    // - Port Balancing. Perfect alternating between Port 2/3 (Loads), Port 0/1 (Math), and Port 4/7 (Stores).
+    //   Continuous flowing stream of data rather than a "stop-and-go" traffic pattern.
+    private static unsafe int StaggeredRhythm(int count, Span<float> position, Matrix4x4 matrix)
+    {
+        int paddedCount = (count + 15) & ~15;
+        int i = 0;
+        
+        // Setup - same as before
+        var m11 = Vector256.Create(matrix.M11);
+        var m12 = Vector256.Create(matrix.M12);
+        var m21 = Vector256.Create(matrix.M21);
+        var m22 = Vector256.Create(matrix.M22);
+        var m41 = Vector256.Create(matrix.M41);
+        var m42 = Vector256.Create(matrix.M42);
+
+        fixed (float* position_first = position)
+        {
+            float* pPtr = (float*)position_first;
+
+            // --- The "Staggered 60ns" Candidate ---
+            for (; i < paddedCount; i += 16)
+            {
+                // Block 0: Load
+                var x0 = Avx.LoadAlignedVector256(pPtr);        
+                var y0 = Avx.LoadAlignedVector256(pPtr + 8);    
+
+                // Block 0: Start Math
+                var rx0 = Fma.MultiplyAdd(x0, m11, m41);
+                var ry0 = Fma.MultiplyAdd(x0, m12, m42);
+
+                // Block 1: Load (While Block 0 math is in flight)
+                var x1 = Avx.LoadAlignedVector256(pPtr + 16);   
+                var y1 = Avx.LoadAlignedVector256(pPtr + 24);
+
+                // Block 0: Finish Math
+                rx0 = Fma.MultiplyAdd(y0, m21, rx0);
+                ry0 = Fma.MultiplyAdd(y0, m22, ry0);
+
+                // Block 1: Start Math
+                var rx1 = Fma.MultiplyAdd(x1, m11, m41);
+                var ry1 = Fma.MultiplyAdd(x1, m12, m42);
+
+                // Block 0: STORE (Now that ports are free)
+                Avx.StoreAligned(pPtr, rx0);
+                Avx.StoreAligned(pPtr + 8, ry0);
+
+                // Block 1: Finish Math
+                rx1 = Fma.MultiplyAdd(y1, m21, rx1);
+                ry1 = Fma.MultiplyAdd(y1, m22, ry1);
+
+                // Block 1: STORE
+                Avx.StoreAligned(pPtr + 16, rx1);
+                Avx.StoreAligned(pPtr + 24, ry1);
+
+                pPtr += 32;
+            }
+            // Handle remaining if count isn't multiple of 32 (standard loop)
+            // ... (Cleanup loop omitted for brevity)
         }
         return i;
     }
