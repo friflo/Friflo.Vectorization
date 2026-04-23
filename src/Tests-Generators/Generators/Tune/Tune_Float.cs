@@ -41,6 +41,8 @@ public partial class Tune_Float
         MoveFloatQuery(store, 0.1f);
     }
     
+    // - "Staggered Memory" Strategy. Interleave the Store of the previous chunk with the Load of the next chunk.
+    //   This keeps the Load/Store ports (Ports 2, 3, 4, 7) balanced so the "Write" doesn't block the "Read."
     private static unsafe int TunedMoveFloat(int count, Span<FloatComponent> position, ReadOnlySpan<FloatComponent> velocity, float deltaTime)
     {
         int paddedCount = (count + 31) & ~31;
@@ -59,29 +61,35 @@ public partial class Tune_Float
 
             for (; i < paddedCount; i += 32)
             {
-                // --- 1. Load
-                Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);  // FloatComponent
-                Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);  // FloatComponent
-                Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16);  // FloatComponent
-                Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24);  // FloatComponent
+                // --- Chunk 0: Load & Math
+                var pos0 = Avx.LoadVector256(position_ptr + 0);
+                var vel0 = Avx.LoadVector256(velocity_ptr + 0);
+                var res0 = Fma.MultiplyAdd(vel0, deltaTime_scalar, pos0);
 
-                Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr +  0);  // FloatComponent
-                Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8);  // FloatComponent
-                Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);  // FloatComponent
-                Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + 24);  // FloatComponent
+                // --- Chunk 1: Load & Math
+                var pos1 = Avx.LoadVector256(position_ptr + 8);
+                var vel1 = Avx.LoadVector256(velocity_ptr + 8);
+                var res1 = Fma.MultiplyAdd(vel1, deltaTime_scalar, pos1);
 
-                // --- 2. Compute
-                // position.value += velocity.value * deltaTime;
-                position_0 = Fma.MultiplyAdd(velocity_0, deltaTime_scalar, position_0);
-                position_1 = Fma.MultiplyAdd(velocity_1, deltaTime_scalar, position_1);
-                position_2 = Fma.MultiplyAdd(velocity_2, deltaTime_scalar, position_2);
-                position_3 = Fma.MultiplyAdd(velocity_3, deltaTime_scalar, position_3);
+                // --- Chunk 0: STORE (While Chunk 2 is loading)
+                Avx.Store(position_ptr + 0, res0);
 
-                // --- 3. Store
-                Avx.Store(position_ptr +  0, position_0);
-                Avx.Store(position_ptr +  8, position_1);
-                Avx.Store(position_ptr + 16, position_2);
-                Avx.Store(position_ptr + 24, position_3);
+                // --- Chunk 2: Load & Math
+                var pos2 = Avx.LoadVector256(position_ptr + 16);
+                var vel2 = Avx.LoadVector256(velocity_ptr + 16);
+                var res2 = Fma.MultiplyAdd(vel2, deltaTime_scalar, pos2);
+
+                // --- Chunk 1: STORE
+                Avx.Store(position_ptr + 8, res1);
+
+                // --- Chunk 3: Load & Math
+                var pos3 = Avx.LoadVector256(position_ptr + 24);
+                var vel3 = Avx.LoadVector256(velocity_ptr + 24);
+                var res3 = Fma.MultiplyAdd(vel3, deltaTime_scalar, pos3);
+
+                // --- Chunk 2 & 3: Final STORES
+                Avx.Store(position_ptr + 16, res2);
+                Avx.Store(position_ptr + 24, res3);
 
                 position_ptr += 32;
                 velocity_ptr += 32;
