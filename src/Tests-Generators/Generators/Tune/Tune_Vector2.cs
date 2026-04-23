@@ -50,12 +50,15 @@ public partial class Tune_Vector2
         position.value = Vector2.Transform(position.value, matrix);
     }
     
-    [Benchmark] [Test]
+    [Benchmark] [Test] // dotnet run -c Release --filter *Tune_Vector2.Vector2_TransformRhythm*
     public void Vector2_TransformRhythm() {
         TransformMatrix4x4_AoSoAQuery(store, matrix4x4);
     }
     
-    // [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty
+    // - Broadcast matrix vector at method head
+    // - Interleaved Load/Comput/Store blocks
+    // - Used LoadAlignedVector256() instead of LoadVector256()
+    // - (most significant) Used distinct local variables for the second half of the unroll to enable Out-of-Order Execution
     [SkipLocalsInit]
     private static unsafe int TransformRhythm(int count, Span<float> position, Matrix4x4 matrix)
     {
@@ -63,49 +66,53 @@ public partial class Tune_Vector2
         int i = 0;
         if (position.Length < paddedCount) VectorUtils.ThrowBufferTooSmall(nameof(position));
 
-        // --- Locals
-        // We use BroadcastScalarToVector128 to grab the first TWO floats of each row 
-        // and repeat them across the 256-bit register.
-        Vector128<float> matrix_row1 = Vector128.Create(matrix.M11, matrix.M12, matrix.M11, matrix.M12);
-        Vector128<float> matrix_row2 = Vector128.Create(matrix.M21, matrix.M22, matrix.M21, matrix.M22);
-        Vector128<float> matrix_row4 = Vector128.Create(matrix.M41, matrix.M42, matrix.M41, matrix.M42);
-
-        Vector256<float> matrix_0 = Avx.BroadcastVector128ToVector256((float*)&matrix_row1);
-        Vector256<float> matrix_1 = Avx.BroadcastVector128ToVector256((float*)&matrix_row2);
-        Vector256<float> matrix_3 = Avx.BroadcastVector128ToVector256((float*)&matrix_row4);                    
+        // --- Pre-Broadcast Matrix Elements to Registers (The "Fat" setup)
+        var m11 = Vector256.Create(matrix.M11);         // vbroadcastss ymm1, [mem]
+        var m12 = Vector256.Create(matrix.M12);         // vbroadcastss ymm2, [mem]
+        var m21 = Vector256.Create(matrix.M21);         // vbroadcastss ymm3, [mem]
+        var m22 = Vector256.Create(matrix.M22);         // vbroadcastss ymm4, [mem]
+        var m41 = Vector256.Create(matrix.M41);         // vbroadcastss ymm5, [mem]
+        var m42 = Vector256.Create(matrix.M42);         // vbroadcastss ymm10, [mem]
 
         fixed (float* position_first = position)
         {
-            float* position_ptr = (float*)position_first;
+            float* pPtr = (float*)position_first;
 
             for (; i < paddedCount; i += 16)
             {
-                // --- 1. Load
-                Vector256<float> position_0 = Avx.LoadVector256(position_ptr);      // xxxxxxxx Pos2SoA
-                Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8); // yyyyyyyy
-                Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16); // xxxxxxxx
-                Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24); // yyyyyyyy
+                // --- BLOCK 1: Load First Half ---
+                var x0 = Avx.LoadAlignedVector256(pPtr);        // vmovaps ymm6, [pPtr]
+                var y0 = Avx.LoadAlignedVector256(pPtr + 8);    // vmovaps ymm7, [pPtr + 32]
 
-                // --- 2. Compute
-                // position.value = Vector2.Transform(position.value, matrix);
-                //   Transform arg[0]
-                Vector256<float> temp0_0 = position_0;
-                Vector256<float> temp0_1 = position_1;
-                Vector256<float> temp0_2 = position_2;
-                Vector256<float> temp0_3 = position_3;
+                // --- BLOCK 2: Math First Half (Interleaved) ---
+                // x' = x*m11 + y*m21 + m41
+                var resX0 = Fma.MultiplyAdd(x0, m11, m41);      // vfmadd213ps ymm6, ymm1, ymm5
+                resX0 = Fma.MultiplyAdd(y0, m21, resX0);        // vfmadd231ps ymm6, ymm7, ymm3
+                
+                // y' = x*m12 + y*m22 + m42
+                var resY0 = Fma.MultiplyAdd(x0, m12, m42);      // vfmadd213ps ymm11, ymm2, ymm10
+                resY0 = Fma.MultiplyAdd(y0, m22, resY0);        // vfmadd231ps ymm11, ymm7, ymm4
 
-                position_0 = AvxVector2.TransformMatrixSoA(temp0_0, temp0_1, Vector256.Create(matrix.M11), Vector256.Create(matrix.M21), Vector256.Create(matrix.M41));
-                position_1 = AvxVector2.TransformMatrixSoA(temp0_0, temp0_1, Vector256.Create(matrix.M12), Vector256.Create(matrix.M22), Vector256.Create(matrix.M42));
-                position_2 = AvxVector2.TransformMatrixSoA(temp0_2, temp0_3, Vector256.Create(matrix.M11), Vector256.Create(matrix.M21), Vector256.Create(matrix.M41));
-                position_3 = AvxVector2.TransformMatrixSoA(temp0_2, temp0_3, Vector256.Create(matrix.M12), Vector256.Create(matrix.M22), Vector256.Create(matrix.M42));
+                // --- BLOCK 3: Load Second Half (Hiding Math A Latency) ---
+                var x1 = Avx.LoadAlignedVector256(pPtr + 16);   // vmovaps ymm8, [pPtr + 64]
+                var y1 = Avx.LoadAlignedVector256(pPtr + 24);   // vmovaps ymm9, [pPtr + 96]
 
-                // --- 3. Store
-                Avx.Store(position_ptr,      position_0); // xxxxxxxx
-                Avx.Store(position_ptr +  8, position_1); // yyyyyyyy
-                Avx.Store(position_ptr + 16, position_2); // xxxxxxxx
-                Avx.Store(position_ptr + 24, position_3); // yyyyyyyy
+                // --- BLOCK 4: Store First Half ---
+                Avx.StoreAligned(pPtr, resX0);                  // vmovaps [pPtr], ymm6
+                Avx.StoreAligned(pPtr + 8, resY0);              // vmovaps [pPtr + 32], ymm11
 
-                position_ptr += 32;
+                // --- BLOCK 5: Math Second Half ---
+                var resX1 = Fma.MultiplyAdd(x1, m11, m41);      // vfmadd213ps ymm8, ymm1, ymm5
+                resX1 = Fma.MultiplyAdd(y1, m21, resX1);        // vfmadd231ps ymm8, ymm9, ymm3
+
+                var resY1 = Fma.MultiplyAdd(x1, m12, m42);      // vfmadd213ps ymm12, ymm2, ymm10
+                resY1 = Fma.MultiplyAdd(y1, m22, resY1);        // vfmadd231ps ymm12, ymm9, ymm4
+
+                // --- BLOCK 6: Store Second Half ---
+                Avx.StoreAligned(pPtr + 16, resX1);             // vmovaps [pPtr + 64], ymm8
+                Avx.StoreAligned(pPtr + 24, resY1);             // vmovaps [pPtr + 96], ymm12
+
+                pPtr += 32;                                     // add rdi, 128
             }
         }
         return i;
