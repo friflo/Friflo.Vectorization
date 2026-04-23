@@ -43,6 +43,7 @@ public partial class Tune_Float
     
     // - "Staggered Memory" Strategy. Interleave the Store of the previous chunk with the Load of the next chunk.
     //   This keeps the Load/Store ports (Ports 2, 3, 4, 7) balanced so the "Write" doesn't block the "Read."
+    //   This addresses Store-to-Load Forwarding (SLF) stalls.
     private static unsafe int TunedMoveFloat(int count, Span<FloatComponent> position, ReadOnlySpan<FloatComponent> velocity, float deltaTime)
     {
         int paddedCount = (count + 31) & ~31;
