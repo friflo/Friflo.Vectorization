@@ -33,8 +33,9 @@
 
 ## Workflow
 - Build project `Tests-Generators` in Release
-- Set environment variables: `TUNE_METHOD = Tune.Tune_Vector2.Vector2_TransformRhythm`
-- Click: **Start** (at the bottom)
+- Set environment variable in **Launch Application** > Advanced:  
+  `TUNE_METHOD=Tune.Tune_Vector2.Vector2_TransformRhythm`
+- Click: **Start** (at the bottom) to run your method
 - Let it run for some seconds and click: **Stop**
 - Be impressed about the shitload of collected data 😊
 - You are now ready to Analyze. E.g.
