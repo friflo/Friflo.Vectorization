@@ -129,12 +129,13 @@ public partial class AttributeQueryGenerator
         var sb = new StringBuilder();
         var index = 1;
         foreach (var component in components) {
+            var vectorType = component.VectorType;
             // e.g. var componentSpan = chunk.Chunk1.Span;
             if (sb.Length > 0) {
                 sb.AppendLine("");
             }
-            if (Utils.HasAttribute(component.Symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
+            if (vectorType?.layout == VectorLayout.SoA) {
+                sb.Append($"                var {vectorType.name}Span = chunk.Chunk{index++}.GetLanesSoA();");
                 continue;
             }
             sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.ArchetypeComponents.AsSpan();");
@@ -150,10 +151,10 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = query.NamedTypes.IsComponent(symbol.Type);
-            if (isComponent) {
+            if (parameter.IsSpan) {
                 Utils.AppendRefKind(sb, symbol.RefKind);
-                if (Utils.HasAttribute(symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                var vectorType = parameter.VectorType;
+                if (vectorType?.layout == VectorLayout.SoA) {
                     sb.Append($"{symbol.Name}AoS");                                                          // TODO fix name SoA
                     continue;
                 }
