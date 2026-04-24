@@ -126,7 +126,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
         var blueprintParameters = GetBlueprintParameters(parameters, vectorMode, vectorizeData != null, types);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters, vectorizeData != null);
-        var spans2              = GetVectorSpans2(blueprintParameters);
+        var spans               = GetVectorSpans(blueprintParameters);
         var query = new Query {
             BlueprintMethod = blueprintMethod,
             Diagnostics     = diagnostics,
@@ -135,7 +135,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Attributes      = attributes,
             Parameters      = blueprintParameters,
             VectorTypes     = vectorTypes,
-            Span2           = spans2,
+            Spans           = spans,
             Hash            = hash,
             NamedTypes      = types,
             SemanticModel   = semanticModel
@@ -251,7 +251,7 @@ using System.ComponentModel;{intrinsics}
         return blueprintParam;
     }
     
-    private static BlueprintParameter[] GetVectorSpans2(BlueprintParameter[] parameters)
+    private static BlueprintParameter[] GetVectorSpans(BlueprintParameter[] parameters)
     {
         var result = new List<BlueprintParameter>();
         foreach (var parameter in parameters)

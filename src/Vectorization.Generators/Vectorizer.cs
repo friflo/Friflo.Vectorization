@@ -36,7 +36,7 @@ public static partial class Vectorizer
         }
         query.strategy = initialStrategy;
 
-        if (query.VectorMode == VectorMode.Vector && query.Span2.Length == 0) {
+        if (query.VectorMode == VectorMode.Vector && query.Spans.Length == 0) {
             query.Diagnostics.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
             return false;
         }
@@ -246,7 +246,7 @@ public static partial class Vectorizer
         
         // --- fixed block
         var @fixed = new StringBuilder();
-        foreach (var span in query.Span2) {
+        foreach (var span in query.Spans) {
             var vectorType = span.VectorType!;
             var type = vectorType.layout == VectorLayout.SoA
                 ? "float"

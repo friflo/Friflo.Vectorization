@@ -15,18 +15,18 @@ public partial class AttributeQueryGenerator
         out string privateSource)
     {
         var attributeCode       = EmitQueryFilters(query.Attributes);
-        var componentArgs       = EmitQueryArgs(query.Span2);
-        var chunkVariables      = EmitQueryChunkVariables(query.Span2);
+        var componentArgs       = EmitQueryArgs(query.Spans);
+        var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
-        EmitSoAGetterAndSetter(query.Span2, out var getterAoS, out var setterAoS);
+        EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
         
         var hash            = query.Hash;
         var blueprintMethod = query.BlueprintMethod;
         var methodName      = query.BlueprintMethod.Name;
         
-        if (query.Span2.Length == 0)
+        if (query.Spans.Length == 0)
         {
             shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
@@ -162,7 +162,7 @@ public partial class AttributeQueryGenerator
             }
             bool isEntity = query.NamedTypes.IsEntityParameter(symbol); 
             if (isEntity) {
-                sb.Append(query.Span2.Length == 0 ? "entity" : "_entities.EntityAt(n)");
+                sb.Append(query.Spans.Length == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
             Utils.AppendRefKind(sb, symbol.RefKind);
