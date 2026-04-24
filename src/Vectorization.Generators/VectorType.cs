@@ -15,10 +15,10 @@ public enum ParamType
 
 public enum VectorLayout : byte
 {
-    /// <summary> Interleaved: [X, Y, Z, X, Y, Z] - Best for random access. </summary>
+    /// <summary> Interleaved: xyz xyz xyz xyz xyz xyz xyz xyz xyz xyz xyz xyz xyz ... </summary>
     AoS = 0,
-    /// <summary> Parallel: [X, X...], [Y, Y...], [Z, Z...] - Best for SIMD. </summary>
-    SoA = 1
+    /// <summary> Tiled:       xxxxxxxx yyyyyyyy zzzzzzzz xxxxxxxx yyyyyyyy zzzzzzzz ... </summary>
+    AoSoA = 1
 }
 
 public class VectorType
@@ -72,7 +72,7 @@ public class VectorType
             return null;
         }
         var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
-                        VectorLayout.SoA : VectorLayout.AoS;
+                        VectorLayout.AoSoA : VectorLayout.AoS;
         return CreateVectorType(symbol, typeName, true, valueField.Type, layout);
     }
     

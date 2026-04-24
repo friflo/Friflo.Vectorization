@@ -25,7 +25,7 @@ public static partial class Vectorizer
         
         // --- Phase 1: Layout Analysis ---
         Strategy initialStrategy;
-        bool allSoA = vectorTypes.All(p => p.Layout == VectorLayout.SoA);
+        bool allSoA = vectorTypes.All(p => p.Layout == VectorLayout.AoSoA);
         bool allAoS = vectorTypes.All(p => p.Layout == VectorLayout.AoS);
         if (allSoA) {
             initialStrategy = Strategy.NativeSoA;
@@ -208,7 +208,7 @@ public static partial class Vectorizer
                 if (vectorType.ParamType == ParamType.Scalar) {
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
-                if (vectorType.Layout == VectorLayout.SoA) {
+                if (vectorType.Layout == VectorLayout.AoSoA) {
                     signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
                     continue;
                 }
@@ -248,7 +248,7 @@ public static partial class Vectorizer
         var @fixed = new StringBuilder();
         foreach (var span in query.Spans) {
             var vectorType = span.VectorType!;
-            var type = vectorType.Layout == VectorLayout.SoA
+            var type = vectorType.Layout == VectorLayout.AoSoA
                 ? "float"
                 : vectorType.Parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             @fixed.Append($"            fixed ({type}* {vectorType.Name}_first = {vectorType.Name})");
@@ -319,7 +319,7 @@ public static partial class Vectorizer
         foreach (var vectorType in query.VectorTypes) {
             if (!vectorType.IsSpan) continue;
             var name = vectorType.Name;
-            if (vectorType.Layout == VectorLayout.SoA) {
+            if (vectorType.Layout == VectorLayout.AoSoA) {
                 // sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
                 sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             } else {

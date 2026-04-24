@@ -132,7 +132,7 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.AppendLine("");
             }
-            if (vectorType?.Layout == VectorLayout.SoA) {
+            if (vectorType?.Layout == VectorLayout.AoSoA) {
                 sb.Append($"                var {vectorType.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
                 continue;
             }
@@ -152,7 +152,7 @@ public partial class AttributeQueryGenerator
             if (parameter.IsSpan) {
                 Utils.AppendRefKind(sb, symbol.RefKind);
                 var vectorType = parameter.VectorType;
-                if (vectorType?.Layout == VectorLayout.SoA) {
+                if (vectorType?.Layout == VectorLayout.AoSoA) {
                     sb.Append($"{symbol.Name}AoS");                                                          // TODO fix name SoA
                     continue;
                 }
@@ -210,7 +210,7 @@ public partial class AttributeQueryGenerator
         var index = 1;
         foreach (var component in components) {
             var vectorType = component.VectorType;
-            if (vectorType?.Layout == VectorLayout.SoA) {
+            if (vectorType?.Layout == VectorLayout.AoSoA) {
                 getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
                 if (component.Symbol.RefKind == RefKind.Ref) {
                     setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {vectorType.Name}AoS);");

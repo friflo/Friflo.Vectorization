@@ -72,7 +72,7 @@ $"""
                     break;
             }
         } else {
-            if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.SoA) {
+            if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.AoSoA) {
                 source.AppendLine(
 $"""
                     Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // xxxxxxxx {typeName}
@@ -82,7 +82,7 @@ $"""
 """);
             } else {
                 for (int n = 0; n < laneCount; n++) {
-                    if (vectorType.Layout == VectorLayout.SoA) {
+                    if (vectorType.Layout == VectorLayout.AoSoA) {
                         source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");
                     } else {
                         source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");    
@@ -137,7 +137,7 @@ $"""
                     break;
             }
         }
-        if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.SoA)
+        if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.AoSoA)
         {
                 source.AppendLine(
 $"""
@@ -157,7 +157,7 @@ $"""
                 };
             }
             for (int n = 0; n < laneCount; n++) {
-                if (vectorType.Layout == VectorLayout.SoA) {
+                if (vectorType.Layout == VectorLayout.AoSoA) {
                     source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
                 } else {
                     source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
