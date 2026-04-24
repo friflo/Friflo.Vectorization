@@ -20,9 +20,9 @@ namespace VerifyVectorize
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
-                var factorSpan = chunk.Chunk2.ArchetypeComponents.AsSpan();
-                var factor2Span = chunk.Chunk3.ArchetypeComponents.AsSpan();
+                var positionSpan = chunk.Chunk1.GetComponentSpan();
+                var factorSpan = chunk.Chunk2.GetComponentSpan();
+                var factor2Span = chunk.Chunk3.GetComponentSpan();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {

@@ -34,7 +34,7 @@ public static partial class Test_Float_Avx
         foreach (var entity in store.Entities)
         {
             var entityVectorized = storeVectorized.GetEntityById(entity.Id);
-            Assert.That(entity.GetComponent<Position1>(), Is.EqualTo(entityVectorized.GetComponent<Position1>()));
+            Assert.That(entity.GetComponent<Position1>().value, Is.EqualTo(entityVectorized.GetComponent<Position1>().value));
         }
     }
 

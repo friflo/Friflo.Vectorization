@@ -31,7 +31,7 @@ public partial class Tune_Float
     }
     
     // ---------------------------------------------------------------------------
-    [Vectorize(nameof(TunedMoveFloat))][Query]  [OmitHash]
+    [Vectorize][Query]  [OmitHash]
     private static void MoveFloat(ref FloatComponent position, FloatComponent velocity, float deltaTime) {
         position.value += velocity.value * deltaTime;
     }

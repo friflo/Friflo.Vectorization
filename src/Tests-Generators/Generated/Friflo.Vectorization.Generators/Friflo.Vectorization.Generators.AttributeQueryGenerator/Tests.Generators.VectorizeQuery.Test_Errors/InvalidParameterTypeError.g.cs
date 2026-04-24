@@ -15,7 +15,7 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var pos1Span = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var pos1Span = chunk.Chunk1.GetComponentSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     InvalidParameterTypeError(ref pos1Span[n], _entities.EntityAt(n));

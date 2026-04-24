@@ -136,7 +136,7 @@ public partial class AttributeQueryGenerator
                 sb.Append($"                var {vectorType.name}Span = chunk.Chunk{index++}.GetLanesSoA();");
                 continue;
             }
-            sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.ArchetypeComponents.AsSpan();");
+            sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.GetComponentSpan();");
         }
         return sb.ToString();
     }

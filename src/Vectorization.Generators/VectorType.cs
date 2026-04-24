@@ -61,7 +61,8 @@ public class VectorType
             return CreateVectorType(symbol, typeName, false, symbol.Type, VectorLayout.AoS);
         }
         IFieldSymbol? valueField = null;
-        foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
+        var fields = type.GetMembers().OfType<IFieldSymbol>();
+        foreach (var field in fields) {
             if (field.Name == "value" || field.Name == "Value") {
                 valueField = field;
                 break;
@@ -72,8 +73,7 @@ public class VectorType
         }
         var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
                         VectorLayout.SoA : VectorLayout.AoS;
-        var vectorType = CreateVectorType(symbol, typeName, true, valueField.Type, layout);
-        return vectorType;
+        return CreateVectorType(symbol, typeName, true, valueField.Type, layout);
     }
     
     public static VectorType GetSpanVectorType(IParameterSymbol symbol, bool isSpan)

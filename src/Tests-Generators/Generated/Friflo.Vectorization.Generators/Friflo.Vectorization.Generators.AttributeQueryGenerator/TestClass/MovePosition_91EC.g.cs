@@ -14,7 +14,7 @@ using Friflo.Engine.ECS;
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var positionSpan = chunk.Chunk1.GetComponentSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     MovePosition(ref positionSpan[n], deltaTime);

@@ -15,8 +15,8 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var pos1Span = chunk.Chunk1.ArchetypeComponents.AsSpan();
-                var pos3Span = chunk.Chunk2.ArchetypeComponents.AsSpan();
+                var pos1Span = chunk.Chunk1.GetComponentSpan();
+                var pos3Span = chunk.Chunk2.GetComponentSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     IncompatibleParameterTypesError(ref pos1Span[n], ref pos3Span[n]);

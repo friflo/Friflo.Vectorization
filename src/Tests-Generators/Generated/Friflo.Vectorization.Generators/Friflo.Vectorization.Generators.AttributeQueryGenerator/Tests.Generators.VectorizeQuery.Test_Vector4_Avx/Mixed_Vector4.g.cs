@@ -19,7 +19,7 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var positionSpan = chunk.Chunk1.GetComponentSpan();
                 var velocitySpan = chunk.Chunk2.GetLanesSoA();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;

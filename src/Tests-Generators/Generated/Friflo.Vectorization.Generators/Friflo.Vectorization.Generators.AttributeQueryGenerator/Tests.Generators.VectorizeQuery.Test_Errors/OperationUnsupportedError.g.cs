@@ -15,7 +15,7 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var compSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
+                var compSpan = chunk.Chunk1.GetComponentSpan();
                 int n = 0;
                 for (; n < _entities.Length; n++) {
                     OperationUnsupportedError(ref compSpan[n], value);

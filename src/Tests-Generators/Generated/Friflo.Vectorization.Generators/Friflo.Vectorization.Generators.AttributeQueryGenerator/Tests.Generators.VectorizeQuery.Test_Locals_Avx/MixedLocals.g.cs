@@ -19,8 +19,8 @@ namespace Tests.Generators.VectorizeQuery
             foreach (var chunk in _query.Chunks)
             {
                 var _entities = chunk.Entities;
-                var positionSpan = chunk.Chunk1.ArchetypeComponents.AsSpan();
-                var scalarCompSpan = chunk.Chunk2.ArchetypeComponents.AsSpan();
+                var positionSpan = chunk.Chunk1.GetComponentSpan();
+                var scalarCompSpan = chunk.Chunk2.GetComponentSpan();
                 int n = 0;
                 if (!vectorized) goto EntityLoop;
                 if (Avx.IsSupported) {
