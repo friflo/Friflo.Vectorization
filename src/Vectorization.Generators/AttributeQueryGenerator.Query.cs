@@ -84,11 +84,10 @@ public partial class AttributeQueryGenerator
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
         foreach (var parameter in parameters) {
-            var symbol = parameter.Symbol;
-            bool isComponent = namedTypes.IsComponent(symbol.Type);
-            if (isComponent) {
+            if (parameter.IsSpan) {
                 continue;
             }
+            var symbol = parameter.Symbol;
             bool isEntity = namedTypes.IsEntityParameter(symbol);
             if (isEntity) {
                 continue;
