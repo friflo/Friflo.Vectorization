@@ -12,7 +12,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     public  readonly string                 name;
     public  readonly string                 code;
     public  readonly List<DiagnosticData>   diagnostics;
-    private readonly int                    _cachedHash;
+    private readonly int                    cachedHash;
 
     public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
     {
@@ -22,14 +22,14 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
         int hash = 17;
         hash = hash * 23 + (name?.GetHashCode() ?? 0);
         hash = hash * 23 + (code?.GetHashCode() ?? 0);
-        _cachedHash = hash;
+        cachedHash = hash;
     }
 
     // Direct call, no boxing
     public bool Equals(EmissionResult other)
     {
         // 1. Check cached hash (O(1))
-        if (_cachedHash != other._cachedHash) return false;
+        if (cachedHash != other.cachedHash) return false;
         
         // 2. Check name (Short string)
         if (name != other.name) return false;
@@ -40,7 +40,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
 
     // Required overrides (just in case)
     public override bool Equals(object obj) => obj is EmissionResult other && Equals(other);
-    public override int GetHashCode() => _cachedHash;
+    public override int GetHashCode() => cachedHash;
 }
 
 public record struct DiagnosticData(

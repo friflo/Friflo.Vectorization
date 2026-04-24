@@ -45,7 +45,7 @@ public class BlueprintParameter
                     vectorType  = VectorType.GetSpanVectorType(parameter, isSpan);
                     break;
             }
-            bool isEntity = !isSpan && IsEntityParameter(parameter, entityStruct);
+            bool isEntity = !isSpan && IsEntityParameter(parameter, entityStruct!);
             blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
         }
         return blueprintParam;

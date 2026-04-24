@@ -147,15 +147,15 @@ public enum DataShape {
 
 public readonly struct ComputeResult 
 {
-    public readonly DataShape   Shape;
-    public readonly bool        IsValid;
+    private readonly    DataShape   shape;
+    private readonly    bool        isValid;
 
-    public override string ToString() => IsValid ? Shape.ToString() : "Invalid";
+    public override string ToString() => isValid ? shape.ToString() : "Invalid";
 
     private ComputeResult(DataShape shape, bool valid) 
     {
-        Shape = shape;
-        IsValid = valid;
+        this.shape = shape;
+        isValid = valid;
     }
 
     public static ComputeResult Invalid => new ComputeResult(DataShape.None, false);
@@ -165,7 +165,7 @@ public readonly struct ComputeResult
     public static implicit operator ComputeResult(DataShape shape) => new (shape, shape != DataShape.None);
 
     // This enables: if (!result) { return ...; }
-    public static bool operator !(ComputeResult x) => !x.IsValid;
+    public static bool operator !(ComputeResult x) => !x.isValid;
 
     // DO NOT define 'operator true', 'operator false', or 'implicit operator bool'.
 }
