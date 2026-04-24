@@ -1,7 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
@@ -111,22 +110,16 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             vectorMode = VectorMode.Query;
         }
         // Get the symbol for the interfaces; ITag and IComponent
-        var compilation = semanticModel.Compilation;
-        var types = new NamedTypes {
-            componentInterface  = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.IComponent"),
-            entityStruct        = compilation.GetTypeByMetadataName("Friflo.Engine.ECS.Entity"),
-            omitHashAttribute   = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute"),
-        };
-
+        var compilation         = semanticModel.Compilation;
         var className           = blueprintMethod.ContainingType.ToDisplayString(ClassNameFormat);
         var isGlobalNamespace   = blueprintMethod.ContainingNamespace.IsGlobalNamespace;
         var namespaceName       = blueprintMethod.ContainingType.ContainingNamespace.ToDisplayString();
         var parameters          = blueprintMethod.Parameters;
-        var hash                = GetHash(blueprintMethod, attributes, types);
+        var hash                = GetHash(blueprintMethod, attributes, compilation);
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
-        var blueprintParameters = CreateBlueprintParameters(parameters, vectorMode, types);
+        var blueprintParameters = BlueprintParameter.CreateBlueprintParameters(parameters, vectorMode, compilation);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters);
-        var spans               = GetVectorSpans(blueprintParameters);
+        var spans               = BlueprintParameter.GetVectorSpans(blueprintParameters);
         var query = new Query {
             BlueprintMethod = blueprintMethod,
             Diagnostics     = diagnostics,
@@ -189,9 +182,10 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
     );
     
     // made required static symbols unique to prevent duplicate symbol names
-    private static string GetHash(IMethodSymbol methodSymbol, ImmutableArray<AttributeData> attributes, NamedTypes namedTypes)
+    private static string GetHash(IMethodSymbol methodSymbol, ImmutableArray<AttributeData> attributes, Compilation compilation)
     {
-        var search = namedTypes.omitHashAttribute.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var omitHashAttribute = compilation.GetTypeByMetadataName("Friflo.Vectorization.OmitHashAttribute")!;
+        var search = omitHashAttribute.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         bool found = false;
         foreach (var attributeData in attributes) {
             // if (SymbolEqualityComparer.Default.Equals(ecsTypes.omitHashAttribute, attributeData.AttributeClass)) found = true;
@@ -230,44 +224,7 @@ using System.ComponentModel;{intrinsics}
         return source;
     }
     
-    private static BlueprintParameter[] CreateBlueprintParameters(
-        ImmutableArray<IParameterSymbol>    parameters,
-        VectorMode                          vectorMode,
-        NamedTypes                          namedTypes)
-    {
-        var blueprintParam = new BlueprintParameter[parameters.Length];
-        for (int n = 0; n < parameters.Length; n++)
-        {
-            var parameter = parameters[n];
-            VectorType? vectorType  = null;
-            bool        isSpan      = false;
-            switch (vectorMode) {
-                case VectorMode.Query:
-                    isSpan      = namedTypes.IsComponent(parameter.Type);
-                    vectorType  = VectorType.GetComponentVectorType(parameter, isSpan);
-                    break;
-                case VectorMode.Vector:
-                    isSpan      = Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                    vectorType  = VectorType.GetSpanVectorType(parameter, isSpan);
-                    break;
-            }
-            bool isEntity = !isSpan && namedTypes.IsEntityParameter(parameter);
-            blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
-        }
-        return blueprintParam;
-    }
-    
-    private static BlueprintParameter[] GetVectorSpans(BlueprintParameter[] parameters)
-    {
-        var result = new List<BlueprintParameter>();
-        foreach (var parameter in parameters)
-        {
-            if (parameter.IsSpan) {
-                result.Add(parameter);
-            }
-        }
-        return result.ToArray();
-    }
+
     
     private static string? GetCustomMethod(AttributeData? vectorizeData)
     {

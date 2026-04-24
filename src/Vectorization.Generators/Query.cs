@@ -139,30 +139,6 @@ public enum VectorMode {
     Query
 }
 
-public class BlueprintParameter {
-    public required IParameterSymbol    Symbol      { get; init; }
-    public required VectorType?         VectorType  { get; init; }
-    public required bool                IsSpan      { get; init; }
-    public required bool                IsEntity    { get; init; }
-
-    public override string ToString() => Symbol.Name;
-}
-
-public struct NamedTypes
-{
-    public INamedTypeSymbol componentInterface;
-    public INamedTypeSymbol entityStruct;
-    public INamedTypeSymbol omitHashAttribute;
-    
-    public bool IsEntityParameter(IParameterSymbol parameter) {
-        return parameter.Name == "entity" && SymbolEqualityComparer.Default.Equals(parameter.Type, entityStruct);
-    }
-
-    public bool IsComponent(ITypeSymbol typeSymbol) {
-        return typeSymbol.AllInterfaces.Contains(componentInterface);
-    }
-}
-
 public enum DataShape { 
     None,     // Initial state
     Vector,  // [X, Y, Z, W] - Interleaved AoS
