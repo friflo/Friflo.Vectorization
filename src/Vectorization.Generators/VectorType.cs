@@ -53,32 +53,35 @@ public class VectorType
         return vectorTypes;
     }
     
-    public static VectorType? GetVectorType(IParameterSymbol symbol, VectorMode vectorMode, NamedTypes namedTypes)
+    public static VectorType? GetComponentVectorType(IParameterSymbol symbol, bool isComponent)
     {
         var type = symbol.Type;
         var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        bool isSpan = vectorMode == VectorMode.Query && namedTypes.IsComponent(type);
-        if (isSpan) {
-            IFieldSymbol? valueField = null;
-            foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
-                if (field.Name == "value" || field.Name == "Value") {
-                    valueField = field;
-                    break;
-                }
-            }
-            if (valueField == null) {
-                return null;
-            }
-            var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
-                            VectorLayout.SoA : VectorLayout.AoS;
-            var vectorType = CreateVectorType(symbol, typeName, true, valueField.Type, layout);
-            return vectorType;
-        } else {
-            isSpan = vectorMode == VectorMode.Vector &&
-                     Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-            var vectorType = CreateVectorType(symbol, typeName, isSpan, symbol.Type, VectorLayout.AoS);
-            return vectorType;
+        if (!isComponent) {
+            return CreateVectorType(symbol, typeName, false, symbol.Type, VectorLayout.AoS);
         }
+        IFieldSymbol? valueField = null;
+        foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
+            if (field.Name == "value" || field.Name == "Value") {
+                valueField = field;
+                break;
+            }
+        }
+        if (valueField == null) {
+            return null;
+        }
+        var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
+                        VectorLayout.SoA : VectorLayout.AoS;
+        var vectorType = CreateVectorType(symbol, typeName, true, valueField.Type, layout);
+        return vectorType;
+    }
+    
+    public static VectorType GetSpanVectorType(IParameterSymbol symbol, bool isSpan)
+    {
+        var type        = symbol.Type;
+        var typeName    = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var vectorType  = CreateVectorType(symbol, typeName, isSpan, symbol.Type, VectorLayout.AoS);
+        return vectorType;
     }
     
     public static (SpecialType specialType, int dimension, ParamType paramType)

@@ -124,7 +124,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var parameters          = blueprintMethod.Parameters;
         var hash                = GetHash(blueprintMethod, attributes, types);
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
-        var blueprintParameters = GetBlueprintParameters(parameters, vectorMode, vectorizeData != null, types);
+        var blueprintParameters = CreateBlueprintParameters(parameters, vectorMode, types);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters, vectorizeData != null);
         var spans               = GetVectorSpans(blueprintParameters);
         var query = new Query {
@@ -231,21 +231,27 @@ using System.ComponentModel;{intrinsics}
         return source;
     }
     
-    private static BlueprintParameter[] GetBlueprintParameters(
+    private static BlueprintParameter[] CreateBlueprintParameters(
         ImmutableArray<IParameterSymbol>    parameters,
         VectorMode                          vectorMode,
-        bool                                vectorize,
         NamedTypes                          namedTypes)
     {
         var blueprintParam = new BlueprintParameter[parameters.Length];
-        for (int n = 0; n < parameters.Length; n++) {
+        for (int n = 0; n < parameters.Length; n++)
+        {
             var symbol = parameters[n];
-            var vectorType = VectorType.GetVectorType(symbol, vectorMode, namedTypes);
-            bool isSpan = vectorMode switch {
-                VectorMode.Query    => namedTypes.IsComponent(symbol.Type),
-                VectorMode.Vector   => Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
-                _                   => false
-            };
+            VectorType? vectorType  = null;
+            bool        isSpan      = false;
+            switch (vectorMode) {
+                case VectorMode.Query:
+                    isSpan      = namedTypes.IsComponent(symbol.Type);
+                    vectorType  = VectorType.GetComponentVectorType(symbol, isSpan);
+                    break;
+                case VectorMode.Vector:
+                    isSpan      = Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
+                    vectorType  = VectorType.GetSpanVectorType(symbol, isSpan);
+                    break;
+            }
             blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType, IsSpan = isSpan };
         }
         return blueprintParam;
