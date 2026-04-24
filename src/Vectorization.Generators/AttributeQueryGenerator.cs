@@ -137,7 +137,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             VectorTypes     = vectorTypes,
             Spans           = spans,
             Hash            = hash,
-            NamedTypes      = types,
             SemanticModel   = semanticModel
         };
         if (vectorizeData != null) {
@@ -239,20 +238,21 @@ using System.ComponentModel;{intrinsics}
         var blueprintParam = new BlueprintParameter[parameters.Length];
         for (int n = 0; n < parameters.Length; n++)
         {
-            var symbol = parameters[n];
+            var parameter = parameters[n];
             VectorType? vectorType  = null;
             bool        isSpan      = false;
             switch (vectorMode) {
                 case VectorMode.Query:
-                    isSpan      = namedTypes.IsComponent(symbol.Type);
-                    vectorType  = VectorType.GetComponentVectorType(symbol, isSpan);
+                    isSpan      = namedTypes.IsComponent(parameter.Type);
+                    vectorType  = VectorType.GetComponentVectorType(parameter, isSpan);
                     break;
                 case VectorMode.Vector:
-                    isSpan      = Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                    vectorType  = VectorType.GetSpanVectorType(symbol, isSpan);
+                    isSpan      = Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
+                    vectorType  = VectorType.GetSpanVectorType(parameter, isSpan);
                     break;
             }
-            blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType, IsSpan = isSpan };
+            bool isEntity = !isSpan && namedTypes.IsEntityParameter(parameter);
+            blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
         }
         return blueprintParam;
     }

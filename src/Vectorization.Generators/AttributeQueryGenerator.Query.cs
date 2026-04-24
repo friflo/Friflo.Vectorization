@@ -18,7 +18,7 @@ public partial class AttributeQueryGenerator
         var componentArgs       = EmitQueryArgs(query.Spans);
         var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
-        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
+        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
         EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
         
@@ -79,7 +79,7 @@ public partial class AttributeQueryGenerator
         }}";
     }
     
-    private static string EmitQueryMethodSignature(BlueprintParameter[] parameters, NamedTypes namedTypes, bool vectorized)
+    private static string EmitQueryMethodSignature(BlueprintParameter[] parameters, bool vectorized)
     {
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
@@ -88,8 +88,7 @@ public partial class AttributeQueryGenerator
                 continue;
             }
             var symbol = parameter.Symbol;
-            bool isEntity = namedTypes.IsEntityParameter(symbol);
-            if (isEntity) {
+            if (parameter.IsEntity) {
                 continue;
             }
             sb.Append(", ");
@@ -160,8 +159,7 @@ public partial class AttributeQueryGenerator
                 sb.Append($"{symbol.Name}Span[n]");
                 continue;
             }
-            bool isEntity = query.NamedTypes.IsEntityParameter(symbol); 
-            if (isEntity) {
+            if (parameter.IsEntity) {
                 sb.Append(query.Spans.Length == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
