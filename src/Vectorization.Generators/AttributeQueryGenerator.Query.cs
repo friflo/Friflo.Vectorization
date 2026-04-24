@@ -211,11 +211,11 @@ public partial class AttributeQueryGenerator
         setterAoS = new StringBuilder();
         var index = 1;
         foreach (var component in components) {
-            var symbol = component.Symbol;
-            if (Utils.HasAttribute(symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                getterAoS.AppendLine($"                    var {symbol.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
-                if (symbol.RefKind == RefKind.Ref) {
-                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {symbol.Name}AoS);");
+            var vectorType = component.VectorType;
+            if (vectorType?.layout == VectorLayout.SoA) {
+                getterAoS.AppendLine($"                    var {vectorType.name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
+                if (component.Symbol.RefKind == RefKind.Ref) {
+                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {vectorType.name}AoS);");
                 }
             }
             index++;
