@@ -22,7 +22,7 @@ public static partial class Vectorizer
             typeSymbol = fieldSymbol.Type;
         }
         // SOA
-        var (specialType, dimension, dimParamType) = VectorType.GetTypeDim(typeSymbol);
+        var (_, dimension, _) = VectorType.GetTypeDim(typeSymbol);
         if (query.useDeinterleave && !query.paramTypes.ContainsKey(parameterName)) {
             query.AddParam(parameterName, false, true, false, dimension);    
         }
