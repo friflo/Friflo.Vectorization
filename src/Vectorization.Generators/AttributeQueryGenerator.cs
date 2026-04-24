@@ -125,7 +125,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var hash                = GetHash(blueprintMethod, attributes, types);
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
         var blueprintParameters = CreateBlueprintParameters(parameters, vectorMode, types);
-        var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters, vectorizeData != null);
+        var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters);
         var spans               = GetVectorSpans(blueprintParameters);
         var query = new Query {
             BlueprintMethod = blueprintMethod,

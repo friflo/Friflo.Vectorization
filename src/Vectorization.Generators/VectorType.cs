@@ -38,7 +38,7 @@ public class VectorType
         return $"{parameter} : {valueType.Name} ({(paramType == ParamType.Vector ? "vector" : "scalar")})";
     }
     
-    public static VectorType[] GetVectorTypes(Diagnostics diagnostics, BlueprintParameter[] parameters, bool vectorize)
+    public static VectorType[] GetVectorTypes(Diagnostics diagnostics, BlueprintParameter[] parameters)
     {
         var vectorTypes = new VectorType[parameters.Length];
         for (int n = 0; n < parameters.Length; n++) {
