@@ -1,7 +1,6 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -27,7 +26,7 @@ public partial class AttributeQueryGenerator
         var blueprintMethod = query.BlueprintMethod;
         var methodName      = query.BlueprintMethod.Name;
         
-        if (query.Spans.Count == 0)
+        if (query.Span2.Length == 0)
         {
             shadowMethodSource = $@"
         /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
@@ -163,7 +162,7 @@ public partial class AttributeQueryGenerator
             }
             bool isEntity = query.NamedTypes.IsEntityParameter(symbol); 
             if (isEntity) {
-                sb.Append(query.Spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
+                sb.Append(query.Span2.Length == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
             Utils.AppendRefKind(sb, symbol.RefKind);

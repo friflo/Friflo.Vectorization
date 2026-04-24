@@ -122,7 +122,6 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var isGlobalNamespace   = blueprintMethod.ContainingNamespace.IsGlobalNamespace;
         var namespaceName       = blueprintMethod.ContainingType.ContainingNamespace.ToDisplayString();
         var parameters          = blueprintMethod.Parameters;
-        var spans               = GetVectorSpans(parameters, types, vectorMode);
         var hash                = GetHash(blueprintMethod, attributes, types);
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
         var blueprintParameters = GetBlueprintParameters(parameters, vectorMode, vectorizeData != null, types);
@@ -136,8 +135,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Attributes      = attributes,
             Parameters      = blueprintParameters,
             VectorTypes     = vectorTypes,
-            Spans           = spans,
-            Span2          = spans2,
+            Span2           = spans2,
             Hash            = hash,
             NamedTypes      = types,
             SemanticModel   = semanticModel
@@ -251,24 +249,6 @@ using System.ComponentModel;{intrinsics}
             blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType, IsSpan = isSpan };
         }
         return blueprintParam;
-    }
-    
-    private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters,
-        NamedTypes namedTypes, VectorMode vectorMode)
-    {
-        var result = new List<IParameterSymbol>();
-        foreach (var parameter in parameters)
-        {
-            bool isSpan = vectorMode switch {
-                VectorMode.Query    => namedTypes.IsComponent(parameter.Type),
-                VectorMode.Vector   => Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
-                _                   => false
-            };
-            if (isSpan) {
-                result.Add(parameter);   
-            }
-        }
-        return result;
     }
     
     private static BlueprintParameter[] GetVectorSpans2(BlueprintParameter[] parameters)

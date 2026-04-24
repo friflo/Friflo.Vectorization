@@ -37,7 +37,6 @@ public class Query
     public required ImmutableArray<AttributeData>   Attributes      { get; init; }
     public required BlueprintParameter[]            Parameters      { get; init; }
     public required VectorType[]                    VectorTypes     { get; init; }
-    public required List<IParameterSymbol>          Spans           { get; init; }
     public required BlueprintParameter[]            Span2           { get; init; }
     public required NamedTypes                      NamedTypes      { get; init; }
     public required SemanticModel                   SemanticModel   { get; init; }

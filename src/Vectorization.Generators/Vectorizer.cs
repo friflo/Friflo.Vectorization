@@ -36,7 +36,7 @@ public static partial class Vectorizer
         }
         query.strategy = initialStrategy;
 
-        if (query.VectorMode == VectorMode.Vector && query.Spans.Count == 0) {
+        if (query.VectorMode == VectorMode.Vector && query.Span2.Length == 0) {
             query.Diagnostics.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
             return false;
         }
@@ -246,11 +246,12 @@ public static partial class Vectorizer
         
         // --- fixed block
         var @fixed = new StringBuilder();
-        foreach (var span in query.Spans) {
-            var type = Utils.HasAttribute(span.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")
+        foreach (var span in query.Span2) {
+            var vectorType = span.VectorType!;
+            var type = vectorType.layout == VectorLayout.SoA
                 ? "float"
-                : span.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            @fixed.Append($"            fixed ({type}* {span.Name}_first = {span.Name})");
+                : vectorType.parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            @fixed.Append($"            fixed ({type}* {vectorType.name}_first = {vectorType.name})");
             @fixed.AppendLine();
         }
         // --- pointer assignment
