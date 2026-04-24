@@ -23,19 +23,19 @@ public enum VectorLayout : byte
 
 public class VectorType
 {
-    public string           name;
-    public IParameterSymbol parameter;
-    public string           fullQualifiedName;
-    public bool             isSpan;
-    public bool             isScalar;
-    public ITypeSymbol      valueType;
-    public SpecialType      valueSpecialType;
-    public ParamType        paramType;
-    public int              dimension;
-    public VectorLayout     layout;
+    public required string           Name               { get; init; }
+    public required IParameterSymbol Parameter          { get; init; }
+    public required string           FullQualifiedName  { get; init; }
+    public required bool             IsSpan             { get; init; }
+    public required bool             IsScalar           { get; init; }
+    public required ITypeSymbol      ValueType          { get; init; }
+    public required SpecialType      ValueSpecialType   { get; init; }
+    public required ParamType        ParamType          { get; init; }
+    public required int              Dimension          { get; init; }
+    public required VectorLayout     Layout             { get; init; }
 
     public override string ToString() {
-        return $"{parameter} : {valueType.Name} ({(paramType == ParamType.Vector ? "vector" : "scalar")})";
+        return $"{Parameter} : {ValueType.Name} ({(ParamType == ParamType.Vector ? "vector" : "scalar")})";
     }
     
     public static VectorType[] GetVectorTypes(Diagnostics diagnostics, BlueprintParameter[] parameters)
@@ -116,16 +116,16 @@ public class VectorType
             isScalar    = false;
         }
         return new VectorType {
-            name                = parameter.Name, 
-            parameter           = parameter,
-            fullQualifiedName   = fullQualifiedName,
-            isSpan              = isSpan,
-            isScalar            = isScalar,  
-            valueType           = valueType,
-            valueSpecialType    = specialType, 
-            paramType           = paramType,
-            dimension           = dimension, 
-            layout              = layout
+            Name                = parameter.Name, 
+            Parameter           = parameter,
+            FullQualifiedName   = fullQualifiedName,
+            IsSpan              = isSpan,
+            IsScalar            = isScalar,  
+            ValueType           = valueType,
+            ValueSpecialType    = specialType, 
+            ParamType           = paramType,
+            Dimension           = dimension, 
+            Layout              = layout
         };
     }
     
@@ -135,20 +135,20 @@ public class VectorType
         var success = true;
         IParameterSymbol? currentParameter = null;
         foreach (var vectorType in vectorTypes) {
-            if (vectorType.paramType == ParamType.None) {
+            if (vectorType.ParamType == ParamType.None) {
                 success = false;
-                query.Diagnostics.ReportDiagnosticSymbol(Errors.InvalidParameterType, vectorType.parameter, vectorType.parameter.Type.Name);
+                query.Diagnostics.ReportDiagnosticSymbol(Errors.InvalidParameterType, vectorType.Parameter, vectorType.Parameter.Type.Name);
             }
-            if (!vectorType.isSpan && vectorType.dimension == 1) {
+            if (!vectorType.IsSpan && vectorType.Dimension == 1) {
                 continue;
             }
             if (dimension == 0 || dimension == 1) {
-                dimension = vectorType.dimension;
-                currentParameter = vectorType.parameter;
+                dimension = vectorType.Dimension;
+                currentParameter = vectorType.Parameter;
                 continue;
             }
-            if (vectorType.dimension > 1 && vectorType.dimension != dimension) {
-                query.Diagnostics.ReportDiagnosticSymbol(Errors.IncompatibleParameterTypes, null, currentParameter?.Type.Name, vectorType.parameter.Type.Name);
+            if (vectorType.Dimension > 1 && vectorType.Dimension != dimension) {
+                query.Diagnostics.ReportDiagnosticSymbol(Errors.IncompatibleParameterTypes, null, currentParameter?.Type.Name, vectorType.Parameter.Type.Name);
                 success = false;
                 continue;
             }

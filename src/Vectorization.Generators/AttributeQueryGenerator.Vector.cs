@@ -23,7 +23,7 @@ public partial class AttributeQueryGenerator
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
-            int count = {query.VectorTypes[0].parameter.Name}.Length;
+            int count = {query.VectorTypes[0].Parameter.Name}.Length;
             int n = 0;{vectorizeBlock}
             for (; n < count; n++) {{
                 {methodName}({lambdaParameters});
@@ -40,8 +40,8 @@ public partial class AttributeQueryGenerator
         sb.Append("count");
         foreach (var vectorType in query.VectorTypes) {
             sb.Append(", ");
-            var parameter = vectorType.parameter;
-            if (vectorType.isSpan) {
+            var parameter = vectorType.Parameter;
+            if (vectorType.IsSpan) {
                 sb.Append(parameter.Name);
                 continue;
             }
@@ -64,9 +64,9 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            var parameter = vectorType.parameter;
+            var parameter = vectorType.Parameter;
             string type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (vectorType.isSpan) {
+            if (vectorType.IsSpan) {
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
                 sb.Append($"{span}<{type}> {parameter.Name}");
                 continue;
@@ -87,9 +87,9 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            var parameter = vectorType.parameter;
+            var parameter = vectorType.Parameter;
             Utils.AppendRefKind(sb, parameter.RefKind);
-            if (vectorType.isSpan) {
+            if (vectorType.IsSpan) {
                 sb.Append($"{parameter.Name}[n]");
                 continue;
             }

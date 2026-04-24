@@ -25,8 +25,8 @@ public static partial class Vectorizer
         
         // --- Phase 1: Layout Analysis ---
         Strategy initialStrategy;
-        bool allSoA = vectorTypes.All(p => p.layout == VectorLayout.SoA);
-        bool allAoS = vectorTypes.All(p => p.layout == VectorLayout.AoS);
+        bool allSoA = vectorTypes.All(p => p.Layout == VectorLayout.SoA);
+        bool allAoS = vectorTypes.All(p => p.Layout == VectorLayout.AoS);
         if (allSoA) {
             initialStrategy = Strategy.NativeSoA;
         } else if (allAoS) {
@@ -104,7 +104,7 @@ public static partial class Vectorizer
     private static bool TraverseBody(Query query)
     {
         foreach (var type in query.VectorTypes) {
-            query.AddParam(type.parameter.Name, type.isSpan, type.isScalar, true, type.dimension);
+            query.AddParam(type.Parameter.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
         }
         foreach (var syntaxReference in query.BlueprintMethod.DeclaringSyntaxReferences)
         {
@@ -142,8 +142,8 @@ public static partial class Vectorizer
         for (int n = 0; n < query.VectorTypes.Length; n++) {
             var vectorType = query.VectorTypes[n];
             sb.Append(", ");
-            var parameter = vectorType.parameter;
-            if (vectorType.isSpan) {
+            var parameter = vectorType.Parameter;
+            if (vectorType.IsSpan) {
                 sb.Append($"{parameter.Name}Span");
                 /* if (vectorType.layout == VectorLayout.SoA) {
                     sb.Append($", chunk.Chunk{n+1}.GetStrideSoA()");
@@ -202,25 +202,25 @@ public static partial class Vectorizer
         // --- method signature
         var signature = new StringBuilder();
         foreach (var vectorType in query.VectorTypes) {
-            var parameter = vectorType.parameter;
+            var parameter = vectorType.Parameter;
             signature.Append(",");
-            if (vectorType.isSpan) {
-                if (vectorType.paramType == ParamType.Scalar) {
+            if (vectorType.IsSpan) {
+                if (vectorType.ParamType == ParamType.Scalar) {
                     Utils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
-                if (vectorType.layout == VectorLayout.SoA) {
+                if (vectorType.Layout == VectorLayout.SoA) {
                     signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                signature.Append($"\n            {span}<{vectorType.fullQualifiedName}> {parameter.Name}");
+                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {parameter.Name}");
                 continue;
             }
             signature.Append("\n            ");
             Utils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"{vectorType.fullQualifiedName} {parameter.Name}");
+            signature.Append($"{vectorType.FullQualifiedName} {parameter.Name}");
             //
-            switch (vectorType.paramType) {
+            switch (vectorType.ParamType) {
                 case ParamType.Scalar:
                     locals.AppendLine($"            var {parameter.Name}_scalar = Vector256.Create({parameter.Name});");
                     locals.AppendLine();
@@ -248,22 +248,22 @@ public static partial class Vectorizer
         var @fixed = new StringBuilder();
         foreach (var span in query.Spans) {
             var vectorType = span.VectorType!;
-            var type = vectorType.layout == VectorLayout.SoA
+            var type = vectorType.Layout == VectorLayout.SoA
                 ? "float"
-                : vectorType.parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            @fixed.Append($"            fixed ({type}* {vectorType.name}_first = {vectorType.name})");
+                : vectorType.Parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            @fixed.Append($"            fixed ({type}* {vectorType.Name}_first = {vectorType.Name})");
             @fixed.AppendLine();
         }
         // --- pointer assignment
         var pointerAssignment = new StringBuilder();
         var pointerIncrement  = new StringBuilder();
         foreach (var vectorType in query.VectorTypes) {
-            if (!vectorType.isSpan) continue;
+            if (!vectorType.IsSpan) continue;
             pointerAssignment.AppendLine();
-            pointerAssignment.Append($"                float* {vectorType.name}_ptr = (float*){vectorType.name}_first;");
+            pointerAssignment.Append($"                float* {vectorType.Name}_ptr = (float*){vectorType.Name}_first;");
             
-            var increment = vectorType.dimension * query.scalarLaneCount * 8;
-            pointerIncrement.AppendLine($"                    {vectorType.name}_ptr += {increment};");
+            var increment = vectorType.Dimension * query.scalarLaneCount * 8;
+            pointerIncrement.AppendLine($"                    {vectorType.Name}_ptr += {increment};");
         }
         var elementStep = query.vectorDimension switch {
             1 => 32,
@@ -317,9 +317,9 @@ public static partial class Vectorizer
         var sb = new StringBuilder();
         var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";
         foreach (var vectorType in query.VectorTypes) {
-            if (!vectorType.isSpan) continue;
-            var name = vectorType.name;
-            if (vectorType.layout == VectorLayout.SoA) {
+            if (!vectorType.IsSpan) continue;
+            var name = vectorType.Name;
+            if (vectorType.Layout == VectorLayout.SoA) {
                 // sb.AppendLine($"            if ({name}.Length < {count} + {name}_stride * {vectorType.dimension - 1}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
                 sb.AppendLine($"            if ({name}.Length < {count}) VectorUtils.ThrowBufferTooSmall(nameof({name}));");
             } else {

@@ -11,18 +11,18 @@ public static partial class Vectorizer
 {
     private static void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
-        if (!vectorType.isSpan) {
+        if (!vectorType.IsSpan) {
             return;
         }
         var laneCount = query.laneCount;
-        var name = vectorType.parameter.Name;
-        var typeName = vectorType.parameter.Type.Name;
-        if (vectorType.paramType == ParamType.Scalar)
+        var name = vectorType.Parameter.Name;
+        var typeName = vectorType.Parameter.Type.Name;
+        if (vectorType.ParamType == ParamType.Scalar)
         {
-            if (query.dirtyVectorsSet.TryGetValue(vectorType.parameter.Name, out var loadRequired)) {
+            if (query.dirtyVectorsSet.TryGetValue(vectorType.Parameter.Name, out var loadRequired)) {
                 if (!loadRequired) {
                     // case: vector is write only
-                    var count = vectorType.dimension == 1 ? query.scalarLaneCount : laneCount;
+                    var count = vectorType.Dimension == 1 ? query.scalarLaneCount : laneCount;
                     for (int n = 0; n < count; n++) {
                         source.AppendLine($"                    Vector256<float> {name}_{n};  // {typeName}");
                     }
@@ -38,7 +38,7 @@ public static partial class Vectorizer
                     }
                     break;
                 case 2:
-                    if (vectorType.dimension == 1) {  // SOA
+                    if (vectorType.Dimension == 1) {  // SOA
                         source.AppendLine(
 $"""
                     Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // {typeName}
@@ -58,7 +58,7 @@ $"""
                     break;
                 case 3:
                 case 4:
-                    if (vectorType.dimension == 1) {  // SOA
+                    if (vectorType.Dimension == 1) {  // SOA
                         source.AppendLine(
 $"""
                     Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // {typeName}
@@ -72,7 +72,7 @@ $"""
                     break;
             }
         } else {
-            if (vectorType.dimension == 2 && vectorType.layout == VectorLayout.SoA) {
+            if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.SoA) {
                 source.AppendLine(
 $"""
                     Vector256<float> {name}_0 = Avx.LoadVector256({name}_ptr);      // xxxxxxxx {typeName}
@@ -82,7 +82,7 @@ $"""
 """);
             } else {
                 for (int n = 0; n < laneCount; n++) {
-                    if (vectorType.layout == VectorLayout.SoA) {
+                    if (vectorType.Layout == VectorLayout.SoA) {
                         source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");
                     } else {
                         source.AppendLine($"                    Vector256<float> {name}_{n} = Avx.LoadVector256({name}_ptr + {n*step,2});   // {typeName}");    
@@ -90,8 +90,8 @@ $"""
                 }
             }
         }
-        if (query.useDeinterleave && vectorType.dimension > 1 ||
-            query.strategy == Strategy.MixedAdapter && vectorType.layout == VectorLayout.AoS)
+        if (query.useDeinterleave && vectorType.Dimension > 1 ||
+            query.strategy == Strategy.MixedAdapter && vectorType.Layout == VectorLayout.AoS)
         {
             switch (query.vectorDimension) {
                 case 2:
@@ -111,18 +111,18 @@ $"""
     
     private static void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
-        var vectorType = query.VectorTypes.FirstOrDefault(v => v.parameter.Name == dirtyVector);
+        var vectorType = query.VectorTypes.FirstOrDefault(v => v.Parameter.Name == dirtyVector);
         if (vectorType == null) {
             return;
         }
-        if (!vectorType.isSpan) {
+        if (!vectorType.IsSpan) {
             return;
         }
-        var name = vectorType.parameter.Name;
+        var name = vectorType.Parameter.Name;
         if (query.useDeinterleave ||
-            query.strategy == Strategy.MixedAdapter && vectorType.layout == VectorLayout.AoS)
+            query.strategy == Strategy.MixedAdapter && vectorType.Layout == VectorLayout.AoS)
         {
-            switch (vectorType.dimension) {
+            switch (vectorType.Dimension) {
                 case 1:
                     break;
                 case 2:
@@ -137,7 +137,7 @@ $"""
                     break;
             }
         }
-        if (vectorType.dimension == 2 && vectorType.layout == VectorLayout.SoA)
+        if (vectorType.Dimension == 2 && vectorType.Layout == VectorLayout.SoA)
         {
                 source.AppendLine(
 $"""
@@ -148,7 +148,7 @@ $"""
 """);
         } else {
             var laneCount = query.laneCount;
-            if (vectorType.dimension == 1) {
+            if (vectorType.Dimension == 1) {
                 laneCount = query.vectorDimension switch {
                     2 => 2,
                     3 => 1,
@@ -157,7 +157,7 @@ $"""
                 };
             }
             for (int n = 0; n < laneCount; n++) {
-                if (vectorType.layout == VectorLayout.SoA) {
+                if (vectorType.Layout == VectorLayout.SoA) {
                     source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
                 } else {
                     source.AppendLine($"                    Avx.Store({name}_ptr + {n*step,2}, {name}_{n});");
