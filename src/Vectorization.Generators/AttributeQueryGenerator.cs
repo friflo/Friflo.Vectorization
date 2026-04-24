@@ -127,6 +127,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
         var blueprintParameters = GetBlueprintParameters(parameters, vectorMode, vectorizeData != null, types);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters, vectorizeData != null);
+        var spans2              = GetVectorSpans2(blueprintParameters);
         var query = new Query {
             BlueprintMethod = blueprintMethod,
             Diagnostics     = diagnostics,
@@ -136,6 +137,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             Parameters      = blueprintParameters,
             VectorTypes     = vectorTypes,
             Spans           = spans,
+            Span2          = spans2,
             Hash            = hash,
             NamedTypes      = types,
             SemanticModel   = semanticModel
@@ -240,11 +242,13 @@ using System.ComponentModel;{intrinsics}
         var blueprintParam = new BlueprintParameter[parameters.Length];
         for (int n = 0; n < parameters.Length; n++) {
             var symbol = parameters[n];
-            VectorType? vectorType = null;
-            if (vectorize) {
-                vectorType = VectorType.GetVectorType(symbol, vectorMode, namedTypes);
-            }
-            blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType };
+            var vectorType = VectorType.GetVectorType(symbol, vectorMode, namedTypes);
+            bool isSpan = vectorMode switch {
+                VectorMode.Query    => namedTypes.IsComponent(symbol.Type),
+                VectorMode.Vector   => Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute"),
+                _                   => false
+            };
+            blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType, IsSpan = isSpan };
         }
         return blueprintParam;
     }
@@ -265,6 +269,18 @@ using System.ComponentModel;{intrinsics}
             }
         }
         return result;
+    }
+    
+    private static BlueprintParameter[] GetVectorSpans2(BlueprintParameter[] parameters)
+    {
+        var result = new List<BlueprintParameter>();
+        foreach (var parameter in parameters)
+        {
+            if (parameter.IsSpan) {
+                result.Add(parameter);
+            }
+        }
+        return result.ToArray();
     }
     
     private static string? GetCustomMethod(AttributeData? vectorizeData)

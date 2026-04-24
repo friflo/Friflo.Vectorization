@@ -16,7 +16,7 @@ public partial class AttributeQueryGenerator
         out string privateSource)
     {
         var attributeCode       = EmitQueryFilters(query.Attributes);
-        var componentArgs       = EmitQueryArgs(query.Spans);
+        var componentArgs       = EmitQueryArgs(query.Span2);
         var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
@@ -107,9 +107,9 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static string EmitQueryArgs(List<IParameterSymbol> components)
+    private static string EmitQueryArgs(BlueprintParameter[] components)
     {
-        if (components.Count == 0) {
+        if (components.Length == 0) {
             return "";
         }
         var sb = new StringBuilder();
@@ -118,7 +118,7 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 1) {
                 sb.Append(", ");
             }
-            string type = component.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            string type = component.Symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             sb.Append(type);
         }
         sb.Append(">");

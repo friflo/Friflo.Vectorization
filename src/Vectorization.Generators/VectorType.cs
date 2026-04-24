@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace Friflo.Vectorization.Generators;
@@ -41,9 +40,6 @@ public class VectorType
     
     public static VectorType[] GetVectorTypes(Diagnostics diagnostics, BlueprintParameter[] parameters, bool vectorize)
     {
-        if (!vectorize) {
-            return [];
-        }
         var vectorTypes = new VectorType[parameters.Length];
         for (int n = 0; n < parameters.Length; n++) {
             var vectorType = parameters[n].VectorType;

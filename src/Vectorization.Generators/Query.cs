@@ -38,6 +38,7 @@ public class Query
     public required BlueprintParameter[]            Parameters      { get; init; }
     public required VectorType[]                    VectorTypes     { get; init; }
     public required List<IParameterSymbol>          Spans           { get; init; }
+    public required BlueprintParameter[]            Span2           { get; init; }
     public required NamedTypes                      NamedTypes      { get; init; }
     public required SemanticModel                   SemanticModel   { get; init; }
     public required string                          Hash            { get; init; }
@@ -143,6 +144,9 @@ public enum VectorMode {
 public class BlueprintParameter {
     public required IParameterSymbol    Symbol      { get; init; }
     public required VectorType?         VectorType  { get; init; }
+    public required bool                IsSpan      { get; init; }
+
+    public override string ToString() => Symbol.Name;
 }
 
 public struct NamedTypes
