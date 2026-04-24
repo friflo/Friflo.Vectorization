@@ -39,39 +39,50 @@ public class VectorType
         return $"{parameter} : {valueType.Name} ({(paramType == ParamType.Vector ? "vector" : "scalar")})";
     }
     
-    
-    public static VectorType[]? GetVectorTypes(Query query)
+    public static VectorType[] GetVectorTypes(Diagnostics diagnostics, BlueprintParameter[] parameters, bool vectorize)
     {
-        var result = new List<VectorType>();
-        foreach (var parameter in query.Parameters)
-        {
-            var type = parameter.Type;
-            var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            bool isSpan = query.VectorMode == VectorMode.Query && query.NamedTypes.IsComponent(type);
-            if (isSpan) {
-                IFieldSymbol? valueField = null;
-                foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
-                    if (field.Name == "value" || field.Name == "Value") {
-                        valueField = field;
-                        break;
-                    }
-                }
-                if (valueField == null) {
-                    query.ReportDiagnosticSymbol(Errors.InvalidComponentType, parameter, type.Name, parameter.Name);
-                    return null;
-                }
-                var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
-                                VectorLayout.SoA : VectorLayout.AoS;
-                var vectorType = CreateVectorType(parameter, typeName, true, valueField.Type, layout);
-                result.Add(vectorType);
-            } else {
-                isSpan = query.VectorMode == VectorMode.Vector &&
-                         Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                var vectorType = CreateVectorType(parameter, typeName, isSpan, parameter.Type, VectorLayout.AoS);
-                result.Add(vectorType);
-            }
+        if (!vectorize) {
+            return [];
         }
-        return result.ToArray();
+        var vectorTypes = new VectorType[parameters.Length];
+        for (int n = 0; n < parameters.Length; n++) {
+            var vectorType = parameters[n].VectorType;
+            if (vectorType == null) {
+                var symbol = parameters[n].Symbol;
+                diagnostics.ReportDiagnosticSymbol(Errors.InvalidComponentType, symbol, symbol.Type.Name, symbol.Name);
+                return [];
+            }
+            vectorTypes[n] = vectorType;
+        }
+        return vectorTypes;
+    }
+    
+    public static VectorType? GetVectorType(IParameterSymbol symbol, VectorMode vectorMode, NamedTypes namedTypes)
+    {
+        var type = symbol.Type;
+        var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        bool isSpan = vectorMode == VectorMode.Query && namedTypes.IsComponent(type);
+        if (isSpan) {
+            IFieldSymbol? valueField = null;
+            foreach (var field in type.GetMembers().OfType<IFieldSymbol>()) {
+                if (field.Name == "value" || field.Name == "Value") {
+                    valueField = field;
+                    break;
+                }
+            }
+            if (valueField == null) {
+                return null;
+            }
+            var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
+                            VectorLayout.SoA : VectorLayout.AoS;
+            var vectorType = CreateVectorType(symbol, typeName, true, valueField.Type, layout);
+            return vectorType;
+        } else {
+            isSpan = vectorMode == VectorMode.Vector &&
+                     Utils.HasAttribute(symbol.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
+            var vectorType = CreateVectorType(symbol, typeName, isSpan, symbol.Type, VectorLayout.AoS);
+            return vectorType;
+        }
     }
     
     public static (SpecialType specialType, int dimension, ParamType paramType)
@@ -127,7 +138,7 @@ public class VectorType
         foreach (var vectorType in vectorTypes) {
             if (vectorType.paramType == ParamType.None) {
                 success = false;
-                query.ReportDiagnosticSymbol(Errors.InvalidParameterType, vectorType.parameter, vectorType.parameter.Type.Name);
+                query.Diagnostics.ReportDiagnosticSymbol(Errors.InvalidParameterType, vectorType.parameter, vectorType.parameter.Type.Name);
             }
             if (!vectorType.isSpan && vectorType.dimension == 1) {
                 continue;
@@ -138,7 +149,7 @@ public class VectorType
                 continue;
             }
             if (vectorType.dimension > 1 && vectorType.dimension != dimension) {
-                query.ReportDiagnosticSymbol(Errors.IncompatibleParameterTypes, null, currentParameter?.Type.Name, vectorType.parameter.Type.Name);
+                query.Diagnostics.ReportDiagnosticSymbol(Errors.IncompatibleParameterTypes, null, currentParameter?.Type.Name, vectorType.parameter.Type.Name);
                 success = false;
                 continue;
             }

@@ -4,10 +4,8 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace Friflo.Vectorization.Generators;
 
@@ -37,19 +35,19 @@ public class Query
     public required string?                         CustomMethod    { get; init; }
     public required VectorMode                      VectorMode      { get; init; }
     public required ImmutableArray<AttributeData>   Attributes      { get; init; }
-    public required ImmutableArray<IParameterSymbol>Parameters      { get; init; }
+    public required BlueprintParameter[]            Parameters      { get; init; }
+    public required VectorType[]                    vectorTypes     { get; init; }
     public required List<IParameterSymbol>          Spans           { get; init; }
     public required NamedTypes                      NamedTypes      { get; init; }
     public required SemanticModel                   SemanticModel   { get; init; }
     public required string                          Hash            { get; init; }
     // --- generated output
+    public required Diagnostics                     Diagnostics     { get; init; }
     public          Strategy                        strategy;
-    public readonly List<DiagnosticData>            diagnostics = new();
     public          int                             vectorDimension;        // [1, 2, 3, 4]
     public          int                             laneCount;              // [4, 4, 3, 4]
     public          int                             scalarLaneCount;        // [4, 2, 1, 1]
     public          StringBuilder[]                 lanes;
-    public          VectorType[]                    vectorTypes;
     public          bool                            vectorized;
     public          string                          avxMethod = "";
     public readonly HashSet<string>                 readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
@@ -81,41 +79,7 @@ public class Query
         return $"temp{computeTempCount++}";
     }
 
-    public void ReportDiagnosticSymbol(DiagnosticDescriptor descriptor, ISymbol? locationSymbol, params object?[]? messageArgs)
-    {
-        var location = locationSymbol?.Locations.FirstOrDefault();
-        if (location == null) {
-            location = BlueprintMethod.Locations.FirstOrDefault();
-        }
-        // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-        // spc.ReportDiagnostic(diagnostic);
-        AddDiagnostic(descriptor, location, messageArgs);
-    }
-    
-    public void ReportDiagnosticSyntax(DiagnosticDescriptor descriptor, CSharpSyntaxNode syntaxNode, params object?[]? messageArgs)
-    {
-        var location = syntaxNode.GetLocation();
-        // Diagnostic diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-        // spc.ReportDiagnostic(diagnostic);
-        AddDiagnostic(descriptor, location, messageArgs);
-    }
-    
-    private void AddDiagnostic(DiagnosticDescriptor descriptor, Location? location, params object?[]? messageArgs)
-    {
-        var lineSpan = location.GetLineSpan();
-        var data = new DiagnosticData(
-                Descriptor:     descriptor,
-                FilePath:       lineSpan.Path,
-                StartOffset:    location.SourceSpan.Start,
-                Length:         location.SourceSpan.Length,
-                StartLine:      lineSpan.StartLinePosition.Line,
-                StartColumn:    lineSpan.StartLinePosition.Character,
-                EndLine:        lineSpan.EndLinePosition.Line,
-                EndColumn:      lineSpan.EndLinePosition.Character,
-                MessageArgs:    messageArgs
-            );
-        diagnostics.Add(data);   
-    }
+
 
     public void AddParam(string name, bool isComponent, bool isScalar, bool isParam, int dimension)
     {
@@ -174,6 +138,11 @@ public enum VectorMode {
     None,
     Vector,
     Query
+}
+
+public class BlueprintParameter {
+    public required IParameterSymbol    Symbol      { get; init; }
+    public required VectorType?         VectorType  { get; init; }
 }
 
 public struct NamedTypes

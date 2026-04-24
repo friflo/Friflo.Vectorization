@@ -124,12 +124,17 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var parameters          = blueprintMethod.Parameters;
         var spans               = GetVectorSpans(parameters, types, vectorMode);
         var hash                = GetHash(blueprintMethod, attributes, types);
+        var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
+        var blueprintParameters = GetBlueprintParameters(parameters, vectorMode, vectorizeData != null, types);
+        var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters, vectorizeData != null);
         var query = new Query {
             BlueprintMethod = blueprintMethod,
+            Diagnostics     = diagnostics,
             CustomMethod    = GetCustomMethod(vectorizeData),
             VectorMode      = vectorMode,
             Attributes      = attributes,
-            Parameters      = parameters, 
+            Parameters      = blueprintParameters,
+            vectorTypes     = vectorTypes,
             Spans           = spans,
             Hash            = hash,
             NamedTypes      = types,
@@ -144,7 +149,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             EmitQuerySource(query, out shadowMethodSource, out privateSource);
         } else {
             if (!query.vectorized) {
-                return new EmissionResult("", "", query.diagnostics);
+                return new EmissionResult("", "", query.Diagnostics.list);
             }
             EmitVectorSource(query, out shadowMethodSource);
         }
@@ -166,7 +171,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
 ";
         var fileName = CreateFileName(blueprintMethod, hash);
 
-        return new EmissionResult(fileName, source, query.diagnostics);
+        return new EmissionResult(fileName, source, query.Diagnostics.list);
     }
     
     
@@ -224,6 +229,24 @@ $@"using System;
 using System.ComponentModel;{intrinsics}
 {(query.VectorMode == VectorMode.Query ? "using Friflo.Engine.ECS;" : "")}";
         return source;
+    }
+    
+    private static BlueprintParameter[] GetBlueprintParameters(
+        ImmutableArray<IParameterSymbol>    parameters,
+        VectorMode                          vectorMode,
+        bool                                vectorize,
+        NamedTypes                          namedTypes)
+    {
+        var blueprintParam = new BlueprintParameter[parameters.Length];
+        for (int n = 0; n < parameters.Length; n++) {
+            var symbol = parameters[n];
+            VectorType? vectorType = null;
+            if (vectorize) {
+                vectorType = VectorType.GetVectorType(symbol, vectorMode, namedTypes);
+            }
+            blueprintParam[n] = new BlueprintParameter{ Symbol = symbol, VectorType = vectorType };
+        }
+        return blueprintParam;
     }
     
     private static List<IParameterSymbol> GetVectorSpans(ImmutableArray<IParameterSymbol> parameters,

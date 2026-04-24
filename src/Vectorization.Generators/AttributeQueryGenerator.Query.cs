@@ -80,25 +80,26 @@ public partial class AttributeQueryGenerator
         }}";
     }
     
-    private static string EmitQueryMethodSignature(ImmutableArray<IParameterSymbol> parameters, NamedTypes namedTypes, bool vectorized)
+    private static string EmitQueryMethodSignature(BlueprintParameter[] parameters, NamedTypes namedTypes, bool vectorized)
     {
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
         foreach (var parameter in parameters) {
-            bool isComponent = namedTypes.IsComponent(parameter.Type);
+            var symbol = parameter.Symbol;
+            bool isComponent = namedTypes.IsComponent(symbol.Type);
             if (isComponent) {
                 continue;
             }
-            bool isEntity = namedTypes.IsEntityParameter(parameter);
+            bool isEntity = namedTypes.IsEntityParameter(symbol);
             if (isEntity) {
                 continue;
             }
             sb.Append(", ");
-            Utils.AppendRefKind(sb, parameter.RefKind);
-            string type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            Utils.AppendRefKind(sb, symbol.RefKind);
+            string type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             sb.Append(type);
             sb.Append(" ");
-            sb.Append(parameter.Name);
+            sb.Append(symbol.Name);
         }
         if (vectorized) {
             sb.Append(", bool vectorized = true");
@@ -146,26 +147,27 @@ public partial class AttributeQueryGenerator
     {
         var sb = new StringBuilder();
         foreach (var parameter in query.Parameters) {
+            var symbol = parameter.Symbol;
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
-            bool isComponent = query.NamedTypes.IsComponent(parameter.Type);
+            bool isComponent = query.NamedTypes.IsComponent(symbol.Type);
             if (isComponent) {
-                Utils.AppendRefKind(sb, parameter.RefKind);
-                if (Utils.HasAttribute(parameter.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                    sb.Append($"{parameter.Name}AoS");                                                          // TODO fix name SoA
+                Utils.AppendRefKind(sb, symbol.RefKind);
+                if (Utils.HasAttribute(symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                    sb.Append($"{symbol.Name}AoS");                                                          // TODO fix name SoA
                     continue;
                 }
-                sb.Append($"{parameter.Name}Span[n]");
+                sb.Append($"{symbol.Name}Span[n]");
                 continue;
             }
-            bool isEntity = query.NamedTypes.IsEntityParameter(parameter); 
+            bool isEntity = query.NamedTypes.IsEntityParameter(symbol); 
             if (isEntity) {
                 sb.Append(query.Spans.Count == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
-            Utils.AppendRefKind(sb, parameter.RefKind);
-            sb.Append(parameter.Name);
+            Utils.AppendRefKind(sb, symbol.RefKind);
+            sb.Append(symbol.Name);
         }
         return sb.ToString();
     }

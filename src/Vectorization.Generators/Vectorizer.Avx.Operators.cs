@@ -59,7 +59,7 @@ public static partial class Vectorizer
             _                                       => null
         };
         if (avxOperation is null) {
-            query.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
+            query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
         var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
@@ -120,7 +120,7 @@ public static partial class Vectorizer
             _                             => null
         };
         if (avxOperation is null) {
-            query.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
+            query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
         var shape = GetShapeFromExpression(query, binary);

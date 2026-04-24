@@ -13,14 +13,16 @@ public static partial class Vectorizer
 {
     public static bool Emit(Query query)
     {
-        var vectorTypes = VectorType.GetVectorTypes(query);
-        if (vectorTypes == null) {
+        var vectorTypes = query.vectorTypes;
+        if (vectorTypes.Length == 0) {
             return false;
         }
         var vectorTypeDimension = VectorType.GetVectorTypeDimension(query, vectorTypes);
         if (vectorTypeDimension == 0) {
             return false;
         }
+        query.vectorDimension = vectorTypeDimension;
+        
         // --- Phase 1: Layout Analysis ---
         Strategy initialStrategy;
         bool allSoA = vectorTypes.All(p => p.layout == VectorLayout.SoA);
@@ -33,11 +35,9 @@ public static partial class Vectorizer
             initialStrategy = Strategy.MixedAdapter;
         }
         query.strategy = initialStrategy;
-        
-        query.vectorTypes = vectorTypes;
-        query.vectorDimension = vectorTypeDimension;
+
         if (query.VectorMode == VectorMode.Vector && query.Spans.Count == 0) {
-            query.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
+            query.Diagnostics.ReportDiagnosticSymbol(Errors.MissingSpanParameter, null, []);
             return false;
         }
         query.laneCount = query.vectorDimension switch {
@@ -192,7 +192,7 @@ public static partial class Vectorizer
             }
             return true;
         }
-        query.ReportDiagnosticSyntax(Errors.StatementUnsupported, statement, statement.ToFullString());
+        query.Diagnostics.ReportDiagnosticSyntax(Errors.StatementUnsupported, statement, statement.ToFullString());
         return false;
     }
     
@@ -369,7 +369,7 @@ public static partial class Vectorizer
         if (syntax is LiteralExpressionSyntax literal) {
             return Compute_Literal(lanes, query, literal);
         }
-        query.ReportDiagnosticSyntax(Errors.OperationUnsupported, syntax, syntax.ToFullString());
+        query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, syntax, syntax.ToFullString());
         return ComputeResult.Invalid;
     }
 }

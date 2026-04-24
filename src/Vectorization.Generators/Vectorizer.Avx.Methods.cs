@@ -70,7 +70,7 @@ public static partial class Vectorizer
             case "Vector.Transform(Vector, System.Numerics.Matrix4x4)":
                 return Method_Vector4_Transform(lanes, query, argList);
         }
-        query.ReportDiagnosticSyntax(Errors.OperationUnsupported, invocation, invocation.ToFullString());
+        query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, invocation, invocation.ToFullString());
         return ComputeResult.Invalid;
     }
 
