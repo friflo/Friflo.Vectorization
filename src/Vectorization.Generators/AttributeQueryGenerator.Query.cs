@@ -21,7 +21,7 @@ public partial class AttributeQueryGenerator
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
-        EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
+        EmitSoAGetterAndSetter(query.Span2, out var getterAoS, out var setterAoS);
         
         var hash            = query.Hash;
         var blueprintMethod = query.BlueprintMethod;
@@ -206,16 +206,17 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static void EmitSoAGetterAndSetter(List<IParameterSymbol> components, out StringBuilder getterAoS, out StringBuilder setterAoS)
+    private static void EmitSoAGetterAndSetter(BlueprintParameter[] components, out StringBuilder getterAoS, out StringBuilder setterAoS)
     {
         getterAoS = new StringBuilder();
         setterAoS = new StringBuilder();
         var index = 1;
         foreach (var component in components) {
-            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                getterAoS.AppendLine($"                    var {component.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
-                if (component.RefKind == RefKind.Ref) {
-                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {component.Name}AoS);");
+            var symbol = component.Symbol;
+            if (Utils.HasAttribute(symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                getterAoS.AppendLine($"                    var {symbol.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
+                if (symbol.RefKind == RefKind.Ref) {
+                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {symbol.Name}AoS);");
                 }
             }
             index++;
