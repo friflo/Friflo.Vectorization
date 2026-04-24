@@ -114,10 +114,10 @@ public static partial class Vectorizer
                 if (body == null) continue;
                 var compute = new StringBuilder();
                 foreach (var statement in body.Statements) {
-                    if (!EmitCompute(query, null!, compute, statement)) {
+                    if (!EmitCompute(query, null!, statement)) {
                         return false;
                     }
-                    var statementText = Regex.Replace(statement.ToString(), @"\s+", " ").Trim();;
+                    var statementText = Regex.Replace(statement.ToString(), @"\s+", " ").Trim();
                     compute.AppendLine($"                    // {statementText}");
                     compute.Append(query.computeTemp);
                     query.computeTemp.Clear();
@@ -163,7 +163,7 @@ public static partial class Vectorizer
         return source;
     }
     
-    private static bool EmitCompute(Query query, StringBuilder[] lanes, StringBuilder compute, StatementSyntax statement)
+    private static bool EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement)
     {
         // Is local declaration - e.g.     var local = value;
         if (statement is LocalDeclarationStatementSyntax localDecl) {
@@ -283,7 +283,7 @@ public static partial class Vectorizer
             Strategy.MixedAdapter   => "// [Layout: AoS-SoA-Mixed] - lane-native speed + Deinterleave penalty",
             Strategy.Horizontal     => "// [Layout: Horizontal]    - lane-native speed + Deinterleave penalty",
         };
-        var guards = EmitLengthGuards(query, elementStep);
+        var guards = EmitLengthGuards(query);
         bool isQuery = query.VectorMode == VectorMode.Query;
         var source = $@"
         {strategyComment}
@@ -312,7 +312,7 @@ public static partial class Vectorizer
         query.avxMethod = source;
     }
     
-    private static StringBuilder EmitLengthGuards(Query query, int elementStep)
+    private static StringBuilder EmitLengthGuards(Query query)
     {
         var sb = new StringBuilder();
         var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";
