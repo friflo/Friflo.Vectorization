@@ -17,7 +17,7 @@ public partial class AttributeQueryGenerator
     {
         var attributeCode       = EmitQueryFilters(query.Attributes);
         var componentArgs       = EmitQueryArgs(query.Span2);
-        var chunkVariables      = EmitQueryChunkVariables(query.Spans);
+        var chunkVariables      = EmitQueryChunkVariables(query.Span2);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.NamedTypes, query.vectorized);
         var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
@@ -125,7 +125,7 @@ public partial class AttributeQueryGenerator
         return sb.ToString();
     }
     
-    private static string EmitQueryChunkVariables(List<IParameterSymbol> components)
+    private static string EmitQueryChunkVariables(BlueprintParameter[] components)
     {
         var sb = new StringBuilder();
         var index = 1;
@@ -134,11 +134,11 @@ public partial class AttributeQueryGenerator
             if (sb.Length > 0) {
                 sb.AppendLine("");
             }
-            if (Utils.HasAttribute(component.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
-                sb.Append($"                var {component.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
+            if (Utils.HasAttribute(component.Symbol.Type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute")) {
+                sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
                 continue;
             }
-            sb.Append($"                var {component.Name}Span = chunk.Chunk{index++}.ArchetypeComponents.AsSpan();");
+            sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.ArchetypeComponents.AsSpan();");
         }
         return sb.ToString();
     }
