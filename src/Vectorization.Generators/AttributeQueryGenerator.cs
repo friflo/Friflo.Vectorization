@@ -134,7 +134,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             VectorMode      = vectorMode,
             Attributes      = attributes,
             Parameters      = blueprintParameters,
-            vectorTypes     = vectorTypes,
+            VectorTypes     = vectorTypes,
             Spans           = spans,
             Hash            = hash,
             NamedTypes      = types,

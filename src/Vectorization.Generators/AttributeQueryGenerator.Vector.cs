@@ -12,8 +12,8 @@ public partial class AttributeQueryGenerator
         Query query,
         out string shadowMethodSource)
     {
-        var lambdaParameters    = EmitVectorLambdaParameters(query.vectorTypes);
-        var methodSignature     = EmitVectorMethodSignature(query.vectorTypes, query.vectorized);
+        var lambdaParameters    = EmitVectorLambdaParameters(query.VectorTypes);
+        var methodSignature     = EmitVectorMethodSignature(query.VectorTypes, query.vectorized);
         var vectorizeBlock      = EmitVectorBlock(query);
         
         var blueprintMethod = query.BlueprintMethod;
@@ -23,7 +23,7 @@ public partial class AttributeQueryGenerator
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
-            int count = {query.vectorTypes[0].parameter.Name}.Length;
+            int count = {query.VectorTypes[0].parameter.Name}.Length;
             int n = 0;{vectorizeBlock}
             for (; n < count; n++) {{
                 {methodName}({lambdaParameters});
@@ -38,7 +38,7 @@ public partial class AttributeQueryGenerator
         }
         var sb = new StringBuilder();
         sb.Append("count");
-        foreach (var vectorType in query.vectorTypes) {
+        foreach (var vectorType in query.VectorTypes) {
             sb.Append(", ");
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {

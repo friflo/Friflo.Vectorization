@@ -111,7 +111,7 @@ $"""
     
     private static void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
-        var vectorType = query.vectorTypes.FirstOrDefault(v => v.parameter.Name == dirtyVector);
+        var vectorType = query.VectorTypes.FirstOrDefault(v => v.parameter.Name == dirtyVector);
         if (vectorType == null) {
             return;
         }

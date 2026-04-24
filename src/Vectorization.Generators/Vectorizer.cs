@@ -13,7 +13,7 @@ public static partial class Vectorizer
 {
     public static bool Emit(Query query)
     {
-        var vectorTypes = query.vectorTypes;
+        var vectorTypes = query.VectorTypes;
         if (vectorTypes.Length == 0) {
             return false;
         }
@@ -103,7 +103,7 @@ public static partial class Vectorizer
     
     private static bool TraverseBody(Query query)
     {
-        foreach (var type in query.vectorTypes) {
+        foreach (var type in query.VectorTypes) {
             query.AddParam(type.parameter.Name, type.isSpan, type.isScalar, true, type.dimension);
         }
         foreach (var syntaxReference in query.BlueprintMethod.DeclaringSyntaxReferences)
@@ -139,8 +139,8 @@ public static partial class Vectorizer
             return "";
         }
         var sb = new StringBuilder();
-        for (int n = 0; n < query.vectorTypes.Length; n++) {
-            var vectorType = query.vectorTypes[n];
+        for (int n = 0; n < query.VectorTypes.Length; n++) {
+            var vectorType = query.VectorTypes[n];
             sb.Append(", ");
             var parameter = vectorType.parameter;
             if (vectorType.isSpan) {
@@ -201,7 +201,7 @@ public static partial class Vectorizer
         var locals = new StringBuilder();
         // --- method signature
         var signature = new StringBuilder();
-        foreach (var vectorType in query.vectorTypes) {
+        foreach (var vectorType in query.VectorTypes) {
             var parameter = vectorType.parameter;
             signature.Append(",");
             if (vectorType.isSpan) {
@@ -256,7 +256,7 @@ public static partial class Vectorizer
         // --- pointer assignment
         var pointerAssignment = new StringBuilder();
         var pointerIncrement  = new StringBuilder();
-        foreach (var vectorType in query.vectorTypes) {
+        foreach (var vectorType in query.VectorTypes) {
             if (!vectorType.isSpan) continue;
             pointerAssignment.AppendLine();
             pointerAssignment.Append($"                float* {vectorType.name}_ptr = (float*){vectorType.name}_first;");
@@ -315,7 +315,7 @@ public static partial class Vectorizer
     {
         var sb = new StringBuilder();
         var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";
-        foreach (var vectorType in query.vectorTypes) {
+        foreach (var vectorType in query.VectorTypes) {
             if (!vectorType.isSpan) continue;
             var name = vectorType.name;
             if (vectorType.layout == VectorLayout.SoA) {
@@ -332,7 +332,7 @@ public static partial class Vectorizer
     {
         var source = new StringBuilder();
         source.AppendLine("                    // --- 1. Load");
-        foreach (var vectorType in query.vectorTypes) {
+        foreach (var vectorType in query.VectorTypes) {
             EmitLoadVector(source, query, vectorType, step);
         }
         source.AppendLine("                    // --- 2. Compute");
