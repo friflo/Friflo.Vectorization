@@ -4,7 +4,11 @@
             "commandName": "Project",
             "dotnetRunMessages": true,
             "environmentVariables": {
-                "TUNE_METHOD_XXX": "Tune.Tune_Float.Float_MoveFloat"
+                "TUNE_METHOD_XXX": "Tune.Tune_Float.Float_MoveFloat",
+                "MKL_NUM_THREADS": "1",
+                "MKL_DOMAIN_ALL": "1",
+                "MKL_DYNAMIC": "FALSE",
+                "OMP_NUM_THREADS": "1"
             }
         }
     }

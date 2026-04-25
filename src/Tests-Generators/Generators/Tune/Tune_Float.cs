@@ -106,7 +106,7 @@ public partial class Tune_Float
     }
     
     // ---------------------------------------------------------------------------
-    [Vectorize(nameof(MoveFloatVec_Tune))] [OmitHash]
+    [Vectorize] [OmitHash]
     private static void MoveFloatVec([Span] ref float position, [Span] float velocity, float deltaTime) {
         position += velocity * deltaTime;
     }
