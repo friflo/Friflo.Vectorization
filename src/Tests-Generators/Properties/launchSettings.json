@@ -2,7 +2,10 @@
     "profiles": {
         "Tests-Generators": {
             "commandName": "Project",
-            "dotnetRunMessages": true
+            "dotnetRunMessages": true,
+            "environmentVariables": {
+                "TUNE_METHOD_XXX": "Tune.Tune_Float.Float_MoveFloat"
+            }
         }
     }
 }
