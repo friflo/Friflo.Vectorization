@@ -18,6 +18,8 @@ public partial class Tune_Float
 {
     private EntityStore store;
     const int EntityCount = Constants.EntityCount;
+    readonly  AlignedArray positionVec = new AlignedArray(Constants.VectorCount);
+    readonly  AlignedArray velocityVec = new AlignedArray(Constants.VectorCount);
 
     [GlobalSetup]
     [SetUp]
@@ -27,6 +29,8 @@ public partial class Tune_Float
             store.CreateEntity(
                 new FloatComponent  { value = n },
                 new FloatComponent2 { value = 1000 + n });
+            positionVec.Memory.Span[n] = n;
+            velocityVec.Memory.Span[n] = 1000 + n;
         }
     }
     
@@ -98,4 +102,16 @@ public partial class Tune_Float
         }
         return i;
     }
+    
+    // ---------------------------------------------------------------------------
+    [Vectorize] [OmitHash]
+    private static void MoveFloatVec([Span] ref float position, [Span] float velocity,float deltaTime) {
+        position += velocity * deltaTime;
+    }
+    
+    [Benchmark] [Test]   //     dotnet run -c Release --filter *Tune_Float.Float_MoveFloatVec*
+    public void Float_MoveFloatVec() {
+        MoveFloatVecVector(positionVec.Span, velocityVec.Span, 0.1f);
+    }
+
 }
