@@ -18,8 +18,8 @@ public partial class Tune_Float
 {
     private EntityStore store;
     const int EntityCount = Constants.EntityCount;
-    readonly  AlignedArray positionVec = new AlignedArray(Constants.VectorCount);
-    readonly  AlignedArray velocityVec = new AlignedArray(Constants.VectorCount);
+    readonly  AlignedArray positionVec = new AlignedArray(1024);
+    readonly  AlignedArray velocityVec = new AlignedArray(1024);
 
     [GlobalSetup]
     [SetUp]
@@ -110,7 +110,12 @@ public partial class Tune_Float
     }
     
     [Benchmark] [Test]   //     dotnet run -c Release --filter *Tune_Float.Float_MoveFloatVec*
-    public void Float_MoveFloatVec() {
+    public void Float_MoveFloatVector_Scalar() {
+        MoveFloatVecVector(positionVec.Span, velocityVec.Span, 0.1f, false);
+    }
+    
+    [Benchmark] [Test]   //     dotnet run -c Release --filter *Tune_Float.Float_MoveFloatVec*
+    public void Float_MoveFloatVector() {
         MoveFloatVecVector(positionVec.Span, velocityVec.Span, 0.1f);
     }
 
