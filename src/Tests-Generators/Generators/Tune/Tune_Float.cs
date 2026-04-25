@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Bench;
@@ -105,7 +106,7 @@ public partial class Tune_Float
     
     // ---------------------------------------------------------------------------
     [Vectorize] [OmitHash]
-    private static void MoveFloatVec([Span] ref float position, [Span] float velocity,float deltaTime) {
+    private static void MoveFloatVec([Span] ref float position, [Span] float velocity, float deltaTime) {
         position += velocity * deltaTime;
     }
     
@@ -117,6 +118,27 @@ public partial class Tune_Float
     [Benchmark] [Test]   //     dotnet run -c Release --filter *Tune_Float.Float_MoveFloatVec*
     public void Float_MoveFloatVector() {
         MoveFloatVecVector(positionVec.Span, velocityVec.Span, 0.1f);
+    }
+    
+    
+    // mkl_avx2.3.dll   mkl_rt.dll  mkl_rt.3.dll
+    [DllImport("mkl_rt.3.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    public static extern unsafe void cblas_saxpy(
+        int n,           // Number of elements
+        float a,         // Scalar multiplier (deltaTime)
+        float* x,        // Source array (velocity)
+        int incx,        // Stride for x (usually 1)
+        float* y,        // Destination array (position)
+        int incy         // Stride for y (usually 1)
+    );
+    
+    [Benchmark] [Test]   //     dotnet run -c Release --filter *Tune_Float.Float_MoveFloatVec*
+    public unsafe void Float_MoveFloatVector_IntelMKL() {
+        
+        fixed (float* position_ptr = positionVec.Span)
+        fixed (float* velocity_ptr = velocityVec.Span) {
+            cblas_saxpy(positionVec.Span.Length, 0.1f, velocity_ptr, 1, position_ptr, 1);
+        }
     }
 
 }
