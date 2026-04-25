@@ -48,10 +48,11 @@ public partial class AttributeQueryGenerator
             Utils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.Name);
         }
+        var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
         var source = $@"
             if (vectorized) {{
                 if (Avx.IsSupported) {{
-                    n = _{query.BlueprintMethod.Name}_Avx{query.Hash}({sb});
+                    n = {avxMethod}({sb});
                 }}
             }}";
         return source;

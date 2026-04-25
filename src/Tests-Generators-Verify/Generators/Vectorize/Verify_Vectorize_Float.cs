@@ -50,5 +50,30 @@ public partial class MyExample
 """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Vectorize_CustomMethod()
+    {
+        var code =
+"""
+using System;
+using System.Numerics;
+using Friflo.Engine.ECS;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+public partial class MyExample
+{
+    [Vectorize("MyMethod")]  [OmitHash]
+    void MoveExample([Span] ref float position, [Span] float velocity, float deltaTime) {
+        position += velocity * deltaTime;
+    }
+    
+    private static unsafe int MyMethod(int count, Span<float> position, ReadOnlySpan<float> velocity, float deltaTime) { return 0; }
+}
+""";
+        await Verify(code);
+    }
 
 }

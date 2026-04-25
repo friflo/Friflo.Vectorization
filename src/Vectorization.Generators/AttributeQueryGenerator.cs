@@ -120,10 +120,12 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         var blueprintParameters = BlueprintParameter.CreateBlueprintParameters(parameters, vectorMode, compilation);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters);
         var spans               = BlueprintParameter.GetVectorSpans(blueprintParameters);
+        var customMethod        = GetCustomMethod(vectorizeData);
+        
         var query = new Query {
             BlueprintMethod = blueprintMethod,
             Diagnostics     = diagnostics,
-            CustomMethod    = GetCustomMethod(vectorizeData),
+            CustomMethod    = customMethod,
             VectorMode      = vectorMode,
             Attributes      = attributes,
             Parameters      = blueprintParameters,

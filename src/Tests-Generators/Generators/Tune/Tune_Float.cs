@@ -164,9 +164,13 @@ public partial class Tune_Float
         {
             float* position_ptr = (float*)position_first;
             float* velocity_ptr = (float*)velocity_first;
+            const int PrefetchDistance = 64;
 
             for (; i <= count; i += 32)
             {
+                Sse.Prefetch0(position_ptr + PrefetchDistance);
+                Sse.Prefetch0(velocity_ptr + PrefetchDistance);
+                
                 // --- 1. Load
                 Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);  // Single
                 Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);  // Single
