@@ -31,8 +31,8 @@ public partial class Tune_Float
             store.CreateEntity(
                 new FloatComponent  { value = n },
                 new FloatComponent2 { value = 1000 + n });
-            positionVec.Memory.Span[n] = n;
-            velocityVec.Memory.Span[n] = 1000 + n;
+            positionVec[n] = n;
+            velocityVec[n] = 1000 + n;
         }
     }
     

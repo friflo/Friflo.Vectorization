@@ -1,10 +1,13 @@
 using System;
 using System.Numerics;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using Bench.Lab;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
+using Friflo.Vectorization.Intrinsics;
 using NUnit.Framework;
 using Tests.ECS;
 using Tune;
@@ -169,6 +172,62 @@ public partial class Bench_Vector2
     [Benchmark] [Test]
     public void Vector2_Span_MultiplayAdd_AoS_Vectorized() {
         Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f);
+    }
+    
+    private static unsafe int Span_MultiplayAdd_AoS_Avx_Optimized(int count,
+        Span<Vector2> position,
+        ReadOnlySpan<Vector2> velocity,
+        float deltaTime)
+    {
+        int i = 0;
+        count -= 16;
+        if (i > count) return 0;
+
+        if (position.Length < count) VectorUtils.ThrowBufferTooSmall(nameof(position));
+        if (velocity.Length < count) VectorUtils.ThrowBufferTooSmall(nameof(velocity));
+
+        var deltaTime_scalar = Vector256.Create(deltaTime);
+
+        fixed (Vector2* position_first = position)
+        fixed (Vector2* velocity_first = velocity)
+        {
+            float* position_ptr = (float*)position_first;
+            float* velocity_ptr = (float*)velocity_first;
+
+            for (; i <= count; i += 16)
+            {
+                // --- 1. Gebündeltes Laden (Interleaved)
+                // Erst alle Velocity-Daten laden (Read-only Pfad sättigen)
+                Vector256<float> velocity_0 = Avx.LoadVector256(velocity_ptr +  0);
+                Vector256<float> velocity_1 = Avx.LoadVector256(velocity_ptr +  8);
+                Vector256<float> velocity_2 = Avx.LoadVector256(velocity_ptr + 16);
+                Vector256<float> velocity_3 = Avx.LoadVector256(velocity_ptr + 24);
+
+                // Dann alle Position-Daten laden
+                Vector256<float> position_0 = Avx.LoadVector256(position_ptr +  0);
+                Vector256<float> position_1 = Avx.LoadVector256(position_ptr +  8);
+                Vector256<float> position_2 = Avx.LoadVector256(position_ptr + 16);
+                Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24);
+
+                // --- 2. Berechnung (FMA Pipeline füllen)
+                // Die CPU kann nun die FMAs starten, da die ersten velocity_x Register 
+                // bereits während des Ladens der position_x bereitgestellt wurden.
+                position_0 = Fma.MultiplyAdd(velocity_0, deltaTime_scalar, position_0);
+                position_1 = Fma.MultiplyAdd(velocity_1, deltaTime_scalar, position_1);
+                position_2 = Fma.MultiplyAdd(velocity_2, deltaTime_scalar, position_2);
+                position_3 = Fma.MultiplyAdd(velocity_3, deltaTime_scalar, position_3);
+
+                // --- 3. Speichern
+                Avx.Store(position_ptr +  0, position_0);
+                Avx.Store(position_ptr +  8, position_1);
+                Avx.Store(position_ptr + 16, position_2);
+                Avx.Store(position_ptr + 24, position_3);
+
+                position_ptr += 32;
+                velocity_ptr += 32;
+            }
+        }
+        return i;
     }
 
 
