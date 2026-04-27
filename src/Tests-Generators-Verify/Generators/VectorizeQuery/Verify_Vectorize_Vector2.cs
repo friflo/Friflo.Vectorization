@@ -434,5 +434,27 @@ public partial class MyExample
         await Verify(code);
     }
     
+    
+    [Test]
+    public static async Task  Verify_Span_Vectorize_Multiply()
+    {
+        var code =
+"""
+using System.Numerics;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+
+public partial class MyExample
+{
+    [Vectorize]  [OmitHash]
+    void MoveExample([Span] ref Vector2 position, [Span] Vector2 velocity, float deltaTime) {
+        position += velocity * deltaTime;
+    }
+}
+""";
+        await Verify(code);
+    }
 
 }

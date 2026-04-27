@@ -7,6 +7,7 @@ using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
 using Tests.ECS;
+using Tune;
 
 // ReSharper disable InconsistentNaming
 namespace Bench;
@@ -31,7 +32,9 @@ public partial class Bench_Vector2
 
     const int EntityCount = Constants.EntityCount;
     
-    private Vector2[]   vec1    = new Vector2[Constants.VectorCount];
+    readonly  AlignedArray<Vector2> pos = new (1024);
+    readonly  AlignedArray<Vector2> vel = new (1024);
+    
     private Matrix3x2   matrix;
     private Matrix4x4   matrix4x4;
     
@@ -49,8 +52,9 @@ public partial class Bench_Vector2
                 new Position2 { value = new Vector2(n,n)},
                 new Velocity2 { value = new Vector2(1,2)},
                 new FloatComponent { value = n },
-                new Pos2SoA { value = new Vector2(n, n + 10_000)}
-                );
+                new Pos2SoA { value = new Vector2(n, n + 10_000)});
+            pos.Span[n] = new Vector2(n,n);
+            vel[n] = new Vector2(1,2);
         }
         query = store.Query<Position2, Velocity2>();
         
@@ -59,8 +63,8 @@ public partial class Bench_Vector2
             Matrix3x2 rot = Matrix3x2.CreateRotation(0.5f);
             Matrix3x2 trans = Matrix3x2.CreateTranslation(new Vector2(1f, 2f));
             matrix = Matrix3x2.Multiply(rot, trans);
-            for (int n = 0; n < vec1.Length; n++) {
-                vec1[n] = new Vector2(n, n + 1000);
+            for (int n = 0; n < pos.Length; n++) {
+                pos[n] = new Vector2(n, n + 1000);
             }
         }
         {
@@ -98,7 +102,7 @@ public partial class Bench_Vector2
         });
     }
     
-    // ---------------------------------------------------------------------------
+    // ------------------------- Vector2_TransformMatrix4x4 --------------------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void TransformMatrix4x4_AoS(ref Position2 position, Matrix4x4 matrix) {
         position.value = Vector2.Transform(position.value, matrix);
@@ -124,6 +128,51 @@ public partial class Bench_Vector2
         TransformMatrix4x4_AoSoAQuery(store, matrix4x4);
     }
     
+    // ------------------------- Vector2_ECS_MultiplayAdd --------------------------------------------------
+    [Vectorize][Query]  [OmitHash]
+    private static void ECS_MultiplayAdd_AoS(ref Position2 position, Velocity2 velocity, float deltaTime) {
+        position.value += velocity.value * deltaTime;
+    }
+    
+    [Benchmark]  //  dotnet run -c Release --filter *Vector2_ECS_MultiplayAdd*
+    public void Vector2_ECS_MultiplayAdd_AoS_Scalar() {
+        ECS_MultiplayAdd_AoSQuery(store, 0.1f, false);
+    }
+    
+    [Benchmark] [Test]
+    public void Vector2_ECS_MultiplayAdd_AoS_Vectorized() {
+        ECS_MultiplayAdd_AoSQuery(store, 0.1f);
+    }
+    
+    [Vectorize][Query]  [OmitHash]
+    private static void ECS_MultiplayAdd_AoSoA(ref Pos2SoA position, Pos2SoA velocity, float deltaTime) {
+        position.value += velocity.value * deltaTime;
+    }
+    
+    [Benchmark] [Test]
+    public void Vector2_ECS_MultiplayAdd_AoSoA_Vectorized() {
+        ECS_MultiplayAdd_AoSoAQuery(store, 0.1f);
+    }
+    
+    
+    // ------------------------- Vector2_Span_MultiplayAdd --------------------------------------------------
+    [Vectorize]  [OmitHash]
+    private static void Span_MultiplayAdd_AoS([Span]ref Vector2 position, [Span]Vector2 velocity, float deltaTime) {
+        position += velocity * deltaTime;
+    }
+
+    [Benchmark]  //  dotnet run -c Release --filter *Vector2_Span_MultiplayAdd*
+    public void Vector2_Span_MultiplayAdd_AoS_Scalar() {
+        Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f, false);
+    }
+    
+    [Benchmark] [Test]
+    public void Vector2_Span_MultiplayAdd_AoS_Vectorized() {
+        Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f);
+    }
+
+
+    
     // ------------------------------------- Lerp -------------------------------------
     [Vectorize][Query]  [OmitHash]
     private static void Vector2Lerp(ref Position2 position, ref Velocity2 velocity, float amount) {
@@ -147,9 +196,9 @@ public partial class Bench_Vector2
     public void Vector2_Transform_Scalar()
     {
         var m = matrix;
-        for (int i = 0; i < vec1.Length; i++)
+        for (int i = 0; i < pos.Length; i++)
         {
-            vec1[i] = Vector2.Transform(vec1[i], m);
+            pos[i] = Vector2.Transform(pos[i], m);
         }
     }
     
@@ -157,9 +206,9 @@ public partial class Bench_Vector2
     [Test]
     public unsafe void Vector2_Transform_AoS()
     {
-        fixed(Vector2* vec_ptr = vec1)
+        fixed(Vector2* vec_ptr = pos.Span)
         {
-            Lab_Vector2_TransformAoS.TransformVector2_AoS((float*)vec_ptr, vec1.Length, ref matrix);
+            Lab_Vector2_TransformAoS.TransformVector2_AoS((float*)vec_ptr, pos.Length, ref matrix);
         }
     }
 }

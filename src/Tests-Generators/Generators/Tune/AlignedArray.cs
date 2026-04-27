@@ -1,30 +1,38 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Tune;
 
-public struct AlignedArray
+public struct AlignedArray<T> where T : struct
 {
-    private readonly    float[]         _rawPinned;
-    public              Memory<float>   Memory { get; }
+    private readonly    T[]         _rawPinned;
+    public              Memory<T>   Memory { get; }
+    private readonly    int         offset;
     
-    public Span<float>  Span => Memory.Span;
+    public Span<T>  Span => Memory.Span;
+    
+    public int Length => Memory.Length;
+    
+    public ref T this[int index] {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => ref _rawPinned[offset];
+    }
 
     public AlignedArray(int length)
     {
         const int alignment = 32;
-        const int floatSize = 4;
-        
-        int padding = alignment / floatSize; 
-        _rawPinned = GC.AllocateArray<float>(length + padding, pinned: true);
+        int sizeOfT = Unsafe.SizeOf<T>();
+        int padding = alignment / sizeOfT; 
+        _rawPinned = GC.AllocateArray<T>(length + padding, pinned: true);
 
 
         IntPtr baseAddress = Marshal.UnsafeAddrOfPinnedArrayElement(_rawPinned, 0);
         
         long address = baseAddress;
         int offsetInBytes = (int)((alignment - (address % alignment)) % alignment);
-        int offsetInFloats = offsetInBytes / floatSize;
+        offset = offsetInBytes / sizeOfT;
 
-        Memory = _rawPinned.AsMemory(offsetInFloats, length);
+        Memory = _rawPinned.AsMemory(offset, length);
     }
 }

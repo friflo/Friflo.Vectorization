@@ -20,8 +20,8 @@ public partial class Tune_Float
 {
     private EntityStore store;
     const int EntityCount = Constants.EntityCount;
-    readonly  AlignedArray positionVec = new AlignedArray(8 * 1024 * 1024);
-    readonly  AlignedArray velocityVec = new AlignedArray(8 * 1024 * 1024);
+    readonly  AlignedArray<float> positionVec = new (8 * 1024 * 1024);
+    readonly  AlignedArray<float> velocityVec = new (8 * 1024 * 1024);
 
     [GlobalSetup]
     [SetUp]
