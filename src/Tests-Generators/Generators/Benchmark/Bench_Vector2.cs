@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Bench.Lab;
@@ -172,6 +173,30 @@ public partial class Bench_Vector2
     [Benchmark] [Test]
     public void Vector2_Span_MultiplayAdd_AoS_Vectorized() {
         Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f);
+    }
+    
+    
+    [DllImport("mkl_rt.3.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    public static extern unsafe void cblas_saxpy(
+
+        int n,           
+        float a,         
+        float* x,        
+        int incx,        
+        float* y,         
+        int incy         
+    );
+    
+    [Benchmark] [Test]   //     dotnet run -c Release --filter *Vector2_Span_MultiplayAdd_AoS_IntelMKL*
+    public unsafe void Vector2_Span_MultiplayAdd_AoS_IntelMKL() {
+
+        fixed (Vector2* pPtr = pos.Span)
+        fixed (Vector2* vPtr = vel.Span)
+        {
+            float* pFloat = (float*)pPtr;
+            float* vFloat = (float*)vPtr;
+            cblas_saxpy(2 * 1024, 0.1f, vFloat, 1, pFloat, 1);
+        }
     }
     
     private static unsafe int Span_MultiplayAdd_AoS_Avx_Optimized(int count,
