@@ -136,13 +136,13 @@ public partial class Bench_Vector4
     }
     
     [Vectorize] [Query]  [OmitHash]
-    private static void ECS_MultiplayAdd_AoSoA(ref Pos4SoA position, Pos4SoA velocity, float deltaTime) {
+    private static void ECS_MultiplayAdd_AoS(ref Position4 position, Velocity4 velocity, float deltaTime) {
         position.value += velocity.value * deltaTime;
     }
     
     [Benchmark] [Test]
-    public void Vector4_ECS_MultiplayAdd_AoSoA_Vectorized() {
-        ECS_MultiplayAdd_AoSoAQuery(store, 0.1f);
+    public void Vector4_ECS_MultiplayAdd_AoS_Vectorized() {
+        ECS_MultiplayAdd_AoSQuery(store, 0.1f);
     }
     
     [Benchmark] [Test]   //     dotnet run -c Release --filter *Vector2_Span_MultiplayAdd_AoS_IntelMKL*
