@@ -29,8 +29,8 @@ public partial class Bench_Vector4
     private EntityStore store;
     private ArchetypeQuery<Position4,Velocity4> query;
     private Matrix4x4 matrix;
-    private AlignedArray<Vector4> vec1   = new (Constants.VectorCount);
-    private AlignedArray<Vector4> vec2   = new (Constants.VectorCount);
+    private AlignedArray<Vector4> pos   = new (Constants.VectorCount);
+    private AlignedArray<Vector4> vel   = new (Constants.VectorCount);
     private AlignedArray<Vector4> result = new (Constants.VectorCount);
 
 
@@ -60,9 +60,9 @@ public partial class Bench_Vector4
         );
         Matrix4x4 trans = Matrix4x4.CreateTranslation(new Vector3(1f, 2f, 3f));
         matrix = Matrix4x4.Multiply(rot, trans);
-        for (int n = 0; n < vec1.Length; n++) {
-            vec1[n] = new Vector4(n, n + 1000, n + 2000, n + 3000);
-            vec2[n] = new Vector4(n, n * 2 , n * 3, n * 4);
+        for (int n = 0; n < pos.Length; n++) {
+            pos[n] = new Vector4(n, n + 1000, n + 2000, n + 3000);
+            vel[n] = new Vector4(n, n * 2 , n * 3, n * 4);
         }
     }
 
@@ -127,12 +127,24 @@ public partial class Bench_Vector4
 
     [Benchmark]  //  dotnet run -c Release --filter *Vector4_Span_MultiplayAdd*
     public void Vector4_Span_MultiplayAdd_AoS_Scalar() {
-        Span_MultiplayAdd_AoSVector(vec1.Span, vec2.Span, 0.1f, false);
+        Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f, false);
     }
     
     [Benchmark] [Test]
     public void Vector4_Span_MultiplayAdd_AoS_Vectorized() {
-        Span_MultiplayAdd_AoSVector(vec1.Span, vec2.Span, 0.1f);
+        Span_MultiplayAdd_AoSVector(pos.Span, vel.Span, 0.1f);
+    }
+    
+    [Benchmark] [Test]   //     dotnet run -c Release --filter *Vector2_Span_MultiplayAdd_AoS_IntelMKL*
+    public unsafe void Vector4_Span_MultiplayAdd_AoS_IntelMKL() {
+
+        fixed (Vector4* pPtr = pos.Span)
+        fixed (Vector4* vPtr = vel.Span)
+        {
+            float* pFloat = (float*)pPtr;
+            float* vFloat = (float*)vPtr;
+            Bench_Vector2.cblas_saxpy(4 * 1024, 0.1f, vFloat, 1, pFloat, 1);
+        }
     }
     
     // ------------------------------------- Lerp -------------------------------------
@@ -162,8 +174,8 @@ public partial class Bench_Vector4
     [Benchmark]
     public void Vector4_Cross_for()
     {
-        for (int n = 0; n < vec1.Length; n++) {
-            result[n] = Vector4.Cross(vec1[n], vec2[n]);
+        for (int n = 0; n < pos.Length; n++) {
+            result[n] = Vector4.Cross(pos[n], vel[n]);
         }
     }
     
@@ -171,11 +183,11 @@ public partial class Bench_Vector4
     [Test]
     public unsafe void Vector4_Cross_Lab()
     {
-        fixed(Vector4* vec1_ptr = vec1.Span)
-        fixed(Vector4* vec2_ptr = vec2.Span)
+        fixed(Vector4* vec1_ptr = pos.Span)
+        fixed(Vector4* vec2_ptr = vel.Span)
         fixed(Vector4* res_ptr  = result.Span)
         {
-            for (int n = 0; n < vec1.Length; n += 8) {
+            for (int n = 0; n < pos.Length; n += 8) {
                 // Lab_Vector4_Cross.ComputeCrossProduct8(vec1_ptr + n, vec2_ptr + n, res_ptr + n);
                 Lab_Vector4_Cross_2.ComputeCrossProduct8_NoScatter(vec1_ptr + n, vec2_ptr + n, res_ptr + n);
             }
