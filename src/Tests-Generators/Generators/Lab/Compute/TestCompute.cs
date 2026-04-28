@@ -22,15 +22,22 @@ public static class TestCompute
         }
     }
     
+    
+    private static void UseSpan<T>(Span<T> span) { }
+    
     public static async Task Test()
     {
         var weight  = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         
+        UseSpan(weight);
+        
         var task1 = ShadowMethod(weight, input, 42, ExeType.Scalar);
         await task1.Completion();
         
-        var gpuContext = new GpuContext();
+    //  UseSpan(weight); // compiler error
+        
+        using var gpuContext = new GpuContext();
         var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
         var gpuInput = new GpuBuffer<float>(gpuContext, 100);
         var task2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.Scalar);
