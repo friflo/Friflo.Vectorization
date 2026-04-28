@@ -133,6 +133,34 @@ public unsafe class GpuContext : IDisposable
     }
 
     public void ResetPool() => _poolOffset = 0; // Am Ende des Frames/Batches rufen
+    
+    // ------------------- Task Dependency Tracking
+    public void Enqueue(GpuTask task)
+    {
+        throw new NotImplementedException();
+    }
+        
+    public unsafe void SubmitGraph(GpuTask finalTask)
+    {
+        // 1. Flatten the tree (Breadth-First or Depth-First Search)
+        // To find the correct execution order (Topological Sort)
+        var executionOrder = SortTasks(finalTask);
+
+        // 2. Submit them in order
+        foreach (var task in executionOrder)
+        {
+            if (task.IsSubmitted) continue;
+            
+            // Every task in WebGPU within the same Queue is 
+            // guaranteed to start in submission order.
+            var ptr = (CommandBuffer*)task.Commands!.Handle;
+            _wgpu.QueueSubmit(QueuePtr, 1, &ptr);
+            
+            task.IsSubmitted = true;
+        }
+    }
+
+
 }
 
 public class GpuPipeline

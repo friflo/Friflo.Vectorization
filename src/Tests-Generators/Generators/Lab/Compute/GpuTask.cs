@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.Lab;
 
@@ -11,7 +10,15 @@ public sealed class GpuTask : IDisposable
     public static readonly GpuTask Completed = new GpuTask(true);
 
     private readonly bool       _isStatic;
-    private          bool       _isCompleted;
+    // The actual recorded commands
+    public GpuCommandBuffer? Commands { get; internal set; }
+    
+    // Tasks that MUST finish before this one starts
+    private readonly List<GpuTask> _dependencies = new();
+    
+    // A simple state flag for the scheduler
+    public bool IsSubmitted { get; internal set; }
+    public bool IsCompleted { get; internal set; }
     
     // Pure native pointers - zero overhead
     private readonly GpuContext _ctx;
@@ -21,32 +28,39 @@ public sealed class GpuTask : IDisposable
     {
         _ctx = context;
         _isStatic = false;
-        _isCompleted = false;
     }
 
     // Constructor for the static Completed singleton
     private GpuTask(bool isStatic)
     {
         _isStatic = isStatic;
-        _isCompleted = true;
+        IsCompleted = true;
+    }
+    
+    public void AddDependency(GpuTask predecessor) {
+        if (predecessor == this) return; // Prevent brain-loop
+        if (!_dependencies.Contains(predecessor))
+        {
+            _dependencies.Add(predecessor);
+        }
     }
 
     /// <summary>
     /// Forcibly blocks the CPU thread until the GPU signals completion.
     /// </summary>
-    public unsafe void Wait()
+    public void Wait()
     {
-        if (_isCompleted || _isStatic) 
+        if (IsCompleted || _isStatic) 
             return;
 
         // Note: In WebGPU native, we poll the device. 
         // True = wait for work, False = just check status.
-        while (!_isCompleted)
+        while (!IsCompleted)
         {
             // Direct call to the native function pointer via Silk.NET
 
             _ctx.Poll();
-            _isCompleted = true; 
+            IsCompleted = true; 
         }
     }
 
@@ -57,7 +71,7 @@ public sealed class GpuTask : IDisposable
     {
         // In einer echten Implementierung würdest du hier ein Callback von WebGPU abwarten.
         // Bis dahin hilft oft eine Schleife, die den Status prüft:
-        while(!_isCompleted) {
+        while(!IsCompleted) {
             // _ctx.Poll(); // Ruft intern wgpuDevicePoll auf
             await Task.Yield(); 
         }

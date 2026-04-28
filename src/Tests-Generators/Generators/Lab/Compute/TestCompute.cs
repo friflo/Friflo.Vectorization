@@ -9,7 +9,7 @@ public static class TestCompute
 {
     // ------------------------ generated code: begin
     // generated shadow Method
-    public static GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe, GpuBatch batch = null)
+    public static GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output, ExeType exe, GpuBatch batch = null)
     {
         if (exe == ExeType.GPU) {
             var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
@@ -23,7 +23,18 @@ public static class TestCompute
             using GpuEncoder encoder = ctx.CreateEncoder();
             ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, encoder);
             ctx.Submit(encoder.Finish());
-            return new GpuTask(ctx);
+            
+            // Task Dependency Tracking 
+            var task =  new GpuTask(ctx);
+            // 1. Auto-Dependency Check
+            // The generator knows 'weights' and 'input' are READ, 'output' is WRITE.
+            if (weight.LastWritingTask != null)  task.AddDependency(weight.LastWritingTask);
+            if (input.LastWritingTask  != null)  task.AddDependency(input.LastWritingTask);
+            if (output.LastWritingTask != null)  task.AddDependency(output.LastWritingTask);
+            
+            output.LastWritingTask = task;
+            ctx.Enqueue(task);
+            return task;
         }
         // Scalar / SIMD
         ShadowMethod_AVX(weight, input, uniform);
@@ -89,18 +100,20 @@ public static class TestCompute
     {
         var weight  = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        var output  = new float[9];
         
         UseSpan(weight);
         
-        var task1 = ShadowMethod(weight, input, 42, ExeType.SIMD);
+        var task1 = ShadowMethod(weight, input, 42, output, ExeType.SIMD);
         await task1.Completion();
         
     //  UseSpan(weight); // compiler error
         
         using var gpuContext = new GpuContext();
         var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
-        var gpuInput = new GpuBuffer<float>(gpuContext, 100);
-        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD);
+        var gpuInput  = new GpuBuffer<float>(gpuContext, 100);
+        var output2   = new GpuBuffer<float>(gpuContext, 100);
+        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, output2, ExeType.SIMD);
         
         await task2.Completion();
     }
@@ -108,6 +121,7 @@ public static class TestCompute
     public class ModelLayer {
         public GpuBuffer<byte>     weight;
         public GpuBuffer<float>    input;
+        public GpuBuffer<float>    output;
     }
     
     public static async Task RunInference(ModelLayer[] layers)
@@ -115,7 +129,7 @@ public static class TestCompute
         // Fire Layer 1 to 50
         var lastTask = GpuTask.Completed;
         foreach (var layer in layers) {
-            lastTask = ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU);
+            lastTask = ShadowMethod(layer.weight, layer.input, 42, layer.output, ExeType.GPU);
         }
         
         // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
@@ -129,7 +143,7 @@ public static class TestCompute
 
         foreach (var layer in layers) {
             // no task is submitted - only recorded
-            ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU, batch);
+            ShadowMethod(layer.weight, layer.input, 42, layer.output, ExeType.GPU, batch);
         }
         // submit all recorded tasks added to the batch
         GpuTask totalWork = batch.Submit();

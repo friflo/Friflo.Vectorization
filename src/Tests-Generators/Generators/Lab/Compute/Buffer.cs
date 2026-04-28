@@ -13,6 +13,8 @@ public ref struct Buffer<T> where T : struct
 {
     public Span<T>      span;
     public GpuBuffer<T> gpuBuffer;
+    public GpuTask      LastWritingTask;
+
     
     public int Length => gpuBuffer?.Length ?? span.Length;
     
