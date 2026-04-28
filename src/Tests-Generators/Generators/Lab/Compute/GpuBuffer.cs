@@ -63,7 +63,7 @@ public unsafe class GpuContext : IDisposable
         throw new NotImplementedException();
     }
 
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, GpuBindEntry[] bindEntry)
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
     {
         throw new NotImplementedException();
     }
