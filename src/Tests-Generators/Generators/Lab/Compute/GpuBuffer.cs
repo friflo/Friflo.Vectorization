@@ -29,4 +29,21 @@ public unsafe class GpuContext : IDisposable
     }
 
     public void Dispose() { /* Cleanup native resources */ }
+
+    public GpuBatch BeginBatch() {
+        return new GpuBatch();
+    }
+}
+
+public unsafe class GpuBatch : IDisposable
+{
+    private readonly Device*    _device;
+    private readonly Wgpu*      _wgpuApi; 
+    
+    public void Dispose() {
+    }
+
+    public GpuTask Submit() {
+        return new GpuTask(_wgpuApi, _device);
+    }
 }

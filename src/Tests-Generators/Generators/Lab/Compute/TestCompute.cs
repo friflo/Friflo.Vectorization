@@ -6,7 +6,7 @@ namespace Tests.Generators.Lab;
 public static class TestCompute
 {
     // generated shadow Method
-    public static unsafe GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe)
+    public static unsafe GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe, GpuBatch batch = null)
     {
         switch (exe) {
             case ExeType.Scalar:
@@ -44,4 +44,36 @@ public static class TestCompute
         
         await task2.Completion();
     }
+    
+    public class ModelLayer {
+        public GpuBuffer<byte>     weight;
+        public GpuBuffer<float>    input;
+    }
+    
+    public static async Task RunInference(ModelLayer[] layers)
+    {
+        // Fire Layer 1 to 50
+        var lastTask = GpuTask.Completed;
+        foreach (var layer in layers) {
+            lastTask = ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU);
+        }
+        
+        // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
+        await lastTask.Completion();
+    }
+    
+    public static async Task RunInferenceCommandRecorder(ModelLayer[] layers)
+    {
+        using var gpuContext = new GpuContext();
+        using var batch = gpuContext.BeginBatch();
+
+        foreach (var layer in layers) {
+            // no task is submitted - only recorded
+            ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU, batch);
+        }
+        // submit all recorded tasks added to the batch
+        GpuTask totalWork = batch.Submit();
+        await totalWork.Completion();
+    }
+    
 }
