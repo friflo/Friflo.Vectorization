@@ -22,10 +22,10 @@ public class GpuBuffer<T> {
 
 public unsafe class GpuContext : IDisposable
 {
-    public  WebGPU  _wgpu       { get; }
-    private Wgpu    _wgpuEx;
-    public  Device* DevicePtr   { get; }
-    public  Queue*  QueuePtr    { get; }
+    public  WebGPU  _wgpu       { get; }    // main API         - GpuContext owns this managed type
+    private Wgpu    _wgpuEx;                // extension (Poll) - GpuContext owns this managed type
+    public  Device* DevicePtr   { get; }    // pointer lives in graphics device driver 
+    public  Queue*  QueuePtr    { get; }    // pointer lives in graphics device driver
     
     private GpuBindGroupLayout[] bindGroupSlots;
     
