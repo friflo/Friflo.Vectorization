@@ -25,7 +25,7 @@ public static class TestCompute
     
     private static void UseSpan<T>(Span<T> span) { }
     
-    public static async Task Test()
+    public static async Task ExampleCompute()
     {
         var weight  = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
