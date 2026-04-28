@@ -32,7 +32,7 @@ public static class TestCompute
         
         UseSpan(weight);
         
-        var task1 = ShadowMethod(weight, input, 42, ExeType.Scalar);
+        var task1 = ShadowMethod(weight, input, 42, ExeType.SIMD);
         await task1.Completion();
         
     //  UseSpan(weight); // compiler error
@@ -40,7 +40,7 @@ public static class TestCompute
         using var gpuContext = new GpuContext();
         var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
         var gpuInput = new GpuBuffer<float>(gpuContext, 100);
-        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.Scalar);
+        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD);
         
         await task2.Completion();
     }
