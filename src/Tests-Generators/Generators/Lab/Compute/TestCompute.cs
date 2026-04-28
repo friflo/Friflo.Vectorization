@@ -7,6 +7,7 @@ namespace Tests.Generators.Lab;
 
 public static class TestCompute
 {
+    // ------------------------ generated code: begin
     // generated shadow Method
     public static GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe, GpuBatch batch = null)
     {
@@ -72,12 +73,14 @@ public static class TestCompute
     
     // Vom Source Generator erzeugtes Struct für die Uniforms
     [StructLayout(LayoutKind.Sequential)]
-    public struct ShadowMethod_Uniforms
+    private struct ShadowMethod_Uniforms
     {
         public float uniform;
     //  public float uniform2;
     //  public int   iteration;
     }
+    // ------------------------ generated code: end
+    
     
     private static void UseSpan<T>(Span<T> span) { }
     
