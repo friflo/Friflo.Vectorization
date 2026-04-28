@@ -21,6 +21,7 @@ public static class TestCompute
             }
             // Immediate Mode
             using GpuEncoder encoder = ctx.CreateEncoder();
+            ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, encoder);
             ctx.Submit(encoder.Finish());
             return new GpuTask(ctx);
         }
