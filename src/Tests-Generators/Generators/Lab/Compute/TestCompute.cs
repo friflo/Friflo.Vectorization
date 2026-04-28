@@ -10,16 +10,16 @@ public static class TestCompute
     {
         if (exe == ExeType.GPU) {
             var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
-
             // record Dispatch (in Batch oder temporary Encoder)
-            GpuEncoder encoder = batch?.Encoder ?? ctx.CreateEncoder();
-            ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, encoder);
-            
-            if (batch == null) { // Immediate Mode
-                ctx.Submit(encoder.Finish());
-                return new GpuTask(ctx);
+            if (batch != null) {
+                // Batch Mode
+                ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, batch.Encoder);
+                return GpuTask.Completed;
             }
-            return GpuTask.Completed; // Batch Mode
+            // Immediate Mode
+            using GpuEncoder encoder = ctx.CreateEncoder();
+            ctx.Submit(encoder.Finish());
+            return new GpuTask(ctx);
         }
         // Scalar / SIMD
         ShadowMethod_AVX(weight, input, uniform);
