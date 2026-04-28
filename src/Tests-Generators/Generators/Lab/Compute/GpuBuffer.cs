@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -58,8 +59,8 @@ public unsafe class GpuContext : IDisposable
         throw new NotImplementedException();
     }
     
-    public GpuComputePass GetPipeline(string shaderName) {
-        return new GpuComputePass();
+    public GpuPipeline GetPipeline(string shaderName) {
+        return new GpuPipeline();
     }
 
     public BinGroupLayoutBuilder BindGroupLayoutBuilder()
@@ -99,6 +100,11 @@ public unsafe class GpuContext : IDisposable
     public void ResetPool() => _poolOffset = 0; // Am Ende des Frames/Batches rufen
 }
 
+public class GpuPipeline
+{
+    
+}
+
 internal class GpuQueue
 {
     public unsafe void WriteBuffer(IntPtr bufferHandle, uint byteOffset, void* data, uint byteSize)
@@ -114,14 +120,24 @@ internal class GpuQueue
 
 public struct GpuBindEntry
 {
-    public uint Binding;
-//  public IGpuBuffer Buffer; // interface that shares oll GpuBuffer<T>'s
-    public uint Offset;
-    public uint Size;
+    public uint     Binding;
+    public IntPtr   BufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
+    public uint     Offset;
+    public uint     Size;
     
-    public GpuBindEntry(int binding, GpuBuffer<byte> buffer) { }
-    public GpuBindEntry(int binding, GpuBuffer<float> inputGpuBuffer) { }
-    public GpuBindEntry(int binding, GpuBuffer<byte> inputGpuBuffer, uint alignedOffset, uint size) { }
+    public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : struct {
+        return new GpuBindEntry(binding, buffer.Handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
+    }
+
+    public GpuBindEntry(int binding, GpuBuffer<byte> pool, uint offset, uint size) 
+        : this(binding, pool.Handle, offset, size) { }
+
+    private GpuBindEntry(int binding, IntPtr handle, uint offset, uint size) {
+        Binding         = (uint)binding;
+        BufferHandle    = handle;
+        Offset          = offset;
+        Size            = size;
+    }
 }
 
 public class BinGroupLayoutBuilder
@@ -147,7 +163,7 @@ public class GpuComputePass : IDisposable {
         throw new NotImplementedException();
     }
 
-    public void SetPipeline(GpuComputePass computePass)
+    public void SetPipeline(GpuPipeline computePass)
     {
         throw new NotImplementedException();
     }

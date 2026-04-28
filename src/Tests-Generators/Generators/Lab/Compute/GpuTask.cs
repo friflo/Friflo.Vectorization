@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
 
 
 namespace Tests.Generators.Lab;
 
-public sealed unsafe class GpuTask : IDisposable
+public sealed class GpuTask : IDisposable
 {
     // High-performance static instance for bypass modes (Scalar/SIMD)
     public static readonly GpuTask Completed = new GpuTask(true);
@@ -15,14 +13,12 @@ public sealed unsafe class GpuTask : IDisposable
     private          bool       _isCompleted;
     
     // Pure native pointers - zero overhead
-    private readonly Device*    _device;
-    private readonly Wgpu*      _wgpuApi; 
+    private readonly GpuContext _ctx;
 
     // Constructor for real GPU work
     internal GpuTask(GpuContext context)
     {
-        _wgpuApi = context.WgpuPtr;
-        _device = context.DevicePtr;
+        _ctx = context;
         _isStatic = false;
         _isCompleted = false;
     }
@@ -32,16 +28,14 @@ public sealed unsafe class GpuTask : IDisposable
     {
         _isStatic = isStatic;
         _isCompleted = true;
-        _device = null;
-        _wgpuApi = null;
     }
 
     /// <summary>
     /// Forcibly blocks the CPU thread until the GPU signals completion.
     /// </summary>
-    public void Wait()
+    public unsafe void Wait()
     {
-        if (_isCompleted || _isStatic || _device == null || _wgpuApi == null) 
+        if (_isCompleted || _isStatic) 
             return;
 
         // Note: In WebGPU native, we poll the device. 
@@ -49,7 +43,7 @@ public sealed unsafe class GpuTask : IDisposable
         while (!_isCompleted)
         {
             // Direct call to the native function pointer via Silk.NET
-            _wgpuApi->DevicePoll(_device, true, null);
+            _ctx.WgpuPtr->DevicePoll(_ctx.DevicePtr, true, null);
             _isCompleted = true; 
         }
     }
@@ -57,12 +51,14 @@ public sealed unsafe class GpuTask : IDisposable
     /// <summary>
     /// Provides an awaitable bridge for the sync-started GPU work.
     /// </summary>
-    public ValueTask Completion()
+    public async Task Completion()
     {
-        if (_isCompleted) return ValueTask.CompletedTask;
-        
-        // Prototype hack: Offload the blocking wait to a thread pool task
-        return new ValueTask(Task.Run(Wait));
+        // In einer echten Implementierung würdest du hier ein Callback von WebGPU abwarten.
+        // Bis dahin hilft oft eine Schleife, die den Status prüft:
+        while(!_isCompleted) {
+            // _ctx.Poll(); // Ruft intern wgpuDevicePoll auf
+            await Task.Yield(); 
+        }
     }
 
     public void Dispose()

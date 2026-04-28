@@ -45,8 +45,8 @@ public static class TestCompute
         GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
         var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
         var bindGroup = ctx.CreateBindGroup(layout, [
-            new GpuBindEntry  (0, weight.gpuBuffer),
-            new GpuBindEntry  (1, input.gpuBuffer),
+            GpuBindEntry.From (0, weight.gpuBuffer),
+            GpuBindEntry.From (1, input.gpuBuffer),
             ctx.AsUniformEntry(2, uniforms)
         ]);
         pass.SetBindGroup(0, bindGroup);
