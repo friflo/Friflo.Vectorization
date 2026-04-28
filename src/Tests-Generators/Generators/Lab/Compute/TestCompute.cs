@@ -6,21 +6,37 @@ namespace Tests.Generators.Lab;
 public static class TestCompute
 {
     // generated shadow Method
-    public static unsafe GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe, GpuBatch batch = null)
+    public static GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe, GpuBatch batch = null)
     {
-        switch (exe) {
-            case ExeType.Scalar:
-            case ExeType.SIMD:
-                 _ = weight.span; _ = input.gpuBuffer; // use spans in SIMD loop 
-                return GpuTask.Completed;
-            case ExeType.GPU:
-                var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context;
-                if (ctx == null) throw new InvalidOperationException("GPU execution requested without GpuBuffer<T>");
-                // ctx.DispatchMultiply(weight.gpuBuffer, input.gpuBuffer, uniform)
-                return new GpuTask(ctx.WgpuPtr, ctx.DevicePtr);
-            default: throw new InvalidOperationException();
+        if (exe == ExeType.GPU) {
+            var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
+
+            // record Dispatch (in Batch oder temporary Encoder)
+            GpuEncoder encoder = batch?.Encoder ?? ctx.CreateEncoder();
+            ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, encoder);
+            
+            if (batch == null) { // Immediate Mode
+                ctx.Submit(encoder.Finish());
+                return new GpuTask(ctx);
+            }
+            return GpuTask.Completed; // Batch Mode
         }
+        // Scalar / SIMD
+        ShadowMethod_AVX(weight, input, uniform);
+        return GpuTask.Completed;
     }
+    
+    // generated AVX method
+    private static unsafe void ShadowMethod_AVX(Buffer<byte> weight, Buffer<float> input, float uniform) {
+        // ...
+    }
+    
+    // generated GPU method
+    private static unsafe void ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, GpuEncoder encoder) {
+        // ...
+    }
+    
+    
     
     
     private static void UseSpan<T>(Span<T> span) { }

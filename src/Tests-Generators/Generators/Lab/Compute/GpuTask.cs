@@ -19,10 +19,10 @@ public sealed unsafe class GpuTask : IDisposable
     private readonly Wgpu*      _wgpuApi; 
 
     // Constructor for real GPU work
-    internal GpuTask(Wgpu* wgpuApi, Device* device)
+    internal GpuTask(GpuContext context)
     {
-        _wgpuApi = wgpuApi;
-        _device = device;
+        _wgpuApi = context.WgpuPtr;
+        _device = context.DevicePtr;
         _isStatic = false;
         _isCompleted = false;
     }

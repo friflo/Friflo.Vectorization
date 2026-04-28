@@ -33,17 +33,44 @@ public unsafe class GpuContext : IDisposable
     public GpuBatch BeginBatch() {
         return new GpuBatch();
     }
+
+    public GpuEncoder CreateEncoder() {
+        throw new NotImplementedException();
+    }
+
+    public void Submit(GpuCommandBuffer commandBuffer) {
+        throw new NotImplementedException();
+    }
 }
 
-public unsafe class GpuBatch : IDisposable
+public class GpuEncoder : IDisposable
 {
-    private readonly Device*    _device;
-    private readonly Wgpu*      _wgpuApi; 
+    private readonly GpuContext context;
+    
+    public void Dispose() {
+    }
+    
+    public GpuCommandBuffer Finish() {
+        return new GpuCommandBuffer();
+    }
+
+    public GpuTask Submit() {
+        return new GpuTask(context);
+    }
+}
+
+public class GpuCommandBuffer { }
+
+public class GpuBatch : IDisposable
+{
+    private readonly GpuContext context;
+    
+    public GpuEncoder Encoder { get; }
     
     public void Dispose() {
     }
 
     public GpuTask Submit() {
-        return new GpuTask(_wgpuApi, _device);
+        return new GpuTask(context);
     }
 }
