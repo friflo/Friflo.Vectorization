@@ -14,6 +14,8 @@ public ref struct Buffer<T> where T : struct
     public Span<T>      span;
     public GpuBuffer<T> gpuBuffer;
     
+    public int Length => gpuBuffer?.Length ?? span.Length;
+    
     public Buffer(Span<T> span) {
         this.span = span;
     }

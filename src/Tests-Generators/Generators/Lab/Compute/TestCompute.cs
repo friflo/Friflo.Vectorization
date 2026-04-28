@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+// ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
 public static class TestCompute
@@ -32,12 +33,40 @@ public static class TestCompute
     }
     
     // generated GPU method
-    private static unsafe void ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, GpuEncoder encoder) {
-        // ...
+    private static unsafe void ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, GpuEncoder encoder)
+    {
+        var ctx = encoder.context;
+        using GpuComputePass pass = encoder.BeginComputePass();         // Start ComputePass
+        pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
+        
+        GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
+        var bindGroup = ctx.CreateBindGroup(layout, [
+            new GpuBindEntry(0, weight.gpuBuffer),
+            new GpuBindEntry(1, input.gpuBuffer),
+            new GpuBindEntry(2, uniform)                                // Uniforms require a Buffer!
+        ]);
+        pass.SetBindGroup(0, bindGroup);
+        
+        pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
+        pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
     }
     
+    private static readonly int ShadowMethod_BindGroupLayoutSlot = GpuBindGroupLayout.NewBindGroupLayoutSlot(); 
     
-    
+    private static GpuBindGroupLayout ShadowMethod_GPU_GetBindGroupLayout(GpuContext ctx)
+    {
+        GpuBindGroupLayout layout = ctx.GetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot);
+        if (layout != null) {
+            return layout;
+        }
+        layout = ctx.BindGroupLayoutBuilder()
+            .AddBuffer<byte>  (0)  // @binding(0)
+            .AddBuffer<float> (1)  // @binding(1)
+            .AddUniform<float>(2)  // @binding(2)
+            .Build();
+        ctx.SetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot, layout);
+        return layout;
+    }
     
     private static void UseSpan<T>(Span<T> span) { }
     
