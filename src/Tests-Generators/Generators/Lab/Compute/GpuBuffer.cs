@@ -11,6 +11,8 @@ public class GpuBuffer<T> {
     public readonly IntPtr      Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
     public          int         Length => throw new NotImplementedException(); 
+    public          GpuTask     LastWritingTask;
+
 //  public readonly unsafe Buffer* Ptr;
 
     public GpuBuffer(GpuContext ctx, uint size) 
