@@ -24,13 +24,17 @@ public static class TestCompute
     
     public static async Task Test()
     {
-        var weight = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-        var input = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        ShadowMethod(weight, input, 42, ExeType.Scalar);
+        var weight  = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        
+        var task1 = ShadowMethod(weight, input, 42, ExeType.Scalar);
+        await task1.Completion();
         
         var gpuContext = new GpuContext();
         var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
         var gpuInput = new GpuBuffer<float>(gpuContext, 100);
-        ShadowMethod(gpuWeight, gpuInput, 42, ExeType.Scalar);
+        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.Scalar);
+        
+        await task2.Completion();
     }
 }
