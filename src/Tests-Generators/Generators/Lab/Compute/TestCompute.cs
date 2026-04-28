@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
@@ -40,10 +41,11 @@ public static class TestCompute
         pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
         
         GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
+        var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
         var bindGroup = ctx.CreateBindGroup(layout, [
-            new GpuBindEntry(0, weight.gpuBuffer),
-            new GpuBindEntry(1, input.gpuBuffer),
-            new GpuBindEntry(2, uniform)                                // Uniforms require a Buffer!
+            new GpuBindEntry  (0, weight.gpuBuffer),
+            new GpuBindEntry  (1, input.gpuBuffer),
+            ctx.AsUniformEntry(2, uniforms)
         ]);
         pass.SetBindGroup(0, bindGroup);
         
@@ -60,12 +62,21 @@ public static class TestCompute
             return layout;
         }
         layout = ctx.BindGroupLayoutBuilder()
-            .AddBuffer<byte>  (0)  // @binding(0)
-            .AddBuffer<float> (1)  // @binding(1)
-            .AddUniform<float>(2)  // @binding(2)
+            .AddBuffer<byte>  (0)  // @group(0) @binding(0) var<storage, read> weight: array<u8>;
+            .AddBuffer<float> (1)  // @group(0) @binding(1) var<storage, read> input: array<f32>;
+            .AddUniform<float>(2)  // @group(0) @binding(2) var<uniform> myParam: f32;        <--- we aim for this
             .Build();
         ctx.SetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot, layout);
         return layout;
+    }
+    
+    // Vom Source Generator erzeugtes Struct für die Uniforms
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ShadowMethod_Uniforms
+    {
+        public float uniform;
+    //  public float uniform2;
+    //  public int   iteration;
     }
     
     private static void UseSpan<T>(Span<T> span) { }

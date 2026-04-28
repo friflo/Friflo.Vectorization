@@ -6,6 +6,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 namespace Tests.Generators.Lab;
 
 public class GpuBuffer<T> {
+    public readonly IntPtr      Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
     public          int         Length => throw new NotImplementedException(); 
 //  public readonly unsafe Buffer* Ptr;
@@ -33,7 +34,10 @@ public unsafe class GpuContext : IDisposable
         bindGroupSlots[slot] = layout;
     }
 
-    public GpuContext() { }
+    public GpuContext()
+    {
+        // _uniformPool = CreateBuffer<byte>(64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst);
+    }
 
     public void Dispatch(Buffer<byte> w, Buffer<float> i, float u) 
     {
@@ -67,13 +71,57 @@ public unsafe class GpuContext : IDisposable
     {
         throw new NotImplementedException();
     }
+
+    private GpuBuffer<byte> _uniformPool;
+    private uint            _poolOffset = 0;
+    
+    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : struct
+    {
+        uint size           = (uint)sizeof(T);
+        uint alignedOffset  = (_poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
+        WriteBuffer(_uniformPool, alignedOffset, &value, size);                 // write value in _uniformPool
+        _poolOffset = alignedOffset + size;
+        return new GpuBindEntry(binding, _uniformPool, alignedOffset, size);    // use _uniformPool at alignedOffset
+    }
+    
+    private GpuQueue _queue;
+    
+    private void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged
+    {
+        _queue.WriteBuffer(
+            buffer.Handle,
+            byteOffset,        // offset in buffer
+            data,              // pointer on my value
+            byteSize           // value size
+        );
+    }
+
+    public void ResetPool() => _poolOffset = 0; // Am Ende des Frames/Batches rufen
+}
+
+internal class GpuQueue
+{
+    public unsafe void WriteBuffer(IntPtr bufferHandle, uint byteOffset, void* data, uint byteSize)
+    {
+        // wgpuQueueWriteBuffer(_handle, buffer, offset, data, size);
+    }
+    
+    public void Submit(GpuCommandBuffer commandBuffer)
+    {
+        // wgpuQueueSubmit(_handle, 1, &commandBuffer);
+    }
 }
 
 public struct GpuBindEntry
 {
+    public uint Binding;
+//  public IGpuBuffer Buffer; // interface that shares oll GpuBuffer<T>'s
+    public uint Offset;
+    public uint Size;
+    
     public GpuBindEntry(int binding, GpuBuffer<byte> buffer) { }
     public GpuBindEntry(int binding, GpuBuffer<float> inputGpuBuffer) { }
-    public GpuBindEntry(int binding, float inputGpuBuffer) { }
+    public GpuBindEntry(int binding, GpuBuffer<byte> inputGpuBuffer, uint alignedOffset, uint size) { }
 }
 
 public class BinGroupLayoutBuilder
