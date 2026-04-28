@@ -65,8 +65,6 @@ public unsafe class GpuContext : IDisposable
 
     public void Dispose() { /* Cleanup native resources */ }
 
-    // TDOO REMOVE_BATCH public GpuBatch BeginBatch() { return new GpuBatch(); } 
-
     public GpuEncoder CreateEncoder() {
         throw new NotImplementedException();
     }

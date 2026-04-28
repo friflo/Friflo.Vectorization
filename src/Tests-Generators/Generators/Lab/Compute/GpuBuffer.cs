@@ -173,11 +173,7 @@ public class GpuEncoder : IDisposable
     public GpuCommandBuffer Finish() {
         return new GpuCommandBuffer();
     }
-/* TODO REMOVE_BATCH
-
-    public GpuTask Submit() {
-        return new GpuTask(context);
-    } */
+    
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
     {
@@ -189,19 +185,3 @@ public class GpuCommandBuffer
 {
     internal IntPtr Handle;
 }
-
-/* TODO REMOVE_BATCH
- 
-public class GpuBatch : IDisposable
-{
-    private readonly GpuContext context;
-    
-    public GpuEncoder Encoder { get; }
-    
-    public void Dispose() {
-    }
-
-    public GpuTask Submit() {
-        return new GpuTask(context);
-    }
-} */

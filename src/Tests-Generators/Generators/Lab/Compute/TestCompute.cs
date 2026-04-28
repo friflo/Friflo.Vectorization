@@ -54,6 +54,7 @@ public static class TestCompute
                 
                 pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
                 pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+                // How calls: encoder.Finish(); ? 
             }
             output.LastWritingTask = task;
             ctx.Enqueue(task);
@@ -68,7 +69,7 @@ public static class TestCompute
     
     private static GpuBindGroupLayout ShadowMethod_GPU_GetBindGroupLayout(GpuContext ctx)
     {
-        GpuBindGroupLayout layout = ctx.GetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot);
+        GpuBindGroupLayout layout = ctx.GetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot); // array index lookup
         if (layout != null) {
             return layout;
         }
