@@ -30,17 +30,21 @@ public static class TestCompute
     }
     
     // generated GPU method
+    // Notes:
+    // - in case this method throws an exception before finishing the pass the task is cleared at next Reset() - no WebGPU leaks.
+    // - method does not need to know how to Finish() an encoder. It asks for Encoder and fills it.
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
-        var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
-        GpuTask task = ctx.RentTask();
-        var gpuOutput = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
+        var ctx         = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
+        GpuTask task    = ctx.RentTask();
+        var gpuOutput   = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
         try {
             // Dependencies from inputs (out not Output!)
             if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
             if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
             
-            var encoder = task.GetEncoder(ctx); // task provides Encode
+            // Recording (task provides Encoder)
+            var encoder = task.GetEncoder(ctx); 
             using (var pass = encoder.BeginComputePass())
             {
                 pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
