@@ -21,6 +21,21 @@ public class GpuBuffer<T> where T : unmanaged
         Context = ctx;
         // Ptr = ctx.CreateBuffer(size); ...
     }
+    
+    public T this[int index]
+    {
+        get {
+            if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
+                Context.Wait(this); // force Compute before CPU reads value
+            }
+            return InternalDownloadValue(index); 
+        }
+    }
+
+    private T InternalDownloadValue(int index)
+    {
+        throw new NotImplementedException();
+    }
 
     public void WaitInDebug()
     {
@@ -154,14 +169,15 @@ public class GpuEncoder : IDisposable
     
     public void Dispose() {
     }
-    
+
     public GpuCommandBuffer Finish() {
         return new GpuCommandBuffer();
     }
+/* TODO REMOVE_BATCH
 
     public GpuTask Submit() {
         return new GpuTask(context);
-    }
+    } */
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
     {
@@ -174,6 +190,8 @@ public class GpuCommandBuffer
     internal IntPtr Handle;
 }
 
+/* TODO REMOVE_BATCH
+ 
 public class GpuBatch : IDisposable
 {
     private readonly GpuContext context;
@@ -186,4 +204,4 @@ public class GpuBatch : IDisposable
     public GpuTask Submit() {
         return new GpuTask(context);
     }
-}
+} */

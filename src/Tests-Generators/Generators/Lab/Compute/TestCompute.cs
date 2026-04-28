@@ -36,8 +36,8 @@ public static class TestCompute
         GpuTask task = ctx.RentTask();
         var gpuOutput = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
         try {
-            if (gpuOutput.LastWritingTask != null) task.AddDependency(weight.LastWritingTask);
-            if (gpuOutput.LastWritingTask != null) task.AddDependency(input.LastWritingTask);
+            task.AddDependency(weight.LastWritingTask);
+            task.AddDependency(input.LastWritingTask);
             {
                 using GpuEncoder encoder = ctx.CreateEncoder();
                 using GpuComputePass pass = encoder.BeginComputePass();         // Start ComputePass
@@ -104,7 +104,7 @@ public static class TestCompute
         UseSpan(weight);
         
         var result1 = ShadowMethod(weight, input, 42, ExeType.SIMD, output);
-        // result1 - no Wait on result1. Nothing will happen - user is surprised :)
+        // result1 - no Wait() on result1. Nothing will happen - user is surprised :)
         
     //  UseSpan(weight); // compiler error
         
@@ -135,8 +135,8 @@ public static class TestCompute
     
 
     // --- compact examples of some generated shadow method stubs
-    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ExeType exe, GpuBatch batch = null) { return null; }
-    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ExeType exe, GpuBatch batch = null) { return null; }
+    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ExeType exe) { return null; }
+    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ExeType exe) { return null; }
     
     public static GpuBuffer<byte> InitWeights(GpuContext context) {
         return null;
