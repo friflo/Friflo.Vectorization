@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -144,5 +145,8 @@ public unsafe class GpuContext : IDisposable
         }
     }
 
-
+    private IEnumerable<GpuTask> SortTasks(GpuTask finalTask)
+    {
+        throw new NotImplementedException();
+    }
 }

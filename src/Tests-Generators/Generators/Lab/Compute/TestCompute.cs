@@ -93,6 +93,10 @@ public static class TestCompute
     }
     // ------------------------ generated code: end
     
+    // --- some other generated example shadow method stubs
+    public static GpuTask ComputeLayer1(Buffer<float> input, out Buffer<float> output, ExeType exe, GpuBatch batch = null) { output = default; return null; }
+    public static GpuTask ComputeLayer2(Buffer<float> input, out Buffer<float> output, ExeType exe, GpuBatch batch = null) { output = default; return null; }
+    // ----  
     
     private static void UseSpan<T>(Span<T> span) { }
     
@@ -148,6 +152,21 @@ public static class TestCompute
         // submit all recorded tasks added to the batch
         GpuTask totalWork = batch.Submit();
         await totalWork.Completion();
+    }
+    
+    public static GpuTask InitWeights(GpuContext context) {
+
+        return null;
+    }
+
+    public static void DependencyFlow()
+    {
+        using var context = new GpuContext();
+        InitWeights(context, out var weight);
+        
+        
+
+
     }
     
 }

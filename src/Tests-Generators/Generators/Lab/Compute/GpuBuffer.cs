@@ -160,7 +160,10 @@ public class GpuEncoder : IDisposable
     }
 }
 
-public class GpuCommandBuffer { }
+public class GpuCommandBuffer
+{
+    internal IntPtr Handle;
+}
 
 public class GpuBatch : IDisposable
 {
