@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Tests.Generators.Lab;
 
@@ -21,7 +22,8 @@ public static class TestCompute
         }
     }
     
-    public static void Test() {
+    public static async Task Test()
+    {
         var weight = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
         var input = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         ShadowMethod(weight, input, 42, ExeType.Scalar);
