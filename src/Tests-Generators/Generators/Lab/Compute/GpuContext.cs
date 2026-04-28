@@ -12,6 +12,8 @@ public unsafe class GpuContext : IDisposable
     public  Device* DevicePtr   { get; }    // pointer lives in graphics device driver 
     public  Queue*  QueuePtr    { get; }    // pointer lives in graphics device driver
     
+    public bool DebugMode       { get; set; } 
+    
     private readonly Stack<GpuTask> _taskPool = new();
     
     private GpuBindGroupLayout[] bindGroupSlots;
@@ -27,6 +29,12 @@ public unsafe class GpuContext : IDisposable
         task.Reset(); // Wichtig: Alten State löschen!
         _taskPool.Push(task);
     }
+    
+    public GpuBuffer<T> RentBuffer<T>(int inputLength) where T : unmanaged
+    {
+        throw new NotImplementedException();
+    }
+    
     
     public GpuBindGroupLayout GetBindGroupLayout(int slot) {
         return bindGroupSlots[slot];
@@ -110,7 +118,7 @@ public unsafe class GpuContext : IDisposable
     private GpuBuffer<byte> _uniformPool;
     private uint            _poolOffset = 0;
     
-    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : struct
+    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
         uint size           = (uint)sizeof(T);
         uint alignedOffset  = (_poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
@@ -136,6 +144,10 @@ public unsafe class GpuContext : IDisposable
     // ------------------- Task Dependency Tracking
     public void Enqueue(GpuTask task)
     {
+        throw new NotImplementedException();
+    }
+    
+    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged {
         throw new NotImplementedException();
     }
         

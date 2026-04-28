@@ -7,7 +7,7 @@ using Silk.NET.WebGPU;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public class GpuBuffer<T>
+public class GpuBuffer<T> where T : unmanaged
 {
     public readonly IntPtr      Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
@@ -20,6 +20,14 @@ public class GpuBuffer<T>
     {
         Context = ctx;
         // Ptr = ctx.CreateBuffer(size); ...
+    }
+
+    public void WaitInDebug()
+    {
+        if (!Context.DebugMode) {
+            return;
+        }
+        Context.Wait<T>(this);
     }
 }
 
@@ -48,7 +56,7 @@ public struct GpuBindEntry
     public uint     Offset;
     public uint     Size;
     
-    public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : struct {
+    public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
         return new GpuBindEntry(binding, buffer.Handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
     }
 
@@ -67,7 +75,7 @@ public class BindGroupLayoutBuilder
 {
     private readonly List<BindGroupLayoutEntry> _entries;
     
-    public BindGroupLayoutBuilder AddBuffer<T>(int binding) where T : struct
+    public BindGroupLayoutBuilder AddBuffer<T>(int binding) where T : unmanaged
     {
         _entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,
@@ -79,7 +87,7 @@ public class BindGroupLayoutBuilder
         return this;
     }
 
-    public BindGroupLayoutBuilder AddUniform<T>(int binding) where T : struct
+    public BindGroupLayoutBuilder AddUniform<T>(int binding) where T : unmanaged
     {
         _entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,

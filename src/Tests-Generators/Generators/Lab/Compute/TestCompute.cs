@@ -9,61 +9,59 @@ public static class TestCompute
 {
     // ------------------------ generated code: begin
     // generated shadow Method
-    public static GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output, ExeType exe, GpuBatch batch = null)
+    public static GpuBuffer<float> ShadowMethod(
+        Buffer<byte>    weight,
+        Buffer<float>   input,
+        float           uniform,
+        ExeType         exe,
+        Buffer<float>   output = default)
     {
         if (exe == ExeType.GPU) {
-            var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
-            // record Dispatch (in Batch oder temporary Encoder)
-            if (batch != null) {
-                // Batch Mode
-                ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, batch.Encoder);
-                return GpuTask.Completed;
-            }
-            // Immediate Mode
-            using GpuEncoder encoder = ctx.CreateEncoder();
-            ShadowMethod_GPU(weight.gpuBuffer, input.gpuBuffer, uniform, encoder);
-            ctx.Submit(encoder.Finish());
-            
-            // Task Dependency Tracking 
-            var task =  new GpuTask(ctx);
-            // 1. Auto-Dependency Check
-            // The generator knows 'weights' and 'input' are READ, 'output' is WRITE.
-            if (weight.LastWritingTask != null)  task.AddDependency(weight.LastWritingTask);
-            if (input.LastWritingTask  != null)  task.AddDependency(input.LastWritingTask);
-            if (output.LastWritingTask != null)  task.AddDependency(output.LastWritingTask);
-            
-            output.LastWritingTask = task;
-            ctx.Enqueue(task);
-            return task;
+            return ShadowMethod_GPU(weight, input, uniform, output);
         }
         // Scalar / SIMD
-        ShadowMethod_AVX(weight, input, uniform);
-        return GpuTask.Completed;
+        ShadowMethod_AVX(weight, input, uniform, output);
+        return null;
     }
     
     // generated AVX method
-    private static unsafe void ShadowMethod_AVX(Buffer<byte> weight, Buffer<float> input, float uniform) {
+    private static unsafe void ShadowMethod_AVX(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output) {
         // ...
     }
     
     // generated GPU method
-    private static unsafe void ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, GpuEncoder encoder)
+    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
-        var ctx = encoder.context;
-        using GpuComputePass pass = encoder.BeginComputePass();         // Start ComputePass
-        pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
-        
-        GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
-        var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
-        var bindGroup = ctx.CreateBindGroup(layout, [
-            GpuBindEntry.From (0, weight.gpuBuffer),
-            GpuBindEntry.From (1, input.gpuBuffer),
-            ctx.AsUniformEntry(2, uniforms)
-        ]);
-        pass.SetBindGroup(0, bindGroup);
-        
-        pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
-        pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+        var ctx = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
+        GpuTask task = ctx.RentTask();
+        var gpuOutput = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
+        try {
+            if (gpuOutput.LastWritingTask != null) task.AddDependency(weight.LastWritingTask);
+            if (gpuOutput.LastWritingTask != null) task.AddDependency(input.LastWritingTask);
+            {
+                using GpuEncoder encoder = ctx.CreateEncoder();
+                using GpuComputePass pass = encoder.BeginComputePass();         // Start ComputePass
+                pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
+                
+                GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
+                var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
+                var bindGroup = ctx.CreateBindGroup(layout, [
+                    GpuBindEntry.From (0, weight.gpuBuffer),
+                    GpuBindEntry.From (1, input.gpuBuffer),
+                    ctx.AsUniformEntry(2, uniforms)
+                ]);
+                pass.SetBindGroup(0, bindGroup);
+                
+                pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
+                pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+            }
+            output.LastWritingTask = task;
+            ctx.Enqueue(task);
+        } catch {
+            ctx.ReturnTask(task);
+        }
+        gpuOutput.WaitInDebug();
+        return gpuOutput;
     }
     
     private static readonly int ShadowMethod_BindGroupLayoutSlot = GpuBindGroupLayout.NewBindGroupLayoutSlot(); 
@@ -92,11 +90,8 @@ public static class TestCompute
     //  public int   iteration;
     }
     // ------------------------ generated code: end
+
     
-    // --- some other generated example shadow method stubs
-    public static GpuTask ComputeLayer1(Buffer<float> input, out Buffer<float> output, ExeType exe, GpuBatch batch = null) { output = default; return null; }
-    public static GpuTask ComputeLayer2(Buffer<float> input, out Buffer<float> output, ExeType exe, GpuBatch batch = null) { output = default; return null; }
-    // ----  
     
     private static void UseSpan<T>(Span<T> span) { }
     
@@ -108,8 +103,8 @@ public static class TestCompute
         
         UseSpan(weight);
         
-        var task1 = ShadowMethod(weight, input, 42, output, ExeType.SIMD);
-        await task1.Completion();
+        var result1 = ShadowMethod(weight, input, 42, ExeType.SIMD, output);
+        // result1 - no Wait on result1. Nothing will happen - user is surprised :)
         
     //  UseSpan(weight); // compiler error
         
@@ -117,9 +112,8 @@ public static class TestCompute
         var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
         var gpuInput  = new GpuBuffer<float>(gpuContext, 100);
         var output2   = new GpuBuffer<float>(gpuContext, 100);
-        var task2 = ShadowMethod(gpuWeight, gpuInput, 42, output2, ExeType.SIMD);
-        
-        await task2.Completion();
+        var result2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
+        gpuContext.Wait(result2);
     }
     
     public class ModelLayer {
@@ -128,45 +122,35 @@ public static class TestCompute
         public GpuBuffer<float>    output;
     }
     
-    public static async Task RunInference(ModelLayer[] layers)
+    public static void RunInference(ModelLayer[] layers, GpuContext ctx)
     {
         // Fire Layer 1 to 50
-        var lastTask = GpuTask.Completed;
+        GpuBuffer<float> result = null;
         foreach (var layer in layers) {
-            lastTask = ShadowMethod(layer.weight, layer.input, 42, layer.output, ExeType.GPU);
+            result = ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU, layer.output);
         }
-        
         // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
-        await lastTask.Completion();
+        ctx.Wait(result);
     }
     
-    public static async Task RunInferenceCommandRecorder(ModelLayer[] layers)
-    {
-        using var gpuContext = new GpuContext();
-        using var batch = gpuContext.BeginBatch();
 
-        foreach (var layer in layers) {
-            // no task is submitted - only recorded
-            ShadowMethod(layer.weight, layer.input, 42, layer.output, ExeType.GPU, batch);
-        }
-        // submit all recorded tasks added to the batch
-        GpuTask totalWork = batch.Submit();
-        await totalWork.Completion();
-    }
+    // --- compact examples of some generated shadow method stubs
+    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ExeType exe, GpuBatch batch = null) { return null; }
+    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ExeType exe, GpuBatch batch = null) { return null; }
     
-    public static GpuTask InitWeights(GpuContext context) {
-
+    public static GpuBuffer<byte> InitWeights(GpuContext context) {
         return null;
     }
+    
 
-    public static void DependencyFlow()
+    public static void DependencyFlow(Buffer<float> input)
     {
         using var context = new GpuContext();
-        // InitWeights(context, out var weight);
-        
-        
-
-
+        var weight = InitWeights(context);
+        var a = ComputeLayer1(weight, input, ExeType.GPU);
+    //  firstValue = a[0];                              // TODO indexer must ctx.Wait(this) - than returns firstValue
+        var b = ComputeLayer2(a, ExeType.GPU);
+        context.Wait(b);
     }
     
 }

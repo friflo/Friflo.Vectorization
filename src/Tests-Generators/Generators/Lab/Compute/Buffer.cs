@@ -9,7 +9,7 @@ public enum ExeType {
     GPU
 }
 
-public ref struct Buffer<T> where T : struct
+public ref struct Buffer<T> where T : unmanaged
 {
     public  Span<T>         span;
     public  GpuBuffer<T>    gpuBuffer;
