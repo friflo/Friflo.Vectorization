@@ -46,6 +46,7 @@ public unsafe class GpuContext : IDisposable
 
     public GpuContext()
     {
+        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024); // or 256 * 1024
         _wgpu = WebGPU.GetApi();
         if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
             throw new Exception("WGPU extension not found!");
@@ -118,6 +119,7 @@ public unsafe class GpuContext : IDisposable
     {
         uint size           = (uint)sizeof(T);
         uint alignedOffset  = (_poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
+        // Note: WriteBuffer() copies data. May use a Mapped Buffer in future for more performance
         WriteBuffer(_uniformPool, alignedOffset, &value, size);                 // write value in _uniformPool
         _poolOffset = alignedOffset + size;
         return new GpuBindEntry(binding, _uniformPool, alignedOffset, size);    // use _uniformPool at alignedOffset
@@ -142,12 +144,24 @@ public unsafe class GpuContext : IDisposable
     {
         var cmdBuffer = task.FinalizeCommands(); // Only now a complete CommandBuffer is created from Encoder
         _queue.Submit(cmdBuffer); // submit to WebGPU
-        
         // Optional: If we are in Cluster this is the place to prepare the message for the next node
     }
-    
-    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged {
-        throw new NotImplementedException();
+
+    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
+    {
+        var task = buffer.LastWritingTask;
+        if (task == null || task.IsCompleted) return;
+
+        // We register a callback for the specific task completion
+        _queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
+            task.IsCompleted = true;
+        });
+
+        while (!task.IsCompleted) {
+            // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
+            Poll(wait: true); 
+        }
+        ResetPool();
     }
         
     public unsafe void SubmitGraph(GpuTask finalTask)

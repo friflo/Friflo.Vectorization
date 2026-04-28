@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 
 
@@ -28,7 +29,7 @@ public class GpuBuffer<T> where T : unmanaged
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
                 Context.Wait(this); // force Compute before CPU reads value
             }
-            return InternalDownloadValue(index); 
+            return InternalDownloadValue(index);
         }
     }
 
@@ -51,8 +52,16 @@ public class GpuPipeline
     
 }
 
-internal class GpuQueue
+internal unsafe class GpuQueue
 {
+    private GpuContext  Context;
+    private Queue*      Handle;
+    
+    public GpuQueue(GpuContext ctx) {
+        Context = ctx;
+    }
+    
+    
     public unsafe void WriteBuffer(IntPtr bufferHandle, uint byteOffset, void* data, uint byteSize)
     {
         // wgpuQueueWriteBuffer(_handle, buffer, offset, data, size);
@@ -61,6 +70,27 @@ internal class GpuQueue
     public void Submit(GpuCommandBuffer commandBuffer)
     {
         // wgpuQueueSubmit(_handle, 1, &commandBuffer);
+    }
+    
+    // TODO use this static method to avoid allocation by lambda
+    private static unsafe void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
+    {
+        // Wir casten den userData Pointer zurück auf ein GCHandle
+        GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
+        if (handle.Target is GpuTask task) {
+            task.IsCompleted = true;
+            handle.Free(); // free handle - otherwise leak
+        }
+    }
+
+    public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback) {
+        // We have to pin the callback to avoid moving callback by GC
+        // For high performance we need a static method
+        QueueWorkDoneCallback nativeCallback = (status, userData) => {
+            callback(status);
+        };
+        Context._wgpu.QueueOnSubmittedWorkDone(Handle, nativeCallback, null);
+        throw new NotImplementedException();
     }
 }
 

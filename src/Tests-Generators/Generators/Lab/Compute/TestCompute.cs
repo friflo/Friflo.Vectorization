@@ -61,7 +61,7 @@ public static class TestCompute
                 pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
             }
             // connect task to output
-            output.LastWritingTask = task;
+            gpuOutput.LastWritingTask = task;
             ctx.Enqueue(task);
         } catch {
             ctx.ReturnTask(task);

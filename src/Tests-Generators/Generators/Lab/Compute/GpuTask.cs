@@ -67,20 +67,6 @@ public sealed class GpuTask : IDisposable
     }
 
     /// <summary>
-    /// Forcibly blocks the CPU thread until the GPU signals completion.
-    /// </summary>
-    public void Wait()
-    {
-        // Note: In WebGPU native, we poll the device. 
-        // True = wait for work, False = just check status.
-        while (!IsCompleted) {
-            // Direct call to the native function pointer via Silk.NET
-            _ctx.Poll(wait: true);
-        }
-        // IsCompleted is set by GpuContext to 'true' when GPU-Callback fires!
-    }
-
-    /// <summary>
     /// Provides an awaitable bridge for the sync-started GPU work.
     /// </summary>
     public async Task Completion()
