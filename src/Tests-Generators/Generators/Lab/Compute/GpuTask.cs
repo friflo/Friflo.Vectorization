@@ -29,6 +29,13 @@ public sealed class GpuTask : IDisposable
         _ctx = context;
         _isStatic = false;
     }
+    
+    internal void Reset() {
+        Commands = null;
+        _dependencies.Clear();
+        IsSubmitted = false;
+        IsCompleted = false;
+    }
 
     // Constructor for the static Completed singleton
     private GpuTask(bool isStatic)
@@ -50,18 +57,13 @@ public sealed class GpuTask : IDisposable
     /// </summary>
     public void Wait()
     {
-        if (IsCompleted || _isStatic) 
-            return;
-
         // Note: In WebGPU native, we poll the device. 
         // True = wait for work, False = just check status.
-        while (!IsCompleted)
-        {
+        while (!IsCompleted) {
             // Direct call to the native function pointer via Silk.NET
-
-            _ctx.Poll();
-            IsCompleted = true; 
+            _ctx.Poll(wait: true);
         }
+        // IsCompleted is set by GpuContext to 'true' when GPU-Callback fires!
     }
 
     /// <summary>

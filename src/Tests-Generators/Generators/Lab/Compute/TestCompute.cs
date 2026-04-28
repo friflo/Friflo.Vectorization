@@ -162,7 +162,7 @@ public static class TestCompute
     public static void DependencyFlow()
     {
         using var context = new GpuContext();
-        InitWeights(context, out var weight);
+        // InitWeights(context, out var weight);
         
         
 

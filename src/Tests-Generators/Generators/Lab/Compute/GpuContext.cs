@@ -12,7 +12,21 @@ public unsafe class GpuContext : IDisposable
     public  Device* DevicePtr   { get; }    // pointer lives in graphics device driver 
     public  Queue*  QueuePtr    { get; }    // pointer lives in graphics device driver
     
+    private readonly Stack<GpuTask> _taskPool = new();
+    
     private GpuBindGroupLayout[] bindGroupSlots;
+    
+    public GpuTask RentTask()
+    {
+        if (_taskPool.TryPop(out var task)) return task;
+        return new GpuTask(this); // Nur wenn der Pool leer ist, wird einmalig alloziert
+    }
+
+    public void ReturnTask(GpuTask task)
+    {
+        task.Reset(); // Wichtig: Alten State löschen!
+        _taskPool.Push(task);
+    }
     
     public GpuBindGroupLayout GetBindGroupLayout(int slot) {
         return bindGroupSlots[slot];
@@ -31,7 +45,7 @@ public unsafe class GpuContext : IDisposable
         // _uniformPool = CreateBuffer<byte>(64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst);
     }
     
-    public void Poll() 
+    public void Poll(bool wait) 
     {
         _wgpuEx.DevicePoll(DevicePtr, true, null);
     }

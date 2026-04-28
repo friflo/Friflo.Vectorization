@@ -7,7 +7,8 @@ using Silk.NET.WebGPU;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public class GpuBuffer<T> {
+public class GpuBuffer<T>
+{
     public readonly IntPtr      Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
     public          int         Length => throw new NotImplementedException(); 
