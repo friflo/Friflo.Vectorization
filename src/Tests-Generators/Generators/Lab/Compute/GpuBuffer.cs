@@ -17,9 +17,9 @@ public class GpuBuffer<T> {
 
 public unsafe class GpuContext : IDisposable
 {
-    public Wgpu*    WgpuPtr { get; }
-    public Device*  DevicePtr { get; }
-    public Queue*   QueuePtr { get; }
+    public Wgpu*    WgpuPtr     { get; }
+    public Device*  DevicePtr   { get; }
+    public Queue*   QueuePtr    { get; }
 
     public GpuContext() { }
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;

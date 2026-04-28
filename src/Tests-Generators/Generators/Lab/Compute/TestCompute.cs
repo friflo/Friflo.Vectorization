@@ -2,7 +2,7 @@
 
 namespace Tests.Generators.Lab;
 
-public class TestCompute
+public static class TestCompute
 {
     // generated shadow Method
     public static unsafe GpuTask ShadowMethod(Buffer<byte> weight, Buffer<float> input, float uniform, ExeType exe)

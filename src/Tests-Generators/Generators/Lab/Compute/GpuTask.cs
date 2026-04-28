@@ -11,12 +11,12 @@ public sealed unsafe class GpuTask : IDisposable
     // High-performance static instance for bypass modes (Scalar/SIMD)
     public static readonly GpuTask Completed = new GpuTask(true);
 
-    private readonly bool _isStatic;
-    private bool _isCompleted;
+    private readonly bool       _isStatic;
+    private          bool       _isCompleted;
     
     // Pure native pointers - zero overhead
-    private readonly Device* _device;
-    private readonly Wgpu* _wgpuApi; 
+    private readonly Device*    _device;
+    private readonly Wgpu*      _wgpuApi; 
 
     // Constructor for real GPU work
     internal GpuTask(Wgpu* wgpuApi, Device* device)
