@@ -17,7 +17,7 @@ public class GpuBuffer<T> where T : unmanaged
 
 //  public readonly unsafe Buffer* Ptr;
 
-    public GpuBuffer(GpuContext ctx, uint size) 
+    public GpuBuffer(GpuContext ctx, uint size, BufferUsage bufferUsage) 
     {
         Context = ctx;
         // Ptr = ctx.CreateBuffer(size); ...
@@ -47,10 +47,6 @@ public class GpuBuffer<T> where T : unmanaged
     }
 }
 
-public class GpuPipeline
-{
-    
-}
 
 internal unsafe class GpuQueue
 {
@@ -120,7 +116,7 @@ public class BindGroupLayoutBuilder
 {
     private readonly List<BindGroupLayoutEntry> _entries;
     
-    public BindGroupLayoutBuilder AddBuffer<T>(int binding) where T : unmanaged
+    public BindGroupLayoutBuilder AddBuffer<T>(int binding, string name) where T : unmanaged
     {
         _entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,
@@ -132,7 +128,7 @@ public class BindGroupLayoutBuilder
         return this;
     }
 
-    public BindGroupLayoutBuilder AddUniform<T>(int binding) where T : unmanaged
+    public BindGroupLayoutBuilder AddUniform<T>(int binding, string name) where T : unmanaged
     {
         _entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,
@@ -155,7 +151,7 @@ public class GpuComputePass : IDisposable {
         throw new NotImplementedException();
     }
 
-    public void SetPipeline(GpuPipeline computePass)
+    public void SetPipeline(GpuComputePipeline pipeline)
     {
         throw new NotImplementedException();
     }
@@ -177,12 +173,12 @@ public class GpuComputePass : IDisposable {
 
 public unsafe class GpuBindGroupLayout
 {
-    internal GpuContext context;
-    internal BindGroupLayout* Handle;
+    internal GpuContext         context;
+    internal BindGroupLayout*    Handle;
     
     private static int _bindGroupLayoutSlotCount;
     
-    public static int NewBindGroupLayoutSlot() => _bindGroupLayoutSlotCount++; 
+    public static int NewGpuEffectSlot() => _bindGroupLayoutSlotCount++; 
 }
 
 public class GpuBindGroup

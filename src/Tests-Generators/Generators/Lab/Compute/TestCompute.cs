@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -47,11 +48,11 @@ public static class TestCompute
             var encoder = task.GetEncoder(ctx); 
             using (var pass = encoder.BeginComputePass())
             {
-                pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
+                var gpuEffect = ShadowMethod_GPU_GetGpuEffect(ctx);
+                pass.SetPipeline(gpuEffect.Pipeline);                  // Set Pipeline to "MyShader"
                 
-                var layout    = ShadowMethod_GPU_GetBindGroupLayout(ctx);
                 var uniforms  = new ShadowMethod_Uniforms { uniform = uniform };
-                var bindGroup = ctx.CreateBindGroup(layout, [
+                var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, [
                     GpuBindEntry.From (0, weight.gpuBuffer),
                     GpuBindEntry.From (1, input.gpuBuffer),
                     ctx.AsUniformEntry(2, uniforms)
@@ -70,28 +71,58 @@ public static class TestCompute
         return gpuOutput;
     }
     
-    private static readonly int ShadowMethod_BindGroupLayoutSlot = GpuBindGroupLayout.NewBindGroupLayoutSlot(); 
+    private static readonly int ShadowMethod_GpuEffectSlot = GpuBindGroupLayout.NewGpuEffectSlot(); 
     
-    private static GpuBindGroupLayout ShadowMethod_GPU_GetBindGroupLayout(GpuContext ctx)
+    private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuContext ctx)
     {
-        GpuBindGroupLayout layout = ctx.GetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot); // array index lookup
+        var gpuEffect = ctx.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
+        var layout = gpuEffect.Layout;
         if (layout != null) {
-            return layout;
+            return gpuEffect;
         }
         layout = ctx.BindGroupLayoutBuilder()
-            .AddBuffer<byte>  (0)  // @group(0) @binding(0) var<storage, read> weight: array<u8>;
-            .AddBuffer<float> (1)  // @group(0) @binding(1) var<storage, read> input: array<f32>;
-            .AddUniform<float>(2)  // @group(0) @binding(2) var<uniform> myParam: f32;        <--- we aim for this
+            .AddBuffer<byte>  (0, "weight")     // @binding(0) var<storage, read> weight
+            .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read> input
+            .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform> uniforms
+            .AddBuffer<float> (3, "output")     // @binding(3) var<storage, read_write> output
             .Build();
-        ctx.SetBindGroupLayout(ShadowMethod_BindGroupLayoutSlot, layout);
-        return layout;
+        
+        var shaderModule = ctx.CreateShaderModule(ShadowMethod_GPU_Shader);
+        var pipeline = ctx.CreateComputePipeline(shaderModule, "main", layout);
+        
+        gpuEffect = new GpuEffect { Layout = layout, Pipeline = pipeline };
+        ctx.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
+        return gpuEffect;
     }
+
+    // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
+    private const string ShadowMethod_GPU_Shader = @"
+struct ShadowMethod_Uniforms {
+    uniform : f32,
+};
+
+@group(0) @binding(0) var<storage, read> weight: array<u32>; // byte mapping
+@group(0) @binding(1) var<storage, read> input: array<f32>;
+@group(0) @binding(2) var<uniform> uniforms: ShadowMethod_Uniforms;
+@group(0) @binding(3) var<storage, read_write> output: array<f32>;
+
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let index = global_id.x;
+    if (index >= arrayLength(&input)) { return; }
+
+    // HIER kommt dein Shader-Body rein, den der Generator einfach einfügt:
+    // output[index] = input[index] * uniforms.uniform + f32(weight[index]);
+}
+";
+
     
     // Vom Source Generator erzeugtes Struct für die Uniforms
     [StructLayout(LayoutKind.Sequential)]
     private struct ShadowMethod_Uniforms
     {
         public float uniform;
+        private float _pad0, _pad1, _pad2; // WGSL uses std140/std430 Layout. Fill up to 16 bytes
     //  public float uniform2;
     //  public int   iteration;
     }
@@ -115,9 +146,9 @@ public static class TestCompute
     //  UseSpan(weight); // compiler error
         
         using var gpuContext = new GpuContext();
-        var gpuWeight = new GpuBuffer<byte>(gpuContext, 100);
-        var gpuInput  = new GpuBuffer<float>(gpuContext, 100);
-        var output2   = new GpuBuffer<float>(gpuContext, 100);
+        var gpuWeight = new GpuBuffer<byte> (gpuContext, 100, BufferUsage.None);
+        var gpuInput  = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
+        var output2   = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var result2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
         gpuContext.Wait(result2);
     }

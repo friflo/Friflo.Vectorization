@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -16,7 +19,7 @@ public unsafe class GpuContext : IDisposable
     
     private readonly Stack<GpuTask> _taskPool = new();
     
-    private GpuBindGroupLayout[] bindGroupSlots;
+    private GpuEffect[] gpuEffectSlots;
     
     public GpuTask RentTask()
     {
@@ -36,22 +39,36 @@ public unsafe class GpuContext : IDisposable
     }
     
     
-    public GpuBindGroupLayout GetBindGroupLayout(int slot) {
-        return bindGroupSlots[slot];
+    public GpuEffect GetGpuEffect(int slot) {
+        return gpuEffectSlots[slot];
     }
     
-    public void SetBindGroupLayout(int slot, GpuBindGroupLayout layout) {
-        bindGroupSlots[slot] = layout;
+    public void SetGpuEffect(int slot, GpuEffect gpuEffect) {
+        gpuEffectSlots[slot] = gpuEffect;
     }
 
+    private readonly PfnErrorCallback _errorCallback;
+    
     public GpuContext()
     {
-        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024); // or 256 * 1024
+        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
         _wgpu = WebGPU.GetApi();
         if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
             throw new Exception("WGPU extension not found!");
         }
-        // _uniformPool = CreateBuffer<byte>(64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst);
+        var callback = PfnErrorCallback.From(OnGpuError);
+        _wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback, null);
+    }
+
+    private static void OnGpuError(ErrorType type, byte* message, void* userData) {
+        string errorMsg = Marshal.PtrToStringAnsi((IntPtr)message);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine("--- [WEBGPU CRITICAL ERROR] ---");
+        Console.Error.WriteLine($"Type: {type}");
+        Console.Error.WriteLine($"Message: {errorMsg}");
+        Console.Error.WriteLine("-------------------------------");
+        Console.ResetColor();
+        if (Debugger.IsAttached) Debugger.Break();
     }
     
     public void Poll(bool wait) 
@@ -74,10 +91,6 @@ public unsafe class GpuContext : IDisposable
         throw new NotImplementedException();
     }
     
-    public GpuPipeline GetPipeline(string shaderName) {
-        return new GpuPipeline();
-    }
-
     public BindGroupLayoutBuilder BindGroupLayoutBuilder()
     {
         throw new NotImplementedException();
@@ -187,5 +200,70 @@ public unsafe class GpuContext : IDisposable
     private IEnumerable<GpuTask> SortTasks(GpuTask finalTask)
     {
         throw new NotImplementedException();
+    }
+
+    public unsafe GpuShaderModule CreateShaderModule(string wgslSource)
+    {
+        byte[] shaderBytes = Encoding.UTF8.GetBytes(wgslSource);
+        
+        fixed (byte* pShaderBytes = shaderBytes)
+        {
+            // create descriptor
+            var wgslDesc = new ShaderModuleWGSLDescriptor {
+                Code = pShaderBytes,
+                Chain = new ChainedStruct {
+                    SType = SType.ShaderModuleWgsldescriptor // Wichtig: SType definiert den Inhalt
+                }
+            };
+            var desc = new ShaderModuleDescriptor {
+                NextInChain = (ChainedStruct*)&wgslDesc,
+                Label = null // Hier könnte ein Name für Debugger stehen
+            };
+            // Compile shader in driver
+            var handle = _wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
+            return new GpuShaderModule(handle);
+        }
+    }
+    
+    public unsafe GpuComputePipeline CreateComputePipeline(GpuShaderModule module, string entryPoint, GpuBindGroupLayout layout)
+    {
+        byte[] entryPointBytes = Encoding.UTF8.GetBytes(entryPoint);
+        fixed (byte* pEntryPoint = entryPointBytes)
+        {
+            var desc = new ComputePipelineDescriptor
+            {
+                Layout = layout.Handle, // Das Layout definiert die Schnittstelle
+                Compute = new ProgrammableStageDescriptor {
+                    Module = module.Handle,
+                    EntryPoint = pEntryPoint
+                }
+            };
+            var handle = _wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
+            return new GpuComputePipeline(handle);
+        }
+    }
+}
+
+public class GpuEffect 
+{
+    public required GpuBindGroupLayout Layout { get; init; }
+    public required GpuComputePipeline Pipeline { get; init; }
+}
+
+public unsafe class GpuComputePipeline
+{
+    internal readonly ComputePipeline* Handle;
+    
+    internal GpuComputePipeline(ComputePipeline* handle) {
+        Handle = handle;    
+    }
+}
+
+public unsafe class GpuShaderModule
+{
+    internal readonly ShaderModule* Handle;
+    
+    internal GpuShaderModule(ShaderModule* handle) {
+        Handle = handle;    
     }
 }
