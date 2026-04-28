@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
@@ -21,9 +22,10 @@ public class GpuBuffer<T> {
 
 public unsafe class GpuContext : IDisposable
 {
-    public Wgpu*    WgpuPtr     { get; }
-    public Device*  DevicePtr   { get; }
-    public Queue*   QueuePtr    { get; }
+    public  WebGPU  _wgpu       { get; }
+    private Wgpu    _wgpuEx;
+    public  Device* DevicePtr   { get; }
+    public  Queue*  QueuePtr    { get; }
     
     private GpuBindGroupLayout[] bindGroupSlots;
     
@@ -37,7 +39,16 @@ public unsafe class GpuContext : IDisposable
 
     public GpuContext()
     {
+        _wgpu = WebGPU.GetApi();
+        if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
+            throw new Exception("WGPU extension not found!");
+        }
         // _uniformPool = CreateBuffer<byte>(64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst);
+    }
+    
+    public void Poll() 
+    {
+        _wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
     public void Dispatch(Buffer<byte> w, Buffer<float> i, float u) 
@@ -63,14 +74,38 @@ public unsafe class GpuContext : IDisposable
         return new GpuPipeline();
     }
 
-    public BinGroupLayoutBuilder BindGroupLayoutBuilder()
+    public BindGroupLayoutBuilder BindGroupLayoutBuilder()
     {
         throw new NotImplementedException();
     }
 
     public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
     {
-        throw new NotImplementedException();
+        // Allocate native entries on the stack (efficient, no GC pressure)
+        var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
+
+        for (int i = 0; i < bindEntries.Length; i++)
+        {
+            nativeEntries[i] = new BindGroupEntry
+            {
+                Binding = bindEntries[i].Binding,
+                // Direct handle to the native WGPUBuffer
+                Buffer = (Silk.NET.WebGPU.Buffer*)bindEntries[i].BufferHandle, 
+                // The byte offset (crucial for our Uniform Pool)
+                Offset = bindEntries[i].Offset,
+                // The byte size of the slice
+                Size = bindEntries[i].Size
+            };
+        }
+
+        // Prepare the descriptor for the native API call
+        var descriptor = new BindGroupDescriptor {
+            Layout = layout.Handle,
+            EntryCount = (uint)bindEntries.Length,
+            Entries = nativeEntries
+        };
+        BindGroup* handle = layout.context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);
+        return new GpuBindGroup((IntPtr)handle);
     }
 
     private GpuBuffer<byte> _uniformPool;
@@ -140,15 +175,31 @@ public struct GpuBindEntry
     }
 }
 
-public class BinGroupLayoutBuilder
+public class BindGroupLayoutBuilder
 {
-    public BinGroupLayoutBuilder AddBuffer<T>(int binding) where T : struct
+    private readonly List<BindGroupLayoutEntry> _entries;
+    
+    public BindGroupLayoutBuilder AddBuffer<T>(int binding) where T : struct
     {
+        _entries.Add(new BindGroupLayoutEntry {
+            Binding = (uint)binding,
+            Visibility = ShaderStage.Compute,       // <--- we do compute
+            Buffer = new BufferBindingLayout {
+                Type = BufferBindingType.Storage    // for Buffer<>'s passed to the shadow method
+            }
+        });
         return this;
     }
 
-    public BinGroupLayoutBuilder AddUniform<T>(int binding) where T : struct
+    public BindGroupLayoutBuilder AddUniform<T>(int binding) where T : struct
     {
+        _entries.Add(new BindGroupLayoutEntry {
+            Binding = (uint)binding,
+            Visibility = ShaderStage.Compute,       // <--- we do compute
+            Buffer = new BufferBindingLayout {
+                Type = BufferBindingType.Uniform    // For GpuContext._uniformPool storing uniforms
+            }
+        });
         return this;
     }
 
@@ -183,8 +234,11 @@ public class GpuComputePass : IDisposable {
     }
 }
 
-public class GpuBindGroupLayout
+public unsafe class GpuBindGroupLayout
 {
+    internal GpuContext context;
+    internal BindGroupLayout* Handle;
+    
     private static int _bindGroupLayoutSlotCount;
     
     public static int NewBindGroupLayoutSlot() => _bindGroupLayoutSlotCount++; 
@@ -192,6 +246,10 @@ public class GpuBindGroupLayout
 
 public class GpuBindGroup
 {
+    public GpuBindGroup(IntPtr handle)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class GpuEncoder : IDisposable

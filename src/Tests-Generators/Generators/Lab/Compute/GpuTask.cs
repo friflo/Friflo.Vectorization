@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-
+using Silk.NET.WebGPU;
+using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.Lab;
 
@@ -43,7 +44,8 @@ public sealed class GpuTask : IDisposable
         while (!_isCompleted)
         {
             // Direct call to the native function pointer via Silk.NET
-            _ctx.WgpuPtr->DevicePoll(_ctx.DevicePtr, true, null);
+
+            _ctx.Poll();
             _isCompleted = true; 
         }
     }
