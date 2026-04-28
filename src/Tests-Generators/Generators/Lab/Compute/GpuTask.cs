@@ -6,7 +6,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.Lab;
 
-public unsafe sealed class GpuTask : IDisposable
+public sealed unsafe class GpuTask : IDisposable
 {
     // High-performance static instance for bypass modes (Scalar/SIMD)
     public static readonly GpuTask Completed = new GpuTask(true);
