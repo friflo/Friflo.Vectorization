@@ -36,26 +36,27 @@ public static class TestCompute
         GpuTask task = ctx.RentTask();
         var gpuOutput = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
         try {
-            task.AddDependency(weight.LastWritingTask);
-            task.AddDependency(input.LastWritingTask);
+            // Dependencies from inputs (out not Output!)
+            if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
+            if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
+            
+            var encoder = task.GetEncoder(ctx); // task provides Encode
+            using (var pass = encoder.BeginComputePass())
             {
-                using GpuEncoder encoder = ctx.CreateEncoder();
-                using GpuComputePass pass = encoder.BeginComputePass();         // Start ComputePass
                 pass.SetPipeline(ctx.GetPipeline("MyShader"));                  // Set Pipeline to "MyShader"
                 
-                GpuBindGroupLayout layout = ShadowMethod_GPU_GetBindGroupLayout(ctx);
-                var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
+                var layout    = ShadowMethod_GPU_GetBindGroupLayout(ctx);
+                var uniforms  = new ShadowMethod_Uniforms { uniform = uniform };
                 var bindGroup = ctx.CreateBindGroup(layout, [
                     GpuBindEntry.From (0, weight.gpuBuffer),
                     GpuBindEntry.From (1, input.gpuBuffer),
                     ctx.AsUniformEntry(2, uniforms)
                 ]);
                 pass.SetBindGroup(0, bindGroup);
-                
                 pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
                 pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
-                // How calls: encoder.Finish(); ? 
             }
+            // connect task to output
             output.LastWritingTask = task;
             ctx.Enqueue(task);
         } catch {

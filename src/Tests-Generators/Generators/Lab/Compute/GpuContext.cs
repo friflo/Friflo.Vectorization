@@ -140,7 +140,10 @@ public unsafe class GpuContext : IDisposable
     // ------------------- Task Dependency Tracking
     public void Enqueue(GpuTask task)
     {
-        throw new NotImplementedException();
+        var cmdBuffer = task.FinalizeCommands(); // Only now a complete CommandBuffer is created from Encoder
+        _queue.Submit(cmdBuffer); // submit to WebGPU
+        
+        // Optional: If we are in Cluster this is the place to prepare the message for the next node
     }
     
     public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged {
@@ -160,7 +163,7 @@ public unsafe class GpuContext : IDisposable
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = (CommandBuffer*)task.Commands!.Handle;
+            var ptr = (CommandBuffer*)task.CommandBuffer!.Handle;
             _wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;

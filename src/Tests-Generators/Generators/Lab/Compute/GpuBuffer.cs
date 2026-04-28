@@ -181,7 +181,12 @@ public class GpuEncoder : IDisposable
     }
 }
 
-public class GpuCommandBuffer
+public class GpuCommandBuffer : IDisposable
 {
     internal IntPtr Handle;
+    
+    public void Dispose()
+    {
+        throw new NotImplementedException();
+    }
 }

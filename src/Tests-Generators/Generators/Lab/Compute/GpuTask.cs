@@ -6,15 +6,12 @@ namespace Tests.Generators.Lab;
 
 public sealed class GpuTask : IDisposable
 {
-    // High-performance static instance for bypass modes (Scalar/SIMD)
-    public static readonly GpuTask Completed = new GpuTask(true);
-
-    private readonly bool       _isStatic;
+    private GpuEncoder? _currentEncoder;
     // The actual recorded commands
-    public GpuCommandBuffer? Commands { get; internal set; }
+    public GpuCommandBuffer? CommandBuffer { get; internal set; }
     
     // Tasks that MUST finish before this one starts
-    private readonly List<GpuTask> _dependencies = new();
+    private readonly List<GpuTask> Dependencies = new();
     
     // A simple state flag for the scheduler
     public bool IsSubmitted { get; internal set; }
@@ -27,28 +24,45 @@ public sealed class GpuTask : IDisposable
     internal GpuTask(GpuContext context)
     {
         _ctx = context;
-        _isStatic = false;
+    }
+    
+    // The task provides / owns the Encoder
+    public GpuEncoder GetEncoder(GpuContext ctx) {
+        return _currentEncoder ??= ctx.CreateEncoder();
+    }
+    
+    // Before Task is pushed to Queue we Finish() _currentEncoder first  
+    internal GpuCommandBuffer FinalizeCommands()
+    {
+        if (CommandBuffer != null) return CommandBuffer;
+        
+        if (_currentEncoder == null) throw new Exception("Task has no commands");
+        
+        CommandBuffer = _currentEncoder.Finish();
+        _currentEncoder.Dispose(); // Encoder zurück in den Pool
+        _currentEncoder = null;
+        return CommandBuffer;
     }
     
     internal void Reset() {
-        Commands = null;
-        _dependencies.Clear();
-        IsSubmitted = false;
+        CommandBuffer?.Dispose();
+        CommandBuffer = null;
+        _currentEncoder = null; // was already Disposed()
+        Dependencies.Clear();
         IsCompleted = false;
     }
 
     // Constructor for the static Completed singleton
     private GpuTask(bool isStatic)
     {
-        _isStatic = isStatic;
         IsCompleted = true;
     }
     
     public void AddDependency(GpuTask predecessor) {
         if (predecessor == this) return; // Prevent brain-loop
-        if (!_dependencies.Contains(predecessor))
+        if (!Dependencies.Contains(predecessor))
         {
-            _dependencies.Add(predecessor);
+            Dependencies.Add(predecessor);
         }
     }
 
@@ -81,7 +95,6 @@ public sealed class GpuTask : IDisposable
 
     public void Dispose()
     {
-        if (_isStatic) return;
         // In a real scenario, you might release specific task-related fences here.
     }
 }
