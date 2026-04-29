@@ -54,12 +54,17 @@ public sealed class GpuTask : IDisposable
         context._wgpu.CommandEncoderRelease(encoder.Handle);
     }
     
-    internal void Reset() {
-        CommandBuffer.Dispose();
-
+    internal unsafe void Reset()
+    {
+        var bufferHandler = CommandBuffer.Handle;
+        if (bufferHandler != null) {
+            CommandBuffer.Context._wgpu.CommandBufferRelease(bufferHandler);
+            CommandBuffer.Handle = null;
+        }
         _currentEncoder = null; // was already Disposed()
-        Dependencies.Clear();
         IsCompleted = false;
+        IsSubmitted = false;
+        Dependencies.Clear();
     }
 
     // Constructor for the static Completed singleton

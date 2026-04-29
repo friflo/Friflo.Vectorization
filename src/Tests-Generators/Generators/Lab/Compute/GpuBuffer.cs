@@ -367,7 +367,7 @@ public unsafe class GpuEncoder : IDisposable
 
 public unsafe class GpuCommandBuffer : IDisposable
 {
-    private     GpuContext      Context;
+    internal    GpuContext      Context;
     internal    CommandBuffer*  Handle;
     
     internal GpuCommandBuffer(GpuContext context) {

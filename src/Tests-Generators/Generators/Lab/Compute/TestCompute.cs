@@ -205,6 +205,9 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         using var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
         using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
+        for (int n = 0; n < 2; ++n) {
+            GpuBuffer<float> temp = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);    
+        }
         using var result = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         
         context.Wait(result);

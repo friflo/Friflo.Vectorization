@@ -20,7 +20,7 @@ public unsafe class GpuContext : IDisposable
     
     public  bool        DebugMode   { get; set; } 
     
-    private readonly    Stack<GpuTask>  _taskPool = new();
+    private readonly    Stack<GpuTask>  _taskPool = new(1024);
     
     private static      int             gpuEffectSlotCount = 0;
     private             GpuEffect[]     gpuEffectSlots = new GpuEffect[4];
@@ -196,25 +196,22 @@ public unsafe class GpuContext : IDisposable
 
         for (int i = 0; i < bindEntries.Length; i++)
         {
-            nativeEntries[i] = new BindGroupEntry
-            {
-                Binding = bindEntries[i].Binding,
-                // Direct handle to the native WGPUBuffer
-                Buffer = (Silk.NET.WebGPU.Buffer*)bindEntries[i].BufferHandle, 
-                // The byte offset (crucial for our Uniform Pool)
-                Offset = bindEntries[i].Offset,
-                // The byte size of the slice
-                Size = bindEntries[i].Size
+            var bindEntry = bindEntries[i];
+            nativeEntries[i] = new BindGroupEntry {
+                Binding =   bindEntry.Binding,
+                Buffer =    bindEntry.BufferHandle,    // Direct handle to the native WGPUBuffer
+                Offset =    bindEntry.Offset,          // The byte offset (crucial for our Uniform Pool)
+                Size =      bindEntry.Size             // The byte size of the slice
             };
         }
 
         // Prepare the descriptor for the native API call
         var descriptor = new BindGroupDescriptor {
-            Layout = layout.Handle,
-            EntryCount = (uint)bindEntries.Length,
-            Entries = nativeEntries
+            Layout      = layout.Handle,
+            EntryCount  = (uint)bindEntries.Length,
+            Entries     = nativeEntries
         };
-        BindGroup* handle = layout.Context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);
+        BindGroup* handle = layout.Context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);   // segfault
         return new GpuBindGroup(handle);
     }
 
@@ -433,7 +430,7 @@ public unsafe class GpuContext : IDisposable
         }
     }
     
-    public unsafe PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
+    public PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
     {
         var layoutHandle = layout.Handle;
         var desc = new PipelineLayoutDescriptor {
