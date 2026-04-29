@@ -71,6 +71,7 @@ public unsafe class GpuContext : IDisposable
         DevicePtr       = devicePtr;
         QueuePtr        = queuePtr;
         Instance        = instance;
+        _queue          = new GpuQueue(this, queuePtr);
         _errorCallback  = errorCallback;
         _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
     }

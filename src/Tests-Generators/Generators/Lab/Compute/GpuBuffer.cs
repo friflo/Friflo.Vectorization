@@ -123,8 +123,9 @@ internal unsafe class GpuQueue
     private GpuContext  Context;
     private Queue*      Handle;
     
-    public GpuQueue(GpuContext ctx) {
+    public GpuQueue(GpuContext ctx, Queue* handle) {
         Context = ctx;
+        Handle  = handle;
     }
     
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
