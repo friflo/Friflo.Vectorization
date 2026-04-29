@@ -227,20 +227,31 @@ public unsafe class GpuContext : IDisposable
     
     public unsafe GpuComputePipeline CreateComputePipeline(GpuShaderModule module, string entryPoint, GpuBindGroupLayout layout)
     {
+        var pipelineLayout = CreatePipelineLayout(layout);
         byte[] entryPointBytes = Encoding.UTF8.GetBytes(entryPoint);
         fixed (byte* pEntryPoint = entryPointBytes)
         {
             var desc = new ComputePipelineDescriptor
             {
-                Layout = layout.Handle, // Das Layout definiert die Schnittstelle
+                Layout = pipelineLayout,
                 Compute = new ProgrammableStageDescriptor {
                     Module = module.Handle,
                     EntryPoint = pEntryPoint
                 }
             };
             var handle = _wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
-            return new GpuComputePipeline(handle);
+            return new GpuComputePipeline(handle, pipelineLayout);
         }
+    }
+    
+    public unsafe PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
+    {
+        var layoutHandle = layout.Handle;
+        var desc = new PipelineLayoutDescriptor {
+            BindGroupLayoutCount = 1,
+            BindGroupLayouts = &layoutHandle
+        };
+        return _wgpu.DeviceCreatePipelineLayout(DevicePtr, &desc);
     }
 }
 
@@ -253,11 +264,14 @@ public class GpuEffect
 public unsafe class GpuComputePipeline
 {
     internal readonly ComputePipeline* Handle;
+    internal readonly PipelineLayout*  Layout;
     
-    internal GpuComputePipeline(ComputePipeline* handle) {
-        Handle = handle;    
+    internal GpuComputePipeline(ComputePipeline* handle, PipelineLayout* layout) {
+        Handle = handle;
+        Layout = layout;
     }
 }
+
 
 public unsafe class GpuShaderModule
 {
