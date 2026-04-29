@@ -145,7 +145,7 @@ public partial class Bench_Vector4
         ECS_MultiplayAdd_AoSQuery(store, 0.1f);
     }
     
-    [Benchmark] [Test]   //     dotnet run -c Release --filter *Vector2_Span_MultiplayAdd_AoS_IntelMKL*
+    [MKL][Benchmark] [Test]   //     dotnet run -c Release --filter *Vector2_Span_MultiplayAdd_AoS_IntelMKL*
     public unsafe void Vector4_Span_MultiplayAdd_AoS_IntelMKL() {
 
         fixed (Vector4* pPtr = pos.Span)
@@ -153,7 +153,7 @@ public partial class Bench_Vector4
         {
             float* pFloat = (float*)pPtr;
             float* vFloat = (float*)vPtr;
-            Bench_Vector2.cblas_saxpy(4 * 1024, 0.1f, vFloat, 1, pFloat, 1);
+            IntelMKL.cblas_saxpy(4 * 1024, 0.1f, vFloat, 1, pFloat, 1);
         }
     }
     
