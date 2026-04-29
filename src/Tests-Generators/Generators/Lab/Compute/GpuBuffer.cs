@@ -218,9 +218,24 @@ public class BindGroupLayoutBuilder
         return this;
     }
 
-    public GpuBindGroupLayout Build()
+    public unsafe GpuBindGroupLayout Build()
     {
-        throw new NotImplementedException();
+        fixed (BindGroupLayoutEntry* pEntries = _entries.ToArray())
+        {
+            var desc = new BindGroupLayoutDescriptor
+            {
+                EntryCount = (uint)_entries.Count,
+                Entries = pEntries,
+                Label = null
+            };
+
+            var handle = Context._wgpu.DeviceCreateBindGroupLayout(Context.DevicePtr, &desc);
+            
+            if (handle == null)
+                throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
+
+            return new GpuBindGroupLayout(Context, handle);
+        }
     }
 }
 
@@ -272,8 +287,14 @@ public unsafe class GpuComputePass : IDisposable {
 
 public unsafe class GpuBindGroupLayout
 {
-    internal GpuContext         context;
+    internal GpuContext         Context;
     internal BindGroupLayout*   Handle;
+    
+    internal GpuBindGroupLayout (GpuContext context, BindGroupLayout* handle)
+    {
+        Context = context;
+        Handle  = handle;
+    }
 }
 
 public unsafe class GpuBindGroup

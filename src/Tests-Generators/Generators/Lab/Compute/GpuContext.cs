@@ -201,7 +201,7 @@ public unsafe class GpuContext : IDisposable
             EntryCount = (uint)bindEntries.Length,
             Entries = nativeEntries
         };
-        BindGroup* handle = layout.context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);
+        BindGroup* handle = layout.Context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);
         return new GpuBindGroup(handle);
     }
 

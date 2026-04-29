@@ -82,7 +82,7 @@ public static class TestCompute
         if (gpuEffect != null) {
             return gpuEffect;
         }
-        var layout = ctx.BindGroupLayoutBuilder()
+        var layout = ctx.BindGroupLayoutBuilder()       //   TODO Allocates BindGroupLayoutBuilder - check if it can be reused 
             .AddBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
             .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
             .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform>             uniforms
