@@ -209,6 +209,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         var result = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         
         context.Wait(result);
+        
+        gpuOutput.Download(result, output);
     }
     
 }

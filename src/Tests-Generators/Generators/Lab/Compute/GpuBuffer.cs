@@ -53,6 +53,52 @@ public unsafe class GpuBuffer<T> where T : unmanaged
         }
         Context.Wait<T>(this);
     }
+    
+    public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray)
+    {
+        if (targetArray.Length < gpuBuffer.Length)
+            throw new Exception("Target array is too small!");
+
+        uint size = (uint)(gpuBuffer.Length * sizeof(T));
+        
+        // 1. Staging Buffer erstellen (wie zuvor)
+        var readDesc = new BufferDescriptor
+        {
+            Size = size,
+            Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
+            MappedAtCreation = false
+        };
+        var ctx         = gpuBuffer.Context;
+        var _wgpu       = ctx._wgpu;
+        var DevicePtr   = ctx.DevicePtr;
+        var QueuePtr    = ctx.QueuePtr;
+        var readBuffer  = _wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
+
+        // 2. GPU-interne Kopie
+        var encoder = _wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
+        _wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer.Handle, 0, readBuffer, 0, size);
+        
+        var commandBuffer = _wgpu.CommandEncoderFinish(encoder, null);
+        _wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);
+
+        // 3. Asynchrones Mapping
+        bool mapFinished = false;
+        var callback = PfnBufferMapCallback.From((status, data) => { mapFinished = true; });
+        _wgpu.BufferMapAsync(readBuffer, MapMode.Read, 0, size, callback, null);
+
+        while (!mapFinished) {
+            ctx.Poll(true);
+        }
+
+        // 4. In das ORIGINAL-Array zurückkopieren
+        void* pMapped = _wgpu.BufferGetMappedRange(readBuffer, 0, size);
+        fixed (void* pTarget = targetArray) {
+            System.Buffer.MemoryCopy(pMapped, pTarget, size, size);
+        }
+        // 5. Cleanup
+        _wgpu.BufferUnmap(readBuffer);
+        _wgpu.BufferDestroy(readBuffer);
+    }
 }
 
 
