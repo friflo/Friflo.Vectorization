@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -8,7 +11,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
 // ReSharper disable SwapViaDeconstruction
-namespace Tests.Generators.Lab;
+namespace Friflo.Vectorization.GPU;
 
 public unsafe class GpuContext : IDisposable
 {

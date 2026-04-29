@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
 

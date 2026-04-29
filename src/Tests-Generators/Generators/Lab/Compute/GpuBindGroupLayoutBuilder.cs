@@ -1,10 +1,13 @@
-﻿using System;
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
-namespace Tests.Generators.Lab;
+namespace Friflo.Vectorization.GPU;
 
 public class GpuBindGroupLayoutBuilder
 {
