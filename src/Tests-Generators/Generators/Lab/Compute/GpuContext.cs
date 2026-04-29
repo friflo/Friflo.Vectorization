@@ -160,7 +160,9 @@ public unsafe class GpuContext : IDisposable
     }
 
     public GpuEncoder CreateEncoder() {
-        return new GpuEncoder(this);
+        CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
+        var encoder = _wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
+        return new GpuEncoder(this, encoder);
     }
 
     public void Submit(GpuCommandBuffer commandBuffer) {

@@ -330,19 +330,20 @@ public unsafe class GpuBindGroup
 
 public unsafe class GpuEncoder : IDisposable
 {
-    public readonly GpuContext      Context;
-    public          CommandEncoder* Handle { get; }
+    public  GpuContext      Context;
+    public  CommandEncoder* Handle { get; private set; }
     
-    public GpuEncoder(GpuContext ctx)
-    {
-        Context = ctx;
-        // Erstellt den nativen Encoder
-        CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
-        Handle = Context._wgpu.DeviceCreateCommandEncoder(Context.DevicePtr, &desc);
+    internal GpuEncoder(GpuContext context, CommandEncoder* handle) {
+        Context = context;
+        Handle  = handle;
     }
+    
+    ~GpuEncoder() => Dispose();
     
     public void Dispose() {
         if (Handle != null) Context._wgpu.CommandEncoderRelease(Handle);
+        Handle = null;
+        Context = null;
     }
 
     public GpuCommandBuffer Finish() {
