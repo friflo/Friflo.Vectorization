@@ -117,11 +117,10 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 ";
     
     // struct for uniforms
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout. Fill up to 16 bytes
     private struct ShadowMethod_Uniforms
     {
-        public float uniform;
-        public float _pad0, _pad1, _pad2; // WGSL uses std140/std430 Layout. Fill up to 16 bytes
+        [FieldOffset(0)] public float uniform;
     //  public float uniform2;
     //  public int   iteration;
     }

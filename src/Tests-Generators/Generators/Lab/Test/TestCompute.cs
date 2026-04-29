@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
@@ -98,7 +97,7 @@ public static class TestCompute
         context.Wait(result);
         
         gpuOutput.Download(result, output);
-        Console.WriteLine($"output[0] {output}");
+        Console.WriteLine($"output[0] {output[0]}");
     }
     
 }
