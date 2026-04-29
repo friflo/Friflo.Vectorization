@@ -88,11 +88,11 @@ public unsafe struct GpuBindEntry
     public uint     Size;
     
     public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
-        return new GpuBindEntry(binding, buffer.Handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
+        return new GpuBindEntry(binding, buffer._handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
     }
 
     public GpuBindEntry(int binding, GpuBuffer<byte> pool, uint offset, uint size) 
-        : this(binding, pool.Handle, offset, size) { }
+        : this(binding, pool._handle, offset, size) { }
 
     private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
         Binding         = (uint)binding;

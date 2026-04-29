@@ -8,17 +8,19 @@ namespace Tests.Generators.Lab;
 
 public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    public          Buffer*     Handle { get; private set; }
-    public readonly GpuContext  Context;  // Creator of GpuBuffer
-    public          int         Length;
-    private         uint        SizeInBytes;
-    public          GpuTask     LastWritingTask;
+    internal            Buffer*     _handle { get; private set; }
+    private  readonly   GpuContext  _context;
+    public              int         Length;
+    private             uint        SizeInBytes;
+    public              GpuTask     LastWritingTask;
 
-//  public readonly unsafe Buffer* Ptr;
+
+    public  GpuContext Context => _handle != null ? _context :
+        throw new InvalidOperationException("Architectural Blasphemy: You are trying to extract the Context from a Buffer that you've already sent to the void. A disposed Buffer has no God.");
 
     public GpuBuffer(GpuContext ctx, uint sizeInBytes, BufferUsage usage) 
     {
-        Context = ctx;
+        _context = ctx;
         // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
         SizeInBytes = sizeInBytes; 
         
@@ -26,21 +28,21 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         Length = (int)(sizeInBytes / sizeof(T));
 
         // Den Pointer von der API holen
-        Handle = ctx.CreateBuffer(sizeInBytes, usage);
+        _handle = ctx.CreateBuffer(sizeInBytes, usage);
     }
     
     public unsafe GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 
     {
-        Context = ctx;
+        _context = ctx;
         Length  = data.Length;
-        Handle  = ctx.CreateBufferWithData(data, usage);
+        _handle  = ctx.CreateBufferWithData(data, usage);
     }
     
     public void Dispose()
     {
-        if (Handle != null) {
-            Context._wgpu.BufferRelease(Handle);
-            Handle = null;
+        if (_handle != null) {
+            _context._wgpu.BufferRelease(_handle);
+            _handle = null;
         }
     }
     
@@ -48,7 +50,7 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                Context.Wait(this); // force Compute before CPU reads value
+                _context.Wait(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }
@@ -61,15 +63,15 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
     public void WaitInDebug()
     {
-        if (!Context.DebugMode) {
+        if (!_context.DebugMode) {
             return;
         }
-        Context.Flush();
+        _context.Flush();
     }
     
     public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
-        Context.Flush();
+        _context.Flush();
         
         if (targetArray.Length < gpuBuffer.Length)
             throw new Exception("Target array is too small!");
@@ -83,7 +85,7 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
             Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
             MappedAtCreation = false
         };
-        var ctx         = gpuBuffer.Context;
+        var ctx         = gpuBuffer._context;
         var _wgpu       = ctx._wgpu;
         var DevicePtr   = ctx.DevicePtr;
         var QueuePtr    = ctx.QueuePtr;
@@ -91,7 +93,7 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
         // 2. GPU-interne Kopie
         var encoder = _wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
-        _wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer.Handle, 0, readBuffer, 0, size);
+        _wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer._handle, 0, readBuffer, 0, size);
         
         var commandBuffer = _wgpu.CommandEncoderFinish(encoder, null);
         _wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);

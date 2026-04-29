@@ -233,7 +233,7 @@ public unsafe class GpuContext : IDisposable
     private void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged
     {
         _queue.WriteBuffer(
-            buffer.Handle,
+            buffer._handle,
             byteOffset,        // offset in buffer
             data,              // pointer on my value
             byteSize           // value size
