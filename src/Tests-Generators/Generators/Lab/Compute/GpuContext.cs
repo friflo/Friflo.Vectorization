@@ -47,18 +47,63 @@ public unsafe class GpuContext : IDisposable
     public void SetGpuEffect(int slot, GpuEffect gpuEffect) {
         gpuEffectSlots[slot] = gpuEffect;
     }
-
-    private readonly PfnErrorCallback _errorCallback;
     
+    private readonly PfnErrorCallback _errorCallback; // must ensure callback is not collected by GC
+
     public GpuContext()
     {
-        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
         _wgpu = WebGPU.GetApi();
         if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
             throw new Exception("WGPU extension not found!");
         }
-        var callback = PfnErrorCallback.From(OnGpuError);
-        _wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback, null);
+		// 1. Instanz & Surface (optional, für Compute reicht oft der Adapter)
+		// Wir holen uns den Adapter (die physische GPU)
+		InstanceDescriptor instDesc = new InstanceDescriptor();
+		var instance = _wgpu.CreateInstance(&instDesc);
+
+		// 2. Adapter anfordern
+		Adapter* adapter = null;
+		var options = new RequestAdapterOptions { 
+			PowerPreference = PowerPreference.HighPerformance 
+		};
+
+		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
+		_wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, msg, userData) => {
+			if (status == RequestAdapterStatus.Success) adapter = adp;
+		}), null);
+
+		// Warten, bis der Adapter da ist (dafür brauchen wir die Extension!)
+		if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
+			throw new Exception("WGPU extension not found!");
+		}
+        while (adapter == null) {
+            _wgpu.InstanceProcessEvents(instance); 
+        }
+
+		// 3. Device anfordern
+		Device* device = null;
+        var name = Marshal.StringToHGlobalAnsi("GpuContext");
+		var devDesc = new DeviceDescriptor {
+			Label = (byte*)name
+		};
+
+		_wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, msg, userData) => {
+			if (status == RequestDeviceStatus.Success) device = dev;
+		}), null);
+
+        while (device == null) {
+            _wgpu.InstanceProcessEvents(instance); 
+        }
+        Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
+
+
+		// 4. Pointer setzen
+		DevicePtr = device;
+		QueuePtr = _wgpu.DeviceGetQueue(DevicePtr);
+        
+        _errorCallback = PfnErrorCallback.From(OnGpuError);
+        _wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, _errorCallback, null);
+        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
