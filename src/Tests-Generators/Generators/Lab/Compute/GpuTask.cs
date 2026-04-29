@@ -1,29 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Silk.NET.WebGPU;
 
 namespace Tests.Generators.Lab;
 
 public sealed class GpuTask : IDisposable
 {
-    private GpuEncoder? _currentEncoder;
-    // The actual recorded commands
-    public GpuCommandBuffer? CommandBuffer { get; internal set; }
-    
-    // Tasks that MUST finish before this one starts
-    private readonly List<GpuTask> Dependencies = new();
+    private             GpuEncoder?         _currentEncoder;
+    public              GpuCommandBuffer    CommandBuffer { get; }
+    private readonly    List<GpuTask>       Dependencies = new();  // Tasks that MUST finish before this one starts
     
     // A simple state flag for the scheduler
-    public bool IsSubmitted { get; internal set; }
-    public bool IsCompleted { get; internal set; }
+    public              bool                IsSubmitted { get; internal set; }
+    public              bool                IsCompleted { get; internal set; }
     
-    // Pure native pointers - zero overhead
-    private readonly GpuContext _ctx;
 
     // Constructor for real GPU work
-    internal GpuTask(GpuContext context)
-    {
-        _ctx = context;
+    internal GpuTask(GpuContext context) {
+        CommandBuffer = new GpuCommandBuffer(context);
     }
     
     // The task provides / owns the Encoder
@@ -31,6 +26,7 @@ public sealed class GpuTask : IDisposable
         return _currentEncoder ??= ctx.CreateEncoder();
     }
     
+    /*
     // Before Task is pushed to Queue we Finish() _currentEncoder first  
     internal GpuCommandBuffer FinalizeCommands()
     {
@@ -42,11 +38,25 @@ public sealed class GpuTask : IDisposable
         _currentEncoder.Dispose(); // Encoder zurück in den Pool
         _currentEncoder = null;
         return CommandBuffer;
+    } */
+    
+    public unsafe void Finish(GpuEncoder encoder)
+    {
+        // Finalize the recording and get the executable CommandBuffer
+        // The encoder is now "consumed" and cannot be used anymore.
+        var context = encoder.Context;
+
+        var descriptor = new CommandBufferDescriptor();
+        CommandBuffer.Handle = context._wgpu.CommandEncoderFinish(encoder.Handle, &descriptor);
+
+        // Cleanup the encoder immediately
+        // In WebGPU, once you have the CommandBuffer, the Encoder is dead weight.
+        context._wgpu.CommandEncoderRelease(encoder.Handle);
     }
     
     internal void Reset() {
-        CommandBuffer?.Dispose();
-        CommandBuffer = null;
+        CommandBuffer.Dispose();
+
         _currentEncoder = null; // was already Disposed()
         Dependencies.Clear();
         IsCompleted = false;

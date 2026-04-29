@@ -7,23 +7,28 @@ using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
+// ReSharper disable SwapViaDeconstruction
 namespace Tests.Generators.Lab;
 
 public unsafe class GpuContext : IDisposable
 {
-    public  WebGPU      _wgpu       { get; }    // main API         - GpuContext owns this managed type
-    private Wgpu        _wgpuEx;                // extension (Poll) - GpuContext owns this managed type
-    public  Device*     DevicePtr   { get; }    // pointer lives in graphics device driver 
-    public  Queue*      QueuePtr    { get; }    // pointer lives in graphics device driver
-    public  Instance*   Instance    { get; }    // pointer lives in graphics device driver
+    public              WebGPU      _wgpu       { get; }    // main API         - GpuContext owns this managed type
+    internal            Wgpu        _wgpuEx     { get; }    // extension (Poll) - GpuContext owns this managed type
+    public              Device*     DevicePtr   { get; }    // pointer lives in graphics device driver 
+    public              Queue*      QueuePtr    { get; }    // pointer lives in graphics device driver
+    public              Instance*   Instance    { get; }    // pointer lives in graphics device driver
     
-    public bool DebugMode       { get; set; } 
+    public  bool        DebugMode   { get; set; } 
     
-    private readonly Stack<GpuTask> _taskPool = new();
+    private readonly    Stack<GpuTask>  _taskPool = new();
     
-    private static int  gpuEffectSlotCount = 0;
-    private GpuEffect[] gpuEffectSlots = new GpuEffect[4];
-    
+    private static      int             gpuEffectSlotCount = 0;
+    private             GpuEffect[]     gpuEffectSlots = new GpuEffect[4];
+    private             List<GpuTask>   _pendingTasks = new(1024);
+    private             List<GpuTask>   _inFlightTasks = new(1024);
+    private             GCHandle        _contextHandle;
+    private             void*           _contextHandlePtr;
+ 
     
     public GpuTask RentTask()
     {
@@ -73,6 +78,10 @@ public unsafe class GpuContext : IDisposable
         Instance        = instance;
         _queue          = new GpuQueue(this, queuePtr);
         _errorCallback  = errorCallback;
+        
+        _contextHandle      = GCHandle.Alloc(this);
+        _contextHandlePtr   = (void*)GCHandle.ToIntPtr(_contextHandle);
+        
         _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
     }
     
@@ -152,6 +161,7 @@ public unsafe class GpuContext : IDisposable
     public void Dispose()
     {
         _uniformPool?.Dispose();
+        if (_contextHandle.IsAllocated) _contextHandle.Free();
     
         if (QueuePtr  != null) _wgpu.QueueRelease(QueuePtr);
         if (DevicePtr != null) _wgpu.DeviceRelease(DevicePtr);
@@ -236,11 +246,66 @@ public unsafe class GpuContext : IDisposable
     public void ResetPool() => _poolOffset = 0; // Am Ende des Frames/Batches rufen
     
     // ------------------- Task Dependency Tracking
+    
+    private static readonly PfnQueueWorkDoneCallback _workDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
+    
+    private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
+    {
+        var handle = GCHandle.FromIntPtr((IntPtr)userData);
+        if (handle.Target is GpuContext ctx) {
+            ctx.ReturnPendingTasks();
+        }
+    }
+    
+    private void ReturnPendingTasks() {
+        for (int i = 0; i < _inFlightTasks.Count; i++) {
+            var task = _inFlightTasks[i];
+            ReturnTask(task);
+        }
+        _inFlightTasks.Clear();
+    }
+    
     public void Enqueue(GpuTask task)
     {
-        var cmdBuffer = task.FinalizeCommands(); // Only now a complete CommandBuffer is created from Encoder
-        _queue.Submit(cmdBuffer); // submit to WebGPU
-        // Optional: If we are in Cluster this is the place to prepare the message for the next node
+        _pendingTasks.Add(task);
+        if (_pendingTasks.Count >= 1024) { 
+            Flush(); // ensure list does not grow unlimited
+        }
+    }
+    
+    public void Flush(bool wait = true)
+    {
+        int count = _pendingTasks.Count;
+        if (count == 0 && !wait) return;
+        
+        // Is previous batch already send?
+        while (_inFlightTasks.Count > 0) {
+            _wgpuEx.DevicePoll(DevicePtr, true, null); // forces "work done" callback
+        }
+        
+        if (count > 0) {
+            // Submit command buffers to queue
+            var tasks = _pendingTasks;
+            var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
+            for (int n = 0; n < tasks.Count; n++) {
+                commandBuffers[n] = _pendingTasks[n].CommandBuffer!.Handle;
+            }
+            _wgpu.QueueSubmit(_queue.Handle, (uint)tasks.Count, commandBuffers);
+            
+            // Swap list references
+            var temp        = _inFlightTasks;
+            _inFlightTasks  = _pendingTasks;
+            _pendingTasks   = temp;
+            
+            // Register callback for the new In-Flight batch
+            _wgpu.QueueOnSubmittedWorkDone(_queue.Handle, _workDoneCallback, _contextHandlePtr);
+        }
+        // If deterministic result is required, wait until the current batch finishes
+        if (wait) {
+            while (_inFlightTasks.Count > 0) {
+                _wgpuEx.DevicePoll(DevicePtr, true, null);
+            }
+        }
     }
 
     public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged

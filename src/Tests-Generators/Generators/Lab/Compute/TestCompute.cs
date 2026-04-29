@@ -38,9 +38,9 @@ public static class TestCompute
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
         var ctx         = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
-        GpuTask task    = ctx.RentTask();
         var gpuOutput   = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
-        try {
+        using var task  = ctx.RentTask();
+        {
             // Dependencies from inputs (out not Output!)
             if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
             if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
@@ -65,10 +65,8 @@ public static class TestCompute
             }
             // connect task to output
             gpuOutput.LastWritingTask = task;
-            ctx.Enqueue(task);                                                  // Allocates GpuCommandBuffer
-            ctx.ReturnTask(task);
-        } catch {
-            ctx.ReturnTask(task);
+            task.Finish(encoder);   // extract CommandBuffer from Encoder
+            ctx.Enqueue(task);      // queues CommandBuffer only. No Submit().
         }
         gpuOutput.WaitInDebug();
         return gpuOutput;

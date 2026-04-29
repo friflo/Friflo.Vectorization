@@ -67,11 +67,13 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         if (!Context.DebugMode) {
             return;
         }
-        Context.Wait<T>(this);
+        Context.Flush();
     }
     
-    public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray)
+    public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
+        Context.Flush();
+        
         if (targetArray.Length < gpuBuffer.Length)
             throw new Exception("Target array is too small!");
 
@@ -121,7 +123,7 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 internal unsafe class GpuQueue
 {
     private GpuContext  Context;
-    private Queue*      Handle;
+    internal Queue*      Handle { get; private set; }
     
     public GpuQueue(GpuContext ctx, Queue* handle) {
         Context = ctx;
@@ -346,12 +348,12 @@ public unsafe class GpuEncoder : IDisposable
         Context = null;
     }
 
-    public GpuCommandBuffer Finish() {
+    /* public GpuCommandBuffer Finish() {
         // Finish() macht aus dem Encoder einen fertigen CommandBuffer
         CommandBufferDescriptor desc = new CommandBufferDescriptor { Label = null };
         var commandBufferHandle = Context._wgpu.CommandEncoderFinish(Handle, &desc);
         return new GpuCommandBuffer(Context, commandBufferHandle);
-    }
+    } */
     
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
@@ -368,9 +370,8 @@ public unsafe class GpuCommandBuffer : IDisposable
     private     GpuContext      Context;
     internal    CommandBuffer*  Handle;
     
-    internal GpuCommandBuffer(GpuContext context, CommandBuffer* handle) {
+    internal GpuCommandBuffer(GpuContext context) {
         Context = context;
-        Handle = handle;
     }
     
     ~GpuCommandBuffer() {
