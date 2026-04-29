@@ -50,10 +50,20 @@ public unsafe class GpuContext : IDisposable
     
     private readonly PfnErrorCallback _errorCallback; // must ensure callback is not collected by GC
 
-    public GpuContext()
+    private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, PfnErrorCallback errorCallback)
     {
-        _wgpu = WebGPU.GetApi();
-        if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
+        _wgpu           = wgpu;    
+        _wgpuEx         = wgpuEx;
+        DevicePtr       = devicePtr;
+        QueuePtr        = queuePtr;
+        _errorCallback  = errorCallback;
+        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
+    }
+    
+    public static GpuContext Create()
+    {
+        var _wgpu = WebGPU.GetApi();
+        if (!_wgpu.TryGetDeviceExtension(null, out Wgpu _wgpuEx)) {
             throw new Exception("WGPU extension not found!");
         }
 		// 1. Instanz & Surface (optional, für Compute reicht oft der Adapter)
@@ -98,12 +108,13 @@ public unsafe class GpuContext : IDisposable
 
 
 		// 4. Pointer setzen
-		DevicePtr = device;
-		QueuePtr = _wgpu.DeviceGetQueue(DevicePtr);
+
+		var queuePtr = _wgpu.DeviceGetQueue(device);
         
-        _errorCallback = PfnErrorCallback.From(OnGpuError);
-        _wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, _errorCallback, null);
-        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
+        var _errorCallback = PfnErrorCallback.From(OnGpuError);
+        _wgpu.DeviceSetUncapturedErrorCallback(device, _errorCallback, null);
+        
+        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, _errorCallback);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {

@@ -146,7 +146,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         
     //  UseSpan(weight); // compiler error
         
-        using var gpuContext = new GpuContext();
+        using var gpuContext = GpuContext.Create();
         var gpuWeight = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var gpuInput  = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var output2   = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
@@ -183,7 +183,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     public static void DependencyFlow(Buffer<float> input)
     {
-        using var context = new GpuContext();
+        using var context = GpuContext.Create();
         var weight = InitWeights(context);
         var a = ComputeLayer1(weight, input, ExeType.GPU);
     //  firstValue = a[0];                              // TODO indexer must ctx.Wait(this) - than returns firstValue
@@ -194,7 +194,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     [Test]
     public static void TestExampleGPU()
     {
-        using var context = new GpuContext();
+        using var context = GpuContext.Create();
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
         var output  = new float[64];
