@@ -135,11 +135,6 @@ public unsafe class GpuContext : IDisposable
         _wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    public void Dispatch(Buffer<byte> w, Buffer<float> i, float u) 
-    {
-        throw new NotImplementedException();
-    }
-
     public void Dispose()
     {
         _uniformPool?.Dispose();
