@@ -3,24 +3,32 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
+using Buffer = Silk.NET.WebGPU.Buffer;
 
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public class GpuBuffer<T> where T : unmanaged
+public unsafe class GpuBuffer<T> where T : unmanaged
 {
-    public readonly IntPtr      Handle;
+    public readonly Buffer*     Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
-    public          int         Length => throw new NotImplementedException(); 
+    public          int         Length; 
     public          GpuTask     LastWritingTask;
 
 //  public readonly unsafe Buffer* Ptr;
 
-    public GpuBuffer(GpuContext ctx, uint size, BufferUsage bufferUsage) 
+    public GpuBuffer(GpuContext ctx, uint size, BufferUsage usage) 
     {
         Context = ctx;
         // Ptr = ctx.CreateBuffer(size); ...
+    }
+    
+    public unsafe GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 
+    {
+        Context = ctx;
+        Length  = data.Length;
+        Handle  = ctx.CreateBufferWithData(data, usage);
     }
     
     public T this[int index]
@@ -58,7 +66,7 @@ internal unsafe class GpuQueue
     }
     
     
-    public unsafe void WriteBuffer(IntPtr bufferHandle, uint byteOffset, void* data, uint byteSize)
+    public unsafe void WriteBuffer(Buffer* bufferHandle, uint byteOffset, void* data, uint byteSize)
     {
         // wgpuQueueWriteBuffer(_handle, buffer, offset, data, size);
     }
@@ -90,10 +98,10 @@ internal unsafe class GpuQueue
     }
 }
 
-public struct GpuBindEntry
+public unsafe struct GpuBindEntry
 {
     public uint     Binding;
-    public IntPtr   BufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
+    public Buffer*  BufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
     public uint     Offset;
     public uint     Size;
     
@@ -104,7 +112,7 @@ public struct GpuBindEntry
     public GpuBindEntry(int binding, GpuBuffer<byte> pool, uint offset, uint size) 
         : this(binding, pool.Handle, offset, size) { }
 
-    private GpuBindEntry(int binding, IntPtr handle, uint offset, uint size) {
+    private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
         Binding         = (uint)binding;
         BufferHandle    = handle;
         Offset          = offset;

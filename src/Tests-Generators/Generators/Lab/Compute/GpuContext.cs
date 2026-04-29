@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
+using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Tests.Generators.Lab;
 
@@ -200,6 +201,29 @@ public unsafe class GpuContext : IDisposable
     private IEnumerable<GpuTask> SortTasks(GpuTask finalTask)
     {
         throw new NotImplementedException();
+    }
+    
+    public Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage) where T : unmanaged
+    {
+        uint size = (uint)(data.Length * sizeof(T));
+        
+        var desc = new BufferDescriptor {
+            Size = size,
+            Usage = usage | BufferUsage.CopyDst, // CopyDst to write data into
+            MappedAtCreation = true              // We want to write now
+        };
+        var buffer = _wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        
+        // Copy data into mapped memory
+        void* pMapped = _wgpu.BufferGetMappedRange(buffer, 0, size);
+        fixed (void* pData = data)
+        {
+            System.Buffer.MemoryCopy(pData, pMapped, size, size);
+        }
+        // Important: WebGPU has to unmap before GPU can use memory
+        _wgpu.BufferUnmap(buffer);
+        
+        return buffer;
     }
 
     public unsafe GpuShaderModule CreateShaderModule(string wgslSource)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NUnit.Framework;
 using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
@@ -11,7 +12,7 @@ public static class TestCompute
     // ------------------------ generated code: begin
     // generated shadow Method
     public static GpuBuffer<float> ShadowMethod(
-        Buffer<byte>    weight,
+        Buffer<float>   weight,
         Buffer<float>   input,
         float           uniform,
         ExeType         exe,
@@ -26,7 +27,7 @@ public static class TestCompute
     }
     
     // generated AVX method
-    private static unsafe void ShadowMethod_AVX(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output) {
+    private static unsafe void ShadowMethod_AVX(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output) {
         // ...
     }
     
@@ -34,7 +35,7 @@ public static class TestCompute
     // Notes:
     // - in case this method throws an exception before finishing the pass the task is cleared at next Reset() - no WebGPU leaks.
     // - method does not need to know how to Finish() an encoder. It asks for Encoder and fills it.
-    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<byte> weight, Buffer<float> input, float uniform, Buffer<float> output)
+    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
         var ctx         = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
         GpuTask task    = ctx.RentTask();
@@ -82,14 +83,14 @@ public static class TestCompute
             return gpuEffect;
         }
         layout = ctx.BindGroupLayoutBuilder()
-            .AddBuffer<byte>  (0, "weight")     // @binding(0) var<storage, read>       weight
+            .AddBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
             .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
             .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform>             uniforms
             .AddBuffer<float> (3, "output")     // @binding(3) var<storage, read_write> output
             .Build();
         
-        var shaderModule = ctx.CreateShaderModule(ShadowMethod_GPU_Shader);
-        var pipeline = ctx.CreateComputePipeline(shaderModule, "main", layout);
+        var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader);
+        var pipeline        = ctx.CreateComputePipeline(shaderModule, "main", layout);
         
         gpuEffect = new GpuEffect { Layout = layout, Pipeline = pipeline };
         ctx.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
@@ -102,7 +103,7 @@ struct ShadowMethod_Uniforms {
     uniform : f32,
 };
 
-@group(0) @binding(0) var<storage, read>        weight:     array<u32>; // byte mapping
+@group(0) @binding(0) var<storage, read>        weight:     array<f32>;
 @group(0) @binding(1) var<storage, read>        input:      array<f32>;
 @group(0) @binding(2) var<uniform>              uniforms:   ShadowMethod_Uniforms;
 @group(0) @binding(3) var<storage, read_write>  output:     array<f32>;
@@ -111,7 +112,7 @@ struct ShadowMethod_Uniforms {
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;
     
-    let weight_scalar = f32(weight[index]); // cast u32 -> f32
+    let weight_scalar = weight[index];
     // shader body generated from Blueprint method body
     output[index] = (input[index] * weight_scalar) + uniforms.uniform;
 }
@@ -134,7 +135,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     
     public static async Task ExampleCompute()
     {
-        var weight  = new Span<byte> (new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        var weight  = new Span<float> ([1, 2, 3, 4, 5, 6, 7, 8, 9]);
         var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         var output  = new float[9];
         
@@ -146,7 +147,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     //  UseSpan(weight); // compiler error
         
         using var gpuContext = new GpuContext();
-        var gpuWeight = new GpuBuffer<byte> (gpuContext, 100, BufferUsage.None);
+        var gpuWeight = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var gpuInput  = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var output2   = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
         var result2 = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
@@ -154,7 +155,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     }
     
     public class ModelLayer {
-        public GpuBuffer<byte>     weight;
+        public GpuBuffer<float>    weight;
         public GpuBuffer<float>    input;
         public GpuBuffer<float>    output;
     }
@@ -188,6 +189,26 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     //  firstValue = a[0];                              // TODO indexer must ctx.Wait(this) - than returns firstValue
         var b = ComputeLayer2(a, ExeType.GPU);
         context.Wait(b);
+    }
+    
+    [Test]
+    public static void TestExampleGPU()
+    {
+        using var context = new GpuContext();
+        var weight  = new float[64]; // no alignment
+        var input   = new float[64];
+        var output  = new float[64];
+        for (int n = 0; n < 64; ++n) {
+            weight[n] = n;
+            input[n]  = n + 1000;
+        }
+        var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.MapRead);
+        var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.MapRead);
+        var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.MapWrite);
+
+        var result = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+        
+        context.Wait(result);
     }
     
 }
