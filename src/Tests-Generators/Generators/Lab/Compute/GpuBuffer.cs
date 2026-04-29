@@ -151,15 +151,29 @@ internal unsafe class GpuQueue
             handle.Free(); // free handle - otherwise leak
         }
     }
+    
+    // We keep a static reference to avoid GC is not moving/collection the callback
+    private static readonly PfnQueueWorkDoneCallback _nativeWorkDoneCallback = 
+        PfnQueueWorkDoneCallback.From(HandleNativeWorkDone);
 
-    public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback) {
-        // We have to pin the callback to avoid moving callback by GC
-        // For high performance we need a static method
-        QueueWorkDoneCallback nativeCallback = (status, userData) => {
+    private static void HandleNativeWorkDone(QueueWorkDoneStatus status, void* userData)
+    {
+        // userData enables going back to CLR
+        var handle = GCHandle.FromIntPtr((IntPtr)userData);
+        if (handle.Target is Action<QueueWorkDoneStatus> callback) {
             callback(status);
-        };
-        Context._wgpu.QueueOnSubmittedWorkDone(Handle, nativeCallback, null);
-        throw new NotImplementedException();
+        }
+        handle.Free(); // free to avoid leak
+    }
+
+    public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback)
+    {
+        // We have to pin the callback to avoid moving callback by GC
+        GCHandle handle = GCHandle.Alloc(callback); // handle is freed in HandleNativeWorkDone()
+        void* userData = (void*)GCHandle.ToIntPtr(handle);
+
+        // call native API with static function pointer
+        Context._wgpu.QueueOnSubmittedWorkDone(Handle, _nativeWorkDoneCallback, userData);
     }
 }
 
