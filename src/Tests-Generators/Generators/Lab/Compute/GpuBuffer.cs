@@ -349,7 +349,7 @@ public unsafe class GpuEncoder : IDisposable
         // Finish() macht aus dem Encoder einen fertigen CommandBuffer
         CommandBufferDescriptor desc = new CommandBufferDescriptor { Label = null };
         var commandBufferHandle = Context._wgpu.CommandEncoderFinish(Handle, &desc);
-        return new GpuCommandBuffer(commandBufferHandle);
+        return new GpuCommandBuffer(Context, commandBufferHandle);
     }
     
     // --- ComputePass methods
@@ -364,14 +364,29 @@ public unsafe class GpuEncoder : IDisposable
 
 public unsafe class GpuCommandBuffer : IDisposable
 {
-    internal CommandBuffer* Handle;
+    private     GpuContext      Context;
+    internal    CommandBuffer*  Handle;
     
-    internal GpuCommandBuffer(CommandBuffer* handle) {
+    internal GpuCommandBuffer(GpuContext context, CommandBuffer* handle) {
+        Context = context;
         Handle = handle;
+    }
+    
+    ~GpuCommandBuffer() {
+        Dispose(); // if User forgets to call
     }
     
     public void Dispose()
     {
-        throw new NotImplementedException();
+        if (Handle == null) return;
+
+        // WebGPU native Release
+        Context._wgpu.CommandBufferRelease(Handle);
+
+        // Die Lebensversicherung: Handle auf null setzen
+        Context = null;
+
+        // GC mitteilen, dass das Objekt abgehakt ist
+        GC.SuppressFinalize(this);
     }
 }

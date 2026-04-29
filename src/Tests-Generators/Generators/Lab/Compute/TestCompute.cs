@@ -53,19 +53,20 @@ public static class TestCompute
                 pass.SetPipeline(gpuEffect.Pipeline);                  // Set Pipeline to "MyShader"
                 
                 var uniforms  = new ShadowMethod_Uniforms { uniform = uniform };
-                var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, [
+                var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, [ // CreateBindGroup uses Span<GpuBindEntry> parameter
                     GpuBindEntry.From (0, weight.gpuBuffer),
                     GpuBindEntry.From (1, input.gpuBuffer),
                     ctx.AsUniformEntry(2, uniforms),
                     GpuBindEntry.From (3, output.gpuBuffer),
                 ]);
                 pass.SetBindGroup(0, bindGroup);
-                pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
+                pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
                 pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
             }
             // connect task to output
             gpuOutput.LastWritingTask = task;
             ctx.Enqueue(task);
+            ctx.ReturnTask(task);
         } catch {
             ctx.ReturnTask(task);
         }
@@ -87,7 +88,7 @@ public static class TestCompute
             .AddReadOnlyBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
             .AddUniform<float>        (2, "uniform")    // @binding(2) var<uniform>             uniforms
             .AddBuffer<float>         (3, "output")     // @binding(3) var<storage, read_write> output
-            .Build("ShadowMethod_GPU\0"u8);
+            .Build("ShadowMethod_GPU\0"u8); // Build() pins the literal 
         
         var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader);
         var pipeline        = ctx.CreateComputePipeline(shaderModule, "main", layout);
@@ -211,6 +212,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         context.Wait(result);
         
         gpuOutput.Download(result, output);
+        Console.WriteLine($"output[0] {output}");
     }
     
 }
