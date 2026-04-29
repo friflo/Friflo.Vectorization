@@ -35,10 +35,10 @@ public static class TestCompute
     // generated GPU method
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
-        var paramState = new GpuParamState(); 
-        weight.gpuBuffer.GetContext(ref paramState, nameof(weight));
-        input. gpuBuffer.GetContext(ref paramState, nameof(input));
-        output.gpuBuffer.GetContext(ref paramState, nameof(output));
+        var paramState = new GpuParamState();
+        paramState.Validate(weight, nameof(weight));
+        paramState.Validate(input,  nameof(input));
+        paramState.Validate(output, nameof(output));
         var ctx = paramState.GetContext();
         
         var gpuOutput   = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);

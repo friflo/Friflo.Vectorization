@@ -12,7 +12,7 @@ namespace Friflo.Vectorization.GPU;
 public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     internal            Buffer*     _handle { get; private set; }
-    private  readonly   GpuContext  _context;
+    internal readonly   GpuContext  _context;
     public              int         Length;
     private             uint        SizeInBytes;
     public              GpuTask     LastWritingTask;
@@ -115,30 +115,34 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         _wgpu.BufferUnmap(readBuffer);
         _wgpu.BufferDestroy(readBuffer);
     }
-    
-    public void GetContext(ref GpuParamState paramState, string paramName)
-    {
-        if (_handle != null)
-        {
-            if (paramState.context == _context) {
-                return;    
-            }
-            if (paramState.context == null) {
-                paramState.firstParam   = paramName;
-                paramState.context      = _context;
-                return;
-            }
-            throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{paramState.firstParam}'. In this library, we practice Monogamy.");
-        }
-        throw new InvalidOperationException(
-            $"Architectural Blasphemy: You are trying to extract the Context from parameter '{paramName}', which you've already sent to the void. A disposed Buffer has no God and no GPU memory.");
-    }
 }
 
 public struct GpuParamState {
     public GpuContext   context;
     public string       firstParam;
 
+    public unsafe void Validate(Buffer<float> buffer, string paramName)
+    {
+        var gpuBuffer = buffer.gpuBuffer;
+        if (gpuBuffer == null) {
+            throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks the hardware-credentials. Stop pretending and provide a real GpuBuffer!");
+        }
+        if (gpuBuffer._handle != null)
+        {
+            if (gpuBuffer._context == context) {
+                return;    
+            }
+            if (context == null) {
+                firstParam   = paramName;
+                context      = gpuBuffer._context;
+                return;
+            }
+            throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{firstParam}'. In this library, we practice Monogamy.");
+        }
+        throw new InvalidOperationException(
+            $"Architectural Blasphemy: You are trying to extract the Context from parameter '{paramName}', which you've already sent to the void. A disposed Buffer has no God and no GPU memory.");
+    }
+    
     public GpuContext GetContext() {
         if (context != null) {
             return context;

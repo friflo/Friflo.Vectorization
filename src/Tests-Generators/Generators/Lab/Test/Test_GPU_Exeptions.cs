@@ -40,9 +40,10 @@ public static class Test_GPU_Exeptions
             });
             StringAssert.StartsWith("Contextual Polygamy:", e!.Message!);
         } {
-            Assert.Throws<NullReferenceException>(() => {
+            var e = Assert.Throws<InvalidOperationException>(() => {
                 TestCompute.ShadowMethod(weight, input, 42, ExeType.GPU, output);
             });
+            StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         }
         
     }
