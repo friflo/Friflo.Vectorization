@@ -194,39 +194,46 @@ public class BindGroupLayoutBuilder
         Context = ctx;
     }
     
-    public BindGroupLayoutBuilder AddBuffer<T>(int binding, string name) where T : unmanaged
+    private void AddLayoutEntry(int binding, BufferBindingType bindingType)
     {
         _entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,
             Visibility = ShaderStage.Compute,       // <--- we do compute
             Buffer = new BufferBindingLayout {
-                Type = BufferBindingType.Storage    // for Buffer<>'s passed to the shadow method
+                Type                = bindingType,
+                HasDynamicOffset    = false,        // default
+                MinBindingSize      = 0             // 0: no validation of minimum size
             }
         });
+    }
+    
+    public BindGroupLayoutBuilder AddBuffer<T>(int binding, string name) where T : unmanaged
+    {
+        AddLayoutEntry (binding, BufferBindingType.Storage);
+        return this;
+    }
+    
+    public BindGroupLayoutBuilder AddReadOnlyBuffer<T>(int binding, string name) where T : unmanaged
+    {
+        AddLayoutEntry (binding, BufferBindingType.ReadOnlyStorage);
         return this;
     }
 
     public BindGroupLayoutBuilder AddUniform<T>(int binding, string name) where T : unmanaged
     {
-        _entries.Add(new BindGroupLayoutEntry {
-            Binding = (uint)binding,
-            Visibility = ShaderStage.Compute,       // <--- we do compute
-            Buffer = new BufferBindingLayout {
-                Type = BufferBindingType.Uniform    // For GpuContext._uniformPool storing uniforms
-            }
-        });
+        AddLayoutEntry (binding, BufferBindingType.Uniform);
         return this;
     }
 
-    public unsafe GpuBindGroupLayout Build()
+    public unsafe GpuBindGroupLayout Build(ReadOnlySpan<byte> label)
     {
+        fixed (byte* labelPtr = label)
         fixed (BindGroupLayoutEntry* pEntries = _entries.ToArray())
         {
-            var desc = new BindGroupLayoutDescriptor
-            {
-                EntryCount = (uint)_entries.Count,
-                Entries = pEntries,
-                Label = null
+            var desc = new BindGroupLayoutDescriptor {
+                Label       = labelPtr,
+                EntryCount  = (uint)_entries.Count,
+                Entries     = pEntries,
             };
 
             var handle = Context._wgpu.DeviceCreateBindGroupLayout(Context.DevicePtr, &desc);

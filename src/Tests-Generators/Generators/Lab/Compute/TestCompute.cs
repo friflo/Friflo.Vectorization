@@ -83,11 +83,11 @@ public static class TestCompute
             return gpuEffect;
         }
         var layout = ctx.BindGroupLayoutBuilder()       //   TODO Allocates BindGroupLayoutBuilder - check if it can be reused 
-            .AddBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
-            .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
-            .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform>             uniforms
-            .AddBuffer<float> (3, "output")     // @binding(3) var<storage, read_write> output
-            .Build();
+            .AddReadOnlyBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
+            .AddReadOnlyBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
+            .AddUniform<float>        (2, "uniform")    // @binding(2) var<uniform>             uniforms
+            .AddBuffer<float>         (3, "output")     // @binding(3) var<storage, read_write> output
+            .Build("ShadowMethod_GPU\0"u8);
         
         var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader);
         var pipeline        = ctx.CreateComputePipeline(shaderModule, "main", layout);
