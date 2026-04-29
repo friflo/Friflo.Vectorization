@@ -111,10 +111,10 @@ public unsafe class GpuContext : IDisposable
 
 		var queuePtr = _wgpu.DeviceGetQueue(device);
         
-        var _errorCallback = PfnErrorCallback.From(OnGpuError);
-        _wgpu.DeviceSetUncapturedErrorCallback(device, _errorCallback, null);
+        var errorCallback = PfnErrorCallback.From(OnGpuError);
+        _wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, _errorCallback);
+        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, errorCallback);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
