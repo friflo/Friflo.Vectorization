@@ -274,10 +274,6 @@ public unsafe class GpuBindGroupLayout
 {
     internal GpuContext         context;
     internal BindGroupLayout*   Handle;
-    
-    private static int _bindGroupLayoutSlotCount;
-    
-    public static int NewGpuEffectSlot() => _bindGroupLayoutSlotCount++; 
 }
 
 public unsafe class GpuBindGroup

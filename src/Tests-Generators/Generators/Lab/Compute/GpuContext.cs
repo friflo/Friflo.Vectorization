@@ -21,7 +21,9 @@ public unsafe class GpuContext : IDisposable
     
     private readonly Stack<GpuTask> _taskPool = new();
     
-    private GpuEffect[] gpuEffectSlots;
+    private static int  gpuEffectSlotCount = 0;
+    private GpuEffect[] gpuEffectSlots = new GpuEffect[4];
+    
     
     public GpuTask RentTask()
     {
@@ -40,13 +42,24 @@ public unsafe class GpuContext : IDisposable
         throw new NotImplementedException();
     }
     
-    
+    public static int NewGpuEffectSlot() => gpuEffectSlotCount++; 
+
     public GpuEffect GetGpuEffect(int slot) {
-        return gpuEffectSlots[slot];
+        var slots = gpuEffectSlots;
+        if (slot < slots.Length) {
+            return slots[slot];    
+        }
+        return null;
     }
     
     public void SetGpuEffect(int slot, GpuEffect gpuEffect) {
-        gpuEffectSlots[slot] = gpuEffect;
+        var slots = gpuEffectSlots;
+        if (slot >= slots.Length) {
+            var newSlots = new GpuEffect[gpuEffectSlotCount];
+            Array.Copy(slots, newSlots, slots.Length);
+            slots = gpuEffectSlots = newSlots;
+        }
+        slots[slot] = gpuEffect;
     }
     
     private readonly PfnErrorCallback _errorCallback; // must ensure callback is not collected by GC

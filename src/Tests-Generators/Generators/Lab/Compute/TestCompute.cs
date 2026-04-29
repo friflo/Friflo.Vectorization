@@ -73,16 +73,16 @@ public static class TestCompute
         return gpuOutput;
     }
     
-    private static readonly int ShadowMethod_GpuEffectSlot = GpuBindGroupLayout.NewGpuEffectSlot(); 
+    private static readonly int ShadowMethod_GpuEffectSlot = GpuContext.NewGpuEffectSlot(); 
     
     private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuContext ctx)
     {
         var gpuEffect = ctx.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
-        var layout = gpuEffect.Layout;
-        if (layout != null) {
+
+        if (gpuEffect != null) {
             return gpuEffect;
         }
-        layout = ctx.BindGroupLayoutBuilder()
+        var layout = ctx.BindGroupLayoutBuilder()
             .AddBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
             .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
             .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform>             uniforms
