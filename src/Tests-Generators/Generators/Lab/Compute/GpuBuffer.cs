@@ -9,9 +9,9 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public unsafe class GpuBuffer<T> where T : unmanaged
+public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    public readonly Buffer*     Handle;
+    public          Buffer*     Handle { get; private set; }
     public readonly GpuContext  Context;  // Creator of GpuBuffer
     public          int         Length;
     private         uint        SizeInBytes;
@@ -37,6 +37,14 @@ public unsafe class GpuBuffer<T> where T : unmanaged
         Context = ctx;
         Length  = data.Length;
         Handle  = ctx.CreateBufferWithData(data, usage);
+    }
+    
+    public void Dispose()
+    {
+        if (Handle != null) {
+            Context._wgpu.BufferRelease(Handle);
+            Handle = null;
+        }
     }
     
     public T this[int index]
@@ -178,7 +186,13 @@ public unsafe struct GpuBindEntry
 
 public class BindGroupLayoutBuilder
 {
-    private readonly List<BindGroupLayoutEntry> _entries;
+    private readonly GpuContext Context;
+    
+    private readonly List<BindGroupLayoutEntry> _entries = new();
+    
+    internal BindGroupLayoutBuilder(GpuContext ctx) {
+        Context = ctx;
+    }
     
     public BindGroupLayoutBuilder AddBuffer<T>(int binding, string name) where T : unmanaged
     {

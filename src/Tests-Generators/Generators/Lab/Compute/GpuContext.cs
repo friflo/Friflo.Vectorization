@@ -11,10 +11,11 @@ namespace Tests.Generators.Lab;
 
 public unsafe class GpuContext : IDisposable
 {
-    public  WebGPU  _wgpu       { get; }    // main API         - GpuContext owns this managed type
-    private Wgpu    _wgpuEx;                // extension (Poll) - GpuContext owns this managed type
-    public  Device* DevicePtr   { get; }    // pointer lives in graphics device driver 
-    public  Queue*  QueuePtr    { get; }    // pointer lives in graphics device driver
+    public  WebGPU      _wgpu       { get; }    // main API         - GpuContext owns this managed type
+    private Wgpu        _wgpuEx;                // extension (Poll) - GpuContext owns this managed type
+    public  Device*     DevicePtr   { get; }    // pointer lives in graphics device driver 
+    public  Queue*      QueuePtr    { get; }    // pointer lives in graphics device driver
+    public  Instance*   Instance    { get; }    // pointer lives in graphics device driver
     
     public bool DebugMode       { get; set; } 
     
@@ -50,12 +51,13 @@ public unsafe class GpuContext : IDisposable
     
     private readonly PfnErrorCallback _errorCallback; // must ensure callback is not collected by GC
 
-    private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, PfnErrorCallback errorCallback)
+    private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, Instance* instance, PfnErrorCallback errorCallback)
     {
         _wgpu           = wgpu;    
         _wgpuEx         = wgpuEx;
         DevicePtr       = devicePtr;
         QueuePtr        = queuePtr;
+        Instance        = instance;
         _errorCallback  = errorCallback;
         _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
     }
@@ -114,7 +116,7 @@ public unsafe class GpuContext : IDisposable
         var errorCallback = PfnErrorCallback.From(OnGpuError);
         _wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, errorCallback);
+        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, instance, errorCallback);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
@@ -135,22 +137,35 @@ public unsafe class GpuContext : IDisposable
 
     public void Dispatch(Buffer<byte> w, Buffer<float> i, float u) 
     {
-        // feed CommandEncoder
+        throw new NotImplementedException();
     }
 
-    public void Dispose() { /* Cleanup native resources */ }
+    public void Dispose()
+    {
+        _uniformPool?.Dispose();
+    
+        if (QueuePtr  != null) _wgpu.QueueRelease(QueuePtr);
+        if (DevicePtr != null) _wgpu.DeviceRelease(DevicePtr);
+        
+        _wgpu.InstanceRelease(Instance);
+    }
 
     public GpuEncoder CreateEncoder() {
-        throw new NotImplementedException();
+        return new GpuEncoder(this);
     }
 
     public void Submit(GpuCommandBuffer commandBuffer) {
-        throw new NotImplementedException();
+        var handle = commandBuffer.Handle;
+        // WebGPU erwartet ein Array von CommandBuffern
+        _wgpu.QueueSubmit(QueuePtr, 1, &handle);
+        
+        // Optional: Den Buffer releasen, wenn er nicht mehr gebraucht wird
+        // _wgpu.CommandBufferRelease(handle);                                       TODO
     }
     
     public BindGroupLayoutBuilder BindGroupLayoutBuilder()
     {
-        throw new NotImplementedException();
+        return new BindGroupLayoutBuilder(this);
     }
 
     public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
