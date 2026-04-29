@@ -202,9 +202,9 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.MapRead);
-        var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.MapRead);
-        var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.MapWrite);
+        var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.Storage);
+        var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
+        var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
         var result = ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         
