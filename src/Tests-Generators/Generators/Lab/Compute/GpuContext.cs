@@ -179,7 +179,7 @@ public unsafe class GpuContext : IDisposable
             Entries = nativeEntries
         };
         BindGroup* handle = layout.context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);
-        return new GpuBindGroup((IntPtr)handle);
+        return new GpuBindGroup(handle);
     }
 
     private GpuBuffer<byte> _uniformPool;
@@ -247,7 +247,7 @@ public unsafe class GpuContext : IDisposable
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = (CommandBuffer*)task.CommandBuffer!.Handle;
+            var ptr = task.CommandBuffer!.Handle;
             _wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;

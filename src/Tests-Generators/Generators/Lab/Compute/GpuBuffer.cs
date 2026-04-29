@@ -119,15 +119,17 @@ internal unsafe class GpuQueue
         Context = ctx;
     }
     
-    
-    public unsafe void WriteBuffer(Buffer* bufferHandle, uint byteOffset, void* data, uint byteSize)
+    public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
-        // wgpuQueueWriteBuffer(_handle, buffer, offset, data, size);
+        var ctx = Context;
+        ctx._wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     public void Submit(GpuCommandBuffer commandBuffer)
     {
-        // wgpuQueueSubmit(_handle, 1, &commandBuffer);
+        var handle = commandBuffer.Handle;
+        var ctx = Context;
+        ctx._wgpu.QueueSubmit(ctx.QueuePtr, 1, &handle);
     }
     
     // TODO use this static method to avoid allocation by lambda
@@ -208,70 +210,112 @@ public class BindGroupLayoutBuilder
     }
 }
 
-public class GpuComputePass : IDisposable {
+public unsafe class GpuComputePass : IDisposable {
+    private readonly    GpuEncoder          _encoder;
+    public              ComputePassEncoder* Handle { get; }
+    private             bool                _hasEnded = false;
+    
+    public GpuComputePass(GpuEncoder encoder, ComputePassEncoder* handle)
+    {
+        _encoder = encoder;
+        Handle   = handle;
+    }
+    
     public void Dispose() {
-        throw new NotImplementedException();
+        End(); // Sicherstellen, dass der Pass beendet wurde
+        // Den nativen Pass-Encoder freigeben
+        if (Handle != null) _encoder.Context._wgpu.ComputePassEncoderRelease(Handle);
     }
 
     public void SetPipeline(GpuComputePipeline pipeline)
     {
-        throw new NotImplementedException();
+        _encoder.Context._wgpu.ComputePassEncoderSetPipeline(Handle, pipeline.Handle);
     }
     
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
-        
+        _encoder.Context._wgpu.ComputePassEncoderDispatchWorkgroups(
+            Handle, 
+            (uint)workgroupCountX, 
+            (uint)workgroupCountY, 
+            (uint)workgroupCountZ
+        );
     }
 
     public void End()
     {
-        throw new NotImplementedException();
+        if (!_hasEnded) {
+            _encoder.Context._wgpu.ComputePassEncoderEnd(Handle);
+            _hasEnded = true;
+        }
     }
 
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
-        throw new NotImplementedException();
+        // Der vierte und fünfte Parameter sind für dynamische Offsets (hier 0/null)
+        _encoder.Context._wgpu.ComputePassEncoderSetBindGroup(Handle, (uint)groupIndex, bindGroup.Handle, 0, null);
     }
 }
 
 public unsafe class GpuBindGroupLayout
 {
     internal GpuContext         context;
-    internal BindGroupLayout*    Handle;
+    internal BindGroupLayout*   Handle;
     
     private static int _bindGroupLayoutSlotCount;
     
     public static int NewGpuEffectSlot() => _bindGroupLayoutSlotCount++; 
 }
 
-public class GpuBindGroup
+public unsafe class GpuBindGroup
 {
-    public GpuBindGroup(IntPtr handle)
-    {
-        throw new NotImplementedException();
+    public BindGroup* Handle { get; }
+    
+    public GpuBindGroup(BindGroup* handle) {
+        Handle = handle;
     }
 }
 
-public class GpuEncoder : IDisposable
+public unsafe class GpuEncoder : IDisposable
 {
-    public readonly GpuContext context;
+    public readonly GpuContext      Context;
+    public          CommandEncoder* Handle { get; }
+    
+    public GpuEncoder(GpuContext ctx)
+    {
+        Context = ctx;
+        // Erstellt den nativen Encoder
+        CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
+        Handle = Context._wgpu.DeviceCreateCommandEncoder(Context.DevicePtr, &desc);
+    }
     
     public void Dispose() {
+        if (Handle != null) Context._wgpu.CommandEncoderRelease(Handle);
     }
 
     public GpuCommandBuffer Finish() {
-        return new GpuCommandBuffer();
+        // Finish() macht aus dem Encoder einen fertigen CommandBuffer
+        CommandBufferDescriptor desc = new CommandBufferDescriptor { Label = null };
+        var commandBufferHandle = Context._wgpu.CommandEncoderFinish(Handle, &desc);
+        return new GpuCommandBuffer(commandBufferHandle);
     }
     
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
     {
-        throw new NotImplementedException();
+        ComputePassDescriptor desc = new ComputePassDescriptor { Label = null };
+        var passHandle = Context._wgpu.CommandEncoderBeginComputePass(Handle, &desc);
+        
+        return new GpuComputePass(this, passHandle);
     }
 }
 
-public class GpuCommandBuffer : IDisposable
+public unsafe class GpuCommandBuffer : IDisposable
 {
-    internal IntPtr Handle;
+    internal CommandBuffer* Handle;
+    
+    internal GpuCommandBuffer(CommandBuffer* handle) {
+        Handle = handle;
+    }
     
     public void Dispose()
     {
