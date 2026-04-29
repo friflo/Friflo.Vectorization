@@ -99,3 +99,31 @@ public sealed class GpuTask : IDisposable
         // In a real scenario, you might release specific task-related fences here.
     }
 }
+
+public unsafe class GpuEncoder : IDisposable
+{
+    public  GpuContext      Context;
+    public  CommandEncoder* Handle { get; private set; }
+    
+    internal GpuEncoder(GpuContext context, CommandEncoder* handle) {
+        Context = context;
+        Handle  = handle;
+    }
+    
+    ~GpuEncoder() => Dispose();
+    
+    public void Dispose() {
+        if (Handle != null) Context._wgpu.CommandEncoderRelease(Handle);
+        Handle = null;
+        Context = null;
+    }
+    
+    // --- ComputePass methods
+    public GpuComputePass BeginComputePass()
+    {
+        ComputePassDescriptor desc = new ComputePassDescriptor { Label = null };
+        var passHandle = Context._wgpu.CommandEncoderBeginComputePass(Handle, &desc);
+        
+        return new GpuComputePass(this, passHandle);
+    }
+}

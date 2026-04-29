@@ -184,9 +184,9 @@ public unsafe class GpuContext : IDisposable
         // _wgpu.CommandBufferRelease(handle);                                       TODO
     }
     
-    public BindGroupLayoutBuilder BindGroupLayoutBuilder()
+    public GpuBindGroupLayoutBuilder BindGroupLayoutBuilder()
     {
-        return new BindGroupLayoutBuilder(this);
+        return new GpuBindGroupLayoutBuilder(this);
     }
 
     public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
