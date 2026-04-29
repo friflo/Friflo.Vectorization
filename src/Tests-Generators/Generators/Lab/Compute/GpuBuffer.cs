@@ -17,10 +17,6 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     private             uint        SizeInBytes;
     public              GpuTask     LastWritingTask;
 
-
-    public  GpuContext Context => _handle != null ? _context :
-        throw new InvalidOperationException("Architectural Blasphemy: You are trying to extract the Context from a Buffer that you've already sent to the void. A disposed Buffer has no God.");
-
     public GpuBuffer(GpuContext ctx, uint sizeInBytes, BufferUsage usage) 
     {
         _context = ctx;
@@ -34,7 +30,7 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         _handle = ctx.CreateBuffer(sizeInBytes, usage);
     }
     
-    public unsafe GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 
+    public GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 
     {
         _context = ctx;
         Length  = data.Length;
@@ -118,6 +114,36 @@ public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         // 5. Cleanup
         _wgpu.BufferUnmap(readBuffer);
         _wgpu.BufferDestroy(readBuffer);
+    }
+    
+    public void GetContext(ref GpuParamState paramState, string paramName)
+    {
+        if (_handle != null)
+        {
+            if (paramState.context == _context) {
+                return;    
+            }
+            if (paramState.context == null) {
+                paramState.firstParam   = paramName;
+                paramState.context      = _context;
+                return;
+            }
+            throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{paramState.firstParam}'. In this library, we practice Monogamy.");
+        }
+        throw new InvalidOperationException(
+            $"Architectural Blasphemy: You are trying to extract the Context from parameter '{paramName}', which you've already sent to the void. A disposed Buffer has no God and no GPU memory.");
+    }
+}
+
+public struct GpuParamState {
+    public GpuContext   context;
+    public string       firstParam;
+
+    public GpuContext GetContext() {
+        if (context != null) {
+            return context;
+        }
+        throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuContext). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
 }
 

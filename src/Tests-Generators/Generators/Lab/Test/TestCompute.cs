@@ -33,12 +33,14 @@ public static class TestCompute
     }
     
     // generated GPU method
-    // Notes:
-    // - in case this method throws an exception before finishing the pass the task is cleared at next Reset() - no WebGPU leaks.
-    // - method does not need to know how to Finish() an encoder. It asks for Encoder and fills it.
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output)
     {
-        var ctx         = input.gpuBuffer?.Context ?? weight.gpuBuffer?.Context ?? throw new Exception();
+        var paramState = new GpuParamState(); 
+        weight.gpuBuffer.GetContext(ref paramState, nameof(weight));
+        input. gpuBuffer.GetContext(ref paramState, nameof(input));
+        output.gpuBuffer.GetContext(ref paramState, nameof(output));
+        var ctx = paramState.GetContext();
+        
         var gpuOutput   = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
         using var task  = ctx.RentTask();
         {
