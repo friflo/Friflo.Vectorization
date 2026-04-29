@@ -4,6 +4,7 @@ using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using Silk.NET.WebGPU;
 
+// ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
 public static class Test_GPU_Exeptions
@@ -25,23 +26,23 @@ public static class Test_GPU_Exeptions
         using var gpuOutput   = new GpuBuffer<float>(context1, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
         {   // Scope important to Dispose() result 
-            using var result = TestCompute.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+            using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         }
         {
             var e = Assert.Throws<InvalidOperationException>(() => {
-                TestCompute.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+                GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
             });
             StringAssert.StartsWith("Architectural Blasphemy:", e!.Message!);
         } {
 
             using var gpuOutput2 = new GpuBuffer<float>(context2, input,  BufferUsage.Storage);
             var e = Assert.Throws<InvalidOperationException>(() => {
-                TestCompute.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
+                GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });
             StringAssert.StartsWith("Contextual Polygamy:", e!.Message!);
         } {
             var e = Assert.Throws<InvalidOperationException>(() => {
-                TestCompute.ShadowMethod(weight, input, 42, ExeType.GPU, output);
+                GpuPattern.ShadowMethod(weight, input, 42, ExeType.GPU, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         }
