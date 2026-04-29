@@ -55,7 +55,8 @@ public static class TestCompute
                 var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, [
                     GpuBindEntry.From (0, weight.gpuBuffer),
                     GpuBindEntry.From (1, input.gpuBuffer),
-                    ctx.AsUniformEntry(2, uniforms)
+                    ctx.AsUniformEntry(2, uniforms),
+                    GpuBindEntry.From (3, output.gpuBuffer),
                 ]);
                 pass.SetBindGroup(0, bindGroup);
                 pass.DispatchWorkgroups(input.Length / 64, 1, 1);               // Execute ComputePass
@@ -81,9 +82,9 @@ public static class TestCompute
             return gpuEffect;
         }
         layout = ctx.BindGroupLayoutBuilder()
-            .AddBuffer<byte>  (0, "weight")     // @binding(0) var<storage, read> weight
-            .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read> input
-            .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform> uniforms
+            .AddBuffer<byte>  (0, "weight")     // @binding(0) var<storage, read>       weight
+            .AddBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
+            .AddUniform<float>(2, "uniform")    // @binding(2) var<uniform>             uniforms
             .AddBuffer<float> (3, "output")     // @binding(3) var<storage, read_write> output
             .Build();
         
@@ -101,23 +102,22 @@ struct ShadowMethod_Uniforms {
     uniform : f32,
 };
 
-@group(0) @binding(0) var<storage, read> weight: array<u32>; // byte mapping
-@group(0) @binding(1) var<storage, read> input: array<f32>;
-@group(0) @binding(2) var<uniform> uniforms: ShadowMethod_Uniforms;
-@group(0) @binding(3) var<storage, read_write> output: array<f32>;
+@group(0) @binding(0) var<storage, read>        weight:     array<u32>; // byte mapping
+@group(0) @binding(1) var<storage, read>        input:      array<f32>;
+@group(0) @binding(2) var<uniform>              uniforms:   ShadowMethod_Uniforms;
+@group(0) @binding(3) var<storage, read_write>  output:     array<f32>;
 
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;
-    if (index >= arrayLength(&input)) { return; }
-
-    // HIER kommt dein Shader-Body rein, den der Generator einfach einfügt:
-    // output[index] = input[index] * uniforms.uniform + f32(weight[index]);
+    
+    let weight_scalar = f32(weight[index]); // cast u32 -> f32
+    // shader body generated from Blueprint method body
+    output[index] = (input[index] * weight_scalar) + uniforms.uniform;
 }
 ";
-
     
-    // Vom Source Generator erzeugtes Struct für die Uniforms
+    // struct for uniforms
     [StructLayout(LayoutKind.Sequential)]
     private struct ShadowMethod_Uniforms
     {
