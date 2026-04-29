@@ -13,15 +13,23 @@ public unsafe class GpuBuffer<T> where T : unmanaged
 {
     public readonly Buffer*     Handle;
     public readonly GpuContext  Context;  // Creator of GpuBuffer
-    public          int         Length; 
+    public          int         Length;
+    private         uint        SizeInBytes;
     public          GpuTask     LastWritingTask;
 
 //  public readonly unsafe Buffer* Ptr;
 
-    public GpuBuffer(GpuContext ctx, uint size, BufferUsage usage) 
+    public GpuBuffer(GpuContext ctx, uint sizeInBytes, BufferUsage usage) 
     {
         Context = ctx;
-        // Ptr = ctx.CreateBuffer(size); ...
+        // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
+        SizeInBytes = sizeInBytes; 
+        
+        // Wir berechnen die Länge basierend auf dem Typ T (z.B. float = 4 Bytes)
+        Length = (int)(sizeInBytes / sizeof(T));
+
+        // Den Pointer von der API holen
+        Handle = ctx.CreateBuffer(sizeInBytes, usage);
     }
     
     public unsafe GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 

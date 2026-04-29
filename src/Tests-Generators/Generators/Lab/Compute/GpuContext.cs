@@ -281,6 +281,24 @@ public unsafe class GpuContext : IDisposable
         
         return buffer;
     }
+    
+    public Buffer* CreateBuffer(uint size, BufferUsage usage)
+    {
+        var desc = new BufferDescriptor
+        {
+            Size = size,
+            Usage = usage,
+            MappedAtCreation = false // Der Buffer ist initial leer/ungemappt
+        };
+
+        var buffer = _wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        
+        if (buffer == null) {
+            throw new Exception("GPU Memory Allocation failed! Zu wenig VRAM oder falsches Alignment?");
+        }
+
+        return buffer;
+    }
 
     public unsafe GpuShaderModule CreateShaderModule(string wgslSource)
     {
