@@ -199,15 +199,6 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuEncoder(task, encoder);
     }
 
-    public void Submit(GpuCommandBuffer commandBuffer) {
-        var handle = commandBuffer.handle;
-        // WebGPU erwartet ein Array von CommandBuffern
-        wgpu.QueueSubmit(QueuePtr, 1, &handle);
-        
-        // Optional: Den Buffer releasen, wenn er nicht mehr gebraucht wird
-        // wgpu.CommandBufferRelease(handle);                                       TODO
-    }
-    
     internal void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
         queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
@@ -255,7 +246,7 @@ public sealed unsafe class GpuContext : IDisposable
             var tasks = pendingTasks;
             var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
             for (int n = 0; n < tasks.Count; n++) {
-                commandBuffers[n] = pendingTasks[n].CommandBuffer!.handle;
+                commandBuffers[n] = pendingTasks[n].commandBuffer;
             }
             wgpu.QueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
             
@@ -304,7 +295,7 @@ public sealed unsafe class GpuContext : IDisposable
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = task.CommandBuffer!.handle;
+            var ptr = task.commandBuffer;
             wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;

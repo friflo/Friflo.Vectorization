@@ -14,7 +14,7 @@ public sealed unsafe class GpuTask : IDisposable
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
     private readonly    List<nint>          createdBindGroups = new();  // GpuTask owns all created BindGroup* and ensures release  
-    internal            GpuCommandBuffer    CommandBuffer   { get; }
+    internal            CommandBuffer*      commandBuffer;
     private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
     
     private readonly    int                 taskIndex;
@@ -32,7 +32,6 @@ public sealed unsafe class GpuTask : IDisposable
         this.taskIndex  = taskIndex;
         uniformBase     = (uint)(taskIndex * context.slotSize);
         stagingBuffer   = new byte[context.slotSize];
-        CommandBuffer   = new GpuCommandBuffer(context);
     }
     
     // The task provides / owns the Encoder
@@ -74,7 +73,7 @@ public sealed unsafe class GpuTask : IDisposable
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         
         var descriptor = new CommandBufferDescriptor();
-        CommandBuffer.handle = context.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
+        commandBuffer  = context.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
 
         if (currentEncoder != null) {
             context.wgpu.CommandEncoderRelease(currentEncoder);
@@ -113,10 +112,10 @@ public sealed unsafe class GpuTask : IDisposable
         }
         createdBindGroups.Clear();
         
-        var bufferHandler = CommandBuffer.handle;
+        var bufferHandler = commandBuffer;
         if (bufferHandler != null) {
-            CommandBuffer.context.wgpu.CommandBufferRelease(bufferHandler);
-            CommandBuffer.handle = null;
+            context.wgpu.CommandBufferRelease(bufferHandler);
+            commandBuffer = null;
         }
         uniformOffset = 0; // reset local uniform cursor
         

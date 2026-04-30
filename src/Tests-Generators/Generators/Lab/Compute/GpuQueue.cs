@@ -25,13 +25,6 @@ internal readonly unsafe struct GpuQueue
         context.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
-    public void Submit(GpuCommandBuffer commandBuffer)
-    {
-        var bufferHandle  = commandBuffer.handle;
-        var ctx     = context;
-        ctx.wgpu.QueueSubmit(ctx.QueuePtr, 1, &bufferHandle);
-    }
-    
     // TODO use this static method to avoid allocation by lambda
     private static void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
     {
