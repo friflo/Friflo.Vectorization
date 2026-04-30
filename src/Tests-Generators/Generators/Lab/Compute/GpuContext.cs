@@ -12,6 +12,23 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable SwapViaDeconstruction
 namespace Friflo.Vectorization.GPU;
 
+//      Feature Set / Properties
+//      -------------------------
+// Core Architecture & Philosophy
+//  - Zero-Allocation Steady State:     no managed allocation during main execution loop
+//  - Mechanical Sympathy Design:       Focus on CPU cache efficiency.
+//  - Stateless Execution Flow:         High-level logic is decoupled from resource management
+// GPU & Compute Capabilities
+//  - Cross-Backend Compatibility:      unified API for Vulkan, DirectX 12, and Metal
+//  - Hybrid Compute Support:           Seamlessly switch between Hardware Acceleration (GPU), AVX/SIMD or Scalar
+//  - Non-Blocking Dependency Tracking: Automatic GPU task synchronization via a "Last Writing Task" mechanism
+// Resource & Thread Management     
+//  - Thread-Safe Command Dispatch      Designed for multithreaded environments
+//  - Low-Overhead Resource Pooling     Efficient "Rent/Return" patterns for Tasks and Buffers to maintain a fixed memory footprint
+//  - Type-Safe Buffer Abstraction      GpuBuffer<T> system bridges the gap between managed C# types and raw GPU memory.
+// Developer Ergonomics
+//  - Lean Codebase                     less than 40 KB minimizes instruction cache misses
+//  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuContext : IDisposable
 {
     internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
