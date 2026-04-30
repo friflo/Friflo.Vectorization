@@ -257,7 +257,7 @@ public sealed unsafe class GpuContext : IDisposable
             for (int n = 0; n < tasks.Count; n++) {
                 commandBuffers[n] = pendingTasks[n].CommandBuffer!.handle;
             }
-            wgpu.QueueSubmit(queue.Handle, (uint)tasks.Count, commandBuffers);
+            wgpu.QueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
             
             // Swap list references
             var temp        = inFlightTasks;
@@ -265,7 +265,7 @@ public sealed unsafe class GpuContext : IDisposable
             pendingTasks   = temp;
             
             // Register callback for the new In-Flight batch
-            wgpu.QueueOnSubmittedWorkDone(queue.Handle, WorkDoneCallback, contextHandlePtr);
+            wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, contextHandlePtr);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {

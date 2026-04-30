@@ -9,27 +9,27 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU;
 
-internal sealed unsafe class GpuQueue
+internal readonly unsafe struct GpuQueue
 {
-    private readonly    GpuContext  context;
-    internal            Queue*      Handle { get; private set; }
+    private  readonly   GpuContext  context;
+    internal readonly   Queue*      handle;
     
     public GpuQueue(GpuContext ctx, Queue* handle) {
-        context = ctx;
-        Handle  = handle;
+        context     = ctx;
+        this.handle = handle;
     }
     
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
         var ctx = context;
-        ctx.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
+        context.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     public void Submit(GpuCommandBuffer commandBuffer)
     {
-        var handle  = commandBuffer.handle;
+        var bufferHandle  = commandBuffer.handle;
         var ctx     = context;
-        ctx.wgpu.QueueSubmit(ctx.QueuePtr, 1, &handle);
+        ctx.wgpu.QueueSubmit(ctx.QueuePtr, 1, &bufferHandle);
     }
     
     // TODO use this static method to avoid allocation by lambda
@@ -64,6 +64,6 @@ internal sealed unsafe class GpuQueue
         void* userData = (void*)GCHandle.ToIntPtr(handle);
 
         // call native API with static function pointer
-        context.wgpu.QueueOnSubmittedWorkDone(Handle, NativeWorkDoneCallback, userData);
+        context.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
     }
 }
