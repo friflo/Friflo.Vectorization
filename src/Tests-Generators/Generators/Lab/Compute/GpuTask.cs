@@ -3,16 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Silk.NET.WebGPU;
 
 namespace Friflo.Vectorization.GPU;
 
-public sealed class GpuTask : IDisposable
+public sealed unsafe class GpuTask : IDisposable
 {
-    private             GpuEncoder?         _currentEncoder;
-    public              GpuCommandBuffer    CommandBuffer { get; }
-    private readonly    List<GpuTask>       Dependencies = new();  // Tasks that MUST finish before this one starts
+    private readonly    GpuContext          context;
+    private             CommandEncoder*     currentEncoder;
+    internal            GpuCommandBuffer    CommandBuffer { get; }
+    private readonly    List<GpuTask>       dependencies = new();  // Tasks that MUST finish before this one starts
     
     // A simple state flag for the scheduler
     public              bool                IsSubmitted { get; internal set; }
@@ -21,111 +21,73 @@ public sealed class GpuTask : IDisposable
 
     // Constructor for real GPU work
     internal GpuTask(GpuContext context) {
-        CommandBuffer = new GpuCommandBuffer(context);
+        this.context    = context;
+        CommandBuffer   = new GpuCommandBuffer(context);
     }
     
     // The task provides / owns the Encoder
     public GpuEncoder GetEncoder(GpuContext ctx) {
-        return _currentEncoder ??= ctx.CreateEncoder();
+        var encoder = ctx.CreateEncoder(); 
+        currentEncoder = encoder.handle;
+        return encoder;
     }
     
-    /*
-    // Before Task is pushed to Queue we Finish() _currentEncoder first  
-    internal GpuCommandBuffer FinalizeCommands()
+    public void Finish(GpuEncoder encoder)
     {
-        if (CommandBuffer != null) return CommandBuffer;
-        
-        if (_currentEncoder == null) throw new Exception("Task has no commands");
-        
-        CommandBuffer = _currentEncoder.Finish();
-        _currentEncoder.Dispose(); // Encoder zurück in den Pool
-        _currentEncoder = null;
-        return CommandBuffer;
-    } */
-    
-    public unsafe void Finish(GpuEncoder encoder)
-    {
-        // Finalize the recording and get the executable CommandBuffer
-        // The encoder is now "consumed" and cannot be used anymore.
-        var context = encoder.Context;
-
         var descriptor = new CommandBufferDescriptor();
-        CommandBuffer.Handle = context._wgpu.CommandEncoderFinish(encoder.Handle, &descriptor);
+        CommandBuffer.Handle = context._wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
 
-        // Cleanup the encoder immediately
-        // In WebGPU, once you have the CommandBuffer, the Encoder is dead weight.
-        context._wgpu.CommandEncoderRelease(encoder.Handle);
+        if (currentEncoder != null) {
+            context._wgpu.CommandEncoderRelease(currentEncoder);
+            currentEncoder = null;
+        }
     }
     
-    internal unsafe void Reset()
+    internal void Reset()
     {
         var bufferHandler = CommandBuffer.Handle;
         if (bufferHandler != null) {
             CommandBuffer.Context._wgpu.CommandBufferRelease(bufferHandler);
             CommandBuffer.Handle = null;
         }
-        _currentEncoder = null; // was already Disposed()
-        IsCompleted = false;
-        IsSubmitted = false;
-        Dependencies.Clear();
+        currentEncoder 	= null;
+        IsCompleted 	= false;
+        IsSubmitted 	= false;
+        dependencies.Clear();
     }
 
-    // Constructor for the static Completed singleton
-    private GpuTask(bool isStatic)
-    {
-        IsCompleted = true;
-    }
-    
     public void AddDependency(GpuTask predecessor) {
         if (predecessor == this) return; // Prevent brain-loop
-        if (!Dependencies.Contains(predecessor))
+        if (!dependencies.Contains(predecessor))
         {
-            Dependencies.Add(predecessor);
-        }
-    }
-
-    /// <summary>
-    /// Provides an awaitable bridge for the sync-started GPU work.
-    /// </summary>
-    public async Task Completion()
-    {
-        // In einer echten Implementierung würdest du hier ein Callback von WebGPU abwarten.
-        // Bis dahin hilft oft eine Schleife, die den Status prüft:
-        while(!IsCompleted) {
-            // _ctx.Poll(); // Ruft intern wgpuDevicePoll auf
-            await Task.Yield(); 
+            dependencies.Add(predecessor);
         }
     }
 
     public void Dispose()
     {
-        // In a real scenario, you might release specific task-related fences here.
+        if (currentEncoder != null) {
+            context._wgpu.CommandEncoderRelease(currentEncoder);
+            currentEncoder = null;
+        }
     }
 }
 
-public unsafe class GpuEncoder : IDisposable
+public readonly unsafe struct GpuEncoder
 {
-    public  GpuContext      Context;
-    public  CommandEncoder* Handle { get; private set; }
+    internal readonly   GpuContext      context;
+    internal readonly   CommandEncoder* handle;
     
     internal GpuEncoder(GpuContext context, CommandEncoder* handle) {
-        Context = context;
-        Handle  = handle;
-    }
-    
-    ~GpuEncoder() => Dispose();
-    
-    public void Dispose() {
-        if (Handle != null) Context._wgpu.CommandEncoderRelease(Handle);
-        Handle = null;
-        Context = null;
+        this.context = context;
+        this.handle  = handle;
     }
     
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
     {
         ComputePassDescriptor desc = new ComputePassDescriptor { Label = null };
-        var passHandle = Context._wgpu.CommandEncoderBeginComputePass(Handle, &desc);
+        var passHandle = context._wgpu.CommandEncoderBeginComputePass(handle, &desc);
         
         return new GpuComputePass(this, passHandle);
     }

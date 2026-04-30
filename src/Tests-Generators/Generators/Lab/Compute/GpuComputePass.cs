@@ -20,16 +20,16 @@ public unsafe class GpuComputePass : IDisposable {
     public void Dispose() {
         End(); // Sicherstellen, dass der Pass beendet wurde
         // Den nativen Pass-Encoder freigeben
-        if (Handle != null) _encoder.Context._wgpu.ComputePassEncoderRelease(Handle);
+        if (Handle != null) _encoder.context._wgpu.ComputePassEncoderRelease(Handle);
     }
 
     public void SetPipeline(GpuComputePipeline pipeline)
     {
-        _encoder.Context._wgpu.ComputePassEncoderSetPipeline(Handle, pipeline.Handle);
+        _encoder.context._wgpu.ComputePassEncoderSetPipeline(Handle, pipeline.Handle);
     }
     
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
-        _encoder.Context._wgpu.ComputePassEncoderDispatchWorkgroups(
+        _encoder.context._wgpu.ComputePassEncoderDispatchWorkgroups(
             Handle, 
             (uint)workgroupCountX, 
             (uint)workgroupCountY, 
@@ -40,7 +40,7 @@ public unsafe class GpuComputePass : IDisposable {
     public void End()
     {
         if (!_hasEnded) {
-            _encoder.Context._wgpu.ComputePassEncoderEnd(Handle);
+            _encoder.context._wgpu.ComputePassEncoderEnd(Handle);
             _hasEnded = true;
         }
     }
@@ -48,7 +48,7 @@ public unsafe class GpuComputePass : IDisposable {
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
         // Der vierte und fünfte Parameter sind für dynamische Offsets (hier 0/null)
-        _encoder.Context._wgpu.ComputePassEncoderSetBindGroup(Handle, (uint)groupIndex, bindGroup.Handle, 0, null);
+        _encoder.context._wgpu.ComputePassEncoderSetBindGroup(Handle, (uint)groupIndex, bindGroup.Handle, 0, null);
     }
 }
 
