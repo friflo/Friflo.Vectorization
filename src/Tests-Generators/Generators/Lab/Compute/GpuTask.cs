@@ -11,14 +11,15 @@ namespace Friflo.Vectorization.GPU;
 public sealed unsafe class GpuTask : IDisposable
 {
     internal readonly   GpuContext          context;
-    private             CommandEncoder*     currentEncoder; // GpuTask owns the pointer and ensures release
-    internal            ComputePassEncoder* currentPass;    // GpuTask owns the pointer and ensures release
-    internal            GpuCommandBuffer    CommandBuffer { get; }
+    private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
+    internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
+    private readonly    List<nint>          createdBindGroups = new();  // GpuTask owns all created BindGroup* and ensures release  
+    internal            GpuCommandBuffer    CommandBuffer   { get; }
     private readonly    List<GpuTask>       dependencies = new();  // Tasks that MUST finish before this one starts
     
     // A simple state flag for the scheduler
-    public              bool                IsSubmitted { get; internal set; }
-    public              bool                IsCompleted { get; internal set; }
+    public              bool                IsSubmitted     { get; internal set; }
+    public              bool                IsCompleted     { get; internal set; }
     
 
     // Constructor for real GPU work
@@ -45,8 +46,38 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
     
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
+    {
+        var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
+
+        for (int i = 0; i < bindEntries.Length; i++)
+        {
+            var bindEntry = bindEntries[i];
+            nativeEntries[i] = new BindGroupEntry {
+                Binding =   bindEntry.Binding,
+                Buffer =    bindEntry.BufferHandle,    // Direct handle to the native WGPUBuffer
+                Offset =    bindEntry.Offset,          // The byte offset (crucial for our Uniform Pool)
+                Size =      bindEntry.Size             // The byte size of the slice
+            };
+        }
+        var descriptor = new BindGroupDescriptor {
+            Layout      = layout.Handle,
+            EntryCount  = (uint)bindEntries.Length,
+            Entries     = nativeEntries
+        };
+        var handle = layout.Context._wgpu.DeviceCreateBindGroup(context.DevicePtr, &descriptor);
+        createdBindGroups.Add((nint)handle);
+        return new GpuBindGroup(handle);
+    }
+
+    
     internal void Reset()
     {
+        foreach (var ptr in createdBindGroups) {
+            context._wgpu.BindGroupRelease((BindGroup*)ptr);
+        }
+        createdBindGroups.Clear();
+        
         var bufferHandler = CommandBuffer.Handle;
         if (bufferHandler != null) {
             CommandBuffer.Context._wgpu.CommandBufferRelease(bufferHandler);
@@ -137,6 +168,15 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
-        task.context._wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.Handle, 0, null);
+        task.context._wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
+    }
+}
+
+public readonly unsafe struct GpuBindGroup
+{
+    internal readonly BindGroup* handle;
+    
+    internal GpuBindGroup(BindGroup* handle) {
+        this.handle = handle;
     }
 }

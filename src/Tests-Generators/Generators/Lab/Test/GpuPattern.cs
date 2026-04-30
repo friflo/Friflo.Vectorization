@@ -59,7 +59,7 @@ public static class GpuPattern
             entries[2] = ctx.AsUniformEntry(2, uniforms);
             entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
             
-            var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, entries);
+            var bindGroup = task.CreateBindGroup(gpuEffect.Layout, entries);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)

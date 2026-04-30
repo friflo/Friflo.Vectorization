@@ -192,32 +192,6 @@ public unsafe class GpuContext : IDisposable
         return new GpuBindGroupLayoutBuilder(this);
     }
 
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
-    {
-        // Allocate native entries on the stack (efficient, no GC pressure)
-        var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
-
-        for (int i = 0; i < bindEntries.Length; i++)
-        {
-            var bindEntry = bindEntries[i];
-            nativeEntries[i] = new BindGroupEntry {
-                Binding =   bindEntry.Binding,
-                Buffer =    bindEntry.BufferHandle,    // Direct handle to the native WGPUBuffer
-                Offset =    bindEntry.Offset,          // The byte offset (crucial for our Uniform Pool)
-                Size =      bindEntry.Size             // The byte size of the slice
-            };
-        }
-
-        // Prepare the descriptor for the native API call
-        var descriptor = new BindGroupDescriptor {
-            Layout      = layout.Handle,
-            EntryCount  = (uint)bindEntries.Length,
-            Entries     = nativeEntries
-        };
-        BindGroup* handle = layout.Context._wgpu.DeviceCreateBindGroup(DevicePtr, &descriptor);   // segfault
-        return new GpuBindGroup(handle);
-    }
-
     private GpuBuffer<byte> _uniformPool;
     private uint            _poolOffset = 0;
     
@@ -468,14 +442,5 @@ public unsafe class GpuShaderModule
     
     internal GpuShaderModule(ShaderModule* handle) {
         Handle = handle;    
-    }
-}
-
-public unsafe class GpuBindGroup
-{
-    public BindGroup* Handle { get; }
-    
-    public GpuBindGroup(BindGroup* handle) {
-        Handle = handle;
     }
 }
