@@ -83,14 +83,14 @@ public static class GpuPattern
             return gpuEffect;
         }
         var layout = ctx.BindGroupLayoutBuilder()       //   TODO Allocates BindGroupLayoutBuilder - check if it can be reused 
-            .AddReadOnlyBuffer<float> (0, "weight")     // @binding(0) var<storage, read>       weight
-            .AddReadOnlyBuffer<float> (1, "input")      // @binding(1) var<storage, read>       input
-            .AddUniform<float>        (2, "uniform")    // @binding(2) var<uniform>             uniforms
-            .AddBuffer<float>         (3, "output")     // @binding(3) var<storage, read_write> output
+            .AddReadOnlyBuffer<float> (0, "weight"u8)   // @binding(0) var<storage, read>       weight
+            .AddReadOnlyBuffer<float> (1, "input"u8)    // @binding(1) var<storage, read>       input
+            .AddUniform<float>        (2, "uniform"u8)  // @binding(2) var<uniform>             uniforms
+            .AddBuffer<float>         (3, "output"u8)   // @binding(3) var<storage, read_write> output
             .Build("ShadowMethod_GPU\0"u8); // Build() pins the literal 
         
         var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader());
-        var pipeline        = ctx.CreateComputePipeline(shaderModule, "main", layout);
+        var pipeline        = ctx.CreateComputePipeline(shaderModule, "main"u8, layout);
         
         gpuEffect = new GpuEffect { Layout = layout, Pipeline = pipeline };
         ctx.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);

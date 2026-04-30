@@ -383,11 +383,10 @@ public sealed unsafe class GpuContext : IDisposable
         }
     }
     
-    public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, string entryPoint, GpuBindGroupLayout layout)
+    public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, ReadOnlySpan<byte> entryPoint, GpuBindGroupLayout layout)
     {
         var pipelineLayout = CreatePipelineLayout(layout);
-        byte[] entryPointBytes = Encoding.UTF8.GetBytes(entryPoint);
-        fixed (byte* pEntryPoint = entryPointBytes)
+        fixed (byte* pEntryPoint = entryPoint)
         {
             var desc = new ComputePipelineDescriptor
             {

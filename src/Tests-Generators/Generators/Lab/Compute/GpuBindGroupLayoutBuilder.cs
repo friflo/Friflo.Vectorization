@@ -31,19 +31,19 @@ public sealed class GpuBindGroupLayoutBuilder
         });
     }
     
-    public GpuBindGroupLayoutBuilder AddBuffer<T>(int binding, string name) where T : unmanaged
+    public GpuBindGroupLayoutBuilder AddBuffer<T>(int binding, ReadOnlySpan<byte> name) where T : unmanaged
     {
         AddLayoutEntry (binding, BufferBindingType.Storage);
         return this;
     }
     
-    public GpuBindGroupLayoutBuilder AddReadOnlyBuffer<T>(int binding, string name) where T : unmanaged
+    public GpuBindGroupLayoutBuilder AddReadOnlyBuffer<T>(int binding, ReadOnlySpan<byte> name) where T : unmanaged
     {
         AddLayoutEntry (binding, BufferBindingType.ReadOnlyStorage);
         return this;
     }
 
-    public GpuBindGroupLayoutBuilder AddUniform<T>(int binding, string name) where T : unmanaged
+    public GpuBindGroupLayoutBuilder AddUniform<T>(int binding, ReadOnlySpan<byte> name) where T : unmanaged
     {
         AddLayoutEntry (binding, BufferBindingType.Uniform);
         return this;
