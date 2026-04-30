@@ -52,7 +52,7 @@ public sealed unsafe class GpuTask : IDisposable
             CommandBuffer.Context._wgpu.CommandBufferRelease(bufferHandler);
             CommandBuffer.Handle = null;
         }
-        currentEncoder 	= null;
+        Dispose();
         IsCompleted 	= false;
         IsSubmitted 	= false;
         dependencies.Clear();
