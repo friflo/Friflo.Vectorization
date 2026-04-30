@@ -10,7 +10,7 @@ namespace Friflo.Vectorization.GPU;
 public sealed unsafe class GpuTask : IDisposable
 {
     private readonly    GpuContext          context;
-    private             CommandEncoder*     currentEncoder;
+    private             CommandEncoder*     currentEncoder; // GpuTask owns the pointer and ensures release
     internal            GpuCommandBuffer    CommandBuffer { get; }
     private readonly    List<GpuTask>       dependencies = new();  // Tasks that MUST finish before this one starts
     

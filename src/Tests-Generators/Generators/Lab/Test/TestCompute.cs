@@ -98,6 +98,7 @@ public static class TestCompute
         
         gpuOutput.Download(result, output);
         Console.WriteLine($"output[0] {output[0]}");
+        Assert.AreEqual(42, output[0]);
     }
     
 }
