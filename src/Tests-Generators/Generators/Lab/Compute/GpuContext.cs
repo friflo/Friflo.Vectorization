@@ -470,3 +470,12 @@ public unsafe class GpuShaderModule
         Handle = handle;    
     }
 }
+
+public unsafe class GpuBindGroup
+{
+    public BindGroup* Handle { get; }
+    
+    public GpuBindGroup(BindGroup* handle) {
+        Handle = handle;
+    }
+}
