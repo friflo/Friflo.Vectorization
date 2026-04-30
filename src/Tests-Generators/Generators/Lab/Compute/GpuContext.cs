@@ -397,7 +397,7 @@ public sealed unsafe class GpuContext : IDisposable
                 }
             };
             var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
-            return new GpuComputePipeline(handle, pipelineLayout);
+            return new GpuComputePipeline(handle);
         }
     }
     
@@ -418,19 +418,17 @@ public sealed class GpuEffect
     public required GpuComputePipeline Pipeline { get; init; }
 }
 
-public sealed unsafe class GpuComputePipeline
+public readonly unsafe struct GpuComputePipeline
 {
     internal readonly ComputePipeline* handle;
-    internal readonly PipelineLayout*  layout;
     
-    internal GpuComputePipeline(ComputePipeline* handle, PipelineLayout* layout) {
+    internal GpuComputePipeline(ComputePipeline* handle) {
         this.handle = handle;
-        this.layout = layout;
     }
 }
 
 
-public sealed unsafe class GpuShaderModule
+public readonly unsafe struct GpuShaderModule
 {
     internal readonly ShaderModule* handle;
     
