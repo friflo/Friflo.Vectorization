@@ -366,11 +366,9 @@ public sealed unsafe class GpuContext : IDisposable
         return buffer;
     }
 
-    public GpuShaderModule CreateShaderModule(string wgslSource)
+    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource)
     {
-        byte[] shaderBytes = Encoding.UTF8.GetBytes(wgslSource);
-        
-        fixed (byte* pShaderBytes = shaderBytes)
+        fixed (byte* pShaderBytes = wgslSource)
         {
             // create descriptor
             var wgslDesc = new ShaderModuleWGSLDescriptor {
