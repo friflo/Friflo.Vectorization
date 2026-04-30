@@ -187,7 +187,7 @@ public sealed unsafe class GpuContext : IDisposable
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
-        string errorMsg = Marshal.PtrToStringAnsi((IntPtr)message);
+        string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine("--- [WEBGPU CRITICAL ERROR] ---");
         Console.Error.WriteLine($"Type: {type}");
