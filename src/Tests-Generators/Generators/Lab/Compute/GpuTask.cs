@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using Silk.NET.WebGPU;
 
+// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuTask : IDisposable
 {
-    private readonly    GpuContext          context;
+    internal readonly   GpuContext          context;
     private             CommandEncoder*     currentEncoder; // GpuTask owns the pointer and ensures release
+    internal            ComputePassEncoder* currentPass;    // GpuTask owns the pointer and ensures release
     internal            GpuCommandBuffer    CommandBuffer { get; }
     private readonly    List<GpuTask>       dependencies = new();  // Tasks that MUST finish before this one starts
     
@@ -27,8 +29,8 @@ public sealed unsafe class GpuTask : IDisposable
     
     // The task provides / owns the Encoder
     public GpuEncoder GetEncoder(GpuContext ctx) {
-        var encoder = ctx.CreateEncoder(); 
-        currentEncoder = encoder.handle;
+        var encoder     = ctx.CreateEncoder(this); 
+        currentEncoder  = encoder.handle;
         return encoder;
     }
     
@@ -66,75 +68,75 @@ public sealed unsafe class GpuTask : IDisposable
 
     public void Dispose()
     {
+        ClosePass();
         if (currentEncoder != null) {
             context._wgpu.CommandEncoderRelease(currentEncoder);
             currentEncoder = null;
+        }
+    }
+    
+    internal void ClosePass() {
+        if (currentPass != null) {
+            context._wgpu.ComputePassEncoderEnd(currentPass);
+            context._wgpu.ComputePassEncoderRelease(currentPass);
+            currentPass = null;
         }
     }
 }
 
 public readonly unsafe struct GpuEncoder
 {
-    internal readonly   GpuContext      context;
+    private  readonly   GpuTask         task;
     internal readonly   CommandEncoder* handle;
     
-    internal GpuEncoder(GpuContext context, CommandEncoder* handle) {
-        this.context = context;
-        this.handle  = handle;
+    internal GpuEncoder(GpuTask task, CommandEncoder* handle) {
+        this.task   = task;
+        this.handle = handle;
     }
     
     // --- ComputePass methods
     public GpuComputePass BeginComputePass()
     {
-        ComputePassDescriptor desc = new ComputePassDescriptor { Label = null };
-        var passHandle = context._wgpu.CommandEncoderBeginComputePass(handle, &desc);
-        
-        return new GpuComputePass(this, passHandle);
+        var desc            = new ComputePassDescriptor { Label = null };
+        var passHandle      = task.context._wgpu.CommandEncoderBeginComputePass(handle, &desc);
+        task.currentPass    = passHandle;
+        return new GpuComputePass(task, passHandle);
     }
 }
 
-public unsafe class GpuComputePass : IDisposable {
-    private readonly    GpuEncoder          _encoder;
-    public              ComputePassEncoder* Handle { get; }
-    private             bool                _hasEnded = false;
+public readonly unsafe struct GpuComputePass : IDisposable {
+    private readonly    GpuTask             task;
+    private readonly    ComputePassEncoder* handle;
     
-    public GpuComputePass(GpuEncoder encoder, ComputePassEncoder* handle)
-    {
-        _encoder = encoder;
-        Handle   = handle;
+    public GpuComputePass(GpuTask task, ComputePassEncoder* handle) {
+        this.task   = task;
+        this.handle = handle;
     }
     
     public void Dispose() {
-        End(); // Sicherstellen, dass der Pass beendet wurde
-        // Den nativen Pass-Encoder freigeben
-        if (Handle != null) _encoder.context._wgpu.ComputePassEncoderRelease(Handle);
+        End();
     }
 
-    public void SetPipeline(GpuComputePipeline pipeline)
-    {
-        _encoder.context._wgpu.ComputePassEncoderSetPipeline(Handle, pipeline.Handle);
+    public void SetPipeline(GpuComputePipeline pipeline) {
+        task.context._wgpu.ComputePassEncoderSetPipeline(handle, pipeline.Handle);
     }
     
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
-        _encoder.context._wgpu.ComputePassEncoderDispatchWorkgroups(
-            Handle, 
+        task.context._wgpu.ComputePassEncoderDispatchWorkgroups(
+            handle, 
             (uint)workgroupCountX, 
             (uint)workgroupCountY, 
             (uint)workgroupCountZ
         );
     }
 
-    public void End()
-    {
-        if (!_hasEnded) {
-            _encoder.context._wgpu.ComputePassEncoderEnd(Handle);
-            _hasEnded = true;
-        }
+    public void End() {
+        task.ClosePass(); 
     }
 
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
-        // Der vierte und fünfte Parameter sind für dynamische Offsets (hier 0/null)
-        _encoder.context._wgpu.ComputePassEncoderSetBindGroup(Handle, (uint)groupIndex, bindGroup.Handle, 0, null);
+        // 4th and 5th parameter are for dynamic offsets (0/null)
+        task.context._wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.Handle, 0, null);
     }
 }
