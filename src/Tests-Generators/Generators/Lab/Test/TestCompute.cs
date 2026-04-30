@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -90,8 +91,12 @@ public static class TestCompute
         using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
         for (int n = 0; n < 2; ++n) {
-            GpuBuffer<float> temp = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);    
+            GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);    
         }
+        var start = Mem.GetAllocatedBytes();
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+        Mem.AssertNoAlloc(start);
+        
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         
         context.Wait(result);

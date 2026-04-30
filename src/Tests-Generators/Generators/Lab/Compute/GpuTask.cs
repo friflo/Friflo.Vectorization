@@ -13,7 +13,9 @@ public sealed unsafe class GpuTask : IDisposable
     internal readonly   GpuContext          context;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
-    private readonly    List<nint>          createdBindGroups = new();  // GpuTask owns all created BindGroup* and ensures release  
+    // Pre-allocated to avoid heap growth during the hot loop.
+    // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
+    private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
     internal            CommandBuffer*      commandBuffer;
     private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
     
