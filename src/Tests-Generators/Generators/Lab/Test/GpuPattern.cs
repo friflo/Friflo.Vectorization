@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable UnusedParameter.Local
@@ -51,13 +52,14 @@ public static class GpuPattern
             var gpuEffect = ShadowMethod_GPU_GetGpuEffect(ctx);
             pass.SetPipeline(gpuEffect.Pipeline);                  // Set Pipeline to "MyShader"
             
-            var uniforms  = new ShadowMethod_Uniforms { uniform = uniform };
-            var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, [ // CreateBindGroup uses Span<GpuBindEntry> parameter
+            var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
+            ReadOnlySpan<GpuBindEntry> bindEntries = [
                 GpuBindEntry.From (0, weight.gpuBuffer),
                 GpuBindEntry.From (1, input.gpuBuffer),
                 ctx.AsUniformEntry(2, uniforms),
-                GpuBindEntry.From (3, output.gpuBuffer),
-            ]);
+                GpuBindEntry.From (3, output.gpuBuffer)
+            ];
+            var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, bindEntries);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
