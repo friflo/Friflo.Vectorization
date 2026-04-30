@@ -79,7 +79,7 @@ public static class GpuPattern
     {
         var gpuEffect = ctx.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
 
-        if (gpuEffect.isCreated) {
+        if (gpuEffect.IsCreated) {
             return gpuEffect;
         }
         Span<GpuLayoutEntry> entries = stackalloc GpuLayoutEntry[4];

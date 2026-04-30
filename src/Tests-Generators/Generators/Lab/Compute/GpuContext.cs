@@ -447,16 +447,15 @@ public sealed unsafe class GpuContext : IDisposable
     }
 }
 
-public readonly struct GpuEffect 
+public readonly unsafe struct GpuEffect 
 {
     public readonly GpuBindGroupLayout  layout;
     public readonly GpuComputePipeline  pipeline;
-    public readonly bool                isCreated;
+    public          bool                IsCreated => layout.handle != null;
     
     public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
         this.layout     = layout;
         this.pipeline   = pipeline;
-        isCreated  = true;
     }
 }
 
