@@ -53,13 +53,13 @@ public static class GpuPattern
             pass.SetPipeline(gpuEffect.Pipeline);                  // Set Pipeline to "MyShader"
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
-            ReadOnlySpan<GpuBindEntry> bindEntries = [
-                GpuBindEntry.From (0, weight.gpuBuffer),
-                GpuBindEntry.From (1, input.gpuBuffer),
-                ctx.AsUniformEntry(2, uniforms),
-                GpuBindEntry.From (3, output.gpuBuffer)
-            ];
-            var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, bindEntries);
+            Span<GpuBindEntry> entries = stackalloc GpuBindEntry[4];
+            entries[0] = GpuBindEntry.From(0, weight.gpuBuffer);
+            entries[1] = GpuBindEntry.From(1, input.gpuBuffer);
+            entries[2] = ctx.AsUniformEntry(2, uniforms);
+            entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
+            
+            var bindGroup = ctx.CreateBindGroup(gpuEffect.Layout, entries);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)

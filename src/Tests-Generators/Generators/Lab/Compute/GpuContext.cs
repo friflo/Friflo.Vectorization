@@ -192,7 +192,7 @@ public unsafe class GpuContext : IDisposable
         return new GpuBindGroupLayoutBuilder(this);
     }
 
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, ReadOnlySpan<GpuBindEntry> bindEntries)
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
     {
         // Allocate native entries on the stack (efficient, no GC pressure)
         var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
