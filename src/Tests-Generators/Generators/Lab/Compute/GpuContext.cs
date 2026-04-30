@@ -27,7 +27,7 @@ namespace Friflo.Vectorization.GPU;
 //  - Low-Overhead Resource Pooling     Efficient "Rent/Return" patterns for Tasks and Buffers to maintain a fixed memory footprint
 //  - Type-Safe Buffer Abstraction      GpuBuffer<T> system bridges the gap between managed C# types and raw GPU memory.
 // Developer Ergonomics
-//  - Lean Codebase                     less than 40 KB minimizes instruction cache misses
+//  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuContext : IDisposable
 {
