@@ -8,11 +8,11 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuCommandBuffer : IDisposable
 {
-    internal    GpuContext      Context;
-    internal    CommandBuffer*  Handle;
+    internal    GpuContext      context;
+    internal    CommandBuffer*  handle;
     
     internal GpuCommandBuffer(GpuContext context) {
-        Context = context;
+        this.context = context;
     }
     
     ~GpuCommandBuffer() {
@@ -21,13 +21,13 @@ public sealed unsafe class GpuCommandBuffer : IDisposable
     
     public void Dispose()
     {
-        if (Handle == null) return;
+        if (handle == null) return;
 
         // WebGPU native Release
-        Context.wgpu.CommandBufferRelease(Handle);
+        context.wgpu.CommandBufferRelease(handle);
 
         // Die Lebensversicherung: Handle auf null setzen
-        Context = null;
+        context = null;
 
         // GC mitteilen, dass das Objekt abgehakt ist
         GC.SuppressFinalize(this);

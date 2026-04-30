@@ -15,13 +15,13 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuContext : IDisposable
 {
-    public              WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
-    internal            Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
-    public              Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
-    public              Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
-    public              Instance*       Instance    { get; }    // pointer lives in graphics device driver
+    internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
+    private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
+    internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
+    internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
+    private             Instance*       Instance    { get; }    // pointer lives in graphics device driver
     
-    public  bool        DebugMode   { get; set; } 
+    public              bool            DebugMode   { get; set; } 
     
     private readonly    Stack<GpuTask>  taskPool = new(1024);
     
@@ -30,7 +30,7 @@ public sealed unsafe class GpuContext : IDisposable
     private             List<GpuTask>   pendingTasks = new(1024);
     private             List<GpuTask>   inFlightTasks = new(1024);
     private             GCHandle        contextHandle;
-    private             void*           contextHandlePtr;
+    private readonly    void*           contextHandlePtr;
  
     
     public GpuTask RentTask()
@@ -39,7 +39,7 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuTask(this); // Nur wenn der Pool leer ist, wird einmalig alloziert
     }
 
-    public void ReturnTask(GpuTask task)
+    private void ReturnTask(GpuTask task)
     {
         task.Reset(); // Wichtig: Alten State löschen!
         taskPool.Push(task);
@@ -70,6 +70,7 @@ public sealed unsafe class GpuContext : IDisposable
         slots[slot] = gpuEffect;
     }
     
+    // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
     private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, Instance* instance, PfnErrorCallback errorCallback)
@@ -106,7 +107,7 @@ public sealed unsafe class GpuContext : IDisposable
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
-		wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, msg, userData) => {
+		wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
 			if (status == RequestAdapterStatus.Success) adapter = adp;
 		}), null);
 
@@ -125,7 +126,7 @@ public sealed unsafe class GpuContext : IDisposable
 			Label = (byte*)name
 		};
 
-		wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, msg, userData) => {
+		wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
 			if (status == RequestDeviceStatus.Success) device = dev;
 		}), null);
 
@@ -179,7 +180,7 @@ public sealed unsafe class GpuContext : IDisposable
     }
 
     public void Submit(GpuCommandBuffer commandBuffer) {
-        var handle = commandBuffer.Handle;
+        var handle = commandBuffer.handle;
         // WebGPU erwartet ein Array von CommandBuffern
         wgpu.QueueSubmit(QueuePtr, 1, &handle);
         
@@ -192,8 +193,8 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuBindGroupLayoutBuilder(this);
     }
 
-    private GpuBuffer<byte> uniformPool;
-    private uint            poolOffset = 0;
+    private readonly GpuBuffer<byte>    uniformPool;
+    private uint                        poolOffset;
     
     public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
@@ -221,7 +222,7 @@ public sealed unsafe class GpuContext : IDisposable
     
     // ------------------- Task Dependency Tracking
     
-    private static readonly PfnQueueWorkDoneCallback workDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
+    private static readonly PfnQueueWorkDoneCallback WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
     
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
@@ -262,7 +263,7 @@ public sealed unsafe class GpuContext : IDisposable
             var tasks = pendingTasks;
             var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
             for (int n = 0; n < tasks.Count; n++) {
-                commandBuffers[n] = pendingTasks[n].CommandBuffer!.Handle;
+                commandBuffers[n] = pendingTasks[n].CommandBuffer!.handle;
             }
             wgpu.QueueSubmit(queue.Handle, (uint)tasks.Count, commandBuffers);
             
@@ -272,7 +273,7 @@ public sealed unsafe class GpuContext : IDisposable
             pendingTasks   = temp;
             
             // Register callback for the new In-Flight batch
-            wgpu.QueueOnSubmittedWorkDone(queue.Handle, workDoneCallback, contextHandlePtr);
+            wgpu.QueueOnSubmittedWorkDone(queue.Handle, WorkDoneCallback, contextHandlePtr);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
@@ -312,7 +313,7 @@ public sealed unsafe class GpuContext : IDisposable
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = task.CommandBuffer!.Handle;
+            var ptr = task.CommandBuffer!.handle;
             wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;
@@ -365,7 +366,7 @@ public sealed unsafe class GpuContext : IDisposable
         return buffer;
     }
 
-    public unsafe GpuShaderModule CreateShaderModule(string wgslSource)
+    public GpuShaderModule CreateShaderModule(string wgslSource)
     {
         byte[] shaderBytes = Encoding.UTF8.GetBytes(wgslSource);
         
@@ -388,7 +389,7 @@ public sealed unsafe class GpuContext : IDisposable
         }
     }
     
-    public unsafe GpuComputePipeline CreateComputePipeline(GpuShaderModule module, string entryPoint, GpuBindGroupLayout layout)
+    public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, string entryPoint, GpuBindGroupLayout layout)
     {
         var pipelineLayout = CreatePipelineLayout(layout);
         byte[] entryPointBytes = Encoding.UTF8.GetBytes(entryPoint);
@@ -398,7 +399,7 @@ public sealed unsafe class GpuContext : IDisposable
             {
                 Layout = pipelineLayout,
                 Compute = new ProgrammableStageDescriptor {
-                    Module = module.Handle,
+                    Module = module.handle,
                     EntryPoint = pEntryPoint
                 }
             };
@@ -407,9 +408,9 @@ public sealed unsafe class GpuContext : IDisposable
         }
     }
     
-    public PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
+    private PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
     {
-        var layoutHandle = layout.Handle;
+        var layoutHandle = layout.handle;
         var desc = new PipelineLayoutDescriptor {
             BindGroupLayoutCount = 1,
             BindGroupLayouts = &layoutHandle
@@ -426,21 +427,21 @@ public sealed class GpuEffect
 
 public sealed unsafe class GpuComputePipeline
 {
-    internal readonly ComputePipeline* Handle;
-    internal readonly PipelineLayout*  Layout;
+    internal readonly ComputePipeline* handle;
+    internal readonly PipelineLayout*  layout;
     
     internal GpuComputePipeline(ComputePipeline* handle, PipelineLayout* layout) {
-        Handle = handle;
-        Layout = layout;
+        this.handle = handle;
+        this.layout = layout;
     }
 }
 
 
 public sealed unsafe class GpuShaderModule
 {
-    internal readonly ShaderModule* Handle;
+    internal readonly ShaderModule* handle;
     
     internal GpuShaderModule(ShaderModule* handle) {
-        Handle = handle;    
+        this.handle = handle;    
     }
 }

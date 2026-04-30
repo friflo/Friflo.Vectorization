@@ -11,12 +11,11 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuBindGroupLayoutBuilder
 {
-    private readonly GpuContext Context;
-    
+    private readonly GpuContext                 context;
     private readonly List<BindGroupLayoutEntry> entries = new();
     
     internal GpuBindGroupLayoutBuilder(GpuContext ctx) {
-        Context = ctx;
+        context = ctx;
     }
     
     private void AddLayoutEntry(int binding, BufferBindingType bindingType)
@@ -61,34 +60,34 @@ public sealed class GpuBindGroupLayoutBuilder
                 Entries     = pEntries,
             };
 
-            var handle = Context.wgpu.DeviceCreateBindGroupLayout(Context.DevicePtr, &desc);
+            var handle = context.wgpu.DeviceCreateBindGroupLayout(context.DevicePtr, &desc);
             
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
 
-            return new GpuBindGroupLayout(Context, handle);
+            return new GpuBindGroupLayout(context, handle);
         }
     }
 }
 
 public sealed unsafe class GpuBindGroupLayout
 {
-    internal GpuContext         Context;
-    internal BindGroupLayout*   Handle;
+    internal readonly GpuContext        context;
+    internal readonly BindGroupLayout*  handle;
     
     internal GpuBindGroupLayout (GpuContext context, BindGroupLayout* handle)
     {
-        Context = context;
-        Handle  = handle;
+        this.context = context;
+        this.handle  = handle;
     }
 }
 
 public unsafe struct GpuBindEntry
 {
-    public uint     Binding;
-    public Buffer*  BufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
-    public uint     Offset;
-    public uint     Size;
+    public readonly uint    binding;
+    public readonly Buffer* bufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
+    public readonly uint    offset;
+    public readonly uint    size;
     
     public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
         return new GpuBindEntry(binding, buffer.handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
@@ -98,9 +97,9 @@ public unsafe struct GpuBindEntry
         : this(binding, pool.handle, offset, size) { }
 
     private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
-        Binding         = (uint)binding;
-        BufferHandle    = handle;
-        Offset          = offset;
-        Size            = size;
+        this.binding         = (uint)binding;
+        bufferHandle    = handle;
+        this.offset          = offset;
+        this.size            = size;
     }
 }

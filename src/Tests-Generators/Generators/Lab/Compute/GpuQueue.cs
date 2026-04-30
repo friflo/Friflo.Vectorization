@@ -6,33 +6,34 @@ using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
+// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU;
 
 internal sealed unsafe class GpuQueue
 {
-    private GpuContext  Context;
-    internal Queue*      Handle { get; private set; }
+    private readonly    GpuContext  context;
+    internal            Queue*      Handle { get; private set; }
     
     public GpuQueue(GpuContext ctx, Queue* handle) {
-        Context = ctx;
+        context = ctx;
         Handle  = handle;
     }
     
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
-        var ctx = Context;
+        var ctx = context;
         ctx.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     public void Submit(GpuCommandBuffer commandBuffer)
     {
-        var handle = commandBuffer.Handle;
-        var ctx = Context;
+        var handle  = commandBuffer.handle;
+        var ctx     = context;
         ctx.wgpu.QueueSubmit(ctx.QueuePtr, 1, &handle);
     }
     
     // TODO use this static method to avoid allocation by lambda
-    private static unsafe void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
+    private static void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
     {
         // Wir casten den userData Pointer zurück auf ein GCHandle
         GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
@@ -43,7 +44,7 @@ internal sealed unsafe class GpuQueue
     }
     
     // We keep a static reference to avoid GC is not moving/collection the callback
-    private static readonly PfnQueueWorkDoneCallback nativeWorkDoneCallback = 
+    private static readonly PfnQueueWorkDoneCallback NativeWorkDoneCallback = 
         PfnQueueWorkDoneCallback.From(HandleNativeWorkDone);
 
     private static void HandleNativeWorkDone(QueueWorkDoneStatus status, void* userData)
@@ -63,6 +64,6 @@ internal sealed unsafe class GpuQueue
         void* userData = (void*)GCHandle.ToIntPtr(handle);
 
         // call native API with static function pointer
-        Context.wgpu.QueueOnSubmittedWorkDone(Handle, nativeWorkDoneCallback, userData);
+        context.wgpu.QueueOnSubmittedWorkDone(Handle, NativeWorkDoneCallback, userData);
     }
 }

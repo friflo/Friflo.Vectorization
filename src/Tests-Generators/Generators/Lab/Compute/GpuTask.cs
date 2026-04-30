@@ -38,7 +38,7 @@ public sealed unsafe class GpuTask : IDisposable
     public void Finish(GpuEncoder encoder)
     {
         var descriptor = new CommandBufferDescriptor();
-        CommandBuffer.Handle = context.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
+        CommandBuffer.handle = context.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
 
         if (currentEncoder != null) {
             context.wgpu.CommandEncoderRelease(currentEncoder);
@@ -54,18 +54,18 @@ public sealed unsafe class GpuTask : IDisposable
         {
             var bindEntry = bindEntries[i];
             nativeEntries[i] = new BindGroupEntry {
-                Binding =   bindEntry.Binding,
-                Buffer =    bindEntry.BufferHandle,    // Direct handle to the native WGPUBuffer
-                Offset =    bindEntry.Offset,          // The byte offset (crucial for our Uniform Pool)
-                Size =      bindEntry.Size             // The byte size of the slice
+                Binding =   bindEntry.binding,
+                Buffer =    bindEntry.bufferHandle,    // Direct handle to the native WGPUBuffer
+                Offset =    bindEntry.offset,          // The byte offset (crucial for our Uniform Pool)
+                Size =      bindEntry.size             // The byte size of the slice
             };
         }
         var descriptor = new BindGroupDescriptor {
-            Layout      = layout.Handle,
+            Layout      = layout.handle,
             EntryCount  = (uint)bindEntries.Length,
             Entries     = nativeEntries
         };
-        var handle = layout.Context.wgpu.DeviceCreateBindGroup(context.DevicePtr, &descriptor);
+        var handle = layout.context.wgpu.DeviceCreateBindGroup(context.DevicePtr, &descriptor);
         createdBindGroups.Add((nint)handle);
         return new GpuBindGroup(handle);
     }
@@ -78,10 +78,10 @@ public sealed unsafe class GpuTask : IDisposable
         }
         createdBindGroups.Clear();
         
-        var bufferHandler = CommandBuffer.Handle;
+        var bufferHandler = CommandBuffer.handle;
         if (bufferHandler != null) {
-            CommandBuffer.Context.wgpu.CommandBufferRelease(bufferHandler);
-            CommandBuffer.Handle = null;
+            CommandBuffer.context.wgpu.CommandBufferRelease(bufferHandler);
+            CommandBuffer.handle = null;
         }
         Dispose();
         IsCompleted 	= false;
@@ -149,7 +149,7 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     }
 
     public void SetPipeline(GpuComputePipeline pipeline) {
-        task.context.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.Handle);
+        task.context.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
