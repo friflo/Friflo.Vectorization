@@ -63,7 +63,7 @@ public sealed unsafe class GpuContext : IDisposable
         if (slot < slots.Length) {
             return slots[slot];    
         }
-        return null;
+        return default;
     }
     
     public void SetGpuEffect(int slot, GpuEffect gpuEffect) {
@@ -412,10 +412,17 @@ public sealed unsafe class GpuContext : IDisposable
     }
 }
 
-public sealed class GpuEffect 
+public readonly struct GpuEffect 
 {
-    public required GpuBindGroupLayout Layout { get; init; }
-    public required GpuComputePipeline Pipeline { get; init; }
+    public readonly GpuBindGroupLayout  layout;
+    public readonly GpuComputePipeline  pipeline;
+    public readonly bool                isCreated;
+    
+    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
+        this.layout     = layout;
+        this.pipeline   = pipeline;
+        isCreated  = true;
+    }
 }
 
 public readonly unsafe struct GpuComputePipeline

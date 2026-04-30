@@ -50,7 +50,7 @@ public static class GpuPattern
         using (var pass = encoder.BeginComputePass())
         {
             var gpuEffect = ShadowMethod_GPU_GetGpuEffect(ctx);
-            pass.SetPipeline(gpuEffect.Pipeline);                  // Set Pipeline to "MyShader"
+            pass.SetPipeline(gpuEffect.pipeline);                  // Set Pipeline to "MyShader"
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
             Span<GpuBindEntry> entries = stackalloc GpuBindEntry[4];
@@ -59,7 +59,7 @@ public static class GpuPattern
             entries[2] = task.AsUniformEntry(2, uniforms);
             entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
             
-            var bindGroup = task.CreateBindGroup(gpuEffect.Layout, entries);
+            var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
@@ -79,7 +79,7 @@ public static class GpuPattern
     {
         var gpuEffect = ctx.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
 
-        if (gpuEffect != null) {
+        if (gpuEffect.isCreated) {
             return gpuEffect;
         }
         var layout = ctx.BindGroupLayoutBuilder()       //   TODO Allocates BindGroupLayoutBuilder - check if it can be reused 
@@ -92,7 +92,7 @@ public static class GpuPattern
         var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader());
         var pipeline        = ctx.CreateComputePipeline(shaderModule, "main"u8, layout);
         
-        gpuEffect = new GpuEffect { Layout = layout, Pipeline = pipeline };
+        gpuEffect = new GpuEffect(layout, pipeline);
         ctx.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
         return gpuEffect;
     }
