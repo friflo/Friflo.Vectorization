@@ -16,9 +16,11 @@ public sealed unsafe class GpuTask : IDisposable
     private readonly    List<nint>          createdBindGroups = new();  // GpuTask owns all created BindGroup* and ensures release  
     internal            GpuCommandBuffer    CommandBuffer   { get; }
     private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
+    
     private readonly    int                 taskIndex;
     private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
     private             uint                uniformOffset;             	// cursor in pool slice used as a ring buffer
+    private readonly    byte[]              stagingBuffer;              // CPU-cache for uniform buffer
     
     // A simple state flag for the scheduler
     public              bool                IsSubmitted     { get; internal set; }
@@ -29,6 +31,7 @@ public sealed unsafe class GpuTask : IDisposable
         this.context    = context;
         this.taskIndex  = taskIndex;
         uniformBase     = (uint)(taskIndex * context.slotSize);
+        stagingBuffer   = new byte[context.slotSize];
         CommandBuffer   = new GpuCommandBuffer(context);
     }
     
@@ -48,10 +51,11 @@ public sealed unsafe class GpuTask : IDisposable
         if (alignedOffset + size > ctx.slotSize) {
             throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {ctx.slotSize}.");
         }
+        // write directly to stagingBuffer
+        fixed (byte* pDest = &stagingBuffer[alignedOffset]) {
+            *(T*)pDest = value;
+        }
         uint absoluteOffset = uniformBase + alignedOffset;
-        
-        // TODO Note: WriteBuffer() copies data. May use a Mapped Buffer in future for more performance
-        ctx.WriteBuffer(ctx.globalUniformPool, absoluteOffset, &value, size);
         
         uniformOffset = alignedOffset + size;
         return new GpuBindEntry(binding, ctx.globalUniformPool, absoluteOffset, size);
@@ -59,6 +63,16 @@ public sealed unsafe class GpuTask : IDisposable
     
     public void Finish(GpuEncoder encoder)
     {
+        if (uniformOffset > 0) {
+            fixed (byte* pData = stagingBuffer) {
+                context.WriteBuffer(context.globalUniformPool, uniformBase, pData, uniformOffset);
+            }
+        }
+        // TODO  Ultimate performance upgrade
+        // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
+        // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
+        // This requires WGPU Buffer Map/Unmap Lifecycle Management
+        
         var descriptor = new CommandBufferDescriptor();
         CommandBuffer.handle = context.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
 
