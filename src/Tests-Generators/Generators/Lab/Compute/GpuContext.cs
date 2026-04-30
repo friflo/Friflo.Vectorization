@@ -23,7 +23,8 @@ public sealed unsafe class GpuContext : IDisposable
     
     public              bool            DebugMode   { get; set; } 
     
-    private readonly    Stack<GpuTask>  taskPool = new(1024);
+    private readonly    GpuTask[]       taskPool;
+    private readonly    Stack<GpuTask>  availableTasks;
     
     private static      int             gpuEffectSlotCount = 0;
     private             GpuEffect[]     gpuEffectSlots = new GpuEffect[4];
@@ -33,16 +34,18 @@ public sealed unsafe class GpuContext : IDisposable
     private readonly    void*           contextHandlePtr;
  
     
-    public GpuTask RentTask()
-    {
-        if (taskPool.TryPop(out var task)) return task;
-        return new GpuTask(this); // Nur wenn der Pool leer ist, wird einmalig alloziert
+    public GpuTask RentTask() {
+        lock (availableTasks) {
+            return availableTasks.Pop();
+        }
     }
 
     private void ReturnTask(GpuTask task)
     {
-        task.Reset(); // Wichtig: Alten State löschen!
-        taskPool.Push(task);
+        task.Reset();
+        lock (availableTasks) {
+            availableTasks.Push(task);
+        }
     }
     
     public GpuBuffer<T> RentBuffer<T>(int inputLength) where T : unmanaged
@@ -73,7 +76,14 @@ public sealed unsafe class GpuContext : IDisposable
     // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
-    private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, Instance* instance, PfnErrorCallback errorCallback)
+    private GpuContext(
+        WebGPU          wgpu,
+        Wgpu            wgpuEx,
+        Device*         devicePtr,
+        Queue*          queuePtr,
+        Instance*       instance,
+        PfnErrorCallback errorCallback,
+        int             maxConcurrentTasks)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
@@ -87,9 +97,17 @@ public sealed unsafe class GpuContext : IDisposable
         contextHandlePtr   = (void*)GCHandle.ToIntPtr(contextHandle);
         
         uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
+        
+        taskPool            = new GpuTask[maxConcurrentTasks];
+        availableTasks      = new Stack<GpuTask>(maxConcurrentTasks);
+        for (int i = 0; i < maxConcurrentTasks; i++) {
+            var task = new GpuTask(this, i);
+            taskPool[i] = task;
+            availableTasks.Push(task);
+        }
     }
     
-    public static GpuContext Create()
+    public static GpuContext Create(int maxConcurrentTasks = 64)
     {
         var wgpu = WebGPU.GetApi();
         if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
@@ -143,7 +161,7 @@ public sealed unsafe class GpuContext : IDisposable
         var errorCallback = PfnErrorCallback.From(OnGpuError);
         wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback);
+        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxConcurrentTasks);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {

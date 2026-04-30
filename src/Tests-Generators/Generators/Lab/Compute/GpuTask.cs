@@ -22,8 +22,7 @@ public sealed unsafe class GpuTask : IDisposable
     public              bool                IsCompleted     { get; internal set; }
     
 
-    // Constructor for real GPU work
-    internal GpuTask(GpuContext context) {
+    internal GpuTask(GpuContext context, int taskIndex) {
         this.context    = context;
         CommandBuffer   = new GpuCommandBuffer(context);
     }
