@@ -18,6 +18,9 @@ namespace Friflo.Vectorization.GPU;
 //  - Zero-Allocation Steady State:     no managed allocation during main execution loop
 //  - Mechanical Sympathy Design:       Focus on CPU cache efficiency.
 //  - Stateless Execution Flow:         High-level logic is decoupled from resource management
+// Deferred Batch Execution
+//  - Atomic Batch Dispatching:         Instead of immediate, chatty execution, all GPU operations are recorded into command buffer and submitted in a single, coherent batch
+//  - Command Buffer Orchestration:     Leverages pre-allocated buffers to sequence complex compute chains, ensuring that the GPU never stalls waiting for the next instruction.
 // GPU & Compute Capabilities
 //  - Cross-Backend Compatibility:      unified API for Vulkan, DirectX 12, and Metal
 //  - Hybrid Compute Support:           Seamlessly switch between Hardware Acceleration (GPU), AVX/SIMD or Scalar
