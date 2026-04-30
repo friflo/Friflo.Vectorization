@@ -23,13 +23,16 @@ public sealed unsafe class GpuContext : IDisposable
     
     public              bool            DebugMode   { get; set; } 
     
-    private readonly    GpuTask[]       taskPool;
-    private readonly    Stack<GpuTask>  availableTasks;
+    internal readonly   int             slotSize;
+    private  readonly   GpuTask[]       taskPool;
+    private  readonly   Stack<GpuTask>  availableTasks;
+    internal readonly   GpuBuffer<byte> globalUniformPool;      // Each task uses its own slice from this pool
+    private  readonly   GpuQueue        queue;
     
     private static      int             gpuEffectSlotCount = 0;
-    private             GpuEffect[]     gpuEffectSlots = new GpuEffect[4];
-    private             List<GpuTask>   pendingTasks = new(1024);
-    private             List<GpuTask>   inFlightTasks = new(1024);
+    private             GpuEffect[]     gpuEffectSlots  = new GpuEffect[4];
+    private             List<GpuTask>   pendingTasks    = new(1024);
+    private             List<GpuTask>   inFlightTasks   = new(1024);
     private             GCHandle        contextHandle;
     private readonly    void*           contextHandlePtr;
  
@@ -76,14 +79,14 @@ public sealed unsafe class GpuContext : IDisposable
     // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
-    private GpuContext(
-        WebGPU          wgpu,
-        Wgpu            wgpuEx,
-        Device*         devicePtr,
-        Queue*          queuePtr,
-        Instance*       instance,
-        PfnErrorCallback errorCallback,
-        int             maxConcurrentTasks)
+    private GpuContext(WebGPU wgpu,
+        Wgpu                wgpuEx,
+        Device*             devicePtr,
+        Queue*              queuePtr,
+        Instance*           instance,
+        PfnErrorCallback    errorCallback,
+        int                 maxTasks,
+        int                 slotSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
@@ -92,22 +95,22 @@ public sealed unsafe class GpuContext : IDisposable
         Instance            = instance;
         queue               = new GpuQueue(this, queuePtr);
         this.errorCallback  = errorCallback;
+        this.slotSize       = slotSize;
         
-        contextHandle      = GCHandle.Alloc(this);
-        contextHandlePtr   = (void*)GCHandle.ToIntPtr(contextHandle);
+        contextHandle       = GCHandle.Alloc(this);
+        contextHandlePtr    = (void*)GCHandle.ToIntPtr(contextHandle);
         
-        uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
-        
-        taskPool            = new GpuTask[maxConcurrentTasks];
-        availableTasks      = new Stack<GpuTask>(maxConcurrentTasks);
-        for (int i = 0; i < maxConcurrentTasks; i++) {
+        globalUniformPool   = new GpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst);
+        taskPool            = new GpuTask[maxTasks];
+        availableTasks      = new Stack<GpuTask>(maxTasks);
+        for (int i = 0; i < maxTasks; i++) {
             var task = new GpuTask(this, i);
             taskPool[i] = task;
             availableTasks.Push(task);
         }
     }
     
-    public static GpuContext Create(int maxConcurrentTasks = 64)
+    public static GpuContext Create(int maxTasks = 64, int slotSize = 64 * 1024)
     {
         var wgpu = WebGPU.GetApi();
         if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
@@ -161,7 +164,7 @@ public sealed unsafe class GpuContext : IDisposable
         var errorCallback = PfnErrorCallback.From(OnGpuError);
         wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxConcurrentTasks);
+        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxTasks, slotSize);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
@@ -182,7 +185,7 @@ public sealed unsafe class GpuContext : IDisposable
 
     public void Dispose()
     {
-        uniformPool?.Dispose();
+        globalUniformPool?.Dispose();
         if (contextHandle.IsAllocated) contextHandle.Free();
     
         if (QueuePtr  != null) wgpu.QueueRelease(QueuePtr);
@@ -206,37 +209,13 @@ public sealed unsafe class GpuContext : IDisposable
         // wgpu.CommandBufferRelease(handle);                                       TODO
     }
     
-    public GpuBindGroupLayoutBuilder BindGroupLayoutBuilder()
-    {
+    public GpuBindGroupLayoutBuilder BindGroupLayoutBuilder() {
         return new GpuBindGroupLayoutBuilder(this);
     }
-
-    private readonly GpuBuffer<byte>    uniformPool;
-    private uint                        poolOffset;
     
-    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
-    {
-        uint size           = (uint)sizeof(T);
-        uint alignedOffset  = (poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
-        // Note: WriteBuffer() copies data. May use a Mapped Buffer in future for more performance
-        WriteBuffer(uniformPool, alignedOffset, &value, size);                 // write value in uniformPool
-        poolOffset = alignedOffset + size;
-        return new GpuBindEntry(binding, uniformPool, alignedOffset, size);    // use uniformPool at alignedOffset
+    internal void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
+        queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
-    
-    private GpuQueue queue;
-    
-    private void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged
-    {
-        queue.WriteBuffer(
-            buffer.handle,
-            byteOffset,        // offset in buffer
-            data,              // pointer on my value
-            byteSize           // value size
-        );
-    }
-
-    public void ResetPool() => poolOffset = 0; // Am Ende des Frames/Batches rufen
     
     // ------------------- Task Dependency Tracking
     
@@ -315,7 +294,6 @@ public sealed unsafe class GpuContext : IDisposable
             // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
             Poll(wait: true); 
         }
-        ResetPool();
     }
         
     public unsafe void SubmitGraph(GpuTask finalTask)
@@ -366,7 +344,7 @@ public sealed unsafe class GpuContext : IDisposable
         return buffer;
     }
     
-    public Buffer* CreateBuffer(uint size, BufferUsage usage)
+    internal Buffer* CreateBuffer(uint size, BufferUsage usage)
     {
         var desc = new BufferDescriptor
         {

@@ -15,7 +15,10 @@ public sealed unsafe class GpuTask : IDisposable
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
     private readonly    List<nint>          createdBindGroups = new();  // GpuTask owns all created BindGroup* and ensures release  
     internal            GpuCommandBuffer    CommandBuffer   { get; }
-    private readonly    List<GpuTask>       dependencies = new();  // Tasks that MUST finish before this one starts
+    private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
+    private readonly    int                 taskIndex;
+    private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
+    private             uint                uniformOffset;             	// cursor in pool slice used as a ring buffer
     
     // A simple state flag for the scheduler
     public              bool                IsSubmitted     { get; internal set; }
@@ -24,6 +27,8 @@ public sealed unsafe class GpuTask : IDisposable
 
     internal GpuTask(GpuContext context, int taskIndex) {
         this.context    = context;
+        this.taskIndex  = taskIndex;
+        uniformBase     = (uint)(taskIndex * context.slotSize);
         CommandBuffer   = new GpuCommandBuffer(context);
     }
     
@@ -32,6 +37,24 @@ public sealed unsafe class GpuTask : IDisposable
         var encoder     = ctx.CreateEncoder(this); 
         currentEncoder  = encoder.handle;
         return encoder;
+    }
+    
+    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
+    {
+        var  ctx            = context;
+        uint size           = (uint)sizeof(T);
+        uint alignedOffset  = (uniformOffset + 255) & ~255u; // WebGPU requires Uniform offset must by 256 byte aligned
+        
+        if (alignedOffset + size > ctx.slotSize) {
+            throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {ctx.slotSize}.");
+        }
+        uint absoluteOffset = uniformBase + alignedOffset;
+        
+        // TODO Note: WriteBuffer() copies data. May use a Mapped Buffer in future for more performance
+        ctx.WriteBuffer(ctx.globalUniformPool, absoluteOffset, &value, size);
+        
+        uniformOffset = alignedOffset + size;
+        return new GpuBindEntry(binding, ctx.globalUniformPool, absoluteOffset, size);
     }
     
     public void Finish(GpuEncoder encoder)
@@ -68,7 +91,6 @@ public sealed unsafe class GpuTask : IDisposable
         createdBindGroups.Add((nint)handle);
         return new GpuBindGroup(handle);
     }
-
     
     internal void Reset()
     {
@@ -82,9 +104,13 @@ public sealed unsafe class GpuTask : IDisposable
             CommandBuffer.context.wgpu.CommandBufferRelease(bufferHandler);
             CommandBuffer.handle = null;
         }
+        uniformOffset = 0; // reset local uniform cursor
+        
         Dispose();
+        
         IsCompleted 	= false;
         IsSubmitted 	= false;
+        
         dependencies.Clear();
     }
 

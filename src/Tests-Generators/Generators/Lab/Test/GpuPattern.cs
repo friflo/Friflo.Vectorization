@@ -56,7 +56,7 @@ public static class GpuPattern
             Span<GpuBindEntry> entries = stackalloc GpuBindEntry[4];
             entries[0] = GpuBindEntry.From(0, weight.gpuBuffer);
             entries[1] = GpuBindEntry.From(1, input.gpuBuffer);
-            entries[2] = ctx.AsUniformEntry(2, uniforms);
+            entries[2] = task.AsUniformEntry(2, uniforms);
             entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
             
             var bindGroup = task.CreateBindGroup(gpuEffect.Layout, entries);
