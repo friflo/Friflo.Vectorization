@@ -8,7 +8,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Friflo.Vectorization.GPU;
 
-internal unsafe class GpuQueue
+internal sealed unsafe class GpuQueue
 {
     private GpuContext  Context;
     internal Queue*      Handle { get; private set; }

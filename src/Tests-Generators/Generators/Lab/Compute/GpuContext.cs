@@ -13,7 +13,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable SwapViaDeconstruction
 namespace Friflo.Vectorization.GPU;
 
-public unsafe class GpuContext : IDisposable
+public sealed unsafe class GpuContext : IDisposable
 {
     public              WebGPU      _wgpu       { get; }    // main API         - GpuContext owns this managed type
     internal            Wgpu        _wgpuEx     { get; }    // extension (Poll) - GpuContext owns this managed type
@@ -418,13 +418,13 @@ public unsafe class GpuContext : IDisposable
     }
 }
 
-public class GpuEffect 
+public sealed class GpuEffect 
 {
     public required GpuBindGroupLayout Layout { get; init; }
     public required GpuComputePipeline Pipeline { get; init; }
 }
 
-public unsafe class GpuComputePipeline
+public sealed unsafe class GpuComputePipeline
 {
     internal readonly ComputePipeline* Handle;
     internal readonly PipelineLayout*  Layout;
@@ -436,7 +436,7 @@ public unsafe class GpuComputePipeline
 }
 
 
-public unsafe class GpuShaderModule
+public sealed unsafe class GpuShaderModule
 {
     internal readonly ShaderModule* Handle;
     

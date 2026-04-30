@@ -6,7 +6,7 @@ using Silk.NET.WebGPU;
 
 namespace Friflo.Vectorization.GPU;
 
-public unsafe class GpuCommandBuffer : IDisposable
+public sealed unsafe class GpuCommandBuffer : IDisposable
 {
     internal    GpuContext      Context;
     internal    CommandBuffer*  Handle;

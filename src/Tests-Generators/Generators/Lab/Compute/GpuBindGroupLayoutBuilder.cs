@@ -9,7 +9,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Friflo.Vectorization.GPU;
 
-public class GpuBindGroupLayoutBuilder
+public sealed class GpuBindGroupLayoutBuilder
 {
     private readonly GpuContext Context;
     
@@ -71,7 +71,7 @@ public class GpuBindGroupLayoutBuilder
     }
 }
 
-public unsafe class GpuBindGroupLayout
+public sealed unsafe class GpuBindGroupLayout
 {
     internal GpuContext         Context;
     internal BindGroupLayout*   Handle;

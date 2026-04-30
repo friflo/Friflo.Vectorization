@@ -9,7 +9,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU;
 
-public unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
+public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     internal            Buffer*     _handle { get; private set; }
     internal readonly   GpuContext  _context;
