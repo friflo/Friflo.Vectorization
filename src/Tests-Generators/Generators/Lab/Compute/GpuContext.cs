@@ -15,34 +15,34 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuContext : IDisposable
 {
-    public              WebGPU      _wgpu       { get; }    // main API         - GpuContext owns this managed type
-    internal            Wgpu        _wgpuEx     { get; }    // extension (Poll) - GpuContext owns this managed type
-    public              Device*     DevicePtr   { get; }    // pointer lives in graphics device driver 
-    public              Queue*      QueuePtr    { get; }    // pointer lives in graphics device driver
-    public              Instance*   Instance    { get; }    // pointer lives in graphics device driver
+    public              WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
+    internal            Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
+    public              Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
+    public              Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
+    public              Instance*       Instance    { get; }    // pointer lives in graphics device driver
     
     public  bool        DebugMode   { get; set; } 
     
-    private readonly    Stack<GpuTask>  _taskPool = new(1024);
+    private readonly    Stack<GpuTask>  taskPool = new(1024);
     
     private static      int             gpuEffectSlotCount = 0;
     private             GpuEffect[]     gpuEffectSlots = new GpuEffect[4];
-    private             List<GpuTask>   _pendingTasks = new(1024);
-    private             List<GpuTask>   _inFlightTasks = new(1024);
-    private             GCHandle        _contextHandle;
-    private             void*           _contextHandlePtr;
+    private             List<GpuTask>   pendingTasks = new(1024);
+    private             List<GpuTask>   inFlightTasks = new(1024);
+    private             GCHandle        contextHandle;
+    private             void*           contextHandlePtr;
  
     
     public GpuTask RentTask()
     {
-        if (_taskPool.TryPop(out var task)) return task;
+        if (taskPool.TryPop(out var task)) return task;
         return new GpuTask(this); // Nur wenn der Pool leer ist, wird einmalig alloziert
     }
 
     public void ReturnTask(GpuTask task)
     {
         task.Reset(); // Wichtig: Alten State löschen!
-        _taskPool.Push(task);
+        taskPool.Push(task);
     }
     
     public GpuBuffer<T> RentBuffer<T>(int inputLength) where T : unmanaged
@@ -70,34 +70,34 @@ public sealed unsafe class GpuContext : IDisposable
         slots[slot] = gpuEffect;
     }
     
-    private readonly PfnErrorCallback _errorCallback; // must ensure callback is not collected by GC
+    private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
     private GpuContext (WebGPU wgpu, Wgpu wgpuEx, Device* devicePtr, Queue*  queuePtr, Instance* instance, PfnErrorCallback errorCallback)
     {
-        _wgpu           = wgpu;    
-        _wgpuEx         = wgpuEx;
-        DevicePtr       = devicePtr;
-        QueuePtr        = queuePtr;
-        Instance        = instance;
-        _queue          = new GpuQueue(this, queuePtr);
-        _errorCallback  = errorCallback;
+        this.wgpu           = wgpu;    
+        this.wgpuEx         = wgpuEx;
+        DevicePtr           = devicePtr;
+        QueuePtr            = queuePtr;
+        Instance            = instance;
+        queue               = new GpuQueue(this, queuePtr);
+        this.errorCallback  = errorCallback;
         
-        _contextHandle      = GCHandle.Alloc(this);
-        _contextHandlePtr   = (void*)GCHandle.ToIntPtr(_contextHandle);
+        contextHandle      = GCHandle.Alloc(this);
+        contextHandlePtr   = (void*)GCHandle.ToIntPtr(contextHandle);
         
-        _uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
+        uniformPool = new GpuBuffer<byte>(this, 64 * 1024, BufferUsage.Uniform | BufferUsage.CopyDst); // or 256 * 1024
     }
     
     public static GpuContext Create()
     {
-        var _wgpu = WebGPU.GetApi();
-        if (!_wgpu.TryGetDeviceExtension(null, out Wgpu _wgpuEx)) {
+        var wgpu = WebGPU.GetApi();
+        if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
             throw new Exception("WGPU extension not found!");
         }
 		// 1. Instanz & Surface (optional, für Compute reicht oft der Adapter)
 		// Wir holen uns den Adapter (die physische GPU)
 		InstanceDescriptor instDesc = new InstanceDescriptor();
-		var instance = _wgpu.CreateInstance(&instDesc);
+		var instance = wgpu.CreateInstance(&instDesc);
 
 		// 2. Adapter anfordern
 		Adapter* adapter = null;
@@ -106,16 +106,16 @@ public sealed unsafe class GpuContext : IDisposable
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
-		_wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, msg, userData) => {
+		wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, msg, userData) => {
 			if (status == RequestAdapterStatus.Success) adapter = adp;
 		}), null);
 
 		// Warten, bis der Adapter da ist (dafür brauchen wir die Extension!)
-		if (!_wgpu.TryGetDeviceExtension(null, out _wgpuEx)) {
+		if (!wgpu.TryGetDeviceExtension(null, out wgpuEx)) {
 			throw new Exception("WGPU extension not found!");
 		}
         while (adapter == null) {
-            _wgpu.InstanceProcessEvents(instance); 
+            wgpu.InstanceProcessEvents(instance); 
         }
 
 		// 3. Device anfordern
@@ -125,24 +125,24 @@ public sealed unsafe class GpuContext : IDisposable
 			Label = (byte*)name
 		};
 
-		_wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, msg, userData) => {
+		wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, msg, userData) => {
 			if (status == RequestDeviceStatus.Success) device = dev;
 		}), null);
 
         while (device == null) {
-            _wgpu.InstanceProcessEvents(instance); 
+            wgpu.InstanceProcessEvents(instance); 
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
 
 
 		// 4. Pointer setzen
 
-		var queuePtr = _wgpu.DeviceGetQueue(device);
+		var queuePtr = wgpu.DeviceGetQueue(device);
         
         var errorCallback = PfnErrorCallback.From(OnGpuError);
-        _wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
+        wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(_wgpu, _wgpuEx,  device, queuePtr, instance, errorCallback);
+        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback);
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
@@ -158,33 +158,33 @@ public sealed unsafe class GpuContext : IDisposable
     
     public void Poll(bool wait) 
     {
-        _wgpuEx.DevicePoll(DevicePtr, true, null);
+        wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
     public void Dispose()
     {
-        _uniformPool?.Dispose();
-        if (_contextHandle.IsAllocated) _contextHandle.Free();
+        uniformPool?.Dispose();
+        if (contextHandle.IsAllocated) contextHandle.Free();
     
-        if (QueuePtr  != null) _wgpu.QueueRelease(QueuePtr);
-        if (DevicePtr != null) _wgpu.DeviceRelease(DevicePtr);
+        if (QueuePtr  != null) wgpu.QueueRelease(QueuePtr);
+        if (DevicePtr != null) wgpu.DeviceRelease(DevicePtr);
         
-        _wgpu.InstanceRelease(Instance);
+        wgpu.InstanceRelease(Instance);
     }
 
     internal GpuEncoder CreateEncoder(GpuTask task) {
         CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
-        var encoder = _wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
+        var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
         return new GpuEncoder(task, encoder);
     }
 
     public void Submit(GpuCommandBuffer commandBuffer) {
         var handle = commandBuffer.Handle;
         // WebGPU erwartet ein Array von CommandBuffern
-        _wgpu.QueueSubmit(QueuePtr, 1, &handle);
+        wgpu.QueueSubmit(QueuePtr, 1, &handle);
         
         // Optional: Den Buffer releasen, wenn er nicht mehr gebraucht wird
-        // _wgpu.CommandBufferRelease(handle);                                       TODO
+        // wgpu.CommandBufferRelease(handle);                                       TODO
     }
     
     public GpuBindGroupLayoutBuilder BindGroupLayoutBuilder()
@@ -192,36 +192,36 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuBindGroupLayoutBuilder(this);
     }
 
-    private GpuBuffer<byte> _uniformPool;
-    private uint            _poolOffset = 0;
+    private GpuBuffer<byte> uniformPool;
+    private uint            poolOffset = 0;
     
     public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
         uint size           = (uint)sizeof(T);
-        uint alignedOffset  = (_poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
+        uint alignedOffset  = (poolOffset + 255) & ~255u;                      // WebGPU requires Uniform offset must by 256 byte aligned
         // Note: WriteBuffer() copies data. May use a Mapped Buffer in future for more performance
-        WriteBuffer(_uniformPool, alignedOffset, &value, size);                 // write value in _uniformPool
-        _poolOffset = alignedOffset + size;
-        return new GpuBindEntry(binding, _uniformPool, alignedOffset, size);    // use _uniformPool at alignedOffset
+        WriteBuffer(uniformPool, alignedOffset, &value, size);                 // write value in uniformPool
+        poolOffset = alignedOffset + size;
+        return new GpuBindEntry(binding, uniformPool, alignedOffset, size);    // use uniformPool at alignedOffset
     }
     
-    private GpuQueue _queue;
+    private GpuQueue queue;
     
     private void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged
     {
-        _queue.WriteBuffer(
-            buffer._handle,
+        queue.WriteBuffer(
+            buffer.handle,
             byteOffset,        // offset in buffer
             data,              // pointer on my value
             byteSize           // value size
         );
     }
 
-    public void ResetPool() => _poolOffset = 0; // Am Ende des Frames/Batches rufen
+    public void ResetPool() => poolOffset = 0; // Am Ende des Frames/Batches rufen
     
     // ------------------- Task Dependency Tracking
     
-    private static readonly PfnQueueWorkDoneCallback _workDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
+    private static readonly PfnQueueWorkDoneCallback workDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
     
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
@@ -232,52 +232,52 @@ public sealed unsafe class GpuContext : IDisposable
     }
     
     private void ReturnPendingTasks() {
-        for (int i = 0; i < _inFlightTasks.Count; i++) {
-            var task = _inFlightTasks[i];
+        for (int i = 0; i < inFlightTasks.Count; i++) {
+            var task = inFlightTasks[i];
             ReturnTask(task);
         }
-        _inFlightTasks.Clear();
+        inFlightTasks.Clear();
     }
     
     public void Enqueue(GpuTask task)
     {
-        _pendingTasks.Add(task);
-        if (_pendingTasks.Count >= 1024) { 
+        pendingTasks.Add(task);
+        if (pendingTasks.Count >= 1024) { 
             Flush(); // ensure list does not grow unlimited
         }
     }
     
     public void Flush(bool wait = true)
     {
-        int count = _pendingTasks.Count;
+        int count = pendingTasks.Count;
         if (count == 0 && !wait) return;
         
         // Is previous batch already send?
-        while (_inFlightTasks.Count > 0) {
-            _wgpuEx.DevicePoll(DevicePtr, true, null); // forces "work done" callback
+        while (inFlightTasks.Count > 0) {
+            wgpuEx.DevicePoll(DevicePtr, true, null); // forces "work done" callback
         }
         
         if (count > 0) {
             // Submit command buffers to queue
-            var tasks = _pendingTasks;
+            var tasks = pendingTasks;
             var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
             for (int n = 0; n < tasks.Count; n++) {
-                commandBuffers[n] = _pendingTasks[n].CommandBuffer!.Handle;
+                commandBuffers[n] = pendingTasks[n].CommandBuffer!.Handle;
             }
-            _wgpu.QueueSubmit(_queue.Handle, (uint)tasks.Count, commandBuffers);
+            wgpu.QueueSubmit(queue.Handle, (uint)tasks.Count, commandBuffers);
             
             // Swap list references
-            var temp        = _inFlightTasks;
-            _inFlightTasks  = _pendingTasks;
-            _pendingTasks   = temp;
+            var temp        = inFlightTasks;
+            inFlightTasks  = pendingTasks;
+            pendingTasks   = temp;
             
             // Register callback for the new In-Flight batch
-            _wgpu.QueueOnSubmittedWorkDone(_queue.Handle, _workDoneCallback, _contextHandlePtr);
+            wgpu.QueueOnSubmittedWorkDone(queue.Handle, workDoneCallback, contextHandlePtr);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
-            while (_inFlightTasks.Count > 0) {
-                _wgpuEx.DevicePoll(DevicePtr, true, null);
+            while (inFlightTasks.Count > 0) {
+                wgpuEx.DevicePoll(DevicePtr, true, null);
             }
         }
     }
@@ -288,7 +288,7 @@ public sealed unsafe class GpuContext : IDisposable
         if (task == null || task.IsCompleted) return;
 
         // We register a callback for the specific task completion
-        _queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
+        queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
             task.IsCompleted = true;
         });
 
@@ -313,7 +313,7 @@ public sealed unsafe class GpuContext : IDisposable
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
             var ptr = task.CommandBuffer!.Handle;
-            _wgpu.QueueSubmit(QueuePtr, 1, &ptr);
+            wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;
         }
@@ -333,16 +333,16 @@ public sealed unsafe class GpuContext : IDisposable
             Usage = usage | BufferUsage.CopyDst, // CopyDst to write data into
             MappedAtCreation = true              // We want to write now
         };
-        var buffer = _wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
         
         // Copy data into mapped memory
-        void* pMapped = _wgpu.BufferGetMappedRange(buffer, 0, size);
+        void* pMapped = wgpu.BufferGetMappedRange(buffer, 0, size);
         fixed (void* pData = data)
         {
             System.Buffer.MemoryCopy(pData, pMapped, size, size);
         }
         // Important: WebGPU has to unmap before GPU can use memory
-        _wgpu.BufferUnmap(buffer);
+        wgpu.BufferUnmap(buffer);
         
         return buffer;
     }
@@ -356,7 +356,7 @@ public sealed unsafe class GpuContext : IDisposable
             MappedAtCreation = false // Der Buffer ist initial leer/ungemappt
         };
 
-        var buffer = _wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
         
         if (buffer == null) {
             throw new Exception("GPU Memory Allocation failed! Zu wenig VRAM oder falsches Alignment?");
@@ -383,7 +383,7 @@ public sealed unsafe class GpuContext : IDisposable
                 Label = null // Hier könnte ein Name für Debugger stehen
             };
             // Compile shader in driver
-            var handle = _wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
+            var handle = wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
             return new GpuShaderModule(handle);
         }
     }
@@ -402,7 +402,7 @@ public sealed unsafe class GpuContext : IDisposable
                     EntryPoint = pEntryPoint
                 }
             };
-            var handle = _wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
+            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
             return new GpuComputePipeline(handle, pipelineLayout);
         }
     }
@@ -414,7 +414,7 @@ public sealed unsafe class GpuContext : IDisposable
             BindGroupLayoutCount = 1,
             BindGroupLayouts = &layoutHandle
         };
-        return _wgpu.DeviceCreatePipelineLayout(DevicePtr, &desc);
+        return wgpu.DeviceCreatePipelineLayout(DevicePtr, &desc);
     }
 }
 

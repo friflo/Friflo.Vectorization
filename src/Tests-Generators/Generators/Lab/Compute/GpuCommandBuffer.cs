@@ -24,7 +24,7 @@ public sealed unsafe class GpuCommandBuffer : IDisposable
         if (Handle == null) return;
 
         // WebGPU native Release
-        Context._wgpu.CommandBufferRelease(Handle);
+        Context.wgpu.CommandBufferRelease(Handle);
 
         // Die Lebensversicherung: Handle auf null setzen
         Context = null;

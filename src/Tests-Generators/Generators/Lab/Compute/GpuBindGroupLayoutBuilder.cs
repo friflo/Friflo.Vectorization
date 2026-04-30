@@ -13,7 +13,7 @@ public sealed class GpuBindGroupLayoutBuilder
 {
     private readonly GpuContext Context;
     
-    private readonly List<BindGroupLayoutEntry> _entries = new();
+    private readonly List<BindGroupLayoutEntry> entries = new();
     
     internal GpuBindGroupLayoutBuilder(GpuContext ctx) {
         Context = ctx;
@@ -21,7 +21,7 @@ public sealed class GpuBindGroupLayoutBuilder
     
     private void AddLayoutEntry(int binding, BufferBindingType bindingType)
     {
-        _entries.Add(new BindGroupLayoutEntry {
+        entries.Add(new BindGroupLayoutEntry {
             Binding = (uint)binding,
             Visibility = ShaderStage.Compute,       // <--- we do compute
             Buffer = new BufferBindingLayout {
@@ -53,15 +53,15 @@ public sealed class GpuBindGroupLayoutBuilder
     public unsafe GpuBindGroupLayout Build(ReadOnlySpan<byte> label)
     {
         fixed (byte* labelPtr = label)
-        fixed (BindGroupLayoutEntry* pEntries = _entries.ToArray())
+        fixed (BindGroupLayoutEntry* pEntries = entries.ToArray())
         {
             var desc = new BindGroupLayoutDescriptor {
                 Label       = labelPtr,
-                EntryCount  = (uint)_entries.Count,
+                EntryCount  = (uint)entries.Count,
                 Entries     = pEntries,
             };
 
-            var handle = Context._wgpu.DeviceCreateBindGroupLayout(Context.DevicePtr, &desc);
+            var handle = Context.wgpu.DeviceCreateBindGroupLayout(Context.DevicePtr, &desc);
             
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
@@ -91,11 +91,11 @@ public unsafe struct GpuBindEntry
     public uint     Size;
     
     public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
-        return new GpuBindEntry(binding, buffer._handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
+        return new GpuBindEntry(binding, buffer.handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
     }
 
     public GpuBindEntry(int binding, GpuBuffer<byte> pool, uint offset, uint size) 
-        : this(binding, pool._handle, offset, size) { }
+        : this(binding, pool.handle, offset, size) { }
 
     private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
         Binding         = (uint)binding;

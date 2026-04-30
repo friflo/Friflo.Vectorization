@@ -21,14 +21,14 @@ internal sealed unsafe class GpuQueue
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
         var ctx = Context;
-        ctx._wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
+        ctx.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     public void Submit(GpuCommandBuffer commandBuffer)
     {
         var handle = commandBuffer.Handle;
         var ctx = Context;
-        ctx._wgpu.QueueSubmit(ctx.QueuePtr, 1, &handle);
+        ctx.wgpu.QueueSubmit(ctx.QueuePtr, 1, &handle);
     }
     
     // TODO use this static method to avoid allocation by lambda
@@ -43,7 +43,7 @@ internal sealed unsafe class GpuQueue
     }
     
     // We keep a static reference to avoid GC is not moving/collection the callback
-    private static readonly PfnQueueWorkDoneCallback _nativeWorkDoneCallback = 
+    private static readonly PfnQueueWorkDoneCallback nativeWorkDoneCallback = 
         PfnQueueWorkDoneCallback.From(HandleNativeWorkDone);
 
     private static void HandleNativeWorkDone(QueueWorkDoneStatus status, void* userData)
@@ -63,6 +63,6 @@ internal sealed unsafe class GpuQueue
         void* userData = (void*)GCHandle.ToIntPtr(handle);
 
         // call native API with static function pointer
-        Context._wgpu.QueueOnSubmittedWorkDone(Handle, _nativeWorkDoneCallback, userData);
+        Context.wgpu.QueueOnSubmittedWorkDone(Handle, nativeWorkDoneCallback, userData);
     }
 }
