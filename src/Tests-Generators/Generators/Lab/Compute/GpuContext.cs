@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -209,10 +208,6 @@ public sealed unsafe class GpuContext : IDisposable
         // wgpu.CommandBufferRelease(handle);                                       TODO
     }
     
-    public GpuBindGroupLayoutBuilder BindGroupLayoutBuilder() {
-        return new GpuBindGroupLayoutBuilder(this);
-    }
-    
     internal void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
         queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
@@ -409,6 +404,46 @@ public sealed unsafe class GpuContext : IDisposable
             BindGroupLayouts = &layoutHandle
         };
         return wgpu.DeviceCreatePipelineLayout(DevicePtr, &desc);
+    }
+
+    public GpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<byte> label, Span<GpuLayoutEntry> entries)
+    {
+        Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
+        
+        for (int i = 0; i < entries.Length; i++) {
+            nativeEntries[i] = new BindGroupLayoutEntry {
+                Binding = (uint)entries[i].Binding,
+                Visibility = ShaderStage.Compute,
+                Buffer = new BufferBindingLayout {
+                    Type                = MapType(entries[i].Type),
+                    HasDynamicOffset    = false,        // default
+                    MinBindingSize      = 0             // 0: no validation of minimum size
+                }
+            };
+        }
+        fixed (byte*                    labelPtr    = label)
+        fixed (BindGroupLayoutEntry*    entriesPtr  = nativeEntries)
+        {
+            var desc = new BindGroupLayoutDescriptor {
+                Label       = labelPtr,
+                EntryCount  = (uint)nativeEntries.Length,
+                Entries     = entriesPtr,
+            };
+            var handle = wgpu.DeviceCreateBindGroupLayout(DevicePtr, &desc);
+            if (handle == null)
+                throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
+
+            return new GpuBindGroupLayout(handle);
+        }
+    }
+
+    private static BufferBindingType MapType(GpuBindingType type) {
+        return type switch {
+            GpuBindingType.ReadOnlyStorage  => BufferBindingType.ReadOnlyStorage,
+            GpuBindingType.Uniform          => BufferBindingType.Uniform,
+            GpuBindingType.Storage          => BufferBindingType.Storage,
+            _                               => BufferBindingType.Undefined
+        };
     }
 }
 

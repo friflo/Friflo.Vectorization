@@ -50,7 +50,7 @@ public static class GpuPattern
         using (var pass = encoder.BeginComputePass())
         {
             var gpuEffect = ShadowMethod_GPU_GetGpuEffect(ctx);
-            pass.SetPipeline(gpuEffect.pipeline);                  // Set Pipeline to "MyShader"
+            pass.SetPipeline(gpuEffect.pipeline);
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
             Span<GpuBindEntry> entries = stackalloc GpuBindEntry[4];
@@ -82,13 +82,13 @@ public static class GpuPattern
         if (gpuEffect.isCreated) {
             return gpuEffect;
         }
-        var layout = ctx.BindGroupLayoutBuilder()       //   TODO Allocates BindGroupLayoutBuilder - check if it can be reused 
-            .AddReadOnlyBuffer<float> (0, "weight"u8)   // @binding(0) var<storage, read>       weight
-            .AddReadOnlyBuffer<float> (1, "input"u8)    // @binding(1) var<storage, read>       input
-            .AddUniform<float>        (2, "uniform"u8)  // @binding(2) var<uniform>             uniforms
-            .AddBuffer<float>         (3, "output"u8)   // @binding(3) var<storage, read_write> output
-            .Build("ShadowMethod_GPU"u8); // Build() pins the literal 
+        Span<GpuLayoutEntry> entries = stackalloc GpuLayoutEntry[4];
+        entries[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @binding(0) var<storage, read>       weight
+        entries[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @binding(1) var<storage, read>       input
+        entries[2] = GpuLayoutEntry.Uniform<float>         (2); // @binding(2) var<uniform>             uniforms
+        entries[3] = GpuLayoutEntry.ReadWriteStorage<float>(3); // @binding(3) var<storage, read_write> output
         
+        var layout          = ctx.CreateBindGroupLayout("ShadowMethod_GPU"u8, entries);
         var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader());
         var pipeline        = ctx.CreateComputePipeline(shaderModule, "main"u8, layout);
         

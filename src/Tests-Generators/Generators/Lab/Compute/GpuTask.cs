@@ -101,7 +101,7 @@ public sealed unsafe class GpuTask : IDisposable
             EntryCount  = (uint)bindEntries.Length,
             Entries     = nativeEntries
         };
-        var handle = layout.context.wgpu.DeviceCreateBindGroup(context.DevicePtr, &descriptor);
+        var handle = context.wgpu.DeviceCreateBindGroup(context.DevicePtr, &descriptor);
         createdBindGroups.Add((nint)handle);
         return new GpuBindGroup(handle);
     }
