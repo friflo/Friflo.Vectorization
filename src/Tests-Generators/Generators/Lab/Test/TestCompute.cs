@@ -75,9 +75,23 @@ public static class TestCompute
         context.Wait(b);
     }
     
+    // Force one time allocations caused by JIT
+    private static void WarmUpContext()
+    {
+        using var context = GpuContext.Create();
+        var weight  = new float[64];
+        var input   = new float[64];
+        var output  = new float[64];
+        using var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.Storage);
+        using var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
+        using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+    }
+    
     [Test]
     public static void TestExampleGPU()
     {
+        WarmUpContext();
         using var context = GpuContext.Create();
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
@@ -89,13 +103,16 @@ public static class TestCompute
         using var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.Storage);
         using var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
         using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
-
-        for (int n = 0; n < 2; ++n) {
-            GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);    
-        }
-        var start = Mem.GetAllocatedBytes();
+        
+        var start1 = Mem.GetAllocatedBytes();
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        Mem.AssertNoAlloc(start);
+        Mem.AssertNoAlloc(start1);
+        
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+
+        var start3 = Mem.GetAllocatedBytes();
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+        Mem.AssertNoAlloc(start3);
         
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         
