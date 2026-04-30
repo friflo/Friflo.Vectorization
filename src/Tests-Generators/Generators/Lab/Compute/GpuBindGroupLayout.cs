@@ -32,10 +32,10 @@ public readonly unsafe struct GpuBindEntry
         : this(binding, pool.handle, offset, size) { }
 
     private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
-        this.binding         = (uint)binding;
+        this.binding    = (uint)binding;
         bufferHandle    = handle;
-        this.offset          = offset;
-        this.size            = size;
+        this.offset     = offset;
+        this.size       = size;
     }
 }
 
