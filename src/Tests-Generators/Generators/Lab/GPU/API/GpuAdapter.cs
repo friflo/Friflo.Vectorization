@@ -26,6 +26,7 @@ public sealed unsafe class GpuAdapter : IDisposable
     }
     
     public void Dispose() {
+        return; // TODO fix cleanup
         if (isDisposed) return;
         wgpu.InstanceRelease(instance);
         isDisposed = true;
