@@ -9,12 +9,13 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Friflo.Vectorization.GPU;
 
-public readonly unsafe struct  GpuAdapter : IDisposable
+public sealed unsafe class GpuAdapter : IDisposable
 {
     private readonly    WebGPU      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Adapter*    adapter;
     private readonly    Instance*   instance;
+    private             bool        isDisposed;
     
     internal GpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
     {
@@ -25,7 +26,9 @@ public readonly unsafe struct  GpuAdapter : IDisposable
     }
     
     public void Dispose() {
-        if (adapter != null) wgpu.AdapterRelease(adapter);
+        if (isDisposed) return;
+        wgpu.InstanceRelease(instance);
+        isDisposed = true;
     }
     
     public GpuDevice CreateDevice(int maxTasks = 64, int slotSize = 64 * 1024)
