@@ -1,14 +1,15 @@
 ﻿using System;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
-using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.Lab;
 
-// [SetUpFixture]
 public abstract class GpuTestBase
 {
+    protected GpuInstance Instance  => GpuTestGlobal.Instance;
+    protected GpuAdapter  Adapter   => GpuTestGlobal.Adapter;
+    
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device { get; private set; }
     private     GlobalReport    startReport;
@@ -29,27 +30,6 @@ public abstract class GpuTestBase
         Device?.Dispose();
         var endReport = Instance.GenerateReport();
         AssertResourceLeaks(startReport, endReport);
-    }
-
-    // -----------------------  Global Setup -----------------------
-
-    protected static GpuInstance Instance { get; private set; }
-    protected static GpuAdapter  Adapter  { get; private set; }
-
-    [OneTimeSetUp]
-    public void RunBeforeAnyTests()
-    {
-        Instance = GpuInstance.CreateInstance();
-        Adapter = Instance.RequestAdapter(new RequestAdapterOptions { 
-            PowerPreference = PowerPreference.HighPerformance 
-        });
-    }
-
-    [OneTimeTearDown]
-    public void RunAfterAllTests()
-    {
-        Adapter.Dispose();
-        Instance.Dispose();
     }
 
     private static void AssertResourceLeaks(GlobalReport startReport, GlobalReport endReport)
@@ -89,4 +69,5 @@ PipelineLayouts  {(long)s.PipelineLayouts .NumKeptFromUser,4} {(long)diff.Pipeli
 ";
         throw new InvalidOperationException(str);
     }
+
 } 

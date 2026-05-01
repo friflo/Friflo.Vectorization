@@ -10,7 +10,7 @@ namespace Tests.Generators.Lab;
 public class Test_GPU_Exeptions : GpuTestBase
 {
     [Test]
-    public static void Test_GPU_Exceptions_GpuBuffer()
+    public void Test_GPU_Exceptions_GpuBuffer()
     {
         using var device1   = Adapter.CreateDevice();
         using var device2   = Adapter.CreateDevice();

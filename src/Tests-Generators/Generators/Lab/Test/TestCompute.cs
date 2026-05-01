@@ -11,11 +11,10 @@ namespace Tests.Generators.Lab;
 
 public class TestCompute : GpuTestBase
 {
-
     // ------------------------ generated code: end
     private static void UseSpan<T>(Span<T> span) { }
     
-    public static async Task ExampleCompute()
+    public async Task ExampleCompute()
     {
         var weight  = new Span<float> ([1, 2, 3, 4, 5, 6, 7, 8, 9]);
         var input   = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -63,7 +62,7 @@ public class TestCompute : GpuTestBase
     }
     
 
-    public static void DependencyFlow(Buffer<float> input)
+    public void DependencyFlow(Buffer<float> input)
     {
         using var device    = Adapter.CreateDevice();
         var weight = InitWeights(device);
@@ -74,7 +73,7 @@ public class TestCompute : GpuTestBase
     }
     
     // Force one time allocations caused by JIT
-    private static void WarmUpContext()
+    private void WarmUpContext()
     {
         using var device    = Adapter.CreateDevice();
         var weight  = new float[64];
