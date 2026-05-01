@@ -9,7 +9,7 @@ namespace Tests.Generators.Lab;
 
 public static class Test_GPU_Exeptions
 {
-    [Test][Ignore("temporary disabled")]
+    [Test]
     public static void Test_GPU_Exceptions_GpuBuffer()
     {
         using var context1 = GpuContext.Create();
