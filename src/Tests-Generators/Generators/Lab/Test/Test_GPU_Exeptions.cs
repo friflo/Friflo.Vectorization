@@ -72,11 +72,11 @@ public class Test_GPU_Exeptions : GpuTestBase
             GpuBuffer<float> result = null;
             for (int n = 0; n < 5; ++n) {
                 result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-                Debug.WriteLine(StartHandles.GetState());
+                Debug.WriteLine(HandleDiff.GetState());
             }
             device.Wait(result);
         }
-        Debug.WriteLine(StartHandles.GetState());
+        Debug.WriteLine(HandleDiff.GetState());
     }
 
     

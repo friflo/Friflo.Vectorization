@@ -35,16 +35,6 @@ public struct GpuHandles
         pipelineLayouts     = new GpuHandle(start.PipelineLayouts   , cur.PipelineLayouts);
     }
     
-    public void CalcDiff(HubReport report)
-    {
-        buffers         .diff = (long)report.Buffers            .NumKeptFromUser - buffers.active;
-        bindGroups      .diff = (long)report.BindGroups         .NumKeptFromUser - buffers.active;
-        bindGroupLayouts.diff = (long)report.BindGroupLayouts   .NumKeptFromUser - buffers.active;
-        computePipelines.diff = (long)report.ComputePipelines   .NumKeptFromUser - buffers.active;
-        shaderModules   .diff = (long)report.ShaderModules      .NumKeptFromUser - buffers.active;
-        pipelineLayouts .diff = (long)report.PipelineLayouts    .NumKeptFromUser - buffers.active;
-    }
-    
     public bool IsDiffNull()
     {
         return (buffers.           diff == 0 &&

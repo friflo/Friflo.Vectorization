@@ -13,7 +13,7 @@ public abstract class GpuTestBase
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
     protected   GlobalReport    StartReport     { get; private set; }
-    protected   GpuHandles      StartHandles    => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
+    protected   GpuHandles      HandleDiff      => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -28,18 +28,16 @@ public abstract class GpuTestBase
     public void BaseTeardown()
     {
         Device?.Dispose();
-        var endReport = Instance.GenerateReport();
-        AssertResourceLeaks(StartHandles, endReport);
+        AssertResourceLeaks(HandleDiff);
     }
 
-    private static void AssertResourceLeaks(GpuHandles start, GlobalReport end)
+    private static void AssertResourceLeaks(GpuHandles handleDiff)
     {
-        start.CalcDiff(end.Vulkan);
-        if (start.IsDiffNull()) {
+        if (handleDiff.IsDiffNull()) {
             return;
         }
         return; // TODO throw exception 
-        var str = start.GetState();
+        var str = handleDiff.GetState();
         throw new InvalidOperationException(str);
     }
 }
