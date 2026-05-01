@@ -144,8 +144,8 @@ public sealed unsafe class GpuContext : IDisposable
 		// 2. Adapter anfordern
 		Adapter* adapter = null;
 		var options = new RequestAdapterOptions { 
-			PowerPreference = PowerPreference.Undefined,
-            BackendType = BackendType.Vulkan
+			PowerPreference = PowerPreference.HighPerformance,
+            BackendType = BackendType.Undefined
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
@@ -157,12 +157,15 @@ public sealed unsafe class GpuContext : IDisposable
 		if (!wgpu.TryGetDeviceExtension(null, out wgpuEx)) {
 			throw new Exception("WGPU extension not found!");
 		}
+        var startTime = new Stopwatch();
+        startTime.Start();
+        var timeOutMs = 1000;
         while (adapter == null) {
-            int counter = 0;
-            ProcessEvent(wgpu, wgpuEx, instance, ref counter);
+            PumpEvents(wgpu, wgpuEx, instance);
+            if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting adapter");
         }
         if (adapter == null) {
-            Console.WriteLine("❌ Adapter-Timeout: Treiber wurde gefunden, aber Callback kam nie.");
+            Console.WriteLine("Adapter-Timeout: Treiber wurde gefunden, aber Callback kam nie.");
         }
 
 		// 3. Device anfordern
@@ -177,8 +180,8 @@ public sealed unsafe class GpuContext : IDisposable
 		}), null);
 
         while (device == null) {
-            int counter = 0;
-            ProcessEvent(wgpu, wgpuEx, instance, ref counter);
+            PumpEvents(wgpu, wgpuEx, instance);
+            if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
 
@@ -193,19 +196,15 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxTasks, slotSize);
     }
     
-    private static void ProcessEvent(WebGPU wgpu, Wgpu wgpuEx, Instance* instance, ref int counter)
+    private static void PumpEvents(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
     {
         bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         if (isLinux) {
             var enumOptions = new InstanceEnumerateAdapterOptions();
             Adapter* dummyAdapter = null;
-            // Der "Schubs": Wir bitten wgpu, die Adapterliste zu aktualisieren.
-            // Das triggert intern oft die Abarbeitung der ausstehenden Callbacks.
+            // Trigger processing pending callbacks
             wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
-            // Auf Linux/Mesa kommen Callbacks oft via Background-Thread oder 
-            // werden bei der nächsten API-Interaktion getriggert.
-            Thread.Sleep(10);
-            if (counter++ > 500) throw new Exception("GPU Adapter Timeout");
+            Thread.Yield(); // enable other threads on Linux processing events 
         } else {
             wgpu.InstanceProcessEvents(instance); 
         }
