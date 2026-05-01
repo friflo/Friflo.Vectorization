@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -156,7 +157,8 @@ public sealed unsafe class GpuContext : IDisposable
 			throw new Exception("WGPU extension not found!");
 		}
         while (adapter == null) {
-            wgpu.InstanceProcessEvents(instance); 
+            int counter = 0;
+            ProcessEvent(wgpu, instance, ref counter);
         }
 
 		// 3. Device anfordern
@@ -171,7 +173,8 @@ public sealed unsafe class GpuContext : IDisposable
 		}), null);
 
         while (device == null) {
-            wgpu.InstanceProcessEvents(instance); 
+            int counter = 0;
+            ProcessEvent(wgpu, instance, ref counter);
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
 
@@ -184,6 +187,19 @@ public sealed unsafe class GpuContext : IDisposable
         wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
         return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxTasks, slotSize);
+    }
+    
+    private static void ProcessEvent(WebGPU wgpu, Instance* instance, ref int counter)
+    {
+        bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        if (isLinux) {
+            // Auf Linux/Mesa kommen Callbacks oft via Background-Thread oder 
+            // werden bei der nächsten API-Interaktion getriggert.
+            Thread.Sleep(1);
+            if (counter++ > 5000) throw new Exception("GPU Adapter Timeout");
+        } else {
+            wgpu.InstanceProcessEvents(instance); 
+        }
     }
 
     private static void OnGpuError(ErrorType type, byte* message, void* userData) {
