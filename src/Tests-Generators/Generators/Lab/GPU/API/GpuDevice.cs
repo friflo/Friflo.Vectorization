@@ -34,8 +34,8 @@ namespace Friflo.Vectorization.GPU;
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuDevice : IDisposable
 {
-    internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
-    private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
+    internal            WebGPU          wgpu        { get; }    // main API         - GpuDevice owns this managed type
+    private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuDevice owns this managed type
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
     internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
     

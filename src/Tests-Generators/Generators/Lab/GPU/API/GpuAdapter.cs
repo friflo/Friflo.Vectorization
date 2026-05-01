@@ -32,7 +32,7 @@ public readonly unsafe struct  GpuAdapter : IDisposable
     {
 		// 3. Device anfordern
 		Device* device = null;
-        var name = Marshal.StringToHGlobalAnsi("GpuContext");
+        var name = Marshal.StringToHGlobalAnsi("GpuDevice");
 		var devDesc = new DeviceDescriptor {
 			Label = (byte*)name
 		};

@@ -38,6 +38,6 @@ public struct GpuParamState
         if (device != null) {
             return device;
         }
-        throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuContext). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
+        throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
 }
