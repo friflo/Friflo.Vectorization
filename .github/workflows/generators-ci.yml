@@ -78,7 +78,7 @@ jobs:
       working-directory: ./
       # Auch hier: Direkt auf das Test-Projekt zielen
       run: |
-        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj -r linux-x64 --no-build --verbosity normal
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj -r linux-x64 --no-build --verbosity normal 2>&1
         dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj --no-build --verbosity normal
 
 
