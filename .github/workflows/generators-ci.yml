@@ -23,7 +23,13 @@ jobs:
       # Install software driver MESA for WebGPU
       run: |
         sudo apt-get update
-        sudo apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6
+        sudo apt-get install -y \
+        libvulkan1 \
+        mesa-vulkan-drivers \
+        libx11-6 \
+        libx11-xcb1 \
+        libxcb-dri3-0 \
+        libwayland-client0
 
     - name: Restore dependencies
       working-directory: ./
@@ -31,7 +37,19 @@ jobs:
 
     - name: Build
       working-directory: ./
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore -p:CopyLocalLockFileAssemblies=true
+
+    - name: Debug LDD
+      run: |
+        # Suche die libwgpu_native.so im Build-Ordner
+        LIB_PATH=$(find . -name "libwgpu_native.so" | head -n 1)
+        if [ -z "$LIB_PATH" ]; then
+          echo "❌ libwgpu_native.so NICHT GEFUNDEN!"
+        else
+          echo "✅ Gefunden in: $LIB_PATH"
+          ldd $LIB_PATH  # Zeigt fehlende System-Abhängigkeiten an
+        fi
+      working-directory: ./
 
     - name: Test
       env:
