@@ -144,8 +144,8 @@ public sealed unsafe class GpuContext : IDisposable
 		// 2. Adapter anfordern
 		Adapter* adapter = null;
 		var options = new RequestAdapterOptions { 
-			PowerPreference = PowerPreference.LowPower,
-            BackendType = BackendType.Undefined
+			PowerPreference = PowerPreference.Undefined,
+            BackendType = BackendType.Vulkan
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
@@ -159,7 +159,7 @@ public sealed unsafe class GpuContext : IDisposable
 		}
         while (adapter == null) {
             int counter = 0;
-            ProcessEvent(wgpu, instance, ref counter);
+            ProcessEvent(wgpu, wgpuEx, instance, ref counter);
         }
 
 		// 3. Device anfordern
@@ -175,7 +175,7 @@ public sealed unsafe class GpuContext : IDisposable
 
         while (device == null) {
             int counter = 0;
-            ProcessEvent(wgpu, instance, ref counter);
+            ProcessEvent(wgpu, wgpuEx, instance, ref counter);
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
 
@@ -190,10 +190,15 @@ public sealed unsafe class GpuContext : IDisposable
         return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxTasks, slotSize);
     }
     
-    private static void ProcessEvent(WebGPU wgpu, Instance* instance, ref int counter)
+    private static void ProcessEvent(WebGPU wgpu, Wgpu wgpuEx, Instance* instance, ref int counter)
     {
         bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         if (isLinux) {
+            var enumOptions = new InstanceEnumerateAdapterOptions();
+            Adapter* dummyAdapter = null;
+            // Der "Schubs": Wir bitten wgpu, die Adapterliste zu aktualisieren.
+            // Das triggert intern oft die Abarbeitung der ausstehenden Callbacks.
+            wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
             // Auf Linux/Mesa kommen Callbacks oft via Background-Thread oder 
             // werden bei der nächsten API-Interaktion getriggert.
             Thread.Sleep(10);
