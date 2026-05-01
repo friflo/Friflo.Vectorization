@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
@@ -38,10 +36,8 @@ public sealed unsafe class GpuDevice : IDisposable
 {
     internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
     private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
-    private             Adapter*        Adapter     { get; }
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
     internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
-    private             Instance*       Instance    { get; }    // pointer lives in graphics device driver
     
     public              bool            DebugMode   { get; set; } 
     
@@ -101,23 +97,19 @@ public sealed unsafe class GpuDevice : IDisposable
     // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
-    private GpuDevice(
+    internal GpuDevice(
         WebGPU              wgpu,
         Wgpu                wgpuEx,
-        Adapter*            adapter,
         Device*             devicePtr,
         Queue*              queuePtr,
-        Instance*           instance,
-        PfnErrorCallback    errorCallback,
+		PfnErrorCallback    errorCallback,
         int                 maxTasks,
         int                 slotSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
-        Adapter             = adapter;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
-        Instance            = instance;
         queue               = new GpuQueue(this, queuePtr);
         this.errorCallback  = errorCallback;
         this.slotSize       = slotSize;
@@ -135,109 +127,6 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public static GpuDevice Create(int maxTasks = 64, int slotSize = 64 * 1024)
-    {
-        WebGPU wgpu = WebGPU.GetApi();
-        if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
-            throw new Exception("WGPU extension not found!");
-        }
-		// 1. Instanz & Surface (optional, für Compute reicht oft der Adapter)
-		// Wir holen uns den Adapter (die physische GPU)
-		InstanceDescriptor instDesc = new InstanceDescriptor();
-		var instance = wgpu.CreateInstance(&instDesc);
-
-		// 2. Adapter anfordern
-		Adapter* adapter = null;
-		var options = new RequestAdapterOptions { 
-			PowerPreference = PowerPreference.HighPerformance,
-            BackendType = BackendType.Undefined
-		};
-
-		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
-		wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
-			if (status == RequestAdapterStatus.Success) adapter = adp;
-		}), null);
-
-		// Warten, bis der Adapter da ist (dafür brauchen wir die Extension!)
-		if (!wgpu.TryGetDeviceExtension(null, out wgpuEx)) {
-			throw new Exception("WGPU extension not found!");
-		}
-        var startTime = new Stopwatch();
-        startTime.Start();
-        var timeOutMs = 1000;
-        while (adapter == null) {
-            PumpEvents(wgpu, wgpuEx, instance);
-            if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting adapter");
-        }
-        if (adapter == null) {
-            Console.WriteLine("Adapter-Timeout: Treiber wurde gefunden, aber Callback kam nie.");
-        }
-
-		// 3. Device anfordern
-		Device* device = null;
-        var name = Marshal.StringToHGlobalAnsi("GpuContext");
-		var devDesc = new DeviceDescriptor {
-			Label = (byte*)name
-		};
-
-		wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
-			if (status == RequestDeviceStatus.Success) device = dev;
-		}), null);
-
-        while (device == null) {
-            PumpEvents(wgpu, wgpuEx, instance);
-            if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
-        }
-        Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed async  
-
-
-		// 4. Pointer setzen
-
-		var queuePtr = wgpu.DeviceGetQueue(device);
-        
-        var errorCallback = PfnErrorCallback.From(OnGpuError);
-        wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
-        
-        return new GpuDevice(wgpu, wgpuEx, adapter, device, queuePtr, instance, errorCallback, maxTasks, slotSize);
-    }
-    
-    public AdapterProperties GetAdapterProperties () {
-        var report = new AdapterProperties();
-        wgpu.AdapterGetProperties(Adapter, ref report);
-        return report;
-    }
-    
-    public GlobalReport GenerateReport () {
-        var report = new GlobalReport();
-        wgpuEx.GenerateReport(Instance, ref report);
-        return report;
-    }
-    
-    private static void PumpEvents(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
-    {
-        wgpu.InstanceProcessEvents(instance);
-
-        // This check is required when running on Linux using only Software GPU
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-            var enumOptions = new InstanceEnumerateAdapterOptions();
-            Adapter* dummyAdapter = null;
-            // Trigger processing pending callbacks
-            wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
-            Thread.Yield(); // enable other threads on Linux processing events 
-        }
-    }
-
-    private static void OnGpuError(ErrorType type, byte* message, void* userData) {
-        string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message);
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine("--- [WEBGPU CRITICAL ERROR] ---");
-        Console.Error.WriteLine($"Type: {type}");
-        Console.Error.WriteLine($"Message: {errorMsg}");
-        Console.Error.WriteLine("-------------------------------");
-        Console.ResetColor();
-        if (Debugger.IsAttached) Debugger.Break();
-    }
-    
     public void Poll(bool wait) 
     {
         wgpuEx.DevicePoll(DevicePtr, true, null);
@@ -250,8 +139,6 @@ public sealed unsafe class GpuDevice : IDisposable
     
         if (QueuePtr  != null) wgpu.QueueRelease(QueuePtr);
         if (DevicePtr != null) wgpu.DeviceRelease(DevicePtr);
-        
-        wgpu.InstanceRelease(Instance);
     }
 
     internal GpuEncoder CreateEncoder(GpuTask task) {
