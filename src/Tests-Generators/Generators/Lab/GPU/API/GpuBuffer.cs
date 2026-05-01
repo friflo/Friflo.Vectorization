@@ -13,14 +13,14 @@ namespace Friflo.Vectorization.GPU;
 public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
-    internal readonly   GpuContext  context;
+    internal readonly   GpuDevice   device;
     public              int         Length;
     private             uint        SizeInBytes;
     public              GpuTask     LastWritingTask;
 
-    public GpuBuffer(GpuContext ctx, uint sizeInBytes, BufferUsage usage) 
+    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage) 
     {
-        context = ctx;
+        this.device = device;
         // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
         SizeInBytes = sizeInBytes; 
         
@@ -28,20 +28,20 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         Length = (int)(sizeInBytes / sizeof(T));
 
         // Den Pointer von der API holen
-        handle = ctx.CreateBuffer(sizeInBytes, usage);
+        handle = device.CreateBuffer(sizeInBytes, usage);
     }
     
-    public GpuBuffer(GpuContext ctx, T[] data, BufferUsage usage) 
+    public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage) 
     {
-        context = ctx;
-        Length  = data.Length;
-        handle  = ctx.CreateBufferWithData(data, usage);
+        this.device = device;
+        Length  	= data.Length;
+        handle  	= device.CreateBufferWithData(data, usage);
     }
     
     public void Dispose()
     {
         if (handle != null) {
-            context.wgpu.BufferRelease(handle);
+            device.wgpu.BufferRelease(handle);
             handle = null;
         }
     }
@@ -50,7 +50,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                context.Wait(this); // force Compute before CPU reads value
+                device.Wait(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }
@@ -63,15 +63,16 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
     public void WaitInDebug()
     {
-        if (!context.DebugMode) {
+        if (!device.DebugMode) {
             return;
         }
-        context.Flush();
+        device.Flush();
     }
     
     public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
-        context.Flush();
+        var dev = device;
+        dev.Flush();
         
         if (targetArray.Length < gpuBuffer.Length)
             throw new Exception("Target array is too small!");
@@ -85,10 +86,9 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
             Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
             MappedAtCreation = false
         };
-        var ctx         = gpuBuffer.context;
-        var wgpu        = ctx.wgpu;
-        var DevicePtr   = ctx.DevicePtr;
-        var QueuePtr    = ctx.QueuePtr;
+        var wgpu        = dev.wgpu;
+        var DevicePtr   = dev.DevicePtr;
+        var QueuePtr    = dev.QueuePtr;
         var readBuffer  = wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         // 2. GPU-interne Kopie
@@ -104,7 +104,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         wgpu.BufferMapAsync(readBuffer, MapMode.Read, 0, size, callback, null);
 
         while (!mapFinished) {
-            ctx.Poll(true);
+            dev.Poll(true);
         }
 
         // 4. In das ORIGINAL-Array zurückkopieren

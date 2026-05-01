@@ -37,20 +37,20 @@ public static class GpuPattern
         paramState.Validate(weight, nameof(weight));
         paramState.Validate(input,  nameof(input));
         paramState.Validate(output, nameof(output));
-        var ctx = paramState.GetContext();
+        var dev = paramState.GetContext();
         
-        var gpuOutput   = output.gpuBuffer ?? ctx.RentBuffer<float>(input.Length);
-        using var task  = ctx.RentTask();
+        var gpuOutput   = output.gpuBuffer ?? dev.RentBuffer<float>(input.Length);
+        using var task  = dev.RentTask();
 
         // Dependencies from inputs (out not Output!)
         if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
         if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
         
         // Recording (task provides Encoder)
-        var encoder = task.GetEncoder(ctx); 
+        var encoder = task.GetEncoder(); 
         using (var pass = encoder.BeginComputePass())
         {
-            var gpuEffect = ShadowMethod_GPU_GetGpuEffect(ctx);
+            var gpuEffect = ShadowMethod_GPU_GetGpuEffect(dev);
             pass.SetPipeline(gpuEffect.pipeline);
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
@@ -68,17 +68,17 @@ public static class GpuPattern
         // connect task to output
         gpuOutput.LastWritingTask = task;
         task.Finish(encoder);   // extract CommandBuffer from Encoder
-        ctx.Enqueue(task);      // queues CommandBuffer only. No Submit().
+        dev.Enqueue(task);      // queues CommandBuffer only. No Submit().
 
         gpuOutput.WaitInDebug();
         return gpuOutput;
     }
     
-    private static readonly int ShadowMethod_GpuEffectSlot = GpuContext.NewGpuEffectSlot(); 
+    private static readonly int ShadowMethod_GpuEffectSlot = GpuDevice.NewGpuEffectSlot(); 
     
-    private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuContext ctx)
+    private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuDevice device)
     {
-        var gpuEffect = ctx.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
+        var gpuEffect = device.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
 
         if (gpuEffect.IsCreated) {
             return gpuEffect;
@@ -89,12 +89,12 @@ public static class GpuPattern
         entries[2] = GpuLayoutEntry.Uniform<float>         (2); // @binding(2) var<uniform>             uniforms
         entries[3] = GpuLayoutEntry.ReadWriteStorage<float>(3); // @binding(3) var<storage, read_write> output
         
-        var layout          = ctx.CreateBindGroupLayout("ShadowMethod_GPU"u8, entries);
-        var shaderModule    = ctx.CreateShaderModule(ShadowMethod_GPU_Shader());
-        var pipeline        = ctx.CreateComputePipeline(shaderModule, "main"u8, layout);
+        var layout          = device.CreateBindGroupLayout("ShadowMethod_GPU"u8, entries);
+        var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader());
+        var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout);
         
         gpuEffect = new GpuEffect(layout, pipeline);
-        ctx.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
+        device.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
         return gpuEffect;
     }
 

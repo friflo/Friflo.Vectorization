@@ -12,8 +12,8 @@ public static class Test_GPU_Exeptions
     [Test]
     public static void Test_GPU_Exceptions_GpuBuffer()
     {
-        using var context1 = GpuContext.Create();
-        using var context2  = GpuContext.Create();
+        using var device1 = GpuDevice.Create();
+        using var device2 = GpuDevice.Create();
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
         var output  = new float[64];
@@ -21,9 +21,9 @@ public static class Test_GPU_Exeptions
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(context1, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(context1, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(context1, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device1, weight, BufferUsage.Storage);
+        using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
+        using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
         {   // Scope important to Dispose() result 
             using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
@@ -35,7 +35,7 @@ public static class Test_GPU_Exeptions
             StringAssert.StartsWith("Architectural Blasphemy:", e!.Message!);
         } {
 
-            using var gpuOutput2 = new GpuBuffer<float>(context2, input,  BufferUsage.Storage);
+            using var gpuOutput2 = new GpuBuffer<float>(device2, input,  BufferUsage.Storage);
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });

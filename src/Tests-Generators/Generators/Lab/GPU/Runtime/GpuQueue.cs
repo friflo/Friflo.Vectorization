@@ -13,18 +13,17 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct GpuQueue
 {
-    private  readonly   GpuContext  context;
+    private  readonly   GpuDevice   device;
     internal readonly   Queue*      handle;
     
-    public GpuQueue(GpuContext ctx, Queue* handle) {
-        context     = ctx;
+    public GpuQueue(GpuDevice device, Queue* handle) {
+        this.device = device;
         this.handle = handle;
     }
     
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
-        var ctx = context;
-        context.wgpu.QueueWriteBuffer(ctx.QueuePtr, buffer, offsetInBytes, data, byteSize);
+        device.wgpu.QueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     // TODO use this static method to avoid allocation by lambda
@@ -59,6 +58,6 @@ internal readonly unsafe struct GpuQueue
         void* userData = (void*)GCHandle.ToIntPtr(handle);
 
         // call native API with static function pointer
-        context.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
+        device.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
     }
 }

@@ -31,12 +31,12 @@ public static class TestCompute
         
     //  UseSpan(weight); // compiler error
         
-        using var gpuContext = GpuContext.Create();
-        var gpuWeight = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
-        var gpuInput  = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
-        var output2   = new GpuBuffer<float>(gpuContext, 100, BufferUsage.None);
+        using var device = GpuDevice.Create();
+        var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None);
+        var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None);
+        var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None);
         var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
-        gpuContext.Wait(result2);
+        device.Wait(result2);
     }
     
     public class ModelLayer {
@@ -45,7 +45,7 @@ public static class TestCompute
         public GpuBuffer<float>    output;
     }
     
-    public static void RunInference(ModelLayer[] layers, GpuContext ctx)
+    public static void RunInference(ModelLayer[] layers, GpuDevice device)
     {
         // Fire Layer 1 to 50
         GpuBuffer<float> result = null;
@@ -53,7 +53,7 @@ public static class TestCompute
             result = GpuPattern.ShadowMethod(layer.weight, layer.input, 42, ExeType.GPU, layer.output);
         }
         // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
-        ctx.Wait(result);
+        device.Wait(result);
     }
     
 
@@ -61,31 +61,31 @@ public static class TestCompute
     public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ExeType exe) { return null; }
     public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ExeType exe) { return null; }
     
-    public static GpuBuffer<byte> InitWeights(GpuContext context) {
+    public static GpuBuffer<byte> InitWeights(GpuDevice device) {
         return null;
     }
     
 
     public static void DependencyFlow(Buffer<float> input)
     {
-        using var context = GpuContext.Create();
-        var weight = InitWeights(context);
+        using var device = GpuDevice.Create();
+        var weight = InitWeights(device);
         var a = ComputeLayer1(weight, input, ExeType.GPU);
-    //  firstValue = a[0];                              // TODO indexer must ctx.Wait(this) - than returns firstValue
+    //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
         var b = ComputeLayer2(a, ExeType.GPU);
-        context.Wait(b);
+        device.Wait(b);
     }
     
     // Force one time allocations caused by JIT
     private static void WarmUpContext()
     {
-        using var context = GpuContext.Create();
+        using var device = GpuDevice.Create();
         var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
-        using var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
+        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
+        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
     }
     
@@ -93,7 +93,7 @@ public static class TestCompute
     public static void TestExampleGPU()
     {
         WarmUpContext();
-        using var context = GpuContext.Create();
+        using var device = GpuDevice.Create();
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
         var output  = new float[64];
@@ -101,9 +101,9 @@ public static class TestCompute
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(context, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(context, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(context, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
+        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
+        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
         
         var start1 = Mem.GetAllocatedBytes();
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
@@ -115,13 +115,13 @@ public static class TestCompute
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         Mem.AssertNoAlloc(start3);
         
-        var props = context.GetAdapterProperties();
-        GlobalReport report1 = context.GenerateReport();
+        var props = device.GetAdapterProperties();
+        GlobalReport report1 = device.GenerateReport();
         Console.WriteLine(report1.BackendType);
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        GlobalReport report2 = context.GenerateReport();
+        GlobalReport report2 = device.GenerateReport();
         
-        context.Wait(result);
+        device.Wait(result);
         
         gpuOutput.Download(result, output);
         Console.WriteLine($"output[0] {output[0]}");

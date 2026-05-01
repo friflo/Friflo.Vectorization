@@ -34,7 +34,7 @@ namespace Friflo.Vectorization.GPU;
 // Developer Ergonomics
 //  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
-public sealed unsafe class GpuContext : IDisposable
+public sealed unsafe class GpuDevice : IDisposable
 {
     internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
     private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
@@ -101,7 +101,7 @@ public sealed unsafe class GpuContext : IDisposable
     // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
-    private GpuContext(
+    private GpuDevice(
         WebGPU              wgpu,
         Wgpu                wgpuEx,
         Adapter*            adapter,
@@ -135,7 +135,7 @@ public sealed unsafe class GpuContext : IDisposable
         }
     }
     
-    public static GpuContext Create(int maxTasks = 64, int slotSize = 64 * 1024)
+    public static GpuDevice Create(int maxTasks = 64, int slotSize = 64 * 1024)
     {
         WebGPU wgpu = WebGPU.GetApi();
         if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
@@ -198,7 +198,7 @@ public sealed unsafe class GpuContext : IDisposable
         var errorCallback = PfnErrorCallback.From(OnGpuError);
         wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(wgpu, wgpuEx, adapter, device, queuePtr, instance, errorCallback, maxTasks, slotSize);
+        return new GpuDevice(wgpu, wgpuEx, adapter, device, queuePtr, instance, errorCallback, maxTasks, slotSize);
     }
     
     public AdapterProperties GetAdapterProperties () {
@@ -271,8 +271,8 @@ public sealed unsafe class GpuContext : IDisposable
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
         var handle = GCHandle.FromIntPtr((IntPtr)userData);
-        if (handle.Target is GpuContext ctx) {
-            ctx.ReturnPendingTasks();
+        if (handle.Target is GpuDevice device) {
+            device.ReturnPendingTasks();
         }
     }
     

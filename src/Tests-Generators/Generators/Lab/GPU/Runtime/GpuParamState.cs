@@ -9,7 +9,7 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuParamState
 {
-    public GpuContext   context;
+    public GpuDevice    device;
     public string       firstParam;
 
     public unsafe void Validate(Buffer<float> buffer, string paramName)
@@ -20,12 +20,12 @@ public struct GpuParamState
         }
         if (gpuBuffer.handle != null)
         {
-            if (gpuBuffer.context == context) {
+            if (gpuBuffer.device == device) {
                 return;    
             }
-            if (context == null) {
+            if (device == null) {
                 firstParam   = paramName;
-                context      = gpuBuffer.context;
+                device      = gpuBuffer.device;
                 return;
             }
             throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{firstParam}'. In this library, we practice Monogamy.");
@@ -34,9 +34,9 @@ public struct GpuParamState
             $"Architectural Blasphemy: You are trying to extract the Context from parameter '{paramName}', which you've already sent to the void. A disposed Buffer has no God and no GPU memory.");
     }
     
-    public GpuContext GetContext() {
-        if (context != null) {
-            return context;
+    public GpuDevice GetContext() {
+        if (device != null) {
+            return device;
         }
         throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuContext). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
