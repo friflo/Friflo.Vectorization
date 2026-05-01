@@ -7,15 +7,13 @@ using Silk.NET.WebGPU;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public static class Test_GPU_Exeptions
+public class Test_GPU_Exeptions : GpuTestBase
 {
     [Test]
     public static void Test_GPU_Exceptions_GpuBuffer()
     {
-        using var instance  = GpuInstance.CreateInstance();
-        using var adapter   = instance.RequestAdapter(new RequestAdapterOptions { PowerPreference = PowerPreference.HighPerformance, BackendType = BackendType.Undefined });
-        using var device1   = adapter.CreateDevice();
-        using var device2   = adapter.CreateDevice();
+        using var device1   = Adapter.CreateDevice();
+        using var device2   = Adapter.CreateDevice();
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
         var output  = new float[64];

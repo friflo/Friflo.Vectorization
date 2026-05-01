@@ -9,13 +9,10 @@ using Tests.Utils;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
 
-public static class TestCompute
+public class TestCompute : GpuTestBase
 {
 
     // ------------------------ generated code: end
-
-    
-    
     private static void UseSpan<T>(Span<T> span) { }
     
     public static async Task ExampleCompute()
@@ -31,9 +28,7 @@ public static class TestCompute
         
     //  UseSpan(weight); // compiler error
         
-        using var instance  = GpuInstance.CreateInstance();
-        using var adapter   = instance.RequestAdapter(new RequestAdapterOptions { PowerPreference = PowerPreference.HighPerformance, BackendType = BackendType.Undefined });
-        using var device    = adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice();
         var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None);
         var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None);
         var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None);
@@ -70,9 +65,7 @@ public static class TestCompute
 
     public static void DependencyFlow(Buffer<float> input)
     {
-        using var instance  = GpuInstance.CreateInstance();
-        using var adapter   = instance.RequestAdapter(new RequestAdapterOptions { PowerPreference = PowerPreference.HighPerformance, BackendType = BackendType.Undefined });
-        using var device    = adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice();
         var weight = InitWeights(device);
         var a = ComputeLayer1(weight, input, ExeType.GPU);
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
@@ -83,9 +76,7 @@ public static class TestCompute
     // Force one time allocations caused by JIT
     private static void WarmUpContext()
     {
-        using var instance  = GpuInstance.CreateInstance();
-        using var adapter   = instance.RequestAdapter(new RequestAdapterOptions { PowerPreference = PowerPreference.HighPerformance, BackendType = BackendType.Undefined });
-        using var device    = adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice();
         var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
@@ -96,12 +87,10 @@ public static class TestCompute
     }
     
     [Test]
-    public static void TestExampleGPU()
+    public void TestExampleGPU()
     {
         WarmUpContext();
-        using var instance  = GpuInstance.CreateInstance();
-        using var adapter   = instance.RequestAdapter(new RequestAdapterOptions { PowerPreference = PowerPreference.HighPerformance, BackendType = BackendType.Undefined });
-        using var device    = adapter.CreateDevice();
+        var device    = Device;
 
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
@@ -124,11 +113,11 @@ public static class TestCompute
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         Mem.AssertNoAlloc(start3);
         
-        var props 			 = adapter.GetAdapterProperties();
-        GlobalReport report1 = instance.GenerateReport();
+        var props 			 = Adapter.GetAdapterProperties();
+        GlobalReport report1 = Instance.GenerateReport();
         Console.WriteLine(report1.BackendType);
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        GlobalReport report2 = instance.GenerateReport();
+        GlobalReport report2 = Instance.GenerateReport();
         
         device.Wait(result);
         
