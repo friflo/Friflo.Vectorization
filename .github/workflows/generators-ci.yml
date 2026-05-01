@@ -37,7 +37,7 @@ jobs:
     - name: Build
       working-directory: ./
       run: |
-        dotnet build -r linux-x64 -c Debug -p:CopyLocalLockFileAssemblies=true
+        dotnet build -c Debug -p:CopyLocalLockFileAssemblies=true
 
     - name: Test
       env:
