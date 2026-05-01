@@ -19,6 +19,12 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
+    - name: Install Mesa and OS Dependencies
+      # Install software driver MESA for WebGPU
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6
+
     - name: Restore dependencies
       working-directory: ./
       run: dotnet restore
@@ -28,6 +34,9 @@ jobs:
       run: dotnet build --no-restore
 
     - name: Test
+      env:
+        # Enable finding software driver MESA required by WebGPU
+        VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
       working-directory: ./
       run: dotnet test --no-build --verbosity normal
 
