@@ -34,11 +34,14 @@ jobs:
     - name: Setup Mesa
       run: |
         sudo apt-get update
-        sudo apt-get install -y libwayland-egl1 mesa-vulkan-drivers
-        # Fix: Kopiere den ICD an einen sicheren Ort und stelle sicher, dass er lesbar ist
+        sudo apt-get install -y mesa-vulkan-drivers
         mkdir -p ./vulkan_icd
-        cp /usr/share/vulkan/icd.d/lvp_icd.x86_64.json ./vulkan_icd/
-        chmod 644 ./vulkan_icd/lvp_icd.x86_64.json
+        # Wir suchen die Datei, egal wo sie genau liegt, und kopieren sie
+        ICD_PATH=$(find /usr/share/vulkan/icd.d/ -name "*lvp*.json" | head -n 1)
+        echo "Found ICD at: $ICD_PATH"
+        if [ -z "$ICD_PATH" ]; then echo "ICD not found!"; exit 1; fi
+        cp "$ICD_PATH" ./vulkan_icd/lvp_icd.json
+        chmod 644 ./vulkan_icd/lvp_icd.json
 
     - name: Restore dependencies
       working-directory: ./
@@ -68,8 +71,8 @@ jobs:
     - name: Test
       env:
         WGPU_BACKEND: vulkan
-        # Enable finding software driver MESA required by WebGPU
-        VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.x86_64.json
+        # Wir nutzen den relativen Pfad zu unserer Kopie
+        VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.json
         VK_LAVA_EXTERNAL_MEMORY_SUPPORT: "0"
         VK_LOADER_DEBUG: all
       working-directory: ./
