@@ -161,6 +161,9 @@ public sealed unsafe class GpuContext : IDisposable
             int counter = 0;
             ProcessEvent(wgpu, wgpuEx, instance, ref counter);
         }
+        if (adapter == null) {
+            Console.WriteLine("❌ Adapter-Timeout: Treiber wurde gefunden, aber Callback kam nie.");
+        }
 
 		// 3. Device anfordern
 		Device* device = null;

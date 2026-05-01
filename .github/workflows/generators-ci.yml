@@ -31,6 +31,15 @@ jobs:
         libxcb-dri3-0 \
         libwayland-client0
 
+    - name: Setup Mesa
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libwayland-egl1 mesa-vulkan-drivers
+        # Fix: Kopiere den ICD an einen sicheren Ort und stelle sicher, dass er lesbar ist
+        mkdir -p ./vulkan_icd
+        cp /usr/share/vulkan/icd.d/lvp_icd.x86_64.json ./vulkan_icd/
+        chmod 644 ./vulkan_icd/lvp_icd.x86_64.json
+
     - name: Restore dependencies
       working-directory: ./
       run: dotnet restore -r linux-x64
@@ -59,9 +68,10 @@ jobs:
     - name: Test
       env:
         WGPU_BACKEND: vulkan
-        VK_LOADER_DEBUG: all
         # Enable finding software driver MESA required by WebGPU
-        VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+        VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.x86_64.json
+        VK_LAVA_EXTERNAL_MEMORY_SUPPORT: "0"
+        VK_LOADER_DEBUG: all
       working-directory: ./
       # Auch hier: Direkt auf das Test-Projekt zielen
       run: |
