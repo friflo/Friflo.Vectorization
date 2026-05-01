@@ -33,11 +33,12 @@ jobs:
 
     - name: Restore dependencies
       working-directory: ./
-      run: dotnet restore
+      run: dotnet restore -r linux-x64
 
     - name: Build
       working-directory: ./
-      run: dotnet build -p:RuntimeIdentifier=linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
+      # Wir bauen alle Projekte direkt, das ignoriert die Solution-Einschränkung
+      run: dotnet build **/*.csproj -r linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
 
     - name: Debug LDD
       run: |
@@ -56,8 +57,10 @@ jobs:
         # Enable finding software driver MESA required by WebGPU
         VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
       working-directory: ./
-      run: dotnet test -p:RuntimeIdentifier=linux-x64 --no-build --verbosity normal
-
+      # Auch hier: Direkt auf das Test-Projekt zielen
+      run:
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj -r linux-x64 --no-build --verbosity normal
+        dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj --no-build --verbosity normal
 
 
 
