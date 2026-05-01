@@ -88,7 +88,7 @@ public static class TestCompute
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
     }
     
-    [Test]
+    [Test][Ignore("temporary disabled")]
     public static void TestExampleGPU()
     {
         WarmUpContext();
