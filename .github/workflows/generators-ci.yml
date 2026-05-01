@@ -37,7 +37,7 @@ jobs:
 
     - name: Build
       working-directory: ./
-      run: dotnet build --no-restore -p:CopyLocalLockFileAssemblies=true
+      run: dotnet build -r linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
 
     - name: Debug LDD
       run: |
@@ -56,7 +56,7 @@ jobs:
         # Enable finding software driver MESA required by WebGPU
         VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
       working-directory: ./
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test -r linux-x64 --no-build --verbosity normal
 
 
 
