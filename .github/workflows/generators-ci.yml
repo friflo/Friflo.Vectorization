@@ -74,7 +74,7 @@ jobs:
         # Wir nutzen den relativen Pfad zu unserer Kopie
         VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.json
         VK_LAVA_EXTERNAL_MEMORY_SUPPORT: "0"
-        VK_LOADER_DEBUG: all
+        # VK_LOADER_DEBUG: all
       working-directory: ./
       # Auch hier: Direkt auf das Test-Projekt zielen
       run: |
