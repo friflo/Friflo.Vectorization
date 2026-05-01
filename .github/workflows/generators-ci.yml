@@ -19,27 +19,14 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: Install Mesa and OS Dependencies
-      # Install software driver MESA for WebGPU
+    - name: Install & Setup Mesa (Headless GPU)
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-        libvulkan1 \
-        mesa-vulkan-drivers \
-        libx11-6 \
-        libx11-xcb1 \
-        libxcb-dri3-0 \
-        libwayland-client0
-
-    - name: Setup Mesa
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mesa-vulkan-drivers
+        sudo apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
+        
+        # ICD-Fix: locate driver and make available for Loader
         mkdir -p ./vulkan_icd
-        # Wir suchen die Datei, egal wo sie genau liegt, und kopieren sie
         ICD_PATH=$(find /usr/share/vulkan/icd.d/ -name "*lvp*.json" | head -n 1)
-        echo "Found ICD at: $ICD_PATH"
-        if [ -z "$ICD_PATH" ]; then echo "ICD not found!"; exit 1; fi
         cp "$ICD_PATH" ./vulkan_icd/lvp_icd.json
         chmod 644 ./vulkan_icd/lvp_icd.json
 
@@ -49,36 +36,19 @@ jobs:
 
     - name: Build
       working-directory: ./
-      # Wir bauen alle Projekte direkt, das ignoriert die Solution-Einschränkung
       run: |
-        for proj in $(find . -name "*.csproj"); do
-          echo "Building $proj for linux-x64..."
-          dotnet build "$proj" -r linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
-        done
-
-    - name: Debug LDD
-      run: |
-        # Suche die libwgpu_native.so im Build-Ordner
-        LIB_PATH=$(find . -name "libwgpu_native.so" | head -n 1)
-        if [ -z "$LIB_PATH" ]; then
-          echo "❌ libwgpu_native.so NICHT GEFUNDEN!"
-        else
-          echo "✅ Gefunden in: $LIB_PATH"
-          ldd $LIB_PATH  # Zeigt fehlende System-Abhängigkeiten an
-        fi
-      working-directory: ./
+        run: dotnet build -r linux-x64 -c Debug -p:CopyLocalLockFileAssemblies=true
 
     - name: Test
       env:
         WGPU_BACKEND: vulkan
-        # Wir nutzen den relativen Pfad zu unserer Kopie
+        # we use relative path to our copy
         VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.json
         VK_LAVA_EXTERNAL_MEMORY_SUPPORT: "0"
         # VK_LOADER_DEBUG: all
       working-directory: ./
-      # Auch hier: Direkt auf das Test-Projekt zielen
       run: |
-        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -r linux-x64 --no-build --verbosity normal 2>&1
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -r linux-x64 --no-build --verbosity normal
         dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj -r linux-x64 --no-build --verbosity normal
 
 
