@@ -44,8 +44,13 @@ jobs:
       run: |
         # Wir lassen --no-build weg. 
         # dotnet test baut das jeweilige Projekt exakt für linux-x64.
-        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -c Debug -r linux-x64 -v m --logger "console;verbosity=normal"
+        echo "::group::Tests-Generators-Code"
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj -c Debug -r linux-x64 -v m --logger "console;verbosity=normal"
+        echo "::endgroup::"
+
+        echo "::group::Tests-Generators-Verify"
         dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj -c Debug -r linux-x64 -v m --logger "console;verbosity=normal"
+        echo "::endgroup::"
 
 
 
