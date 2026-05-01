@@ -37,6 +37,7 @@ public sealed unsafe class GpuContext : IDisposable
 {
     internal            WebGPU          wgpu        { get; }    // main API         - GpuContext owns this managed type
     private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuContext owns this managed type
+    private             Adapter*        Adapter     { get; }
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
     internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
     private             Instance*       Instance    { get; }    // pointer lives in graphics device driver
@@ -99,8 +100,10 @@ public sealed unsafe class GpuContext : IDisposable
     // ReSharper disable once NotAccessedField.Local
     private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
-    private GpuContext(WebGPU wgpu,
+    private GpuContext(
+        WebGPU              wgpu,
         Wgpu                wgpuEx,
+        Adapter*            adapter,
         Device*             devicePtr,
         Queue*              queuePtr,
         Instance*           instance,
@@ -110,6 +113,7 @@ public sealed unsafe class GpuContext : IDisposable
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
+        Adapter             = adapter;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         Instance            = instance;
@@ -193,7 +197,19 @@ public sealed unsafe class GpuContext : IDisposable
         var errorCallback = PfnErrorCallback.From(OnGpuError);
         wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
         
-        return new GpuContext(wgpu, wgpuEx,  device, queuePtr, instance, errorCallback, maxTasks, slotSize);
+        return new GpuContext(wgpu, wgpuEx, adapter, device, queuePtr, instance, errorCallback, maxTasks, slotSize);
+    }
+    
+    public AdapterProperties GetAdapterProperties () {
+        var report = new AdapterProperties();
+        wgpu.AdapterGetProperties(Adapter, ref report);
+        return report;
+    }
+    
+    public GlobalReport GenerateReport () {
+        var report = new GlobalReport();
+        wgpuEx.GenerateReport(Instance, ref report);
+        return report;
     }
     
     private static void PumpEvents(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)

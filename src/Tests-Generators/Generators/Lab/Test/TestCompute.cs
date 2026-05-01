@@ -114,7 +114,11 @@ public static class TestCompute
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         Mem.AssertNoAlloc(start3);
         
+        var props = context.GetAdapterProperties();
+        var report1 = context.GenerateReport();
+        Console.WriteLine(report1.BackendType);
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+        var report2 = context.GenerateReport();
         
         context.Wait(result);
         
