@@ -34,22 +34,18 @@ jobs:
       working-directory: ./
       run: dotnet restore -r linux-x64
 
-    - name: Build
-      working-directory: ./
-      run: |
-        dotnet build -c Debug -p:CopyLocalLockFileAssemblies=true
-
-    - name: Test
+    - name: Build & Test
       env:
         WGPU_BACKEND: vulkan
         # we use relative path to our copy
         VK_ICD_FILENAMES: ${{ github.workspace }}/vulkan_icd/lvp_icd.json
         VK_LAVA_EXTERNAL_MEMORY_SUPPORT: "0"
         # VK_LOADER_DEBUG: all
-      working-directory: ./
       run: |
-        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -r linux-x64 --no-build --verbosity normal
-        dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj -r linux-x64 --no-build --verbosity normal
+        # Wir lassen --no-build weg. 
+        # dotnet test baut das jeweilige Projekt exakt für linux-x64.
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -c Debug -r linux-x64
+        dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj -c Debug -r linux-x64
 
 
 
