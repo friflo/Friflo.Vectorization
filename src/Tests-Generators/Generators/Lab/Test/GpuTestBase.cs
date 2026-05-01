@@ -60,12 +60,12 @@ public abstract class GpuTestBase
 [GPU RESOURCE LEAK DETECTED]
 ResourceType    Start Delta
 --------------- ----- -----
-Buffers          {(long)s.Buffers         .NumKeptFromUser,4} {(long)diff.Buffers         .NumKeptFromUser,+5}
-BindGroups       {(long)s.BindGroups      .NumKeptFromUser,4} {(long)diff.BindGroups      .NumKeptFromUser,+5}
-BindGroupLayouts {(long)s.BindGroupLayouts.NumKeptFromUser,4} {(long)diff.BindGroupLayouts.NumKeptFromUser,+5}
-ComputePipelines {(long)s.ComputePipelines.NumKeptFromUser,4} {(long)diff.ComputePipelines.NumKeptFromUser,+5}
-ShaderModules    {(long)s.ShaderModules   .NumKeptFromUser,4} {(long)diff.ShaderModules   .NumKeptFromUser,+5}
-PipelineLayouts  {(long)s.PipelineLayouts .NumKeptFromUser,4} {(long)diff.PipelineLayouts .NumKeptFromUser,+5}
+Buffers          {(long)s.Buffers         .NumKeptFromUser,4} {(long)diff.Buffers         .NumKeptFromUser,5:+0;-0;0}
+BindGroups       {(long)s.BindGroups      .NumKeptFromUser,4} {(long)diff.BindGroups      .NumKeptFromUser,5:+0;-0;0}
+BindGroupLayouts {(long)s.BindGroupLayouts.NumKeptFromUser,4} {(long)diff.BindGroupLayouts.NumKeptFromUser,5:+0;-0;0}
+ComputePipelines {(long)s.ComputePipelines.NumKeptFromUser,4} {(long)diff.ComputePipelines.NumKeptFromUser,5:+0;-0;0}
+ShaderModules    {(long)s.ShaderModules   .NumKeptFromUser,4} {(long)diff.ShaderModules   .NumKeptFromUser,5:+0;-0;0}
+PipelineLayouts  {(long)s.PipelineLayouts .NumKeptFromUser,4} {(long)diff.PipelineLayouts .NumKeptFromUser,5:+0;-0;0}
 ";
         throw new InvalidOperationException(str);
     }
