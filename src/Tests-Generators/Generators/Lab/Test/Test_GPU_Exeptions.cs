@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -48,5 +49,36 @@ public class Test_GPU_Exeptions : GpuTestBase
         }
         
     }
+    
+    // [Test]
+    public void Test_GPU_Repeat()
+    {
+        {
+            using var device = Device;
+
+            var weight  = new float[64]; // no alignment
+            var input   = new float[64];
+            var output  = new float[64];
+            for (int n = 0; n < 64; ++n) {
+                weight[n] = n;
+                input[n]  = n + 1000;
+            }
+            using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
+            using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
+            using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
+            
+            int count = 0;
+            
+            GpuBuffer<float> result = null;
+            for (int n = 0; n < 5; ++n) {
+                result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+                Debug.WriteLine(State);
+            }
+            device.Wait(result);
+        }
+        Debug.WriteLine(State);
+        int xxx = 1;
+    }
+
     
 }

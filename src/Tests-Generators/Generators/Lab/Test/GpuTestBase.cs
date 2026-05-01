@@ -7,12 +7,12 @@ namespace Tests.Generators.Lab;
 
 public abstract class GpuTestBase
 {
-    protected GpuInstance Instance  => GpuTestGlobal.Instance;
-    protected GpuAdapter  Adapter   => GpuTestGlobal.Adapter;
+    protected   GpuInstance     Instance  => GpuTestGlobal.Instance;
+    protected   GpuAdapter      Adapter   => GpuTestGlobal.Adapter;
     
     // -----------------------  Local Setup -----------------------
-    protected   GpuDevice       Device { get; private set; }
-    private     GlobalReport    startReport;
+    protected   GpuDevice       Device      { get; private set; }
+    protected   GlobalReport    StartReport { get; private set; }
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -20,8 +20,8 @@ public abstract class GpuTestBase
     [SetUp]
     public void BaseSetup() // Name egal, Attribut zählt
     {
-        startReport = Instance.GenerateReport();
-        Device = Adapter.CreateDevice(MaxTasks, SlotSize);
+        StartReport = Instance.GenerateReport();
+        Device      = Adapter.CreateDevice(MaxTasks, SlotSize);
     }
 
     [TearDown]
@@ -29,45 +29,60 @@ public abstract class GpuTestBase
     {
         Device?.Dispose();
         var endReport = Instance.GenerateReport();
-        AssertResourceLeaks(startReport, endReport);
+        AssertResourceLeaks(StartReport, endReport);
     }
 
     private static void AssertResourceLeaks(GlobalReport startReport, GlobalReport endReport)
     {
-        HubReport s = startReport.Vulkan;
-        HubReport e = endReport.Vulkan;
-        
-        var diff = new HubReport();
-        diff.Buffers.         NumKeptFromUser = e.Buffers.          NumKeptFromUser -  s.Buffers.           NumKeptFromUser;
-        diff.BindGroups.      NumKeptFromUser = e.BindGroups.       NumKeptFromUser -  s.BindGroups.        NumKeptFromUser;
-        diff.BindGroupLayouts.NumKeptFromUser = e.BindGroupLayouts. NumKeptFromUser -  s.BindGroupLayouts.  NumKeptFromUser;
-        diff.ComputePipelines.NumKeptFromUser = e.ComputePipelines. NumKeptFromUser -  s.ComputePipelines.  NumKeptFromUser;
-        diff.ShaderModules.   NumKeptFromUser = e.ShaderModules.    NumKeptFromUser -  s.ShaderModules.     NumKeptFromUser;
-        diff.PipelineLayouts. NumKeptFromUser = e.PipelineLayouts.  NumKeptFromUser -  s.PipelineLayouts.   NumKeptFromUser;
-        
-        if (diff.Buffers.           NumKeptFromUser == 0 &&
-            diff.BindGroups.        NumKeptFromUser == 0 &&
-            diff.BindGroupLayouts.  NumKeptFromUser == 0 &&
-            diff.ComputePipelines.  NumKeptFromUser == 0 &&
-            diff.ShaderModules.     NumKeptFromUser == 0 &&
-            diff.PipelineLayouts.   NumKeptFromUser == 0)
-        {
+        HubReport start = startReport.Vulkan;
+        HubReport end   = endReport.Vulkan;
+        HubReport diff  = GetDiff(start, end);
+        if (IsNull(diff)) {
             return;
         }
         return; // TODO throw exception 
-        
-        var str = $@"
+        var str = GetState(start, diff);
+        throw new InvalidOperationException(str);
+    }
+    
+    public static bool IsNull(HubReport value)
+    {
+        return (value.Buffers.           NumKeptFromUser == 0 &&
+                value.BindGroups.        NumKeptFromUser == 0 &&
+                value.BindGroupLayouts.  NumKeptFromUser == 0 &&
+                value.ComputePipelines.  NumKeptFromUser == 0 &&
+                value.ShaderModules.     NumKeptFromUser == 0 &&
+                value.PipelineLayouts.   NumKeptFromUser == 0);
+    }
+    
+    public  HubReport Diff  => GetDiff(StartReport.Vulkan, Instance.GenerateReport().Vulkan);
+    public  string    State => GetState(StartReport.Vulkan, GetDiff(StartReport.Vulkan, Instance.GenerateReport().Vulkan));
+    
+    private static HubReport GetDiff(HubReport start, HubReport end)
+    {
+        var diff = new HubReport();
+        diff.Buffers.         NumKeptFromUser = end.Buffers.          NumKeptFromUser -  start.Buffers.           NumKeptFromUser;
+        diff.BindGroups.      NumKeptFromUser = end.BindGroups.       NumKeptFromUser -  start.BindGroups.        NumKeptFromUser;
+        diff.BindGroupLayouts.NumKeptFromUser = end.BindGroupLayouts. NumKeptFromUser -  start.BindGroupLayouts.  NumKeptFromUser;
+        diff.ComputePipelines.NumKeptFromUser = end.ComputePipelines. NumKeptFromUser -  start.ComputePipelines.  NumKeptFromUser;
+        diff.ShaderModules.   NumKeptFromUser = end.ShaderModules.    NumKeptFromUser -  start.ShaderModules.     NumKeptFromUser;
+        diff.PipelineLayouts. NumKeptFromUser = end.PipelineLayouts.  NumKeptFromUser -  start.PipelineLayouts.   NumKeptFromUser;
+        return diff;
+    }
+    
+    public static string GetState(HubReport start, HubReport diff)
+    {
+        return $@"
 [GPU RESOURCE LEAK DETECTED]
 ResourceType    Start Delta
 --------------- ----- -----
-Buffers          {(long)s.Buffers         .NumKeptFromUser,4} {(long)diff.Buffers         .NumKeptFromUser,5:+0;-0;0}
-BindGroups       {(long)s.BindGroups      .NumKeptFromUser,4} {(long)diff.BindGroups      .NumKeptFromUser,5:+0;-0;0}
-BindGroupLayouts {(long)s.BindGroupLayouts.NumKeptFromUser,4} {(long)diff.BindGroupLayouts.NumKeptFromUser,5:+0;-0;0}
-ComputePipelines {(long)s.ComputePipelines.NumKeptFromUser,4} {(long)diff.ComputePipelines.NumKeptFromUser,5:+0;-0;0}
-ShaderModules    {(long)s.ShaderModules   .NumKeptFromUser,4} {(long)diff.ShaderModules   .NumKeptFromUser,5:+0;-0;0}
-PipelineLayouts  {(long)s.PipelineLayouts .NumKeptFromUser,4} {(long)diff.PipelineLayouts .NumKeptFromUser,5:+0;-0;0}
+Buffers          {(long)start.Buffers         .NumKeptFromUser,4} {(long)diff.Buffers         .NumKeptFromUser,5:+0;-0;0}
+BindGroups       {(long)start.BindGroups      .NumKeptFromUser,4} {(long)diff.BindGroups      .NumKeptFromUser,5:+0;-0;0}
+BindGroupLayouts {(long)start.BindGroupLayouts.NumKeptFromUser,4} {(long)diff.BindGroupLayouts.NumKeptFromUser,5:+0;-0;0}
+ComputePipelines {(long)start.ComputePipelines.NumKeptFromUser,4} {(long)diff.ComputePipelines.NumKeptFromUser,5:+0;-0;0}
+ShaderModules    {(long)start.ShaderModules   .NumKeptFromUser,4} {(long)diff.ShaderModules   .NumKeptFromUser,5:+0;-0;0}
+PipelineLayouts  {(long)start.PipelineLayouts .NumKeptFromUser,4} {(long)diff.PipelineLayouts .NumKeptFromUser,5:+0;-0;0}
 ";
-        throw new InvalidOperationException(str);
     }
 
 } 
