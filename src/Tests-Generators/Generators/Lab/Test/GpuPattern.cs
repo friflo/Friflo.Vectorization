@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming

@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 

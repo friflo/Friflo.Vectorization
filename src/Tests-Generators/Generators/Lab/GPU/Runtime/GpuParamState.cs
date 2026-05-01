@@ -4,7 +4,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuParamState

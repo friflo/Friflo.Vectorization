@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindGroupLayout

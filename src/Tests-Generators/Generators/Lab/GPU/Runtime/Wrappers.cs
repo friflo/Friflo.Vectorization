@@ -2,8 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
+
+namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuEffect 

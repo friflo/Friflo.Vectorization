@@ -7,7 +7,7 @@ using System.ComponentModel;
 using Silk.NET.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class GpuTask : IDisposable
