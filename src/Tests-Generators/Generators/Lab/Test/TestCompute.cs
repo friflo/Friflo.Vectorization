@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
+using Silk.NET.WebGPU.Extensions.WGPU;
 using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
@@ -115,10 +116,10 @@ public static class TestCompute
         Mem.AssertNoAlloc(start3);
         
         var props = context.GetAdapterProperties();
-        var report1 = context.GenerateReport();
+        GlobalReport report1 = context.GenerateReport();
         Console.WriteLine(report1.BackendType);
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        var report2 = context.GenerateReport();
+        GlobalReport report2 = context.GenerateReport();
         
         context.Wait(result);
         

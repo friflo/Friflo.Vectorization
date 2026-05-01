@@ -136,7 +136,7 @@ public sealed unsafe class GpuContext : IDisposable
     
     public static GpuContext Create(int maxTasks = 64, int slotSize = 64 * 1024)
     {
-        var wgpu = WebGPU.GetApi();
+        WebGPU wgpu = WebGPU.GetApi();
         if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
             throw new Exception("WGPU extension not found!");
         }
@@ -498,33 +498,3 @@ public sealed unsafe class GpuContext : IDisposable
     }
 }
 
-public readonly unsafe struct GpuEffect 
-{
-    public readonly GpuBindGroupLayout  layout;
-    public readonly GpuComputePipeline  pipeline;
-    public          bool                IsCreated => layout.handle != null;
-    
-    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
-        this.layout     = layout;
-        this.pipeline   = pipeline;
-    }
-}
-
-public readonly unsafe struct GpuComputePipeline
-{
-    internal readonly ComputePipeline* handle;
-    
-    internal GpuComputePipeline(ComputePipeline* handle) {
-        this.handle = handle;
-    }
-}
-
-
-public readonly unsafe struct GpuShaderModule
-{
-    internal readonly ShaderModule* handle;
-    
-    internal GpuShaderModule(ShaderModule* handle) {
-        this.handle = handle;    
-    }
-}

@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -9,6 +10,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct GpuQueue
 {
     private  readonly   GpuContext  context;

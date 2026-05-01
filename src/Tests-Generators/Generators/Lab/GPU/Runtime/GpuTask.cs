@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Silk.NET.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class GpuTask : IDisposable
 {
     internal readonly   GpuContext          context;
@@ -155,6 +157,7 @@ public sealed unsafe class GpuTask : IDisposable
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuEncoder
 {
     private  readonly   GpuTask         task;
@@ -175,6 +178,7 @@ public readonly unsafe struct GpuEncoder
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuComputePass : IDisposable {
     private readonly    GpuTask             task;
     private readonly    ComputePassEncoder* handle;
@@ -212,6 +216,7 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindGroup
 {
     internal readonly BindGroup* handle;

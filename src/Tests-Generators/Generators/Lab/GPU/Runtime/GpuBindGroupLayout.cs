@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
@@ -8,6 +9,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Friflo.Vectorization.GPU;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindGroupLayout
 {
     internal readonly BindGroupLayout*  handle;
@@ -17,6 +19,7 @@ public readonly unsafe struct GpuBindGroupLayout
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindEntry
 {
     public readonly uint    binding;
@@ -39,12 +42,14 @@ public readonly unsafe struct GpuBindEntry
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 internal enum GpuBindingType {
     Uniform,
     Storage,
     ReadOnlyStorage,
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct GpuLayoutEntry
 {
