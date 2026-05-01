@@ -198,15 +198,15 @@ public sealed unsafe class GpuContext : IDisposable
     
     private static void PumpEvents(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
     {
-        bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        if (isLinux) {
+        wgpu.InstanceProcessEvents(instance);
+
+        // This check is required when running on Linux using only Software GPU
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
             var enumOptions = new InstanceEnumerateAdapterOptions();
             Adapter* dummyAdapter = null;
             // Trigger processing pending callbacks
             wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
             Thread.Yield(); // enable other threads on Linux processing events 
-        } else {
-            wgpu.InstanceProcessEvents(instance); 
         }
     }
 
