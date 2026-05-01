@@ -144,7 +144,8 @@ public sealed unsafe class GpuContext : IDisposable
 		// 2. Adapter anfordern
 		Adapter* adapter = null;
 		var options = new RequestAdapterOptions { 
-			PowerPreference = PowerPreference.HighPerformance 
+			PowerPreference = PowerPreference.HighPerformance,
+            BackendType = BackendType.Vulkan
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
@@ -195,8 +196,8 @@ public sealed unsafe class GpuContext : IDisposable
         if (isLinux) {
             // Auf Linux/Mesa kommen Callbacks oft via Background-Thread oder 
             // werden bei der nächsten API-Interaktion getriggert.
-            Thread.Sleep(1);
-            if (counter++ > 5000) throw new Exception("GPU Adapter Timeout");
+            Thread.Sleep(10);
+            if (counter++ > 500) throw new Exception("GPU Adapter Timeout");
         } else {
             wgpu.InstanceProcessEvents(instance); 
         }
