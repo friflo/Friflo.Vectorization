@@ -144,8 +144,8 @@ public sealed unsafe class GpuContext : IDisposable
 		// 2. Adapter anfordern
 		Adapter* adapter = null;
 		var options = new RequestAdapterOptions { 
-			PowerPreference = PowerPreference.HighPerformance,
-            BackendType = BackendType.Vulkan
+			PowerPreference = PowerPreference.LowPower,
+            BackendType = BackendType.Undefined
 		};
 
 		// WebGPU ist hier asynchron, wir müssen auf den Callback warten
