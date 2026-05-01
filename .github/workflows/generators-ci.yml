@@ -38,7 +38,11 @@ jobs:
     - name: Build
       working-directory: ./
       # Wir bauen alle Projekte direkt, das ignoriert die Solution-Einschränkung
-      run: dotnet build **/*.csproj -r linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
+      run: |
+        for proj in $(find . -name "*.csproj"); do
+          echo "Building $proj for linux-x64..."
+          dotnet build "$proj" -r linux-x64 --no-restore -p:CopyLocalLockFileAssemblies=true
+        done
 
     - name: Debug LDD
       run: |
@@ -58,7 +62,7 @@ jobs:
         VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
       working-directory: ./
       # Auch hier: Direkt auf das Test-Projekt zielen
-      run:
+      run: |
         dotnet test src/Tests-Generators/Tests-Generators-Code.csproj -r linux-x64 --no-build --verbosity normal
         dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj --no-build --verbosity normal
 
