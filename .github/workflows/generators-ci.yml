@@ -58,6 +58,8 @@ jobs:
 
     - name: Test
       env:
+        WGPU_BACKEND: gl
+        LIBGL_ALWAYS_SOFTWARE: "1"
         # Enable finding software driver MESA required by WebGPU
         VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
       working-directory: ./
