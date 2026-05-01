@@ -6,6 +6,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.Lab;
 
+// [SetUpFixture]
 public abstract class GpuTestBase
 {
     // -----------------------  Local Setup -----------------------
@@ -76,12 +77,15 @@ public abstract class GpuTestBase
         return; // TODO throw exception 
         
         var str = $@"
-Buffers          {s.Buffers         .NumKeptFromUser,4} {diff.Buffers         .NumKeptFromUser,4}
-BindGroups       {s.BindGroups      .NumKeptFromUser,4} {diff.BindGroups      .NumKeptFromUser,4}
-BindGroupLayouts {s.BindGroupLayouts.NumKeptFromUser,4} {diff.BindGroupLayouts.NumKeptFromUser,4}
-ComputePipelines {s.ComputePipelines.NumKeptFromUser,4} {diff.ComputePipelines.NumKeptFromUser,4}
-ShaderModules    {s.ShaderModules   .NumKeptFromUser,4} {diff.ShaderModules   .NumKeptFromUser,4}
-PipelineLayouts  {s.PipelineLayouts .NumKeptFromUser,4} {diff.PipelineLayouts .NumKeptFromUser,4}
+[GPU RESOURCE LEAK DETECTED]
+ResourceType      Start  Delta
+------------------------------
+Buffers          {(long)s.Buffers         .NumKeptFromUser,4} {(long)diff.Buffers         .NumKeptFromUser,+4}
+BindGroups       {(long)s.BindGroups      .NumKeptFromUser,4} {(long)diff.BindGroups      .NumKeptFromUser,+4}
+BindGroupLayouts {(long)s.BindGroupLayouts.NumKeptFromUser,4} {(long)diff.BindGroupLayouts.NumKeptFromUser,+4}
+ComputePipelines {(long)s.ComputePipelines.NumKeptFromUser,4} {(long)diff.ComputePipelines.NumKeptFromUser,+4}
+ShaderModules    {(long)s.ShaderModules   .NumKeptFromUser,4} {(long)diff.ShaderModules   .NumKeptFromUser,+4}
+PipelineLayouts  {(long)s.PipelineLayouts .NumKeptFromUser,4} {(long)diff.PipelineLayouts .NumKeptFromUser,+4}
 ";
         throw new InvalidOperationException(str);
     }
