@@ -16,17 +16,17 @@ namespace Friflo.Vectorization.GPU;
         
     public void Dispose() {
         Dispose(true);
-        GC.SuppressFinalize(this);  // prevent execution of finalizer while Dispose() is called manually
+        GC.SuppressFinalize(this);  // prevent execution of finalizer WHEN Dispose() is called manually
     }
     
+    // A finalizer can be call from any thread.
     ~GpuClass() {
-        Dispose(false);  // false: release only native pointers. Can be called from any thread.
+        Dispose(false);  // false: release only native pointers.
     }
     
     private void Dispose(bool disposing)
     {
-        if (isDisposed) return;
-        // Early out with isDisposed and GC.SuppressFinalize(this) ensures this code path is executed only once
+        if (isDisposed) return;  // guarantees this block is executed only once
 
         // Other managed objects MUST not be touched if disposing == false.
         if (disposing) {
@@ -54,10 +54,26 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuInstance : IDisposable
 {
-    private readonly    WebGPU      wgpu;
-    private readonly    Wgpu        wgpuEx;
-    private readonly    Instance*   instance;
-    private             bool        isDisposed;
+    private readonly        WebGPU      wgpu;
+    private readonly        Wgpu        wgpuEx;
+    
+    private readonly        Instance*   instance;
+    private                 bool        isDisposed;
+    
+    // IMPORTANT: WebGPU and Wgpu classes are referenced with static readonly fields.
+    // Reason:  Gpu classes use finalizers to release native resources.
+    //          Since the GC does not guarantee the order of finalization,
+    //          the managed API wrappers (WebGPU/Wgpu) could be collected before the Gpu* objects.
+    //          Static fields act as GC Roots, ensuring the API wrappers remain alive as long as the process runs.
+    private static readonly WebGPU      WgpuStatic      = WebGPU.GetApi();
+    private static readonly Wgpu        WgpuExStatic    = GetDeviceExtension();
+    
+    private static Wgpu GetDeviceExtension() {
+        if (!WgpuStatic.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
+            throw new Exception("WGPU extension not found!");
+        }
+        return wgpuEx;
+    }
     
     private GpuInstance(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
     {
@@ -74,10 +90,9 @@ public sealed unsafe class GpuInstance : IDisposable
 
     public static GpuInstance CreateInstance()
     {
-        WebGPU wgpu = WebGPU.GetApi();
-        if (!wgpu.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
-            throw new Exception("WGPU extension not found!");
-        }
+        var wgpu    = WgpuStatic;
+        var wgpuEx  = WgpuExStatic;
+
 		// instance & surface (optional, For computing, the adapter is often sufficient)
 		InstanceDescriptor instDesc = new InstanceDescriptor();
 		var instance = wgpu.CreateInstance(&instDesc);

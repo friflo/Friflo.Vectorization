@@ -62,17 +62,17 @@ public sealed unsafe class GpuDevice : IDisposable
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public void Dispose() {
         Dispose(true);
-        GC.SuppressFinalize(this); // prevent execution of finalizer while Dispose() is called manually
+        GC.SuppressFinalize(this); // prevent execution of finalizer WHEN Dispose() is called manually
     }
     
+    // A finalizer can be call from any thread.
     ~GpuDevice() {
         Dispose(false); // false: release only native pointers
     }
 
     private void Dispose(bool disposing)
     {
-        if (isDisposed) return;
-        // Early out with isDisposed and GC.SuppressFinalize(this) ensures this code path is executed only once
+        if (isDisposed) return;  // guarantees this block is executed only once
 
         // Other managed objects MUST not be touched if disposing == false.
         if (disposing) {
