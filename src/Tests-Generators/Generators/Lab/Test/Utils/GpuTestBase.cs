@@ -13,7 +13,7 @@ public abstract class GpuTestBase
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
     protected   GlobalReport    StartReport     { get; private set; }
-    protected   GpuHandles      HandleDiff      => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
+    public      GpuHandles      HandleDiff      => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -21,6 +21,7 @@ public abstract class GpuTestBase
     [SetUp]
     public void BaseSetup() {
         StartReport     = Instance.GenerateReport();
+        Dbg.Instance    = this;
         Device          = Adapter.CreateDevice(MaxTasks, SlotSize);
     }
 
@@ -29,6 +30,7 @@ public abstract class GpuTestBase
     {
         Device?.Dispose();
         AssertResourceLeaks(HandleDiff);
+        Dbg.Instance = null;
     }
 
     private static void AssertResourceLeaks(GpuHandles handleDiff)
