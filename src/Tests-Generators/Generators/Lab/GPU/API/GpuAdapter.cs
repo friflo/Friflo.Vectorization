@@ -17,18 +17,32 @@ public sealed unsafe class GpuAdapter : IDisposable
     private readonly    Instance*   instance;
     private             bool        isDisposed;
     
+    
+    // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+   ~GpuAdapter() {
+        Dispose(false);  // false: release only native pointers.
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (isDisposed) return;
+        if (adapter != null) {
+            wgpu.AdapterRelease(adapter);
+        }
+        isDisposed = true;
+    }
+    
     internal GpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
         this.adapter    = adapter;
         this.instance   = instance;
-    }
-    
-    public void Dispose() {
-        if (isDisposed) return;
-        wgpu.AdapterRelease(adapter);
-        isDisposed = true;
     }
     
     public GpuDevice CreateDevice(int maxTasks = 64, int slotSize = 64 * 1024)
