@@ -352,22 +352,27 @@ public sealed unsafe class GpuDevice : IDisposable
     
     public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, ReadOnlySpan<byte> entryPoint, GpuBindGroupLayout layout)
     {
+        var layoutHandle = layout.handle;
         var layoutDesc = new PipelineLayoutDescriptor {
             BindGroupLayoutCount = 1,
-            BindGroupLayouts = &layout.handle,
+            BindGroupLayouts = &layoutHandle
         };
         var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
-        fixed (byte* pEntryPoint = entryPoint)
-        {
-            var computeDesc = new ComputePipelineDescriptor {
-                Layout = pipelineLayout,
-                Compute = new ProgrammableStageDescriptor {
-                    Module = module.handle,
-                    EntryPoint = pEntryPoint
-                }
-            };
-            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
-            return new GpuComputePipeline(handle);
+        try {
+            fixed (byte* pEntryPoint = entryPoint)
+            {
+                var computeDesc = new ComputePipelineDescriptor {
+                    Layout = pipelineLayout,
+                    Compute = new ProgrammableStageDescriptor {
+                        Module = module.handle,
+                        EntryPoint = pEntryPoint
+                    }
+                };
+                var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
+                return new GpuComputePipeline(handle);
+            }
+        } finally {
+            if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
         }
     }
 
