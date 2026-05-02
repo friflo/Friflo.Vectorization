@@ -14,6 +14,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
     internal            GpuDevice   Device { get; private set; }
+    private readonly    WebGPU      wgpu;
     public              int         Length;
     private             uint        SizeInBytes;
     public              GpuTask     LastWritingTask;
@@ -33,7 +34,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     private void Dispose(bool disposing)
     {
         if (handle == null) return;
-        Device.wgpu.BufferRelease(handle);
+        wgpu.BufferRelease(handle);
         handle = null;
         Device = null;
     }
@@ -42,6 +43,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage) 
     {
         Device      = device;
+        wgpu        = device.wgpu;
         // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
         SizeInBytes = sizeInBytes; 
         
@@ -55,6 +57,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage) 
     {
         Device      = device;
+        wgpu        = device.wgpu;
         Length  	= data.Length;
         handle  	= device.CreateBufferWithData(data, usage);
     }
