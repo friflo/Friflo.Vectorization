@@ -35,6 +35,7 @@ namespace Friflo.Vectorization.GPU;
 public sealed unsafe class GpuDevice : IDisposable
 {
     private             bool            isDisposed;
+    public              bool            IsDisposed => isDisposed;
     internal            WebGPU          wgpu        { get; }    // main API         - GpuDevice owns this managed type
     private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuDevice owns this managed type
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
@@ -54,7 +55,9 @@ public sealed unsafe class GpuDevice : IDisposable
     private             List<GpuTask>   inFlightTasks   = new(1024);
     private             GCHandle        deviceHandle;
     private readonly    void*           deviceHandlePtr;
-    
+
+    public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
+
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
 
@@ -121,7 +124,8 @@ public sealed unsafe class GpuDevice : IDisposable
         throw new NotImplementedException();
     }
     
-    public static int NewGpuEffectSlot() => gpuEffectSlotCount++; 
+    // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int  
+    public static int NewGpuEffectSlot() => gpuEffectSlotCount++;
 
     public GpuEffect GetGpuEffect(int slot) {
         var slots = gpuEffectSlots;

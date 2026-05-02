@@ -37,7 +37,7 @@ public static class GpuPattern
         paramState.Validate(weight, nameof(weight));
         paramState.Validate(input,  nameof(input));
         paramState.Validate(output, nameof(output));
-        var dev = paramState.GetContext();
+        var dev = paramState.GetDevice();
         
         var gpuOutput   = output.gpuBuffer ?? dev.RentBuffer<float>(input.Length);
         using var task  = dev.RentTask();
@@ -78,9 +78,13 @@ public static class GpuPattern
     
     private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuDevice device)
     {
+        // Each device has its own GpuEffect[] array
         var gpuEffect = device.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
 
         if (gpuEffect.IsCreated) {
+            if (gpuEffect.dbgDevice != device) { // TODO remove Debug
+                throw new Exception("PIPELINE FROM ANOTHER DIMENSION!");
+            }
             return gpuEffect;
         }
         Span<GpuLayoutEntry> entries = stackalloc GpuLayoutEntry[4];
@@ -93,7 +97,7 @@ public static class GpuPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader());
         var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout);
         
-        gpuEffect = new GpuEffect(layout, pipeline);
+        gpuEffect = new GpuEffect(layout, pipeline, device);
         device.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
         return gpuEffect;
     }

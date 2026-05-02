@@ -13,14 +13,35 @@ namespace Friflo.Vectorization.GPU;
 public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
-    internal readonly   GpuDevice   device;
+    internal            GpuDevice   Device { get; private set; }
     public              int         Length;
     private             uint        SizeInBytes;
     public              GpuTask     LastWritingTask;
 
+    public override     string      ToString() => Device == null ? "Disposed" : "Alive";
+
+    // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+   ~GpuBuffer() {
+        Dispose(false);  // false: release only native pointers.
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (handle == null) return;
+        Device.wgpu.BufferRelease(handle);
+        handle = null;
+        Device = null;
+    }
+
+
     public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage) 
     {
-        this.device = device;
+        Device      = device;
         // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
         SizeInBytes = sizeInBytes; 
         
@@ -33,24 +54,18 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     
     public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage) 
     {
-        this.device = device;
+        Device      = device;
         Length  	= data.Length;
         handle  	= device.CreateBufferWithData(data, usage);
     }
     
-    public void Dispose()
-    {
-        if (handle != null) {
-            device.wgpu.BufferRelease(handle);
-            handle = null;
-        }
-    }
+
     
     public T this[int index]
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                device.Wait(this); // force Compute before CPU reads value
+                Device.Wait(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }
@@ -63,15 +78,15 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
     public void WaitInDebug()
     {
-        if (!device.DebugMode) {
+        if (!Device.DebugMode) {
             return;
         }
-        device.Flush();
+        Device.Flush();
     }
     
     public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
-        var dev = device;
+        var dev = Device;
         dev.Flush();
         
         if (targetArray.Length < gpuBuffer.Length)

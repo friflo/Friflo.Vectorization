@@ -11,11 +11,13 @@ public readonly unsafe struct GpuEffect
 {
     public readonly GpuBindGroupLayout  layout;
     public readonly GpuComputePipeline  pipeline;
+    public readonly GpuDevice           dbgDevice; // TODO remove
     public          bool                IsCreated => layout.handle != null;
     
-    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
+    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline, GpuDevice device) {
         this.layout     = layout;
         this.pipeline   = pipeline;
+        this.dbgDevice  = device;
     }
 }
 

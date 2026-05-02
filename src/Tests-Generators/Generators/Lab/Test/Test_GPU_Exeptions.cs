@@ -26,22 +26,28 @@ public class Test_GPU_Exeptions : GpuTestBase
         using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
         using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc);
 
-        {   // Scope important to Dispose() result 
+        {   // Scope important to Dispose() result (=output)
             using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        }
-        {
+        } {
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
             });
-            StringAssert.StartsWith("Architectural Blasphemy:", e!.Message!);
+            StringAssert.StartsWith("Orphaned Buffer:", e!.Message!);
         } {
-
             using var gpuOutput2 = new GpuBuffer<float>(device2, input,  BufferUsage.Storage);
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });
             StringAssert.StartsWith("Contextual Polygamy:", e!.Message!);
         } {
+            using var gpuOutput1 = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
+            device1.Dispose();
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput1);
+            });
+            StringAssert.StartsWith("Architectural Blasphemy:", e!.Message!);
+        }
+        {
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(weight, input, 42, ExeType.GPU, output);
             });

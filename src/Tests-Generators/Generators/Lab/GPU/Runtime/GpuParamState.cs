@@ -9,32 +9,34 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuParamState
 {
-    public GpuDevice    device;
-    public string       firstParam;
+    private GpuDevice   device;
+    private string      firstParam;
 
-    public unsafe void Validate(Buffer<float> buffer, string paramName)
+    public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
             throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks the hardware-credentials. Stop pretending and provide a real GpuBuffer!");
         }
-        if (gpuBuffer.handle != null)
-        {
-            if (gpuBuffer.device == device) {
-                return;    
-            }
-            if (device == null) {
-                firstParam   = paramName;
-                device      = gpuBuffer.device;
-                return;
-            }
-            throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{firstParam}'. In this library, we practice Monogamy.");
+        var bufferDevice = gpuBuffer.Device;
+        if (bufferDevice == null) {
+            throw new InvalidOperationException($"Orphaned Buffer: '{paramName}' GpuBuffer<> already disposed.");
         }
-        throw new InvalidOperationException(
-            $"Architectural Blasphemy: You are trying to extract the Context from parameter '{paramName}', which you've already sent to the void. A disposed Buffer has no God and no GPU memory.");
+        if (bufferDevice.IsDisposed) {
+            throw new InvalidOperationException($"Architectural Blasphemy: Parameter '{paramName}' belongs to a Device that has already been destroyed.");
+        }
+        if (bufferDevice == device) {
+            return;    
+        }
+        if (device == null) {
+            firstParam  = paramName;
+            device      = bufferDevice;
+            return;
+        }
+        throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{firstParam}'. In this library, we practice Monogamy.");
     }
-    
-    public GpuDevice GetContext() {
+
+    public GpuDevice GetDevice() {
         if (device != null) {
             return device;
         }
