@@ -28,8 +28,16 @@ public abstract class GpuTestBase
     [TearDown]
     public void BaseTeardown()
     {
+        var finalReport = Instance.GenerateReport();
+        var finalDiff   = new GpuHandles(StartReport.Vulkan, finalReport.Vulkan);
+        
         Device?.Dispose();
-        AssertResourceLeaks(HandleDiff);
+        Device = null;
+        
+        AssertResourceLeaks(finalDiff);
+        
+        GC.Collect();
+        GC.WaitForPendingFinalizers(); // required to execute ~GpuDevice()
         Dbg.Instance = null;
     }
 
