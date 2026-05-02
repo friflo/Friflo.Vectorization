@@ -75,18 +75,24 @@ public sealed unsafe class GpuDevice : IDisposable
 
         // Other managed objects MUST not be touched if disposing == false.
         if (disposing) {
+            // case: only manual Dispose() call
             globalUniformPool?.Dispose();
-            // TODO Falls GpuTask oder GpuEffect IDisposable sind, hier ebenfalls durchiterieren
-            // taskPool, pendingTasks etc.
+            // TODO dispose taskPool, pendingTasks & GpuEffect
+            
+            if (DevicePtr != null) {
+                if (QueuePtr != null) {
+                    wgpuEx.DevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
+                }
+                wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
+            }
         }
+        // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         if (QueuePtr != null) {
-            wgpuEx.DevicePoll(DevicePtr, true, null); // ensure no WorkDoneCallback's are called by polling all pending callbacks
             wgpu.QueueRelease(QueuePtr);
         }
         if (DevicePtr != null) {
-            wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
             wgpu.DeviceRelease(DevicePtr);
         }
         // Free anchor to managed world MUST be the last call 
