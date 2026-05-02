@@ -13,7 +13,9 @@ namespace Friflo.Vectorization.GPU;
 /*
     Important note for Dispose pattern
     ----------------------------------
-        
+
+
+    // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);  // prevent execution of finalizer WHEN Dispose() is called manually
@@ -82,9 +84,22 @@ public sealed unsafe class GpuInstance : IDisposable
         this.instance   = instance;
     }
     
+    // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+   ~GpuInstance() {
+        Dispose(false);  // false: release only native pointers.
+    }
+    
+    private void Dispose(bool disposing)
+    {
         if (isDisposed) return;
-        wgpu.InstanceRelease(instance);
+        if (instance != null) {
+            wgpu.InstanceRelease(instance);
+        }        
         isDisposed = true;
     }
 
