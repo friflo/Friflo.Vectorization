@@ -34,6 +34,7 @@ namespace Friflo.Vectorization.GPU;
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuDevice : IDisposable
 {
+    private             bool            isDisposed;
     internal            WebGPU          wgpu        { get; }    // main API         - GpuDevice owns this managed type
     private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuDevice owns this managed type
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
@@ -51,9 +52,49 @@ public sealed unsafe class GpuDevice : IDisposable
     private             GpuEffect[]     gpuEffectSlots  = new GpuEffect[4];
     private             List<GpuTask>   pendingTasks    = new(1024);
     private             List<GpuTask>   inFlightTasks   = new(1024);
-    private             GCHandle        contextHandle;
-    private readonly    void*           contextHandlePtr;
- 
+    private             GCHandle        deviceHandle;
+    private readonly    void*           deviceHandlePtr;
+    
+    // --- pointers to callback methods   
+    private         readonly    PfnErrorCallback            errorCallback; // must ensure callback is not collected by GC
+    private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
+
+    // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this); // prevent execution of finalizer while Dispose() is called manually
+    }
+    
+    ~GpuDevice() {
+        Dispose(false); // false: release only native pointers
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (isDisposed) return;
+        // Early out with isDisposed and GC.SuppressFinalize(this) ensures this code path is executed only once
+
+        // Other managed objects MUST not be touched if disposing == false.
+        if (disposing) {
+            globalUniformPool?.Dispose();
+            // TODO Falls GpuTask oder GpuEffect IDisposable sind, hier ebenfalls durchiterieren
+            // taskPool, pendingTasks etc.
+        }
+        // Release native resources. Order matters: first queue than device
+        // Native pointer MUST be checked for null. Their creation may have failed
+        if (QueuePtr != null) {
+            wgpu.QueueRelease(QueuePtr);
+        }
+        if (DevicePtr != null) {
+            wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
+            wgpu.DeviceRelease(DevicePtr);
+        }
+        // Free anchor to managed world MUST be the last call 
+        if (deviceHandle.IsAllocated) {
+            deviceHandle.Free();
+        }
+        isDisposed = true;
+    }
     
     public GpuTask RentTask() {
         lock (availableTasks) {
@@ -94,8 +135,6 @@ public sealed unsafe class GpuDevice : IDisposable
         slots[slot] = gpuEffect;
     }
     
-    // ReSharper disable once NotAccessedField.Local
-    private readonly PfnErrorCallback errorCallback; // must ensure callback is not collected by GC
 
     internal GpuDevice(
         WebGPU              wgpu,
@@ -114,8 +153,8 @@ public sealed unsafe class GpuDevice : IDisposable
         this.errorCallback  = errorCallback;
         this.slotSize       = slotSize;
         
-        contextHandle       = GCHandle.Alloc(this);
-        contextHandlePtr    = (void*)GCHandle.ToIntPtr(contextHandle);
+        deviceHandle        = GCHandle.Alloc(this);
+        deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = new GpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst);
         taskPool            = new GpuTask[maxTasks];
@@ -132,15 +171,6 @@ public sealed unsafe class GpuDevice : IDisposable
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    public void Dispose()
-    {
-        globalUniformPool?.Dispose();
-        if (contextHandle.IsAllocated) contextHandle.Free();
-    
-        if (QueuePtr  != null) wgpu.QueueRelease(QueuePtr);
-        if (DevicePtr != null) wgpu.DeviceRelease(DevicePtr);
-    }
-
     internal GpuEncoder CreateEncoder(GpuTask task) {
         CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
         var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
@@ -153,7 +183,6 @@ public sealed unsafe class GpuDevice : IDisposable
     
     // ------------------- Task Dependency Tracking
     
-    private static readonly PfnQueueWorkDoneCallback WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
     
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
@@ -204,7 +233,7 @@ public sealed unsafe class GpuDevice : IDisposable
             pendingTasks   = temp;
             
             // Register callback for the new In-Flight batch
-            wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, contextHandlePtr);
+            wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {

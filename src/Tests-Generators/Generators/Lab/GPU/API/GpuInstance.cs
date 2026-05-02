@@ -10,6 +10,48 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Friflo.Vectorization.GPU;
 
+/*
+    Important note for Dispose pattern
+    ----------------------------------
+        
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);  // prevent execution of finalizer while Dispose() is called manually
+    }
+    
+    ~GpuClass() {
+        Dispose(false);  // false: release only native pointers. Can be called from any thread.
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (isDisposed) return;
+        // Early out with isDisposed and GC.SuppressFinalize(this) ensures this code path is executed only once
+
+        // Other managed objects MUST not be touched if disposing == false.
+        if (disposing) {
+            // cleanup up managed resources
+            ...
+        }
+        // Release native resources. Order matters
+        // Native pointer MUST be checked for null. Their creation may have failed
+        if (QueuePtr != null) {
+            wgpu.QueueRelease(QueuePtr);
+        }
+        if (DevicePtr != null) {
+            wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, null, null); // release callback before device
+            wgpu.DeviceRelease(DevicePtr);
+        }
+        // Free anchor to managed world MUST be the last call
+        if (deviceHandle.IsAllocated) {
+            deviceHandle.Free();
+        }
+        isDisposed = true;
+    }
+
+ */
+
+
 public sealed unsafe class GpuInstance : IDisposable
 {
     private readonly    WebGPU      wgpu;
