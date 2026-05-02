@@ -55,8 +55,7 @@ public sealed unsafe class GpuDevice : IDisposable
     private             GCHandle        deviceHandle;
     private readonly    void*           deviceHandlePtr;
     
-    // --- pointers to callback methods   
-    private         readonly    PfnErrorCallback            errorCallback; // must ensure callback is not collected by GC
+    // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
@@ -83,6 +82,7 @@ public sealed unsafe class GpuDevice : IDisposable
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         if (QueuePtr != null) {
+            wgpuEx.DevicePoll(DevicePtr, true, null); // ensure no WorkDoneCallback's are called by polling all pending callbacks
             wgpu.QueueRelease(QueuePtr);
         }
         if (DevicePtr != null) {
@@ -141,7 +141,6 @@ public sealed unsafe class GpuDevice : IDisposable
         Wgpu                wgpuEx,
         Device*             devicePtr,
         Queue*              queuePtr,
-		PfnErrorCallback    errorCallback,
         int                 maxTasks,
         int                 slotSize)
     {
@@ -150,7 +149,6 @@ public sealed unsafe class GpuDevice : IDisposable
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         queue               = new GpuQueue(this, queuePtr);
-        this.errorCallback  = errorCallback;
         this.slotSize       = slotSize;
         
         deviceHandle        = GCHandle.Alloc(this);
@@ -166,8 +164,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public void Poll(bool wait) 
-    {
+    public void Poll(bool wait) {
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
@@ -181,9 +178,7 @@ public sealed unsafe class GpuDevice : IDisposable
         queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
     
-    // ------------------- Task Dependency Tracking
-    
-    
+    // -------------------------------- Task Dependency Tracking --------------------------------
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
         var handle = GCHandle.FromIntPtr((IntPtr)userData);
@@ -193,6 +188,8 @@ public sealed unsafe class GpuDevice : IDisposable
     }
     
     private void ReturnPendingTasks() {
+         // Be ultra safe. DevicePoll() in Dispose(disposing) should already ensure HandleTasksFinished() is not fired anymore
+        if (isDisposed) return; 
         for (int i = 0; i < inFlightTasks.Count; i++) {
             var task = inFlightTasks[i];
             ReturnTask(task);
@@ -309,22 +306,19 @@ public sealed unsafe class GpuDevice : IDisposable
     
     internal Buffer* CreateBuffer(uint size, BufferUsage usage)
     {
-        var desc = new BufferDescriptor
-        {
+        var desc = new BufferDescriptor {
             Size = size,
             Usage = usage,
             MappedAtCreation = false // Der Buffer ist initial leer/ungemappt
         };
-
         var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
-        
         if (buffer == null) {
             throw new Exception("GPU Memory Allocation failed! Zu wenig VRAM oder falsches Alignment?");
         }
-
         return buffer;
     }
 
+    // ----------------------------- section used to create WebGPU structs ----------------------------- 
     public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource)
     {
         fixed (byte* pShaderBytes = wgslSource)

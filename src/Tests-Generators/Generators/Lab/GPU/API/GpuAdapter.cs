@@ -11,11 +11,13 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuAdapter : IDisposable
 {
-    private readonly    WebGPU      wgpu;
-    private readonly    Wgpu        wgpuEx;
-    private readonly    Adapter*    adapter;
-    private readonly    Instance*   instance;
-    private             bool        isDisposed;
+    private readonly        WebGPU          wgpu;
+    private readonly        Wgpu            wgpuEx;
+    private readonly        Adapter*        adapter;
+    private readonly        Instance*       instance;
+    private                 bool            isDisposed;
+    
+    private static readonly PfnErrorCallback GlobalErrorCallback = PfnErrorCallback.From(OnGpuError);
     
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
@@ -47,7 +49,6 @@ public sealed unsafe class GpuAdapter : IDisposable
     
     public GpuDevice CreateDevice(int maxTasks = 64, int slotSize = 64 * 1024)
     {
-		// 3. Device anfordern
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi("GpuDevice");
 		var devDesc = new DeviceDescriptor {
@@ -68,10 +69,9 @@ public sealed unsafe class GpuAdapter : IDisposable
 
 		var queuePtr = wgpu.DeviceGetQueue(device);
         
-        var errorCallback = PfnErrorCallback.From(OnGpuError);
-        wgpu.DeviceSetUncapturedErrorCallback(device, errorCallback, null);
+        wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new GpuDevice(wgpu, wgpuEx, device, queuePtr, errorCallback, maxTasks, slotSize);
+        return new GpuDevice(wgpu, wgpuEx, device, queuePtr, maxTasks, slotSize);
     }
     
     public AdapterProperties GetAdapterProperties () {
