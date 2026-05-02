@@ -328,7 +328,7 @@ public sealed unsafe class GpuDevice : IDisposable
         return buffer;
     }
 
-    // ----------------------------- section used to create WebGPU structs ----------------------------- 
+    // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
     public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource)
     {
         fixed (byte* pShaderBytes = wgslSource)
@@ -352,30 +352,23 @@ public sealed unsafe class GpuDevice : IDisposable
     
     public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, ReadOnlySpan<byte> entryPoint, GpuBindGroupLayout layout)
     {
-        var pipelineLayout = CreatePipelineLayout(layout);
+        var layoutDesc = new PipelineLayoutDescriptor {
+            BindGroupLayoutCount = 1,
+            BindGroupLayouts = &layout.handle,
+        };
+        var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
         fixed (byte* pEntryPoint = entryPoint)
         {
-            var desc = new ComputePipelineDescriptor
-            {
+            var computeDesc = new ComputePipelineDescriptor {
                 Layout = pipelineLayout,
                 Compute = new ProgrammableStageDescriptor {
                     Module = module.handle,
                     EntryPoint = pEntryPoint
                 }
             };
-            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &desc);
+            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
             return new GpuComputePipeline(handle);
         }
-    }
-    
-    private PipelineLayout* CreatePipelineLayout(GpuBindGroupLayout layout)
-    {
-        var layoutHandle = layout.handle;
-        var desc = new PipelineLayoutDescriptor {
-            BindGroupLayoutCount = 1,
-            BindGroupLayouts = &layoutHandle
-        };
-        return wgpu.DeviceCreatePipelineLayout(DevicePtr, &desc);
     }
 
     public GpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<byte> label, Span<GpuLayoutEntry> entries)
