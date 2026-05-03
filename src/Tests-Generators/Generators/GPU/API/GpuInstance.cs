@@ -119,7 +119,7 @@ public sealed unsafe class GpuInstance : IDisposable
         return new GpuInstance(wgpu, wgpuEx, instance);
     }
     
-    public GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterProperty? adapterProperty = null)
+    public GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterProperties adapterProperty = null)
     {
 		Adapter* adapter = null;
         if (adapterProperty != null) {
@@ -161,11 +161,11 @@ public sealed unsafe class GpuInstance : IDisposable
         }
     }
     
-    public GpuAdapterProperty[] GetAdapterProperties()
+    public GpuAdapterProperties[] GetAdapterProperties()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
-        var properties = new GpuAdapterProperty[adapterCount];
+        var properties = new GpuAdapterProperties[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
         wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
@@ -174,7 +174,7 @@ public sealed unsafe class GpuInstance : IDisposable
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            properties[i] = new GpuAdapterProperty(props, adapter);    
+            properties[i] = new GpuAdapterProperties(props, adapter);    
         }
         return properties;
     }

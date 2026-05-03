@@ -5,7 +5,7 @@ using Silk.NET.WebGPU;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU;
 
-public unsafe class GpuAdapterProperty
+public unsafe class GpuAdapterProperties
 {
     public      uint        VendorID            { get; }
     public      uint        DeviceID            { get; }
@@ -15,7 +15,7 @@ public unsafe class GpuAdapterProperty
     public      BackendType BackendType         { get; }
     internal    Adapter*    Adapter             { get; }
 
-    internal GpuAdapterProperty(AdapterProperties props, Adapter* adapter)
+    internal GpuAdapterProperties(AdapterProperties props, Adapter* adapter)
     {
         VendorID    = props.VendorID;
         DeviceID    = props.DeviceID;

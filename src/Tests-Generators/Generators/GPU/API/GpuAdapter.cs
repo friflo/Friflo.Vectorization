@@ -78,10 +78,10 @@ public sealed unsafe class GpuAdapter : IDisposable
         return new GpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
     }
     
-    public AdapterProperties GetAdapterProperties () {
+    public GpuAdapterProperties GetAdapterProperties () {
         var report = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref report);
-        return report;
+        return new GpuAdapterProperties(report, adapter);
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)
