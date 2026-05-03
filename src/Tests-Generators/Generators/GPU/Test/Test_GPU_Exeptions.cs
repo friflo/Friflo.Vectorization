@@ -13,6 +13,9 @@ public class Test_GPU_Exeptions : GpuTestBase
     [Test]
     public void Test_GPU_Exceptions_GpuBuffer()
     {
+        Assert.IsFalse(Instance.IsDisposed);
+        Assert.IsFalse(Adapter.IsDisposed);
+        
         using var device1   = Adapter.CreateDevice("device1");
         using var device2   = Adapter.CreateDevice("device2");
         var weight  = new float[64]; // no alignment
@@ -25,6 +28,8 @@ public class Test_GPU_Exeptions : GpuTestBase
         using var gpuWeight   = new GpuBuffer<float>(device1, weight, BufferUsage.Storage, "gpuWeight");
         using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage, "gpuInput");
         using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc, "gpuOutput");
+        
+        Assert.IsFalse(gpuWeight.IsDisposed);
 
         {   // Scope important to Dispose() result (=output)
             using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);

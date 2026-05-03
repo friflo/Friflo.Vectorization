@@ -18,8 +18,10 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     public  readonly    int         Length;
     private             uint        SizeInBytes;
     internal            GpuTask     LastWritingTask;
+    public              bool        IsDisposed => handle == null;
+    
+    public  override    string      ToString() => handle == null ? "Disposed" : "Alive";
 
-    public override     string      ToString() => Device == null ? "Disposed" : "Alive";
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public void Dispose() {

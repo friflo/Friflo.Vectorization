@@ -52,6 +52,9 @@ public sealed unsafe class GpuInstance : IDisposable
     private readonly        Wgpu        wgpuEx;
     private readonly        Instance*   instance;
     private                 bool        isDisposed;
+    public                  bool        IsDisposed => isDisposed;
+    
+    public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
     
     // IMPORTANT: WebGPU and Wgpu classes are referenced with static readonly fields.
     // Reason:  Gpu classes use finalizers to release native resources.
