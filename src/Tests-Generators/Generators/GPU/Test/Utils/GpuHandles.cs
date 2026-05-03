@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
+// ReSharper disable RedundantSwitchExpressionArms
 namespace Tests.Generators.GPU;
 
 public struct GpuHandle
@@ -27,7 +28,7 @@ public struct GpuHandles
     private GpuHandle   shaderModules;
     private GpuHandle   pipelineLayouts;
     
-    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuHandleType type)
+    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuReportType type)
     {
         var start   = GetReport(startReport, type);
         var cur     = GetReport(curReport, type);
@@ -67,19 +68,36 @@ PipelineLayouts  {pipelineLayouts   .active,4} {pipelineLayouts   .diff,5:+0;-0;
 ";
     }
     
-    private static HubReport GetReport(GlobalReport report, GpuHandleType type)
+    private static HubReport GetReport(GlobalReport report, GpuReportType type)
     {
         return type switch {
-            GpuHandleType.Vulkan    => report.Vulkan,
-            GpuHandleType.Metal     => report.Metal,
-            GpuHandleType.Dx12      => report.Dx12,
-            GpuHandleType.Gl        => report.Gl,
-            _                       => throw  new InvalidOperationException()
+            GpuReportType.Vulkan    => report.Vulkan,
+            GpuReportType.Metal     => report.Metal,
+            GpuReportType.Dx12      => report.Dx12,
+            GpuReportType.Gl        => report.Gl,
+            _                       => report.Gl,
+        };
+    }
+    
+    public static GpuReportType GetHandleType(BackendType backendType)
+    {
+        return backendType switch {
+            BackendType.D3D11       => GpuReportType.Dx12,
+            BackendType.D3D12       => GpuReportType.Dx12,
+            BackendType.Force32     => GpuReportType.Gl,
+            BackendType.Metal       => GpuReportType.Metal,
+            BackendType.Null        => GpuReportType.Gl,
+            BackendType.OpenGL      => GpuReportType.Gl,
+            BackendType.OpenGles    => GpuReportType.Gl,
+            BackendType.Undefined   => GpuReportType.Gl,
+            BackendType.Vulkan      => GpuReportType.Vulkan,
+            BackendType.WebGpu      => GpuReportType.Gl,
+            _                       => GpuReportType.Gl
         };
     }
 }
 
-public enum GpuHandleType
+public enum GpuReportType
 {
     Vulkan,
     Metal,

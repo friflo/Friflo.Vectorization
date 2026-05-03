@@ -7,8 +7,10 @@ namespace Tests.Generators.GPU;
 [SetUpFixture]
 public class GpuTestGlobal
 {
-    public static GpuInstance Instance { get; private set; }
-    public static GpuAdapter  Adapter  { get; private set; }
+    public static GpuInstance   Instance        { get; private set; }
+    public static GpuAdapter    Adapter         { get; private set; }
+    public static BackendType   BackendType     { get; private set; }
+    public static GpuReportType GpuReportType   { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -17,6 +19,9 @@ public class GpuTestGlobal
         Adapter = Instance.RequestAdapter(new RequestAdapterOptions { 
             PowerPreference = PowerPreference.HighPerformance 
         });
+        var props       = Adapter.GetAdapterProperties();
+        BackendType     = props.BackendType;
+        GpuReportType   = GpuHandles.GetHandleType(BackendType);
     }
 
     [OneTimeTearDown]

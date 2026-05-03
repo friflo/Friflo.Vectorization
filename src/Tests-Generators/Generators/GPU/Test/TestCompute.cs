@@ -111,12 +111,8 @@ public class TestCompute : GpuTestBase
         var start3 = Mem.GetAllocatedBytes();
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
         Mem.AssertNoAlloc(start3);
-        
-        var props 			 = Adapter.GetAdapterProperties();
-        GlobalReport report1 = Instance.GenerateReport();
-        Console.WriteLine(report1.BackendType);
+
         using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        GlobalReport report2 = Instance.GenerateReport();
         
         device.Wait(result);
         
