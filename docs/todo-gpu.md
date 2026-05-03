@@ -1,7 +1,6 @@
 
 
-## todo
-- Leak-Check for GpuContext.Dispose()
+### todo
 - Dependency-Tracking - GpuContext.SubmitGraph()
 - Enable Zero Copy in shadow method. Zero Alloc is already established.
 - Establish Zero-Copy - "WriteBuffer" vs. "Mapping" (MappedAtCreation)
@@ -9,14 +8,13 @@
 - Handle: Out of Memory oder TDR
 - Capture UncapturedError in  string lastError. Throw Exception with ThrowIfError() after Task.Finish(), QueueSubmit(), WaitInDebug(), ...
 
-- task.GpuEncoder() 			creates class GpuEncoder		- DONE
-- encoder.BeginComputePass() 	creates class GpuComputePass  	- DONE
-- ctx.CreateBindGroup() 		creates class GpuBindGroup    	- DONE
-- Test Shadow method for Zero Alloc 							- DONE
-- Support common Dispose pattern (Finalizer & Native State)		- DONE
-- Global Error Callbacks:										- DONE
 
-current TODO: GPU Leaks
-- task.CreateBindGroup
-- ShaderModule & Pipelines (GpuEffectSlot)
-- CommandBuffer (Submit)
+### done
+- Leak-Check for GpuContext.Dispose()
+- Ensure Zero GPU Handle/Pointer leaks in unit tests
+- task.GpuEncoder() 			creates class GpuEncoder
+- encoder.BeginComputePass() 	creates class GpuComputePass
+- ctx.CreateBindGroup() 		creates class GpuBindGroup
+- Test Shadow method for Zero Alloc
+- Support common Dispose pattern (Finalizer & Native State)
+- Global Error Callbacks
