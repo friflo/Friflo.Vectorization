@@ -67,8 +67,8 @@ public static class GpuPattern
         }
         // connect task to output
         gpuOutput.LastWritingTask = task;
-        task.Finish(encoder);   // extract CommandBuffer from Encoder
-        dev.Enqueue(task);      // queues CommandBuffer only. No Submit().
+        task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
+        dev.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
         gpuOutput.WaitInDebug();
         return gpuOutput;

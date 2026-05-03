@@ -64,7 +64,7 @@ public sealed unsafe class GpuTask : IDisposable
         return new GpuBindEntry(binding, dev.globalUniformPool, absoluteOffset, size);
     }
     
-    public void Finish(GpuEncoder encoder)
+    public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> label)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -75,10 +75,10 @@ public sealed unsafe class GpuTask : IDisposable
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
-        
-        var descriptor = new CommandBufferDescriptor();
-        commandBuffer  = device.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
-
+        fixed (byte* labelPtr = label) {
+            var descriptor = new CommandBufferDescriptor { Label = labelPtr };
+            commandBuffer  = device.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
+        }
         if (currentEncoder != null) {
             device.wgpu.CommandEncoderRelease(currentEncoder);
             currentEncoder = null;
