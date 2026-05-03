@@ -85,7 +85,7 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries)
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries, ReadOnlySpan<byte> label)
     {
         var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
 
@@ -99,14 +99,18 @@ public sealed unsafe class GpuTask : IDisposable
                 Size =      bindEntry.size             // The byte size of the slice
             };
         }
-        var descriptor = new BindGroupDescriptor {
-            Layout      = layout.handle,
-            EntryCount  = (uint)bindEntries.Length,
-            Entries     = nativeEntries
-        };
-        var handle = device.wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
-        createdBindGroups.Add((nint)handle);
-        return new GpuBindGroup(handle);
+        fixed(byte* labelPtr = label)
+        {
+            var descriptor = new BindGroupDescriptor {
+                Label       = labelPtr, 
+                Layout      = layout.handle,
+                EntryCount  = (uint)bindEntries.Length,
+                Entries     = nativeEntries
+            };
+            var handle = device.wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            createdBindGroups.Add((nint)handle);
+            return new GpuBindGroup(handle);
+        }
     }
     
     internal void Reset()
@@ -169,12 +173,15 @@ public readonly unsafe struct GpuEncoder
     }
     
     // --- ComputePass methods
-    public GpuComputePass BeginComputePass()
+    public GpuComputePass BeginComputePass(ReadOnlySpan<byte> label)
     {
-        var desc            = new ComputePassDescriptor { Label = null };
-        var passHandle      = task.device.wgpu.CommandEncoderBeginComputePass(handle, &desc);
-        task.currentPass    = passHandle;
-        return new GpuComputePass(task, passHandle);
+        fixed (byte* labelPtr = label)
+        {
+            var desc            = new ComputePassDescriptor { Label = labelPtr };
+            var passHandle      = task.device.wgpu.CommandEncoderBeginComputePass(handle, &desc);
+            task.currentPass    = passHandle;
+            return new GpuComputePass(task, passHandle);
+        }
     }
 }
 

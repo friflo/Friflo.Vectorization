@@ -48,7 +48,7 @@ public static class GpuPattern
         
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
-        using (var pass = encoder.BeginComputePass())
+        using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
         {
             var gpuEffect = ShadowMethod_GPU_GetGpuEffect(dev);
             pass.SetPipeline(gpuEffect.pipeline);
@@ -60,7 +60,7 @@ public static class GpuPattern
             entries[2] = task.AsUniformEntry(2, uniforms);
             entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
             
-            var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries);
+            var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries, "ShadowMethod"u8);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
