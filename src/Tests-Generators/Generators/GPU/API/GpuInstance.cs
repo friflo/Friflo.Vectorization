@@ -97,25 +97,38 @@ public sealed unsafe class GpuInstance : IDisposable
         isDisposed = true;
     }
 
-    public static GpuInstance CreateInstance()
+    public static GpuInstance CreateInstance(InstanceExtras instanceExtras = default)
     {
         var wgpu    = WgpuStatic;
         var wgpuEx  = WgpuExStatic;
-
-		// instance & surface (optional, For computing, the adapter is often sufficient)
-		InstanceDescriptor instDesc = new InstanceDescriptor();
+        var extras  = instanceExtras;
+        
+        const SType wgpuSTypeInstanceExtras = (SType)0x60000001;
+        extras.Chain = new ChainedStruct {
+            SType = wgpuSTypeInstanceExtras
+        };
+        extras.Chain.Next = null;
+        
+		var instDesc = new InstanceDescriptor {
+            NextInChain = (ChainedStruct*)&extras
+        };
 		var instance = wgpu.CreateInstance(&instDesc);
+        if (instance == null) {
+            throw new Exception("The Void Stares Back: Failed to create GpuInstance. Check your drivers!");
+        }
         return new GpuInstance(wgpu, wgpuEx, instance);
     }
     
-    public GpuAdapter RequestAdapter(RequestAdapterOptions options)
+    public GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterProperty? adapterProperty = null)
     {
 		Adapter* adapter = null;
-
-		wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
-			if (status == RequestAdapterStatus.Success) adapter = adp;
-		}), null);
-
+        if (adapterProperty != null) {
+            adapter = adapterProperty.Adapter;
+        } else {
+		    wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
+			    if (status == RequestAdapterStatus.Success) adapter = adp;
+		    }), null);
+        }
         var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (adapter == null) {
@@ -146,6 +159,24 @@ public sealed unsafe class GpuInstance : IDisposable
             wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
             Thread.Yield(); // enable other threads on Linux processing events 
         }
+    }
+    
+    public GpuAdapterProperty[] GetAdapterProperties()
+    {
+        InstanceEnumerateAdapterOptions options = default;
+        nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
+        var properties = new GpuAdapterProperty[adapterCount];
+        
+        Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
+        wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
+        for (int i = 0; i < (int)adapterCount; i++)
+        {
+            Adapter* adapter = adapters[i];
+            AdapterProperties props = default;
+            wgpu.AdapterGetProperties(adapter, &props);
+            properties[i] = new GpuAdapterProperty(props, adapter);    
+        }
+        return properties;
     }
 }
 

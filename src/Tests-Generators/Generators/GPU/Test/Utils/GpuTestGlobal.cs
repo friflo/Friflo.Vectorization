@@ -1,6 +1,8 @@
-﻿using Friflo.Vectorization.GPU;
+﻿using System.Linq;
+using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
+using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.GPU;
 
@@ -15,13 +17,16 @@ public class GpuTestGlobal
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
-        Instance = GpuInstance.CreateInstance();
-        Adapter = Instance.RequestAdapter(new RequestAdapterOptions { 
-            PowerPreference = PowerPreference.HighPerformance 
+        Instance = GpuInstance.CreateInstance(new InstanceExtras {
+            // Backends            = InstanceBackend.DX12,
         });
-        var props       = Adapter.GetAdapterProperties();
-        BackendType     = props.BackendType;
-        GpuReportType   = GpuHandles.GetHandleType(BackendType);
+        var properties      = Instance.GetAdapterProperties();
+        var adapterProperty = properties.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
+        Adapter = Instance.RequestAdapter(default, null); // adapterProperty <= use specific adapter
+        
+        var props               = Adapter.GetAdapterProperties();
+        BackendType             = props.BackendType;
+        GpuReportType           = GpuHandles.GetHandleType(BackendType);
     }
 
     [OneTimeTearDown]
