@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -45,7 +46,7 @@ public sealed unsafe class GpuTask : IDisposable
         return encoder;
     }
     
-    public GpuBindEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
+    public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
         var  dev            = device;
         uint size           = (uint)sizeof(T);
@@ -61,7 +62,13 @@ public sealed unsafe class GpuTask : IDisposable
         uint absoluteOffset = uniformBase + alignedOffset;
         
         uniformOffset = alignedOffset + size;
-        return new GpuBindEntry(binding, dev.globalUniformPool, absoluteOffset, size);
+
+        return new BindGroupEntry {
+            Binding = (uint)binding,
+            Buffer  = dev.globalUniformPool.handle,
+            Offset  = absoluteOffset,
+            Size    = size
+        };
     }
     
     public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> label)
@@ -85,27 +92,16 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<GpuBindEntry> bindEntries, ReadOnlySpan<byte> label)
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> label)
     {
-        var nativeEntries = stackalloc BindGroupEntry[bindEntries.Length];
-
-        for (int i = 0; i < bindEntries.Length; i++)
-        {
-            var bindEntry = bindEntries[i];
-            nativeEntries[i] = new BindGroupEntry {
-                Binding =   bindEntry.binding,
-                Buffer =    bindEntry.bufferHandle,    // Direct handle to the native WGPUBuffer
-                Offset =    bindEntry.offset,          // The byte offset (crucial for our Uniform Pool)
-                Size =      bindEntry.size             // The byte size of the slice
-            };
-        }
-        fixed(byte* labelPtr = label)
+        fixed(byte*             labelPtr        = label)
+        fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries)
         {
             var descriptor = new BindGroupDescriptor {
                 Label       = labelPtr, 
                 Layout      = layout.handle,
                 EntryCount  = (uint)bindEntries.Length,
-                Entries     = nativeEntries
+                Entries     = nativeEntryPtr
             };
             var handle = device.wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
@@ -230,5 +226,15 @@ public readonly unsafe struct GpuBindGroup
     
     internal GpuBindGroup(BindGroup* handle) {
         this.handle = handle;
+    }
+    
+    public static BindGroupEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
+    {
+        return new BindGroupEntry {
+            Binding = (uint)binding,
+            Buffer  = buffer.handle,
+            Offset  = 0,
+            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
+        };
     }
 }

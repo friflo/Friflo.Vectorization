@@ -2,10 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
-using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Friflo.Vectorization.GPU.Runtime;
 
@@ -16,29 +14,6 @@ public readonly unsafe struct GpuBindGroupLayout
     
     internal GpuBindGroupLayout (BindGroupLayout* handle) {
         this.handle = handle;
-    }
-}
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuBindEntry
-{
-    internal readonly   uint    binding;
-    internal readonly   Buffer* bufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
-    internal readonly   uint    offset;
-    internal readonly   uint    size;
-    
-    public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
-        return new GpuBindEntry(binding, buffer.handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
-    }
-
-    internal GpuBindEntry(int binding, GpuBuffer<byte> pool, uint offset, uint size) 
-        : this(binding, pool.handle, offset, size) { }
-
-    private GpuBindEntry(int binding, Buffer* handle, uint offset, uint size) {
-        this.binding    = (uint)binding;
-        bufferHandle    = handle;
-        this.offset     = offset;
-        this.size       = size;
     }
 }
 

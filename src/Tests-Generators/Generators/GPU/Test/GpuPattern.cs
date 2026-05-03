@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
+using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
@@ -54,11 +55,11 @@ public static class GpuPattern
             pass.SetPipeline(gpuEffect.pipeline);
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
-            Span<GpuBindEntry> entries = stackalloc GpuBindEntry[4];
-            entries[0] = GpuBindEntry.From(0, weight.gpuBuffer);
-            entries[1] = GpuBindEntry.From(1, input.gpuBuffer);
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
+            entries[0] = GpuBindGroup.From(0, weight.gpuBuffer);
+            entries[1] = GpuBindGroup.From(1, input.gpuBuffer);
             entries[2] = task.AsUniformEntry(2, uniforms);
-            entries[3] = GpuBindEntry.From(3, output.gpuBuffer);
+            entries[3] = GpuBindGroup.From(3, output.gpuBuffer);
             
             var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries, "ShadowMethod"u8);
             pass.SetBindGroup(0, bindGroup);
