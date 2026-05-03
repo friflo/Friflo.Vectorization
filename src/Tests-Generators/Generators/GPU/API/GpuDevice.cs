@@ -167,7 +167,7 @@ public sealed unsafe class GpuDevice : IDisposable
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = new GpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst);
+        globalUniformPool   = new GpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst, "globalUniformPool");
         taskPool            = new GpuTask[maxTasks];
         availableTasks      = new Stack<GpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -294,14 +294,19 @@ public sealed unsafe class GpuDevice : IDisposable
         throw new NotImplementedException();
     }
     
-    public Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage) where T : unmanaged
+    public Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string label) where T : unmanaged
     {
-        uint size = (uint)(data.Length * sizeof(T));
+        uint    size            = (uint)(data.Length * sizeof(T));
+        
+        int     labelMaxCount   = GpuUtils.GetMaxCount(label);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        GpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
-            Size = size,
-            Usage = usage | BufferUsage.CopyDst, // CopyDst to write data into
-            MappedAtCreation = true              // We want to write now
+            Label           = labelBuffer,
+            Size            = size,
+            Usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
+            MappedAtCreation = true                         // We want to write now
         };
         var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
         
@@ -317,11 +322,16 @@ public sealed unsafe class GpuDevice : IDisposable
         return buffer;
     }
     
-    internal Buffer* CreateBuffer(uint size, BufferUsage usage)
+    internal Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> label)
     {
+        int     labelMaxCount   = GpuUtils.GetMaxCount(label);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        GpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+        
         var desc = new BufferDescriptor {
-            Size = size,
-            Usage = usage,
+            Label           = labelBuffer,
+            Size            = size,
+            Usage           = usage,
             MappedAtCreation = false // Der Buffer ist initial leer/ungemappt
         };
         var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);

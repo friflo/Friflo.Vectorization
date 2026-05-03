@@ -28,9 +28,9 @@ public class TestCompute : GpuTestBase
     //  UseSpan(weight); // compiler error
         
         using var device    = Adapter.CreateDevice("ExampleCompute");
-        var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None);
-        var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None);
-        var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None);
+        var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None, "weight");
+        var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None, "input");
+        var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None, "output2");
         var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
         device.Wait(result2);
     }
@@ -79,9 +79,9 @@ public class TestCompute : GpuTestBase
         var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
-        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "output");
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
     }
     
@@ -98,9 +98,9 @@ public class TestCompute : GpuTestBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "output");
         
         var start1 = Mem.GetAllocatedBytes();
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);

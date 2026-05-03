@@ -22,9 +22,9 @@ public class Test_GPU_Exeptions : GpuTestBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(device1, weight, BufferUsage.Storage);
-        using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
-        using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc);
+        using var gpuWeight   = new GpuBuffer<float>(device1, weight, BufferUsage.Storage, "gpuWeight");
+        using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage, "gpuInput");
+        using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc, "gpuOutput");
 
         {   // Scope important to Dispose() result (=output)
             using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
@@ -34,13 +34,13 @@ public class Test_GPU_Exeptions : GpuTestBase
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
-            using var gpuOutput2 = new GpuBuffer<float>(device2, input,  BufferUsage.Storage);
+            using var gpuOutput2 = new GpuBuffer<float>(device2, input,  BufferUsage.Storage, "gpuOutput2");
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
-            using var gpuOutput1 = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
+            using var gpuOutput1 = new GpuBuffer<float>(device1, input,  BufferUsage.Storage, "gpuOutput1");
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput1);
@@ -69,9 +69,9 @@ public class Test_GPU_Exeptions : GpuTestBase
                 weight[n] = n;
                 input[n]  = n + 1000;
             }
-            using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage);
-            using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage);
-            using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc);
+            using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "gpuWeight");
+            using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "gpuInput");
+            using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "gpuOutput");
             
             int count = 0;
             

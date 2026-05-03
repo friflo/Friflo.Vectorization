@@ -40,7 +40,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     }
 
 
-    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage) 
+    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label) 
     {
         Device      = device;
         wgpu        = device.wgpu;
@@ -51,15 +51,15 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         Length = (int)(sizeInBytes / sizeof(T));
 
         // Den Pointer von der API holen
-        handle = device.CreateBuffer(sizeInBytes, usage);
+        handle = device.CreateBuffer(sizeInBytes, usage, label);
     }
     
-    public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage) 
+    public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) 
     {
         Device      = device;
         wgpu        = device.wgpu;
         Length  	= data.Length;
-        handle  	= device.CreateBufferWithData(data, usage);
+        handle  	= device.CreateBufferWithData(data, usage, label);
     }
     
 
