@@ -9,10 +9,10 @@ namespace Tests.Generators.GPU;
 [SetUpFixture]
 public class GpuTestGlobal
 {
-    public static GpuInstance   Instance        { get; private set; }
-    public static GpuAdapter    Adapter         { get; private set; }
-    public static BackendType   BackendType     { get; private set; }
-    public static GpuReportType GpuReportType   { get; private set; }
+    public static GpuInstance       Instance        { get; private set; }
+    public static GpuAdapter        Adapter         { get; private set; }
+    public static BackendType       BackendType     { get; private set; }
+    public static GpuBackendType    GpuBackendType  { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -24,9 +24,10 @@ public class GpuTestGlobal
         var adapterProperty = properties.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
         Adapter = Instance.RequestAdapter(default, null); // adapterProperty <= use specific adapter
         
-        var props               = Adapter.GetAdapterProperties();
-        BackendType             = props.BackendType;
-        GpuReportType           = GpuHandles.GetHandleType(BackendType);
+        // get type of selected GPU backend
+        var props       = Adapter.GetAdapterProperties();
+        BackendType     = props.BackendType;
+        GpuBackendType	= GpuHandles.GetHandleType(BackendType);
     }
 
     [OneTimeTearDown]

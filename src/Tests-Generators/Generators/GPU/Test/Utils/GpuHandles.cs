@@ -29,7 +29,7 @@ public struct GpuHandles
     private GpuHandle   shaderModules;
     private GpuHandle   pipelineLayouts;
     
-    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuReportType type)
+    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuBackendType type)
     {
         var start   = GetReport(startReport, type);
         var cur     = GetReport(curReport, type);
@@ -72,36 +72,36 @@ PipelineLayouts  {pipelineLayouts   .active,4} {pipelineLayouts   .diff,5:+0;-0;
 ";
     }
     
-    private static HubReport GetReport(GlobalReport report, GpuReportType type)
+    private static HubReport GetReport(GlobalReport report, GpuBackendType type)
     {
         return type switch {
-            GpuReportType.Vulkan    => report.Vulkan,
-            GpuReportType.Metal     => report.Metal,
-            GpuReportType.Dx12      => report.Dx12,
-            GpuReportType.Gl        => report.Gl,
+            GpuBackendType.Vulkan   => report.Vulkan,
+            GpuBackendType.Metal    => report.Metal,
+            GpuBackendType.Dx12     => report.Dx12,
+            GpuBackendType.Gl       => report.Gl,
             _                       => report.Gl,
         };
     }
     
-    public static GpuReportType GetHandleType(BackendType backendType)
+    public static GpuBackendType GetHandleType(BackendType backendType)
     {
         return backendType switch {
-            BackendType.D3D11       => GpuReportType.Dx12,
-            BackendType.D3D12       => GpuReportType.Dx12,
-            BackendType.Force32     => GpuReportType.Gl,
-            BackendType.Metal       => GpuReportType.Metal,
-            BackendType.Null        => GpuReportType.Gl,
-            BackendType.OpenGL      => GpuReportType.Gl,
-            BackendType.OpenGles    => GpuReportType.Gl,
-            BackendType.Undefined   => GpuReportType.Gl,
-            BackendType.Vulkan      => GpuReportType.Vulkan,
-            BackendType.WebGpu      => GpuReportType.Gl,
-            _                       => GpuReportType.Gl
+            BackendType.D3D11       => GpuBackendType.Dx12,
+            BackendType.D3D12       => GpuBackendType.Dx12,
+            BackendType.Force32     => GpuBackendType.Gl,
+            BackendType.Metal       => GpuBackendType.Metal,
+            BackendType.Null        => GpuBackendType.Gl,
+            BackendType.OpenGL      => GpuBackendType.Gl,
+            BackendType.OpenGles    => GpuBackendType.Gl,
+            BackendType.Undefined   => GpuBackendType.Gl,
+            BackendType.Vulkan      => GpuBackendType.Vulkan,
+            BackendType.WebGpu      => GpuBackendType.Gl,
+            _                       => GpuBackendType.Gl
         };
     }
 }
 
-public enum GpuReportType
+public enum GpuBackendType
 {
     Vulkan,
     Metal,
