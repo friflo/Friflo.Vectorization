@@ -18,6 +18,7 @@ public struct GpuHandle
 
 public struct GpuHandles
 {
+    private GpuHandle   devices;
     private GpuHandle   buffers;
     private GpuHandle   bindGroups;
     private GpuHandle   bindGroupLayouts;
@@ -27,6 +28,7 @@ public struct GpuHandles
     
     public GpuHandles(in HubReport start, in HubReport cur)
     {
+        devices             = new GpuHandle(start.Devices           , cur.Devices);
         buffers             = new GpuHandle(start.Buffers           , cur.Buffers);
         bindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
         bindGroupLayouts    = new GpuHandle(start.BindGroupLayouts  , cur.BindGroupLayouts);
@@ -37,7 +39,8 @@ public struct GpuHandles
     
     public bool IsDiffNull()
     {
-        return (buffers.           diff == 0 &&
+        return (devices.           diff == 0 &&
+                buffers.           diff == 0 &&
                 bindGroups.        diff == 0 &&
                 bindGroupLayouts.  diff == 0 &&
                 computePipelines.  diff == 0 &&
@@ -51,6 +54,7 @@ public struct GpuHandles
 [GPU RESOURCE LEAK DETECTED]
 ResourceType    Start Delta
 --------------- ----- -----
+Devices          {devices           .active,4} {devices           .diff,5:+0;-0;0}
 Buffers          {buffers           .active,4} {buffers           .diff,5:+0;-0;0}
 BindGroups       {bindGroups        .active,4} {bindGroups        .diff,5:+0;-0;0}
 BindGroupLayouts {bindGroupLayouts  .active,4} {bindGroupLayouts  .diff,5:+0;-0;0}

@@ -13,16 +13,16 @@ public abstract class GpuTestBase
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
     protected   GlobalReport    StartReport     { get; private set; }
-    public      GpuHandles      HandleDiff      => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
+    public      GpuHandles      Handles         => new (StartReport.Vulkan, Instance.GenerateReport().Vulkan);
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
 
     [SetUp]
     public void BaseSetup() {
-        StartReport     = Instance.GenerateReport();
         Dbg.Instance    = this;
         Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        StartReport     = Instance.GenerateReport();
     }
 
     [TearDown]
