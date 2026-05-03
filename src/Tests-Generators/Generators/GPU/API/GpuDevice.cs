@@ -400,12 +400,12 @@ public sealed unsafe class GpuDevice : IDisposable
                 var computeDesc = new ComputePipelineDescriptor {
                     Layout      = pipelineLayout,
                     Compute     = new ProgrammableStageDescriptor {
-                    Module      = module.handle,
-                    EntryPoint  = pEntryPoint
-                }
-            };
-            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
-            return new GpuComputePipeline(handle);
+                        Module      = module.handle,
+                        EntryPoint  = pEntryPoint
+                    }
+                };
+                var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
+                return new GpuComputePipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
             }
