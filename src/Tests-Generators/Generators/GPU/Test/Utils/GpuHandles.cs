@@ -25,6 +25,7 @@ public struct GpuHandles
     private GpuHandle   bindGroups;
     private GpuHandle   bindGroupLayouts;
     private GpuHandle   computePipelines;
+    private GpuHandle   commandBuffers;
     private GpuHandle   shaderModules;
     private GpuHandle   pipelineLayouts;
     
@@ -37,6 +38,7 @@ public struct GpuHandles
         bindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
         bindGroupLayouts    = new GpuHandle(start.BindGroupLayouts  , cur.BindGroupLayouts);
         computePipelines    = new GpuHandle(start.ComputePipelines  , cur.ComputePipelines);
+        commandBuffers      = new GpuHandle(start.CommandBuffers    , cur.CommandBuffers);
         shaderModules       = new GpuHandle(start.ShaderModules     , cur.ShaderModules);
         pipelineLayouts     = new GpuHandle(start.PipelineLayouts   , cur.PipelineLayouts);
     }
@@ -48,6 +50,7 @@ public struct GpuHandles
                 bindGroups.        diff == 0 &&
                 bindGroupLayouts.  diff == 0 &&
                 computePipelines.  diff == 0 &&
+                commandBuffers.    diff == 0 &&
                 shaderModules.     diff == 0 &&
                 pipelineLayouts.   diff == 0);
     }
@@ -63,6 +66,7 @@ Buffers          {buffers           .active,4} {buffers           .diff,5:+0;-0;
 BindGroups       {bindGroups        .active,4} {bindGroups        .diff,5:+0;-0;0}
 BindGroupLayouts {bindGroupLayouts  .active,4} {bindGroupLayouts  .diff,5:+0;-0;0}
 ComputePipelines {computePipelines  .active,4} {computePipelines  .diff,5:+0;-0;0}
+CommandBuffers   {commandBuffers    .active,4} {commandBuffers    .diff,5:+0;-0;0}
 ShaderModules    {shaderModules     .active,4} {shaderModules     .diff,5:+0;-0;0}
 PipelineLayouts  {pipelineLayouts   .active,4} {pipelineLayouts   .diff,5:+0;-0;0}
 ";

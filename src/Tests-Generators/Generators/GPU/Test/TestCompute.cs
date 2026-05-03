@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
 using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
@@ -117,7 +116,6 @@ public class TestCompute : GpuTestBase
         device.Wait(result);
         
         gpuOutput.Download(result, output);
-        Console.WriteLine($"output[0] {output[0]}");
         Assert.AreEqual(42, output[0]);
     }
     

@@ -114,7 +114,9 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer.handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wgpu.CommandEncoderFinish(encoder, null);
-        wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);
+        wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);  // releases commandBuffer
+        wgpu.CommandEncoderRelease(encoder);            // Not sure if required.
+        wgpu.CommandBufferRelease(commandBuffer);       // Not sure if required. QueueSubmit() seems to release
 
         // 3. Asynchrones Mapping
         bool mapFinished = false;
@@ -133,6 +135,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         // 5. Cleanup
         wgpu.BufferUnmap(readBuffer);
         wgpu.BufferDestroy(readBuffer);
+        wgpu.BufferRelease(readBuffer);
     }
 }
 

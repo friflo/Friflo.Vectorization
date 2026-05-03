@@ -47,7 +47,7 @@ public abstract class GpuTestBase
         if (handleDiff.IsDiffNull()) {
             return;
         }
-        return; // TODO throw exception 
+        // return;
         var str = handleDiff.GetState();
         throw new InvalidOperationException(str);
     }
