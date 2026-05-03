@@ -27,7 +27,7 @@ public class TestCompute : GpuTestBase
         
     //  UseSpan(weight); // compiler error
         
-        using var device    = Adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice("ExampleCompute");
         var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None);
         var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None);
         var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None);
@@ -64,7 +64,7 @@ public class TestCompute : GpuTestBase
 
     public void DependencyFlow(Buffer<float> input)
     {
-        using var device    = Adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice("DependencyFlow");
         var weight = InitWeights(device);
         var a = ComputeLayer1(weight, input, ExeType.GPU);
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
@@ -73,9 +73,9 @@ public class TestCompute : GpuTestBase
     }
     
     // Force one time allocations caused by JIT
-    private void WarmUpContext()
+    private void WarmUpDevice()
     {
-        using var device    = Adapter.CreateDevice();
+        using var device    = Adapter.CreateDevice("WarmUpDevice");
         var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
@@ -88,7 +88,7 @@ public class TestCompute : GpuTestBase
     [Test]
     public void TestExampleGPU()
     {
-        WarmUpContext();
+        WarmUpDevice();
         var device    = Device;
 
         var weight  = new float[64]; // no alignment

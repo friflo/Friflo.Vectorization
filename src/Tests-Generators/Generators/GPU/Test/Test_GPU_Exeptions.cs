@@ -13,8 +13,8 @@ public class Test_GPU_Exeptions : GpuTestBase
     [Test]
     public void Test_GPU_Exceptions_GpuBuffer()
     {
-        using var device1   = Adapter.CreateDevice();
-        using var device2   = Adapter.CreateDevice();
+        using var device1   = Adapter.CreateDevice("device1");
+        using var device2   = Adapter.CreateDevice("device2");
         var weight  = new float[64]; // no alignment
         var input   = new float[64];
         var output  = new float[64];

@@ -47,10 +47,10 @@ public sealed unsafe class GpuAdapter : IDisposable
         this.instance   = instance;
     }
     
-    public GpuDevice CreateDevice(int maxTasks = 64, int slotSize = 64 * 1024)
+    public GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
-        var name = Marshal.StringToHGlobalAnsi("GpuDevice");
+        var name = Marshal.StringToHGlobalAnsi(label);
 		var devDesc = new DeviceDescriptor {
 			Label = (byte*)name
 		};
