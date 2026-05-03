@@ -8,7 +8,7 @@ using Silk.NET.WebGPU;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU;
 
-public unsafe class GpuAdapterProperties
+public sealed unsafe class GpuAdapterProperties
 {
     public      uint        VendorID            { get; }
     public      uint        DeviceID            { get; }

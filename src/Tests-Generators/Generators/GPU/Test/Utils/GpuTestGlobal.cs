@@ -7,7 +7,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 namespace Tests.Generators.GPU;
 
 [SetUpFixture]
-public class GpuTestGlobal
+public sealed class GpuTestGlobal
 {
     public static GpuInstance       Instance        { get; private set; }
     public static GpuAdapter        Adapter         { get; private set; }
