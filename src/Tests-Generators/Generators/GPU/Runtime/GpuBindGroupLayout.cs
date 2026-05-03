@@ -31,12 +31,7 @@ public readonly struct GpuLayoutEntry
         Type    = type;
     }
     
-    public static           GpuLayoutEntry Uniform<T>(int binding) 
-        => new (binding,    BufferBindingType.Uniform);
-
-    public static           GpuLayoutEntry ReadWriteStorage<T>(int binding) 
-        => new (binding,    BufferBindingType.Storage);
-    
-    public static           GpuLayoutEntry ReadOnlyStorage<T>(int binding)
-        => new (binding,    BufferBindingType.ReadOnlyStorage);
+    public static GpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
+    public static GpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
+    public static GpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
 }

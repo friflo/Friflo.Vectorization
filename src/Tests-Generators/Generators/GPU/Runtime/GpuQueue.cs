@@ -29,7 +29,7 @@ internal readonly unsafe struct GpuQueue
     // TODO use this static method to avoid allocation by lambda
     private static void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
     {
-        // Wir casten den userData Pointer zurück auf ein GCHandle
+        // Cast userData pointer back to GCHandle
         GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
         if (handle.Target is GpuTask task) {
             task.IsCompleted = true;

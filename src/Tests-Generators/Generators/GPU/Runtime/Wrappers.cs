@@ -60,6 +60,6 @@ internal static class GpuUtils
         }
         var dest = new Span<byte>(destBuffer, destLength);
         int actualByteCount = Encoding.UTF8.GetBytes(span, dest);
-        destBuffer[actualByteCount] = 0; // Null-Terminator
+        destBuffer[actualByteCount] = 0; // Null-terminator
     }
 }
