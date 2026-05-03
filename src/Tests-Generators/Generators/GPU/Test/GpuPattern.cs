@@ -56,10 +56,10 @@ public static class GpuPattern
             
             var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
-            entries[0] = GpuBindGroup.From(0, weight.gpuBuffer);
-            entries[1] = GpuBindGroup.From(1, input.gpuBuffer);
+            entries[0] = GpuBindGroup.From  (0, weight.gpuBuffer);
+            entries[1] = GpuBindGroup.From  (1, input.gpuBuffer);
             entries[2] = task.AsUniformEntry(2, uniforms);
-            entries[3] = GpuBindGroup.From(3, output.gpuBuffer);
+            entries[3] = GpuBindGroup.From  (3, output.gpuBuffer);
             
             var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries, "ShadowMethod"u8);
             pass.SetBindGroup(0, bindGroup);
