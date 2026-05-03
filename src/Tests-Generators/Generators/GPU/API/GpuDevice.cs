@@ -408,9 +408,9 @@ public sealed unsafe class GpuDevice : IDisposable
         
         for (int i = 0; i < entries.Length; i++) {
             nativeEntries[i] = new BindGroupLayoutEntry {
-                Binding = (uint)entries[i].Binding,
-                Visibility = ShaderStage.Compute,
-                Buffer = new BufferBindingLayout {
+                Binding         = (uint)entries[i].Binding,
+                Visibility      = ShaderStage.Compute,
+                Buffer          = new BufferBindingLayout {
                     Type                = entries[i].Type,
                     HasDynamicOffset    = false,        // default
                     MinBindingSize      = 0             // 0: no validation of minimum size
