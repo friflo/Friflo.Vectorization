@@ -3,6 +3,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Friflo.Vectorization.GPU.Runtime;
 
@@ -16,14 +19,14 @@ public struct GpuParamState
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks the hardware-credentials. Stop pretending and provide a real GpuBuffer!");
+            ThrowIdentityCrisis(paramName);
         }
         var bufferDevice = gpuBuffer.Device;
         if (bufferDevice == null) {
-            throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
+            ThrowExistentialVoid(paramName);
         }
         if (bufferDevice.IsDisposed) {
-            throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
+            ThrowArchaeologicalError(paramName);
         }
         if (bufferDevice == device) {
             return;    
@@ -33,8 +36,25 @@ public struct GpuParamState
             device      = bufferDevice;
             return;
         }
-        throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
+        ThrowDiplomaticIncident(paramName);
     }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private static void ThrowIdentityCrisis(string paramName) =>
+        throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private static void ThrowExistentialVoid(string paramName) =>
+        throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
+
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private static void ThrowArchaeologicalError(string paramName) =>
+        throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private void ThrowDiplomaticIncident(string paramName) =>
+        throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
+
 
     public GpuDevice GetDevice() {
         if (device != null) {
