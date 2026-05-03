@@ -48,14 +48,9 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         this.label  = label;
         Device      = device;
         wgpu        = device.wgpu;
-        // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
         SizeInBytes = sizeInBytes; 
-        
-        // Wir berechnen die Länge basierend auf dem Typ T (z.B. float = 4 Bytes)
-        Length = (int)(sizeInBytes / sizeof(T));
-
-        // Den Pointer von der API holen
-        handle = device.CreateBuffer(sizeInBytes, usage, label);
+        Length      = (int)(sizeInBytes / sizeof(T));
+        handle      = device.CreateBuffer(sizeInBytes, usage, label);
     }
     
     public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) 
@@ -102,9 +97,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
         uint size = (uint)(gpuBuffer.Length * sizeof(T));
         
-        // 1. Staging Buffer erstellen (wie zuvor)
-        var readDesc = new BufferDescriptor
-        {
+        var readDesc = new BufferDescriptor {
             Size = size,
             Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
             MappedAtCreation = false
@@ -114,7 +107,6 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         var QueuePtr    = dev.QueuePtr;
         var readBuffer  = wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
 
-        // 2. GPU-interne Kopie
         var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
         wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer.handle, 0, readBuffer, 0, size);
         
@@ -123,7 +115,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         wgpu.CommandEncoderRelease(encoder);            // Not sure if required.
         wgpu.CommandBufferRelease(commandBuffer);       // Not sure if required. QueueSubmit() seems to release
 
-        // 3. Asynchrones Mapping
+        // asynchronous mapping
         bool mapFinished = false;
         var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
         wgpu.BufferMapAsync(readBuffer, MapMode.Read, 0, size, callback, null);
@@ -132,12 +124,12 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
             dev.Poll(true);
         }
 
-        // 4. In das ORIGINAL-Array zurückkopieren
+        // get result back in original array
         void* pMapped = wgpu.BufferGetMappedRange(readBuffer, 0, size);
         fixed (void* pTarget = targetArray) {
             System.Buffer.MemoryCopy(pMapped, pTarget, size, size);
         }
-        // 5. Cleanup
+        // cleanup
         wgpu.BufferUnmap(readBuffer);
         wgpu.BufferDestroy(readBuffer);
         wgpu.BufferRelease(readBuffer);

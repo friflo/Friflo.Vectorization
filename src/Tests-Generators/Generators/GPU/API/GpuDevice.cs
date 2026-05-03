@@ -37,10 +37,10 @@ public sealed unsafe class GpuDevice : IDisposable
     private  readonly   string          label;
     private             bool            isDisposed;
     public              bool            IsDisposed => isDisposed;
-    internal readonly   WebGPU          wgpu;                   // main API         - GpuDevice owns this managed type
-    private  readonly   Wgpu            wgpuEx;                 // extension (Poll) - GpuDevice owns this managed type
-    internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
-    internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
+    internal readonly   WebGPU          wgpu;
+    private  readonly   Wgpu            wgpuEx;
+    internal            Device*         DevicePtr   { get; } 
+    internal            Queue*          QueuePtr    { get; }
     
     public              bool            DebugMode   { get; set; } 
     
@@ -348,7 +348,7 @@ public sealed unsafe class GpuDevice : IDisposable
             Label           = labelBuffer,
             Size            = size,
             Usage           = usage,
-            MappedAtCreation = false // Der Buffer ist initial leer/ungemappt
+            MappedAtCreation = false // buffer is initially empty / unmapped
         };
         var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
