@@ -56,7 +56,7 @@ public class Test_GPU_Exeptions : GpuTestBase
         
     }
     
-    // [Test]
+    [Test]
     public void Test_GPU_Repeat()
     {
         {

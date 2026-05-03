@@ -67,6 +67,7 @@ public sealed unsafe class GpuAdapter : IDisposable
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
 
+        // Important: wgpu.QueueRelease() must not be called. Queue* shares the lifetime of Device*
 		var queuePtr = wgpu.DeviceGetQueue(device);
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);

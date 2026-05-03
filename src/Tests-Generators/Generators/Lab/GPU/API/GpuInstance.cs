@@ -37,14 +37,6 @@ namespace Friflo.Vectorization.GPU;
         }
         // Release native resources. Order matters
         // Native pointer MUST be checked for null. Their creation may have failed
-        if (QueuePtr != null) {
-            wgpu.QueueRelease(QueuePtr);
-        }
-        if (DevicePtr != null) {
-            wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, null, null); // release callback before device
-            wgpu.DeviceRelease(DevicePtr);
-        }
-        // Free anchor to managed world MUST be the last call
         if (deviceHandle.IsAllocated) {
             deviceHandle.Free();
         }

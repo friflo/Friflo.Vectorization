@@ -92,9 +92,11 @@ public sealed unsafe class GpuDevice : IDisposable
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
-        if (QueuePtr != null) {
-            wgpu.QueueRelease(QueuePtr);
-        }
+        
+        // Important: Queue* must not be released. It shares the same lifetime as Device*.
+        //  if (QueuePtr != null) {
+        //      wgpu.QueueRelease(QueuePtr); will cause segtfault/panic when calling wgpu.QueueSubmit()
+        //  }
         if (DevicePtr != null) {
             wgpu.DeviceRelease(DevicePtr);
         }
