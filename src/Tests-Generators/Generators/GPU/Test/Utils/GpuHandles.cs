@@ -1,4 +1,5 @@
-﻿using Silk.NET.WebGPU.Extensions.WGPU;
+﻿using System;
+using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.Generators.GPU;
 
@@ -26,8 +27,10 @@ public struct GpuHandles
     private GpuHandle   shaderModules;
     private GpuHandle   pipelineLayouts;
     
-    public GpuHandles(in HubReport start, in HubReport cur)
+    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuHandleType type)
     {
+        var start   = GetReport(startReport, type);
+        var cur     = GetReport(curReport, type);
         devices             = new GpuHandle(start.Devices           , cur.Devices);
         buffers             = new GpuHandle(start.Buffers           , cur.Buffers);
         bindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
@@ -63,4 +66,23 @@ ShaderModules    {shaderModules     .active,4} {shaderModules     .diff,5:+0;-0;
 PipelineLayouts  {pipelineLayouts   .active,4} {pipelineLayouts   .diff,5:+0;-0;0}
 ";
     }
+    
+    private static HubReport GetReport(GlobalReport report, GpuHandleType type)
+    {
+        return type switch {
+            GpuHandleType.Vulkan    => report.Vulkan,
+            GpuHandleType.Metal     => report.Metal,
+            GpuHandleType.Dx12      => report.Dx12,
+            GpuHandleType.Gl        => report.Gl,
+            _                       => throw  new InvalidOperationException()
+        };
+    }
+}
+
+public enum GpuHandleType
+{
+    Vulkan,
+    Metal,
+    Dx12,
+    Gl
 }
