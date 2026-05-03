@@ -47,7 +47,7 @@ public static class GpuPattern
         if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
         
         // Recording (task provides Encoder)
-        var encoder = task.GetEncoder(); 
+        var encoder = task.GetEncoder("ShadowMethod"u8);
         using (var pass = encoder.BeginComputePass())
         {
             var gpuEffect = ShadowMethod_GPU_GetGpuEffect(dev);

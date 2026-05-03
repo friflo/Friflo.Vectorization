@@ -39,8 +39,8 @@ public sealed unsafe class GpuTask : IDisposable
     }
     
     // The task provides / owns the Encoder
-    public GpuEncoder GetEncoder() {
-        var encoder     = device.CreateEncoder(this); 
+    public GpuEncoder GetEncoder(ReadOnlySpan<byte> label) {
+        var encoder     = device.CreateEncoder(this, label); 
         currentEncoder  = encoder.handle;
         return encoder;
     }

@@ -181,10 +181,16 @@ public sealed unsafe class GpuDevice : IDisposable
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    internal GpuEncoder CreateEncoder(GpuTask task) {
-        CommandEncoderDescriptor desc = new CommandEncoderDescriptor { Label = null };
-        var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
-        return new GpuEncoder(task, encoder);
+    internal GpuEncoder CreateEncoder(GpuTask task, ReadOnlySpan<byte> label)
+    {
+        fixed (byte* labelPtr = label)
+        {
+            var desc = new CommandEncoderDescriptor {
+                Label = labelPtr
+            };
+            var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
+            return new GpuEncoder(task, encoder);
+        }
     }
 
     internal void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
