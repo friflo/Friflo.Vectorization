@@ -2,17 +2,18 @@
 using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 
+// ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU;
 
 public unsafe class GpuAdapterProperty
 {
-    public      uint        VendorID            { get; init; }
-    public      uint        DeviceID            { get; init; }
-    public      string      Name                { get; init; }
-    public      string      DriverDescription   { get; init; }
-    public      AdapterType AdapterType         { get; init; }
-    public      BackendType BackendType         { get; init; }
-    internal    Adapter*    Adapter             { get; init; }
+    public      uint        VendorID            { get; }
+    public      uint        DeviceID            { get; }
+    public      string      Name                { get; }
+    public      string      DriverDescription   { get; }
+    public      AdapterType AdapterType         { get; }
+    public      BackendType BackendType         { get; }
+    internal    Adapter*    Adapter             { get; }
 
     internal GpuAdapterProperty(AdapterProperties props, Adapter* adapter)
     {
