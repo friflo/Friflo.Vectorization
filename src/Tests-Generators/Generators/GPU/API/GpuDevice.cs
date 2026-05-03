@@ -34,6 +34,7 @@ namespace Friflo.Vectorization.GPU;
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuDevice : IDisposable
 {
+    private  readonly   string          label;
     private             bool            isDisposed;
     public              bool            IsDisposed => isDisposed;
     internal readonly   WebGPU          wgpu;                   // main API         - GpuDevice owns this managed type
@@ -56,7 +57,7 @@ public sealed unsafe class GpuDevice : IDisposable
     private             GCHandle        deviceHandle;
     private readonly    void*           deviceHandlePtr;
 
-    public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
+    public  override    string          ToString() => label + (isDisposed ? ": Disposed" : ": Alive");
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
@@ -159,6 +160,7 @@ public sealed unsafe class GpuDevice : IDisposable
     internal GpuDevice(
         WebGPU              wgpu,
         Wgpu                wgpuEx,
+        string              label,
         Device*             devicePtr,
         Queue*              queuePtr,
         int                 maxTasks,
@@ -166,6 +168,7 @@ public sealed unsafe class GpuDevice : IDisposable
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
+        this.label          = label;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         queue               = new GpuQueue(this, queuePtr);

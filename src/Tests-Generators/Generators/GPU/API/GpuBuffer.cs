@@ -12,6 +12,7 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
+    private             string      label;
     internal            Buffer*     handle { get; private set; }
     internal            GpuDevice   Device { get; private set; }
     private readonly    WebGPU      wgpu;
@@ -20,7 +21,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     internal            GpuTask     LastWritingTask;
     public              bool        IsDisposed => handle == null;
     
-    public  override    string      ToString() => handle == null ? "Disposed" : "Alive";
+    public  override    string      ToString() => label + (handle == null ? ": Disposed" : ": Alive");
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
@@ -44,6 +45,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 
     public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label) 
     {
+        this.label  = label;
         Device      = device;
         wgpu        = device.wgpu;
         // Wir speichern die Größe in Bytes, falls wir später Alignment-Checks brauchen
@@ -58,6 +60,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     
     public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) 
     {
+        this.label  = label;
         Device      = device;
         wgpu        = device.wgpu;
         Length  	= data.Length;

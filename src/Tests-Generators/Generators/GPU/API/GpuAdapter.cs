@@ -75,7 +75,7 @@ public sealed unsafe class GpuAdapter : IDisposable
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new GpuDevice(wgpu, wgpuEx, device, queuePtr, maxTasks, slotSize);
+        return new GpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
     }
     
     public AdapterProperties GetAdapterProperties () {
