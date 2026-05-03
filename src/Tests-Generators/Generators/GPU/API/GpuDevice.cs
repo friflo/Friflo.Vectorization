@@ -94,6 +94,13 @@ public sealed unsafe class GpuDevice : IDisposable
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         
+        foreach(var effect in gpuEffectSlots) {
+            if(effect.IsCreated) {
+                if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
+                if (effect.shaderModule.handle  != null) wgpu.ShaderModuleRelease   (effect.shaderModule.handle);
+                if (effect.layout.handle        != null) wgpu.BindGroupLayoutRelease(effect.layout.handle);
+            }
+        }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
         //  if (QueuePtr != null) {
         //      wgpu.QueueRelease(QueuePtr); will cause segtfault/panic when calling wgpu.QueueSubmit()
@@ -371,10 +378,10 @@ public sealed unsafe class GpuDevice : IDisposable
     }
     
     public GpuComputePipeline CreateComputePipeline(
-        GpuShaderModule module,
-        ReadOnlySpan<byte> entryPoint,
-        GpuBindGroupLayout layout,
-        ReadOnlySpan<byte> label)
+        GpuShaderModule     module,
+        ReadOnlySpan<byte>  entryPoint,
+        GpuBindGroupLayout  layout,
+        ReadOnlySpan<byte>  label)
     {
         fixed (byte* pEntryPoint    = entryPoint)
         fixed (byte* labelPtr       = label)
@@ -388,10 +395,10 @@ public sealed unsafe class GpuDevice : IDisposable
             var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             try {
                 var computeDesc = new ComputePipelineDescriptor {
-                Layout = pipelineLayout,
-                Compute = new ProgrammableStageDescriptor {
-                    Module = module.handle,
-                    EntryPoint = pEntryPoint
+                    Layout      = pipelineLayout,
+                    Compute     = new ProgrammableStageDescriptor {
+                    Module      = module.handle,
+                    EntryPoint  = pEntryPoint
                 }
             };
             var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
