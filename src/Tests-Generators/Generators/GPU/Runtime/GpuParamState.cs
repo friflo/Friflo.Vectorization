@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable MergeIntoPattern
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -18,15 +19,33 @@ public struct GpuParamState
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
+        if (gpuBuffer != null) {
+            var bufferDevice = gpuBuffer.Device;
+            if (bufferDevice != null && !bufferDevice.IsDisposed && bufferDevice == device) {
+                return;
+            }
+            if (device == null) {
+                firstParam  = paramName;
+                device      = bufferDevice;
+                return;
+            }
+        }
+        ValidateError(buffer, paramName);
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private void ValidateError(Buffer<float> buffer, string paramName)
+    {
+        var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            ThrowIdentityCrisis(paramName);
+            throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
         }
         var bufferDevice = gpuBuffer.Device;
         if (bufferDevice == null) {
-            ThrowExistentialVoid(paramName);
+            throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
         }
         if (bufferDevice.IsDisposed) {
-            ThrowArchaeologicalError(paramName);
+            throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
         }
         if (bufferDevice == device) {
             return;    
@@ -36,30 +55,18 @@ public struct GpuParamState
             device      = bufferDevice;
             return;
         }
-        ThrowDiplomaticIncident(paramName);
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private static void ThrowIdentityCrisis(string paramName) =>
-        throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
-    
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private static void ThrowExistentialVoid(string paramName) =>
-        throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
-
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private static void ThrowArchaeologicalError(string paramName) =>
-        throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
-    
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private void ThrowDiplomaticIncident(string paramName) =>
         throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
-
+    }
 
     public GpuDevice GetDevice() {
         if (device != null) {
             return device;
         }
-        throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
+        throw NoDevice();
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private static InvalidOperationException NoDevice() {
+         return new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
 }
