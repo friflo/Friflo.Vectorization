@@ -32,20 +32,20 @@ public class Test_GPU_Exeptions : GpuTestBase
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
             });
-            StringAssert.StartsWith("Orphaned Buffer:", e!.Message!);
+            StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
             using var gpuOutput2 = new GpuBuffer<float>(device2, input,  BufferUsage.Storage);
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });
-            StringAssert.StartsWith("Contextual Polygamy:", e!.Message!);
+            StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
             using var gpuOutput1 = new GpuBuffer<float>(device1, input,  BufferUsage.Storage);
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput1);
             });
-            StringAssert.StartsWith("Architectural Blasphemy:", e!.Message!);
+            StringAssert.StartsWith("Archaeological Error:", e!.Message!);
         }
         {
             var e = Assert.Throws<InvalidOperationException>(() => {

@@ -20,10 +20,10 @@ public struct GpuParamState
         }
         var bufferDevice = gpuBuffer.Device;
         if (bufferDevice == null) {
-            throw new InvalidOperationException($"Orphaned Buffer: '{paramName}' GpuBuffer<> already disposed.");
+            throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
         }
         if (bufferDevice.IsDisposed) {
-            throw new InvalidOperationException($"Architectural Blasphemy: Parameter '{paramName}' belongs to a Device that has already been destroyed.");
+            throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
         }
         if (bufferDevice == device) {
             return;    
@@ -33,7 +33,7 @@ public struct GpuParamState
             device      = bufferDevice;
             return;
         }
-        throw new InvalidOperationException($"Contextual Polygamy: Parameter '{paramName}' is trying to cheat on Context with a different master. It doesn't match the Context established by '{firstParam}'. In this library, we practice Monogamy.");
+        throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
     }
 
     public GpuDevice GetDevice() {
