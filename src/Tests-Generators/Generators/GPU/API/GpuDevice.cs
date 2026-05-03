@@ -411,7 +411,7 @@ public sealed unsafe class GpuDevice : IDisposable
                 Binding = (uint)entries[i].Binding,
                 Visibility = ShaderStage.Compute,
                 Buffer = new BufferBindingLayout {
-                    Type                = MapType(entries[i].Type),
+                    Type                = entries[i].Type,
                     HasDynamicOffset    = false,        // default
                     MinBindingSize      = 0             // 0: no validation of minimum size
                 }
@@ -431,15 +431,6 @@ public sealed unsafe class GpuDevice : IDisposable
 
             return new GpuBindGroupLayout(handle);
         }
-    }
-
-    private static BufferBindingType MapType(GpuBindingType type) {
-        return type switch {
-            GpuBindingType.ReadOnlyStorage  => BufferBindingType.ReadOnlyStorage,
-            GpuBindingType.Uniform          => BufferBindingType.Uniform,
-            GpuBindingType.Storage          => BufferBindingType.Storage,
-            _                               => BufferBindingType.Undefined
-        };
     }
 }
 

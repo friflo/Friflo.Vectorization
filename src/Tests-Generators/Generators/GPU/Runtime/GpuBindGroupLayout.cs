@@ -18,32 +18,25 @@ public readonly unsafe struct GpuBindGroupLayout
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-internal enum GpuBindingType {
-    Uniform,
-    Storage,
-    ReadOnlyStorage,
-}
-
-[EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct GpuLayoutEntry
 {
     internal readonly   int                 Binding;
-    internal readonly   GpuBindingType      Type;
+    internal readonly   BufferBindingType   Type;
 
     public override string ToString() => $"{Binding} {Type}";
 
-    private GpuLayoutEntry(int binding, GpuBindingType readOnlyStorage) {
+    private GpuLayoutEntry(int binding, BufferBindingType type) {
         Binding = binding;
-        Type    = readOnlyStorage;
+        Type    = type;
     }
     
     public static           GpuLayoutEntry Uniform<T>(int binding) 
-        => new (binding,    GpuBindingType.Uniform);
+        => new (binding,    BufferBindingType.Uniform);
 
     public static           GpuLayoutEntry ReadWriteStorage<T>(int binding) 
-        => new (binding,    GpuBindingType.Storage);
+        => new (binding,    BufferBindingType.Storage);
     
     public static           GpuLayoutEntry ReadOnlyStorage<T>(int binding)
-        => new (binding,    GpuBindingType.ReadOnlyStorage);
+        => new (binding,    BufferBindingType.ReadOnlyStorage);
 }
