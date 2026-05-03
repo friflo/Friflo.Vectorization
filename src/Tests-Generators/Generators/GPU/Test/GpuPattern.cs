@@ -100,7 +100,8 @@ public static class GpuPattern
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
-    private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() => @"
+    private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() =>
+"""
 struct ShadowMethod_Uniforms {
     uniform : f32,
 };
@@ -117,7 +118,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let weight_scalar = weight[index];
     // shader body generated from Blueprint method body
     output[index] = (input[index] * weight_scalar) + uniforms.uniform;
-}"u8;
+}
+"""u8;
     
     // struct for uniforms
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout. Fill up to 16 bytes
