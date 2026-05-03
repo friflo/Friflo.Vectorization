@@ -28,17 +28,18 @@ public abstract class GpuTestBase
     [TearDown]
     public void BaseTeardown()
     {
-        var finalReport = Instance.GenerateReport();
-        var finalDiff   = new GpuHandles(StartReport.Vulkan, finalReport.Vulkan);
-        
         Device?.Dispose();
         Device = null;
         
-        AssertResourceLeaks(finalDiff);
-        
+        // Use GC.Collect() and GC.WaitForPendingFinalizers() to force worst case lifecycle scenario of Gpu* classes.
         GC.Collect();
         GC.WaitForPendingFinalizers(); // required to execute ~GpuDevice()
         Dbg.Instance = null;
+        
+        var finalReport = Instance.GenerateReport();
+        var finalDiff   = new GpuHandles(StartReport.Vulkan, finalReport.Vulkan);
+        
+        AssertResourceLeaks(finalDiff);
     }
 
     private static void AssertResourceLeaks(GpuHandles handleDiff)
