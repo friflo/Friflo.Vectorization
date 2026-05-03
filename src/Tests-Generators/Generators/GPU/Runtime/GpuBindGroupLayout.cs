@@ -22,10 +22,10 @@ public readonly unsafe struct GpuBindGroupLayout
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindEntry
 {
-    public readonly uint    binding;
-    public readonly Buffer* bufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
-    public readonly uint    offset;
-    public readonly uint    size;
+    internal readonly   uint    binding;
+    internal readonly   Buffer* bufferHandle; // or Type: IGpuBuffer interface that shares oll GpuBuffer<T>'s
+    internal readonly   uint    offset;
+    internal readonly   uint    size;
     
     public static GpuBindEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged {
         return new GpuBindEntry(binding, buffer.handle, 0, (uint)(Unsafe.SizeOf<T>() * buffer.Length));
@@ -53,7 +53,7 @@ internal enum GpuBindingType {
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct GpuLayoutEntry
 {
-    public   readonly   int                 Binding;
+    internal readonly   int                 Binding;
     internal readonly   GpuBindingType      Type;
 
     public override string ToString() => $"{Binding} {Type}";

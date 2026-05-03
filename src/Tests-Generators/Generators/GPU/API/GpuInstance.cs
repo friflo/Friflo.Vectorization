@@ -50,7 +50,6 @@ public sealed unsafe class GpuInstance : IDisposable
 {
     private readonly        WebGPU      wgpu;
     private readonly        Wgpu        wgpuEx;
-    
     private readonly        Instance*   instance;
     private                 bool        isDisposed;
     

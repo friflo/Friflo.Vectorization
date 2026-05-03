@@ -15,9 +15,9 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     internal            Buffer*     handle { get; private set; }
     internal            GpuDevice   Device { get; private set; }
     private readonly    WebGPU      wgpu;
-    public              int         Length;
+    public  readonly    int         Length;
     private             uint        SizeInBytes;
-    public              GpuTask     LastWritingTask;
+    internal            GpuTask     LastWritingTask;
 
     public override     string      ToString() => Device == null ? "Disposed" : "Alive";
 

@@ -36,8 +36,8 @@ public sealed unsafe class GpuDevice : IDisposable
 {
     private             bool            isDisposed;
     public              bool            IsDisposed => isDisposed;
-    internal            WebGPU          wgpu        { get; }    // main API         - GpuDevice owns this managed type
-    private             Wgpu            wgpuEx      { get; }    // extension (Poll) - GpuDevice owns this managed type
+    internal readonly   WebGPU          wgpu;                   // main API         - GpuDevice owns this managed type
+    private  readonly   Wgpu            wgpuEx;                 // extension (Poll) - GpuDevice owns this managed type
     internal            Device*         DevicePtr   { get; }    // pointer lives in graphics device driver 
     internal            Queue*          QueuePtr    { get; }    // pointer lives in graphics device driver
     

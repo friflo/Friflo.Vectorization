@@ -9,15 +9,13 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuEffect 
 {
-    public readonly GpuBindGroupLayout  layout;
-    public readonly GpuComputePipeline  pipeline;
-    public readonly GpuDevice           dbgDevice; // TODO remove
-    public          bool                IsCreated => layout.handle != null;
+    internal readonly   GpuBindGroupLayout  layout;
+    internal readonly   GpuComputePipeline  pipeline;
+    public              bool                IsCreated => layout.handle != null;
     
-    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline, GpuDevice device) {
+    public GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
         this.layout     = layout;
         this.pipeline   = pipeline;
-        this.dbgDevice  = device;
     }
 }
 
