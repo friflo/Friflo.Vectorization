@@ -342,20 +342,21 @@ public sealed unsafe class GpuDevice : IDisposable
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
-    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource)
+    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> label)
     {
         fixed (byte* pShaderBytes = wgslSource)
+        fixed (byte* labelPtr = label)
         {
             // create descriptor
             var wgslDesc = new ShaderModuleWGSLDescriptor {
-                Code = pShaderBytes,
-                Chain = new ChainedStruct {
-                    SType = SType.ShaderModuleWgsldescriptor // Wichtig: SType definiert den Inhalt
+                Code        = pShaderBytes,
+                Chain       = new ChainedStruct {
+                    SType       = SType.ShaderModuleWgsldescriptor // Wichtig: SType definiert den Inhalt
                 }
             };
             var desc = new ShaderModuleDescriptor {
+                Label       = labelPtr,
                 NextInChain = (ChainedStruct*)&wgslDesc,
-                Label = null // Hier könnte ein Name für Debugger stehen
             };
             // Compile shader in driver
             var handle = wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
@@ -363,33 +364,39 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public GpuComputePipeline CreateComputePipeline(GpuShaderModule module, ReadOnlySpan<byte> entryPoint, GpuBindGroupLayout layout)
+    public GpuComputePipeline CreateComputePipeline(
+        GpuShaderModule module,
+        ReadOnlySpan<byte> entryPoint,
+        GpuBindGroupLayout layout,
+        ReadOnlySpan<byte> label)
     {
-        var layoutHandle = layout.handle;
-        var layoutDesc = new PipelineLayoutDescriptor {
-            BindGroupLayoutCount = 1,
-            BindGroupLayouts = &layoutHandle
-        };
-        var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
-        try {
-            fixed (byte* pEntryPoint = entryPoint)
-            {
+        fixed (byte* pEntryPoint    = entryPoint)
+        fixed (byte* labelPtr       = label)
+        {
+            var layoutHandle = layout.handle;
+            var layoutDesc = new PipelineLayoutDescriptor {
+                Label                   = labelPtr,
+                BindGroupLayoutCount    = 1,
+                BindGroupLayouts        = &layoutHandle
+            };
+            var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
+            try {
                 var computeDesc = new ComputePipelineDescriptor {
-                    Layout = pipelineLayout,
-                    Compute = new ProgrammableStageDescriptor {
-                        Module = module.handle,
-                        EntryPoint = pEntryPoint
-                    }
-                };
-                var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
-                return new GpuComputePipeline(handle);
+                Layout = pipelineLayout,
+                Compute = new ProgrammableStageDescriptor {
+                    Module = module.handle,
+                    EntryPoint = pEntryPoint
+                }
+            };
+            var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
+            return new GpuComputePipeline(handle);
+            } finally {
+                if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
             }
-        } finally {
-            if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
         }
     }
 
-    public GpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<byte> label, Span<GpuLayoutEntry> entries)
+    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ReadOnlySpan<byte> label)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         

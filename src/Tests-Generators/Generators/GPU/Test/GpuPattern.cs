@@ -90,9 +90,9 @@ public static class GpuPattern
         entries[2] = GpuLayoutEntry.Uniform<float>         (2); // @binding(2) var<uniform>             uniforms
         entries[3] = GpuLayoutEntry.ReadWriteStorage<float>(3); // @binding(3) var<storage, read_write> output
         
-        var layout          = device.CreateBindGroupLayout("ShadowMethod"u8, entries);
-        var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader());
-        var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout);
+        var layout          = device.CreateBindGroupLayout(entries, "ShadowMethod"u8);
+        var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
+        var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout, "ShadowMethod"u8);
         
         gpuEffect = new GpuEffect(layout, pipeline);
         device.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
