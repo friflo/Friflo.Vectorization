@@ -1,5 +1,5 @@
 ﻿
-using Tests.Generators.Lab;
+using Tests.Generators.GPU;
 
 internal static class Dbg
 {

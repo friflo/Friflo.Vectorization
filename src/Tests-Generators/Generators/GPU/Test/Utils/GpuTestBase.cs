@@ -3,7 +3,7 @@ using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 public abstract class GpuTestBase
 {

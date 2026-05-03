@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using Silk.NET.WebGPU;
 
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 [SetUpFixture]
 public class GpuTestGlobal

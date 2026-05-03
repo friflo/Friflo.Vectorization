@@ -1,6 +1,6 @@
 ﻿using Silk.NET.WebGPU.Extensions.WGPU;
 
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 public struct GpuHandle
 {

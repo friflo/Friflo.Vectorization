@@ -5,7 +5,7 @@ using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 public static class GpuPattern
 {

@@ -7,7 +7,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 public class TestCompute : GpuTestBase
 {

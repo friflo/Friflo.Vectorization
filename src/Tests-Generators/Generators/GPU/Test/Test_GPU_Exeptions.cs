@@ -6,7 +6,7 @@ using NUnit.Framework.Legacy;
 using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Lab;
+namespace Tests.Generators.GPU;
 
 public class Test_GPU_Exeptions : GpuTestBase
 {
