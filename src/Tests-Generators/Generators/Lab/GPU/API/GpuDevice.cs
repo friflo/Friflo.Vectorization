@@ -84,6 +84,7 @@ public sealed unsafe class GpuDevice : IDisposable
             
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
+                    Flush(wait: true); // flush all pending GPU operations
                     wgpuEx.DevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
                 wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
@@ -219,7 +220,8 @@ public sealed unsafe class GpuDevice : IDisposable
     
     public void Flush(bool wait = true)
     {
-        int count = pendingTasks.Count;
+        var tasks = pendingTasks;
+        int count = tasks.Count;
         if (count == 0 && !wait) return;
         
         // Is previous batch already send?
@@ -229,17 +231,16 @@ public sealed unsafe class GpuDevice : IDisposable
         
         if (count > 0) {
             // Submit command buffers to queue
-            var tasks = pendingTasks;
             var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
             for (int n = 0; n < tasks.Count; n++) {
-                commandBuffers[n] = pendingTasks[n].commandBuffer;
+                commandBuffers[n] = tasks[n].commandBuffer;
             }
             wgpu.QueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
             
             // Swap list references
             var temp        = inFlightTasks;
-            inFlightTasks  = pendingTasks;
-            pendingTasks   = temp;
+            inFlightTasks   = tasks;
+            pendingTasks    = temp;
             
             // Register callback for the new In-Flight batch
             wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
