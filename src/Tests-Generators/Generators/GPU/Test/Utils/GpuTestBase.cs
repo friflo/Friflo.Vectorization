@@ -21,8 +21,8 @@ public abstract class GpuTestBase
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance    = this;
-        Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
         StartReport     = Instance.GenerateReport();
+        Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
     }
 
     [TearDown]
