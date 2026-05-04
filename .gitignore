@@ -10,3 +10,6 @@ obj/
 
 *.DotSettings.user
 
+# macOS Launch Services caches
+*.lscache
+
