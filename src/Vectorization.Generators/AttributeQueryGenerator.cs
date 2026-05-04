@@ -84,7 +84,9 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         if (emissionResult.code == "") {
             return;
         }
-        productionContext.AddSource(emissionResult.name, SourceText.From(emissionResult.code, Encoding.UTF8));
+        var source = emissionResult.code.Replace("\r\n", "\n");
+        var text = SourceText.From(source, new UTF8Encoding(false), SourceHashAlgorithm.Sha256);
+        productionContext.AddSource(emissionResult.name, text);
     }
     
     private static EmissionResult TransformAttribute(GeneratorAttributeSyntaxContext ctx, CancellationToken _, GenerateTrigger trigger) {
