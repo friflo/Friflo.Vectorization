@@ -16,7 +16,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector2_Sum
 {
     // ------------------------------- scalar component -------------------------------
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Vector2_Sum_call()
     {
         var positions = new Position2[64];
@@ -30,7 +30,7 @@ public static class Test_Lab_Vector2_Sum
         Assert.That(sum1 == sum2);
     }
     
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Vector2_Sum_perf()
     {
         var positions = new Position2[1024];

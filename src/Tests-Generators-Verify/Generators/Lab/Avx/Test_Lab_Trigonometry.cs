@@ -14,7 +14,7 @@ namespace Tests.Generators.Lab {
 public static class Test_Lab_Trigonometry
 {
     // ------------------------------- scalar component -------------------------------
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Trigonometry_Sin()
     {
         var input = Vector256.Create(0, 0.5f, 1, 1.5f, 2, 2.5f, 3, 3.5f);
@@ -28,7 +28,7 @@ public static class Test_Lab_Trigonometry
         }
     }
 
-    // [Test]
+    // [Test][Avx]
     public static void Test_Lab_Trigonometry_Sin_perf()
     {
         var input = Vector256.Create(0, 0.5f, 1, 1.5f, 2, 2.5f, 3, 3.5f);

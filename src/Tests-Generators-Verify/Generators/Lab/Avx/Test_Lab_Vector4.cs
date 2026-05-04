@@ -15,7 +15,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector4
 {
     // ------------------------------- scalar component -------------------------------
-    [Test]
+    [Test][Avx]
     public static unsafe void Test_Lab_Vector4_Interleave()
     {
         var vectors = new Vector4[]
@@ -59,7 +59,7 @@ public static class Test_Lab_Vector4
         }
     }
     
-    [Test]
+    [Test][Avx]
     public static unsafe void Test_Lab_Vector4_Normalize()
     {
         var vectors    = new Vector4[8];
@@ -107,7 +107,7 @@ public static class Test_Lab_Vector4
                MathF.Abs(a.W - b.W) < epsilon;
     }
     
-    [Test]
+    [Test][Avx]
     public static unsafe void Test_Lab_Vector4_Length()
     {
         var vectors    = new Vector4[8];
@@ -136,7 +136,7 @@ public static class Test_Lab_Vector4
         }
     }
     
-    [Test]
+    [Test][Avx]
     public static unsafe void Test_Lab_Vector4_Distance()
     {
         var vector1  = new Vector4[8];
@@ -176,7 +176,7 @@ public static class Test_Lab_Vector4
         }
     }
     
-    [Test]
+    [Test][Avx]
     public static unsafe void Test_Lab_Vector4_DistanceSquared()
     {
         var vector1  = new Vector4[8];

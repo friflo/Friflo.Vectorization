@@ -17,7 +17,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector2_Cross
 {
     // ------------------------------- scalar component -------------------------------
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Vector2_Cross_call()
     {
         var vec1 = new Position2[64];

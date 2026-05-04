@@ -15,7 +15,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Matrix
 {
     // ------------------------------- scalar component -------------------------------
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Matrix_Call()
     {
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
@@ -62,7 +62,7 @@ public static class Test_Lab_Matrix
                Math.Abs(a.W - b.W) < epsilon;
     }
     
-    [Test]
+    [Test][Avx]
     public static void Test_Lab_Matrix_perf()
     {
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
