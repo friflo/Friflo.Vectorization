@@ -7,6 +7,7 @@ using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 using Tune;
 
 // ReSharper disable InconsistentNaming
@@ -190,7 +191,7 @@ public partial class Bench_Vector4
     }
     
     [Benchmark]
-    [Test]
+    [Test][AvxOnly]
     public unsafe void Vector4_Cross_Lab()
     {
         fixed(Vector4* vec1_ptr = pos.Span)

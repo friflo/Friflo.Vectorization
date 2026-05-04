@@ -8,6 +8,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Generators.Static;
 using NUnit.Framework;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -15,7 +16,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Matrix
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Matrix_Call()
     {
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
@@ -62,7 +63,7 @@ public static class Test_Lab_Matrix
                Math.Abs(a.W - b.W) < epsilon;
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Matrix_perf()
     {
         Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(

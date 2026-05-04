@@ -8,6 +8,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -16,7 +17,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector2_Sum
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Vector2_Sum_call()
     {
         var positions = new Position2[64];
@@ -30,7 +31,7 @@ public static class Test_Lab_Vector2_Sum
         Assert.That(sum1 == sum2);
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Vector2_Sum_perf()
     {
         var positions = new Position2[1024];

@@ -7,6 +7,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Engine.ECS;
 using NUnit.Framework;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab {
@@ -14,7 +15,7 @@ namespace Tests.Generators.Lab {
 public static class Test_Lab_Scalar
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Scalar_Call() {
         var position = new Position[16];
         var value   = new float[16];
@@ -68,7 +69,7 @@ public static class Test_Lab_Scalar
     // ------------------------------- scalar parameter -------------------------------
     private const long InterleavedVector_Count = 10; // 10_000_000_000;
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_InterleavedVector3_perf_naive() {
         var vec = new Vector3(1,2,3);
         for (long n = 0; n < InterleavedVector_Count; n++) {
@@ -77,7 +78,7 @@ public static class Test_Lab_Scalar
     }
     
     /// <summary> Same performance as <see cref="Test_InterleavedVector3_perf_naive"/> </summary>
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_InterleavedVector3_perf_permutate() {
         var vec = new Vector3(1,2,3);
         for (long n = 0; n < InterleavedVector_Count; n++) {
@@ -112,7 +113,7 @@ public static class Test_Lab_Scalar
         var vec_2 = Avx2.PermuteVar8x32(baseVec, indices2);
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_InterleavedVector4()
     {
         var input = new Vector4(1, 2, 3, 4);

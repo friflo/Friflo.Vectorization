@@ -7,6 +7,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Generators.Static;
 using NUnit.Framework;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -15,7 +16,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector3
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static unsafe void Test_Lab_Vector3_Interleave()
     {
         var vectors = new Vector3[]
@@ -57,7 +58,7 @@ public static class Test_Lab_Vector3
         }
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static unsafe void Test_Lab_Vector3_Normalize()
     {
         var vectors    = new Vector3[8];
@@ -94,7 +95,7 @@ public static class Test_Lab_Vector3
         }
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static unsafe void Test_Lab_Vector3_Length()
     {
         var vectors    = new Vector3[8];
@@ -122,7 +123,7 @@ public static class Test_Lab_Vector3
         }
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static unsafe void Test_Lab_Vector3_Distance()
     {
         var vector1  = new Vector3[8];
@@ -160,7 +161,7 @@ public static class Test_Lab_Vector3
         }
     }
     
-    [Test][Avx]
+    [Test][AvxOnly]
     public static unsafe void Test_Lab_Vector3_DistanceSquared()
     {
         var vector1  = new Vector3[8];

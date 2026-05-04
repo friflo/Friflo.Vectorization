@@ -6,6 +6,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Generators.Static;
 using NUnit.Framework;
+using Tests.Utils;
 
 
 // ReSharper disable InconsistentNaming
@@ -14,7 +15,7 @@ namespace Tests.Generators.Lab {
 public static class Test_Lab_Trigonometry
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Trigonometry_Sin()
     {
         var input = Vector256.Create(0, 0.5f, 1, 1.5f, 2, 2.5f, 3, 3.5f);
@@ -28,7 +29,7 @@ public static class Test_Lab_Trigonometry
         }
     }
 
-    // [Test][Avx]
+    // [Test][AvxOnly]
     public static void Test_Lab_Trigonometry_Sin_perf()
     {
         var input = Vector256.Create(0, 0.5f, 1, 1.5f, 2, 2.5f, 3, 3.5f);

@@ -9,6 +9,7 @@ using System.Runtime.Intrinsics.X86;
 using Generators.Static;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
@@ -17,7 +18,7 @@ namespace Tests.Generators.Lab;
 public static class Test_Lab_Vector2_Cross
 {
     // ------------------------------- scalar component -------------------------------
-    [Test][Avx]
+    [Test][AvxOnly]
     public static void Test_Lab_Vector2_Cross_call()
     {
         var vec1 = new Position2[64];

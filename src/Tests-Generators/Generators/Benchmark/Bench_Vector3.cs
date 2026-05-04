@@ -8,6 +8,7 @@ using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Bench;
@@ -145,7 +146,7 @@ public partial class Bench_Vector3
     
     // ------------------------------------- Transform ------------------------------
     [Benchmark]
-    [Test]
+    [Test][AvxOnly]
     public unsafe void Vector3_Transform_SoA()
     {
         fixed(float* vec1_x_ptr = vec1_x)
@@ -156,7 +157,7 @@ public partial class Bench_Vector3
     }
     
     [Benchmark]
-    [Test]
+    [Test][AvxOnly]
     public unsafe void Vector3_Transform_AoS()
     {
         fixed(Vector3* vec_ptr = vec1)

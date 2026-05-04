@@ -11,6 +11,7 @@ using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.VectorizeQuery;
@@ -65,7 +66,7 @@ public static class Test_Vectorize_Lab
         MoveVectorizedQuery(store, 0.1f);
     }
     
-    [Test]
+    [Test][AvxOnly]
     public static unsafe void Test_Vectorize_Unzip_Shuffle()
     {
         var input = new Vector3[] {
@@ -157,7 +158,7 @@ public static class Test_Vectorize_Lab
 
     private const int RepeatCount = 10; // 1_000_000;
     
-    [Test]
+    [Test][AvxOnly]
     public static void Test_Vectorize_Multiply_perf()
     {
         var (position, velocity) = CreateTestData();
@@ -166,7 +167,7 @@ public static class Test_Vectorize_Lab
         }
     }
     
-    [Test]
+    [Test][AvxOnly]
     public static void Test_Vectorize_Multiply_perf_Avx()
     {
         var (position, velocity) = CreateTestData();
@@ -193,7 +194,7 @@ public static class Test_Vectorize_Lab
         }
     }
     
-    [Test]
+    [Test][AvxOnly]
     public static void Test_Vectorize_Multiply_validate()
     {
         var (position1, velocity1) = CreateTestData();

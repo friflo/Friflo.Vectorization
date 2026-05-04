@@ -10,6 +10,7 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.Intrinsics;
 using NUnit.Framework;
 using Tests.ECS;
+using Tests.Utils;
 using Tune;
 
 // ReSharper disable InconsistentNaming
@@ -274,7 +275,7 @@ public partial class Bench_Vector2
     }
     
     [Benchmark]
-    [Test]
+    [Test][AvxOnly]
     public unsafe void Vector2_Transform_AoS()
     {
         fixed(Vector2* vec_ptr = pos.Span)
