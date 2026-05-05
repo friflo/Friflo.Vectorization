@@ -15,25 +15,25 @@ public static class GpuPattern
     public static GpuBuffer<float> ShadowMethod(
         Buffer<float>   weight,
         Buffer<float>   input,
-        float           uniform,
+        float           bias,
         ExeType         exe,
         Buffer<float>   output = default)
     {
         if (exe == ExeType.GPU) {
-            return ShadowMethod_GPU(weight, input, uniform, output);
+            return ShadowMethod_GPU(weight, input, bias, output);
         }
         // Scalar / SIMD
-        ShadowMethod_AVX(weight, input, uniform, output);
+        ShadowMethod_AVX(weight, input, bias, output);
         return null;
     }
     
     // generated AVX method
-    private static void ShadowMethod_AVX(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output) {
+    private static void ShadowMethod_AVX(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output) {
         // ...
     }
     
     // generated GPU method
-    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float uniform, Buffer<float> output)
+    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
         var paramState = new GpuParamState();
         paramState.Validate(weight, nameof(weight));
@@ -58,7 +58,7 @@ public static class GpuPattern
             }
             pass.SetPipeline(effect.pipeline);
             
-            var uniforms = new ShadowMethod_GPU_Uniforms { uniform = uniform, count = weight.Count };
+            var uniforms = new ShadowMethod_GPU_Uniforms { bias = bias, count = weight.Count };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);
@@ -103,7 +103,7 @@ public static class GpuPattern
     private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() =>
 """
 struct ShadowMethod_Uniforms {
-    uniform : f32,
+    bias    : f32,
     count   : u32
 };
 
@@ -120,7 +120,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     }
     let weight_scalar = weight[index];
     // shader body generated from Blueprint method body
-    output[index] = (input[index] * weight_scalar) + uniforms.uniform;
+    output[index] = (input[index] * weight_scalar) + uniforms.bias;
 }
 """u8;
     
@@ -128,7 +128,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
     private struct ShadowMethod_GPU_Uniforms
     {
-        [FieldOffset(0)]    public float    uniform;
+        [FieldOffset(0)]    public float    bias;
         [FieldOffset(4)]    public int      count;
     //  public float uniform2;
     //  public int   iteration;
