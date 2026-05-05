@@ -41,7 +41,7 @@ public static class GpuPattern
         paramState.Validate(output, nameof(output));
         var device = paramState.GetDevice();
         
-        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(input.Count);
+        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(paramState.count);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -58,7 +58,7 @@ public static class GpuPattern
             }
             pass.SetPipeline(effect.pipeline);
             
-            var uniforms = new ShadowMethod_GPU_Uniforms { bias = bias, count = weight.Count };
+            var uniforms = new ShadowMethod_GPU_Uniforms { bias = bias, count = paramState.count };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);

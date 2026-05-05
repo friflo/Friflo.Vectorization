@@ -15,7 +15,7 @@ public struct GpuParamState
 {
     private GpuDevice   device;
     private string      firstParam;
-    private int         count;
+    public  int         count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate(Buffer<float> buffer, string paramName)
