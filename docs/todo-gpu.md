@@ -2,6 +2,7 @@
 
 ### todo
 - Dependency-Tracking - GpuContext.SubmitGraph()
+- Visualize Dependency graph (DAC) as Text Graph
 - Enable Zero Copy in shadow method. Zero Alloc is already established.
 - Establish Zero-Copy - "WriteBuffer" vs. "Mapping" (MappedAtCreation)
 - Check for instance callbacks. static callback methods recommended
