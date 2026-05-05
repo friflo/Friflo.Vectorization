@@ -16,8 +16,9 @@ public struct GpuParamState
     private GpuDevice   device;
     private string      firstParam;
     public  int         count;
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [SkipLocalsInit]
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;

@@ -33,6 +33,7 @@ public static class GpuPattern
     }
     
     // generated GPU method
+    [SkipLocalsInit]
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
         var paramState = new GpuParamState();
