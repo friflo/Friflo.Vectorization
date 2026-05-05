@@ -97,9 +97,8 @@ public sealed unsafe class GpuDevice : IDisposable
         
         foreach(var effect in gpuEffectSlots) {
             if(effect.IsCreated) {
-                if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
-                if (effect.shaderModule.handle  != null) wgpu.ShaderModuleRelease   (effect.shaderModule.handle);
-                if (effect.layout.handle        != null) wgpu.BindGroupLayoutRelease(effect.layout.handle);
+                if (effect.pipeline.handle  != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
+                if (effect.layout.handle    != null) wgpu.BindGroupLayoutRelease(effect.layout.handle);
             }
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
@@ -408,6 +407,7 @@ public sealed unsafe class GpuDevice : IDisposable
                 return new GpuComputePipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
+                if (module.handle  != null) wgpu.ShaderModuleRelease(module.handle);
             }
         }
     }

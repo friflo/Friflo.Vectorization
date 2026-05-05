@@ -95,7 +95,7 @@ public static class GpuPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout, "ShadowMethod"u8);
         
-        gpuEffect = new GpuEffect(layout, shaderModule, pipeline);
+        gpuEffect = new GpuEffect(layout, pipeline);
         device.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
         return gpuEffect;
     }
