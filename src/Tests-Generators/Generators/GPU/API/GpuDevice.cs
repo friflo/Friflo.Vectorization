@@ -386,16 +386,14 @@ public sealed unsafe class GpuDevice : IDisposable
     
     public GpuComputePipeline CreateComputePipeline(
         GpuShaderModule     module,
-        ReadOnlySpan<byte>  entryPoint,
         GpuBindGroupLayout  layout,
-        ReadOnlySpan<byte>  pipelineLabel)
+        ReadOnlySpan<byte>  entryPoint)
     {
         fixed (byte* pEntryPoint    = entryPoint)
-        fixed (byte* labelPtr       = pipelineLabel)
         {
             var layoutHandle = layout.handle;
             var layoutDesc = new PipelineLayoutDescriptor {
-                Label                   = labelPtr,
+                Label                   = pEntryPoint,
                 BindGroupLayoutCount    = 1,
                 BindGroupLayouts        = &layoutHandle
             };

@@ -92,7 +92,7 @@ public static class GpuPattern
         
         var layout          = device.CreateBindGroupLayout(entries, "ShadowMethod"u8);
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout, "ShadowMethod"u8);
+        var pipeline        = device.CreateComputePipeline(shaderModule, layout, "ShadowMethod"u8);
         
         var gpuEffect = new GpuEffect(layout, pipeline);
         device.SetGpuEffect(ShadowMethod_GPU_EffectSlot, gpuEffect);
@@ -113,7 +113,7 @@ struct ShadowMethod_Uniforms {
 @group(0) @binding(3) var<storage, read_write>  output:     array<f32>;
 
 @compute @workgroup_size(64)
-fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;
     if (index >= uniforms.count) {
         return;
