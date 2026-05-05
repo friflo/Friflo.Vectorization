@@ -7,6 +7,9 @@
 - Check for instance callbacks. static callback methods recommended
 - Handle: Out of Memory oder TDR
 - Capture UncapturedError in  string lastError. Throw Exception with ThrowIfError() after Task.Finish(), QueueSubmit(), WaitInDebug(), ...
+- Layout Merging: Deduplicate BindGroupLayout objects by hashing their descriptors and caching them per device.
+    Minimize driver state changes and memory footprint.
+    (Generator todo: the Layout key can be calculated already in the Generator)
 
 
 ### done

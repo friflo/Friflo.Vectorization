@@ -13,7 +13,7 @@ public class AvxOnlyAttribute : NUnitAttribute, IApplyToTest
     {
         if (!Avx.IsSupported)
         {
-            test.RunState = RunState.Skipped;
+            test.RunState = RunState.Ignored;
             test.Properties.Set(PropertyNames.SkipReason, "CPU no support of: AVX");
         }
     }
