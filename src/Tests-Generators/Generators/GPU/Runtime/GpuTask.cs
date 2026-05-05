@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
+using Buffer = Silk.NET.WebGPU.Buffer;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.Vectorization.GPU.Runtime;
@@ -26,6 +27,9 @@ public sealed unsafe class GpuTask : IDisposable
     private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
     private             uint                uniformOffset;             	// cursor in pool slice used as a ring buffer
     private readonly    byte[]              stagingBuffer;              // CPU-cache for uniform buffer
+    private readonly    int                 slotSize;
+    private readonly    Buffer*             globalUniformPool;
+    
     
     // A simple state flag for the scheduler
     public              bool                IsSubmitted     { get; internal set; }
@@ -33,10 +37,12 @@ public sealed unsafe class GpuTask : IDisposable
     
 
     internal GpuTask(GpuDevice device, int taskIndex) {
-        this.device    = device;
-        this.taskIndex  = taskIndex;
-        uniformBase     = (uint)(taskIndex * device.slotSize);
-        stagingBuffer   = new byte[device.slotSize];
+        this.device         = device;
+        slotSize            = device.slotSize;
+        globalUniformPool   = device.globalUniformPool.handle;
+        this.taskIndex      = taskIndex;
+        uniformBase         = (uint)(taskIndex * slotSize);
+        stagingBuffer       = new byte[device.slotSize];
     }
     
     // The task provides / owns the Encoder
@@ -48,12 +54,11 @@ public sealed unsafe class GpuTask : IDisposable
     
     public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
-        var  dev            = device;
         uint size           = (uint)sizeof(T);
         uint alignedOffset  = (uniformOffset + 255) & ~255u; // WebGPU requires Uniform offset must by 256 byte aligned
         
-        if (alignedOffset + size > dev.slotSize) {
-            throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {dev.slotSize}.");
+        if (alignedOffset + size > slotSize) {
+            ThrowUniformSlotOverflow();
         }
         // write directly to stagingBuffer
         fixed (byte* pDest = &stagingBuffer[alignedOffset]) {
@@ -65,11 +70,15 @@ public sealed unsafe class GpuTask : IDisposable
 
         return new BindGroupEntry {
             Binding = (uint)binding,
-            Buffer  = dev.globalUniformPool.handle,
+            Buffer  = globalUniformPool,
             Offset  = absoluteOffset,
             Size    = size
         };
     }
+    
+    private void ThrowUniformSlotOverflow() {
+        throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {slotSize}.");
+    } 
     
     public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> label)
     {
