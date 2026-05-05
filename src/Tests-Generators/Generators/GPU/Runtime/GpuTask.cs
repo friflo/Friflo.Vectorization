@@ -254,7 +254,7 @@ public readonly unsafe struct GpuBindGroup
             Binding = (uint)binding,
             Buffer  = buffer.gpuBuffer.handle,
             Offset  = 0,
-            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
+            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Count)
         };
     }
 }

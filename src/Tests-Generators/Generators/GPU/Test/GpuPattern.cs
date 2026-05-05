@@ -41,7 +41,7 @@ public static class GpuPattern
         paramState.Validate(output, nameof(output));
         var device = paramState.GetDevice();
         
-        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(input.Length);
+        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(input.Count);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -58,7 +58,7 @@ public static class GpuPattern
             }
             pass.SetPipeline(effect.pipeline);
             
-            var uniforms = new ShadowMethod_GPU_Uniforms { uniform = uniform };
+            var uniforms = new ShadowMethod_GPU_Uniforms { uniform = uniform, count = weight.Count };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);
@@ -67,7 +67,7 @@ public static class GpuPattern
             
             var bindGroup = task.CreateBindGroup(effect.layout, entries, "ShadowMethod"u8);
             pass.SetBindGroup(0, bindGroup);
-            pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
+            pass.DispatchWorkgroups((input.Count + 63) / 64, 1, 1);        	// Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
@@ -104,6 +104,7 @@ public static class GpuPattern
 """
 struct ShadowMethod_Uniforms {
     uniform : f32,
+    count   : u32
 };
 
 @group(0) @binding(0) var<storage, read>        weight:     array<f32>;
@@ -114,7 +115,9 @@ struct ShadowMethod_Uniforms {
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;
-    
+    if (index >= uniforms.count) {
+        return;
+    }
     let weight_scalar = weight[index];
     // shader body generated from Blueprint method body
     output[index] = (input[index] * weight_scalar) + uniforms.uniform;
@@ -122,10 +125,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 """u8;
     
     // struct for uniforms
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout. Fill up to 16 bytes
+    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
     private struct ShadowMethod_GPU_Uniforms
     {
-        [FieldOffset(0)] public float uniform;
+        [FieldOffset(0)]    public float    uniform;
+        [FieldOffset(4)]    public int      count;
     //  public float uniform2;
     //  public int   iteration;
     }

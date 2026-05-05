@@ -90,9 +90,9 @@ public class TestCompute : GpuTestBase
         WarmUpDevice();
         var device    = Device;
 
-        var weight  = new float[64]; // no alignment
-        var input   = new float[64];
-        var output  = new float[64];
+        var weight  = new float[65]; // no alignment
+        var input   = new float[65];
+        var output  = new float[65];
         for (int n = 0; n < 64; ++n) {
             weight[n] = n;
             input[n]  = n + 1000;

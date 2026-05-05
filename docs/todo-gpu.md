@@ -15,6 +15,7 @@
 
 
 ### done
+- Pass exact count via Uniform Buffer to support buffers with arbitrary length
 - Leak-Check for GpuContext.Dispose()
 - Ensure Zero GPU Handle/Pointer leaks in unit tests
 - task.GpuEncoder() 			creates class GpuEncoder

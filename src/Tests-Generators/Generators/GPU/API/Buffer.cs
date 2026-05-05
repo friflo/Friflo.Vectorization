@@ -21,7 +21,7 @@ public ref struct Buffer<T> where T : unmanaged
     public  GpuTask         LastWritingTask { get => gpuBuffer.LastWritingTask; set => gpuBuffer.LastWritingTask = value; }
 
     
-    public int Length => gpuBuffer?.Length ?? span.Length;
+    public 	int 			Count => gpuBuffer?.Length ?? span.Length;
     
     public Buffer(Span<T> span) {
         this.span = span;
