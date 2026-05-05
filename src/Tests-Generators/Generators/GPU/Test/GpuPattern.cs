@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
@@ -38,10 +39,10 @@ public static class GpuPattern
         paramState.Validate(weight, nameof(weight));
         paramState.Validate(input,  nameof(input));
         paramState.Validate(output, nameof(output));
-        var dev = paramState.GetDevice();
+        var device = paramState.GetDevice();
         
-        var gpuOutput   = output.gpuBuffer ?? dev.RentBuffer<float>(input.Length);
-        using var task  = dev.RentTask();
+        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(input.Length);
+        using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
         if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
@@ -51,17 +52,20 @@ public static class GpuPattern
         var encoder = task.GetEncoder("ShadowMethod"u8);
         using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
         {
-            var gpuEffect = ShadowMethod_GPU_GetGpuEffect(dev);
-            pass.SetPipeline(gpuEffect.pipeline);
+            var effect = device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
+            if (!effect.IsCreated) {
+                effect = ShadowMethod_GPU_CreateEffect(device);
+            }
+            pass.SetPipeline(effect.pipeline);
             
-            var uniforms = new ShadowMethod_Uniforms { uniform = uniform };
+            var uniforms = new ShadowMethod_GPU_Uniforms { uniform = uniform };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);
             entries[2] = task.AsUniformEntry(2, uniforms);
             entries[3] = GpuBindGroup.From  (3, output);
             
-            var bindGroup = task.CreateBindGroup(gpuEffect.layout, entries, "ShadowMethod"u8);
+            var bindGroup = task.CreateBindGroup(effect.layout, entries, "ShadowMethod"u8);
             pass.SetBindGroup(0, bindGroup);
             pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
@@ -69,22 +73,17 @@ public static class GpuPattern
         // connect task to output
         gpuOutput.LastWritingTask = task;
         task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
-        dev.Enqueue(task);                      // queues CommandBuffer only. No Submit().
+        device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
         gpuOutput.WaitInDebug();
         return gpuOutput;
     }
     
-    private static readonly int ShadowMethod_GpuEffectSlot = GpuDevice.NewGpuEffectSlot(); 
+    private static readonly int ShadowMethod_GPU_EffectSlot = GpuDevice.NewGpuEffectSlot(); 
     
-    private static GpuEffect ShadowMethod_GPU_GetGpuEffect(GpuDevice device)
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
     {
-        // Each device has its own GpuEffect[] array
-        var gpuEffect = device.GetGpuEffect(ShadowMethod_GpuEffectSlot); // array index lookup
-
-        if (gpuEffect.IsCreated) {
-            return gpuEffect;
-        }
         Span<GpuLayoutEntry> entries = stackalloc GpuLayoutEntry[4];
         entries[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @binding(0) var<storage, read>       weight
         entries[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @binding(1) var<storage, read>       input
@@ -95,8 +94,8 @@ public static class GpuPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, "main"u8, layout, "ShadowMethod"u8);
         
-        gpuEffect = new GpuEffect(layout, pipeline);
-        device.SetGpuEffect(ShadowMethod_GpuEffectSlot, gpuEffect);
+        var gpuEffect = new GpuEffect(layout, pipeline);
+        device.SetGpuEffect(ShadowMethod_GPU_EffectSlot, gpuEffect);
         return gpuEffect;
     }
 
@@ -124,7 +123,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     
     // struct for uniforms
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout. Fill up to 16 bytes
-    private struct ShadowMethod_Uniforms
+    private struct ShadowMethod_GPU_Uniforms
     {
         [FieldOffset(0)] public float uniform;
     //  public float uniform2;

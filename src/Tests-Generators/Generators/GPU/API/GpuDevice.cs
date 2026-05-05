@@ -137,7 +137,7 @@ public sealed unsafe class GpuDevice : IDisposable
     // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int  
     public static int NewGpuEffectSlot() => gpuEffectSlotCount++;
 
-    public GpuEffect GetGpuEffect(int slot) {
+    public GpuEffect GetEffect(int slot) {
         var slots = gpuEffectSlots;
         if (slot < slots.Length) {
             return slots[slot];    
