@@ -242,11 +242,11 @@ public readonly unsafe struct GpuBindGroup
         this.handle = handle;
     }
     
-    public static BindGroupEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
+    public static BindGroupEntry From<T>(int binding, in Buffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
             Binding = (uint)binding,
-            Buffer  = buffer.handle,
+            Buffer  = buffer.gpuBuffer.handle,
             Offset  = 0,
             Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
         };
