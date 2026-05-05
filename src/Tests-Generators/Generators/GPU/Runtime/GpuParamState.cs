@@ -15,6 +15,7 @@ public struct GpuParamState
 {
     private GpuDevice   device;
     private string      firstParam;
+    private int         count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate(Buffer<float> buffer, string paramName)
@@ -22,12 +23,16 @@ public struct GpuParamState
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer != null) {
             var bufferDevice = gpuBuffer.Device;
-            if (bufferDevice != null && !bufferDevice.IsDisposed && bufferDevice == device) {
+            if (bufferDevice != null    &&
+               !bufferDevice.IsDisposed &&
+                bufferDevice == device  &&
+                buffer.Count == count) {
                 return;
             }
             if (device == null) {
                 firstParam  = paramName;
                 device      = bufferDevice;
+                count       = buffer.Count;
                 return;
             }
         }
@@ -47,6 +52,9 @@ public struct GpuParamState
         }
         if (bufferDevice.IsDisposed) {
             throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
+        }
+        if (buffer.Count != count) {
+            throw new InvalidOperationException($"Totalitarian Sizing: Parameter '{paramName}' (Count: {buffer.Count}) is trying to start a revolution against the established order of '{firstParam}' (Count: {count}). In this method, the first parameter is the Law. Everyone else must follow its lead or be purged from the pipeline.");
         }
         if (bufferDevice == device) {
             return;    

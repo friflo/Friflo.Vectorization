@@ -48,6 +48,12 @@ public class Test_GPU_Exeptions : GpuTestBase
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
+            using var gpuOutputSmall = new GpuBuffer<float>(device1, new float[63],  BufferUsage.Storage, "gpuOutput1");
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutputSmall);
+            });
+            StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
+        } {
             using var gpuOutput1 = new GpuBuffer<float>(device1, input,  BufferUsage.Storage, "gpuOutput1");
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
