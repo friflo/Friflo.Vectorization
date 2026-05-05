@@ -14,7 +14,8 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class GpuTask : IDisposable
 {
-    internal readonly   GpuDevice           device;
+    private  readonly   GpuDevice           device;
+    internal readonly   WebGPU              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
@@ -38,6 +39,7 @@ public sealed unsafe class GpuTask : IDisposable
 
     internal GpuTask(GpuDevice device, int taskIndex) {
         this.device         = device;
+        wgpu                = device.wgpu;
         slotSize            = device.slotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         this.taskIndex      = taskIndex;
@@ -93,10 +95,10 @@ public sealed unsafe class GpuTask : IDisposable
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         fixed (byte* labelPtr = label) {
             var descriptor = new CommandBufferDescriptor { Label = labelPtr };
-            commandBuffer  = device.wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
+            commandBuffer  = wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
         }
         if (currentEncoder != null) {
-            device.wgpu.CommandEncoderRelease(currentEncoder);
+            wgpu.CommandEncoderRelease(currentEncoder);
             currentEncoder = null;
         }
     }
@@ -112,7 +114,7 @@ public sealed unsafe class GpuTask : IDisposable
                 EntryCount  = (uint)bindEntries.Length,
                 Entries     = nativeEntryPtr
             };
-            var handle = device.wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
             return new GpuBindGroup(handle);
         }
@@ -121,13 +123,13 @@ public sealed unsafe class GpuTask : IDisposable
     internal void Reset()
     {
         foreach (var ptr in createdBindGroups) {
-            device.wgpu.BindGroupRelease((BindGroup*)ptr);
+            wgpu.BindGroupRelease((BindGroup*)ptr);
         }
         createdBindGroups.Clear();
         
         var bufferHandler = commandBuffer;
         if (bufferHandler != null) {
-            device.wgpu.CommandBufferRelease(bufferHandler);
+            wgpu.CommandBufferRelease(bufferHandler);
             commandBuffer = null;
         }
         uniformOffset = 0; // reset local uniform cursor
@@ -152,15 +154,15 @@ public sealed unsafe class GpuTask : IDisposable
     {
         ClosePass();
         if (currentEncoder != null) {
-            device.wgpu.CommandEncoderRelease(currentEncoder);
+            wgpu.CommandEncoderRelease(currentEncoder);
             currentEncoder = null;
         }
     }
     
     internal void ClosePass() {
         if (currentPass != null) {
-            device.wgpu.ComputePassEncoderEnd(currentPass);
-            device.wgpu.ComputePassEncoderRelease(currentPass);
+            wgpu.ComputePassEncoderEnd(currentPass);
+            wgpu.ComputePassEncoderRelease(currentPass);
             currentPass = null;
         }
     }
@@ -183,7 +185,7 @@ public readonly unsafe struct GpuEncoder
         fixed (byte* labelPtr = label)
         {
             var desc            = new ComputePassDescriptor { Label = labelPtr };
-            var passHandle      = task.device.wgpu.CommandEncoderBeginComputePass(handle, &desc);
+            var passHandle      = task.wgpu.CommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
             return new GpuComputePass(task, passHandle);
         }
@@ -205,11 +207,11 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     }
 
     public void SetPipeline(GpuComputePipeline pipeline) {
-        task.device.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
+        task.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
-        task.device.wgpu.ComputePassEncoderDispatchWorkgroups(
+        task.wgpu.ComputePassEncoderDispatchWorkgroups(
             handle, 
             (uint)workgroupCountX, 
             (uint)workgroupCountY, 
@@ -224,7 +226,7 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
-        task.device.wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
+        task.wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
     }
 }
 
