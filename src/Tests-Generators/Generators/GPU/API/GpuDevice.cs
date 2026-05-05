@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
@@ -115,6 +116,8 @@ public sealed unsafe class GpuDevice : IDisposable
         isDisposed = true;
     }
     
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public GpuTask RentTask() {
         lock (availableTasks) {
             return availableTasks.Pop();
@@ -137,6 +140,7 @@ public sealed unsafe class GpuDevice : IDisposable
     // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int  
     public static int NewGpuEffectSlot() => gpuEffectSlotCount++;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public GpuEffect GetEffect(int slot) {
         var slots = gpuEffectSlots;
         if (slot < slots.Length) {
@@ -225,6 +229,7 @@ public sealed unsafe class GpuDevice : IDisposable
         inFlightTasks.Clear();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Enqueue(GpuTask task)
     {
         pendingTasks.Add(task);

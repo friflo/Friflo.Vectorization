@@ -16,6 +16,7 @@ public struct GpuParamState
     private GpuDevice   device;
     private string      firstParam;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
@@ -58,6 +59,7 @@ public struct GpuParamState
         throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public GpuDevice GetDevice() {
         if (device != null) {
             return device;

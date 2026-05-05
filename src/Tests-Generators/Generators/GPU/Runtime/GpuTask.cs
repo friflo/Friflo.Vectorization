@@ -50,6 +50,7 @@ public sealed unsafe class GpuTask : IDisposable
     }
     
     // The task provides / owns the Encoder
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public GpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
         var encoder     = device.CreateEncoder(this, encoderLabel); 
         currentEncoder  = encoder.handle;
@@ -209,10 +210,12 @@ public readonly unsafe struct GpuComputePass : IDisposable {
         End();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetPipeline(GpuComputePipeline pipeline) {
         task.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
         task.wgpu.ComputePassEncoderDispatchWorkgroups(
             handle, 
@@ -222,10 +225,12 @@ public readonly unsafe struct GpuComputePass : IDisposable {
         );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void End() {
         task.ClosePass(); 
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
@@ -242,6 +247,7 @@ public readonly unsafe struct GpuBindGroup
         this.handle = handle;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BindGroupEntry From<T>(int binding, in Buffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
