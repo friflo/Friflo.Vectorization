@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -48,8 +50,8 @@ public sealed unsafe class GpuTask : IDisposable
     }
     
     // The task provides / owns the Encoder
-    public GpuEncoder GetEncoder(ReadOnlySpan<byte> label) {
-        var encoder     = device.CreateEncoder(this, label); 
+    public GpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
+        var encoder     = device.CreateEncoder(this, encoderLabel); 
         currentEncoder  = encoder.handle;
         return encoder;
     }
@@ -78,11 +80,12 @@ public sealed unsafe class GpuTask : IDisposable
         };
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private void ThrowUniformSlotOverflow() {
         throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {slotSize}.");
     } 
     
-    public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> label)
+    public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -93,7 +96,7 @@ public sealed unsafe class GpuTask : IDisposable
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
-        fixed (byte* labelPtr = label) {
+        fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { Label = labelPtr };
             commandBuffer  = wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
         }
@@ -103,9 +106,9 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> label)
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
-        fixed(byte*             labelPtr        = label)
+        fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries)
         {
             var descriptor = new BindGroupDescriptor {
@@ -180,9 +183,9 @@ public readonly unsafe struct GpuEncoder
     }
     
     // --- ComputePass methods
-    public GpuComputePass BeginComputePass(ReadOnlySpan<byte> label)
+    public GpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
-        fixed (byte* labelPtr = label)
+        fixed (byte* labelPtr = passLabel)
         {
             var desc            = new ComputePassDescriptor { Label = labelPtr };
             var passHandle      = task.wgpu.CommandEncoderBeginComputePass(handle, &desc);

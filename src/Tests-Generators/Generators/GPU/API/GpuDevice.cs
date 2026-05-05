@@ -190,9 +190,9 @@ public sealed unsafe class GpuDevice : IDisposable
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    internal GpuEncoder CreateEncoder(GpuTask task, ReadOnlySpan<byte> label)
+    internal GpuEncoder CreateEncoder(GpuTask task, ReadOnlySpan<byte> encoderLabel)
     {
-        fixed (byte* labelPtr = label)
+        fixed (byte* labelPtr = encoderLabel)
         {
             var desc = new CommandEncoderDescriptor {
                 Label = labelPtr
@@ -351,16 +351,16 @@ public sealed unsafe class GpuDevice : IDisposable
         };
         var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
-            throw new Exception("GPU Memory Allocation failed! Zu wenig VRAM oder falsches Alignment?");
+            throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
         }
         return buffer;
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
-    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> label)
+    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {
         fixed (byte* pShaderBytes = wgslSource)
-        fixed (byte* labelPtr = label)
+        fixed (byte* labelPtr = shaderLabel)
         {
             // create descriptor
             var wgslDesc = new ShaderModuleWGSLDescriptor {
@@ -383,10 +383,10 @@ public sealed unsafe class GpuDevice : IDisposable
         GpuShaderModule     module,
         ReadOnlySpan<byte>  entryPoint,
         GpuBindGroupLayout  layout,
-        ReadOnlySpan<byte>  label)
+        ReadOnlySpan<byte>  pipelineLabel)
     {
         fixed (byte* pEntryPoint    = entryPoint)
-        fixed (byte* labelPtr       = label)
+        fixed (byte* labelPtr       = pipelineLabel)
         {
             var layoutHandle = layout.handle;
             var layoutDesc = new PipelineLayoutDescriptor {
@@ -412,7 +412,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
 
-    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ReadOnlySpan<byte> label)
+    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -427,7 +427,7 @@ public sealed unsafe class GpuDevice : IDisposable
                 }
             };
         }
-        fixed (byte*                    labelPtr    = label)
+        fixed (byte*                    labelPtr    = layoutLabel)
         fixed (BindGroupLayoutEntry*    entriesPtr  = nativeEntries)
         {
             var desc = new BindGroupLayoutDescriptor {
