@@ -11,6 +11,7 @@
 - Layout Merging: Deduplicate BindGroupLayout objects by hashing their descriptors and caching them per device.
     Minimize driver state changes and memory footprint.
     (Generator todo: the Layout key can be calculated already in the Generator)
+- Optimization: Implement "Sub-Padding" for small uniforms in GpuTask.AsUniformEntry<>()
 
 
 ### done
