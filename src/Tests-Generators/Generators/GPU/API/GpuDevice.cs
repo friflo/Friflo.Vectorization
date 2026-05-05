@@ -149,16 +149,16 @@ public sealed unsafe class GpuDevice : IDisposable
         return default;
     }
     
-    public void SetGpuEffect(int slot, GpuEffect gpuEffect) {
+    public GpuEffect CreateEffect(int slot, GpuBindGroupLayout layout, GpuComputePipeline pipeline)
+    {
         var slots = gpuEffectSlots;
         if (slot >= slots.Length) {
             var newSlots = new GpuEffect[gpuEffectSlotCount];
             Array.Copy(slots, newSlots, slots.Length);
             slots = gpuEffectSlots = newSlots;
         }
-        slots[slot] = gpuEffect;
+        return slots[slot] = new  GpuEffect(layout, pipeline);;
     }
-    
 
     internal GpuDevice(
         WebGPU              wgpu,

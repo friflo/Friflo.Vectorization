@@ -97,9 +97,7 @@ public static class GpuPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, layout, "ShadowMethod"u8);
         
-        var gpuEffect = new GpuEffect(layout, pipeline);
-        device.SetGpuEffect(ShadowMethod_GPU_EffectSlot, gpuEffect);
-        return gpuEffect;
+        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, layout, pipeline);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
