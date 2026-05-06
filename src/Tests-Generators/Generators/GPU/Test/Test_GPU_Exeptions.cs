@@ -31,7 +31,8 @@ public class Test_GPU_Exeptions : GpuTestBase
         using var gpuInput    = new GpuBuffer<float>(device1, input,  BufferUsage.Storage, "gpuInput");
         using var gpuOutput   = new GpuBuffer<float>(device1, output, BufferUsage.Storage | BufferUsage.CopySrc, "gpuOutput");
         
-        Assert.AreEqual("gpuWeight: Alive", gpuWeight.ToString());
+        StringAssert.StartsWith("gpuWeight(", gpuWeight.ToString());
+        StringAssert.EndsWith  ("): Alive",   gpuWeight.ToString());
         Assert.IsFalse(gpuWeight.IsDisposed);
 
         {   // Scope important to Dispose() result (=output)

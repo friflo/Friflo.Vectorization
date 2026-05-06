@@ -20,7 +20,7 @@ internal static class GpuBufferUtils
 
 public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    private             string      label;
+    private readonly    string      label;
     internal            Buffer*     handle { get; private set; }
     internal            GpuDevice   Device { get; private set; }
     private readonly    WebGPU      wgpu;
@@ -30,7 +30,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     internal            GpuTask     LastWritingTask;
     public              bool        IsDisposed => handle == null;
     
-    public  override    string      ToString() => label + (handle == null ? ": Disposed" : ": Alive");
+    public  override    string      ToString() => $"{label}({Id}): {(handle == null ? "Disposed" : "Alive")}";
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.

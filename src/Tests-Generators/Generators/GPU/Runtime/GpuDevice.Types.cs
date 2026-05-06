@@ -46,6 +46,7 @@ internal struct CacheEntry
     }
 }
 
+/// <summary> The Cache has only two entries to support double buffer use cases </summary> 
 public struct GpuBufferCache
 {
     private CacheEntry      group0;
@@ -54,8 +55,14 @@ public struct GpuBufferCache
     
     public GpuBindGroup GetGroup(ulong groupHash)
     {
-        if (group0.hash == groupHash) return group0.bindGroup;
-        if (group1.hash == groupHash) return group1.bindGroup;
+        if (group0.hash == groupHash) {
+            lruIndex = 0; // mark as currently in use
+            return group0.bindGroup;
+        }
+        if (group1.hash == groupHash) {
+            lruIndex = 1; // mark as currently in use
+            return group1.bindGroup;
+        }
         return default;
     }
 
