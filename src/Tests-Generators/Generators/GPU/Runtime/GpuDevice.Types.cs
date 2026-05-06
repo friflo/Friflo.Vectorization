@@ -10,22 +10,25 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuEffect 
 {
-    internal readonly   GpuBindGroupLayout  layout;
+    internal readonly   GpuBindGroupLayout  bufferLayout;
+    internal readonly   GpuBindGroupLayout  uniformLayout;
     internal readonly   GpuComputePipeline  pipeline;
-    public              bool                IsCreated => layout.handle != null;
+    public              bool                IsCreated => bufferLayout.handle != null;
 
-    public   override   string              ToString()=> layout.handle != null ? "Created" : "null";
+    public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal GpuEffect (GpuBindGroupLayout layout, GpuComputePipeline pipeline) {
-        this.layout     = layout;
-        this.pipeline   = pipeline;
+    internal GpuEffect (GpuBindGroupLayout bufferLayout, GpuBindGroupLayout uniformLayout, GpuComputePipeline pipeline) {
+        this.bufferLayout   = bufferLayout;
+        this.uniformLayout  = uniformLayout;
+        this.pipeline       = pipeline;
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuComputePipeline
 {
-    internal readonly ComputePipeline* handle;
+    internal readonly   ComputePipeline*    handle;
+    public   override   string              ToString() => handle != null ? "Created" : "null";
     
     internal GpuComputePipeline(ComputePipeline* handle) {
         this.handle = handle;
@@ -35,7 +38,8 @@ public readonly unsafe struct GpuComputePipeline
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuShaderModule
 {
-    internal readonly ShaderModule* handle;
+    internal readonly   ShaderModule*   handle;
+    public   override   string          ToString() => handle != null ? "Created" : "null";
     
     internal GpuShaderModule(ShaderModule* handle) {
         this.handle = handle;

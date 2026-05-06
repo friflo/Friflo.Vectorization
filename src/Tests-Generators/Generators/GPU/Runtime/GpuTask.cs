@@ -107,11 +107,25 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
     
+    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    {
+        fixed(byte* labelPtr = groupLabel) {
+            var descriptor = new BindGroupDescriptor {
+                Label       = labelPtr, 
+                Layout      = layout.handle,
+                EntryCount  = 1,
+                Entries     = &bindEntry
+            };
+            var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            createdBindGroups.Add((nint)handle);
+            return new GpuBindGroup(handle);
+        }
+    }
+    
     public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel)
-        fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries)
-        {
+        fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
             var descriptor = new BindGroupDescriptor {
                 Label       = labelPtr, 
                 Layout      = layout.handle,

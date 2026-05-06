@@ -36,7 +36,7 @@ public static class GpuPattern
     [SkipLocalsInit]
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
-        var paramState = new GpuParamState();
+        var paramState = new GpuBufferParams();
         paramState.Validate(weight, nameof(weight));
         paramState.Validate(input,  nameof(input));
         paramState.Validate(output, nameof(output));
@@ -63,14 +63,18 @@ public static class GpuPattern
                 bias = bias,
                 count = paramState.count
             };
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[4];
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);
-            entries[2] = task.AsUniformEntry(2, uniforms);
-            entries[3] = GpuBindGroup.From  (3, output);
+            entries[2] = GpuBindGroup.From  (2, output);
+            // TODO CreateBindGroup for buffers (storage) is expensive in wgpu => Cache it
+            var bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
+            pass.SetBindGroup(0, bufferGroup);
             
-            var bindGroup = task.CreateBindGroup(effect.layout, entries, "ShadowMethod"u8);
-            pass.SetBindGroup(0, bindGroup);
+            var entry = task.AsUniformEntry(0, uniforms);
+            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
+            pass.SetBindGroup(1, uniformGroup);
+            
             pass.DispatchWorkgroups((input.Count + 63) / 64, 1, 1);        	// Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
@@ -88,17 +92,20 @@ public static class GpuPattern
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
     {
-        Span<GpuLayoutEntry> entries = stackalloc GpuLayoutEntry[4];
-        entries[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @binding(0) var<storage, read>       weight
-        entries[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @binding(1) var<storage, read>       input
-        entries[2] = GpuLayoutEntry.Uniform<float>         (2); // @binding(2) var<uniform>             uniforms
-        entries[3] = GpuLayoutEntry.ReadWriteStorage<float>(3); // @binding(3) var<storage, read_write> output
+        Span<GpuLayoutEntry> buffers = stackalloc GpuLayoutEntry[3];
+        buffers[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
+        buffers[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
+        buffers[2] = GpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
         
-        var layout          = device.CreateBindGroupLayout(entries, "ShadowMethod"u8);
+        Span<GpuLayoutEntry> uniform = stackalloc GpuLayoutEntry[1];
+        uniform[0] = GpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
+        
+        var bufferLayout    = device.CreateBindGroupLayout(buffers, "ShadowMethod_buffers"u8);
+        var uniformLayout   = device.CreateBindGroupLayout(uniform, "ShadowMethod_uniforms"u8);
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, layout, "ShadowMethod"u8);
+        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
         
-        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, layout, pipeline);
+        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, bufferLayout, uniformLayout, pipeline);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
@@ -111,8 +118,9 @@ struct ShadowMethod_Uniforms {
 
 @group(0) @binding(0) var<storage, read>        weight:     array<f32>;
 @group(0) @binding(1) var<storage, read>        input:      array<f32>;
-@group(0) @binding(2) var<uniform>              uniforms:   ShadowMethod_Uniforms;
-@group(0) @binding(3) var<storage, read_write>  output:     array<f32>;
+@group(0) @binding(2) var<storage, read_write>  output:     array<f32>;
+
+@group(1) @binding(0) var<uniform>              uniforms:   ShadowMethod_Uniforms;
 
 @compute @workgroup_size(64)
 fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {

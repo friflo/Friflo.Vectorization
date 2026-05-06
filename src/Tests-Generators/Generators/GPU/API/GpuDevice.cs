@@ -98,8 +98,9 @@ public sealed unsafe class GpuDevice : IDisposable
         
         foreach(var effect in gpuEffectSlots) {
             if(effect.IsCreated) {
-                if (effect.pipeline.handle  != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
-                if (effect.layout.handle    != null) wgpu.BindGroupLayoutRelease(effect.layout.handle);
+                if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
+                if (effect.bufferLayout.handle  != null) wgpu.BindGroupLayoutRelease(effect.bufferLayout.handle);
+                if (effect.uniformLayout.handle != null) wgpu.BindGroupLayoutRelease(effect.uniformLayout.handle);
             }
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
@@ -149,7 +150,11 @@ public sealed unsafe class GpuDevice : IDisposable
         return default;
     }
     
-    public GpuEffect CreateEffect(int slot, GpuBindGroupLayout layout, GpuComputePipeline pipeline)
+    public GpuEffect CreateEffect(
+        int                 slot,
+        GpuBindGroupLayout  bufferLayout,
+        GpuBindGroupLayout  uniformLayout,
+        GpuComputePipeline  pipeline)
     {
         var slots = gpuEffectSlots;
         if (slot >= slots.Length) {
@@ -157,7 +162,7 @@ public sealed unsafe class GpuDevice : IDisposable
             Array.Copy(slots, newSlots, slots.Length);
             slots = gpuEffectSlots = newSlots;
         }
-        return slots[slot] = new  GpuEffect(layout, pipeline);;
+        return slots[slot] = new  GpuEffect(bufferLayout, uniformLayout, pipeline);
     }
 
     internal GpuDevice(
@@ -386,16 +391,21 @@ public sealed unsafe class GpuDevice : IDisposable
     
     public GpuComputePipeline CreateComputePipeline(
         GpuShaderModule     module,
-        GpuBindGroupLayout  layout,
+        GpuBindGroupLayout  bufferLayout,
+        GpuBindGroupLayout  uniformLayout,
         ReadOnlySpan<byte>  entryPoint)
     {
-        fixed (byte* pEntryPoint    = entryPoint)
+        Span<GpuBindGroupLayout> layouts = stackalloc GpuBindGroupLayout[2];
+        layouts[0] = bufferLayout;
+        layouts[1] = uniformLayout;
+        
+        fixed (byte*                pEntryPoint = entryPoint)
+        fixed (GpuBindGroupLayout*  layoutsPtr  = layouts)
         {
-            var layoutHandle = layout.handle;
             var layoutDesc = new PipelineLayoutDescriptor {
                 Label                   = pEntryPoint,
-                BindGroupLayoutCount    = 1,
-                BindGroupLayouts        = &layoutHandle
+                BindGroupLayoutCount    = 2,
+                BindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
             var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             try {

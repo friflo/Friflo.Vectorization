@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public struct GpuParamState
+public struct GpuBufferParams
 {
     private GpuDevice   device;
     private string      firstParam;

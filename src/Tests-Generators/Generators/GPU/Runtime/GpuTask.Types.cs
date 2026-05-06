@@ -14,6 +14,7 @@ public readonly unsafe struct GpuEncoder
 {
     private  readonly   GpuTask         task;
     internal readonly   CommandEncoder* handle;
+    public   override   string          ToString() => handle != null ? "Created" : "null";
     
     internal GpuEncoder(GpuTask task, CommandEncoder* handle) {
         this.task   = task;
@@ -37,6 +38,7 @@ public readonly unsafe struct GpuEncoder
 public readonly unsafe struct GpuComputePass : IDisposable {
     private readonly    GpuTask             task;
     private readonly    ComputePassEncoder* handle;
+    public   override   string              ToString() => handle != null ? "Created" : "null";
     
     public GpuComputePass(GpuTask task, ComputePassEncoder* handle) {
         this.task   = task;
@@ -78,7 +80,8 @@ public readonly unsafe struct GpuComputePass : IDisposable {
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuBindGroup
 {
-    internal readonly BindGroup* handle;
+    internal readonly   BindGroup*  handle;
+    public   override   string      ToString() => handle != null ? "Created" : "null";
     
     internal GpuBindGroup(BindGroup* handle) {
         this.handle = handle;

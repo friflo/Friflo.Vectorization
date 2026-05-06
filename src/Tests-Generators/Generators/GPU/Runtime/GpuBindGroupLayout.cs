@@ -8,9 +8,12 @@ using Silk.NET.WebGPU;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+[StructLayout(LayoutKind.Sequential)]
 public readonly unsafe struct GpuBindGroupLayout
 {
-    internal readonly BindGroupLayout*  handle;
+    internal readonly   BindGroupLayout*    handle;     // must contain only this single file
+    
+    public override     string              ToString()  => handle != null ? "Created" : "null";
     
     internal GpuBindGroupLayout (BindGroupLayout* handle) {
         this.handle = handle;
