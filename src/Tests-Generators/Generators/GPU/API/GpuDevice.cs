@@ -432,9 +432,8 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public bool TryGetBindGroupLayout(ulong hash, out GpuBindGroupLayout layout) {
-        layout = default;
-        return false;
+    public GpuBindGroupLayout GetBindGroupLayout(ulong hash) {
+        return default;
     }
 
     public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ReadOnlySpan<byte> layoutLabel)
