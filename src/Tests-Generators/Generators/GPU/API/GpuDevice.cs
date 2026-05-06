@@ -150,11 +150,10 @@ public sealed unsafe class GpuDevice : IDisposable
         return default;
     }
     
-    public GpuEffect CreateEffect(
+    public ref GpuEffect CreateEffect(
         int                 slot,
-        GpuBindGroupLayout  bufferLayout,
-        GpuBindGroupLayout  uniformLayout,
-        GpuComputePipeline  pipeline)
+        GpuComputePipeline  pipeline,
+        GpuBindGroupLayout  uniformLayout)
     {
         var slots = gpuEffectSlots;
         if (slot >= slots.Length) {
@@ -162,7 +161,8 @@ public sealed unsafe class GpuDevice : IDisposable
             Array.Copy(slots, newSlots, slots.Length);
             slots = gpuEffectSlots = newSlots;
         }
-        return slots[slot] = new  GpuEffect(bufferLayout, uniformLayout, pipeline);
+        slots[slot] = new GpuEffect(pipeline, uniformLayout);
+        return ref slots[slot];
     }
 
     internal GpuDevice(

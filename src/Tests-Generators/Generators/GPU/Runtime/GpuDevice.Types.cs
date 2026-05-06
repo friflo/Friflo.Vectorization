@@ -8,19 +8,18 @@ using Silk.NET.WebGPU;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuEffect 
+public unsafe struct GpuEffect 
 {
-    internal readonly   GpuBindGroupLayout  bufferLayout;
-    internal readonly   GpuBindGroupLayout  uniformLayout;
     internal readonly   GpuComputePipeline  pipeline;
+    internal            GpuBindGroupLayout  bufferLayout;
+    internal readonly   GpuBindGroupLayout  uniformLayout;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal GpuEffect (GpuBindGroupLayout bufferLayout, GpuBindGroupLayout uniformLayout, GpuComputePipeline pipeline) {
-        this.bufferLayout   = bufferLayout;
-        this.uniformLayout  = uniformLayout;
+    internal GpuEffect (GpuComputePipeline pipeline, GpuBindGroupLayout uniformLayout) {
         this.pipeline       = pipeline;
+        this.uniformLayout  = uniformLayout;
     }
 }
 

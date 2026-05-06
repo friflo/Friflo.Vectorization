@@ -36,13 +36,13 @@ public static class GpuPattern
     [SkipLocalsInit]
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
-        var paramState = new GpuBufferParams();
-        paramState.Validate(weight, nameof(weight));
-        paramState.Validate(input,  nameof(input));
-        paramState.Validate(output, nameof(output));
-        var device = paramState.GetDevice();
+        var buffers = new GpuBuffers();
+        buffers.Validate(weight, nameof(weight));
+        buffers.Validate(input,  nameof(input));
+        buffers.Validate(output, nameof(output));
+        var device = buffers.GetDevice();
         
-        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(paramState.count);
+        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -55,13 +55,13 @@ public static class GpuPattern
         {
             var effect = device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
-                effect = ShadowMethod_GPU_CreateEffect(device);
+                effect = ShadowMethod_GPU_CreateEffect(device, buffers.hash);
             }
             pass.SetPipeline(effect.pipeline);
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
                 bias = bias,
-                count = paramState.count
+                count = buffers.count
             };
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = GpuBindGroup.From  (0, weight);
@@ -90,7 +90,7 @@ public static class GpuPattern
     private static readonly int ShadowMethod_GPU_EffectSlot = GpuDevice.NewGpuEffectSlot(); 
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
+    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device, ulong buffersHash)
     {
         Span<GpuLayoutEntry> buffers = stackalloc GpuLayoutEntry[3];
         buffers[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
@@ -105,7 +105,9 @@ public static class GpuPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
         
-        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, bufferLayout, uniformLayout, pipeline);
+        ref var effect = ref  device.CreateEffect(ShadowMethod_GPU_EffectSlot, pipeline, uniformLayout);
+        effect.bufferLayout = bufferLayout;
+        return effect;
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
