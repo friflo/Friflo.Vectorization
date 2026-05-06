@@ -16,7 +16,7 @@ public struct GpuBuffers
     private GpuDevice   device;
     private string      firstParam;
     public  int         count;
-    public  ulong       hash        = OffsetBasis;
+    public  ulong       hash        = OffsetBasis; // uses FNV-1a derivative hashing
 
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
