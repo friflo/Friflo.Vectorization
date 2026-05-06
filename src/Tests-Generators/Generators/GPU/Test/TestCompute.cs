@@ -149,7 +149,7 @@ public class TestCompute : GpuTestBase
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 44, ExeType.GPU, gpuOutput);
         Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(5, Handles.BindGroups.Diff);
+        Assert.AreEqual(5, Handles.BindGroups.Diff); // cache hit: gpuOutput
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 45, ExeType.GPU, gpuOutput3);
         Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
