@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-android</TargetFramework>
     <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
@@ -14,4 +14,10 @@
     -->
     <TrimMode>full</TrimMode>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnitLite" Version="4.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tests-Generators\Tests-Generators-Code.csproj" />
+  </ItemGroup>
 </Project>

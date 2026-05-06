@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.5.11723.231 stable
+VisualStudioVersion = 18.5.11723.231
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsAndroid", "TestsAndroid.csproj", "{5A9E3D44-0B4F-0F4F-56D3-32C2E7EE37AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.Attributes", "..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj", "{988A6541-5294-075E-F37E-D6FEC26C2D75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "..\Tests\Tests.csproj", "{AEC1003A-F6D2-C24B-8EFF-80A817BE465D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Code", "..\Tests-Generators\Tests-Generators-Code.csproj", "{8012B908-DE66-011F-EE6D-3F318963BA20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +23,18 @@ Global
 		{5A9E3D44-0B4F-0F4F-56D3-32C2E7EE37AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A9E3D44-0B4F-0F4F-56D3-32C2E7EE37AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A9E3D44-0B4F-0F4F-56D3-32C2E7EE37AD}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{988A6541-5294-075E-F37E-D6FEC26C2D75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{988A6541-5294-075E-F37E-D6FEC26C2D75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{988A6541-5294-075E-F37E-D6FEC26C2D75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{988A6541-5294-075E-F37E-D6FEC26C2D75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEC1003A-F6D2-C24B-8EFF-80A817BE465D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEC1003A-F6D2-C24B-8EFF-80A817BE465D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEC1003A-F6D2-C24B-8EFF-80A817BE465D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEC1003A-F6D2-C24B-8EFF-80A817BE465D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8012B908-DE66-011F-EE6D-3F318963BA20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8012B908-DE66-011F-EE6D-3F318963BA20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8012B908-DE66-011F-EE6D-3F318963BA20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8012B908-DE66-011F-EE6D-3F318963BA20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
