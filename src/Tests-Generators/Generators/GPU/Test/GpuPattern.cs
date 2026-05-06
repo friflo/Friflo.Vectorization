@@ -91,26 +91,26 @@ public static class GpuPattern
         return gpuOutput;
     }
     
-    private static readonly int     ShadowMethod_GPU_EffectSlot = GpuDevice.NewGpuEffectSlot();
-    private const           ulong   ShadowMethod_GPU_BufferKey  = 42;   // TODO Calculate hash key in generator
-    private const           ulong   ShadowMethod_GPU_UniformKey = 1337; // TODO Calculate hash key in generator
+    private static readonly int     ShadowMethod_GPU_EffectSlot         = GpuDevice.NewEffectSlot();
+    private static readonly int     ShadowMethod_GPU_BufferLayoutSlot   = GpuDevice.NewLayoutSlot();
+    private static readonly int     ShadowMethod_GPU_UniformLayoutSlot  = GpuDevice.NewLayoutSlot();
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
     {
-        var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferKey);
+        var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutSlot);
         if (!bufferLayout.IsCreated) {
             Span<GpuLayoutEntry> buffers = stackalloc GpuLayoutEntry[3];
             buffers[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
             buffers[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
             buffers[2] = GpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
-            bufferLayout = device.CreateBindGroupLayout(buffers, "ShadowMethod_buffers"u8);   
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShadowMethod_GPU_BufferLayoutSlot, "ShadowMethod_buffers"u8);
         }
-        var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformKey);
+        var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutSlot);
         if (!uniformLayout.IsCreated) {
             Span<GpuLayoutEntry> uniform = stackalloc GpuLayoutEntry[1];
             uniform[0] = GpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, "ShadowMethod_uniforms"u8);
+            uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutSlot, "ShadowMethod_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);

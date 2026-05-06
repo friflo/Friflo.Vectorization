@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 namespace Friflo.Vectorization.GPU;
 
@@ -35,30 +37,33 @@ namespace Friflo.Vectorization.GPU;
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
 public sealed unsafe class GpuDevice : IDisposable
 {
-    private  readonly   string          label;
-    private             bool            isDisposed;
-    public              bool            IsDisposed => isDisposed;
-    internal readonly   WebGPU          wgpu;
-    private  readonly   Wgpu            wgpuEx;
-    internal            Device*         DevicePtr   { get; } 
-    internal            Queue*          QueuePtr    { get; }
+    private  readonly   string              label;
+    private             bool                isDisposed;
+    public              bool                IsDisposed => isDisposed;
+    internal readonly   WebGPU              wgpu;
+    private  readonly   Wgpu                wgpuEx;
+    internal            Device*             DevicePtr   { get; } 
+    internal            Queue*              QueuePtr    { get; }
+        
+    public              bool                DebugMode   { get; set; } 
+        
+    internal readonly   int                 slotSize;
+    private  readonly   GpuTask[]           taskPool;
+    private  readonly   Stack<GpuTask>      availableTasks;
+    internal readonly   GpuBuffer<byte>     globalUniformPool;      // Each task uses its own slice from this pool
+    private  readonly   GpuQueue            queue;
     
-    public              bool            DebugMode   { get; set; } 
+    private static      int                 effectSlotCount;
+    private             GpuEffect[]         effectSlots  = new GpuEffect[4];
+    private             List<GpuTask>       pendingTasks    = new(1024);
+    private             List<GpuTask>       inFlightTasks   = new(1024);
+    private             GCHandle            deviceHandle;
+    private readonly    void*               deviceHandlePtr;
     
-    internal readonly   int             slotSize;
-    private  readonly   GpuTask[]       taskPool;
-    private  readonly   Stack<GpuTask>  availableTasks;
-    internal readonly   GpuBuffer<byte> globalUniformPool;      // Each task uses its own slice from this pool
-    private  readonly   GpuQueue        queue;
-    
-    private static      int             gpuEffectSlotCount = 0;
-    private             GpuEffect[]     gpuEffectSlots  = new GpuEffect[4];
-    private             List<GpuTask>   pendingTasks    = new(1024);
-    private             List<GpuTask>   inFlightTasks   = new(1024);
-    private             GCHandle        deviceHandle;
-    private readonly    void*           deviceHandlePtr;
+    private static      int                 layoutSlotCount;
+    private             GpuBindGroupLayout[]layoutSlots  = new GpuBindGroupLayout[64];
 
-    public  override    string          ToString() => label + (isDisposed ? ": Disposed" : ": Alive");
+    public  override    string              ToString() => label + (isDisposed ? ": Disposed" : ": Alive");
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
@@ -96,14 +101,17 @@ public sealed unsafe class GpuDevice : IDisposable
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         
-        for (int n = 0; n < gpuEffectSlots.Length; n++) {
-            ref var effect = ref gpuEffectSlots[n];
+        for (int n = 0; n < effectSlots.Length; n++) {
+            ref var effect = ref effectSlots[n];
             effect.bufferCache.Release(wgpu);
             if(effect.IsCreated) {
-                if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
-                if (effect.bufferLayout.handle  != null) wgpu.BindGroupLayoutRelease(effect.bufferLayout.handle);
-                if (effect.uniformLayout.handle != null) wgpu.BindGroupLayoutRelease(effect.uniformLayout.handle);
+                if (effect.pipeline.handle != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
             }
+        }
+        for (int n = 0; n < layoutSlots.Length; n++) {
+            var layout = layoutSlots[n];
+            if (layout.IsCreated) wgpu.BindGroupLayoutRelease(layout.handle);
+            layoutSlots[n] = default;
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
         //  if (QueuePtr != null) {
@@ -140,12 +148,13 @@ public sealed unsafe class GpuDevice : IDisposable
         throw new NotImplementedException();
     }
     
-    // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int  
-    public static int NewGpuEffectSlot() => gpuEffectSlotCount++;
+    // --- effectSlots
+    // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int
+    public static int NewEffectSlot() => Interlocked.Increment(ref effectSlotCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public GpuEffect GetEffect(int slot) {
-        var slots = gpuEffectSlots;
+        var slots = effectSlots;
         if (slot < slots.Length) {
             return slots[slot];
         }
@@ -158,18 +167,18 @@ public sealed unsafe class GpuDevice : IDisposable
         GpuBindGroupLayout  bufferLayout,
         GpuBindGroupLayout  uniformLayout)
     {
-        var slots = gpuEffectSlots;
+        var slots = effectSlots;
         if (slot >= slots.Length) {
-            var newSlots = new GpuEffect[gpuEffectSlotCount];
+            var newSlots = new GpuEffect[effectSlotCount];
             Array.Copy(slots, newSlots, slots.Length);
-            slots = gpuEffectSlots = newSlots;
+            slots = effectSlots = newSlots;
         }
         slots[slot] = new GpuEffect(pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
     }
     
     public void UpdateBufferCache(int slot, GpuBindGroup bindGroup, ulong hash) {
-        gpuEffectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
+        effectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
     }
 
     internal GpuDevice(
@@ -432,11 +441,19 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public GpuBindGroupLayout GetBindGroupLayout(ulong hash) {
+    // NewGpuLayoutSlot() is called only once per shadow method. It stores the slot index in a static readonly int
+    public static int NewLayoutSlot() => Interlocked.Increment(ref layoutSlotCount);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public GpuBindGroupLayout GetBindGroupLayout(int slot) {
+        var slots = layoutSlots;
+        if (slot < slots.Length) {
+            return slots[slot];
+        }
         return default;
     }
 
-    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ReadOnlySpan<byte> layoutLabel)
+    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, int slot, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -462,8 +479,15 @@ public sealed unsafe class GpuDevice : IDisposable
             var handle = wgpu.DeviceCreateBindGroupLayout(DevicePtr, &desc);
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
-
-            return new GpuBindGroupLayout(handle);
+            
+            // Add new GpuBindGroupLayout to layoutSlots
+            var slots = layoutSlots;
+            if (slot >= slots.Length) {
+                var newSlots = new GpuBindGroupLayout[layoutSlotCount];
+                Array.Copy(slots, newSlots, slots.Length);
+                slots = layoutSlots = newSlots;
+            }
+            return slots[slot] = new GpuBindGroupLayout(handle);
         }
     }
 }
