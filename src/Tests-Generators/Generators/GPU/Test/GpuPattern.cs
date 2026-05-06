@@ -55,22 +55,27 @@ public static class GpuPattern
         {
             var effect = device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
-                effect = ShadowMethod_GPU_CreateEffect(device, buffers.hash);
+                effect = ShadowMethod_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
-            var uniforms = new ShadowMethod_GPU_Uniforms {
-                bias = bias,
-                count = buffers.count
-            };
+            // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
+            // var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+            // if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = GpuBindGroup.From  (0, weight);
             entries[1] = GpuBindGroup.From  (1, input);
             entries[2] = GpuBindGroup.From  (2, output);
             // TODO CreateBindGroup for buffers (storage) is expensive in wgpu => Cache it
             var bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
+            // device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
+            
             pass.SetBindGroup(0, bufferGroup);
             
+            var uniforms = new ShadowMethod_GPU_Uniforms {
+                bias = bias,
+                count = buffers.count
+            };
             var entry = task.AsUniformEntry(0, uniforms);
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
@@ -90,7 +95,7 @@ public static class GpuPattern
     private static readonly int ShadowMethod_GPU_EffectSlot = GpuDevice.NewGpuEffectSlot(); 
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device, ulong buffersHash)
+    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
     {
         Span<GpuLayoutEntry> buffers = stackalloc GpuLayoutEntry[3];
         buffers[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight

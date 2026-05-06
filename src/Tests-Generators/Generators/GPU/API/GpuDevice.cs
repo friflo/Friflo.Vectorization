@@ -96,7 +96,9 @@ public sealed unsafe class GpuDevice : IDisposable
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         
-        foreach(var effect in gpuEffectSlots) {
+        for (int n = 0; n < gpuEffectSlots.Length; n++) {
+            ref var effect = ref gpuEffectSlots[n];
+            // effect.bufferCache.Release(wgpu);
             if(effect.IsCreated) {
                 if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
                 if (effect.bufferLayout.handle  != null) wgpu.BindGroupLayoutRelease(effect.bufferLayout.handle);
@@ -145,7 +147,7 @@ public sealed unsafe class GpuDevice : IDisposable
     public GpuEffect GetEffect(int slot) {
         var slots = gpuEffectSlots;
         if (slot < slots.Length) {
-            return slots[slot];    
+            return slots[slot];
         }
         return default;
     }
@@ -164,6 +166,10 @@ public sealed unsafe class GpuDevice : IDisposable
         }
         slots[slot] = new GpuEffect(pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
+    }
+    
+    public void UpdateBufferCache(int slot, GpuBindGroup bindGroup, ulong hash) {
+        gpuEffectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
     }
 
     internal GpuDevice(

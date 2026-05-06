@@ -119,4 +119,30 @@ public class TestCompute : GpuTestBase
         Assert.AreEqual(42, output[0]);
     }
     
+    [Test]
+    public void Test_GPU_BufferBindGroupCaching()
+    {
+        var device    = Device;
+
+        var weight  = new float[65]; // no alignment
+        var input   = new float[65];
+        var output  = new float[65];
+        for (int n = 0; n < 64; ++n) {
+            weight[n] = n;
+            input[n]  = n + 1000;
+        }
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "output");
+  
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 43, ExeType.GPU, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 44, ExeType.GPU, gpuOutput);
+        
+        device.Wait(gpuOutput);
+        
+        gpuOutput.Download(gpuOutput, output);
+        Assert.AreEqual(44, output[0]);
+    }
+    
 }

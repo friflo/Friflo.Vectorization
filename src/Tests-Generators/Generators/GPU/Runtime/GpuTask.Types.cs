@@ -81,6 +81,8 @@ public readonly unsafe struct GpuComputePass : IDisposable {
 public readonly unsafe struct GpuBindGroup
 {
     internal readonly   BindGroup*  handle;
+    internal            bool        IsCreated => handle != null;
+    
     public   override   string      ToString() => handle != null ? "Created" : "null";
     
     internal GpuBindGroup(BindGroup* handle) {
