@@ -8,13 +8,13 @@
 - Check for instance callbacks. static callback methods recommended
 - Handle: Out of Memory oder TDR
 - Capture UncapturedError in  string lastError. Throw Exception with ThrowIfError() after Task.Finish(), QueueSubmit(), WaitInDebug(), ...
-- Layout Merging: Deduplicate BindGroupLayout objects by hashing their descriptors and caching them per device.
-    Minimize driver state changes and memory footprint.
-    (Generator todo: the Layout key can be calculated already in the Generator)
+- Generator: generate unique hey key for cached/deduplicated BindGroupLayout's using FNV-1a as in GpuBuffers
 - Optimization: Implement "Sub-Padding" for small uniforms in GpuTask.AsUniformEntry<>()
 
 
 ### done
+- Layout Merging: Deduplicate BindGroupLayout objects by hashing their descriptors and caching them per device.
+    Minimize driver state changes and memory footprint.
 - Enable BindGroup caching for passed buffers (storage). Cache capacity: 2 to support double buffering use cases.
 - Pass exact count via Uniform Buffer to support buffers with arbitrary length
 - Leak-Check for GpuContext.Dispose()

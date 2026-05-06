@@ -82,6 +82,12 @@ public struct GpuBufferCache
     }
 }
 
+internal struct CachedGroupLayout
+{
+    internal ulong              hashKey;
+    internal GpuBindGroupLayout layout;
+}
+
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct GpuComputePipeline

@@ -60,8 +60,8 @@ public sealed unsafe class GpuDevice : IDisposable
     private             GCHandle            deviceHandle;
     private readonly    void*               deviceHandlePtr;
     
-    private static      int                 layoutSlotCount;
-    private             GpuBindGroupLayout[]layoutSlots  = new GpuBindGroupLayout[64];
+    private static      int                 layoutCacheCount;
+    private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
 
     public  override    string              ToString() => label + (isDisposed ? ": Disposed" : ": Alive");
 
@@ -108,10 +108,10 @@ public sealed unsafe class GpuDevice : IDisposable
                 if (effect.pipeline.handle != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
             }
         }
-        for (int n = 0; n < layoutSlots.Length; n++) {
-            var layout = layoutSlots[n];
-            if (layout.IsCreated) wgpu.BindGroupLayoutRelease(layout.handle);
-            layoutSlots[n] = default;
+        var cache = layoutCache;
+        for (int n = 0; n < cache.Length; n++) {
+            if (cache[n].layout.IsCreated) wgpu.BindGroupLayoutRelease(cache[n].layout.handle);
+            cache[n] = default;
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
         //  if (QueuePtr != null) {
@@ -441,19 +441,19 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    // NewGpuLayoutSlot() is called only once per shadow method. It stores the slot index in a static readonly int
-    public static int NewLayoutSlot() => Interlocked.Increment(ref layoutSlotCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuBindGroupLayout GetBindGroupLayout(int slot) {
-        var slots = layoutSlots;
-        if (slot < slots.Length) {
-            return slots[slot];
+    public GpuBindGroupLayout GetBindGroupLayout(ulong hashKey) {
+        var cache = layoutCache;
+        for (int n =  0; n < layoutCacheCount; n++) {
+            if (hashKey == cache[n].hashKey) {
+                return cache[n].layout;
+            }
         }
         return default;
     }
 
-    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, int slot, ReadOnlySpan<byte> layoutLabel)
+    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -481,13 +481,15 @@ public sealed unsafe class GpuDevice : IDisposable
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
             
             // Add new GpuBindGroupLayout to layoutSlots
-            var slots = layoutSlots;
-            if (slot >= slots.Length) {
-                var newSlots = new GpuBindGroupLayout[layoutSlotCount];
-                Array.Copy(slots, newSlots, slots.Length);
-                slots = layoutSlots = newSlots;
+            var cache = layoutCache;
+            if (layoutCacheCount >= cache.Length) {
+                var newCache = new CachedGroupLayout[layoutCacheCount];
+                Array.Copy(cache, newCache, cache.Length);
+                cache = layoutCache = newCache;
             }
-            return slots[slot] = new GpuBindGroupLayout(handle);
+            var layout = new GpuBindGroupLayout(handle);
+            cache[layoutCacheCount++] = new CachedGroupLayout { hashKey = hashKey, layout = layout };
+            return layout;
         }
     }
 }
