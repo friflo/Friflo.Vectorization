@@ -31,6 +31,8 @@ internal struct CacheEntry
     internal GpuBindGroup   bindGroup;
     internal ulong          hash;
     
+    public override string  ToString() => bindGroup.ToString();
+    
     internal unsafe void Update(WebGPU wgpu, GpuBindGroup group, ulong groupHash) {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         wgpu.BindGroupReference(group.handle);
@@ -52,6 +54,8 @@ public struct GpuBufferCache
     private CacheEntry      group0;
     private CacheEntry      group1;
     private int             lruIndex;
+    
+    public override string  ToString() => $"lru: {(lruIndex == 0 ? ">[0]< [1] " : " [0] >[1]<")}  |  group0: {group0}  |  group1: {group1}";
     
     public GpuBindGroup GetGroup(ulong groupHash)
     {
@@ -86,6 +90,8 @@ internal struct CachedGroupLayout
 {
     internal ulong              hashKey;
     internal GpuBindGroupLayout layout;
+
+    public override string      ToString() => layout.ToString();
 }
 
 

@@ -1,58 +1,59 @@
 ﻿using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable RedundantSwitchExpressionArms
 namespace Tests.Generators.GPU;
 
 public struct GpuHandle
 {
-    internal long active;
-    internal long diff;
+    public  long    Active  { get; private set; }
+    public  long    Diff    { get; private set; }
 
-    public override string ToString() => $"{active}  {diff,5:+0;-0;0}";
+    public override string ToString() => $"{Active}  {Diff,5:+0;-0;0}";
     
     public GpuHandle(RegistryReport start, RegistryReport cur) {
-        active  = (long)start.NumKeptFromUser;
-        diff    = (long)(cur.NumKeptFromUser -  start.NumKeptFromUser);
+        Active  = (long)start.NumKeptFromUser;
+        Diff    = (long)(cur.NumKeptFromUser -  start.NumKeptFromUser);
     }
 }
 
 
 public struct GpuHandles
 {
-    private GpuHandle   devices;
-    private GpuHandle   buffers;
-    private GpuHandle   bindGroups;
-    private GpuHandle   bindGroupLayouts;
-    private GpuHandle   computePipelines;
-    private GpuHandle   commandBuffers;
-    private GpuHandle   shaderModules;
-    private GpuHandle   pipelineLayouts;
+    public  GpuHandle   Devices             { get; private set; }
+    public  GpuHandle   Buffers             { get; private set; }
+    public  GpuHandle   BindGroups          { get; private set; }
+    public  GpuHandle   BindGroupLayouts    { get; private set; }
+    public  GpuHandle   ComputePipelines    { get; private set; }
+    public  GpuHandle   CommandBuffers      { get; private set; }
+    public  GpuHandle   ShaderModules       { get; private set; }
+    public  GpuHandle   PipelineLayouts     { get; private set; }
     
     public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuBackendType type)
     {
         var start   = GetReport(startReport, type);
         var cur     = GetReport(curReport, type);
-        devices             = new GpuHandle(start.Devices           , cur.Devices);
-        buffers             = new GpuHandle(start.Buffers           , cur.Buffers);
-        bindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
-        bindGroupLayouts    = new GpuHandle(start.BindGroupLayouts  , cur.BindGroupLayouts);
-        computePipelines    = new GpuHandle(start.ComputePipelines  , cur.ComputePipelines);
-        commandBuffers      = new GpuHandle(start.CommandBuffers    , cur.CommandBuffers);
-        shaderModules       = new GpuHandle(start.ShaderModules     , cur.ShaderModules);
-        pipelineLayouts     = new GpuHandle(start.PipelineLayouts   , cur.PipelineLayouts);
+        Devices             = new GpuHandle(start.Devices           , cur.Devices);
+        Buffers             = new GpuHandle(start.Buffers           , cur.Buffers);
+        BindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
+        BindGroupLayouts    = new GpuHandle(start.BindGroupLayouts  , cur.BindGroupLayouts);
+        ComputePipelines    = new GpuHandle(start.ComputePipelines  , cur.ComputePipelines);
+        CommandBuffers      = new GpuHandle(start.CommandBuffers    , cur.CommandBuffers);
+        ShaderModules       = new GpuHandle(start.ShaderModules     , cur.ShaderModules);
+        PipelineLayouts     = new GpuHandle(start.PipelineLayouts   , cur.PipelineLayouts);
     }
     
     public bool IsDiffNull()
     {
-        return (devices.           diff == 0 &&
-                buffers.           diff == 0 &&
-                bindGroups.        diff == 0 &&
-                bindGroupLayouts.  diff == 0 &&
-                computePipelines.  diff == 0 &&
-                commandBuffers.    diff == 0 &&
-                shaderModules.     diff == 0 &&
-                pipelineLayouts.   diff == 0);
+        return (Devices.           Diff == 0 &&
+                Buffers.           Diff == 0 &&
+                BindGroups.        Diff == 0 &&
+                BindGroupLayouts.  Diff == 0 &&
+                ComputePipelines.  Diff == 0 &&
+                CommandBuffers.    Diff == 0 &&
+                ShaderModules.     Diff == 0 &&
+                PipelineLayouts.   Diff == 0);
     }
     
     public string GetState()
@@ -61,14 +62,14 @@ public struct GpuHandles
 [GPU RESOURCE LEAK DETECTED]
 ResourceType    Start Delta
 --------------- ----- -----
-Devices          {devices           .active,4} {devices           .diff,5:+0;-0;0}
-Buffers          {buffers           .active,4} {buffers           .diff,5:+0;-0;0}
-BindGroups       {bindGroups        .active,4} {bindGroups        .diff,5:+0;-0;0}
-BindGroupLayouts {bindGroupLayouts  .active,4} {bindGroupLayouts  .diff,5:+0;-0;0}
-ComputePipelines {computePipelines  .active,4} {computePipelines  .diff,5:+0;-0;0}
-CommandBuffers   {commandBuffers    .active,4} {commandBuffers    .diff,5:+0;-0;0}
-ShaderModules    {shaderModules     .active,4} {shaderModules     .diff,5:+0;-0;0}
-PipelineLayouts  {pipelineLayouts   .active,4} {pipelineLayouts   .diff,5:+0;-0;0}
+Devices          {Devices           .Active,4} {Devices           .Diff,5:+0;-0;0}
+Buffers          {Buffers           .Active,4} {Buffers           .Diff,5:+0;-0;0}
+BindGroups       {BindGroups        .Active,4} {BindGroups        .Diff,5:+0;-0;0}
+BindGroupLayouts {BindGroupLayouts  .Active,4} {BindGroupLayouts  .Diff,5:+0;-0;0}
+ComputePipelines {ComputePipelines  .Active,4} {ComputePipelines  .Diff,5:+0;-0;0}
+CommandBuffers   {CommandBuffers    .Active,4} {CommandBuffers    .Diff,5:+0;-0;0}
+ShaderModules    {ShaderModules     .Active,4} {ShaderModules     .Diff,5:+0;-0;0}
+PipelineLayouts  {PipelineLayouts   .Active,4} {PipelineLayouts   .Diff,5:+0;-0;0}
 ";
     }
     
