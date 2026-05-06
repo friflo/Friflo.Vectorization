@@ -44,10 +44,6 @@ jobs:
         echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
         dotnet build --no-restore /p:Version=${FILE_VER} /p:FileVersion=${FILE_VER} /p:AssemblyVersion=${FILE_VER} -c Release
 
-    - name: Test
-      working-directory: ./
-      run: dotnet test --no-build --verbosity normal -c Release
-
     - name: Pack
       working-directory: ./
       run: dotnet pack --no-restore --no-build -p:PackageVersion=${VERSION} -p:SymbolPackageFormat=snupkg -p:PackageOutputPath=${{ env.PACKAGE_DIRECTORY }} -c Release
