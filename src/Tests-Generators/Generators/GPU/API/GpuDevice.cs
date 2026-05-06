@@ -98,7 +98,7 @@ public sealed unsafe class GpuDevice : IDisposable
         
         for (int n = 0; n < gpuEffectSlots.Length; n++) {
             ref var effect = ref gpuEffectSlots[n];
-            // effect.bufferCache.Release(wgpu);
+            effect.bufferCache.Release(wgpu);
             if(effect.IsCreated) {
                 if (effect.pipeline.handle      != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
                 if (effect.bufferLayout.handle  != null) wgpu.BindGroupLayoutRelease(effect.bufferLayout.handle);

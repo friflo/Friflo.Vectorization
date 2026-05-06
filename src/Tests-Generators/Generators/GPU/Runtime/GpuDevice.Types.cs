@@ -6,7 +6,6 @@ using Silk.NET.WebGPU;
 
 // file contains structs created by:  GpuDevice
 
-// ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -27,41 +26,52 @@ public unsafe struct GpuEffect
     }
 }
 
-public struct GpuBufferCache
+internal struct CacheEntry
 {
-    private ulong           group0_hash;         
-    private ulong           group1_hash;
-    private GpuBindGroup    group0;
-    private GpuBindGroup    group1;
-    private int             lruIndex;
+    internal GpuBindGroup   bindGroup;
+    internal ulong          hash;
     
-    public GpuBindGroup GetGroup(ulong groupHash)
-    {
-        if (group0_hash == groupHash) return group0;
-        if (group1_hash == groupHash) return group1;
-        return default;
-    }
-
-    internal unsafe void Update(WebGPU wgpu, GpuBindGroup bindGroup, ulong hash)
-    {
-        lruIndex = lruIndex == 1 ? 0 : 1;
-        if (lruIndex == 0) {
-            if (group0.handle != null) wgpu.BindGroupRelease(group0.handle);
-            group0      = bindGroup;
-            group0_hash = hash;
-            return;
-        }
-        if (group1.handle != null) wgpu.BindGroupRelease(group1.handle);
-        group1      = bindGroup;
-        group1_hash = hash;
+    internal unsafe void Update(WebGPU wgpu, GpuBindGroup group, ulong groupHash) {
+        if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
+        wgpu.BindGroupReference(group.handle);
+        bindGroup   = group;
+        hash        = groupHash;
     }
     
     internal unsafe void Release(WebGPU wgpu)
     {
-        if (group0.handle != null) wgpu.BindGroupRelease(group0.handle);
-        if (group1.handle != null) wgpu.BindGroupRelease(group1.handle);
-        group0 = default;
-        group1 = default;
+        if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
+        bindGroup   = default;
+        hash        = 0;
+    }
+}
+
+public struct GpuBufferCache
+{
+    private CacheEntry      group0;
+    private CacheEntry      group1;
+    private int             lruIndex;
+    
+    public GpuBindGroup GetGroup(ulong groupHash)
+    {
+        if (group0.hash == groupHash) return group0.bindGroup;
+        if (group1.hash == groupHash) return group1.bindGroup;
+        return default;
+    }
+
+    internal void Update(WebGPU wgpu, GpuBindGroup bindGroup, ulong hash)
+    {
+        lruIndex = lruIndex == 1 ? 0 : 1;
+        if (lruIndex == 0) {
+            group0.Update(wgpu, bindGroup, hash);
+        } else {
+            group1.Update(wgpu, bindGroup, hash);
+        }
+    }
+    
+    internal void Release(WebGPU wgpu) {
+        group0.Release(wgpu);
+        group1.Release(wgpu);
     }
 }
 

@@ -60,16 +60,15 @@ public static class GpuPattern
             pass.SetPipeline(effect.pipeline);
             
             // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-            // var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-            // if (!bufferGroup.IsCreated) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-            entries[0] = GpuBindGroup.From  (0, weight);
-            entries[1] = GpuBindGroup.From  (1, input);
-            entries[2] = GpuBindGroup.From  (2, output);
-            // TODO CreateBindGroup for buffers (storage) is expensive in wgpu => Cache it
-            var bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
-            // device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
-            
+            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+            if (!bufferGroup.IsCreated) {
+                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
+                entries[0] = GpuBindGroup.From  (0, weight);
+                entries[1] = GpuBindGroup.From  (1, input);
+                entries[2] = GpuBindGroup.From  (2, output);
+                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
+                device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
+            }
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
