@@ -76,6 +76,7 @@ public static class GpuPattern
                 count = buffers.count
             };
             var entry = task.AsUniformEntry(0, uniforms);
+            // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
