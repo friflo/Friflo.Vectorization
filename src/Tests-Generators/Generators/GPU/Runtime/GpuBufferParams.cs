@@ -16,6 +16,12 @@ public struct GpuBufferParams
     private GpuDevice   device;
     private string      firstParam;
     public  int         count;
+    public  ulong       hash        = OffsetBasis;
+
+    private const ulong Prime       = 0x100000001b3;
+    private const ulong OffsetBasis = 0xcbf29ce484222325;
+    
+    public GpuBufferParams() { }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
@@ -27,13 +33,16 @@ public struct GpuBufferParams
             if (bufferDevice != null    &&
                !bufferDevice.IsDisposed &&
                 bufferDevice == device  &&
-                buffer.Count == count) {
+                buffer.Count == count)
+            {
+                unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
             }
             if (device == null) {
                 firstParam  = paramName;
                 device      = bufferDevice;
                 count       = buffer.Count;
+                unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
             }
         }

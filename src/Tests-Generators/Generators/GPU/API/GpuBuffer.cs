@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -10,6 +11,13 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU;
 
+internal static class GpuBufferUtils
+{
+    private static long IdCounter = 0;
+    
+    internal static long NextId() => Interlocked.Increment(ref IdCounter);
+}
+
 public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     private             string      label;
@@ -17,6 +25,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     internal            GpuDevice   Device { get; private set; }
     private readonly    WebGPU      wgpu;
     public  readonly    int         Length;
+    public	readonly    long        Id;
     private             uint        SizeInBytes;
     internal            GpuTask     LastWritingTask;
     public              bool        IsDisposed => handle == null;
@@ -51,6 +60,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         SizeInBytes = sizeInBytes; 
         Length      = (int)(sizeInBytes / sizeof(T));
         handle      = device.CreateBuffer(sizeInBytes, usage, label);
+        Id          = GpuBufferUtils.NextId();
     }
     
     public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) 
@@ -60,9 +70,8 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         wgpu        = device.wgpu;
         Length  	= data.Length;
         handle  	= device.CreateBufferWithData(data, usage, label);
+        Id          = GpuBufferUtils.NextId();
     }
-    
-
     
     public T this[int index]
     {
