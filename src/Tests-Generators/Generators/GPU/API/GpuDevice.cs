@@ -153,6 +153,7 @@ public sealed unsafe class GpuDevice : IDisposable
     public ref GpuEffect CreateEffect(
         int                 slot,
         GpuComputePipeline  pipeline,
+        GpuBindGroupLayout  bufferLayout,
         GpuBindGroupLayout  uniformLayout)
     {
         var slots = gpuEffectSlots;
@@ -161,7 +162,7 @@ public sealed unsafe class GpuDevice : IDisposable
             Array.Copy(slots, newSlots, slots.Length);
             slots = gpuEffectSlots = newSlots;
         }
-        slots[slot] = new GpuEffect(pipeline, uniformLayout);
+        slots[slot] = new GpuEffect(pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
     }
 
