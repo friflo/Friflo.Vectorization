@@ -15,6 +15,7 @@
 
 
 ### done
+- Enable BindGroup caching for passed buffers (storage). Cache capacity: 2 to support double buffering use cases.
 - Pass exact count via Uniform Buffer to support buffers with arbitrary length
 - Leak-Check for GpuContext.Dispose()
 - Ensure Zero GPU Handle/Pointer leaks in unit tests
