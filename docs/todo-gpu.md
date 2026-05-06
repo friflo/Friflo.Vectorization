@@ -8,7 +8,7 @@
 - Check for instance callbacks. static callback methods recommended
 - Handle: Out of Memory oder TDR
 - Capture UncapturedError in  string lastError. Throw Exception with ThrowIfError() after Task.Finish(), QueueSubmit(), WaitInDebug(), ...
-- Generator: generate unique hey key for cached/deduplicated BindGroupLayout's using FNV-1a as in GpuBuffers
+- Generator: generate unique hash key for cached/deduplicated BindGroupLayout's using FNV-1a as in GpuBuffers
 - Optimization: Implement "Sub-Padding" for small uniforms in GpuTask.AsUniformEntry<>()
 
 
