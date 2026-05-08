@@ -23,5 +23,5 @@ public abstract class NativeInstance : IDisposable
     
     public abstract GlobalReport        GenerateReport ();
     
-    public abstract GpuAdapterInfo[]    GetAdapterProperties();
+    public abstract GpuAdapterInfo[]    GetAdapterInfos();
 }

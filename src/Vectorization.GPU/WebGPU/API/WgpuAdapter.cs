@@ -81,12 +81,12 @@ public sealed unsafe class WgpuAdapter : NativeAdapter
         return new GpuDevice(native, label, slotSize);
     }
     
-    public override GpuAdapterInfo GetAdapterProperties () {
-        var report = new AdapterProperties();
-        wgpu.AdapterGetProperties(adapter, ref report);
-        var name    = WgpuAdapterInfo.PtrToString(report.Name);
-        var driver  = WgpuAdapterInfo.PtrToString(report.DriverDescription);
-        return new GpuAdapterInfo(report, name, driver, (IntPtr)adapter);
+    public override GpuAdapterInfo GetAdapterInfo () {
+        var props = new AdapterProperties();
+        wgpu.AdapterGetProperties(adapter, ref props);
+        var name    = WgpuAdapterInfo.PtrToString(props.Name);
+        var driver  = WgpuAdapterInfo.PtrToString(props.DriverDescription);
+        return new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)

@@ -21,6 +21,6 @@ public sealed class GpuAdapter : IDisposable
     public void             Dispose()               => native.Dispose();
     
     public GpuDevice        CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024) => native.CreateDevice(label, maxTasks, slotSize);
-    public GpuAdapterInfo   GetAdapterProperties () => native.GetAdapterProperties();
+    public GpuAdapterInfo   GetAdapterInfo () => native.GetAdapterInfo();
 }
 

@@ -164,11 +164,11 @@ public sealed unsafe class WgpuInstance : NativeInstance
         }
     }
     
-    public override GpuAdapterInfo[] GetAdapterProperties()
+    public override GpuAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
-        var properties = new GpuAdapterInfo[adapterCount];
+        var infos = new GpuAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
         wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
@@ -177,11 +177,11 @@ public sealed unsafe class WgpuInstance : NativeInstance
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            var name        = WgpuAdapterInfo.PtrToString(props.Name);
-            var driver      = WgpuAdapterInfo.PtrToString(props.Name);
-            properties[i]   = new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);    
+            var name    = WgpuAdapterInfo.PtrToString(props.Name);
+            var driver  = WgpuAdapterInfo.PtrToString(props.Name);
+            infos[i]    = new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);    
         }
-        return properties;
+        return infos;
     }
 }
 

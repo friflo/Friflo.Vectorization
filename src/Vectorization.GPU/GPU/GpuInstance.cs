@@ -31,7 +31,7 @@ public sealed class GpuInstance : IDisposable
     }
     
     public GpuAdapter       RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo = null) => native.RequestAdapter(options, adapterInfo);
-    public GlobalReport     GenerateReport ()       => native.GenerateReport();
-    public GpuAdapterInfo[] GetAdapterProperties()  => native.GetAdapterProperties();
+    public GlobalReport     GenerateReport ()   => native.GenerateReport();
+    public GpuAdapterInfo[] GetAdapterInfos()   => native.GetAdapterInfos();
 }
 

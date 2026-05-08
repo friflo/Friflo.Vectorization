@@ -13,5 +13,5 @@ public abstract class NativeAdapter : IDisposable
     public abstract void            Dispose();
     
     public abstract GpuDevice       CreateDevice(string label, int maxTasks, int slotSize);
-    public abstract GpuAdapterInfo  GetAdapterProperties ();
+    public abstract GpuAdapterInfo  GetAdapterInfo ();
 }

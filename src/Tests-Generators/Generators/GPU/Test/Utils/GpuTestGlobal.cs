@@ -20,12 +20,12 @@ public sealed class GpuTestGlobal
         Instance = GpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
-        var properties      = Instance.GetAdapterProperties();
+        var properties      = Instance.GetAdapterInfos();
         var adapterProperty = properties.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
         Adapter = Instance.RequestAdapter(default, null); // adapterProperty <= use specific adapter
         
         // get type of selected GPU backend
-        var props       = Adapter.GetAdapterProperties();
+        var props       = Adapter.GetAdapterInfo();
         BackendType     = props.BackendType;
         GpuBackendType	= GpuHandles.GetHandleType(BackendType);
     }
