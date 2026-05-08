@@ -107,7 +107,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    public GpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
@@ -122,7 +122,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(GpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
+    public GpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {

@@ -165,8 +165,8 @@ public sealed unsafe class WgpuDevice : NativeDevice
     public ref GpuEffect CreateEffect(
         int                 slot,
         GpuComputePipeline  pipeline,
-        GpuBindGroupLayout  bufferLayout,
-        GpuBindGroupLayout  uniformLayout)
+        WgpuBindGroupLayout bufferLayout,
+        WgpuBindGroupLayout uniformLayout)
     {
         var slots = effectSlots;
         if (slot >= slots.Length) {
@@ -408,16 +408,16 @@ public sealed unsafe class WgpuDevice : NativeDevice
     
     public GpuComputePipeline CreateComputePipeline(
         GpuShaderModule     module,
-        GpuBindGroupLayout  bufferLayout,
-        GpuBindGroupLayout  uniformLayout,
+        WgpuBindGroupLayout bufferLayout,
+        WgpuBindGroupLayout uniformLayout,
         ReadOnlySpan<byte>  entryPoint)
     {
-        Span<GpuBindGroupLayout> layouts = stackalloc GpuBindGroupLayout[2];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         layouts[0] = bufferLayout;
         layouts[1] = uniformLayout;
         
         fixed (byte*                pEntryPoint = entryPoint)
-        fixed (GpuBindGroupLayout*  layoutsPtr  = layouts)
+        fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
         {
             var layoutDesc = new PipelineLayoutDescriptor {
                 Label                   = pEntryPoint,
@@ -444,7 +444,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuBindGroupLayout GetBindGroupLayout(ulong hashKey) {
+    public WgpuBindGroupLayout GetBindGroupLayout(ulong hashKey) {
         var cache = layoutCache;
         for (int n =  0; n < layoutCacheCount; n++) {
             if (hashKey == cache[n].hashKey) {
@@ -454,7 +454,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         return default;
     }
 
-    public GpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -488,7 +488,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
                 Array.Copy(cache, newCache, cache.Length);
                 cache = layoutCache = newCache;
             }
-            var layout = new GpuBindGroupLayout(handle);
+            var layout = new WgpuBindGroupLayout(handle);
             cache[layoutCacheCount++] = new CachedGroupLayout { hashKey = hashKey, layout = layout };
             return layout;
         }

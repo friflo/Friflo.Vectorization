@@ -10,14 +10,14 @@ namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct GpuBindGroupLayout
+public readonly unsafe struct WgpuBindGroupLayout
 {
     internal readonly   BindGroupLayout*    handle;         // must contain only this single file
     public              bool                IsCreated =>    handle != null;
     
     public override     string              ToString()  => handle != null ? "Created" : "null";
     
-    internal GpuBindGroupLayout (BindGroupLayout* handle) {
+    internal WgpuBindGroupLayout (BindGroupLayout* handle) {
         this.handle = handle;
     }
 }

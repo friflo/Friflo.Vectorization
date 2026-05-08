@@ -13,14 +13,14 @@ namespace Friflo.Vectorization.GPU.Runtime;
 public unsafe struct GpuEffect 
 {
     public   readonly   GpuComputePipeline  pipeline;
-    public   readonly   GpuBindGroupLayout  bufferLayout;
-    public   readonly   GpuBindGroupLayout  uniformLayout;
+    public   readonly   WgpuBindGroupLayout bufferLayout;
+    public   readonly   WgpuBindGroupLayout uniformLayout;
     public              GpuBufferCache      bufferCache;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal GpuEffect (GpuComputePipeline pipeline, GpuBindGroupLayout  bufferLayout, GpuBindGroupLayout uniformLayout) {
+    internal GpuEffect (GpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
         this.pipeline       = pipeline;
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = uniformLayout;
@@ -89,10 +89,10 @@ public struct GpuBufferCache
 
 internal struct CachedGroupLayout
 {
-    internal ulong              hashKey;
-    internal GpuBindGroupLayout layout;
+    internal ulong              	hashKey;
+    internal WgpuBindGroupLayout 	layout;
 
-    public override string      ToString() => layout.ToString();
+    public override string      	ToString() => layout.ToString();
 }
 
 
