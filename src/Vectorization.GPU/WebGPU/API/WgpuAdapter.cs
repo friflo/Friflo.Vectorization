@@ -52,7 +52,7 @@ public sealed unsafe class WgpuAdapter : NativeAdapter
         this.instance   = instance;
     }
     
-    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int maxTasks, int slotSize)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);

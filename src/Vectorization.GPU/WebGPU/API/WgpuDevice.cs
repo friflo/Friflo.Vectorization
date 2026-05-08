@@ -364,11 +364,11 @@ public sealed unsafe class WgpuDevice : NativeDevice
         return buffer;
     }
     
-    internal Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> label)
+    internal Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
     {
-        int     labelMaxCount   = GpuUtils.GetMaxCount(label);
+        int     labelMaxCount   = GpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        GpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+        GpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,

@@ -99,7 +99,7 @@ public sealed unsafe class WgpuInstance : NativeInstance
         isDisposed = true;
     }
 
-    public static WgpuInstance CreateWgpuInstance(InstanceExtras instanceExtras = default)
+    public static WgpuInstance CreateWgpuInstance(InstanceExtras instanceExtras)
     {
         var wgpu    = WgpuStatic;
         var wgpuEx  = WgpuExStatic;
@@ -121,7 +121,7 @@ public sealed unsafe class WgpuInstance : NativeInstance
         return new WgpuInstance(wgpu, wgpuEx, instance);
     }
     
-    public override GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo = null)
+    public override GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo)
     {
 		Adapter* adapter = null;
         if (adapterInfo != null) {

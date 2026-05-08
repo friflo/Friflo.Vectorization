@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -16,13 +15,10 @@ public enum ExeType {
 
 public ref struct Buffer<T> where T : unmanaged
 {
-    public  Span<T>         span;
-    public  GpuBuffer<T>    gpuBuffer;
+    public              Span<T>         span;
+    public  readonly    GpuBuffer<T>    gpuBuffer;
     
-    public  NativeTask      LastWritingTask { get => gpuBuffer.LastWritingTask; set => gpuBuffer.LastWritingTask = value; }
-
-    
-    public 	int 			Count => gpuBuffer?.Length ?? span.Length;
+    public 	            int 			Count => gpuBuffer?.Length ?? span.Length;
     
     public Buffer(Span<T> span) {
         this.span = span;
@@ -31,8 +27,8 @@ public ref struct Buffer<T> where T : unmanaged
         this.gpuBuffer = gpuBuffer;
     }
     
-    public static implicit operator Buffer<T>(T[] array)    => new(array);
-    public static implicit operator Buffer<T>(Span<T> span) => new(span);
-    public static implicit operator Buffer<T>(GpuBuffer<T> gpuBuffer) => new(gpuBuffer);
+    public static implicit operator Buffer<T>(T[] array)                => new(array);
+    public static implicit operator Buffer<T>(Span<T> span)             => new(span);
+    public static implicit operator Buffer<T>(GpuBuffer<T> gpuBuffer)   => new(gpuBuffer);
 }
 

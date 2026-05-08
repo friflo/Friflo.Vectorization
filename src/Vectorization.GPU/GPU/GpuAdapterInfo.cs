@@ -8,7 +8,7 @@ using Silk.NET.WebGPU;  // TODO remove
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public sealed unsafe class GpuAdapterInfo
+public sealed class GpuAdapterInfo
 {
     public      uint        VendorID            { get; }
     public      uint        DeviceID            { get; }

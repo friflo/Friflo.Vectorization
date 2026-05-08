@@ -12,16 +12,14 @@ public abstract class NativeInstance : IDisposable
 {
     public  abstract bool        IsDisposed  { get; }
     
-    public  override    string          ToString() => throw new  NotImplementedException();
-    
     public abstract void Dispose();
 
-    public static GpuInstance CreateInstance(InstanceExtras instanceExtras = default)
+    public static GpuInstance CreateInstance(InstanceExtras instanceExtras)
     {
         throw new  NotImplementedException();
     }
     
-    public abstract GpuAdapter          RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo = null);
+    public abstract GpuAdapter          RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo);
     
     public abstract GlobalReport        GenerateReport ();
     

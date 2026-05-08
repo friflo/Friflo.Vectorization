@@ -40,17 +40,3 @@ public sealed unsafe class WgpuAdapterInfo
         return $"GPU: {Name}  Backend: {BackendType}  Driver: {DriverDescription}  Type: {AdapterType}  Vendor: {VendorID:X}  Devive: {DeviceID:X}";
     }
 }
-
-/*
-[StructLayout(LayoutKind.Sequential, Pack = 8)]
-public unsafe struct GpuInstanceExtras
-{
-    public ChainedStruct Chain;
-    public InstanceBackend Backends;
-    public uint Flags;
-    public Dx12Compiler Dx12ShaderCompiler;
-    public Gles3MinorVersion Gles3MinorVersion;
-    public byte* DxilPath;
-    public byte* DxcPath;
-}
-*/

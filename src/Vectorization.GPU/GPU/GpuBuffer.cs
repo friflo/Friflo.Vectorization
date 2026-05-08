@@ -30,7 +30,7 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         device = null;
     }
 
-    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label) 
+    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label)   // 
     {
         this.device         = device;       // TODO add GpuDevice.CreateBuffer();
         this.SizeInBytes    = sizeInBytes;

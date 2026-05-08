@@ -7,10 +7,9 @@ using Friflo.Vectorization.GPU.Runtime;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public sealed unsafe class GpuAdapter : IDisposable
+public sealed class GpuAdapter : IDisposable
 {
-    private readonly    NativeAdapter   native;  
-        
+    private readonly    NativeAdapter   native;
     public              bool            IsDisposed => native.IsDisposed;
     
     public  override    string          ToString() => native.ToString();

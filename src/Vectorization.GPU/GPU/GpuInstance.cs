@@ -10,7 +10,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 namespace Friflo.Vectorization.GPU;
 
 
-public sealed unsafe class GpuInstance : IDisposable
+public sealed class GpuInstance : IDisposable
 {
     private readonly    NativeInstance  native; 
     public              bool            IsDisposed => native.IsDisposed;
