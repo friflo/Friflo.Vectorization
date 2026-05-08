@@ -27,7 +27,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     public  readonly    int         Length;
     public	readonly    long        Id;
     private             uint        SizeInBytes;
-    internal            GpuTask     LastWritingTask;
+    public              GpuTask     LastWritingTask;
     public              bool        IsDisposed => handle == null;
     
     public  override    string      ToString() => $"{label}({Id}): {(handle == null ? "Disposed" : "Alive")}";

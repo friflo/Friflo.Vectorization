@@ -12,7 +12,7 @@ namespace Friflo.Vectorization.GPU.Runtime;
 public readonly unsafe struct GpuBindGroupLayout
 {
     internal readonly   BindGroupLayout*    handle;         // must contain only this single file
-    internal            bool                IsCreated =>    handle != null;
+    public              bool                IsCreated =>    handle != null;
     
     public override     string              ToString()  => handle != null ? "Created" : "null";
     
