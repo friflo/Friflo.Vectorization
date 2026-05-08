@@ -9,7 +9,7 @@ using Silk.NET.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public sealed unsafe class GpuAdapterProperties
+public sealed unsafe class WgpuAdapterInfo
 {
     public      uint        VendorID            { get; }
     public      uint        DeviceID            { get; }
@@ -19,7 +19,7 @@ public sealed unsafe class GpuAdapterProperties
     public      BackendType BackendType         { get; }
     internal    Adapter*    Adapter             { get; }
 
-    internal GpuAdapterProperties(AdapterProperties props, Adapter* adapter)
+    internal WgpuAdapterInfo(AdapterProperties props, Adapter* adapter)
     {
         VendorID    = props.VendorID;
         DeviceID    = props.DeviceID;
@@ -30,7 +30,7 @@ public sealed unsafe class GpuAdapterProperties
         DriverDescription = PtrToString(props.DriverDescription);
     }
 
-    private static string PtrToString(byte* ptr)
+    internal static string PtrToString(byte* ptr)
     {
         if (ptr == null) return string.Empty;
         return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;

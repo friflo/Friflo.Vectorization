@@ -4,20 +4,21 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public sealed unsafe class GpuAdapter : IDisposable
+public sealed unsafe class WgpuAdapter : NativeAdapter
 {
     private readonly    WebGPU      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Adapter*    adapter;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
-    public              bool        IsDisposed => isDisposed;
+    public  override    bool        IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -25,12 +26,12 @@ public sealed unsafe class GpuAdapter : IDisposable
     
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
     
-   ~GpuAdapter() {
+   ~WgpuAdapter() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -43,7 +44,7 @@ public sealed unsafe class GpuAdapter : IDisposable
         isDisposed = true;
     }
     
-    internal GpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
+    internal WgpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
@@ -51,7 +52,7 @@ public sealed unsafe class GpuAdapter : IDisposable
         this.instance   = instance;
     }
     
-    public GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
@@ -66,7 +67,7 @@ public sealed unsafe class GpuAdapter : IDisposable
         var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (device == null) {
-            GpuInstance.PumpEvents(wgpu, wgpuEx, instance);
+            WgpuInstance.PumpEvents(wgpu, wgpuEx, instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
@@ -76,13 +77,16 @@ public sealed unsafe class GpuAdapter : IDisposable
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new GpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
+        var native = new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
+        return new GpuDevice(native, label, slotSize);
     }
     
-    public GpuAdapterProperties GetAdapterProperties () {
+    public override GpuAdapterInfo GetAdapterProperties () {
         var report = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref report);
-        return new GpuAdapterProperties(report, adapter);
+        var name    = WgpuAdapterInfo.PtrToString(report.Name);
+        var driver  = WgpuAdapterInfo.PtrToString(report.DriverDescription);
+        return new GpuAdapterInfo(report, name, driver, (IntPtr)adapter);
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)

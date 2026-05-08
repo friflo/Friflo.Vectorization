@@ -15,9 +15,9 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class GpuTask : IDisposable
+public sealed unsafe class GpuTask : NativeTask, IDisposable
 {
-    private  readonly   GpuDevice           device;
+    private  readonly   WgpuDevice           device;
     internal readonly   WebGPU              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
@@ -25,7 +25,7 @@ public sealed unsafe class GpuTask : IDisposable
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
     private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
     internal            CommandBuffer*      commandBuffer;
-    private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
+    private readonly    List<NativeTask>    dependencies = new();       // Tasks that MUST finish before this one starts
     
     private readonly    int                 taskIndex;
     private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
@@ -36,11 +36,10 @@ public sealed unsafe class GpuTask : IDisposable
     
     
     // A simple state flag for the scheduler
-    public              bool                IsSubmitted     { get; internal set; }
-    public              bool                IsCompleted     { get; internal set; }
+
     
 
-    internal GpuTask(GpuDevice device, int taskIndex) {
+    internal GpuTask(WgpuDevice device, int taskIndex) {
         this.device         = device;
         wgpu                = device.wgpu;
         slotSize            = device.slotSize;
@@ -161,7 +160,7 @@ public sealed unsafe class GpuTask : IDisposable
         dependencies.Clear();
     }
 
-    public void AddDependency(GpuTask predecessor) {
+    public void AddDependency(NativeTask predecessor) {
         if (predecessor == this) return; // Prevent brain-loop
         if (!dependencies.Contains(predecessor))
         {
@@ -169,7 +168,7 @@ public sealed unsafe class GpuTask : IDisposable
         }
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         ClosePass();
         if (currentEncoder != null) {

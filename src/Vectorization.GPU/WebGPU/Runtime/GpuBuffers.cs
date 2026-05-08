@@ -30,7 +30,7 @@ public struct GpuBuffers
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer != null) {
-            var bufferDevice = gpuBuffer.Device;
+            var bufferDevice = gpuBuffer.device;
             if (bufferDevice != null    &&
                !bufferDevice.IsDisposed &&
                 bufferDevice == device  &&
@@ -57,7 +57,7 @@ public struct GpuBuffers
         if (gpuBuffer == null) {
             throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
         }
-        var bufferDevice = gpuBuffer.Device;
+        var bufferDevice = gpuBuffer.device;
         if (bufferDevice == null) {
             throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
         }
@@ -79,9 +79,9 @@ public struct GpuBuffers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuDevice GetDevice() {
+    public WgpuDevice GetDevice() {
         if (device != null) {
-            return device;
+            return (WgpuDevice)device.native;
         }
         throw NoDevice();
     }

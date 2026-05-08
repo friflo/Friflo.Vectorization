@@ -19,7 +19,7 @@ public ref struct Buffer<T> where T : unmanaged
     public  Span<T>         span;
     public  GpuBuffer<T>    gpuBuffer;
     
-    public  GpuTask         LastWritingTask { get => gpuBuffer.LastWritingTask; set => gpuBuffer.LastWritingTask = value; }
+    public  NativeTask      LastWritingTask { get => gpuBuffer.LastWritingTask; set => gpuBuffer.LastWritingTask = value; }
 
     
     public 	int 			Count => gpuBuffer?.Length ?? span.Length;

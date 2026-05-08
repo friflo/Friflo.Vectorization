@@ -14,10 +14,10 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct GpuQueue
 {
-    private  readonly   GpuDevice   device;
+    private  readonly   WgpuDevice   device;
     internal readonly   Queue*      handle;
     
-    public GpuQueue(GpuDevice device, Queue* handle) {
+    public GpuQueue(WgpuDevice device, Queue* handle) {
         this.device = device;
         this.handle = handle;
     }

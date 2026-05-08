@@ -96,7 +96,7 @@ public readonly unsafe struct GpuBindGroup
     {
         return new BindGroupEntry {
             Binding = (uint)binding,
-            Buffer  = buffer.gpuBuffer.handle,
+            Buffer  = ((WgpuBuffer<T>)buffer.gpuBuffer.native).handle,
             Offset  = 0,
             Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Count)
         };

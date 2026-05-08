@@ -19,28 +19,27 @@ internal static class GpuBufferUtils
     internal static long NextId() => Interlocked.Increment(ref IdCounter);
 }
 
-public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
+public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
 {
     private readonly    string      label;
     internal            Buffer*     handle { get; private set; }
-    internal            GpuDevice   Device { get; private set; }
+    private             WgpuDevice  Device { get; set; }
     private readonly    WebGPU      wgpu;
     public  readonly    int         Length;
-    public	readonly    long        Id;
+    private	readonly    long        Id;
     private             uint        SizeInBytes;
-    public              GpuTask     LastWritingTask;
-    public              bool        IsDisposed => handle == null;
+    public  override    bool        IsDisposed => handle == null;
     
     public  override    string      ToString() => $"{label}({Id}): {(handle == null ? "Disposed" : "Alive")}";
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
     
-   ~GpuBuffer() {
+   ~WgpuBuffer() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -53,7 +52,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
     }
 
 
-    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label) 
+    public WgpuBuffer(WgpuDevice device, uint sizeInBytes, BufferUsage usage, string label, long id)
     {
         this.label  = label;
         Device      = device;
@@ -61,24 +60,24 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         SizeInBytes = sizeInBytes; 
         Length      = (int)(sizeInBytes / sizeof(T));
         handle      = device.CreateBuffer(sizeInBytes, usage, label);
-        Id          = GpuBufferUtils.NextId();
+        Id          = id;
     }
     
-    public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) 
+    public WgpuBuffer(WgpuDevice device, T[] data, BufferUsage usage, string label, long id) 
     {
         this.label  = label;
         Device      = device;
         wgpu        = device.wgpu;
         Length  	= data.Length;
         handle  	= device.CreateBufferWithData(data, usage, label);
-        Id          = GpuBufferUtils.NextId();
+        Id          = id;
     }
     
     public T this[int index]
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                Device.Wait(this); // force Compute before CPU reads value
+                Device.Wait<T>(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }
@@ -97,7 +96,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         Device.Flush();
     }
     
-    public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
+    public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = Device;
         dev.Flush();
@@ -118,7 +117,7 @@ public sealed unsafe class GpuBuffer<T> : IDisposable where T : unmanaged
         var readBuffer  = wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
-        wgpu.CommandEncoderCopyBufferToBuffer(encoder, gpuBuffer.handle, 0, readBuffer, 0, size);
+        wgpu.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer.native).handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wgpu.CommandEncoderFinish(encoder, null);
         wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);  // releases commandBuffer

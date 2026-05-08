@@ -36,11 +36,11 @@ namespace Friflo.Vectorization.GPU;
 // Developer Ergonomics
 //  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
-public sealed unsafe class GpuDevice : IDisposable
+public sealed unsafe class WgpuDevice : NativeDevice
 {
     private  readonly   string              label;
     private             bool                isDisposed;
-    public              bool                IsDisposed => isDisposed;
+    public   override   bool                IsDisposed => isDisposed;
     internal readonly   WebGPU              wgpu;
     private  readonly   Wgpu                wgpuEx;
     internal            Device*             DevicePtr   { get; } 
@@ -51,7 +51,7 @@ public sealed unsafe class GpuDevice : IDisposable
     internal readonly   int                 slotSize;
     private  readonly   GpuTask[]           taskPool;
     private  readonly   Stack<GpuTask>      availableTasks;
-    internal readonly   GpuBuffer<byte>     globalUniformPool;      // Each task uses its own slice from this pool
+    internal readonly   WgpuBuffer<byte>     globalUniformPool;      // Each task uses its own slice from this pool
     private  readonly   GpuQueue            queue;
     
     private static      int                 effectSlotCount;
@@ -76,7 +76,7 @@ public sealed unsafe class GpuDevice : IDisposable
     }
     
     // A finalizer can be call from any thread.
-    ~GpuDevice() {
+    ~WgpuDevice() {
         Dispose(false); // false: release only native pointers
     }
 
@@ -182,7 +182,7 @@ public sealed unsafe class GpuDevice : IDisposable
         effectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
     }
 
-    internal GpuDevice(
+    internal WgpuDevice(
         WebGPU              wgpu,
         Wgpu                wgpuEx,
         string              label,
@@ -190,6 +190,7 @@ public sealed unsafe class GpuDevice : IDisposable
         Queue*              queuePtr,
         int                 maxTasks,
         int                 slotSize)
+        : base(label, maxTasks, slotSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
@@ -202,7 +203,7 @@ public sealed unsafe class GpuDevice : IDisposable
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = new GpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst, "globalUniformPool");
+        globalUniformPool   = new WgpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst, "globalUniformPool", -1);
         taskPool            = new GpuTask[maxTasks];
         availableTasks      = new Stack<GpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -228,7 +229,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
 
-    internal void WriteBuffer<T>(GpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
+    internal void WriteBuffer<T>(WgpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
         queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
     
@@ -236,7 +237,7 @@ public sealed unsafe class GpuDevice : IDisposable
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
         var handle = GCHandle.FromIntPtr((IntPtr)userData);
-        if (handle.Target is GpuDevice device) {
+        if (handle.Target is WgpuDevice device) {
             device.ReturnPendingTasks();
         }
     }
@@ -260,7 +261,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
     
-    public void Flush(bool wait = true)
+    public override void Flush(bool wait = true)
     {
         var tasks = pendingTasks;
         int count = tasks.Count;
@@ -295,7 +296,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
 
-    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
+    public override void Wait<T>(NativeBuffer<T> buffer)
     {
         var task = buffer.LastWritingTask;
         if (task == null || task.IsCompleted) return;
@@ -311,7 +312,7 @@ public sealed unsafe class GpuDevice : IDisposable
         }
     }
         
-    public unsafe void SubmitGraph(GpuTask finalTask)
+    public override void SubmitGraph(NativeTask finalTask)
     {
         // 1. Flatten the tree (Breadth-First or Depth-First Search)
         // To find the correct execution order (Topological Sort)
@@ -324,14 +325,14 @@ public sealed unsafe class GpuDevice : IDisposable
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = task.commandBuffer;
+            var ptr = ((GpuTask)task).commandBuffer;
             wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;
         }
     }
 
-    private IEnumerable<GpuTask> SortTasks(GpuTask finalTask)
+    public override IEnumerable<NativeTask> SortTasks(NativeTask finalTask)
     {
         throw new NotImplementedException();
     }

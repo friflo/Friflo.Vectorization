@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -47,13 +48,13 @@ namespace Friflo.Vectorization.GPU;
  */
 
 
-public sealed unsafe class GpuInstance : IDisposable
+public sealed unsafe class WgpuInstance : NativeInstance
 {
     private readonly        WebGPU      wgpu;
     private readonly        Wgpu        wgpuEx;
     private readonly        Instance*   instance;
     private                 bool        isDisposed;
-    public                  bool        IsDisposed => isDisposed;
+    public  override        bool        IsDisposed => isDisposed;
     
     public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -72,7 +73,7 @@ public sealed unsafe class GpuInstance : IDisposable
         return wgpuEx;
     }
     
-    private GpuInstance(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
+    private WgpuInstance(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
@@ -80,12 +81,12 @@ public sealed unsafe class GpuInstance : IDisposable
     }
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
     
-   ~GpuInstance() {
+   ~WgpuInstance() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -98,7 +99,7 @@ public sealed unsafe class GpuInstance : IDisposable
         isDisposed = true;
     }
 
-    public static GpuInstance CreateInstance(InstanceExtras instanceExtras = default)
+    public static WgpuInstance CreateWgpuInstance(InstanceExtras instanceExtras = default)
     {
         var wgpu    = WgpuStatic;
         var wgpuEx  = WgpuExStatic;
@@ -117,14 +118,14 @@ public sealed unsafe class GpuInstance : IDisposable
         if (instance == null) {
             throw new Exception("The Void Stares Back: Failed to create GpuInstance. Check your drivers!");
         }
-        return new GpuInstance(wgpu, wgpuEx, instance);
+        return new WgpuInstance(wgpu, wgpuEx, instance);
     }
     
-    public GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterProperties adapterProperty = null)
+    public override GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo = null)
     {
 		Adapter* adapter = null;
-        if (adapterProperty != null) {
-            adapter = adapterProperty.Adapter;
+        if (adapterInfo != null) {
+            adapter = (Adapter*)adapterInfo.Adapter;
         } else {
 		    wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
 			    if (status == RequestAdapterStatus.Success) adapter = adp;
@@ -139,10 +140,11 @@ public sealed unsafe class GpuInstance : IDisposable
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
         }
-        return new GpuAdapter(wgpu, wgpuEx, adapter, instance);
+        var native = new WgpuAdapter(wgpu, wgpuEx, adapter, instance);
+        return new GpuAdapter(native);
     }
     
-    public GlobalReport GenerateReport () {
+    public override GlobalReport GenerateReport () {
         var report = new GlobalReport();
         wgpuEx.GenerateReport(instance, ref report);
         return report;
@@ -162,11 +164,11 @@ public sealed unsafe class GpuInstance : IDisposable
         }
     }
     
-    public GpuAdapterProperties[] GetAdapterProperties()
+    public override GpuAdapterInfo[] GetAdapterProperties()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
-        var properties = new GpuAdapterProperties[adapterCount];
+        var properties = new GpuAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
         wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
@@ -175,7 +177,9 @@ public sealed unsafe class GpuInstance : IDisposable
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            properties[i] = new GpuAdapterProperties(props, adapter);    
+            var name        = WgpuAdapterInfo.PtrToString(props.Name);
+            var driver      = WgpuAdapterInfo.PtrToString(props.Name);
+            properties[i]   = new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);    
         }
         return properties;
     }

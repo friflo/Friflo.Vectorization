@@ -92,12 +92,12 @@ public static class GpuPattern
         return gpuOutput;
     }
     
-    private static readonly int     ShadowMethod_GPU_EffectSlot         = GpuDevice.NewEffectSlot();
+    private static readonly int     ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
     private static readonly ulong   ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
     private static readonly ulong   ShadowMethod_GPU_UniformLayoutKey   = 42;   // unique hash key calculated by Generator
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static GpuEffect ShadowMethod_GPU_CreateEffect(GpuDevice device)
+    private static GpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
