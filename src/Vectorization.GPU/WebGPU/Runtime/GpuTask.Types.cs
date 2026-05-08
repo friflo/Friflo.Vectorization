@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using Silk.NET.WebGPU;
 
 // file contains structs created by:  GpuTask
+
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]

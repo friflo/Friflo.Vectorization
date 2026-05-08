@@ -8,6 +8,7 @@ using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
 // ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
 public sealed unsafe class GpuAdapter : IDisposable

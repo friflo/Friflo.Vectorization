@@ -13,6 +13,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
 //      Feature Set / Properties

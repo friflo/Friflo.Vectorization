@@ -5,6 +5,7 @@ using System;
 using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
 public enum ExeType {
