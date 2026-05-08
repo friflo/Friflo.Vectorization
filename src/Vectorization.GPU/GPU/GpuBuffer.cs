@@ -16,7 +16,7 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
     private readonly    string          label;
     public  readonly    int             Length;
     public	readonly    long            Id;
-    public	readonly    GpuDevice       device;
+    public	            GpuDevice       device { get; private set; }
     private             uint            SizeInBytes;
     public              NativeTask      LastWritingTask;
         
@@ -25,7 +25,10 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
     public  override    string          ToString() => native.ToString();
 
 
-    public void Dispose()  => native.Dispose();
+    public void Dispose() {
+        native.Dispose();
+        device = null;
+    }
 
     public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label) 
     {
