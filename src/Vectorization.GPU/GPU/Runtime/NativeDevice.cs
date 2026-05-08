@@ -9,24 +9,9 @@ namespace Friflo.Vectorization.GPU.Runtime;
 
 public abstract class NativeDevice : IDisposable
 {
-    // private readonly    string      label;
-    // public  readonly    int         Length;
-    // public	readonly    long        Id;
-    // private             uint        SizeInBytes;
     public  abstract    bool        IsDisposed { get; }
-    
 
-    public void Dispose() {
-        throw new NotImplementedException();
-    }
-    
-    internal NativeDevice(
-        string              label,
-        int                 maxTasks,
-        int                 slotSize)
-    {
-        throw new NotImplementedException();
-    }
+    public abstract void Dispose();
     
     // -------------------------------- Task Dependency Tracking --------------------------------
     public abstract void Flush(bool wait = true);

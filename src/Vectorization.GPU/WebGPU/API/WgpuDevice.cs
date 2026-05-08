@@ -70,7 +70,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this); // prevent execution of finalizer WHEN Dispose() is called manually
     }
@@ -190,7 +190,6 @@ public sealed unsafe class WgpuDevice : NativeDevice
         Queue*              queuePtr,
         int                 maxTasks,
         int                 slotSize)
-        : base(label, maxTasks, slotSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;

@@ -20,17 +20,15 @@ public sealed class GpuDevice : IDisposable
     public              bool            IsDisposed => native.IsDisposed;
 
     public  override    string          ToString() => native.ToString();
-
-
-    public void Dispose() {
-        throw new NotImplementedException();
-    }
+    
     
     internal GpuDevice(NativeDevice native, string label, int slotSize) {
         this.native     = native;
         this.label      = label;
         this.slotSize   = slotSize;
     }
+    
+    public void Dispose() => native.Dispose();
     
     // -------------------------------- Task Dependency Tracking --------------------------------
     public void Flush(bool wait = true) => native.Flush(wait);
