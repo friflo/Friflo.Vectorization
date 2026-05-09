@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -12,12 +11,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-internal static class GpuBufferUtils
-{
-    private static long IdCounter;
-    
-    internal static long NextId() => Interlocked.Increment(ref IdCounter);
-}
+
 
 public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
 {

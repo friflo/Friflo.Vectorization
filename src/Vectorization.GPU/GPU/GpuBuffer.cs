@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
@@ -88,4 +89,10 @@ public enum GpuBufferUsage : int
 //  Force32         = 0x7FFFFFFF,
 }
 
+internal static class GpuBufferUtils
+{
+    private static long IdCounter;
+    
+    internal static long NextId() => Interlocked.Increment(ref IdCounter);
+}
 
