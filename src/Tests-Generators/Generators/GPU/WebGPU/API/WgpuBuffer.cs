@@ -96,37 +96,37 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
             Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
             MappedAtCreation = false
         };
-        var wgpu        = dev.wgpu;
+        var wg          = dev.wgpu;
         var DevicePtr   = dev.DevicePtr;
         var QueuePtr    = dev.QueuePtr;
-        var readBuffer  = wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
+        var readBuffer  = wg.DeviceCreateBuffer(DevicePtr, &readDesc);
 
-        var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
-        wgpu.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer._native).handle, 0, readBuffer, 0, size);
+        var encoder = wg.DeviceCreateCommandEncoder(DevicePtr, null);
+        wg.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer._native).handle, 0, readBuffer, 0, size);
         
-        var commandBuffer = wgpu.CommandEncoderFinish(encoder, null);
-        wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);  // releases commandBuffer
-        wgpu.CommandEncoderRelease(encoder);            // Not sure if required.
-        wgpu.CommandBufferRelease(commandBuffer);       // Not sure if required. QueueSubmit() seems to release
+        var commandBuffer = wg.CommandEncoderFinish(encoder, null);
+        wg.QueueSubmit(QueuePtr, 1, &commandBuffer);  	// releases commandBuffer
+        wg.CommandEncoderRelease(encoder);            	// Not sure if required.
+        wg.CommandBufferRelease(commandBuffer);       	// Not sure if required. QueueSubmit() seems to release
 
         // asynchronous mapping
         bool mapFinished = false;
         var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
-        wgpu.BufferMapAsync(readBuffer, MapMode.Read, 0, size, callback, null);
+        wg.BufferMapAsync(readBuffer, MapMode.Read, 0, size, callback, null);
 
         while (!mapFinished) {
             dev.Poll(true);
         }
 
         // get result back in original array
-        void* pMapped = wgpu.BufferGetMappedRange(readBuffer, 0, size);
+        void* pMapped = wg.BufferGetMappedRange(readBuffer, 0, size);
         fixed (void* pTarget = targetArray) {
             System.Buffer.MemoryCopy(pMapped, pTarget, size, size);
         }
         // cleanup
-        wgpu.BufferUnmap(readBuffer);
-        wgpu.BufferDestroy(readBuffer);
-        wgpu.BufferRelease(readBuffer);
+        wg.BufferUnmap(readBuffer);
+        wg.BufferDestroy(readBuffer);
+        wg.BufferRelease(readBuffer);
     }
 }
 
