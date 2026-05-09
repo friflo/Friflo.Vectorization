@@ -338,13 +338,13 @@ public sealed unsafe class WgpuDevice : NativeDevice
         throw new NotImplementedException();
     }
 
-    private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string label) where T : unmanaged
+    private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));
         
-        int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        WgpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,
@@ -412,7 +412,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     {
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var length      = data.Length;
-        var handle      = CreateBufferWithData(data, wgpuUsage, label);
+        var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
         return new WgpuBuffer<T>(this, handle, length, bufferLabel, id);
     }
 
@@ -426,7 +426,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
             var wgslDesc = new ShaderModuleWGSLDescriptor {
                 Code        = pShaderBytes,
                 Chain       = new ChainedStruct {
-                    SType       = SType.ShaderModuleWgsldescriptor // Wichtig: SType definiert den Inhalt
+                    SType       = SType.ShaderModuleWgsldescriptor
                 }
             };
             var desc = new ShaderModuleDescriptor {
