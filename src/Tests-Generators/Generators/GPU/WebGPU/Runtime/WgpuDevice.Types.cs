@@ -49,7 +49,8 @@ internal struct CacheEntry
     }
 }
 
-/// <summary> The Cache has only two entries to support double buffer use cases </summary> 
+/// <summary> The Cache has only two entries to support double buffer use cases </summary>
+[EditorBrowsable(EditorBrowsableState.Never)] 
 public struct WgpuBufferCache
 {
     private CacheEntry      group0;
