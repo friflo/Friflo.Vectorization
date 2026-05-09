@@ -9,15 +9,15 @@ namespace Tests.Generators.GPU;
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static GpuInstance       Instance        { get; private set; }
-    public static GpuAdapter        Adapter         { get; private set; }
+    public static WgpuInstance      Instance        { get; private set; }
+    public static WgpuAdapter       Adapter         { get; private set; }
     public static BackendType       BackendType     { get; private set; }
     public static GpuBackendType    GpuBackendType  { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
-        Instance = GpuInstance.CreateInstance(new InstanceExtras {
+        Instance = WgpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
         var properties      = Instance.GetAdapterInfos();

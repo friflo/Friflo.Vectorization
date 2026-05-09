@@ -21,13 +21,13 @@ public sealed unsafe class WgpuAdapterInfo
 
     internal WgpuAdapterInfo(AdapterProperties props, Adapter* adapter)
     {
-        VendorID    = props.VendorID;
-        DeviceID    = props.DeviceID;
-        AdapterType = props.AdapterType;
-        BackendType = props.BackendType;
-        Name        = PtrToString(props.Name);
-        Adapter     = adapter;
-        DriverDescription = PtrToString(props.DriverDescription);
+        VendorID            = props.VendorID;
+        DeviceID            = props.DeviceID;
+        AdapterType         = props.AdapterType;
+        BackendType         = props.BackendType;
+        Name                = PtrToString(props.Name);
+        DriverDescription   = PtrToString(props.DriverDescription);
+        Adapter             = adapter;
     }
 
     internal static string PtrToString(byte* ptr)

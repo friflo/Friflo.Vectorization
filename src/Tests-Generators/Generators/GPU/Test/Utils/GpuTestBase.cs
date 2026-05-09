@@ -7,8 +7,8 @@ namespace Tests.Generators.GPU;
 
 public abstract class GpuTestBase
 {
-    protected   GpuInstance     Instance  => GpuTestGlobal.Instance;
-    protected   GpuAdapter      Adapter   => GpuTestGlobal.Adapter;
+    protected   WgpuInstance    Instance  => GpuTestGlobal.Instance;
+    protected   WgpuAdapter     Adapter   => GpuTestGlobal.Adapter;
     
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }

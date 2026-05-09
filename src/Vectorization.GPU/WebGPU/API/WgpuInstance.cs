@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -48,15 +47,15 @@ namespace Friflo.Vectorization.GPU;
  */
 
 
-public sealed unsafe class WgpuInstance : NativeInstance
+public sealed unsafe class WgpuInstance : IDisposable
 {
-    private readonly        WebGPU      wgpu;
-    private readonly        Wgpu        wgpuEx;
-    private readonly        Instance*   instance;
-    private                 bool        isDisposed;
-    public  override        bool        IsDisposed => isDisposed;
+    private readonly    WebGPU      wgpu;
+    private readonly    Wgpu        wgpuEx;
+    private readonly    Instance*   instance;
+    private             bool        isDisposed;
+    public              bool        IsDisposed => isDisposed;
     
-    public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
+    public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
     // IMPORTANT: WebGPU and Wgpu classes are referenced with static readonly fields.
     // Reason:  Gpu classes use finalizers to release native resources.
@@ -81,7 +80,7 @@ public sealed unsafe class WgpuInstance : NativeInstance
     }
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public override void Dispose() {
+    public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -99,7 +98,7 @@ public sealed unsafe class WgpuInstance : NativeInstance
         isDisposed = true;
     }
 
-    public static WgpuInstance CreateWgpuInstance(InstanceExtras instanceExtras)
+    public static WgpuInstance CreateInstance(InstanceExtras instanceExtras)
     {
         var wgpu    = WgpuStatic;
         var wgpuEx  = WgpuExStatic;
@@ -121,11 +120,11 @@ public sealed unsafe class WgpuInstance : NativeInstance
         return new WgpuInstance(wgpu, wgpuEx, instance);
     }
     
-    public override GpuAdapter RequestAdapter(RequestAdapterOptions options, GpuAdapterInfo adapterInfo)
+    public WgpuAdapter RequestAdapter(RequestAdapterOptions options, WgpuAdapterInfo adapterInfo)
     {
 		Adapter* adapter = null;
         if (adapterInfo != null) {
-            adapter = (Adapter*)adapterInfo.Adapter;
+            adapter = adapterInfo.Adapter;
         } else {
 		    wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
 			    if (status == RequestAdapterStatus.Success) adapter = adp;
@@ -140,11 +139,10 @@ public sealed unsafe class WgpuInstance : NativeInstance
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
         }
-        var native = new WgpuAdapter(wgpu, wgpuEx, adapter, instance);
-        return new GpuAdapter(native);
+        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance);
     }
     
-    public override GlobalReport GenerateReport () {
+    public GlobalReport GenerateReport () {
         var report = new GlobalReport();
         wgpuEx.GenerateReport(instance, ref report);
         return report;
@@ -164,11 +162,11 @@ public sealed unsafe class WgpuInstance : NativeInstance
         }
     }
     
-    public override GpuAdapterInfo[] GetAdapterInfos()
+    public WgpuAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
-        var infos = new GpuAdapterInfo[adapterCount];
+        var infos = new WgpuAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
         wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
@@ -179,7 +177,7 @@ public sealed unsafe class WgpuInstance : NativeInstance
             wgpu.AdapterGetProperties(adapter, &props);
             var name    = WgpuAdapterInfo.PtrToString(props.Name);
             var driver  = WgpuAdapterInfo.PtrToString(props.Name);
-            infos[i]    = new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);    
+            infos[i]    = new WgpuAdapterInfo(props, adapter);
         }
         return infos;
     }

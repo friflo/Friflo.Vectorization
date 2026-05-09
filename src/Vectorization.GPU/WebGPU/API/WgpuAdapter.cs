@@ -4,21 +4,20 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public sealed unsafe class WgpuAdapter : NativeAdapter
+public sealed unsafe class WgpuAdapter : IDisposable
 {
     private readonly    WebGPU      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Adapter*    adapter;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
-    public  override    bool        IsDisposed => isDisposed;
+    public              bool        IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -26,7 +25,7 @@ public sealed unsafe class WgpuAdapter : NativeAdapter
     
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public override void Dispose() {
+    public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -51,8 +50,8 @@ public sealed unsafe class WgpuAdapter : NativeAdapter
         this.adapter    = adapter;
         this.instance   = instance;
     }
-    
-    public override GpuDevice CreateDevice(string label, int maxTasks, int slotSize)
+
+    public GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
@@ -81,12 +80,12 @@ public sealed unsafe class WgpuAdapter : NativeAdapter
         return new GpuDevice(native, label, slotSize);
     }
     
-    public override GpuAdapterInfo GetAdapterInfo () {
+    public WgpuAdapterInfo GetAdapterInfo () {
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
         var name    = WgpuAdapterInfo.PtrToString(props.Name);
         var driver  = WgpuAdapterInfo.PtrToString(props.DriverDescription);
-        return new GpuAdapterInfo(props, name, driver, (IntPtr)adapter);
+        return new WgpuAdapterInfo(props, adapter);
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)
