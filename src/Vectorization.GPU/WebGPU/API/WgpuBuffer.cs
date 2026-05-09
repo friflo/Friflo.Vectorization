@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -21,7 +22,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
     private readonly    WebGPU      wgpu;
     public  readonly    int         Length;
     private	readonly    long        Id;
-    private             uint        SizeInBytes;
+    private readonly    uint        SizeInBytes;
     public  override    bool        IsDisposed => handle == null;
     
     public  override    string      ToString() => $"{label}({Id}): {(handle == null ? "Disposed" : "Alive")}";
@@ -45,13 +46,13 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         Device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int sizeInBytes, string bufferLabel, long id)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int length, string bufferLabel, long id)
     {
         label       = bufferLabel;
         Device      = device;
         wgpu        = device.wgpu;
-        SizeInBytes = (uint)sizeInBytes;
-        Length      = sizeInBytes / sizeof(T);
+        SizeInBytes = (uint)(length * Unsafe.SizeOf<T>());
+        Length      = length;
         Id          = id;
         handle      = buffer;
     }

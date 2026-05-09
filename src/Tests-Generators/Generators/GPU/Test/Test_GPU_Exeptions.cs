@@ -26,9 +26,9 @@ public class Test_GPU_Exeptions : GpuTestBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(device1, weight, GpuBufferUsage.Storage, "gpuWeight");
-        using var gpuInput    = new GpuBuffer<float>(device1, input,  GpuBufferUsage.Storage, "gpuInput");
-        using var gpuOutput   = new GpuBuffer<float>(device1, output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
+        using var gpuWeight   = device1.CreateBuffer(weight, GpuBufferUsage.Storage, "gpuWeight");
+        using var gpuInput    = device1.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuInput");
+        using var gpuOutput   = device1.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
         
         StringAssert.StartsWith("gpuWeight(", gpuWeight.ToString());
         StringAssert.EndsWith  ("): Alive",   gpuWeight.ToString());
@@ -42,19 +42,19 @@ public class Test_GPU_Exeptions : GpuTestBase
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
-            using var gpuOutput2 = new GpuBuffer<float>(device2, input,  GpuBufferUsage.Storage, "gpuOutput2");
+            using var gpuOutput2 = device2.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuOutput2");
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput2);
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
-            using var gpuOutputSmall = new GpuBuffer<float>(device1, new float[63],  GpuBufferUsage.Storage, "gpuOutput1");
+            using var gpuOutputSmall = device1.CreateBuffer(new float[63],  GpuBufferUsage.Storage, "gpuOutput1");
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutputSmall);
             });
             StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
         } {
-            using var gpuOutput1 = new GpuBuffer<float>(device1, input,  GpuBufferUsage.Storage, "gpuOutput1");
+            using var gpuOutput1 = device1.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuOutput1");
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput1);
@@ -83,9 +83,9 @@ public class Test_GPU_Exeptions : GpuTestBase
                 weight[n] = n;
                 input[n]  = n + 1000;
             }
-            using var gpuWeight   = new GpuBuffer<float>(device, weight, GpuBufferUsage.Storage, "gpuWeight");
-            using var gpuInput    = new GpuBuffer<float>(device, input,  GpuBufferUsage.Storage, "gpuInput");
-            using var gpuOutput   = new GpuBuffer<float>(device, output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
+            using var gpuWeight   = device.CreateBuffer(weight, GpuBufferUsage.Storage, "gpuWeight");
+            using var gpuInput    = device.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuInput");
+            using var gpuOutput   = device.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
             
             int count = 0;
             

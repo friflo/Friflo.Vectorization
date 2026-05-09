@@ -29,20 +29,13 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         device = null;
     }
 
-    public GpuBuffer(GpuDevice device, int length, GpuBufferUsage usage, string label)
+    internal GpuBuffer(GpuDevice device, NativeBuffer<T> buffer, int length, string label, long id)
     {
         this.device = device;
         this.label  = label;
-        Id          = GpuBufferUtils.NextId();
-        native      = device.CreateBuffer<T>(length, usage, label, Id);
-    }
-    
-    public GpuBuffer(GpuDevice device, T[] data, GpuBufferUsage usage, string label) {
-        this.device = device;
-        this.label  = label;
-        Length      = data.Length;
-        Id          = GpuBufferUtils.NextId();
-        native      = device.CreateBuffer(data, usage, label, Id);
+        Length      = length;
+        Id          = id;
+        native      = buffer;
     }
     
     public T this[int index]
