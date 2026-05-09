@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU._Native;
+using Friflo.Vectorization.WGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;

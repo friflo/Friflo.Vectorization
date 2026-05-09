@@ -9,7 +9,7 @@ using Silk.NET.WebGPU;
 // file contains structs created by:  GpuTask
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WGPU;
+namespace Friflo.Vectorization.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuEncoder
