@@ -87,8 +87,6 @@ public class Test_GPU_Exceptions : GpuTestBase
             using var gpuInput    = device.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuInput");
             using var gpuOutput   = device.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
             
-            int count = 0;
-            
             GpuBuffer<float> result = null;
             for (int n = 0; n < 5; ++n) {
                 result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);

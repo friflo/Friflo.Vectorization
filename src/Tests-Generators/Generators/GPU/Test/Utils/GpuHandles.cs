@@ -1,6 +1,7 @@
 ﻿using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable RedundantSwitchExpressionArms
 namespace Tests.Generators.GPU;
