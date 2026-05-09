@@ -49,15 +49,15 @@ public sealed unsafe class WgpuDevice : NativeDevice
     public              bool                DebugMode   { get; set; } 
         
     internal readonly   int                 slotSize;
-    private  readonly   GpuTask[]           taskPool;
-    private  readonly   Stack<GpuTask>      availableTasks;
-    internal readonly   WgpuBuffer<byte>     globalUniformPool;      // Each task uses its own slice from this pool
-    private  readonly   GpuQueue            queue;
+    private  readonly   WgpuTask[]          taskPool;
+    private  readonly   Stack<WgpuTask>     availableTasks;
+    internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
+    private  readonly   WgpuQueue           queue;
     
     private static      int                 effectSlotCount;
-    private             GpuEffect[]         effectSlots  = new GpuEffect[4];
-    private             List<GpuTask>       pendingTasks    = new(1024);
-    private             List<GpuTask>       inFlightTasks   = new(1024);
+    private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
+    private             List<WgpuTask>      pendingTasks    = new(1024);
+    private             List<WgpuTask>      inFlightTasks   = new(1024);
     private             GCHandle            deviceHandle;
     private readonly    void*               deviceHandlePtr;
     
@@ -130,13 +130,13 @@ public sealed unsafe class WgpuDevice : NativeDevice
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuTask RentTask() {
+    public WgpuTask RentTask() {
         lock (availableTasks) {
             return availableTasks.Pop();
         }
     }
 
-    private void ReturnTask(GpuTask task)
+    private void ReturnTask(WgpuTask task)
     {
         task.Reset();
         lock (availableTasks) {
@@ -154,7 +154,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     public static int NewEffectSlot() => Interlocked.Increment(ref effectSlotCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuEffect GetEffect(int slot) {
+    public WgpuEffect GetEffect(int slot) {
         var slots = effectSlots;
         if (slot < slots.Length) {
             return slots[slot];
@@ -162,23 +162,23 @@ public sealed unsafe class WgpuDevice : NativeDevice
         return default;
     }
     
-    public ref GpuEffect CreateEffect(
+    public ref WgpuEffect CreateEffect(
         int                 slot,
-        GpuComputePipeline  pipeline,
+        WgpuComputePipeline  pipeline,
         WgpuBindGroupLayout bufferLayout,
         WgpuBindGroupLayout uniformLayout)
     {
         var slots = effectSlots;
         if (slot >= slots.Length) {
-            var newSlots = new GpuEffect[effectSlotCount];
+            var newSlots = new WgpuEffect[effectSlotCount];
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
-        slots[slot] = new GpuEffect(pipeline, bufferLayout, uniformLayout);
+        slots[slot] = new WgpuEffect(pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
     }
     
-    public void UpdateBufferCache(int slot, GpuBindGroup bindGroup, ulong hash) {
+    public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
         effectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
     }
 
@@ -196,17 +196,17 @@ public sealed unsafe class WgpuDevice : NativeDevice
         this.label          = label;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
-        queue               = new GpuQueue(this, queuePtr);
+        queue               = new WgpuQueue(this, queuePtr);
         this.slotSize       = slotSize;
         
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = new WgpuBuffer<byte>(this, (uint)(maxTasks * slotSize), GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool", -1);
-        taskPool            = new GpuTask[maxTasks];
-        availableTasks      = new Stack<GpuTask>(maxTasks);
+        taskPool            = new WgpuTask[maxTasks];
+        availableTasks      = new Stack<WgpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
-            var task = new GpuTask(this, i);
+            var task = new WgpuTask(this, i);
             taskPool[i] = task;
             availableTasks.Push(task);
         }
@@ -216,7 +216,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    internal GpuEncoder CreateEncoder(GpuTask task, ReadOnlySpan<byte> encoderLabel)
+    internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
     {
         fixed (byte* labelPtr = encoderLabel)
         {
@@ -224,7 +224,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
                 Label = labelPtr
             };
             var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
-            return new GpuEncoder(task, encoder);
+            return new WgpuEncoder(task, encoder);
         }
     }
 
@@ -252,7 +252,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Enqueue(GpuTask task)
+    public void Enqueue(WgpuTask task)
     {
         pendingTasks.Add(task);
         if (pendingTasks.Count >= 1024) { 
@@ -324,7 +324,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = ((GpuTask)task).commandBuffer;
+            var ptr = ((WgpuTask)task).commandBuffer;
             wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
             task.IsSubmitted = true;
@@ -340,9 +340,9 @@ public sealed unsafe class WgpuDevice : NativeDevice
     {
         uint    size            = (uint)(data.Length * sizeof(T));
         
-        int     labelMaxCount   = GpuUtils.GetMaxCount(label);
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        GpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+        WgpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,
@@ -366,9 +366,9 @@ public sealed unsafe class WgpuDevice : NativeDevice
     
     internal Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
     {
-        int     labelMaxCount   = GpuUtils.GetMaxCount(bufferLabel);
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        GpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,
@@ -384,7 +384,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
-    public GpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
+    public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {
         fixed (byte* pShaderBytes = wgslSource)
         fixed (byte* labelPtr = shaderLabel)
@@ -402,12 +402,12 @@ public sealed unsafe class WgpuDevice : NativeDevice
             };
             // Compile shader in driver
             var handle = wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
-            return new GpuShaderModule(handle);
+            return new WgpuShaderModule(handle);
         }
     }
     
-    public GpuComputePipeline CreateComputePipeline(
-        GpuShaderModule     module,
+    public WgpuComputePipeline CreateComputePipeline(
+        WgpuShaderModule    module,
         WgpuBindGroupLayout bufferLayout,
         WgpuBindGroupLayout uniformLayout,
         ReadOnlySpan<byte>  entryPoint)
@@ -434,7 +434,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
                     }
                 };
                 var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
-                return new GpuComputePipeline(handle);
+                return new WgpuComputePipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
                 if (module.handle  != null) wgpu.ShaderModuleRelease(module.handle);
@@ -454,7 +454,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         return default;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(Span<GpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(Span<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         

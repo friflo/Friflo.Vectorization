@@ -8,7 +8,7 @@ using System.Text;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 
-internal static class GpuUtils
+internal static class WgpuUtils
 {
     internal static int GetMaxCount(ReadOnlySpan<char> span)
     {

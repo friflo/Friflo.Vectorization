@@ -24,19 +24,19 @@ public readonly unsafe struct WgpuBindGroupLayout
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct GpuLayoutEntry
+public readonly struct WgpuLayoutEntry
 {
     internal readonly   int                 Binding;
     internal readonly   BufferBindingType   Type;
 
     public override string ToString() => $"{Binding} {Type}";
 
-    private GpuLayoutEntry(int binding, BufferBindingType type) {
+    private WgpuLayoutEntry(int binding, BufferBindingType type) {
         Binding = binding;
         Type    = type;
     }
     
-    public static GpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
-    public static GpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
-    public static GpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
+    public static WgpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
+    public static WgpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
+    public static WgpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
 }

@@ -10,17 +10,17 @@ using Silk.NET.WebGPU;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public unsafe struct GpuEffect 
+public unsafe struct WgpuEffect 
 {
-    public   readonly   GpuComputePipeline  pipeline;
+    public   readonly   WgpuComputePipeline pipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
-    public              GpuBufferCache      bufferCache;
+    public              WgpuBufferCache     bufferCache;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal GpuEffect (GpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
+    internal WgpuEffect (WgpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
         this.pipeline       = pipeline;
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = uniformLayout;
@@ -29,12 +29,12 @@ public unsafe struct GpuEffect
 
 internal struct CacheEntry
 {
-    internal GpuBindGroup   bindGroup;
+    internal WgpuBindGroup  bindGroup;
     internal ulong          hash;
     
     public override string  ToString() => bindGroup.ToString();
     
-    internal unsafe void Update(WebGPU wgpu, GpuBindGroup group, ulong groupHash) {
+    internal unsafe void Update(WebGPU wgpu, WgpuBindGroup group, ulong groupHash) {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         wgpu.BindGroupReference(group.handle);
         bindGroup   = group;
@@ -50,7 +50,7 @@ internal struct CacheEntry
 }
 
 /// <summary> The Cache has only two entries to support double buffer use cases </summary> 
-public struct GpuBufferCache
+public struct WgpuBufferCache
 {
     private CacheEntry      group0;
     private CacheEntry      group1;
@@ -58,7 +58,7 @@ public struct GpuBufferCache
     
     public override string  ToString() => $"lru: {(lruIndex == 0 ? ">[0]< [1] " : " [0] >[1]<")}  |  group0: {group0}  |  group1: {group1}";
     
-    public GpuBindGroup GetGroup(ulong groupHash)
+    public WgpuBindGroup GetGroup(ulong groupHash)
     {
         if (group0.hash == groupHash) {
             lruIndex = 0; // mark as currently in use
@@ -71,7 +71,7 @@ public struct GpuBufferCache
         return default;
     }
 
-    internal void Update(WebGPU wgpu, GpuBindGroup bindGroup, ulong hash)
+    internal void Update(WebGPU wgpu, WgpuBindGroup bindGroup, ulong hash)
     {
         lruIndex = lruIndex == 1 ? 0 : 1;
         if (lruIndex == 0) {
@@ -97,23 +97,23 @@ internal struct CachedGroupLayout
 
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuComputePipeline
+public readonly unsafe struct WgpuComputePipeline
 {
     internal readonly   ComputePipeline*    handle;
     public   override   string              ToString() => handle != null ? "Created" : "null";
     
-    internal GpuComputePipeline(ComputePipeline* handle) {
+    internal WgpuComputePipeline(ComputePipeline* handle) {
         this.handle = handle;
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuShaderModule
+public readonly unsafe struct WgpuShaderModule
 {
     internal readonly   ShaderModule*   handle;
     public   override   string          ToString() => handle != null ? "Created" : "null";
     
-    internal GpuShaderModule(ShaderModule* handle) {
+    internal WgpuShaderModule(ShaderModule* handle) {
         this.handle = handle;
     }
 }

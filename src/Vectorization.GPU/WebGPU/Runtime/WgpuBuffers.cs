@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public struct GpuBuffers
+public struct WgpuBuffers
 {
     private GpuDevice   device;
     private string      firstParam;
@@ -22,7 +22,7 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    public GpuBuffers() { }
+    public WgpuBuffers() { }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]

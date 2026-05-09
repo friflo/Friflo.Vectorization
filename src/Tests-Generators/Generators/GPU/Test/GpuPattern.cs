@@ -36,7 +36,7 @@ public static class GpuPattern
     [SkipLocalsInit]
     private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
-        var buffers = new GpuBuffers();
+        var buffers = new WgpuBuffers();
         buffers.Validate(weight, nameof(weight));
         buffers.Validate(input,  nameof(input));
         buffers.Validate(output, nameof(output));
@@ -63,9 +63,9 @@ public static class GpuPattern
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = GpuBindGroup.From  (0, weight);
-                entries[1] = GpuBindGroup.From  (1, input);
-                entries[2] = GpuBindGroup.From  (2, output);
+                entries[0] = WgpuBindGroup.From  (0, weight);
+                entries[1] = WgpuBindGroup.From  (1, input);
+                entries[2] = WgpuBindGroup.From  (2, output);
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
                 device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
@@ -97,20 +97,20 @@ public static class GpuPattern
     private static readonly ulong   ShadowMethod_GPU_UniformLayoutKey   = 42;   // unique hash key calculated by Generator
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static GpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
+    private static WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<GpuLayoutEntry> buffers = stackalloc GpuLayoutEntry[3];
-            buffers[0] = GpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = GpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = GpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
+            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
+            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
+            buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
             bufferLayout = device.CreateBindGroupLayout(buffers, ShadowMethod_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            Span<GpuLayoutEntry> uniform = stackalloc GpuLayoutEntry[1];
-            uniform[0] = GpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
+            Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
+            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);

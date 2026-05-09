@@ -15,9 +15,9 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class GpuTask : NativeTask, IDisposable
+public sealed unsafe class WgpuTask : NativeTask, IDisposable
 {
-    private  readonly   WgpuDevice           device;
+    private  readonly   WgpuDevice          device;
     internal readonly   WebGPU              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
@@ -39,7 +39,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
 
     
 
-    internal GpuTask(WgpuDevice device, int taskIndex) {
+    internal WgpuTask(WgpuDevice device, int taskIndex) {
         this.device         = device;
         wgpu                = device.wgpu;
         slotSize            = device.slotSize;
@@ -51,7 +51,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
     
     // The task provides / owns the Encoder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
+    public WgpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
         var encoder     = device.CreateEncoder(this, encoderLabel); 
         currentEncoder  = encoder.handle;
         return encoder;
@@ -86,7 +86,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
         throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {slotSize}.");
     } 
     
-    public void Finish(GpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
+    public void Finish(WgpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -107,7 +107,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
         }
     }
     
-    public GpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
@@ -118,11 +118,11 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
             };
             var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
-            return new GpuBindGroup(handle);
+            return new WgpuBindGroup(handle);
         }
     }
     
-    public GpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
+    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
@@ -134,7 +134,7 @@ public sealed unsafe class GpuTask : NativeTask, IDisposable
             };
             var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
-            return new GpuBindGroup(handle);
+            return new WgpuBindGroup(handle);
         }
     }
     

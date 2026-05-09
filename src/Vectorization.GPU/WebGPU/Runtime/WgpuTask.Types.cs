@@ -12,37 +12,37 @@ using Silk.NET.WebGPU;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuEncoder
+public readonly unsafe struct WgpuEncoder
 {
-    private  readonly   GpuTask         task;
+    private  readonly   WgpuTask        task;
     internal readonly   CommandEncoder* handle;
     public   override   string          ToString() => handle != null ? "Created" : "null";
     
-    internal GpuEncoder(GpuTask task, CommandEncoder* handle) {
+    internal WgpuEncoder(WgpuTask task, CommandEncoder* handle) {
         this.task   = task;
         this.handle = handle;
     }
     
     // --- ComputePass methods
-    public GpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
+    public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
         fixed (byte* labelPtr = passLabel)
         {
             var desc            = new ComputePassDescriptor { Label = labelPtr };
             var passHandle      = task.wgpu.CommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
-            return new GpuComputePass(task, passHandle);
+            return new WgpuComputePass(task, passHandle);
         }
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuComputePass : IDisposable {
-    private readonly    GpuTask             task;
+public readonly unsafe struct WgpuComputePass : IDisposable {
+    private readonly    WgpuTask            task;
     private readonly    ComputePassEncoder* handle;
     public   override   string              ToString() => handle != null ? "Created" : "null";
     
-    public GpuComputePass(GpuTask task, ComputePassEncoder* handle) {
+    public WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
         this.task   = task;
         this.handle = handle;
     }
@@ -52,7 +52,7 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPipeline(GpuComputePipeline pipeline) {
+    public void SetPipeline(WgpuComputePipeline pipeline) {
         task.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
@@ -72,7 +72,7 @@ public readonly unsafe struct GpuComputePass : IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBindGroup(int groupIndex, GpuBindGroup bindGroup)
+    public void SetBindGroup(int groupIndex, WgpuBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
         task.wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
@@ -80,14 +80,14 @@ public readonly unsafe struct GpuComputePass : IDisposable {
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct GpuBindGroup
+public readonly unsafe struct WgpuBindGroup
 {
     internal readonly   BindGroup*  handle;
     public              bool        IsCreated => handle != null;
     
     public   override   string      ToString() => handle != null ? "Created" : "null";
     
-    internal GpuBindGroup(BindGroup* handle) {
+    internal WgpuBindGroup(BindGroup* handle) {
         this.handle = handle;
     }
     
