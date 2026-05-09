@@ -2,9 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using Friflo.Vectorization.GPU.Runtime;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
@@ -12,8 +12,7 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuDevice : IDisposable
 {
-    
-    internal readonly   NativeDevice    native;   
+    public   readonly   NativeDevice    native;   
     private  readonly   string          label;
     public              bool            DebugMode   { get; set; } 
     internal readonly   int             slotSize;
@@ -22,7 +21,7 @@ public sealed class GpuDevice : IDisposable
     public  override    string          ToString() => native.ToString();
     
     
-    internal GpuDevice(NativeDevice native, string label, int slotSize) {
+    public GpuDevice(NativeDevice native, string label, int slotSize) {
         this.native     = native;
         this.label      = label;
         this.slotSize   = slotSize;

@@ -51,16 +51,6 @@
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
   
-    <ItemGroup>
-        <PackageReference Include="Silk.NET.WebGPU" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.WebGPU.Extensions.WGPU" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.WebGPU.Native.WGPU" Version="2.23.0" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <Folder Include="WebGPU\" />
-    </ItemGroup>
-
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>

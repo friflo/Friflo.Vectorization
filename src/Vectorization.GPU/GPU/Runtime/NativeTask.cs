@@ -8,8 +8,8 @@ namespace Friflo.Vectorization.GPU.Runtime;
 
 public abstract class NativeTask : IDisposable
 {
-    public              bool                IsSubmitted     { get; internal set; }  // TODO protected
-    public              bool                IsCompleted     { get; internal set; }  // TODO protected
+    public              bool                IsSubmitted     { get; set; }  // TODO protected
+    public              bool                IsCompleted     { get; set; }  // TODO protected
     
     public abstract void Dispose();
 }
