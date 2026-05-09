@@ -3,15 +3,15 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU._Native;
-using Friflo.Vectorization.GPU.Runtime;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.WGPU;
 
 
 

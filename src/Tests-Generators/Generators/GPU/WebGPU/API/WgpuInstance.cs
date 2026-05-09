@@ -9,7 +9,7 @@ using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.WGPU;
 
 /*
     Important note for Dispose pattern

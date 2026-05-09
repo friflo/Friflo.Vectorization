@@ -9,7 +9,7 @@ using Silk.NET.WebGPU;
 // file contains structs created by:  GpuTask
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.WGPU;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuEncoder
@@ -92,7 +92,7 @@ public readonly unsafe struct WgpuBindGroup
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From<T>(int binding, in Buffer<T> buffer) where T : unmanaged
+    public static BindGroupEntry From<T>(int binding, in GPU.Buffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
             Binding = (uint)binding,

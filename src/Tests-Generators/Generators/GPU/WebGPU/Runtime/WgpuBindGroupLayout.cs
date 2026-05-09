@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.WebGPU;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.WGPU;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]

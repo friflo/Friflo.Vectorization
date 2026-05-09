@@ -4,11 +4,12 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.WGPU;
 
 public sealed unsafe class WgpuAdapter : IDisposable
 {

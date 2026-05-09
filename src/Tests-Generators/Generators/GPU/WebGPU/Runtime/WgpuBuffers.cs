@@ -6,10 +6,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Friflo.Vectorization.GPU;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.WGPU;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct WgpuBuffers
