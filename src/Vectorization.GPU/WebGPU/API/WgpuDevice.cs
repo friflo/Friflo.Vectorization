@@ -331,7 +331,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         }
     }
 
-    public override IEnumerable<NativeTask> SortTasks(NativeTask finalTask)
+    internal IEnumerable<NativeTask> SortTasks(NativeTask finalTask)
     {
         throw new NotImplementedException();
     }

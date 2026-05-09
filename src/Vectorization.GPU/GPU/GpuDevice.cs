@@ -45,8 +45,6 @@ public sealed class GpuDevice : IDisposable
     // -------------------------------- Task Dependency Tracking --------------------------------
     public void Flush(bool wait = true)                             => native.Flush(wait);
     public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged    => native.Wait(buffer.native);
-    public void SubmitGraph(WgpuTask finalTask)                     => native.SubmitGraph(finalTask);
-
-    private IEnumerable<NativeTask> SortTasks(WgpuTask finalTask)   => native.SortTasks(finalTask);
+    public void SubmitGraph(NativeTask finalTask)                   => native.SubmitGraph(finalTask);
 }
 

@@ -20,6 +20,4 @@ public abstract class NativeDevice : IDisposable
     public abstract void    Flush(bool wait = true);
     public abstract void    Wait<T>(NativeBuffer<T> buffer) where T : unmanaged;
     public abstract void    SubmitGraph(NativeTask finalTask);
-
-    public abstract IEnumerable<NativeTask> SortTasks(NativeTask finalTask);
 }
