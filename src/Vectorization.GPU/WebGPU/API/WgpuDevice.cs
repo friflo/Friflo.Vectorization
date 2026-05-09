@@ -202,7 +202,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = new WgpuBuffer<byte>(this, (uint)(maxTasks * slotSize), GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool", -1);
+        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool", -1);
         taskPool            = new WgpuTask[maxTasks];
         availableTasks      = new Stack<WgpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -364,7 +364,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         return buffer;
     }
     
-    internal Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
+    private Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
     {
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
@@ -381,6 +381,37 @@ public sealed unsafe class WgpuDevice : NativeDevice
             throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
         }
         return buffer;
+    }
+    
+    private static BufferUsage FromGpuBufferUsage(GpuBufferUsage usage)
+    {
+        return
+            ((usage & GpuBufferUsage.MapRead)       != 0 ? BufferUsage.MapRead      : BufferUsage.None) |
+            ((usage & GpuBufferUsage.MapWrite)      != 0 ? BufferUsage.MapWrite     : BufferUsage.None) |
+            ((usage & GpuBufferUsage.CopySrc)       != 0 ? BufferUsage.CopySrc      : BufferUsage.None) |
+            ((usage & GpuBufferUsage.CopyDst)       != 0 ? BufferUsage.CopyDst      : BufferUsage.None) |
+            ((usage & GpuBufferUsage.Index)         != 0 ? BufferUsage.Index        : BufferUsage.None) |
+            ((usage & GpuBufferUsage.Vertex)        != 0 ? BufferUsage.Vertex       : BufferUsage.None) |
+            ((usage & GpuBufferUsage.Uniform)       != 0 ? BufferUsage.Uniform      : BufferUsage.None) |
+            ((usage & GpuBufferUsage.Storage)       != 0 ? BufferUsage.Storage      : BufferUsage.None) |
+            ((usage & GpuBufferUsage.Indirect)      != 0 ? BufferUsage.Indirect     : BufferUsage.None) |
+            ((usage & GpuBufferUsage.QueryResolve)  != 0 ? BufferUsage.QueryResolve : BufferUsage.None);
+    }
+    
+    public override NativeBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel, long id)
+    {
+        var wgpuUsage   = FromGpuBufferUsage(usage);
+        var sizeInBytes = length * Unsafe.SizeOf<T>();
+        var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
+        return new WgpuBuffer<T>(this, buffer, sizeInBytes, bufferLabel, id);
+    }
+    
+    public override NativeBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel, long id)
+    {
+        var wgpuUsage   = FromGpuBufferUsage(usage);
+        var handle      = CreateBufferWithData(data, wgpuUsage, label);
+        var sizeInBytes = data.Length * Unsafe.SizeOf<T>();
+        return new WgpuBuffer<T>(this, handle, sizeInBytes, bufferLabel, id);
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

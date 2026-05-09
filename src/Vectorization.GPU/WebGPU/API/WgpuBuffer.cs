@@ -45,28 +45,15 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         Device = null;
     }
 
-
-    public WgpuBuffer(WgpuDevice device, uint sizeInBytes, GpuBufferUsage usage, string label, long id)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int sizeInBytes, string bufferLabel, long id)
     {
-        this.label  = label;
+        label       = bufferLabel;
         Device      = device;
         wgpu        = device.wgpu;
-        SizeInBytes = sizeInBytes; 
-        Length      = (int)(sizeInBytes / sizeof(T));
+        SizeInBytes = (uint)sizeInBytes;
+        Length      = sizeInBytes / sizeof(T);
         Id          = id;
-        var wgpuUsage = FromGpuBufferUsage(usage);
-        handle      = device.CreateBuffer(sizeInBytes, wgpuUsage, label);
-    }
-    
-    public WgpuBuffer(WgpuDevice device, T[] data, GpuBufferUsage usage, string label, long id) 
-    {
-        this.label  = label;
-        Device      = device;
-        wgpu        = device.wgpu;
-        Length  	= data.Length;
-        Id          = id;
-        var wgpuUsage = FromGpuBufferUsage(usage);
-        handle  	= device.CreateBufferWithData(data, wgpuUsage, label);
+        handle      = buffer;
     }
     
     public T this[int index]
@@ -138,21 +125,6 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         wgpu.BufferUnmap(readBuffer);
         wgpu.BufferDestroy(readBuffer);
         wgpu.BufferRelease(readBuffer);
-    }
-    
-    private static BufferUsage FromGpuBufferUsage(GpuBufferUsage usage)
-    {
-        return
-            ((usage & GpuBufferUsage.MapRead)       != 0 ? BufferUsage.MapRead      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.MapWrite)      != 0 ? BufferUsage.MapWrite     : BufferUsage.None) |
-            ((usage & GpuBufferUsage.CopySrc)       != 0 ? BufferUsage.CopySrc      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.CopyDst)       != 0 ? BufferUsage.CopyDst      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Index)         != 0 ? BufferUsage.Index        : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Vertex)        != 0 ? BufferUsage.Vertex       : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Uniform)       != 0 ? BufferUsage.Uniform      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Storage)       != 0 ? BufferUsage.Storage      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Indirect)      != 0 ? BufferUsage.Indirect     : BufferUsage.None) |
-            ((usage & GpuBufferUsage.QueryResolve)  != 0 ? BufferUsage.QueryResolve : BufferUsage.None);
     }
 }
 

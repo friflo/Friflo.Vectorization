@@ -13,6 +13,9 @@ public abstract class NativeDevice : IDisposable
 
     public abstract void Dispose();
     
+    public abstract NativeBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel, long id) where T : unmanaged;
+    public abstract NativeBuffer<T> CreateBuffer<T>(T[] data,   GpuBufferUsage usage, string bufferLabel, long id) where T : unmanaged;
+    
     // -------------------------------- Task Dependency Tracking --------------------------------
     public abstract void    Flush(bool wait = true);
     public abstract void    Wait<T>(NativeBuffer<T> buffer) where T : unmanaged;

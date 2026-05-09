@@ -17,7 +17,6 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
     public  readonly    int             Length;
     public	readonly    long            Id;
     public	            GpuDevice       device { get; private set; }
-    private             uint            SizeInBytes;
     public              NativeTask      LastWritingTask;
         
     public              bool            IsDisposed => native.IsDisposed;
@@ -30,21 +29,20 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         device = null;
     }
 
-    public GpuBuffer(GpuDevice device, uint sizeInBytes, GpuBufferUsage usage, string label)   // 
+    public GpuBuffer(GpuDevice device, int length, GpuBufferUsage usage, string label)
     {
-        this.device         = device;       // TODO add GpuDevice.CreateBuffer();
-        this.SizeInBytes    = sizeInBytes;
-        this.label          = label;
-        Id                  = GpuBufferUtils.NextId();
-        native = new WgpuBuffer<T>((WgpuDevice)device.native, sizeInBytes, usage, label, Id);
+        this.device = device;
+        this.label  = label;
+        Id          = GpuBufferUtils.NextId();
+        native      = device.CreateBuffer<T>(length, usage, label, Id);
     }
     
     public GpuBuffer(GpuDevice device, T[] data, GpuBufferUsage usage, string label) {
-        this.device         = device;       // TODO add GpuDevice.CreateBuffer();
-        this.label          = label;
-        Length              = data.Length;
-        Id                  = GpuBufferUtils.NextId();
-        native = new WgpuBuffer<T>((WgpuDevice)device.native, data, usage, label, Id);
+        this.device = device;
+        this.label  = label;
+        Length      = data.Length;
+        Id          = GpuBufferUtils.NextId();
+        native      = device.CreateBuffer(data, usage, label, Id);
     }
     
     public T this[int index]

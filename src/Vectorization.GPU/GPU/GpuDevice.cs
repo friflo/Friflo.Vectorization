@@ -30,6 +30,14 @@ public sealed class GpuDevice : IDisposable
     
     public void Dispose() => native.Dispose();
     
+    public NativeBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel, long id) where T : unmanaged {
+        return native.CreateBuffer<T>(length, usage, bufferLabel, id);
+    }
+
+    public NativeBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel, long id) where T : unmanaged {
+        return native.CreateBuffer<T>(data, usage, bufferLabel, id);
+    }
+
     // -------------------------------- Task Dependency Tracking --------------------------------
     public void Flush(bool wait = true)                             => native.Flush(wait);
     public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged    => native.Wait(buffer.native);
