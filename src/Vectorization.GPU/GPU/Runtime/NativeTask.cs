@@ -4,7 +4,7 @@
 using System;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.GPU._Native;
 
 public abstract class NativeTask : IDisposable
 {

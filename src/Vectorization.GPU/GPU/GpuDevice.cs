@@ -3,7 +3,7 @@
 
 using System;
 using System.ComponentModel;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.Vectorization.GPU._Native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming

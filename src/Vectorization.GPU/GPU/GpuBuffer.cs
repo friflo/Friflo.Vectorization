@@ -4,7 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Threading;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.Vectorization.GPU._Native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
