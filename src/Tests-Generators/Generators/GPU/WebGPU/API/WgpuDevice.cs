@@ -337,8 +337,8 @@ public sealed unsafe class WgpuDevice : NativeDevice
     {
         throw new NotImplementedException();
     }
-    
-    public Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string label) where T : unmanaged
+
+    private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string label) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));
         

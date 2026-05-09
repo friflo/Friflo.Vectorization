@@ -39,7 +39,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         Dispose(false);  // false: release only native pointers.
     }
     
-    private void Dispose(bool disposing)
+    private void Dispose(bool _)
     {
         if (handle == null) return;
         wgpu.BufferRelease(handle);
@@ -62,7 +62,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                Device.Wait<T>(this); // force Compute before CPU reads value
+                Device.Wait(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }

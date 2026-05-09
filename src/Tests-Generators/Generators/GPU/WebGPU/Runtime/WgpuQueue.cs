@@ -55,8 +55,8 @@ internal readonly unsafe struct WgpuQueue
     public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback)
     {
         // We have to pin the callback to avoid moving callback by GC
-        GCHandle handle = GCHandle.Alloc(callback); // handle is freed in HandleNativeWorkDone()
-        void* userData = (void*)GCHandle.ToIntPtr(handle);
+        GCHandle callbackHandle = GCHandle.Alloc(callback); // handle is freed in HandleNativeWorkDone()
+        void* userData = (void*)GCHandle.ToIntPtr(callbackHandle);
 
         // call native API with static function pointer
         device.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);

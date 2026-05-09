@@ -35,7 +35,7 @@ public sealed unsafe class WgpuAdapter : IDisposable
         Dispose(false);  // false: release only native pointers.
     }
     
-    private void Dispose(bool disposing)
+    private void Dispose(bool _)
     {
         if (isDisposed) return;
         if (adapter != null) {
@@ -81,11 +81,10 @@ public sealed unsafe class WgpuAdapter : IDisposable
         return new GpuDevice(native, label, slotSize);
     }
     
-    public WgpuAdapterInfo GetAdapterInfo () {
+    public WgpuAdapterInfo GetAdapterInfo ()
+    {
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
-        var name    = WgpuAdapterInfo.PtrToString(props.Name);
-        var driver  = WgpuAdapterInfo.PtrToString(props.DriverDescription);
         return new WgpuAdapterInfo(props, adapter);
     }
     

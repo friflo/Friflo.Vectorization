@@ -8,6 +8,7 @@ using Silk.NET.WebGPU;
 
 // file contains structs created by:  GpuTask
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WGPU.Runtime;
 
@@ -40,7 +41,7 @@ public readonly unsafe struct WgpuEncoder
 public readonly unsafe struct WgpuComputePass : IDisposable {
     private readonly    WgpuTask            task;
     private readonly    ComputePassEncoder* handle;
-    public   override   string              ToString() => handle != null ? "Created" : "null";
+    public  override    string              ToString() => handle != null ? "Created" : "null";
     
     public WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
         this.task   = task;
