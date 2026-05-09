@@ -8,10 +8,10 @@ namespace Friflo.Vectorization.GPU.Runtime;
 
 public abstract class NativeBuffer<T> : IDisposable where T : unmanaged
 {
-    // private readonly    string      label;
-    // public  readonly    int         Length;
-    // public	readonly    long        Id;
-    // private             uint        SizeInBytes;
+//  private readonly    string      label;
+//  public  readonly    int         Length;
+//  public  readonly    long        Id;
+//  private             uint        SizeInBytes;
     public              NativeTask  LastWritingTask { get; internal set; }
     public  abstract    bool        IsDisposed { get; }
     

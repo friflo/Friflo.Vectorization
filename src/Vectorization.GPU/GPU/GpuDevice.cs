@@ -13,39 +13,39 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuDevice : IDisposable
 {
-    private  readonly   string          label;
+    private  readonly   string          Label;
     public              bool            DebugMode   { get; set; } 
-    internal readonly   int             slotSize;
+    internal readonly   int             SlotSize;
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public   readonly   NativeDevice    native;   
+    public   readonly   NativeDevice    _native;
 
-    public              bool            IsDisposed => native.IsDisposed;
-    public  override    string          ToString() => native.ToString();
+    public              bool            IsDisposed => _native.IsDisposed;
+    public  override    string          ToString() => _native.ToString();
     
     
     public GpuDevice(NativeDevice native, string label, int slotSize) {
-        this.native     = native;
-        this.label      = label;
-        this.slotSize   = slotSize;
+        _native     = native;
+        Label       = label;
+        SlotSize    = slotSize;
     }
     
-    public void Dispose() => native.Dispose();
+    public void Dispose() => _native.Dispose();
     
     public GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel) where T : unmanaged {
         var id      = GpuBufferUtils.NextId();
-        var buffer  = native.CreateBuffer<T>(length, usage, bufferLabel, id);
+        var buffer  = _native.CreateBuffer<T>(length, usage, bufferLabel, id);
         return new GpuBuffer<T>(this, buffer, length, bufferLabel, id);
     }
 
     public GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel) where T : unmanaged {
         var id      = GpuBufferUtils.NextId();
-        var buffer  = native.CreateBuffer(data, usage, bufferLabel, id);
+        var buffer  = _native.CreateBuffer(data, usage, bufferLabel, id);
         return new GpuBuffer<T>(this, buffer, data.Length, bufferLabel, id);
     }
 
     // -------------------------------- Task Dependency Tracking --------------------------------
-    public void Flush(bool wait = true)                             => native.Flush(wait);
-    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged    => native.Wait(buffer.native);
-    public void SubmitGraph(NativeTask finalTask)                   => native.SubmitGraph(finalTask);
+    public void Flush(bool wait = true)                             => _native.Flush(wait);
+    public void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged    => _native.Wait(buffer._native);
+    public void SubmitGraph(NativeTask finalTask)                   => _native.SubmitGraph(finalTask);
 }
 

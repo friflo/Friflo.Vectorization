@@ -13,37 +13,37 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    private readonly    string          label;
+    private readonly    string          Label;
     public  readonly    int             Length;
     public	readonly    long            Id;
-    public	            GpuDevice       device { get; private set; }
+    public	            GpuDevice       Device { get; private set; }
     public              NativeTask      LastWritingTask;
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public	readonly    NativeBuffer<T> native;
+    public	readonly    NativeBuffer<T> _native;
         
-    public              bool            IsDisposed => native.IsDisposed;
-    public  override    string          ToString() => native.ToString();
+    public              bool            IsDisposed => _native.IsDisposed;
+    public  override    string          ToString() => _native.ToString();
 
 
     public void Dispose() {
-        native.Dispose();
-        device = null;
+        _native.Dispose();
+        Device = null;
     }
 
     internal GpuBuffer(GpuDevice device, NativeBuffer<T> buffer, int length, string label, long id)
     {
-        this.device = device;
-        this.label  = label;
-        Length      = length;
-        Id          = id;
-        native      = buffer;
+        Device  = device;
+        Label   = label;
+        Length  = length;
+        Id      = id;
+        _native = buffer;
     }
     
     public T this[int index]
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                device.Wait(this); // force Compute before CPU reads value
+                Device.Wait(this); // force Compute before CPU reads value
             }
             throw new NotImplementedException();
             // return InternalDownloadValue(index);
@@ -52,15 +52,15 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
 
     public void WaitInDebug()
     {
-        if (!device.DebugMode) {
+        if (!Device.DebugMode) {
             return;
         }
-        device.Flush();
+        Device.Flush();
     }
     
     public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
-        native.Download(this, targetArray);
+        _native.Download(this, targetArray);
     }
 }
 

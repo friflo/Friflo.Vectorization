@@ -101,7 +101,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         var readBuffer  = wgpu.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, null);
-        wgpu.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer.native).handle, 0, readBuffer, 0, size);
+        wgpu.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer._native).handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wgpu.CommandEncoderFinish(encoder, null);
         wgpu.QueueSubmit(QueuePtr, 1, &commandBuffer);  // releases commandBuffer
