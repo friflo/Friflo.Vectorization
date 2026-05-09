@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Threading;
 using Friflo.Vectorization.GPU.Runtime;
 
@@ -12,15 +13,15 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    public	readonly    NativeBuffer<T> native;
     private readonly    string          label;
     public  readonly    int             Length;
     public	readonly    long            Id;
     public	            GpuDevice       device { get; private set; }
     public              NativeTask      LastWritingTask;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public	readonly    NativeBuffer<T> native;
         
     public              bool            IsDisposed => native.IsDisposed;
-    
     public  override    string          ToString() => native.ToString();
 
 

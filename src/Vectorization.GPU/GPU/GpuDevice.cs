@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -12,12 +13,13 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class GpuDevice : IDisposable
 {
-    public   readonly   NativeDevice    native;   
     private  readonly   string          label;
     public              bool            DebugMode   { get; set; } 
     internal readonly   int             slotSize;
-    public              bool            IsDisposed => native.IsDisposed;
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public   readonly   NativeDevice    native;   
 
+    public              bool            IsDisposed => native.IsDisposed;
     public  override    string          ToString() => native.ToString();
     
     
