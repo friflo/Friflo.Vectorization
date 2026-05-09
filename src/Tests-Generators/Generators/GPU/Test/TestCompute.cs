@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
-using Silk.NET.WebGPU;
 using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
@@ -27,9 +26,9 @@ public class TestCompute : GpuTestBase
     //  UseSpan(weight); // compiler error
         
         using var device    = Adapter.CreateDevice("ExampleCompute");
-        var gpuWeight = new GpuBuffer<float>(device, 100, BufferUsage.None, "weight");
-        var gpuInput  = new GpuBuffer<float>(device, 100, BufferUsage.None, "input");
-        var output2   = new GpuBuffer<float>(device, 100, BufferUsage.None, "output2");
+        var gpuWeight = new GpuBuffer<float>(device, 100, GpuBufferUsage.None, "weight");
+        var gpuInput  = new GpuBuffer<float>(device, 100, GpuBufferUsage.None, "input");
+        var output2   = new GpuBuffer<float>(device, 100, GpuBufferUsage.None, "output2");
         var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.SIMD, output2);
         device.Wait(result2);
     }
@@ -78,9 +77,9 @@ public class TestCompute : GpuTestBase
         var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
-        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "weight");
-        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "input");
-        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "output");
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, GpuBufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,  GpuBufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
     }
     
@@ -97,9 +96,9 @@ public class TestCompute : GpuTestBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = new GpuBuffer<float>(device, weight, BufferUsage.Storage, "weight");
-        using var gpuInput    = new GpuBuffer<float>(device, input,  BufferUsage.Storage, "input");
-        using var gpuOutput   = new GpuBuffer<float>(device, output, BufferUsage.Storage | BufferUsage.CopySrc, "output");
+        using var gpuWeight   = new GpuBuffer<float>(device, weight, GpuBufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,  GpuBufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
         
         var start1 = Mem.GetAllocatedBytes();
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
@@ -130,11 +129,11 @@ public class TestCompute : GpuTestBase
         var output2 = new float[65];
         var output3 = new float[65];
         for (int n = 0; n < 64; ++n) { weight[n] = n; input[n]  = n + 1000; }
-        using var gpuWeight   = new GpuBuffer<float>(device, weight,  BufferUsage.Storage, "weight");
-        using var gpuInput    = new GpuBuffer<float>(device, input,   BufferUsage.Storage, "input");
-        using var gpuOutput   = new GpuBuffer<float>(device, output,  BufferUsage.Storage | BufferUsage.CopySrc, "output");
-        using var gpuOutput2  = new GpuBuffer<float>(device, output2, BufferUsage.Storage | BufferUsage.CopySrc, "output2");
-        using var gpuOutput3  = new GpuBuffer<float>(device, output3, BufferUsage.Storage | BufferUsage.CopySrc, "output3");
+        using var gpuWeight   = new GpuBuffer<float>(device, weight,  GpuBufferUsage.Storage, "weight");
+        using var gpuInput    = new GpuBuffer<float>(device, input,   GpuBufferUsage.Storage, "input");
+        using var gpuOutput   = new GpuBuffer<float>(device, output,  GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
+        using var gpuOutput2  = new GpuBuffer<float>(device, output2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output2");
+        using var gpuOutput3  = new GpuBuffer<float>(device, output3, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output3");
         
         Assert.AreEqual(0, Handles.BindGroupLayouts.Diff);
         Assert.AreEqual(0, Handles.BindGroups.Diff);

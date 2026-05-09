@@ -3,7 +3,6 @@
 
 using System;
 using Friflo.Vectorization.GPU.Runtime;
-using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -30,7 +29,7 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         device = null;
     }
 
-    public GpuBuffer(GpuDevice device, uint sizeInBytes, BufferUsage usage, string label)   // 
+    public GpuBuffer(GpuDevice device, uint sizeInBytes, GpuBufferUsage usage, string label)   // 
     {
         this.device         = device;       // TODO add GpuDevice.CreateBuffer();
         this.SizeInBytes    = sizeInBytes;
@@ -39,7 +38,7 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         native = new WgpuBuffer<T>((WgpuDevice)device.native, sizeInBytes, usage, label, Id);
     }
     
-    public GpuBuffer(GpuDevice device, T[] data, BufferUsage usage, string label) {
+    public GpuBuffer(GpuDevice device, T[] data, GpuBufferUsage usage, string label) {
         this.device         = device;       // TODO add GpuDevice.CreateBuffer();
         this.label          = label;
         Length              = data.Length;
@@ -70,6 +69,23 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
     {
         native.Download(this, targetArray);
     }
+}
+
+[Flags]
+public enum GpuBufferUsage : int
+{
+    None            = 0x0,
+    MapRead         = 0x1,
+    MapWrite        = 0x2,
+    CopySrc         = 0x4,
+    CopyDst         = 0x8,
+    Index           = 0x10,
+    Vertex          = 0x20,
+    Uniform         = 0x40,
+    Storage         = 0x80,
+    Indirect        = 0x100,
+    QueryResolve    = 0x200,
+//  Force32         = 0x7FFFFFFF,
 }
 
 

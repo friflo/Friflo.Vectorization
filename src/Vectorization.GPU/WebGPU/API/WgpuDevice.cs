@@ -202,7 +202,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = new WgpuBuffer<byte>(this, (uint)(maxTasks * slotSize), BufferUsage.Uniform | BufferUsage.CopyDst, "globalUniformPool", -1);
+        globalUniformPool   = new WgpuBuffer<byte>(this, (uint)(maxTasks * slotSize), GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool", -1);
         taskPool            = new GpuTask[maxTasks];
         availableTasks      = new Stack<GpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
