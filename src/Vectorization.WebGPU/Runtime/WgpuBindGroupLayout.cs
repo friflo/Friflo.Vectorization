@@ -1,0 +1,42 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Silk.NET.WebGPU;
+
+// ReSharper disable once CheckNamespace
+namespace Friflo.Vectorization.SilkWebGPU.Runtime;
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+[StructLayout(LayoutKind.Sequential)]
+public readonly unsafe struct WgpuBindGroupLayout
+{
+    internal readonly   BindGroupLayout*    handle;         // must contain only this single file
+    public              bool                IsCreated =>    handle != null;
+    
+    public override     string              ToString()  => handle != null ? "Created" : "null";
+    
+    internal WgpuBindGroupLayout (BindGroupLayout* handle) {
+        this.handle = handle;
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+[StructLayout(LayoutKind.Sequential)]
+public readonly struct WgpuLayoutEntry
+{
+    internal readonly   int                 Binding;
+    internal readonly   BufferBindingType   Type;
+
+    public override string ToString() => $"{Binding} {Type}";
+
+    private WgpuLayoutEntry(int binding, BufferBindingType type) {
+        Binding = binding;
+        Type    = type;
+    }
+    
+    public static WgpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
+    public static WgpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
+    public static WgpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
+}
