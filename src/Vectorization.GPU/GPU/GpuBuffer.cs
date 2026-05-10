@@ -2,41 +2,29 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.ComponentModel;
 using System.Threading;
 using Friflo.Vectorization.GPU._Native;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
 
-public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
+public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
 {
-    private readonly    string          Label;
-    public  readonly    int             Length;
-    public	readonly    long            Id;
-    public	            GpuDevice       Device { get; private set; }
-    public              NativeTask      LastWritingTask;
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public	readonly    NativeBuffer<T> _native;
-        
-    public              bool            IsDisposed => _native.IsDisposed;
-    public  override    string          ToString() => _native.ToString();
+    public  readonly    string      Label;
+    public  readonly    int         Length;
+    public	readonly    long        Id      = GpuBufferUtils.NextId();
+    public	abstract    GpuDevice   Device  { get; }
+    public              NativeTask  LastWritingTask;
+    
+    public  override    string      ToString() => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
 
-
-    public void Dispose() {
-        _native.Dispose();
-        Device = null;
-    }
-
-    internal GpuBuffer(GpuDevice device, NativeBuffer<T> buffer, int length, string label, long id)
+    protected GpuBuffer(int length, string label)
     {
-        Device  = device;
         Label   = label;
         Length  = length;
-        Id      = id;
-        _native = buffer;
     }
     
     public T this[int index]
@@ -58,14 +46,15 @@ public sealed class GpuBuffer<T> : IDisposable where T : unmanaged
         Device.Flush();
     }
     
-    public void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
-    {
-        _native.Download(this, targetArray);
-    }
+    // --- abstract
+    public  abstract    bool    IsDisposed { get; }
+    public  abstract    void    Dispose();
+    
+    public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);
 }
 
 [Flags]
-public enum GpuBufferUsage : int
+public enum GpuBufferUsage
 {
     None            = 0x0,
     MapRead         = 0x1,

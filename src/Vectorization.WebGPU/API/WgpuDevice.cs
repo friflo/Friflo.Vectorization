@@ -39,9 +39,8 @@ namespace Friflo.Vectorization.WebGPU;
 // Developer Ergonomics
 //  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
-public sealed unsafe class WgpuDevice : NativeDevice
+public sealed unsafe class WgpuDevice : GpuDevice
 {
-    private  readonly   string              label;
     private             bool                isDisposed;
     public   override   bool                IsDisposed => isDisposed;
     internal readonly   Webgpu              wgpu;
@@ -49,9 +48,6 @@ public sealed unsafe class WgpuDevice : NativeDevice
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
         
-    public              bool                DebugMode   { get; set; } 
-        
-    internal readonly   int                 slotSize;
     private  readonly   WgpuTask[]          taskPool;
     private  readonly   Stack<WgpuTask>     availableTasks;
     internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
@@ -66,8 +62,6 @@ public sealed unsafe class WgpuDevice : NativeDevice
     
     private static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
-
-    public  override    string              ToString() => label + (isDisposed ? ": Disposed" : ": Alive");
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
@@ -193,19 +187,17 @@ public sealed unsafe class WgpuDevice : NativeDevice
         Queue*              queuePtr,
         int                 maxTasks,
         int                 slotSize)
+    : base(label, slotSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
-        this.label          = label;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         queue               = new WgpuQueue(this, queuePtr);
-        this.slotSize       = slotSize;
-        
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool", -1);
+        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
         taskPool            = new WgpuTask[maxTasks];
         availableTasks      = new Stack<WgpuTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -298,7 +290,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
         }
     }
 
-    public override void Wait<T>(NativeBuffer<T> buffer)
+    public override void Wait<T>(GpuBuffer<T> buffer)
     {
         var task = buffer.LastWritingTask;
         if (task == null || task.IsCompleted) return;
@@ -401,20 +393,20 @@ public sealed unsafe class WgpuDevice : NativeDevice
             ((usage & GpuBufferUsage.QueryResolve)  != 0 ? BufferUsage.QueryResolve : BufferUsage.None);
     }
     
-    public override NativeBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel, long id)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, buffer, length, bufferLabel, id);
+        return new WgpuBuffer<T>(this, buffer, length, bufferLabel);
     }
     
-    public override NativeBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel, long id)
+    public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var length      = data.Length;
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, handle, length, bufferLabel, id);
+        return new WgpuBuffer<T>(this, handle, length, bufferLabel);
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

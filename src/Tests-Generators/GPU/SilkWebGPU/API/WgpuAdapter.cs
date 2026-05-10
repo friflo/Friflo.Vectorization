@@ -82,8 +82,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        var native = new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
-        return new GpuDevice(native, label, slotSize);
+        return new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
     }
     
     public override GpuHandleDiff GenerateHandles () {

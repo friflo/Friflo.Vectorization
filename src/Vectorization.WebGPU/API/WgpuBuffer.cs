@@ -4,7 +4,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU._Native;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
@@ -15,20 +14,17 @@ namespace Friflo.Vectorization.WebGPU;
 
 
 
-public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
+public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
-    private readonly    string      label;
     internal            Buffer*     handle { get; private set; }
-    private             WgpuDevice  Device { get; set; }
+    private             WgpuDevice  device { get; set; }
     private readonly    Webgpu      wgpu;
-    public  readonly    int         Length;
-    private	readonly    long        Id;
     private readonly    uint        SizeInBytes;
+
+    public  override    GpuDevice   Device => device;
+
     public  override    bool        IsDisposed => handle == null;
     
-    public  override    string      ToString() => $"{label}({Id}): {(handle == null ? "Disposed" : "Alive")}";
-
-
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
         Dispose(true);
@@ -44,17 +40,15 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         if (handle == null) return;
         wgpu.BufferRelease(handle);
         handle = null;
-        Device = null;
+        device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int length, string bufferLabel, long id)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int length, string bufferLabel)
+        : base(length, bufferLabel)
     {
-        label       = bufferLabel;
-        Device      = device;
+        this.device = device;
         wgpu        = device.wgpu;
         SizeInBytes = (uint)(length * Unsafe.SizeOf<T>());
-        Length      = length;
-        Id          = id;
         handle      = buffer;
     }
     
@@ -72,18 +66,10 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
     {
         throw new NotImplementedException();
     }
-
-    public void WaitInDebug()
-    {
-        if (!Device.DebugMode) {
-            return;
-        }
-        Device.Flush();
-    }
     
     public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
-        var dev = Device;
+        var dev = device;
         dev.Flush();
         
         if (targetArray.Length < gpuBuffer.Length)
@@ -102,7 +88,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
         var readBuffer  = wg.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         var encoder = wg.DeviceCreateCommandEncoder(DevicePtr, null);
-        wg.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer._native).handle, 0, readBuffer, 0, size);
+        wg.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer).handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wg.CommandEncoderFinish(encoder, null);
         wg.QueueSubmit(QueuePtr, 1, &commandBuffer);  	// releases commandBuffer

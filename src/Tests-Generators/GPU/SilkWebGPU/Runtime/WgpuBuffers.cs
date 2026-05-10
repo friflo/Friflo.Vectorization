@@ -82,7 +82,7 @@ public struct WgpuBuffers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public WgpuDevice GetDevice() {
         if (device != null) {
-            return (WgpuDevice)device._native;
+            return (WgpuDevice)device;
         }
         throw NoDevice();
     }

@@ -100,9 +100,15 @@ public class Test_GPU_Exceptions : GpuTestBase
     [Test]
     public void Test_GPU_Adapter()
     {
+        using var gpuWeight   = Device.CreateBuffer<float>(100, GpuBufferUsage.Storage, "test-buffer");
+        Assert.AreEqual("test-buffer",  gpuWeight.Label);
+        Assert.AreEqual(100,            gpuWeight.Length);
+        
         Assert.NotNull(Instance.GetAdapterInfos());
         
         var info = Adapter.GetAdapterInfo();
         Console.WriteLine($"Name: {info.Name} | Drive: {info.DriverDescription} | VendorID: {info.VendorID} | DeviceID: {info.DeviceID}");
+        
+        Assert.AreEqual("GpuTestBase", Device.Label);
     }
 }

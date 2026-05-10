@@ -44,11 +44,11 @@ public sealed unsafe class WgpuTask : NativeTask, IDisposable
     internal WgpuTask(WgpuDevice device, int taskIndex) {
         this.device         = device;
         wgpu                = device.wgpu;
-        slotSize            = device.slotSize;
+        slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         this.taskIndex      = taskIndex;
         uniformBase         = (uint)(taskIndex * slotSize);
-        stagingBuffer       = new byte[device.slotSize];
+        stagingBuffer       = new byte[device.SlotSize];
     }
     
     // The task provides / owns the Encoder
