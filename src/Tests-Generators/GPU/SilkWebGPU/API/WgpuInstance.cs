@@ -167,7 +167,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         }
     }
     
-    public WgpuAdapterInfo[] GetAdapterInfos()
+    public override WgpuAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);

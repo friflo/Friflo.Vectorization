@@ -1,13 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-// ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public struct GpuHandle
+public readonly struct GpuHandle
 {
     public  long    Active  { get; }
     public  long    Diff    { get; }

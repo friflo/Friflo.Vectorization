@@ -14,15 +14,17 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
 {
-    private readonly    Webgpu      wgpu;
-    private readonly    Wgpu        wgpuEx;
-    private readonly    Adapter*    adapter;
-    private readonly    Instance*   instance;
-    public  readonly    WgpuAdapterInfo info;
-    private             bool        isDisposed;
-    public  override    bool            IsDisposed => isDisposed;
+    private readonly    Webgpu          wgpu;
+    private readonly    Wgpu            wgpuEx;
+    private readonly    Adapter*        adapter;
+    private readonly    Instance*       instance;
+    private readonly    WgpuAdapterInfo info;
+    private             bool            isDisposed;
     
-    public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
+    public  override    bool            IsDisposed          => isDisposed;
+    public  override    GpuAdapterInfo  GetAdapterInfo()    => info;
+    
+    public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
     
     private static readonly PfnErrorCallback GlobalErrorCallback = PfnErrorCallback.From(OnGpuError);
     

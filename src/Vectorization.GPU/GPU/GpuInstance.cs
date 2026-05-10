@@ -8,7 +8,8 @@ namespace Friflo.Vectorization.GPU;
 
 public abstract class GpuInstance : IDisposable
 {
-    public abstract bool            IsDisposed { get;  }
+    public abstract bool                IsDisposed { get;  }
     
-    public abstract void            Dispose();
+    public abstract void                Dispose();
+    public abstract GpuAdapterInfo[]    GetAdapterInfos();
 }

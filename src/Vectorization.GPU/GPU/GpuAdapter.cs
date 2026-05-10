@@ -15,12 +15,13 @@ public abstract class GpuAdapter : IDisposable
     
     public abstract GpuDevice       CreateDevice (string label, int maxTasks = 64, int slotSize = 64 * 1024);
     public abstract GpuHandleDiff   GenerateHandles ();
+    public abstract GpuAdapterInfo  GetAdapterInfo ();
 }
 
 public abstract class GpuAdapterInfo
 {
-    public      uint        VendorID            { get; init; }
-    public      uint        DeviceID            { get; init; }
-    public      string      Name                { get; init; }
-    public      string      DriverDescription   { get; init; }
+    public      uint        VendorID            { get; protected init; }
+    public      uint        DeviceID            { get; protected init; }
+    public      string      Name                { get; protected init; }
+    public      string      DriverDescription   { get; protected init; }
 }
