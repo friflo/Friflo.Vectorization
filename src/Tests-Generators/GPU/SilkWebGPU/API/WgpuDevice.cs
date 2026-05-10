@@ -292,12 +292,12 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        var task = buffer.LastWritingTask;
+        var task = (WgpuTask)buffer.LastWritingTask;
         if (task == null || task.IsCompleted) return;
 
         // We register a callback for the specific task completion
         queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
-            task.IsCompleted = true;
+            task.SetCompleted(true);
         });
 
         while (!task.IsCompleted) {
@@ -319,14 +319,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
             
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
-            var ptr = ((WgpuTask)task).commandBuffer;
+            var ptr = task.commandBuffer;
             wgpu.QueueSubmit(QueuePtr, 1, &ptr);
             
-            task.IsSubmitted = true;
+            task.SetSubmitted(true);
         }
     }
 
-    internal IEnumerable<NativeTask> SortTasks(NativeTask finalTask)
+    private IEnumerable<WgpuTask> SortTasks(NativeTask finalTask)
     {
         throw new NotImplementedException();
     }

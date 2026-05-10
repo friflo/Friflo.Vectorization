@@ -186,4 +186,12 @@ public sealed unsafe class WgpuTask : NativeTask
             currentPass = null;
         }
     }
+    
+    public void SetSubmitted(bool submitted) {
+        IsSubmitted = submitted;
+    }
+
+    public void SetCompleted(bool completed) {
+        IsCompleted = completed;
+    }
 }

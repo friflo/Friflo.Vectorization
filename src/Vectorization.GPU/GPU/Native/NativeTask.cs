@@ -10,8 +10,8 @@ namespace Friflo.Vectorization.GPU._Native;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class NativeTask : IDisposable
 {
-    public  bool    IsSubmitted     { get; set; }  // TODO protected
-    public  bool    IsCompleted     { get; set; }  // TODO protected
+    public  bool    IsSubmitted     { get; protected set; }
+    public  bool    IsCompleted     { get; protected set; }
     
     public abstract void Dispose();
 }
