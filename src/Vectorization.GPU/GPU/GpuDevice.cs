@@ -7,7 +7,6 @@ using Friflo.Vectorization.GPU._Native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
-// ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
