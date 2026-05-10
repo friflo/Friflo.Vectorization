@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
-using Tests.GPU;
+
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.SilkWebGPU;
