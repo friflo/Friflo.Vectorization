@@ -56,7 +56,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
     {
         get {
             if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
-                Device.Wait(this); // force Compute before CPU reads value
+                device.Wait(this); // force Compute before CPU reads value
             }
             return InternalDownloadValue(index);
         }

@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Silk.NET.WebGPU;
@@ -16,11 +17,11 @@ public static class WebGPUPattern
     [SkipLocalsInit]
     internal static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
-        var buffers = new WgpuBuffers();
+        var buffers = new GpuBuffers();
         buffers.Validate(weight, nameof(weight));
         buffers.Validate(input,  nameof(input));
         buffers.Validate(output, nameof(output));
-        var device = buffers.GetDevice();
+        var device = (WgpuDevice)buffers.GetDevice();
         
         var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();

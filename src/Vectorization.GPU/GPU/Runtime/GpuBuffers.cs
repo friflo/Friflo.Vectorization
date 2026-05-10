@@ -6,14 +6,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.SilkWebGPU.Runtime;
+namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public struct WgpuBuffers
+public struct GpuBuffers
 {
     private GpuDevice   device;
     private string      firstParam;
@@ -23,10 +22,9 @@ public struct WgpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    public WgpuBuffers() { }
+    public GpuBuffers() { }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [SkipLocalsInit]
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
@@ -80,9 +78,9 @@ public struct WgpuBuffers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuDevice GetDevice() {
+    public GpuDevice GetDevice() {
         if (device != null) {
-            return (WgpuDevice)device;
+            return device;
         }
         throw NoDevice();
     }
