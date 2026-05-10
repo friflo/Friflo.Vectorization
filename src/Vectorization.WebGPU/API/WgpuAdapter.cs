@@ -12,7 +12,7 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
+public sealed unsafe class WgpuAdapter : GpuAdapter
 {
     private readonly    Webgpu          wgpu;
     private readonly    Wgpu            wgpuEx;
