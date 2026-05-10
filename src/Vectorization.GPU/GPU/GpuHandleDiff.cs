@@ -9,8 +9,8 @@ namespace Friflo.Vectorization.GPU;
 
 public struct GpuHandle
 {
-    public  long    Active  { get; private set; }
-    public  long    Diff    { get; private set; }
+    public  long    Active  { get; }
+    public  long    Diff    { get; }
 
     public override string ToString() => $"{Active}  {Diff,5:+0;-0;0}";
     
