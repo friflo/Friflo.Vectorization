@@ -12,9 +12,9 @@ namespace Friflo.Vectorization.SilkWebGPU;
 
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
-    public      AdapterType AdapterType         { get; init; }
-    public      BackendType BackendType         { get; init; }
-    public      Adapter*    Adapter             { get; init; }
+    public      AdapterType AdapterType { get; private init; }
+    public      BackendType BackendType { get; private init; }
+    public      Adapter*    Adapter     { get; private init; }
 
     public override string ToString() {
         return $"GPU: {Name}  Backend: {BackendType}  Driver: {DriverDescription}  Type: {AdapterType}  Vendor: {VendorID:X}  Devive: {DeviceID:X}";
