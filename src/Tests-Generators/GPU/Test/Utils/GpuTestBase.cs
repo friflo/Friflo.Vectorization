@@ -12,8 +12,8 @@ public abstract class GpuTestBase
     
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
-    private     GpuHandleDiff   StartReport     { get; set; }
-    public      GpuHandleDiff   HandleDiff      => StartReport.GetHandleDiff(Adapter.GenerateHandles());
+    private     GpuHandleDiff   StartHandles    { get; set; }
+    public      GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Adapter.GenerateHandles());
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -21,7 +21,7 @@ public abstract class GpuTestBase
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance    = this;
-        StartReport     = Adapter.GenerateHandles();
+        StartHandles    = Adapter.GenerateHandles();
         Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
     }
 
@@ -37,7 +37,7 @@ public abstract class GpuTestBase
         Dbg.Instance = null;
         
         var finalReport = Adapter.GenerateHandles();
-        var finalDiff   = StartReport.GetHandleDiff(finalReport);
+        var finalDiff   = StartHandles.GetHandleDiff(finalReport);
         
         AssertResourceLeaks(finalDiff);
     }
