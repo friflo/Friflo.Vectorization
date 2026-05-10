@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
@@ -48,13 +49,13 @@ namespace Friflo.Vectorization.WebGPU;
  */
 
 
-public sealed unsafe class WgpuInstance : IDisposable
+public sealed unsafe class WgpuInstance : GpuInstance
 {
     private readonly    Webgpu      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
-    public              bool        IsDisposed => isDisposed;
+    public  override    bool        IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -81,7 +82,7 @@ public sealed unsafe class WgpuInstance : IDisposable
     }
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -140,7 +141,10 @@ public sealed unsafe class WgpuInstance : IDisposable
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
         }
-        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance);
+        var props = new AdapterProperties();
+        wgpu.AdapterGetProperties(adapter, ref props);
+        var info = WgpuAdapter.CreateAdapterInfo(props, adapter);
+        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
     }
     
     public GlobalReport GenerateReport () {
@@ -176,7 +180,7 @@ public sealed unsafe class WgpuInstance : IDisposable
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            infos[i] = new WgpuAdapterInfo(props, adapter);
+            infos[i] = WgpuAdapter.CreateAdapterInfo(props, adapter);
         }
         return infos;
     }

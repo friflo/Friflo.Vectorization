@@ -3,38 +3,18 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-public sealed unsafe class WgpuAdapterInfo
+public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
-    public      uint        VendorID            { get; }
-    public      uint        DeviceID            { get; }
-    public      string      Name                { get; }
-    public      string      DriverDescription   { get; }
-    public      AdapterType AdapterType         { get; }
-    public      BackendType BackendType         { get; }
-    internal    Adapter*    Adapter             { get; }
-
-    internal WgpuAdapterInfo(AdapterProperties props, Adapter* adapter)
-    {
-        VendorID            = props.VendorID;
-        DeviceID            = props.DeviceID;
-        AdapterType         = props.AdapterType;
-        BackendType         = props.BackendType;
-        Name                = PtrToString(props.Name);
-        DriverDescription   = PtrToString(props.DriverDescription);
-        Adapter             = adapter;
-    }
-
-    internal static string PtrToString(byte* ptr)
-    {
-        if (ptr == null) return string.Empty;
-        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
-    }
+    public      AdapterType AdapterType         { get; init; }
+    public      BackendType BackendType         { get; init; }
+    public      Adapter*    Adapter             { get; init; }
 
     public override string ToString() {
         return $"GPU: {Name}  Backend: {BackendType}  Driver: {DriverDescription}  Type: {AdapterType}  Vendor: {VendorID:X}  Devive: {DeviceID:X}";

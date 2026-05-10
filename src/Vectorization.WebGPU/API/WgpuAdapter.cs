@@ -12,14 +12,15 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-public sealed unsafe class WgpuAdapter : IDisposable
+public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
 {
     private readonly    Webgpu      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Adapter*    adapter;
     private readonly    Instance*   instance;
+    public  readonly    WgpuAdapterInfo info;
     private             bool        isDisposed;
-    public              bool        IsDisposed => isDisposed;
+    public  override    bool            IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -27,7 +28,7 @@ public sealed unsafe class WgpuAdapter : IDisposable
     
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -45,15 +46,16 @@ public sealed unsafe class WgpuAdapter : IDisposable
         isDisposed = true;
     }
     
-    internal WgpuAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
+    internal WgpuAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
         this.adapter    = adapter;
         this.instance   = instance;
+        this.info       = info;
     }
 
-    public GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
@@ -82,11 +84,56 @@ public sealed unsafe class WgpuAdapter : IDisposable
         return new GpuDevice(native, label, slotSize);
     }
     
-    public WgpuAdapterInfo GetAdapterInfo ()
+    public override GpuHandleDiff GenerateHandles () {
+        var globalReport = new GlobalReport();
+        wgpuEx.GenerateReport(instance, &globalReport);
+        var hubReport = GetReport(globalReport, info.BackendType);
+        return GpuHandles(hubReport);
+    }
+    
+    private static HubReport GetReport(GlobalReport report, BackendType type)
     {
-        var props = new AdapterProperties();
-        wgpu.AdapterGetProperties(adapter, ref props);
-        return new WgpuAdapterInfo(props, adapter);
+        return type switch {
+            BackendType.Vulkan   => report.Vulkan,
+            BackendType.Metal    => report.Metal,
+            BackendType.D3D11    => report.Dx12,
+            BackendType.D3D12    => report.Dx12,
+            _                    => report.Gl,
+        };
+    }
+    
+    private static GpuHandleDiff GpuHandles(in HubReport report)
+    {
+        return new GpuHandleDiff {
+            Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
+            Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
+            BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
+            BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser),
+            ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser),
+            CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser),
+            ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
+            PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
+        };
+
+    }
+    
+    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
+    {
+        return new WgpuAdapterInfo {
+            VendorID            = props.VendorID,
+            DeviceID            = props.DeviceID,
+            AdapterType         = props.AdapterType,
+            BackendType         = props.BackendType,
+            Name                = PtrToString(props.Name),
+            DriverDescription   = PtrToString(props.DriverDescription),
+            Adapter             = adapter
+        };
+    }
+    
+    private static string PtrToString(byte* ptr)
+    {
+        if (ptr == null) return string.Empty;
+        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)
