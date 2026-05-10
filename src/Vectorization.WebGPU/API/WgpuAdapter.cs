@@ -114,26 +114,6 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
             ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
             PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
         };
-
-    }
-    
-    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
-    {
-        return new WgpuAdapterInfo {
-            VendorID            = props.VendorID,
-            DeviceID            = props.DeviceID,
-            AdapterType         = props.AdapterType,
-            BackendType         = props.BackendType,
-            Name                = PtrToString(props.Name),
-            DriverDescription   = PtrToString(props.DriverDescription),
-            Adapter             = adapter
-        };
-    }
-    
-    private static string PtrToString(byte* ptr)
-    {
-        if (ptr == null) return string.Empty;
-        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)

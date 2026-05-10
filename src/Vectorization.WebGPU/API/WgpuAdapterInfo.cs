@@ -19,4 +19,24 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
     public override string ToString() {
         return $"GPU: {Name}  Backend: {BackendType}  Driver: {DriverDescription}  Type: {AdapterType}  Vendor: {VendorID:X}  Devive: {DeviceID:X}";
     }
+    
+    
+    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
+    {
+        return new WgpuAdapterInfo {
+            VendorID            = props.VendorID,
+            DeviceID            = props.DeviceID,
+            AdapterType         = props.AdapterType,
+            BackendType         = props.BackendType,
+            Name                = PtrToString(props.Name),
+            DriverDescription   = PtrToString(props.DriverDescription),
+            Adapter             = adapter
+        };
+    }
+    
+    private static string PtrToString(byte* ptr)
+    {
+        if (ptr == null) return string.Empty;
+        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
+    }
 }

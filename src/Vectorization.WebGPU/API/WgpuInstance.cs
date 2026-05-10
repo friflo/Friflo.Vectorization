@@ -143,7 +143,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         }
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
-        var info = WgpuAdapter.CreateAdapterInfo(props, adapter);
+        var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
         return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
     }
     
@@ -180,7 +180,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            infos[i] = WgpuAdapter.CreateAdapterInfo(props, adapter);
+            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
         }
         return infos;
     }
