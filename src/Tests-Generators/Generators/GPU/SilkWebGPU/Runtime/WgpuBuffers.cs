@@ -10,7 +10,7 @@ using Friflo.Vectorization.GPU;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WGPU.Runtime;
+namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct WgpuBuffers

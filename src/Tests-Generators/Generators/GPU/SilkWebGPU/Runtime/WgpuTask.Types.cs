@@ -10,7 +10,7 @@ using Silk.NET.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WGPU.Runtime;
+namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuEncoder

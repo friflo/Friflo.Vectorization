@@ -7,7 +7,7 @@ using Silk.NET.WebGPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WGPU;
+namespace Friflo.Vectorization.SilkWebGPU;
 
 public sealed unsafe class WgpuAdapterInfo
 {

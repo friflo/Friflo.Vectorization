@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WGPU;
-using Friflo.Vectorization.WGPU.Runtime;
+using Friflo.Vectorization.SilkWebGPU;
+using Friflo.Vectorization.SilkWebGPU.Runtime;
 using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local

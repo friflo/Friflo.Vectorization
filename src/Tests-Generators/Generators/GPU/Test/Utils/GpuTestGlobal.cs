@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Friflo.Vectorization.WGPU;
+using Friflo.Vectorization.SilkWebGPU;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;

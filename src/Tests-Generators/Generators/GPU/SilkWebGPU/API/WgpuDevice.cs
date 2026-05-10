@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU._Native;
-using Friflo.Vectorization.WGPU.Runtime;
+using Friflo.Vectorization.SilkWebGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
@@ -16,7 +16,7 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WGPU;
+namespace Friflo.Vectorization.SilkWebGPU;
 
 //      Feature Set / Properties
 //      -------------------------
