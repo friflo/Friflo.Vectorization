@@ -18,7 +18,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
     private readonly    Wgpu            wgpuEx;
     private readonly    Adapter*        adapter;
     private readonly    Instance*       instance;
-    private readonly    WgpuAdapterInfo info;
+    public  readonly    WgpuAdapterInfo info;
     private             bool            isDisposed;
     public  override    bool            IsDisposed => isDisposed;
     
@@ -84,13 +84,6 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         return new GpuDevice(native, label, slotSize);
     }
     
-    public WgpuAdapterInfo GetAdapterInfo ()
-    {
-        var props = new AdapterProperties();
-        wgpu.AdapterGetProperties(adapter, ref props);
-        return new WgpuAdapterInfo(props, adapter);
-    }
-    
     public override GpuHandles GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuEx.GenerateReport(instance, &globalReport);
@@ -121,6 +114,25 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         result.ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser);
         result.PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser);
         return result;
+    }
+    
+    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
+    {
+        return new WgpuAdapterInfo {
+            VendorID            = props.VendorID,
+            DeviceID            = props.DeviceID,
+            AdapterType         = props.AdapterType,
+            BackendType         = props.BackendType,
+            Name                = PtrToString(props.Name),
+            DriverDescription   = PtrToString(props.DriverDescription),
+            Adapter             = adapter
+        };
+    }
+    
+    private static string PtrToString(byte* ptr)
+    {
+        if (ptr == null) return string.Empty;
+        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)

@@ -23,7 +23,7 @@ public sealed class GpuTestGlobal
         Adapter = Instance.RequestAdapter(default, null); // adapterProperty <= use specific adapter
         
         // get type of selected GPU backend
-        var props       = Adapter.GetAdapterInfo();
+        var info       = Adapter.info;
     }
 
     [OneTimeTearDown]

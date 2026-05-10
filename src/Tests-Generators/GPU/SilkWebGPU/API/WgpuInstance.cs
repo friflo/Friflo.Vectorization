@@ -141,7 +141,7 @@ public sealed unsafe class WgpuInstance : IDisposable
         }
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
-        var info = new WgpuAdapterInfo(props, adapter);
+        var info = WgpuAdapter.CreateAdapterInfo(props, adapter);
         return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
     }
     
@@ -178,7 +178,7 @@ public sealed unsafe class WgpuInstance : IDisposable
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            infos[i] = new WgpuAdapterInfo(props, adapter);
+            infos[i] = WgpuAdapter.CreateAdapterInfo(props, adapter);
         }
         return infos;
     }
