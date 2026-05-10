@@ -10,18 +10,19 @@ namespace Tests.GPU;
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static WgpuInstance  Instance    { get; private set; }
+    public static GpuInstance   Instance    { get; private set; }
     public static GpuAdapter    Adapter     { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
-        Instance = WgpuInstance.CreateInstance(new InstanceExtras {
+        var instance = WgpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
-        var infos       = Instance.GetAdapterInfos();
+        var infos       = instance.GetAdapterInfos();
         var adapterInfo = infos.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
-        Adapter = Instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Instance        = instance;
     }
 
     [OneTimeTearDown]
