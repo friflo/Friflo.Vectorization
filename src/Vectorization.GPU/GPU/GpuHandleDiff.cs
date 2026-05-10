@@ -22,29 +22,29 @@ public struct GpuHandle
 }
 
 
-public struct GpuHandles
+public readonly struct GpuHandleDiff
 {
-    public  GpuHandle   Devices             { get; set; }
-    public  GpuHandle   Buffers             { get; set; }
-    public  GpuHandle   BindGroups          { get; set; }
-    public  GpuHandle   BindGroupLayouts    { get; set; }
-    public  GpuHandle   ComputePipelines    { get; set; }
-    public  GpuHandle   CommandBuffers      { get; set; }
-    public  GpuHandle   ShaderModules       { get; set; }
-    public  GpuHandle   PipelineLayouts     { get; set; }
+    public  GpuHandle   Devices             { get; init; }
+    public  GpuHandle   Buffers             { get; init; }
+    public  GpuHandle   BindGroups          { get; init; }
+    public  GpuHandle   BindGroupLayouts    { get; init; }
+    public  GpuHandle   ComputePipelines    { get; init; }
+    public  GpuHandle   CommandBuffers      { get; init; }
+    public  GpuHandle   ShaderModules       { get; init; }
+    public  GpuHandle   PipelineLayouts     { get; init; }
     
-    public GpuHandles GetHandleDiff(in GpuHandles cur)
+    public GpuHandleDiff GetHandleDiff(in GpuHandleDiff cur)
     {
-        var result = new GpuHandles();
-        result.Devices             = new GpuHandle(Devices,             cur.Devices);
-        result.Buffers             = new GpuHandle(Buffers,             cur.Buffers);
-        result.BindGroups          = new GpuHandle(BindGroups,          cur.BindGroups);
-        result.BindGroupLayouts    = new GpuHandle(BindGroupLayouts,    cur.BindGroupLayouts);
-        result.ComputePipelines    = new GpuHandle(ComputePipelines,    cur.ComputePipelines);
-        result.CommandBuffers      = new GpuHandle(CommandBuffers,      cur.CommandBuffers);
-        result.ShaderModules       = new GpuHandle(ShaderModules,       cur.ShaderModules);
-        result.PipelineLayouts     = new GpuHandle(PipelineLayouts,     cur.PipelineLayouts);
-        return result;
+        return new GpuHandleDiff {
+            Devices             = new GpuHandle(Devices,             cur.Devices),
+            Buffers             = new GpuHandle(Buffers,             cur.Buffers),
+            BindGroups          = new GpuHandle(BindGroups,          cur.BindGroups),
+            BindGroupLayouts    = new GpuHandle(BindGroupLayouts,    cur.BindGroupLayouts),
+            ComputePipelines    = new GpuHandle(ComputePipelines,    cur.ComputePipelines),
+            CommandBuffers      = new GpuHandle(CommandBuffers,      cur.CommandBuffers),
+            ShaderModules       = new GpuHandle(ShaderModules,       cur.ShaderModules),
+            PipelineLayouts     = new GpuHandle(PipelineLayouts,     cur.PipelineLayouts)
+        };
     }
     
     public bool IsDiffNull()

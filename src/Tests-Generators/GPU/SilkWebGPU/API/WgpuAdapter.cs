@@ -84,7 +84,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         return new GpuDevice(native, label, slotSize);
     }
     
-    public override GpuHandles GenerateHandles () {
+    public override GpuHandleDiff GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuEx.GenerateReport(instance, &globalReport);
         var hubReport = GetReport(globalReport, info.BackendType);
@@ -102,18 +102,19 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         };
     }
     
-    private static GpuHandles GpuHandles(in HubReport report)
+    private static GpuHandleDiff GpuHandles(in HubReport report)
     {
-        var result = new GpuHandles();
-        result.Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser);
-        result.Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser);
-        result.BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser);
-        result.BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser);
-        result.ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser);
-        result.CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser);
-        result.ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser);
-        result.PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser);
-        return result;
+        return new GpuHandleDiff {
+            Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
+            Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
+            BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
+            BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser),
+            ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser),
+            CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser),
+            ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
+            PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
+        };
+
     }
     
     internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)

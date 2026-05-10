@@ -8,6 +8,6 @@ using Tests.GPU;
 /// </summary>
 internal static class Dbg
 {
-    internal static GpuTestBase  Instance;
-    internal static GpuHandles   HandleDiff => Instance.HandleDiff;
+    internal static GpuTestBase     Instance;
+    internal static GpuHandleDiff   HandleDiff => Instance.HandleDiff;
 }
