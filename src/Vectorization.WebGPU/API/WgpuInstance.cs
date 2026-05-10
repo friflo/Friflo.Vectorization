@@ -7,9 +7,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.SilkWebGPU;
+namespace Friflo.Vectorization.WebGPU;
 
 /*
     Important note for Dispose pattern
@@ -49,7 +50,7 @@ namespace Friflo.Vectorization.SilkWebGPU;
 
 public sealed unsafe class WgpuInstance : IDisposable
 {
-    private readonly    WebGPU      wgpu;
+    private readonly    Webgpu      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
@@ -62,7 +63,7 @@ public sealed unsafe class WgpuInstance : IDisposable
     //          Since the GC does not guarantee the order of finalization,
     //          the managed API wrappers (WebGPU/Wgpu) could be collected before the Gpu* objects.
     //          Static fields act as GC Roots, ensuring the API wrappers remain alive as long as the process runs.
-    private static readonly WebGPU      WgpuStatic      = WebGPU.GetApi();
+    private static readonly Webgpu      WgpuStatic      = Webgpu.GetApi();
     private static readonly Wgpu        WgpuExStatic    = GetDeviceExtension();
     
     private static Wgpu GetDeviceExtension() {
@@ -72,7 +73,7 @@ public sealed unsafe class WgpuInstance : IDisposable
         return wgpuEx;
     }
     
-    private WgpuInstance(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
+    private WgpuInstance(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
@@ -148,7 +149,7 @@ public sealed unsafe class WgpuInstance : IDisposable
         return report;
     }
     
-    internal static void PumpEvents(WebGPU wgpu, Wgpu wgpuEx, Instance* instance)
+    internal static void PumpEvents(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
     {
         wgpu.InstanceProcessEvents(instance);
 

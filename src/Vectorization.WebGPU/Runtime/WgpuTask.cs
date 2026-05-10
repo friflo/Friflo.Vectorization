@@ -10,16 +10,17 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU._Native;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.SilkWebGPU.Runtime;
+namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class WgpuTask : NativeTask, IDisposable
 {
     private  readonly   WgpuDevice          device;
-    internal readonly   WebGPU              wgpu;
+    internal readonly   Webgpu              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
