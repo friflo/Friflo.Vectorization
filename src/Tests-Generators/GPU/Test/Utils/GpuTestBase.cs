@@ -2,7 +2,6 @@
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.SilkWebGPU;
 using NUnit.Framework;
-using Silk.NET.WebGPU.Extensions.WGPU;
 
 namespace Tests.GPU;
 
@@ -13,8 +12,8 @@ public abstract class GpuTestBase
     
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
-    protected   GlobalReport    StartReport     { get; private set; }
-    public      GpuHandles      Handles         => new (StartReport, Instance.GenerateReport(), GpuTestGlobal.GpuBackendType);
+    protected   GpuHandles      StartReport     { get; private set; }
+    public      GpuHandles      Handles         => StartReport.GetDiff(Adapter.GenerateHandles());
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -22,7 +21,7 @@ public abstract class GpuTestBase
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance    = this;
-        StartReport     = Instance.GenerateReport();
+        StartReport     = Adapter.GenerateHandles();
         Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
     }
 
@@ -37,8 +36,8 @@ public abstract class GpuTestBase
         GC.WaitForPendingFinalizers(); // required to execute ~GpuDevice()
         Dbg.Instance = null;
         
-        var finalReport = Instance.GenerateReport();
-        var finalDiff   = new GpuHandles(StartReport, finalReport, GpuTestGlobal.GpuBackendType);
+        var finalReport = Adapter.GenerateHandles();
+        var finalDiff   = StartReport.GetDiff(finalReport);
         
         AssertResourceLeaks(finalDiff);
     }

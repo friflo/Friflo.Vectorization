@@ -7,18 +7,20 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
+using Tests.GPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.SilkWebGPU;
 
-public sealed unsafe class WgpuAdapter : IDisposable
+public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
 {
-    private readonly    WebGPU      wgpu;
-    private readonly    Wgpu        wgpuEx;
-    private readonly    Adapter*    adapter;
-    private readonly    Instance*   instance;
-    private             bool        isDisposed;
-    public              bool        IsDisposed => isDisposed;
+    private readonly    WebGPU          wgpu;
+    private readonly    Wgpu            wgpuEx;
+    private readonly    Adapter*        adapter;
+    private readonly    Instance*       instance;
+    private readonly    WgpuAdapterInfo info;
+    private             bool            isDisposed;
+    public  override    bool            IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -44,15 +46,16 @@ public sealed unsafe class WgpuAdapter : IDisposable
         isDisposed = true;
     }
     
-    internal WgpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance)
+    internal WgpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
         this.adapter    = adapter;
         this.instance   = instance;
+        this.info       = info;
     }
 
-    public GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
@@ -86,6 +89,38 @@ public sealed unsafe class WgpuAdapter : IDisposable
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
         return new WgpuAdapterInfo(props, adapter);
+    }
+    
+    public GpuHandles GenerateHandles () {
+        var globalReport = new GlobalReport();
+        wgpuEx.GenerateReport(instance, &globalReport);
+        var hubReport = GetReport(globalReport, info.BackendType);
+        return GpuHandles(hubReport);
+    }
+    
+    private static HubReport GetReport(GlobalReport report, BackendType type)
+    {
+        return type switch {
+            BackendType.Vulkan   => report.Vulkan,
+            BackendType.Metal    => report.Metal,
+            BackendType.D3D11    => report.Dx12,
+            BackendType.D3D12    => report.Dx12,
+            _                    => report.Gl,
+        };
+    }
+    
+    private static GpuHandles GpuHandles(in HubReport report)
+    {
+        var result = new GpuHandles();
+        result.Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser);
+        result.Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser);
+        result.BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser);
+        result.BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser);
+        result.ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser);
+        result.CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser);
+        result.ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser);
+        result.PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser);
+        return result;
     }
     
     private static void OnGpuError(ErrorType type, byte* message, void* userData)

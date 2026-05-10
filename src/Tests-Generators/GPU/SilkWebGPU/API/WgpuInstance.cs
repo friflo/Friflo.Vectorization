@@ -139,7 +139,10 @@ public sealed unsafe class WgpuInstance : IDisposable
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
         }
-        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance);
+        var props = new AdapterProperties();
+        wgpu.AdapterGetProperties(adapter, ref props);
+        var info = new WgpuAdapterInfo(props, adapter);
+        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
     }
     
     public GlobalReport GenerateReport () {

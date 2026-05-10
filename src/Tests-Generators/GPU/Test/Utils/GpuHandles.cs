@@ -1,7 +1,4 @@
-﻿using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
-
-// ReSharper disable ConvertToPrimaryConstructor
+﻿// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable RedundantSwitchExpressionArms
 namespace Tests.GPU;
@@ -13,36 +10,42 @@ public struct GpuHandle
 
     public override string ToString() => $"{Active}  {Diff,5:+0;-0;0}";
     
-    public GpuHandle(RegistryReport start, RegistryReport cur) {
-        Active  = (long)start.NumKeptFromUser;
-        Diff    = (long)(cur.NumKeptFromUser -  start.NumKeptFromUser);
+    public GpuHandle(long active) {
+        Active  = active;
+    }
+    
+    public GpuHandle(GpuHandle start, GpuHandle cur) {
+        Active  = start.Active;
+        Diff    = cur.Active - start.Active;
     }
 }
 
 
 public struct GpuHandles
 {
-    public  GpuHandle   Devices             { get; private set; }
-    public  GpuHandle   Buffers             { get; private set; }
-    public  GpuHandle   BindGroups          { get; private set; }
-    public  GpuHandle   BindGroupLayouts    { get; private set; }
-    public  GpuHandle   ComputePipelines    { get; private set; }
-    public  GpuHandle   CommandBuffers      { get; private set; }
-    public  GpuHandle   ShaderModules       { get; private set; }
-    public  GpuHandle   PipelineLayouts     { get; private set; }
+    public  GpuHandle   Devices             { get; set; }
+    public  GpuHandle   Buffers             { get; set; }
+    public  GpuHandle   BindGroups          { get; set; }
+    public  GpuHandle   BindGroupLayouts    { get; set; }
+    public  GpuHandle   ComputePipelines    { get; set; }
+    public  GpuHandle   CommandBuffers      { get; set; }
+    public  GpuHandle   ShaderModules       { get; set; }
+    public  GpuHandle   PipelineLayouts     { get; set; }
     
-    public GpuHandles(in GlobalReport startReport, in GlobalReport curReport, GpuBackendType type)
+
+    
+    public GpuHandles GetDiff(in GpuHandles cur)
     {
-        var start   = GetReport(startReport, type);
-        var cur     = GetReport(curReport, type);
-        Devices             = new GpuHandle(start.Devices           , cur.Devices);
-        Buffers             = new GpuHandle(start.Buffers           , cur.Buffers);
-        BindGroups          = new GpuHandle(start.BindGroups        , cur.BindGroups);
-        BindGroupLayouts    = new GpuHandle(start.BindGroupLayouts  , cur.BindGroupLayouts);
-        ComputePipelines    = new GpuHandle(start.ComputePipelines  , cur.ComputePipelines);
-        CommandBuffers      = new GpuHandle(start.CommandBuffers    , cur.CommandBuffers);
-        ShaderModules       = new GpuHandle(start.ShaderModules     , cur.ShaderModules);
-        PipelineLayouts     = new GpuHandle(start.PipelineLayouts   , cur.PipelineLayouts);
+        var result = new GpuHandles();
+        result.Devices             = new GpuHandle(Devices,             cur.Devices);
+        result.Buffers             = new GpuHandle(Buffers,             cur.Buffers);
+        result.BindGroups          = new GpuHandle(BindGroups,          cur.BindGroups);
+        result.BindGroupLayouts    = new GpuHandle(BindGroupLayouts,    cur.BindGroupLayouts);
+        result.ComputePipelines    = new GpuHandle(ComputePipelines,    cur.ComputePipelines);
+        result.CommandBuffers      = new GpuHandle(CommandBuffers,      cur.CommandBuffers);
+        result.ShaderModules       = new GpuHandle(ShaderModules,       cur.ShaderModules);
+        result.PipelineLayouts     = new GpuHandle(PipelineLayouts,     cur.PipelineLayouts);
+        return result;
     }
     
     public bool IsDiffNull()
@@ -73,40 +76,4 @@ ShaderModules    {ShaderModules     .Active,4} {ShaderModules     .Diff,5:+0;-0;
 PipelineLayouts  {PipelineLayouts   .Active,4} {PipelineLayouts   .Diff,5:+0;-0;0}
 ";
     }
-    
-    private static HubReport GetReport(GlobalReport report, GpuBackendType type)
-    {
-        return type switch {
-            GpuBackendType.Vulkan   => report.Vulkan,
-            GpuBackendType.Metal    => report.Metal,
-            GpuBackendType.Dx12     => report.Dx12,
-            GpuBackendType.Gl       => report.Gl,
-            _                       => report.Gl,
-        };
-    }
-    
-    public static GpuBackendType GetHandleType(BackendType backendType)
-    {
-        return backendType switch {
-            BackendType.D3D11       => GpuBackendType.Dx12,
-            BackendType.D3D12       => GpuBackendType.Dx12,
-            BackendType.Force32     => GpuBackendType.Gl,
-            BackendType.Metal       => GpuBackendType.Metal,
-            BackendType.Null        => GpuBackendType.Gl,
-            BackendType.OpenGL      => GpuBackendType.Gl,
-            BackendType.OpenGles    => GpuBackendType.Gl,
-            BackendType.Undefined   => GpuBackendType.Gl,
-            BackendType.Vulkan      => GpuBackendType.Vulkan,
-            BackendType.WebGpu      => GpuBackendType.Gl,
-            _                       => GpuBackendType.Gl
-        };
-    }
-}
-
-public enum GpuBackendType
-{
-    Vulkan,
-    Metal,
-    Dx12,
-    Gl
 }

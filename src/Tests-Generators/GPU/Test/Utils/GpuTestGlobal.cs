@@ -9,10 +9,8 @@ namespace Tests.GPU;
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static WgpuInstance      Instance        { get; private set; }
-    public static WgpuAdapter       Adapter         { get; private set; }
-    public static BackendType       BackendType     { get; private set; }
-    public static GpuBackendType    GpuBackendType  { get; private set; }
+    public static WgpuInstance  Instance    { get; private set; }
+    public static WgpuAdapter   Adapter     { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -26,8 +24,6 @@ public sealed class GpuTestGlobal
         
         // get type of selected GPU backend
         var props       = Adapter.GetAdapterInfo();
-        BackendType     = props.BackendType;
-        GpuBackendType	= GpuHandles.GetHandleType(BackendType);
     }
 
     [OneTimeTearDown]
