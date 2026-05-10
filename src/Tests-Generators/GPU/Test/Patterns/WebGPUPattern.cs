@@ -2,40 +2,19 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.SilkWebGPU;
-using Friflo.Vectorization.SilkWebGPU.Runtime;
+using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
-public static class GpuPattern
+public static class WebGPUPattern
 {
-    // generated shadow Method
-    public static GpuBuffer<float> ShadowMethod(
-        Buffer<float>   weight,
-        Buffer<float>   input,
-        float           bias,
-        ExeType         exe,
-        Buffer<float>   output = default)
-    {
-        if (exe == ExeType.GPU) {
-            return ShadowMethod_GPU(weight, input, bias, output);
-        }
-        // Scalar / SIMD
-        ShadowMethod_AVX(weight, input, bias, output);
-        return null;
-    }
-    
-    // generated AVX method
-    private static void ShadowMethod_AVX(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output) {
-        // ...
-    }
-    
     // generated GPU method
     [SkipLocalsInit]
-    private static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
+    internal static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
     {
         var buffers = new WgpuBuffers();
         buffers.Validate(weight, nameof(weight));
