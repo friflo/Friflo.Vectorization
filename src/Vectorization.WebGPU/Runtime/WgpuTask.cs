@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU._Native;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
@@ -17,7 +17,7 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class WgpuTask : NativeTask, IDisposable
+public sealed unsafe class WgpuTask : GpuTask, IDisposable
 {
     private  readonly   WgpuDevice          device;
     internal readonly   Webgpu              wgpu;
@@ -27,7 +27,7 @@ public sealed unsafe class WgpuTask : NativeTask, IDisposable
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
     private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
     internal            CommandBuffer*      commandBuffer;
-    private readonly    List<NativeTask>    dependencies = new();       // Tasks that MUST finish before this one starts
+    private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
     
     private readonly    int                 taskIndex;
     private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
@@ -162,7 +162,7 @@ public sealed unsafe class WgpuTask : NativeTask, IDisposable
         dependencies.Clear();
     }
 
-    public void AddDependency(NativeTask predecessor) {
+    public void AddDependency(GpuTask predecessor) {
         if (predecessor == this) return; // Prevent brain-loop
         if (!dependencies.Contains(predecessor))
         {

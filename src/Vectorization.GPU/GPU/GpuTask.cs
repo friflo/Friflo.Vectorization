@@ -5,10 +5,10 @@ using System;
 using System.ComponentModel;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU._Native;
+namespace Friflo.Vectorization.GPU;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class NativeTask : IDisposable
+public abstract class GpuTask : IDisposable
 {
     public  bool    IsSubmitted     { get; protected set; }
     public  bool    IsCompleted     { get; protected set; }

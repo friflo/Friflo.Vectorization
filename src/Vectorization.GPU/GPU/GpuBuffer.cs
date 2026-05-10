@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using Friflo.Vectorization.GPU._Native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -17,7 +16,7 @@ public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
     public  readonly    int         Length;
     public	readonly    long        Id      = GpuBufferUtils.NextId();
     public	abstract    GpuDevice   Device  { get; }
-    public              NativeTask  LastWritingTask;
+    public              GpuTask     LastWritingTask;
     
     public  override    string      ToString() => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
 

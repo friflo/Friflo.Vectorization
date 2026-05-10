@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU._Native;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
@@ -306,7 +305,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
         
-    public override void SubmitGraph(NativeTask finalTask)
+    public override void SubmitGraph(GpuTask finalTask)
     {
         // 1. Flatten the tree (Breadth-First or Depth-First Search)
         // To find the correct execution order (Topological Sort)
@@ -326,7 +325,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
 
-    private IEnumerable<WgpuTask> SortTasks(NativeTask finalTask)
+    private IEnumerable<WgpuTask> SortTasks(GpuTask finalTask)
     {
         throw new NotImplementedException();
     }

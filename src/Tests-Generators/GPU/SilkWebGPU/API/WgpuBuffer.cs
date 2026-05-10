@@ -4,7 +4,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU._Native;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 using Webgpu = Silk.NET.WebGPU.WebGPU;

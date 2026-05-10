@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU._Native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -31,6 +30,6 @@ public abstract class GpuDevice : IDisposable
     
     public abstract void            Flush(bool wait = true);
     public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;
-    public abstract void            SubmitGraph(NativeTask finalTask);
+    public abstract void            SubmitGraph(GpuTask finalTask);
 }
 
