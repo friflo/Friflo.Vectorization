@@ -43,7 +43,7 @@ public abstract class GpuTestBase
 
     private static void AssertResourceLeaks(GpuHandleDiff handleDiff)
     {
-        if (handleDiff.IsDiffNull()) {
+        if (handleDiff.IsDiffZero()) {
             return;
         }
         // return;

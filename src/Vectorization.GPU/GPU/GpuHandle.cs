@@ -15,7 +15,7 @@ public readonly struct GpuHandle
         Active  = active;
     }
     
-    public GpuHandle(GpuHandle start, GpuHandle cur) {
+    public GpuHandle(in GpuHandle start, in GpuHandle cur) {
         Active  = start.Active;
         Diff    = cur.Active - start.Active;
     }
@@ -47,7 +47,7 @@ public readonly struct GpuHandleDiff
         };
     }
     
-    public bool IsDiffNull()
+    public bool IsDiffZero()
     {
         return (Devices.           Diff == 0 &&
                 Buffers.           Diff == 0 &&
