@@ -135,24 +135,24 @@ public class TestCompute : GpuTestBase
         using var gpuOutput2  = device.CreateBuffer(output2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output2");
         using var gpuOutput3  = device.CreateBuffer(output3, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output3");
         
-        Assert.AreEqual(0, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(0, Handles.BindGroups.Diff);
+        Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
+        Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
-        Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, Handles.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 43, ExeType.GPU, gpuOutput2);
-        Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(4, Handles.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
+        Assert.AreEqual(4, HandleDiff.BindGroups.Diff);
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 44, ExeType.GPU, gpuOutput);
-        Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(5, Handles.BindGroups.Diff); // cache hit: gpuOutput
+        Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
+        Assert.AreEqual(5, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
         
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 45, ExeType.GPU, gpuOutput3);
-        Assert.AreEqual(2, Handles.BindGroupLayouts.Diff);
-        Assert.AreEqual(7, Handles.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
+        Assert.AreEqual(7, HandleDiff.BindGroups.Diff);
         
         device.Wait(gpuOutput);
         

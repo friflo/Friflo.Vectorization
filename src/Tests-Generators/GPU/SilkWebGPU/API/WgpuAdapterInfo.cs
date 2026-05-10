@@ -30,7 +30,7 @@ public sealed unsafe class WgpuAdapterInfo
         Adapter             = adapter;
     }
 
-    internal static string PtrToString(byte* ptr)
+    private static string PtrToString(byte* ptr)
     {
         if (ptr == null) return string.Empty;
         return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;

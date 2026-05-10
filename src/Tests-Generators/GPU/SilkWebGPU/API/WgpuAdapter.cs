@@ -91,7 +91,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         return new WgpuAdapterInfo(props, adapter);
     }
     
-    public GpuHandles GenerateHandles () {
+    public override GpuHandles GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuEx.GenerateReport(instance, &globalReport);
         var hubReport = GetReport(globalReport, info.BackendType);

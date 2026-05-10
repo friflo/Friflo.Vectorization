@@ -8,12 +8,12 @@ namespace Tests.GPU;
 public abstract class GpuTestBase
 {
     protected   WgpuInstance    Instance  => GpuTestGlobal.Instance;
-    protected   WgpuAdapter     Adapter   => GpuTestGlobal.Adapter;
+    protected   GpuAdapter      Adapter   => GpuTestGlobal.Adapter;
     
     // -----------------------  Local Setup -----------------------
     protected   GpuDevice       Device          { get; private set; }
-    protected   GpuHandles      StartReport     { get; private set; }
-    public      GpuHandles      Handles         => StartReport.GetDiff(Adapter.GenerateHandles());
+    private     GpuHandles      StartReport     { get; set; }
+    public      GpuHandles      HandleDiff      => StartReport.GetHandleDiff(Adapter.GenerateHandles());
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
@@ -37,7 +37,7 @@ public abstract class GpuTestBase
         Dbg.Instance = null;
         
         var finalReport = Adapter.GenerateHandles();
-        var finalDiff   = StartReport.GetDiff(finalReport);
+        var finalDiff   = StartReport.GetHandleDiff(finalReport);
         
         AssertResourceLeaks(finalDiff);
     }

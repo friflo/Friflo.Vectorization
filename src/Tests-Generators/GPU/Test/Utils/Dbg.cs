@@ -1,4 +1,5 @@
 ﻿
+using Friflo.Vectorization.GPU;
 using Tests.GPU;
 
 /// <summary>
@@ -8,5 +9,5 @@ using Tests.GPU;
 internal static class Dbg
 {
     internal static GpuTestBase  Instance;
-    internal static GpuHandles   HandleDiff => Instance.Handles;
+    internal static GpuHandles   HandleDiff => Instance.HandleDiff;
 }

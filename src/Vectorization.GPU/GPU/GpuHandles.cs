@@ -1,7 +1,8 @@
 ﻿// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable RedundantSwitchExpressionArms
-namespace Tests.GPU;
+// ReSharper disable once CheckNamespace
+namespace Friflo.Vectorization.GPU;
 
 public struct GpuHandle
 {
@@ -32,9 +33,7 @@ public struct GpuHandles
     public  GpuHandle   ShaderModules       { get; set; }
     public  GpuHandle   PipelineLayouts     { get; set; }
     
-
-    
-    public GpuHandles GetDiff(in GpuHandles cur)
+    public GpuHandles GetHandleDiff(in GpuHandles cur)
     {
         var result = new GpuHandles();
         result.Devices             = new GpuHandle(Devices,             cur.Devices);
