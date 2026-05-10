@@ -8,7 +8,7 @@ using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.GPU;
+namespace Tests.GPU;
 
 public static class GpuPattern
 {

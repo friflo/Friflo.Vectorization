@@ -1,5 +1,5 @@
 ﻿
-using Tests.Generators.GPU;
+using Tests.GPU;
 
 /// <summary>
 /// Used to check GPU handle counts within a debugger from any place using:<br/>

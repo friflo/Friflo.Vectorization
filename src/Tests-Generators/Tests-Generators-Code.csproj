@@ -56,8 +56,5 @@
     <ItemGroup>
         <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Generators\GPU\" />
-    </ItemGroup>
 
 </Project>

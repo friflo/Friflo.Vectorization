@@ -5,7 +5,7 @@ using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.GPU;
+namespace Tests.GPU;
 
 public class Test_GPU_Exceptions : GpuTestBase
 {
