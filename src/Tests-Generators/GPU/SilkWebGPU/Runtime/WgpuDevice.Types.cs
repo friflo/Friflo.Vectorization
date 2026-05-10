@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Silk.NET.WebGPU;
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // file contains structs created by:  GpuDevice
 
@@ -34,14 +35,14 @@ internal struct CacheEntry
     
     public override string  ToString() => bindGroup.ToString();
     
-    internal unsafe void Update(WebGPU wgpu, WgpuBindGroup group, ulong groupHash) {
+    internal unsafe void Update(Webgpu wgpu, WgpuBindGroup group, ulong groupHash) {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         wgpu.BindGroupReference(group.handle);
         bindGroup   = group;
         hash        = groupHash;
     }
     
-    internal unsafe void Release(WebGPU wgpu)
+    internal unsafe void Release(Webgpu wgpu)
     {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         bindGroup   = default;
@@ -72,7 +73,7 @@ public struct WgpuBufferCache
         return default;
     }
 
-    internal void Update(WebGPU wgpu, WgpuBindGroup bindGroup, ulong hash)
+    internal void Update(Webgpu wgpu, WgpuBindGroup bindGroup, ulong hash)
     {
         lruIndex = lruIndex == 1 ? 0 : 1;
         if (lruIndex == 0) {
@@ -82,7 +83,7 @@ public struct WgpuBufferCache
         }
     }
     
-    internal void Release(WebGPU wgpu) {
+    internal void Release(Webgpu wgpu) {
         group0.Release(wgpu);
         group1.Release(wgpu);
     }

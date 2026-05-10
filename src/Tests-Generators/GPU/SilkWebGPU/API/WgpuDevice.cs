@@ -12,6 +12,7 @@ using Friflo.Vectorization.SilkWebGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
@@ -43,7 +44,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     private  readonly   string              label;
     private             bool                isDisposed;
     public   override   bool                IsDisposed => isDisposed;
-    internal readonly   WebGPU              wgpu;
+    internal readonly   Webgpu              wgpu;
     private  readonly   Wgpu                wgpuEx;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
@@ -185,7 +186,7 @@ public sealed unsafe class WgpuDevice : NativeDevice
     }
 
     internal WgpuDevice(
-        WebGPU              wgpu,
+        Webgpu              wgpu,
         Wgpu                wgpuEx,
         string              label,
         Device*             devicePtr,

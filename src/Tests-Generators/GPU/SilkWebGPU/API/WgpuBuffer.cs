@@ -7,7 +7,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU._Native;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
-
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -20,7 +20,7 @@ public sealed unsafe class WgpuBuffer<T> : NativeBuffer<T> where T : unmanaged
     private readonly    string      label;
     internal            Buffer*     handle { get; private set; }
     private             WgpuDevice  Device { get; set; }
-    private readonly    WebGPU      wgpu;
+    private readonly    Webgpu      wgpu;
     public  readonly    int         Length;
     private	readonly    long        Id;
     private readonly    uint        SizeInBytes;

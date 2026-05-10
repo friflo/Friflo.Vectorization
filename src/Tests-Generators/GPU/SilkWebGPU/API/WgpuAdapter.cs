@@ -7,14 +7,14 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
-
+using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.SilkWebGPU;
 
 public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
 {
-    private readonly    WebGPU          wgpu;
+    private readonly    Webgpu          wgpu;
     private readonly    Wgpu            wgpuEx;
     private readonly    Adapter*        adapter;
     private readonly    Instance*       instance;
@@ -46,7 +46,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
         isDisposed = true;
     }
     
-    internal WgpuAdapter(WebGPU wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
+    internal WgpuAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
