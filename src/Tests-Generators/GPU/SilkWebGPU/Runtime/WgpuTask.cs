@@ -17,7 +17,7 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class WgpuTask : NativeTask, IDisposable
+public sealed unsafe class WgpuTask : NativeTask
 {
     private  readonly   WgpuDevice          device;
     internal readonly   Webgpu              wgpu;
