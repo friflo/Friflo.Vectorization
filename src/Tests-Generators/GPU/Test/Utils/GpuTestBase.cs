@@ -1,13 +1,12 @@
 ﻿using System;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.SilkWebGPU;
 using NUnit.Framework;
 
 namespace Tests.GPU;
 
 public abstract class GpuTestBase
 {
-    protected   WgpuInstance    Instance  => GpuTestGlobal.Instance;
+    protected   GpuInstance     Instance  => GpuTestGlobal.Instance;
     protected   GpuAdapter      Adapter   => GpuTestGlobal.Adapter;
     
     // -----------------------  Local Setup -----------------------

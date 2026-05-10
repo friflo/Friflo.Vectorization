@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
 
@@ -47,13 +48,13 @@ namespace Friflo.Vectorization.SilkWebGPU;
  */
 
 
-public sealed unsafe class WgpuInstance : IDisposable
+public sealed unsafe class WgpuInstance : GpuInstance
 {
     private readonly    WebGPU      wgpu;
     private readonly    Wgpu        wgpuEx;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
-    public              bool        IsDisposed => isDisposed;
+    public  override    bool        IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
@@ -80,7 +81,7 @@ public sealed unsafe class WgpuInstance : IDisposable
     }
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }

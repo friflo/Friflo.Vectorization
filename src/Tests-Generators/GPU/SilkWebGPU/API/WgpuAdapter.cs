@@ -28,7 +28,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter, IDisposable
     
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
-    public void Dispose() {
+    public override void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
