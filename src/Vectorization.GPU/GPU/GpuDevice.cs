@@ -11,8 +11,8 @@ namespace Friflo.Vectorization.GPU;
 public abstract class GpuDevice : IDisposable
 {
     public  readonly    string  Label;
-    public              bool    DebugMode   { get; set; } 
     public  readonly    int     SlotSize;
+    public              bool    DebugMode   { get; set; } 
     
     public  override    string  ToString() => Label + (IsDisposed ? ": Disposed" : ": Alive");
 

@@ -14,8 +14,8 @@ public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
 {
     public  readonly    string      Label;
     public  readonly    int         Length;
-    public	readonly    long        Id      = GpuBufferUtils.NextId();
-    public	abstract    GpuDevice   Device  { get; }
+    public	readonly    long        Id              = GpuBufferUtils.NextId();
+    public	abstract    GpuDevice   Device          { get; }
     public              GpuTask     LastWritingTask;
     
     public  override    string      ToString() => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
