@@ -85,7 +85,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
                     Flush(wait: true); // flush all pending GPU operations
-                    wgpuDevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
+                    wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
                 wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
             }
@@ -199,7 +199,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     public void Poll(bool wait) {
-        wgpuDevicePoll(DevicePtr, true, null);
+        wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
     }
 
     internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
@@ -254,7 +254,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         // Is previous batch already send?
         while (inFlightTasks.Count > 0) {
-            wgpuDevicePoll(DevicePtr, true, null); // forces "work done" callback
+            wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         }
         
         if (count > 0) {
@@ -276,7 +276,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
             while (inFlightTasks.Count > 0) {
-                wgpuDevicePoll(DevicePtr, true, null);
+                wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
             }
         }
     }
@@ -333,8 +333,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var desc = new BufferDescriptor {
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
-            usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
-            mappedAtCreation = true                         // We want to write now
+            usage           = usage | BufferUsage.CopyDst,      // CopyDst to write data into
+            mappedAtCreation = WgpuUtils.FromBool(true)         // We want to write now
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
@@ -360,7 +360,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
             usage           = usage,
-            mappedAtCreation = false // buffer is initially empty / unmapped
+            mappedAtCreation = WgpuUtils.FromBool(false) // buffer is initially empty / unmapped
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
@@ -493,8 +493,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 visibility      = ShaderStage.Compute,
                 buffer          = new BufferBindingLayout {
                     type                = entries[i].Type,
-                    hasDynamicOffset    = false,        // default
-                    minBindingSize      = 0             // 0: no validation of minimum size
+                    hasDynamicOffset    = WgpuUtils.FromBool(false),    // default
+                    minBindingSize      = 0                             // 0: no validation of minimum size
                 }
             };
         }

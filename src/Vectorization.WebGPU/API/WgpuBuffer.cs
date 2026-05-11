@@ -78,7 +78,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         var readDesc = new BufferDescriptor {
             size = size,
             usage = BufferUsage.CopyDst | BufferUsage.MapRead,
-            mappedAtCreation = false
+            mappedAtCreation = WgpuUtils.FromBool(false)
         };
         var DevicePtr   = dev.DevicePtr;
         var QueuePtr    = dev.QueuePtr;

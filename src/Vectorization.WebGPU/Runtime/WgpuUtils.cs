@@ -36,4 +36,8 @@ internal static class WgpuUtils
     {
         return new StringView { data = (sbyte*)str, length = (nuint)length };
     }
+    
+    internal static uint FromBool (bool value) {
+        return value ? 1u : 0u;
+    }
 }
