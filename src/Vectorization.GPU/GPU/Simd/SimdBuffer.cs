@@ -3,20 +3,21 @@
 
 
 using System;
+using System.ComponentModel;
 
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
     private   readonly  T[]         array;
-    private             bool        isDisposed;
-    private   readonly  SimdDevice  device;
+    private             SimdDevice  device;
     internal
     protected override  Span<T>     Span        => array.AsSpan();
     public    override  GpuDevice   Device      => device;
-    public    override  bool        IsDisposed  => isDisposed;
+    public    override  bool        IsDisposed  => device == null;
  
     
     internal SimdBuffer(SimdDevice device, T[] array, string label)
@@ -27,7 +28,7 @@ public sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
     }
 
     public override void Dispose() {
-        isDisposed = true;
+        device = null;
     }
 
     public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) { }

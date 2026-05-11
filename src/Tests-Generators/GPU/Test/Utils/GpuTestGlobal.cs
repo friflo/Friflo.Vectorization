@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 using NUnit.Framework;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
@@ -34,9 +33,9 @@ public sealed class GpuTestGlobal
     }
     
     private static void SetupSIMD () {
-        var instance = new SimdInstance();
-        Adapter = instance.CreateAdapter();
-        Instance = instance;
+        var instance    = new SimdInstance();
+        Adapter         = instance.CreateAdapter();
+        Instance        = instance;
     }
     
     private static void SetupWebGPU () {
