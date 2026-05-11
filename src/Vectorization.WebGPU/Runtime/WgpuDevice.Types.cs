@@ -2,8 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using Silk.NET.WebGPU;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // file contains structs created by:  GpuDevice
 
@@ -35,14 +33,14 @@ internal struct CacheEntry
     
     public override string  ToString() => bindGroup.ToString();
     
-    internal unsafe void Update(Webgpu wgpu, WgpuBindGroup group, ulong groupHash) {
+    internal unsafe void Update(WgpuBindGroup group, ulong groupHash) {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         wgpu.BindGroupReference(group.handle);
         bindGroup   = group;
         hash        = groupHash;
     }
     
-    internal unsafe void Release(Webgpu wgpu)
+    internal unsafe void Release()
     {
         if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
         bindGroup   = default;
@@ -73,19 +71,19 @@ public struct WgpuBufferCache
         return default;
     }
 
-    internal void Update(Webgpu wgpu, WgpuBindGroup bindGroup, ulong hash)
+    internal void Update(WgpuBindGroup bindGroup, ulong hash)
     {
         lruIndex = lruIndex == 1 ? 0 : 1;
         if (lruIndex == 0) {
-            group0.Update(wgpu, bindGroup, hash);
+            group0.Update(bindGroup, hash);
         } else {
-            group1.Update(wgpu, bindGroup, hash);
+            group1.Update(bindGroup, hash);
         }
     }
     
-    internal void Release(Webgpu wgpu) {
-        group0.Release(wgpu);
-        group1.Release(wgpu);
+    internal void Release() {
+        group0.Release();
+        group1.Release();
     }
 }
 

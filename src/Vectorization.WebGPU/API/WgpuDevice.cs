@@ -8,10 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
-using Buffer = Silk.NET.WebGPU.Buffer;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
+using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
@@ -42,8 +39,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   bool                IsDisposed => isDisposed;
-    internal readonly   Webgpu              wgpu;
-    private  readonly   Wgpu                wgpuEx;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
         
@@ -100,7 +95,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         for (int n = 0; n < effectSlots.Length; n++) {
             ref var effect = ref effectSlots[n];
-            effect.bufferCache.Release(wgpu);
+            effect.bufferCache.Release();
             if(effect.IsCreated) {
                 if (effect.pipeline.handle != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
             }
@@ -175,12 +170,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        effectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
+        effectSlots[slot].bufferCache.Update(bindGroup, hash);
     }
 
     internal WgpuDevice(
-        Webgpu              wgpu,
-        Wgpu                wgpuEx,
         string              label,
         Device*             devicePtr,
         Queue*              queuePtr,
@@ -188,8 +181,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
         int                 slotSize)
     : base(label, slotSize)
     {
-        this.wgpu           = wgpu;    
-        this.wgpuEx         = wgpuEx;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         queue               = new WgpuQueue(this, queuePtr);

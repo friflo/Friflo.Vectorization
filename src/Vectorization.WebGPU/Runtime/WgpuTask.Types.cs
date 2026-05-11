@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Silk.NET.WebGPU;
 
 // file contains structs created by:  GpuTask
 

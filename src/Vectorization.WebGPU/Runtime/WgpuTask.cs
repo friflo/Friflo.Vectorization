@@ -8,9 +8,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Silk.NET.WebGPU;
-using Buffer = Silk.NET.WebGPU.Buffer;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -20,7 +17,6 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe class WgpuTask : GpuTask, IDisposable
 {
     private  readonly   WgpuDevice          device;
-    internal readonly   Webgpu              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
@@ -43,7 +39,6 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
 
     internal WgpuTask(WgpuDevice device, int taskIndex) {
         this.device         = device;
-        wgpu                = device.wgpu;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         this.taskIndex      = taskIndex;

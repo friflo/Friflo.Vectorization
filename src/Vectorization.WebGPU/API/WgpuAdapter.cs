@@ -5,17 +5,14 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
+
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuAdapter : GpuAdapter
 {
-    private readonly    Webgpu          wgpu;
-    private readonly    Wgpu            wgpuEx;
     private readonly    Adapter*        adapter;
     private readonly    Instance*       instance;
     private readonly    WgpuAdapterInfo info;
@@ -48,10 +45,8 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         isDisposed = true;
     }
     
-    internal WgpuAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
+    internal WgpuAdapter(Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
     {
-        this.wgpu       = wgpu;
-        this.wgpuEx     = wgpuEx;
         this.adapter    = adapter;
         this.instance   = instance;
         this.info       = info;
@@ -72,7 +67,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (device == null) {
-            WgpuInstance.PumpEvents(wgpu, wgpuEx, instance);
+            WgpuInstance.PumpEvents(instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
@@ -82,7 +77,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
+        return new WgpuDevice(label, device, queuePtr, maxTasks, slotSize);
     }
     
     public override GpuLimits GetAdapterLimits()

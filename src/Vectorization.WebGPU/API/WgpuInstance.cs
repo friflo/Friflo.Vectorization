@@ -6,9 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
-using Silk.NET.WebGPU;
-using Silk.NET.WebGPU.Extensions.WGPU;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -51,33 +49,14 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuInstance : GpuInstance
 {
-    private readonly    Webgpu      wgpu;
-    private readonly    Wgpu        wgpuEx;
     private readonly    Instance*   instance;
     private             bool        isDisposed;
     public  override    bool        IsDisposed => isDisposed;
     
     public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
-    // IMPORTANT: WebGPU and Wgpu classes are referenced with static readonly fields.
-    // Reason:  Gpu classes use finalizers to release native resources.
-    //          Since the GC does not guarantee the order of finalization,
-    //          the managed API wrappers (WebGPU/Wgpu) could be collected before the Gpu* objects.
-    //          Static fields act as GC Roots, ensuring the API wrappers remain alive as long as the process runs.
-    private static readonly Webgpu      WgpuStatic      = Webgpu.GetApi();
-    private static readonly Wgpu        WgpuExStatic    = GetDeviceExtension();
-    
-    private static Wgpu GetDeviceExtension() {
-        if (!WgpuStatic.TryGetDeviceExtension(null, out Wgpu wgpuEx)) {
-            throw new Exception("WGPU extension not found!");
-        }
-        return wgpuEx;
-    }
-    
-    private WgpuInstance(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
+    private WgpuInstance(Instance* instance)
     {
-        this.wgpu       = wgpu;
-        this.wgpuEx     = wgpuEx;
         this.instance   = instance;
     }
     
@@ -102,8 +81,6 @@ public sealed unsafe class WgpuInstance : GpuInstance
 
     public static WgpuInstance CreateInstance(InstanceExtras instanceExtras)
     {
-        var wgpu    = WgpuStatic;
-        var wgpuEx  = WgpuExStatic;
         var extras  = instanceExtras;
         
         const SType wgpuSTypeInstanceExtras = (SType)0x60000001;
@@ -119,7 +96,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         if (instance == null) {
             throw new Exception("The Void Stares Back: Failed to create GpuInstance. Check your drivers!");
         }
-        return new WgpuInstance(wgpu, wgpuEx, instance);
+        return new WgpuInstance(instance);
     }
     
     public WgpuAdapter RequestAdapter(RequestAdapterOptions options, WgpuAdapterInfo adapterInfo)
@@ -135,7 +112,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (adapter == null) {
-            PumpEvents(wgpu, wgpuEx, instance);
+            PumpEvents(instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting adapter");
         }
         if (adapter == null) {
@@ -144,7 +121,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
         var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
-        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
+        return new WgpuAdapter(adapter, instance, info);
     }
     
     public GlobalReport GenerateReport () {
@@ -153,7 +130,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         return report;
     }
     
-    internal static void PumpEvents(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
+    internal static void PumpEvents(Instance* instance)
     {
         wgpu.InstanceProcessEvents(instance);
 

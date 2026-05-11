@@ -5,7 +5,6 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming

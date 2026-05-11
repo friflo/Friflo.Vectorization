@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Silk.NET.WebGPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;

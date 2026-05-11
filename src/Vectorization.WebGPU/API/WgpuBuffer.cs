@@ -4,9 +4,9 @@
 using System;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Silk.NET.WebGPU;
-using Buffer = Silk.NET.WebGPU.Buffer;
-using Webgpu = Silk.NET.WebGPU.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
+using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
+
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -18,7 +18,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
     private             WgpuDevice  device { get; set; }
-    private   readonly  Webgpu      wgpu;
     private   readonly  uint        SizeInBytes;
 
     protected override  Span<T>     Span        => default;
@@ -47,7 +46,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         : base(length, bufferLabel)
     {
         this.device = device;
-        wgpu        = device.wgpu;
         SizeInBytes = (uint)(length * Unsafe.SizeOf<T>());
         handle      = buffer;
     }
@@ -82,7 +80,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
             Usage = BufferUsage.CopyDst | BufferUsage.MapRead,
             MappedAtCreation = false
         };
-        var wg          = dev.wgpu;
         var DevicePtr   = dev.DevicePtr;
         var QueuePtr    = dev.QueuePtr;
         var readBuffer  = wg.DeviceCreateBuffer(DevicePtr, &readDesc);

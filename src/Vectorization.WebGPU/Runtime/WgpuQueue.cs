@@ -4,8 +4,6 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Silk.NET.WebGPU;
-using Buffer = Silk.NET.WebGPU.Buffer;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
