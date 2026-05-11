@@ -25,6 +25,7 @@ public abstract class GpuDevice : IDisposable
     public abstract bool            IsDisposed { get; }
     public abstract void            Dispose();
     
+    public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   GpuBufferUsage usage, string bufferLabel) where T : unmanaged;
     

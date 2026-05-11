@@ -85,6 +85,19 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         return new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
     }
     
+    public override GpuLimits GetAdapterLimits()
+    {
+        var supportedLimits = new SupportedLimits();
+        wgpu.AdapterGetLimits(adapter, &supportedLimits);
+        var limits = supportedLimits.Limits;
+        return new GpuLimits {
+            MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = limits.MaxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = limits.MaxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = limits.MaxComputeInvocationsPerWorkgroup, 
+        };
+    }
+    
     public override GpuHandleDiff GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuEx.GenerateReport(instance, &globalReport);

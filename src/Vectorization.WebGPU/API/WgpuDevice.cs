@@ -392,6 +392,19 @@ public sealed unsafe class WgpuDevice : GpuDevice
             ((usage & GpuBufferUsage.QueryResolve)  != 0 ? BufferUsage.QueryResolve : BufferUsage.None);
     }
     
+    public override GpuLimits GetDeviceLimits()
+    {
+        var supportedLimits = new SupportedLimits();
+        wgpu.DeviceGetLimits(DevicePtr, &supportedLimits);
+        var limits = supportedLimits.Limits;
+        return new GpuLimits {
+            MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = limits.MaxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = limits.MaxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = limits.MaxComputeInvocationsPerWorkgroup, 
+        };
+    }
+    
     public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage   = FromGpuBufferUsage(usage);

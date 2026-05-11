@@ -110,5 +110,15 @@ public class Test_GPU_Exceptions : GpuTestBase
         Console.WriteLine($"Name: {info.Name} | Drive: {info.DriverDescription} | VendorID: {info.VendorID} | DeviceID: {info.DeviceID}");
         
         Assert.AreEqual("GpuTestBase", Device.Label);
+        
+        var adapterLimits = Adapter.GetAdapterLimits();
+        Console.WriteLine($@"
+MaxStorageBufferBindingSize:        {adapterLimits.MaxStorageBufferBindingSize}
+MaxComputeWorkgroupStorageSize:     {adapterLimits.MaxComputeWorkgroupStorageSize}
+MaxBindGroups:                      {adapterLimits.MaxBindGroups}
+MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkgroup}");
+        
+        _ = Device.GetDeviceLimits();
+        
     }
 }
