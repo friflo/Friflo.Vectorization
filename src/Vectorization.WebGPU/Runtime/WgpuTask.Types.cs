@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  GpuTask
 
@@ -30,7 +31,7 @@ public readonly unsafe struct WgpuEncoder
         fixed (byte* labelPtr = passLabel)
         {
             var desc            = new ComputePassDescriptor { Label = labelPtr };
-            var passHandle      = task.wgpu.CommandEncoderBeginComputePass(handle, &desc);
+            var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
             return new WgpuComputePass(task, passHandle);
         }
@@ -54,12 +55,12 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetPipeline(WgpuComputePipeline pipeline) {
-        task.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
+        wgpuComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
-        task.wgpu.ComputePassEncoderDispatchWorkgroups(
+        wgpuComputePassEncoderDispatchWorkgroups(
             handle, 
             (uint)workgroupCountX, 
             (uint)workgroupCountY, 
@@ -76,7 +77,7 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
     public void SetBindGroup(int groupIndex, WgpuBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
-        task.wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
+        wgpuComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
     }
 }
 

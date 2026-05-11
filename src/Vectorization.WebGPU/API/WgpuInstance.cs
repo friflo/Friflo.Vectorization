@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -74,7 +75,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
     {
         if (isDisposed) return;
         if (instance != null) {
-            wgpu.InstanceRelease(instance);
+            wgpuInstanceRelease(instance);
         }        
         isDisposed = true;
     }
@@ -92,7 +93,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
 		var instDesc = new InstanceDescriptor {
             NextInChain = (ChainedStruct*)&extras
         };
-		var instance = wgpu.CreateInstance(&instDesc);
+		var instance = wgpuCreateInstance(&instDesc);
         if (instance == null) {
             throw new Exception("The Void Stares Back: Failed to create GpuInstance. Check your drivers!");
         }
@@ -105,7 +106,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         if (adapterInfo != null) {
             adapter = adapterInfo.Adapter;
         } else {
-		    wgpu.InstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
+		    wgpuInstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
 			    if (status == RequestAdapterStatus.Success) adapter = adp;
 		    }), null);
         }
@@ -132,7 +133,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
     
     internal static void PumpEvents(Instance* instance)
     {
-        wgpu.InstanceProcessEvents(instance);
+        wgpuInstanceProcessEvents(instance);
 
         // This check is required when running on Linux using only Software GPU
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {

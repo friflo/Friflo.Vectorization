@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  GpuDevice
 
@@ -34,7 +35,7 @@ internal struct CacheEntry
     public override string  ToString() => bindGroup.ToString();
     
     internal unsafe void Update(WgpuBindGroup group, ulong groupHash) {
-        if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
+        if (bindGroup.handle != null) wgpuBindGroupRelease(bindGroup.handle);
         wgpu.BindGroupReference(group.handle);
         bindGroup   = group;
         hash        = groupHash;
@@ -42,7 +43,7 @@ internal struct CacheEntry
     
     internal unsafe void Release()
     {
-        if (bindGroup.handle != null) wgpu.BindGroupRelease(bindGroup.handle);
+        if (bindGroup.handle != null) wgpuBindGroupRelease(bindGroup.handle);
         bindGroup   = default;
         hash        = 0;
     }

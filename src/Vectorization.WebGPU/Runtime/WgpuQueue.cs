@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -22,7 +23,7 @@ internal readonly unsafe struct WgpuQueue
     
     public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
-        device.wgpu.QueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
+        wgpuQueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }
     
     // TODO use this static method to avoid allocation by lambda
@@ -57,6 +58,6 @@ internal readonly unsafe struct WgpuQueue
         void* userData = (void*)GCHandle.ToIntPtr(callbackHandle);
 
         // call native API with static function pointer
-        device.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
+        wgpuQueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
     }
 }

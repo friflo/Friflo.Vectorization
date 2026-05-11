@@ -9,6 +9,7 @@ using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
@@ -97,12 +98,12 @@ public sealed unsafe class WgpuDevice : GpuDevice
             ref var effect = ref effectSlots[n];
             effect.bufferCache.Release();
             if(effect.IsCreated) {
-                if (effect.pipeline.handle != null) wgpu.ComputePipelineRelease(effect.pipeline.handle);
+                if (effect.pipeline.handle != null) wgpuComputePipelineRelease(effect.pipeline.handle);
             }
         }
         var cache = layoutCache;
         for (int n = 0; n < cache.Length; n++) {
-            if (cache[n].layout.IsCreated) wgpu.BindGroupLayoutRelease(cache[n].layout.handle);
+            if (cache[n].layout.IsCreated) wgpuBindGroupLayoutRelease(cache[n].layout.handle);
             cache[n] = default;
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
@@ -110,7 +111,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         //      wgpu.QueueRelease(QueuePtr); will cause segtfault/panic when calling wgpu.QueueSubmit()
         //  }
         if (DevicePtr != null) {
-            wgpu.DeviceRelease(DevicePtr);
+            wgpuDeviceRelease(DevicePtr);
         }
         // Free anchor to managed world MUST be the last call 
         if (deviceHandle.IsAllocated) {
@@ -208,7 +209,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             var desc = new CommandEncoderDescriptor {
                 Label = labelPtr
             };
-            var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
+            var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
             return new WgpuEncoder(task, encoder);
         }
     }
@@ -262,7 +263,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             for (int n = 0; n < tasks.Count; n++) {
                 commandBuffers[n] = tasks[n].commandBuffer;
             }
-            wgpu.QueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
+            wgpuQueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
             
             // Swap list references
             var temp        = inFlightTasks;
@@ -270,7 +271,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             pendingTasks    = temp;
             
             // Register callback for the new In-Flight batch
-            wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
+            wgpuQueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
@@ -310,7 +311,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             // Every task in WebGPU within the same Queue is 
             // guaranteed to start in submission order.
             var ptr = task.commandBuffer;
-            wgpu.QueueSubmit(QueuePtr, 1, &ptr);
+            wgpuQueueSubmit(QueuePtr, 1, &ptr);
             
             task.SetSubmitted(true);
         }
@@ -335,16 +336,16 @@ public sealed unsafe class WgpuDevice : GpuDevice
             Usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
             MappedAtCreation = true                         // We want to write now
         };
-        var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
         // Copy data into mapped memory
-        void* pMapped = wgpu.BufferGetMappedRange(buffer, 0, size);
+        void* pMapped = wgpuBufferGetMappedRange(buffer, 0, size);
         fixed (void* pData = data)
         {
             System.Buffer.MemoryCopy(pData, pMapped, size, size);
         }
         // Important: WebGPU has to unmap before GPU can use memory
-        wgpu.BufferUnmap(buffer);
+        wgpuBufferUnmap(buffer);
         
         return buffer;
     }
@@ -361,7 +362,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             Usage           = usage,
             MappedAtCreation = false // buffer is initially empty / unmapped
         };
-        var buffer = wgpu.DeviceCreateBuffer(DevicePtr, &desc);
+        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
             throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
         }
@@ -386,7 +387,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public override GpuLimits GetDeviceLimits()
     {
         var supportedLimits = new SupportedLimits();
-        wgpu.DeviceGetLimits(DevicePtr, &supportedLimits);
+        wgpuDeviceGetLimits(DevicePtr, &supportedLimits);
         var limits = supportedLimits.Limits;
         return new GpuLimits {
             MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
@@ -430,7 +431,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 NextInChain = (ChainedStruct*)&wgslDesc,
             };
             // Compile shader in driver
-            var handle = wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
+            var handle = wgpuDeviceCreateShaderModule(DevicePtr, &desc);
             return new WgpuShaderModule(handle);
         }
     }
@@ -453,7 +454,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 BindGroupLayoutCount    = 2,
                 BindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
-            var pipelineLayout = wgpu.DeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
+            var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             try {
                 var computeDesc = new ComputePipelineDescriptor {
                     Layout      = pipelineLayout,
@@ -462,11 +463,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
                         EntryPoint  = pEntryPoint
                     }
                 };
-                var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
+                var handle = wgpuDeviceCreateComputePipeline(DevicePtr, &computeDesc);
                 return new WgpuComputePipeline(handle);
             } finally {
-                if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
-                if (module.handle  != null) wgpu.ShaderModuleRelease(module.handle);
+                if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
+                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
             }
         }
     }
@@ -506,7 +507,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 EntryCount  = (uint)nativeEntries.Length,
                 Entries     = entriesPtr,
             };
-            var handle = wgpu.DeviceCreateBindGroupLayout(DevicePtr, &desc);
+            var handle = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
             

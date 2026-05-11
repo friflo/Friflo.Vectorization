@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -96,10 +97,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { Label = labelPtr };
-            commandBuffer  = wgpu.CommandEncoderFinish(encoder.handle, &descriptor);
+            commandBuffer  = wgpuCommandEncoderFinish(encoder.handle, &descriptor);
         }
         if (currentEncoder != null) {
-            wgpu.CommandEncoderRelease(currentEncoder);
+            wgpuCommandEncoderRelease(currentEncoder);
             currentEncoder = null;
         }
     }
@@ -113,7 +114,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
                 EntryCount  = 1,
                 Entries     = &bindEntry
             };
-            var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
             return new WgpuBindGroup(handle);
         }
@@ -129,7 +130,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
                 EntryCount  = (uint)bindEntries.Length,
                 Entries     = nativeEntryPtr
             };
-            var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
             return new WgpuBindGroup(handle);
         }
@@ -138,13 +139,13 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     internal void Reset()
     {
         foreach (var ptr in createdBindGroups) {
-            wgpu.BindGroupRelease((BindGroup*)ptr);
+            wgpuBindGroupRelease((BindGroup*)ptr);
         }
         createdBindGroups.Clear();
         
         var bufferHandler = commandBuffer;
         if (bufferHandler != null) {
-            wgpu.CommandBufferRelease(bufferHandler);
+            wgpuCommandBufferRelease(bufferHandler);
             commandBuffer = null;
         }
         uniformOffset = 0; // reset local uniform cursor
@@ -169,15 +170,15 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     {
         ClosePass();
         if (currentEncoder != null) {
-            wgpu.CommandEncoderRelease(currentEncoder);
+            wgpuCommandEncoderRelease(currentEncoder);
             currentEncoder = null;
         }
     }
     
     internal void ClosePass() {
         if (currentPass != null) {
-            wgpu.ComputePassEncoderEnd(currentPass);
-            wgpu.ComputePassEncoderRelease(currentPass);
+            wgpuComputePassEncoderEnd(currentPass);
+            wgpuComputePassEncoderRelease(currentPass);
             currentPass = null;
         }
     }

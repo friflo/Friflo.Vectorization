@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 
 // ReSharper disable once CheckNamespace
@@ -40,7 +41,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     {
         if (isDisposed) return;
         if (adapter != null) {
-            wgpu.AdapterRelease(adapter);
+            wgpuAdapterRelease(adapter);
         }
         isDisposed = true;
     }
@@ -60,7 +61,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
 			Label = (byte*)name
 		};
 
-		wgpu.AdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
+		wgpuAdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
 			if (status == RequestDeviceStatus.Success) device = dev;
 		}), null);
 
@@ -73,7 +74,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
 
         // Important: wgpu.QueueRelease() must not be called. Queue* shares the lifetime of Device*
-		var queuePtr = wgpu.DeviceGetQueue(device);
+		var queuePtr = wgpuDeviceGetQueue(device);
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
@@ -83,7 +84,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     public override GpuLimits GetAdapterLimits()
     {
         var supportedLimits = new SupportedLimits();
-        wgpu.AdapterGetLimits(adapter, &supportedLimits);
+        wgpuAdapterGetLimits(adapter, &supportedLimits);
         var limits = supportedLimits.Limits;
         return new GpuLimits {
             MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  

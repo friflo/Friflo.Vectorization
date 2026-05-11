@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
-
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -37,7 +37,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
     private void Dispose(bool _)
     {
         if (handle == null) return;
-        wgpu.BufferRelease(handle);
+        wgpuBufferRelease(handle);
         handle = null;
         device = null;
     }
