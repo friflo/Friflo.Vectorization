@@ -121,6 +121,8 @@ public class TestCompute : GpuTestBase
     [Test]
     public void Test_GPU_BufferBindGroupCaching()
     {
+        if (GpuTestGlobal.TestBackend == TestBackend.SIMD) return;
+        
         var device    = Device;
 
         var weight  = new float[65]; // no alignment

@@ -24,7 +24,8 @@ public ref struct Buffer<T> where T : unmanaged
         this.span = span;
     }
     public Buffer(GpuBuffer<T> gpuBuffer) {
-        this.gpuBuffer = gpuBuffer;
+        this.gpuBuffer  = gpuBuffer;
+        span            = gpuBuffer.Span;
     }
     
     public static implicit operator Buffer<T>(T[] array)                => new(array);

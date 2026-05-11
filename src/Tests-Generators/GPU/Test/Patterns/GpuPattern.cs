@@ -1,6 +1,7 @@
 ﻿using System;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 
 namespace Tests.GPU;
 
@@ -29,6 +30,10 @@ public  static partial class GpuPattern
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
             }
         }
+        var buffers = new GpuBuffers();
+        buffers.Validate(weight, nameof(weight));
+        buffers.Validate(input,  nameof(input));
+        buffers.Validate(output, nameof(output));
         MultiplyAddVector(weight.span, input.span, bias, output.span);
         return output.gpuBuffer;
     }

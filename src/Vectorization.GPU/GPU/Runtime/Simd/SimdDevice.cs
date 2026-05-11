@@ -17,9 +17,8 @@ public sealed class SimdDevice : GpuDevice
         isDisposed = true;
     }
 
-    public override GpuLimits GetDeviceLimits()
-    {
-        throw new System.NotImplementedException();
+    public override GpuLimits GetDeviceLimits() {
+        return new GpuLimits();
     }
 
     public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
