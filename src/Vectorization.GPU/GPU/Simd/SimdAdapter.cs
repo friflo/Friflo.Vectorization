@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using Friflo.Vectorization.GPU.Runtime;
-
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.GPU;

@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.GPU;
 
 internal sealed class SimdDevice : GpuDevice
 {
