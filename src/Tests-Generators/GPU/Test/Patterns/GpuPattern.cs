@@ -1,32 +1,40 @@
-﻿using Friflo.Vectorization.GPU;
+﻿using System;
+using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
 
 namespace Tests.GPU;
 
-public static class GpuPattern
+public  static partial class GpuPattern
 {
+    [Vectorize]
+    public static void MultiplyAdd(
+        [Span]      float weight,
+        [Span]      float input,
+                    float bias,
+        [Span] ref  float output)
+    {
+        output = weight * input + bias;
+    }
     // generated shadow Method
     public static GpuBuffer<float> ShadowMethod(
         Buffer<float>   weight,
         Buffer<float>   input,
         float           bias,
         ExeType         exe,
-        Buffer<float>   output = default)
+        Buffer<float>   output)
     {
         if (exe == ExeType.GPU) {
             switch (GpuTestGlobal.TestBackend) {
-                case TestBackend.SIMD:                           ShadowMethod_AVX(weight, input, bias, output);
-                    return output.gpuBuffer;
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(weight, input, bias, output);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
             }
         }
-        // Scalar / SIMD
-        ShadowMethod_AVX(weight, input, bias, output);
-        return null;
+        MultiplyAddVector(weight.span, input.span, bias, output.span);
+        return output.gpuBuffer;
     }
     
     // generated AVX method
-    private static void ShadowMethod_AVX(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output) {
+    private static void ShadowMethod_AVX(ReadOnlySpan<float> weight, ReadOnlySpan<float> input, float bias, Span<float> output, bool vectorized = true) {
         // ...
     }
 }
