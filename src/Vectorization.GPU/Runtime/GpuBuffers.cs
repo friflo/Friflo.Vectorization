@@ -78,7 +78,7 @@ public struct GpuBuffers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuDevice GetDevice() {
+    public readonly GpuDevice GetDevice() {
         if (device != null) {
             return device;
         }

@@ -15,20 +15,15 @@ public static class WebGPUPattern
 {
     // generated GPU method
     [SkipLocalsInit]
-    internal static GpuBuffer<float> ShadowMethod_GPU(Buffer<float> weight, Buffer<float> input, float bias, Buffer<float> output)
+    internal static GpuBuffer<float> ShadowMethod_GPU(in GpuBuffers buffers, GpuBuffer<float> weight, GpuBuffer<float> input, float bias, GpuBuffer<float> output)
     {
-        var buffers = new GpuBuffers();
-        buffers.Validate(weight, nameof(weight));
-        buffers.Validate(input,  nameof(input));
-        buffers.Validate(output, nameof(output));
-        var device = (WgpuDevice)buffers.GetDevice();
-        
-        var gpuOutput   = output.gpuBuffer ?? device.RentBuffer<float>(buffers.count);
+        var device      = (WgpuDevice)buffers.GetDevice();
+        var gpuOutput   = output ?? device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
-        if (weight.gpuBuffer.LastWritingTask != null) task.AddDependency(weight.gpuBuffer.LastWritingTask);
-        if (input.gpuBuffer.LastWritingTask != null)  task.AddDependency(input.gpuBuffer.LastWritingTask);
+        if (weight.LastWritingTask != null) task.AddDependency(weight.LastWritingTask);
+        if (input.LastWritingTask != null)  task.AddDependency(input.LastWritingTask);
         
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
@@ -61,7 +56,7 @@ public static class WebGPUPattern
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((input.Count + 63) / 64, 1, 1);        	// Execute ComputePass
+            pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        	// Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output

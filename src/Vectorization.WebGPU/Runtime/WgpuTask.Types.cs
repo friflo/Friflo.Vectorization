@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 
 // file contains structs created by:  GpuTask
@@ -93,13 +94,13 @@ public readonly unsafe struct WgpuBindGroup
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From<T>(int binding, in GPU.Buffer<T> buffer) where T : unmanaged
+    public static BindGroupEntry From<T>(int binding, in GpuBuffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
             Binding = (uint)binding,
-            Buffer  = ((WgpuBuffer<T>)buffer.gpuBuffer).handle,
+            Buffer  = ((WgpuBuffer<T>)buffer).handle,
             Offset  = 0,
-            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Count)
+            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
         };
     }
 }

@@ -24,16 +24,17 @@ public  static partial class GpuPattern
         ExeType         exe,
         Buffer<float>   output)
     {
-        if (exe == ExeType.GPU) {
-            switch (GpuTestGlobal.TestBackend) {
-                case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(weight, input, bias, output);
-                case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
-            }
-        }
         var buffers = new GpuBuffers();
         buffers.Validate(weight, nameof(weight));
         buffers.Validate(input,  nameof(input));
         buffers.Validate(output, nameof(output));
+        
+        if (exe == ExeType.GPU) {
+            switch (GpuTestGlobal.TestBackend) {
+                case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
+                case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
+            }
+        }
         MultiplyAddVector(weight.span, input.span, bias, output.span);
         return output.gpuBuffer;
     }
