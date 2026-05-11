@@ -333,8 +333,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var desc = new BufferDescriptor {
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
-            usage           = usage | BufferUsage.CopyDst,      // CopyDst to write data into
-            mappedAtCreation = WgpuUtils.FromBool(true)         // We want to write now
+            usage           = (ulong)(usage | BufferUsage.CopyDst), // CopyDst to write data into
+            mappedAtCreation = WgpuUtils.FromBool(true)             // We want to write now
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
@@ -359,7 +359,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var desc = new BufferDescriptor {
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
-            usage           = usage,
+            usage           = (ulong)usage,
             mappedAtCreation = WgpuUtils.FromBool(false) // buffer is initially empty / unmapped
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
@@ -490,7 +490,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         for (int i = 0; i < entries.Length; i++) {
             nativeEntries[i] = new BindGroupLayoutEntry {
                 binding         = (uint)entries[i].Binding,
-                visibility      = ShaderStage.Compute,
+                visibility      = (ulong)ShaderStage.Compute,
                 buffer          = new BufferBindingLayout {
                     type                = entries[i].Type,
                     hasDynamicOffset    = WgpuUtils.FromBool(false),    // default
