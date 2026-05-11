@@ -36,7 +36,7 @@ internal struct CacheEntry
     
     internal unsafe void Update(WgpuBindGroup group, ulong groupHash) {
         if (bindGroup.handle != null) wgpuBindGroupRelease(bindGroup.handle);
-        wgpu.BindGroupReference(group.handle);
+        wgpuBindGroupAddRef(group.handle);      //  TODO was: wgpu.BindGroupReference(group.handle)
         bindGroup   = group;
         hash        = groupHash;
     }

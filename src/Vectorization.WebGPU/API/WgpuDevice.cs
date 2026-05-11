@@ -426,8 +426,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 }
             };
             var desc = new ShaderModuleDescriptor {
-                Label       = labelPtr,
-                NextInChain = (ChainedStruct*)&wgslDesc,
+                label       = WgpuUtils.FromPtrSpan(labelPtr, shaderLabel),
+                nextInChain = (ChainedStruct*)&wgslDesc,
             };
             // Compile shader in driver
             var handle = wgpuDeviceCreateShaderModule(DevicePtr, &desc);
