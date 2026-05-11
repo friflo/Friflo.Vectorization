@@ -85,7 +85,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
                     Flush(wait: true); // flush all pending GPU operations
-                    wgpuEx.DevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
+                    wgpuDevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
                 wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
             }
@@ -199,7 +199,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     public void Poll(bool wait) {
-        wgpuEx.DevicePoll(DevicePtr, true, null);
+        wgpuDevicePoll(DevicePtr, true, null);
     }
 
     internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
@@ -254,7 +254,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         // Is previous batch already send?
         while (inFlightTasks.Count > 0) {
-            wgpuEx.DevicePoll(DevicePtr, true, null); // forces "work done" callback
+            wgpuDevicePoll(DevicePtr, true, null); // forces "work done" callback
         }
         
         if (count > 0) {
@@ -276,7 +276,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
             while (inFlightTasks.Count > 0) {
-                wgpuEx.DevicePoll(DevicePtr, true, null);
+                wgpuDevicePoll(DevicePtr, true, null);
             }
         }
     }

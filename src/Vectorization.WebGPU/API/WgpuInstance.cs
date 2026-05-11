@@ -127,7 +127,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
     
     public GlobalReport GenerateReport () {
         var report = new GlobalReport();
-        wgpuEx.GenerateReport(instance, ref report);
+        wgpuGenerateReport(instance, ref report);
         return report;
     }
     
@@ -140,7 +140,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
             var enumOptions = new InstanceEnumerateAdapterOptions();
             Adapter* dummyAdapter = null;
             // Trigger processing pending callbacks
-            wgpuEx.InstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
+            wgpuInstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
             Thread.Yield(); // enable other threads on Linux processing events 
         }
     }
@@ -148,11 +148,11 @@ public sealed unsafe class WgpuInstance : GpuInstance
     public override WgpuAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
-        nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
+        nuint adapterCount = wgpuInstanceEnumerateAdapters(instance, &options, null);
         var infos = new WgpuAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
-        wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
+        wgpuInstanceEnumerateAdapters(instance, &options, adapters);
         for (int i = 0; i < (int)adapterCount; i++)
         {
             Adapter* adapter = adapters[i];

@@ -96,7 +96,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     
     public override GpuHandleDiff GenerateHandles () {
         var globalReport = new GlobalReport();
-        wgpuEx.GenerateReport(instance, &globalReport);
+        wgpuGenerateReport(instance, &globalReport);
         var hubReport = GetReport(globalReport, info.BackendType);
         return GpuHandles(hubReport);
     }
