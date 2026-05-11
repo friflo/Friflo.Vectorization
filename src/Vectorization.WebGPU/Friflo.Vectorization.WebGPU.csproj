@@ -60,9 +60,8 @@
   
   
     <ItemGroup>
-        <PackageReference Include="Friflo.Vectorization.WebGPU.Runtime" Version="0.0.0" />
+        <PackageReference Include="Friflo.Vectorization.WebGPU.Runtime" Version="[0.1.0]" />
     </ItemGroup>
-  
   
     <ItemGroup>
       <ProjectReference Include="..\Vectorization.GPU\Friflo.Vectorization.GPU.csproj" />
