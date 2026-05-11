@@ -15,7 +15,12 @@ public static class WebGPUPattern
 {
     // generated GPU method
     [SkipLocalsInit]
-    internal static GpuBuffer<float> ShadowMethod_GPU(in GpuBuffers buffers, GpuBuffer<float> weight, GpuBuffer<float> input, float bias, GpuBuffer<float> output)
+    internal static GpuBuffer<float> ShadowMethod_GPU(
+        in GpuBuffers       buffers,
+        GpuBuffer<float>    weight,
+        GpuBuffer<float>    input,
+        float               bias,
+        GpuBuffer<float>    output)
     {
         var device      = (WgpuDevice)buffers.GetDevice();
         var gpuOutput   = output ?? device.RentBuffer<float>(buffers.count);
