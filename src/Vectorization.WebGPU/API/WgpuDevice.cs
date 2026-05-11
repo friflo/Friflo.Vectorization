@@ -419,10 +419,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (byte* labelPtr = shaderLabel)
         {
             // create descriptor
-            var wgslDesc = new ShaderModuleWGSLDescriptor {
-                Code        = pShaderBytes,
-                Chain       = new ChainedStruct {
-                    SType       = SType.ShaderModuleWgsldescriptor
+            var wgslDesc = new ShaderSourceWGSL {    	// was: new ShaderModuleWGSLDescriptor
+                code    = WgpuUtils.FromPtrSpan(pShaderBytes, wgslSource),
+                chain   = new ChainedStruct {
+                    sType   = SType.ShaderSourceWGSL	// was: SType.ShaderModuleWgsldescriptor
                 }
             };
             var desc = new ShaderModuleDescriptor {
@@ -457,9 +457,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
             try {
                 var computeDesc = new ComputePipelineDescriptor {
                     layout      = pipelineLayout,
-                    compute     = new ProgrammableStageDescriptor {
-                        Module      = module.handle,
-                        EntryPoint  = pEntryPoint
+                    compute     = new ComputeState {	// was: new ProgrammableStageDescriptor
+                        module      = module.handle,
+                        entryPoint  = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint)
                     }
                 };
                 var handle = wgpuDeviceCreateComputePipeline(DevicePtr, &computeDesc);
