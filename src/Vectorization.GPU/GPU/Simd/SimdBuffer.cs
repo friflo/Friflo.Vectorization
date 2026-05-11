@@ -3,14 +3,12 @@
 
 
 using System;
-using System.ComponentModel;
 
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
+internal sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
     private   readonly  T[]         array;
     private             SimdDevice  device;
