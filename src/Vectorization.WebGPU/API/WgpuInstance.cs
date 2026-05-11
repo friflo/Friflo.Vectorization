@@ -85,13 +85,13 @@ public sealed unsafe class WgpuInstance : GpuInstance
         var extras  = instanceExtras;
         
         const SType wgpuSTypeInstanceExtras = (SType)0x60000001;
-        extras.Chain = new ChainedStruct {
-            SType = wgpuSTypeInstanceExtras
+        extras.chain = new ChainedStruct {
+            sType = wgpuSTypeInstanceExtras
         };
-        extras.Chain.Next = null;
+        extras.chain.next = null;
         
 		var instDesc = new InstanceDescriptor {
-            NextInChain = (ChainedStruct*)&extras
+            nextInChain = (ChainedStruct*)&extras
         };
 		var instance = wgpuCreateInstance(&instDesc);
         if (instance == null) {
@@ -119,15 +119,15 @@ public sealed unsafe class WgpuInstance : GpuInstance
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
         }
-        var props = new AdapterProperties();
-        wgpu.AdapterGetProperties(adapter, ref props);
+        var props = new AdapterInfo();
+        wgpuAdapterGetInfo(adapter, &props);
         var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
         return new WgpuAdapter(adapter, instance, info);
     }
     
     public GlobalReport GenerateReport () {
         var report = new GlobalReport();
-        wgpuGenerateReport(instance, ref report);
+        wgpuGenerateReport(instance, &report);
         return report;
     }
     
@@ -140,7 +140,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
             var enumOptions = new InstanceEnumerateAdapterOptions();
             Adapter* dummyAdapter = null;
             // Trigger processing pending callbacks
-            wgpuInstanceEnumerateAdapters(instance, &enumOptions, ref dummyAdapter);
+            wgpuInstanceEnumerateAdapters(instance, &enumOptions, &dummyAdapter);
             Thread.Yield(); // enable other threads on Linux processing events 
         }
     }
@@ -156,9 +156,9 @@ public sealed unsafe class WgpuInstance : GpuInstance
         for (int i = 0; i < (int)adapterCount; i++)
         {
             Adapter* adapter = adapters[i];
-            AdapterProperties props = default;
-            wgpu.AdapterGetProperties(adapter, &props);
-            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
+            AdapterInfo info = default;
+            wgpuAdapterGetInfo(adapter, &info);
+            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(info, adapter);
         }
         return infos;
     }

@@ -207,7 +207,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (byte* labelPtr = encoderLabel)
         {
             var desc = new CommandEncoderDescriptor {
-                Label = labelPtr
+                label = labelPtr
             };
             var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
             return new WgpuEncoder(task, encoder);
@@ -331,10 +331,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
-            Label           = labelBuffer,
-            Size            = size,
-            Usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
-            MappedAtCreation = true                         // We want to write now
+            label           = labelBuffer,
+            size            = size,
+            usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
+            mappedAtCreation = true                         // We want to write now
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
@@ -357,10 +357,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
-            Label           = labelBuffer,
-            Size            = size,
-            Usage           = usage,
-            MappedAtCreation = false // buffer is initially empty / unmapped
+            label           = labelBuffer,
+            size            = size,
+            usage           = usage,
+            mappedAtCreation = false // buffer is initially empty / unmapped
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
@@ -386,14 +386,13 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     public override GpuLimits GetDeviceLimits()
     {
-        var supportedLimits = new SupportedLimits();
-        wgpuDeviceGetLimits(DevicePtr, &supportedLimits);
-        var limits = supportedLimits.Limits;
+        var limits = new Limits();
+        wgpuDeviceGetLimits(DevicePtr, &limits);
         return new GpuLimits {
-            MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
-            MaxComputeWorkgroupStorageSize      = limits.MaxComputeWorkgroupStorageSize, 
-            MaxBindGroups                       = limits.MaxBindGroups, 
-            MaxComputeInvocationsPerWorkgroup   = limits.MaxComputeInvocationsPerWorkgroup, 
+            MaxStorageBufferBindingSize         = limits.maxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = limits.maxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = limits.maxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = limits.maxComputeInvocationsPerWorkgroup, 
         };
     }
     
@@ -450,15 +449,15 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
         {
             var layoutDesc = new PipelineLayoutDescriptor {
-                Label                   = pEntryPoint,
-                BindGroupLayoutCount    = 2,
-                BindGroupLayouts        = (BindGroupLayout**)layoutsPtr
+                label                   = pEntryPoint,
+                bindGroupLayoutCount    = 2,
+                bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             try {
                 var computeDesc = new ComputePipelineDescriptor {
-                    Layout      = pipelineLayout,
-                    Compute     = new ProgrammableStageDescriptor {
+                    layout      = pipelineLayout,
+                    compute     = new ProgrammableStageDescriptor {
                         Module      = module.handle,
                         EntryPoint  = pEntryPoint
                     }
@@ -490,12 +489,12 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         for (int i = 0; i < entries.Length; i++) {
             nativeEntries[i] = new BindGroupLayoutEntry {
-                Binding         = (uint)entries[i].Binding,
-                Visibility      = ShaderStage.Compute,
-                Buffer          = new BufferBindingLayout {
-                    Type                = entries[i].Type,
-                    HasDynamicOffset    = false,        // default
-                    MinBindingSize      = 0             // 0: no validation of minimum size
+                binding         = (uint)entries[i].Binding,
+                visibility      = ShaderStage.Compute,
+                buffer          = new BufferBindingLayout {
+                    type                = entries[i].Type,
+                    hasDynamicOffset    = false,        // default
+                    minBindingSize      = 0             // 0: no validation of minimum size
                 }
             };
         }
@@ -503,9 +502,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (BindGroupLayoutEntry*    entriesPtr  = nativeEntries)
         {
             var desc = new BindGroupLayoutDescriptor {
-                Label       = labelPtr,
-                EntryCount  = (uint)nativeEntries.Length,
-                Entries     = entriesPtr,
+                label       = labelPtr,
+                entryCount  = (uint)nativeEntries.Length,
+                entries     = entriesPtr,
             };
             var handle = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
             if (handle == null)

@@ -30,7 +30,7 @@ public readonly unsafe struct WgpuEncoder
     {
         fixed (byte* labelPtr = passLabel)
         {
-            var desc            = new ComputePassDescriptor { Label = labelPtr };
+            var desc            = new ComputePassDescriptor { label = labelPtr };
             var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
             return new WgpuComputePass(task, passHandle);
@@ -97,10 +97,10 @@ public readonly unsafe struct WgpuBindGroup
     public static BindGroupEntry From<T>(int binding, in GpuBuffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
-            Binding = (uint)binding,
-            Buffer  = ((WgpuBuffer<T>)buffer).handle,
-            Offset  = 0,
-            Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
+            binding = (uint)binding,
+            buffer  = ((WgpuBuffer<T>)buffer).handle,
+            offset  = 0,
+            size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
         };
     }
 }

@@ -58,7 +58,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
 		var devDesc = new DeviceDescriptor {
-			Label = (byte*)name
+			label = (byte*)name
 		};
 
 		wgpuAdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
@@ -83,46 +83,33 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     
     public override GpuLimits GetAdapterLimits()
     {
-        var supportedLimits = new SupportedLimits();
-        wgpuAdapterGetLimits(adapter, &supportedLimits);
-        var limits = supportedLimits.Limits;
+        var limits = new Limits();
+        wgpuAdapterGetLimits(adapter, &limits);
         return new GpuLimits {
-            MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
-            MaxComputeWorkgroupStorageSize      = limits.MaxComputeWorkgroupStorageSize, 
-            MaxBindGroups                       = limits.MaxBindGroups, 
-            MaxComputeInvocationsPerWorkgroup   = limits.MaxComputeInvocationsPerWorkgroup, 
+            MaxStorageBufferBindingSize         = limits.maxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = limits.maxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = limits.maxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = limits.maxComputeInvocationsPerWorkgroup, 
         };
     }
     
     public override GpuHandleDiff GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuGenerateReport(instance, &globalReport);
-        var hubReport = GetReport(globalReport, info.BackendType);
-        return GpuHandles(hubReport);
-    }
-    
-    private static HubReport GetReport(GlobalReport report, BackendType type)
-    {
-        return type switch {
-            BackendType.Vulkan   => report.Vulkan,
-            BackendType.Metal    => report.Metal,
-            BackendType.D3D11    => report.Dx12,
-            BackendType.D3D12    => report.Dx12,
-            _                    => report.Gl,
-        };
+        return GpuHandles(globalReport.hub);
     }
     
     private static GpuHandleDiff GpuHandles(in HubReport report)
     {
         return new GpuHandleDiff {
-            Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
-            Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
-            BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
-            BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser),
-            ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser),
-            CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser),
-            ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
-            PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
+            Devices             = new GpuHandle((long)report.devices.            numKeptFromUser),
+            Buffers             = new GpuHandle((long)report.buffers.            numKeptFromUser),
+            BindGroups          = new GpuHandle((long)report.bindGroups.         numKeptFromUser),
+            BindGroupLayouts    = new GpuHandle((long)report.bindGroupLayouts.   numKeptFromUser),
+            ComputePipelines    = new GpuHandle((long)report.computePipelines.   numKeptFromUser),
+            CommandBuffers      = new GpuHandle((long)report.commandBuffers.     numKeptFromUser),
+            ShaderModules       = new GpuHandle((long)report.shaderModules.      numKeptFromUser),
+            PipelineLayouts     = new GpuHandle((long)report.pipelineLayouts.    numKeptFromUser)
         };
     }
     

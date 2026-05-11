@@ -72,10 +72,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         uniformOffset = alignedOffset + size;
 
         return new BindGroupEntry {
-            Binding = (uint)binding,
-            Buffer  = globalUniformPool,
-            Offset  = absoluteOffset,
-            Size    = size
+            binding = (uint)binding,
+            buffer  = globalUniformPool,
+            offset  = absoluteOffset,
+            size    = size
         };
     }
     
@@ -96,7 +96,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         fixed (byte* labelPtr = commandBufferLabel) {
-            var descriptor = new CommandBufferDescriptor { Label = labelPtr };
+            var descriptor = new CommandBufferDescriptor { label = labelPtr };
             commandBuffer  = wgpuCommandEncoderFinish(encoder.handle, &descriptor);
         }
         if (currentEncoder != null) {
@@ -109,10 +109,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     {
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
-                Label       = labelPtr, 
-                Layout      = layout.handle,
-                EntryCount  = 1,
-                Entries     = &bindEntry
+                label       = labelPtr, 
+                layout      = layout.handle,
+                entryCount  = 1,
+                entries     = &bindEntry
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
@@ -125,10 +125,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
             var descriptor = new BindGroupDescriptor {
-                Label       = labelPtr, 
-                Layout      = layout.handle,
-                EntryCount  = (uint)bindEntries.Length,
-                Entries     = nativeEntryPtr
+                label       = labelPtr, 
+                layout      = layout.handle,
+                entryCount  = (uint)bindEntries.Length,
+                entries     = nativeEntryPtr
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
