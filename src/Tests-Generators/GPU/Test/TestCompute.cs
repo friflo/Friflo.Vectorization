@@ -74,12 +74,9 @@ public class TestCompute : GpuTestBase
     private void WarmUpDevice()
     {
         using var device    = Adapter.CreateDevice("WarmUpDevice");
-        var weight  = new float[64];
-        var input   = new float[64];
-        var output  = new float[64];
-        using var gpuWeight   = device.CreateBuffer(weight, GpuBufferUsage.Storage, "weight");
-        using var gpuInput    = device.CreateBuffer(input,  GpuBufferUsage.Storage, "input");
-        using var gpuOutput   = device.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
+        using var gpuWeight   = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "weight");
+        using var gpuInput    = device.CreateBuffer<float>(64,  GpuBufferUsage.Storage, "input");
+        using var gpuOutput   = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
         GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, ExeType.GPU, gpuOutput);
     }
     
