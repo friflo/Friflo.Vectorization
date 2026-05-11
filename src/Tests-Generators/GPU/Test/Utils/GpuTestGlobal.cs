@@ -11,13 +11,13 @@ namespace Tests.GPU;
 public enum TestBackend {
     SIMD,
     WebGPU,
-    SilkWebGPU,
+    Silk,
 }
 
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static readonly TestBackend Backend = TestBackend.WebGPU;
+    public static readonly TestBackend TestBackend = TestBackend.WebGPU;
     
     public static GpuInstance   Instance    { get; private set; }
     public static GpuAdapter    Adapter     { get; private set; }
@@ -25,35 +25,36 @@ public sealed class GpuTestGlobal
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
-        switch (Backend)
-        {
-            case TestBackend.SIMD: {
-                break;
-            }
-            case TestBackend.SilkWebGPU: {
-                var instance = Friflo.Vectorization.SilkWebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
-                    // Backends            = InstanceBackend.DX12,
-                });
-                var infos       = instance.GetAdapterInfos();
-                var adapterInfo = infos.FirstOrDefault(props => props.BackendType == Silk.NET.WebGPU.BackendType.D3D12);
-                Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
-                Instance        = instance;
-                break;
-            }
-            case TestBackend.WebGPU:{
-                var instance = Friflo.Vectorization.WebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
-                    // Backends            = InstanceBackend.DX12,
-                });
-                var infos       = instance.GetAdapterInfos();
-                var adapterInfo = infos.FirstOrDefault(props => props.BackendType == Silk.NET.WebGPU.BackendType.D3D12);
-                Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
-                Instance        = instance;
-                break;
-            }
+        switch (TestBackend) {
+            case TestBackend.SIMD:      SetupSIMD();    break;
+            case TestBackend.WebGPU:    SetupWebGPU();  break;
+            case TestBackend.Silk:      SetupSilk();    break;
         }
-
     }
-
+    
+    private static void SetupSIMD () {
+    }
+    
+    private static void SetupWebGPU () {
+        var instance = Friflo.Vectorization.WebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
+            // Backends            = InstanceBackend.DX12,
+        });
+        var infos       = instance.GetAdapterInfos();
+        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
+        Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Instance        = instance;
+    }
+    
+    private static void SetupSilk () {
+        var instance = Friflo.Vectorization.SilkWebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
+            // Backends            = InstanceBackend.DX12,
+        });
+        var infos       = instance.GetAdapterInfos();
+        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
+        Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Instance        = instance;
+    }
+    
     [OneTimeTearDown]
     public void RunAfterAllTests()
     {

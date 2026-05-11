@@ -13,12 +13,12 @@ public static class GpuPattern
         Buffer<float>   output = default)
     {
         if (exe == ExeType.GPU) {
-            switch (GpuTestGlobal.Backend) {
+            switch (GpuTestGlobal.TestBackend) {
                 case TestBackend.SIMD:
                     SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
                     return null;
                 case TestBackend.WebGPU:       return WebGPUPattern.ShadowMethod_GPU(weight, input, bias, output);
-                case TestBackend.SilkWebGPU:   return SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
+                case TestBackend.Silk:   return SilkPattern.  ShadowMethod_GPU(weight, input, bias, output);
             }
         }
         // Scalar / SIMD
