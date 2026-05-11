@@ -21,8 +21,8 @@ public  static partial class GpuPattern
         Buffer<float>   weight,
         Buffer<float>   input,
         float           bias,
-        ExeType         exe,
-        Buffer<float>   output)
+        Buffer<float>   output,
+        ExeType         exe = ExeType.GPU)
     {
         var buffers = new GpuBuffers();
         buffers.Validate(weight, nameof(weight));
