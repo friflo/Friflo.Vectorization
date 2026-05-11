@@ -56,9 +56,12 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
 		Device* device = null;
-        var name = Marshal.StringToHGlobalAnsi(label);
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        var len = WgpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+
 		var devDesc = new DeviceDescriptor {
-			label = (byte*)name
+			label = WgpuUtils.FromPtrLength(labelBuffer, len)
 		};
 
 		wgpuAdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
@@ -71,7 +74,6 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
             WgpuInstance.PumpEvents(instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
         }
-        Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
 
         // Important: wgpu.QueueRelease() must not be called. Queue* shares the lifetime of Device*
 		var queuePtr = wgpuDeviceGetQueue(device);
