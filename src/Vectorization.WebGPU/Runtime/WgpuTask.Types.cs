@@ -30,7 +30,7 @@ public readonly unsafe struct WgpuEncoder
     {
         fixed (byte* labelPtr = passLabel)
         {
-            var desc            = new ComputePassDescriptor { label = labelPtr };
+            var desc            = new ComputePassDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, passLabel) };
             var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
             return new WgpuComputePass(task, passHandle);

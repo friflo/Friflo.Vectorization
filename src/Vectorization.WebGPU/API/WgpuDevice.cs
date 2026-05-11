@@ -207,7 +207,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (byte* labelPtr = encoderLabel)
         {
             var desc = new CommandEncoderDescriptor {
-                label = labelPtr
+                label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel)
             };
             var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
             return new WgpuEncoder(task, encoder);
@@ -328,10 +328,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
-            label           = labelBuffer,
+            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
             usage           = usage | BufferUsage.CopyDst,  // CopyDst to write data into
             mappedAtCreation = true                         // We want to write now
@@ -354,10 +354,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
     {
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
-            label           = labelBuffer,
+            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
             usage           = usage,
             mappedAtCreation = false // buffer is initially empty / unmapped
@@ -449,7 +449,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
         {
             var layoutDesc = new PipelineLayoutDescriptor {
-                label                   = pEntryPoint,
+                label                   = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint),
                 bindGroupLayoutCount    = 2,
                 bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
@@ -502,7 +502,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (BindGroupLayoutEntry*    entriesPtr  = nativeEntries)
         {
             var desc = new BindGroupLayoutDescriptor {
-                label       = labelPtr,
+                label       = WgpuUtils.FromPtrSpan(labelPtr, layoutLabel),
                 entryCount  = (uint)nativeEntries.Length,
                 entries     = entriesPtr,
             };

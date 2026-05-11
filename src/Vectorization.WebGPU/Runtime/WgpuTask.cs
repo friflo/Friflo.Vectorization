@@ -96,7 +96,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         fixed (byte* labelPtr = commandBufferLabel) {
-            var descriptor = new CommandBufferDescriptor { label = labelPtr };
+            var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
             commandBuffer  = wgpuCommandEncoderFinish(encoder.handle, &descriptor);
         }
         if (currentEncoder != null) {
@@ -109,7 +109,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     {
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
-                label       = labelPtr, 
+                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
                 layout      = layout.handle,
                 entryCount  = 1,
                 entries     = &bindEntry
@@ -125,7 +125,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
             var descriptor = new BindGroupDescriptor {
-                label       = labelPtr, 
+                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
                 layout      = layout.handle,
                 entryCount  = (uint)bindEntries.Length,
                 entries     = nativeEntryPtr

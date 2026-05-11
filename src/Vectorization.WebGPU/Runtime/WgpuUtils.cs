@@ -15,14 +15,25 @@ internal static class WgpuUtils
         return span.IsEmpty ? 1 : Encoding.UTF8.GetMaxByteCount(span.Length) + 1; // + \0
     }
     
-    internal static unsafe void CopySpanToBuffer(ReadOnlySpan<char> span, byte* destBuffer, int destLength)
+    internal static unsafe int CopySpanToBuffer(ReadOnlySpan<char> span, byte* destBuffer, int destLength)
     {
         if (span.IsEmpty) {
             destBuffer[0] = 0;
-            return;
+            return 0;
         }
         var dest = new Span<byte>(destBuffer, destLength);
         int actualByteCount = Encoding.UTF8.GetBytes(span, dest);
         destBuffer[actualByteCount] = 0; // Null-terminator
+        return actualByteCount;
+    }
+    
+    internal static unsafe StringView FromPtrSpan (byte* str, ReadOnlySpan<byte> span)
+    {
+        return new StringView { data = (sbyte*)str, length = (nuint)span.Length };
+    }
+    
+    internal static unsafe StringView FromPtrLength (byte* str, int length)
+    {
+        return new StringView { data = (sbyte*)str, length = (nuint)length };
     }
 }

@@ -28,8 +28,8 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
             DeviceID            = props.deviceID,
             AdapterType         = props.adapterType,
             BackendType         = props.backendType,
-            Name                = PtrToString(props.Name),
-            DriverDescription   = PtrToString(props.DriverDescription),
+            Name                = PtrToString(props.device),		// TODO was .Name
+            DriverDescription   = PtrToString(props.description),	// TODO was .DriverDescription
             Adapter             = adapter
         };
     }
@@ -38,5 +38,11 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
     {
         if (ptr == null) return string.Empty;
         return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
+    }
+    
+    private static string PtrToString(StringView stringView)
+    {
+        if (stringView.data == null) return string.Empty;
+        return Marshal.PtrToStringAnsi((IntPtr)stringView.data) ?? string.Empty;
     }
 }
