@@ -39,11 +39,11 @@ public sealed class GpuTestGlobal
     }
     
     private static void SetupWebGPU () {
-        var instance = Friflo.Vectorization.WebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
+        var instance = Friflo.Vectorization.WebGPU.WgpuInstance.CreateInstance(new Friflo.Vectorization.WebGPU.Runtime.InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
         var infos       = instance.GetAdapterInfos();
-        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
+        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == Friflo.Vectorization.WebGPU.Runtime.BackendType.D3D12);
         Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
         Instance        = instance;
     }
