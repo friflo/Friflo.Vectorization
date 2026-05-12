@@ -282,7 +282,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
-            if  (inFlightTasks.Count > 0) {
+            if  (future.id != 0 && inFlightTasks.Count > 0) {
                 var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
                 wgpuInstanceWaitAny(instance, 1, &waitInfo, uint.MaxValue);
                 wgpuInstanceProcessEvents(instance);

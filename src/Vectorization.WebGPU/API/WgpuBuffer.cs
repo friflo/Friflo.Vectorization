@@ -102,9 +102,10 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
             userdata1   = &mapFinished
         };
         var future = wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callbackInfo);
-        
-        var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
-        wgpuInstanceWaitAny(device.instance, 1, &waitInfo, uint.MaxValue);
+        if (future.id != 0) {
+            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+            wgpuInstanceWaitAny(device.instance, 1, &waitInfo, uint.MaxValue);
+        }
         
         /* while (!mapFinished) {   // used in wgpu v19
             dev.Poll(true);         // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
