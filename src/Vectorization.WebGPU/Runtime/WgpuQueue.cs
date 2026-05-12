@@ -17,12 +17,12 @@ internal readonly unsafe struct WgpuQueue
     private  readonly   WgpuDevice   device;
     internal readonly   Queue*      handle;
     
-    public WgpuQueue(WgpuDevice device, Queue* handle) {
+    internal WgpuQueue(WgpuDevice device, Queue* handle) {
         this.device = device;
         this.handle = handle;
     }
     
-    public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
+    internal void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
     {
         wgpuQueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
     }

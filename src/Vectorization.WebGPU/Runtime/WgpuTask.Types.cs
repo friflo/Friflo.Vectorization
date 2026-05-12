@@ -44,7 +44,7 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
     private readonly    ComputePassEncoder* handle;
     public  override    string              ToString() => handle != null ? "Created" : "null";
     
-    public WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
+    internal WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
         this.task   = task;
         this.handle = handle;
     }

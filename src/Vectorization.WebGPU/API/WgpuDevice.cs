@@ -199,10 +199,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
     
-    /// <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
-    public void Poll(bool wait) {
-        wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
-    }
+    // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
+    // public void Poll(bool wait) {
+    //     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
+    // }
 
     internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
     {
@@ -292,7 +292,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void QueueOnSubmittedWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userdata1, void* userdata2) {
+    private static void QueueOnSubmittedWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userdata1, void* userdata2) {
         HandleTasksFinished(status, userdata1);
     }
 

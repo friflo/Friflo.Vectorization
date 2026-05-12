@@ -183,11 +183,11 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         }
     }
 
-    public void SetSubmitted(bool submitted) {
+    internal void SetSubmitted(bool submitted) {
         IsSubmitted = submitted;
     }
 
-    public void SetCompleted(bool completed) {
+    internal void SetCompleted(bool completed) {
         IsCompleted = completed;
     }
 }
