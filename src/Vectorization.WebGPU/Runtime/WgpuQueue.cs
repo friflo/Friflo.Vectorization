@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -37,27 +38,24 @@ internal readonly unsafe struct WgpuQueue
         }
     }
     
-    // We keep a static reference to avoid GC is not moving/collection the callback
-    private static readonly PfnQueueWorkDoneCallback NativeWorkDoneCallback = 
-        PfnQueueWorkDoneCallback.From(HandleNativeWorkDone);
-
-    private static void HandleNativeWorkDone(QueueWorkDoneStatus status, void* userData)
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void QueueWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userData1, void* userData2)
     {
-        // userData enables going back to CLR
-        var handle = GCHandle.FromIntPtr((IntPtr)userData);
+        var handle = GCHandle.FromIntPtr((IntPtr)userData1);
         if (handle.Target is Action<QueueWorkDoneStatus> callback) {
             callback(status);
         }
-        handle.Free(); // free to avoid leak
+        handle.Free();
     }
 
-    public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback)
+    internal void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback)
     {
-        // We have to pin the callback to avoid moving callback by GC
-        GCHandle callbackHandle = GCHandle.Alloc(callback); // handle is freed in HandleNativeWorkDone()
-        void* userData = (void*)GCHandle.ToIntPtr(callbackHandle);
-
-        // call native API with static function pointer
-        wgpuQueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
+        // Pin callback to avoid moving callback by GC. Handle is freed in QueueWorkDone_callback()
+        GCHandle callbackHandle = GCHandle.Alloc(callback); 
+        var callbackInfo = new QueueWorkDoneCallbackInfo {
+            callback    = &QueueWorkDone_callback,
+            userdata1   = (void*)GCHandle.ToIntPtr(callbackHandle)
+        };
+        wgpuQueueOnSubmittedWorkDone(handle, callbackInfo);
     }
 }
