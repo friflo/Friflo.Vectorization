@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
@@ -94,8 +95,12 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 
         // asynchronous mapping
         bool mapFinished = false;
-        var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
-        wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callback);
+        // var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
+        var callbackInfo = new BufferMapCallbackInfo {
+            callback    = &BufferUtils.BufferMap_callback,
+            userdata1   = &mapFinished
+        };
+        wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callbackInfo);
 
         while (!mapFinished) {
             dev.Poll(true);
@@ -110,6 +115,15 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         wgpuBufferUnmap(readBuffer);
         wgpuBufferDestroy(readBuffer);
         wgpuBufferRelease(readBuffer);
+    }
+}
+
+internal static class BufferUtils
+{
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    internal static unsafe void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+        var mapFinished = (bool*)userdata1;
+        *mapFinished = true; 
     }
 }
 
