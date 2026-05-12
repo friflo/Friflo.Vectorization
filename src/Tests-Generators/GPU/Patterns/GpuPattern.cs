@@ -30,7 +30,7 @@ public  static partial class GpuPattern
         buffers.Validate(output, nameof(output));
         
         if (exe == ExeType.GPU) {
-            switch (GpuTestGlobal.TestBackend) {
+            switch (GpuTestBase.Backend) {
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
             }

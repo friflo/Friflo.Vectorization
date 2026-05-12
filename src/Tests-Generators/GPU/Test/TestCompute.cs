@@ -7,8 +7,12 @@ using Tests.Utils;
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
+[TestFixture(TestBackend.SIMD)]
+[TestFixture(TestBackend.WebGPU)]
 public class TestCompute : GpuTestBase
 {
+    public TestCompute(TestBackend backend) : base(backend) { }
+    
     // ------------------------ generated code: end
     private static void UseSpan<T>(Span<T> span) { }
     
@@ -118,7 +122,7 @@ public class TestCompute : GpuTestBase
     [Test]
     public void Test_GPU_BufferBindGroupCaching()
     {
-        if (GpuTestGlobal.TestBackend == TestBackend.SIMD) return;
+        if (Backend == TestBackend.SIMD) return;
         
         var device    = Device;
 
