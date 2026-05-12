@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "..\Tests\Tests.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Code", "..\Tests-Generators\Tests-Generators-Code.csproj", "{8012B908-DE66-011F-EE6D-3F318963BA20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.GPU", "..\Vectorization.GPU\Friflo.Vectorization.GPU.csproj", "{C31F0B75-B0EF-DB43-7510-92EA0EE7E1C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.WebGPU", "..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj", "{5F8A9D49-49B2-D937-7ECB-D3A548D2309F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +39,14 @@ Global
 		{8012B908-DE66-011F-EE6D-3F318963BA20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8012B908-DE66-011F-EE6D-3F318963BA20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8012B908-DE66-011F-EE6D-3F318963BA20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C31F0B75-B0EF-DB43-7510-92EA0EE7E1C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C31F0B75-B0EF-DB43-7510-92EA0EE7E1C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C31F0B75-B0EF-DB43-7510-92EA0EE7E1C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C31F0B75-B0EF-DB43-7510-92EA0EE7E1C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F8A9D49-49B2-D937-7ECB-D3A548D2309F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F8A9D49-49B2-D937-7ECB-D3A548D2309F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F8A9D49-49B2-D937-7ECB-D3A548D2309F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F8A9D49-49B2-D937-7ECB-D3A548D2309F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

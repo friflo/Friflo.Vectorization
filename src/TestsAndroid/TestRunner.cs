@@ -1,12 +1,8 @@
-﻿using Android.Util;
-using NUnit.Common;
+﻿using NUnit.Common;
 using NUnitLite;
-using System;
-using System.Collections.Generic;
-using System.Formats.Tar;
-using System.Reflection;
 using System.Text;
-using Tests.Generators.GPU;
+using Tests.GPU;
+
 
 namespace TestsAndroid;
 
