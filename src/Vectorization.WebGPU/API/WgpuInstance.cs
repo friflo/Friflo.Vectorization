@@ -2,7 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
@@ -100,17 +100,35 @@ public sealed unsafe class WgpuInstance : GpuInstance
         return new WgpuInstance(instance);
     }
     
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void RequestAdapter_callback(RequestAdapterStatus status, Adapter* adapter, StringView message, void* userdata1, void* userdata2)
+    {
+        if (userdata1 == null) return;
+        var adapterPtr = (Adapter**)userdata1;
+        *adapterPtr = adapter;
+    }
+    
     public WgpuAdapter RequestAdapter(RequestAdapterOptions options, WgpuAdapterInfo adapterInfo)
     {
 		Adapter* adapter = null;
         if (adapterInfo != null) {
             adapter = adapterInfo.Adapter;
         } else {
-		    wgpuInstanceRequestAdapter(instance, &options, PfnRequestAdapterCallback.From((status, adp, _, _) => {
-			    if (status == RequestAdapterStatus.Success) adapter = adp;
-		    }), null);
+            var callbackInfo = new RequestAdapterCallbackInfo {
+                mode        = CallbackMode.WaitAnyOnly,
+                callback    = &RequestAdapter_callback,
+                userdata1   = &adapter
+            };
+		    var future = wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
+            
+            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+            var waitStatus = wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
+            
+            if (waitStatus != WaitStatus.Success || adapter == null) {
+                throw new Exception("Failed to create WebGPU Adapter. Status: " + waitStatus);
+            }
         }
-        var startTime = Stopwatch.StartNew();
+     /* var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (adapter == null) {
             PumpEvents(instance);
@@ -118,7 +136,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         }
         if (adapter == null) {
             Console.WriteLine("Adapter-Timeout: driver was found. but no callback was fired");
-        }
+        } */
         var props = new AdapterInfo();
         wgpuAdapterGetInfo(adapter, &props);
         var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);

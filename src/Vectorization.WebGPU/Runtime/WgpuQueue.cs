@@ -53,6 +53,7 @@ internal readonly unsafe struct WgpuQueue
         // Pin callback to avoid moving callback by GC. Handle is freed in QueueWorkDone_callback()
         GCHandle callbackHandle = GCHandle.Alloc(callback); 
         var callbackInfo = new QueueWorkDoneCallbackInfo {
+            mode        = CallbackMode.AllowProcessEvents, 
             callback    = &QueueWorkDone_callback,
             userdata1   = (void*)GCHandle.ToIntPtr(callbackHandle)
         };

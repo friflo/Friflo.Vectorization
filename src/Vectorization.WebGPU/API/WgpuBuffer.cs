@@ -97,8 +97,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         bool mapFinished = false;
         // var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
         var callbackInfo = new BufferMapCallbackInfo {
-            callback    = &BufferUtils.BufferMap_callback,
             mode        = CallbackMode.WaitAnyOnly, // requires blocking wgpuInstanceWaitAny()
+            callback    = &BufferUtils.BufferMap_callback,
             userdata1   = &mapFinished
         };
         var future = wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callbackInfo);

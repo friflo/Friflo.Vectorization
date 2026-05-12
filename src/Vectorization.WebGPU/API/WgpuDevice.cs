@@ -59,8 +59,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
 
-    // --- pointers to callback methods
-    private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
@@ -88,7 +86,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                     Flush(wait: true); // flush all pending GPU operations
                     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
-                wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
+                // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
         }
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
@@ -201,6 +199,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
     
+    /// <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
     public void Poll(bool wait) {
         wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
     }
@@ -259,7 +258,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         while (inFlightTasks.Count > 0) {
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         }
-        
+        var future = new Future();
         if (count > 0) {
             // Submit command buffers to queue
             var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
@@ -274,14 +273,27 @@ public sealed unsafe class WgpuDevice : GpuDevice
             pendingTasks    = temp;
             
             // Register callback for the new In-Flight batch
-            wgpuQueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
+            var callbackInfo = new QueueWorkDoneCallbackInfo {
+                mode        = CallbackMode.AllowProcessEvents,
+                callback    = &QueueOnSubmittedWorkDone_callback,
+                userdata1   = deviceHandlePtr
+            };
+            future = wgpuQueueOnSubmittedWorkDone(queue.handle, callbackInfo);
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
-            while (inFlightTasks.Count > 0) {
-                wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
+            if  (inFlightTasks.Count > 0) {
+                var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+                wgpuInstanceWaitAny(instance, 1, &waitInfo, uint.MaxValue);
+                wgpuInstanceProcessEvents(instance);
+                // wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
             }
         }
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static void QueueOnSubmittedWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userdata1, void* userdata2) {
+        HandleTasksFinished(status, userdata1);
     }
 
     public override void Wait<T>(GpuBuffer<T> buffer)
@@ -296,7 +308,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
         while (!task.IsCompleted) {
             // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
-            Poll(wait: true); 
+            // Poll(wait: true);
+            wgpuInstanceProcessEvents(instance);
         }
     }
         

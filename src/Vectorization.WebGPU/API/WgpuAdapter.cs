@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -23,9 +24,6 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     public  override    GpuAdapterInfo  GetAdapterInfo()    => info;
     
     public  override    string          ToString() => isDisposed ? "Disposed" : "Alive";
-    
-    private static readonly PfnErrorCallback GlobalErrorCallback = PfnErrorCallback.From(OnGpuError);
-    
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
@@ -52,6 +50,20 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         this.instance   = instance;
         this.info       = info;
     }
+    
+    
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void UncapturedError_callback(Device** device, ErrorType errorType, StringView message, void* userdata1, void* userdata2) {
+        OnGpuError(errorType, message, userdata1);
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void RequestDevice_callback(RequestDeviceStatus status, Device* device, StringView message, void* userdata1, void* userdata2)
+    {
+        if (userdata1 == null) return;
+        var devicePtr = (Device**)userdata1;
+        *devicePtr = device;
+    }
 
     public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
     {
@@ -59,26 +71,36 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         var len = WgpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
-
-		var devDesc = new DeviceDescriptor {
-			label = WgpuUtils.FromPtrLength(labelBuffer, len)
+		var deviceDesc = new DeviceDescriptor {
+			label = WgpuUtils.FromPtrLength(labelBuffer, len),
+            uncapturedErrorCallbackInfo = new UncapturedErrorCallbackInfo {
+                callback = &UncapturedError_callback
+            }
 		};
-
-		wgpuAdapterRequestDevice(adapter, &devDesc, PfnRequestDeviceCallback.From((status, dev, _, _) => {
-			if (status == RequestDeviceStatus.Success) device = dev;
-		}), null);
-
-        var startTime = Stopwatch.StartNew();
+        var callbackInfo = new RequestDeviceCallbackInfo {
+            mode        = CallbackMode.WaitAnyOnly, 
+            callback    = &RequestDevice_callback,
+            userdata1   = &device,
+        };
+		var future = wgpuAdapterRequestDevice(adapter, &deviceDesc, callbackInfo);
+        
+        var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+        var waitStatus = wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
+        
+        if (waitStatus != WaitStatus.Success || device == null) {
+            throw new Exception("Failed to create WebGPU Device. Status: " + waitStatus);
+        }
+     /* var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (device == null) {
             WgpuInstance.PumpEvents(instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
-        }
+        } */
 
         // Important: wgpu.QueueRelease() must not be called. Queue* shares the lifetime of Device*
 		var queuePtr = wgpuDeviceGetQueue(device);
         
-        wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
+        // wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
         return new WgpuDevice(label, instance, device, queuePtr, maxTasks, slotSize);
     }
@@ -115,9 +137,9 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         };
     }
     
-    private static void OnGpuError(ErrorType type, byte* message, void* userData)
+    private static void OnGpuError(ErrorType type, StringView message, void* userData)
     {
-        string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message);
+        string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message.data, (int)message.length);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine("--- [WEBGPU CRITICAL ERROR] ---");
         Console.Error.WriteLine($"Type: {type}");
