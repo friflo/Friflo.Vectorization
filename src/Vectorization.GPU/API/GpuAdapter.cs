@@ -21,10 +21,12 @@ public abstract class GpuAdapter : IDisposable
 
 public abstract class GpuAdapterInfo
 {
-    public  uint    VendorID            { get; protected init; }
-    public  uint    DeviceID            { get; protected init; }
-    public  string  Name                { get; protected init; }
-    public  string  DriverDescription   { get; protected init; }
+    public  GpuAdapterType  AdapterType         { get; protected init; }
+    public  GpuBackendType  BackendType         { get; protected init; }
+    public  uint            VendorID            { get; protected init; }
+    public  uint            DeviceID            { get; protected init; }
+    public  string          Name                { get; protected init; }
+    public  string          DriverDescription   { get; protected init; }
 }
 
 public readonly struct GpuLimits
@@ -33,4 +35,28 @@ public readonly struct GpuLimits
     public  uint    MaxComputeWorkgroupStorageSize      { get; init; }
     public  uint    MaxBindGroups                       { get; init; }
     public  uint    MaxComputeInvocationsPerWorkgroup   { get; init; }
+}
+
+public enum GpuAdapterType
+{
+    DiscreteGPU     = 1,
+    IntegratedGPU   = 2,
+    CPU             = 3,
+    Unknown         = 4,
+}
+
+public enum GpuBackendType
+{
+    Undefined   = 0,
+    Null        = 1,
+    WebGPU      = 2,
+    D3D11       = 3,
+    D3D12       = 4,
+    Metal       = 5,
+    Vulkan      = 6,
+    OpenGL      = 7,
+    OpenGLES    = 8,
+    // custom Friflo extension
+    Scalar      = 256,
+    SIMD        = 257,
 }

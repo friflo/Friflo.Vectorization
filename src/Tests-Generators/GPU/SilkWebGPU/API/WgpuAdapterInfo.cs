@@ -12,8 +12,6 @@ namespace Friflo.Vectorization.SilkWebGPU;
 
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
-    public      AdapterType AdapterType { get; private init; }
-    public      BackendType BackendType { get; private init; }
     public      Adapter*    Adapter     { get; private init; }
 
     public override string ToString() {
@@ -26,8 +24,8 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
         return new WgpuAdapterInfo {
             VendorID            = props.VendorID,
             DeviceID            = props.DeviceID,
-            AdapterType         = props.AdapterType,
-            BackendType         = props.BackendType,
+            AdapterType         = (GpuAdapterType)props.AdapterType,
+            BackendType         = (GpuBackendType)props.BackendType,
             Name                = PtrToString(props.Name),
             DriverDescription   = PtrToString(props.DriverDescription),
             Adapter             = adapter

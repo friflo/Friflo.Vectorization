@@ -13,8 +13,6 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
-    public      AdapterType AdapterType { get; private init; }
-    public      BackendType BackendType { get; private init; }
     public      Adapter*    Adapter     { get; private init; }
 
     public override string ToString() {
@@ -27,18 +25,12 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
         return new WgpuAdapterInfo {
             VendorID            = props.vendorID,
             DeviceID            = props.deviceID,
-            AdapterType         = props.adapterType,
-            BackendType         = props.backendType,
+            AdapterType         = (GpuAdapterType)props.adapterType,
+            BackendType         = (GpuBackendType)props.backendType,
             Name                = PtrToString(props.device),		// TODO was .Name
             DriverDescription   = PtrToString(props.description),	// TODO was .DriverDescription
             Adapter             = adapter
         };
-    }
-    
-    private static string PtrToString(byte* ptr)
-    {
-        if (ptr == null) return string.Empty;
-        return Marshal.PtrToStringAnsi((IntPtr)ptr) ?? string.Empty;
     }
     
     private static string PtrToString(StringView stringView)

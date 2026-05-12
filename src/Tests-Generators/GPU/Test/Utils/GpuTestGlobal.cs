@@ -17,7 +17,7 @@ public enum TestBackend {
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static readonly TestBackend TestBackend = TestBackend.WebGPU;
+    public static readonly TestBackend TestBackend = TestBackend.WebGPU; // WebGPU
     
     public static GpuInstance   Instance    { get; private set; }
     public static GpuAdapter    Adapter     { get; private set; }
@@ -43,7 +43,7 @@ public sealed class GpuTestGlobal
             // Backends            = InstanceBackend.DX12,
         });
         var infos       = instance.GetAdapterInfos();
-        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == BackendType.D3D12);
+        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
         Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
         Instance        = instance;
     }
@@ -53,7 +53,7 @@ public sealed class GpuTestGlobal
             // Backends            = InstanceBackend.DX12,
         });
         var infos       = instance.GetAdapterInfos();
-        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == Silk.NET.WebGPU.BackendType.D3D12);
+        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
         Adapter         = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
         Instance        = instance;
     }

@@ -27,7 +27,7 @@ public sealed class SimdAdapter : GpuAdapter
     }
 
     public override GpuAdapterInfo GetAdapterInfo() {
-        return SimdAdapterInfo.Default;
+        return SimdAdapterInfo.Simd;
     }
 
     public override GpuLimits GetAdapterLimits() {
@@ -37,7 +37,16 @@ public sealed class SimdAdapter : GpuAdapter
 
 public sealed class SimdAdapterInfo : GpuAdapterInfo
 {
-    internal static readonly SimdAdapterInfo Default = new() {
+    internal static readonly SimdAdapterInfo Scalar = new() {
+        AdapterType         = GpuAdapterType.CPU,
+        BackendType         = GpuBackendType.Scalar,
+        Name                = "SIMD",
+        DriverDescription   = "SIMD Driver"
+    };
+    
+    internal static readonly SimdAdapterInfo Simd = new() {
+        AdapterType         = GpuAdapterType.CPU,
+        BackendType         = GpuBackendType.SIMD,
         Name                = "SIMD",
         DriverDescription   = "SIMD Driver"
     };

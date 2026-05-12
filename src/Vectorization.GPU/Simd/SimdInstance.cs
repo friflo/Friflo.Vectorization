@@ -23,5 +23,8 @@ public sealed class SimdInstance : GpuInstance
         return SimdAdapterInfos;
     }
     
-    private static readonly GpuAdapterInfo[] SimdAdapterInfos = [SimdAdapterInfo.Default];
+    private static readonly GpuAdapterInfo[] SimdAdapterInfos = [
+        SimdAdapterInfo.Scalar,
+        SimdAdapterInfo.Simd
+    ];
 }
