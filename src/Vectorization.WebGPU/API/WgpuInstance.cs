@@ -120,12 +120,12 @@ public sealed unsafe class WgpuInstance : GpuInstance
                 userdata1   = &adapter
             };
 		    var future = wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
-            
-            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
-            var waitStatus = wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
-            
-            if (waitStatus != WaitStatus.Success || adapter == null) {
-                throw new Exception("Failed to create WebGPU Adapter. Status: " + waitStatus);
+            if (future.id != 0) {
+                var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+                wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
+            }
+            if (adapter == null) {
+                throw new Exception("Failed to create WebGPU Adapter. Status: ");
             }
         }
         /* var startTime = Stopwatch.StartNew();

@@ -83,14 +83,14 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
             userdata1   = &device,
         };
 		var future = wgpuAdapterRequestDevice(adapter, &deviceDesc, callbackInfo);
-        
-        var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
-        var waitStatus = wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
-        
-        if (waitStatus != WaitStatus.Success || device == null) {
-            throw new Exception("Failed to create WebGPU Device. Status: " + waitStatus);
+        if (future.id != 0) {
+            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+            wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
         }
-     /* var startTime = Stopwatch.StartNew();
+        if (device == null) {
+            throw new Exception("Failed to create WebGPU Device. Status: ");
+        }
+        /* var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (device == null) {
             WgpuInstance.PumpEvents(instance);
