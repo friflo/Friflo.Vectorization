@@ -83,7 +83,7 @@ public sealed class GpuTestGlobal
         return backend switch {
             TestBackend.SIMD    => SimdAdapter,
             TestBackend.WebGPU  => WebGPUAdapter,
-            TestBackend.Silk    => SimdAdapter
+            TestBackend.Silk    => SilkAdapter
         };
     }
 }
