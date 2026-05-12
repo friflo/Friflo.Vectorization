@@ -22,6 +22,7 @@ public abstract class GpuTestBase
 
     [SetUp]
     public void BaseSetup() {
+        Console.WriteLine($"{Backend} >> ");
         Dbg.Instance    = this;
         StartHandles    = Adapter.GenerateHandles();
         Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
