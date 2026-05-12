@@ -128,7 +128,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
                 throw new Exception("Failed to create WebGPU Adapter. Status: " + waitStatus);
             }
         }
-     /* var startTime = Stopwatch.StartNew();
+        /* var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (adapter == null) {
             PumpEvents(instance);

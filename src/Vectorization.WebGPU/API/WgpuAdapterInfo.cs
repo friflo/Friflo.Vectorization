@@ -43,6 +43,6 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
     private static string PtrToString(StringView stringView)
     {
         if (stringView.data == null) return string.Empty;
-        return Marshal.PtrToStringAnsi((IntPtr)stringView.data) ?? string.Empty;
+        return Marshal.PtrToStringAnsi((IntPtr)stringView.data, (int)stringView.length) ?? string.Empty;
     }
 }
