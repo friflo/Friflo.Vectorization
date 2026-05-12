@@ -7,8 +7,8 @@ using NUnit.Framework.Legacy;
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
-[TestFixture(TestBackend.SIMD)]
-[TestFixture(TestBackend.WebGPU)]
+[TestFixture(TestBackend.SIMD,      TestName = "SIMD")]
+[TestFixture(TestBackend.WebGPU,    TestName = "WebGPU")]
 public class Test_GPU_Exceptions : GpuTestBase
 {
     public Test_GPU_Exceptions(TestBackend backend) : base(backend) { }

@@ -7,8 +7,8 @@ using Tests.Utils;
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
-[TestFixture(TestBackend.SIMD)]
-[TestFixture(TestBackend.WebGPU)]
+[TestFixture(TestBackend.SIMD,      TestName = "SIMD")]
+[TestFixture(TestBackend.WebGPU,    TestName = "WebGPU")]
 public class TestCompute : GpuTestBase
 {
     public TestCompute(TestBackend backend) : base(backend) { }
