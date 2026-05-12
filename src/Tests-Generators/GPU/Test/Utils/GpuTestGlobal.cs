@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using NUnit.Framework;
 
@@ -38,7 +39,7 @@ public sealed class GpuTestGlobal
     }
     
     private static void SetupWebGPU () {
-        var instance = Friflo.Vectorization.WebGPU.WgpuInstance.CreateInstance(new InstanceExtras {
+        var instance = WgpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
         var infos       = instance.GetAdapterInfos();
