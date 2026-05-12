@@ -56,7 +56,7 @@ public enum GpuBackendType
     Vulkan      = 6,
     OpenGL      = 7,
     OpenGLES    = 8,
-    // custom Friflo extension
+    // --- Friflo extensions
     Scalar      = 256,
     SIMD        = 257,
 }
