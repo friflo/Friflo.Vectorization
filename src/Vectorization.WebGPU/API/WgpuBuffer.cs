@@ -98,13 +98,17 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         // var callback = PfnBufferMapCallback.From((_, _) => { mapFinished = true; });
         var callbackInfo = new BufferMapCallbackInfo {
             callback    = &BufferUtils.BufferMap_callback,
+            mode        = CallbackMode.WaitAnyOnly, // requires blocking wgpuInstanceWaitAny()
             userdata1   = &mapFinished
         };
-        wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callbackInfo);
-
-        while (!mapFinished) {
-            dev.Poll(true);
-        }
+        var future = wgpuBufferMapAsync(readBuffer, (ulong)MapMode.Read, 0, size, callbackInfo);
+        
+        var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+        wgpuInstanceWaitAny(device.instance, 1, &waitInfo, uint.MaxValue);
+        
+        /* while (!mapFinished) {   // used in wgpu v19
+            dev.Poll(true);         // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
+        } */
 
         // get result back in original array
         void* pMapped = wgpuBufferGetMappedRange(readBuffer, 0, size);
@@ -122,8 +126,9 @@ internal static class BufferUtils
 {
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static unsafe void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+        if (userdata1== null) return;
         var mapFinished = (bool*)userdata1;
-        *mapFinished = true; 
+        *mapFinished = true;
     }
 }
 

@@ -40,6 +40,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   bool                IsDisposed => isDisposed;
+    internal readonly   Instance*           instance;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
         
@@ -176,12 +177,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     internal WgpuDevice(
         string              label,
+        Instance*           instance,
         Device*             devicePtr,
         Queue*              queuePtr,
         int                 maxTasks,
         int                 slotSize)
     : base(label, slotSize)
     {
+        this.instance       = instance;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
         queue               = new WgpuQueue(this, queuePtr);

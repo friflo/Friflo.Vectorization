@@ -80,7 +80,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new WgpuDevice(label, device, queuePtr, maxTasks, slotSize);
+        return new WgpuDevice(label, instance, device, queuePtr, maxTasks, slotSize);
     }
     
     public override GpuLimits GetAdapterLimits()
