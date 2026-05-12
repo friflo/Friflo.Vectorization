@@ -17,7 +17,7 @@ public enum TestBackend {
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static readonly TestBackend TestBackend = TestBackend.Silk;
+    public static readonly TestBackend TestBackend = TestBackend.WebGPU;
     
     public static GpuInstance   Instance    { get; private set; }
     public static GpuAdapter    Adapter     { get; private set; }

@@ -106,11 +106,10 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
             var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
             wgpuInstanceWaitAny(device.instance, 1, &waitInfo, uint.MaxValue);
         }
-        
-        /* while (!mapFinished) {   // used in wgpu v19
-            dev.Poll(true);         // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
-        } */
-
+        while (!mapFinished) {   // used in wgpu v19
+            // dev.Poll(true);         // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
+            wgpuInstanceProcessEvents(device.instance);
+        }
         // get result back in original array
         void* pMapped = wgpuBufferGetMappedRange(readBuffer, 0, size);
         fixed (void* pTarget = targetArray) {
