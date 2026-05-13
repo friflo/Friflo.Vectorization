@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public static partial class Vectorizer

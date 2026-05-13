@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public partial class AttributeQueryGenerator

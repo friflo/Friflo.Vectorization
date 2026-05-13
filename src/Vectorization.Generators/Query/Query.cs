@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 // --- 3+1 Strategy architecture ---

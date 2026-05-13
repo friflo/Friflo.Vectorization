@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public static partial class Vectorizer

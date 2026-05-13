@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public readonly struct EmissionResult : IEquatable<EmissionResult>
