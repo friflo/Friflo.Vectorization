@@ -56,7 +56,9 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         if (userdata1 == null) return;
         var handle = GCHandle.FromIntPtr((IntPtr)userdata1);
         if (handle.Target is WgpuErrorHandler handler) {
-            handler.OnGpuError(errorType, message, userdata2);
+            lock (handler) {
+                handler.OnGpuError(errorType, message, userdata2);
+            }
         }
     }
     
