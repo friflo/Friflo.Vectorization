@@ -15,7 +15,7 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuBuffers
 {
-    public  readonly    bool        isSpan;
+    public  readonly    bool        areSpans;
     public  readonly    int         count;
     public              ulong       hash; // uses FNV-1a derivative hashing
     private readonly    GpuDevice   device;
@@ -29,7 +29,7 @@ public struct GpuBuffers
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            isSpan = true;
+            areSpans = true;
             return;
         }
         var bufferDevice = gpuBuffer.Device;
@@ -49,7 +49,7 @@ public struct GpuBuffers
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
-        if (isSpan && gpuBuffer == null) {
+        if (areSpans && gpuBuffer == null) {
             return;
         }
         if (gpuBuffer != null) {
@@ -70,8 +70,8 @@ public struct GpuBuffers
     private void ValidateError(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
-        if ((isSpan && gpuBuffer != null) ||
-           (!isSpan && gpuBuffer == null)) {
+        if ((areSpans && gpuBuffer != null) ||
+           (!areSpans && gpuBuffer == null)) {
             throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
         }
         var bufferDevice = gpuBuffer!.Device;
