@@ -15,11 +15,6 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
     public      Adapter*    Adapter     { get; private init; }
 
-    public override string ToString() {
-        return $"GPU: {Name}  Backend: {BackendType}  Driver: {DriverDescription}  Type: {AdapterType}  Vendor: {VendorID:X}  Devive: {DeviceID:X}";
-    }
-    
-    
     internal static WgpuAdapterInfo CreateAdapterInfo(AdapterInfo props, Adapter* adapter)
     {
         return new WgpuAdapterInfo {

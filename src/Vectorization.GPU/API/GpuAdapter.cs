@@ -27,6 +27,8 @@ public abstract class GpuAdapterInfo
     public  uint            DeviceID            { get; protected init; }
     public  string          Name                { get; protected init; }
     public  string          DriverDescription   { get; protected init; }
+
+    public  override string ToString()          => $"Backend: {BackendType}  Adapter: {AdapterType}";
 }
 
 public readonly struct GpuLimits
