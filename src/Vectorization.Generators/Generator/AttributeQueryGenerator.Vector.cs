@@ -46,7 +46,7 @@ public partial class AttributeQueryGenerator
                 sb.Append(parameter.Name);
                 continue;
             }
-            Utils.AppendRefKind(sb, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.Name);
         }
         var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
@@ -73,7 +73,7 @@ public partial class AttributeQueryGenerator
                 sb.Append($"{span}<{type}> {parameter.Name}");
                 continue;
             }
-            Utils.AppendRefKind(sb, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             sb.Append($"{type} {parameter.Name}");
         }
         if (vectorized) {
@@ -90,7 +90,7 @@ public partial class AttributeQueryGenerator
                 sb.Append(", ");
             }
             var parameter = vectorType.Parameter;
-            Utils.AppendRefKind(sb, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             if (vectorType.IsSpan) {
                 sb.Append($"{parameter.Name}[n]");
                 continue;

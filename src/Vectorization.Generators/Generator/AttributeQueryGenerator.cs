@@ -27,11 +27,11 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         // RegisterTranspiler_BadCommonApproach(context);
         
         context.RegisterPostInitializationOutput(ctx => {
-            Utils.AddSource(ctx, "AvxVector2.g.cs");
-            Utils.AddSource(ctx, "AvxVector3.g.cs");
-            Utils.AddSource(ctx, "AvxVector4.g.cs");
-            Utils.AddSource(ctx, "MathUtils.g.cs");
-            Utils.AddSource(ctx, "VectorUtils.g.cs");
+            GeneratorUtils.AddSource(ctx, "AvxVector2.g.cs");
+            GeneratorUtils.AddSource(ctx, "AvxVector3.g.cs");
+            GeneratorUtils.AddSource(ctx, "AvxVector4.g.cs");
+            GeneratorUtils.AddSource(ctx, "MathUtils.g.cs");
+            GeneratorUtils.AddSource(ctx, "VectorUtils.g.cs");
         });
     }
     
@@ -101,8 +101,8 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
         }
         VectorMode vectorMode;
         var attributes = blueprintMethod.GetAttributes();
-        bool hasQueryAttribute      = Utils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
-        var  vectorizeData          = Utils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
+        bool hasQueryAttribute      = GeneratorUtils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
+        var  vectorizeData          = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
 
         if (trigger == GenerateTrigger.VectorizeAttribute) {
             if (hasQueryAttribute) {
@@ -200,7 +200,7 @@ public partial class AttributeQueryGenerator : IIncrementalGenerator
             return "";
         }
         var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
-        return "_" + Utils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
+        return "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
     }
     
     private static string CreateFileName(IMethodSymbol methodSymbol, string hash)

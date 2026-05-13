@@ -93,7 +93,7 @@ public partial class AttributeQueryGenerator
                 continue;
             }
             sb.Append(", ");
-            Utils.AppendRefKind(sb, symbol.RefKind);
+            GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
             string type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             sb.Append(type);
             sb.Append(" ");
@@ -151,7 +151,7 @@ public partial class AttributeQueryGenerator
                 sb.Append(", ");
             }
             if (parameter.IsSpan) {
-                Utils.AppendRefKind(sb, symbol.RefKind);
+                GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
                 var vectorType = parameter.VectorType;
                 if (vectorType?.Layout == VectorLayout.AoSoA) {
                     sb.Append($"{symbol.Name}AoS");                                                          // TODO fix name SoA
@@ -164,7 +164,7 @@ public partial class AttributeQueryGenerator
                 sb.Append(query.Spans.Length == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
-            Utils.AppendRefKind(sb, symbol.RefKind);
+            GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
             sb.Append(symbol.Name);
         }
         return sb.ToString();
@@ -188,7 +188,7 @@ public partial class AttributeQueryGenerator
                 case "WithoutAllComponentsAttribute":
                 case "WithoutAnyComponentsAttribute":
                     var name = attributeClass.Name.Substring(0, attributeClass.Name.Length - "Attribute".Length);
-                    var args = Utils.GetGenericTypeArguments(attributeClass);
+                    var args = GeneratorUtils.GetGenericTypeArguments(attributeClass);
                     sb.AppendLine($"            _query.{name}(ComponentTypes.Get<{args}>());");
                     break;
                 case "AllTagsAttribute":
@@ -196,7 +196,7 @@ public partial class AttributeQueryGenerator
                 case "WithoutAllTagsAttribute":
                 case "WithoutAnyTagsAttribute":
                     name = attributeClass.Name.Substring(0, attributeClass.Name.Length - "Attribute".Length);
-                    args = Utils.GetGenericTypeArguments(attributeClass);
+                    args = GeneratorUtils.GetGenericTypeArguments(attributeClass);
                     sb.AppendLine($"            _query.{name}(Tags.Get<{args}>());");
                     break;
             }

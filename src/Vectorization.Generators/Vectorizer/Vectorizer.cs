@@ -151,7 +151,7 @@ public static partial class Vectorizer
                 } */
                 continue;
             }
-            Utils.AppendRefKind(sb, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.Name);
         }
         var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
@@ -218,7 +218,7 @@ public static partial class Vectorizer
                 continue;
             }
             signature.Append("\n            ");
-            Utils.AppendRefKind(signature, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
             signature.Append($"{vectorType.FullQualifiedName} {parameter.Name}");
             //
             switch (vectorType.ParamType) {

@@ -45,7 +45,7 @@ public class BlueprintParameter
                     vectorType  = VectorType.GetComponentVectorType(parameter, isSpan);
                     break;
                 case VectorMode.Vector:
-                    isSpan      = Utils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
+                    isSpan      = GeneratorUtils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
                     vectorType  = VectorType.GetSpanVectorType(parameter, isSpan);
                     break;
             }

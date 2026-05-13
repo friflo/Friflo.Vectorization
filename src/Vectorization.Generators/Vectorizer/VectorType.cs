@@ -72,7 +72,7 @@ public class VectorType
         if (valueField == null) {
             return null;
         }
-        var layout = Utils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
+        var layout = GeneratorUtils.HasAttribute(type.GetAttributes(), "Friflo.Engine.ECS.AoSoAAttribute") ? 
                         VectorLayout.AoSoA : VectorLayout.AoS;
         return CreateVectorType(symbol, typeName, true, valueField.Type, layout);
     }
