@@ -107,11 +107,11 @@ struct ShadowMethod_Uniforms {
     count   : u32
 };
 
-@group(0) @binding(0) var<storage, read>        weight:     array<f32>;
-@group(0) @binding(1) var<storage, read>        input:      array<f32>;
-@group(0) @binding(2) var<storage, read_write>  output:     array<f32>;
+@group(0) @binding(0) var<storage, read>        weight_arr:     array<f32>;
+@group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
+@group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
 
-@group(1) @binding(0) var<uniform>              uniforms:   ShadowMethod_Uniforms;
+@group(1) @binding(0) var<uniform>              uniforms:   	ShadowMethod_Uniforms;
 
 @compute @workgroup_size(64)
 fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
@@ -119,10 +119,10 @@ fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
     if (index >= uniforms.count) {
         return;
     }
-    let weight_scalar = weight[index];
-    let input_scalar = input[index];
+    let weight = weight_arr[index];
+    let input  = input_arr[index];
     // shader body generated from Blueprint method body
-    output[index] = (input_scalar * weight_scalar) + uniforms.bias;
+    output_arr[index] = (input * weight) + uniforms.bias;
 }
 """u8;
     
