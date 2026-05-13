@@ -39,7 +39,8 @@ namespace Friflo.Vectorization.WebGPU;
 public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
-    public   override   bool                IsDisposed => isDisposed;
+    public   override   bool                IsGpuDevice => true;
+    public   override   bool                IsDisposed  => isDisposed;
     internal readonly   Instance*           instance;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }

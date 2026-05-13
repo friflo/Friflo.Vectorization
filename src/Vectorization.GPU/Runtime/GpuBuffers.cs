@@ -85,6 +85,8 @@ public struct GpuBuffers
         throw NoDevice();
     }
     
+    public bool IsGpuDevice => device?.IsGpuDevice ?? false;
+    
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private static InvalidOperationException NoDevice() {
          return new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
