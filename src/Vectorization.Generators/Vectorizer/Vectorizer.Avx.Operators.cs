@@ -63,7 +63,7 @@ public static partial class Vectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
-        var leftIdentifier = Utils.GetMemberName(assignment.Left).Identifier;
+        var leftIdentifier = VectorUtils.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
             query.readVectors.Add(left);  // e.g. += -=

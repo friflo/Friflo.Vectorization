@@ -4,9 +4,10 @@
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
-public static class Utils
+public static class VectorUtils
 {
     public static  IdentifierNameSyntax GetMemberName(ExpressionSyntax expressionSyntax)
     {

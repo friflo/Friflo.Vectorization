@@ -36,7 +36,7 @@ public static partial class Vectorizer
                 query.paramTypes.Add(name, paramType);
             } */ 
             query.locals.AppendLine($"            var {name} = {value}; // static");
-            var isScalar = Utils.InterleaveVector3(query.locals, name, query);
+            var isScalar = VectorUtils.InterleaveVector3(query.locals, name, query);
             query.AddParam(name, false, isScalar, false, 0);
             query.locals.AppendLine();
             
