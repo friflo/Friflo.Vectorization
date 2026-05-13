@@ -16,6 +16,9 @@ public sealed class VectorizeAttribute : Attribute
     public VectorizeAttribute(string simdMethod) { }
 }
 
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class KernelAttribute : Attribute { }
+
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class OmitHashAttribute : Attribute { }
