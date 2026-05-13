@@ -11,8 +11,12 @@ public sealed class SimdInstance : GpuInstance
     
     public override bool IsDisposed => isDisposed;
     
-    public SimdAdapter CreateAdapter() {
-        return new SimdAdapter();
+    public SimdAdapter CreateAdapter(GpuBackendType backendType) {
+        var info = backendType switch {
+            GpuBackendType.SIMD     => SimdAdapterInfo.Simd,
+            GpuBackendType.Scalar   => SimdAdapterInfo.Scalar
+        };
+        return new SimdAdapter(info);
     }
     
     public override void Dispose() {

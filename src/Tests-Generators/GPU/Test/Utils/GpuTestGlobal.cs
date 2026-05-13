@@ -9,6 +9,7 @@ using NUnit.Framework;
 namespace Tests.GPU;
 
 public enum TestBackend {
+    Scalar,
     SIMD,
     WebGPU,
     Silk
@@ -17,7 +18,7 @@ public enum TestBackend {
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    public static readonly TestBackend TestBackend = TestBackend.WebGPU;
+    public static readonly TestBackend TestBackend = TestBackend.SIMD;
     
     public static   GpuInstance Instance    { get; private set; }
     public static   GpuAdapter  Adapter     { get; private set; }
@@ -26,15 +27,16 @@ public sealed class GpuTestGlobal
     public void RunBeforeAnyTests()
     {
         switch (TestBackend) {
-            case TestBackend.SIMD:      SetupSIMD();    break;
-            case TestBackend.WebGPU:    SetupWebGPU();  break;
-            case TestBackend.Silk:      SetupSilk();    break;
+            case TestBackend.Scalar:    SetupSIMD(GpuBackendType.Scalar);   break;
+            case TestBackend.SIMD:      SetupSIMD(GpuBackendType.SIMD);     break;
+            case TestBackend.WebGPU:    SetupWebGPU();                      break;
+            case TestBackend.Silk:      SetupSilk();                        break;
         }
     }
     
-    private static void SetupSIMD () {
+    private static void SetupSIMD (GpuBackendType backendType) {
         var instance    = new SimdInstance();
-        Adapter     = instance.CreateAdapter();
+        Adapter     = instance.CreateAdapter(backendType);
         Instance    = instance;
     }
     
