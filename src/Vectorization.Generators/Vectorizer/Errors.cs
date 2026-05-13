@@ -3,6 +3,7 @@
 
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public static class Errors
