@@ -64,7 +64,7 @@ public static class WebGPUPattern
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
-        gpuOutput.LastWritingTask = task;
+        ((WgpuBuffer<float>)gpuOutput).SetLastWritingTask(task);
         task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 

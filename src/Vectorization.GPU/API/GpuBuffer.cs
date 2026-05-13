@@ -15,7 +15,7 @@ public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
     public    readonly  string      Label;
     public    readonly  int         Length;
     public	  readonly  long        Id              = GpuBufferUtils.NextId();
-    public              GpuTask     LastWritingTask;
+    public              GpuTask     LastWritingTask { get; protected set; }
     internal
     protected abstract  Span<T>     Span            { get; }
     public	  abstract  GpuDevice   Device          { get; }
