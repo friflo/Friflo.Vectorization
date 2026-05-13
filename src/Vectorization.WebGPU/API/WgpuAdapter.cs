@@ -120,12 +120,13 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     public override GpuHandleDiff GenerateHandles () {
         var globalReport = new GlobalReport();
         wgpuGenerateReport(instance, &globalReport);
-        return GpuHandles(globalReport.hub);
+        return GpuHandles(globalReport.hub, info);
     }
     
-    private static GpuHandleDiff GpuHandles(in HubReport report)
+    private static GpuHandleDiff GpuHandles(in HubReport report, GpuAdapterInfo info)
     {
         return new GpuHandleDiff {
+            BackendType         = info.BackendType,
             Devices             = new GpuHandle((long)report.devices.            numKeptFromUser),
             Buffers             = new GpuHandle((long)report.buffers.            numKeptFromUser),
             BindGroups          = new GpuHandle((long)report.bindGroups.         numKeptFromUser),

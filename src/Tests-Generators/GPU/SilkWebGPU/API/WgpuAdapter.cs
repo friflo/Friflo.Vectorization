@@ -102,7 +102,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var globalReport = new GlobalReport();
         wgpuEx.GenerateReport(instance, &globalReport);
         var hubReport = GetReport(globalReport, (BackendType)info.BackendType);
-        return GpuHandles(hubReport);
+        return GpuHandles(hubReport, info);
     }
     
     private static HubReport GetReport(GlobalReport report, BackendType type)
@@ -116,9 +116,10 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         };
     }
     
-    private static GpuHandleDiff GpuHandles(in HubReport report)
+    private static GpuHandleDiff GpuHandles(in HubReport report, GpuAdapterInfo info)
     {
         return new GpuHandleDiff {
+            BackendType         = info.BackendType,
             Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
             Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
             BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
