@@ -7,9 +7,11 @@ namespace Friflo.Vectorization.GPU;
 
 public sealed class SimdAdapter : GpuAdapter
 {
-    private         bool isDisposed;
+    private         bool    isDisposed;
+    internal        long    deviceCount;
+    internal        long    bufferCount;
     
-    public override bool IsDisposed => isDisposed;
+    public override bool    IsDisposed => isDisposed;
     
     internal SimdAdapter() { }
     
@@ -19,11 +21,17 @@ public sealed class SimdAdapter : GpuAdapter
 
     public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 65536)
     {
-        return new SimdDevice(label, maxTasks);
+        deviceCount++;
+        return new SimdDevice(this, label, maxTasks);
     }
 
     public override GpuHandleDiff GenerateHandles() {
-        return new GpuHandleDiff();
+        return new GpuHandleDiff
+        {
+            BackendType = GpuBackendType.SIMD,
+            Devices     = new GpuHandle(deviceCount),
+            Buffers     = new GpuHandle(bufferCount),
+        };
     }
 
     public override GpuAdapterInfo GetAdapterInfo() {

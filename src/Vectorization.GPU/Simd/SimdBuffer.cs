@@ -25,6 +25,7 @@ internal sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
     }
 
     public override void Dispose() {
+        if (device != null) device.adapter.bufferCount--;
         device = null;
     }
 

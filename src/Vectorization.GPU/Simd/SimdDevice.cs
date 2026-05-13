@@ -7,13 +7,17 @@ namespace Friflo.Vectorization.GPU;
 
 internal sealed class SimdDevice : GpuDevice
 {
-    private         bool isDisposed;
+    private             bool        isDisposed;
+    internal readonly   SimdAdapter adapter;
     
     public override bool IsDisposed => isDisposed;
         
-    internal SimdDevice(string label, int slotSize) : base(label, slotSize) { }
+    internal SimdDevice(SimdAdapter adapter, string label, int slotSize) : base(label, slotSize) {
+        this.adapter = adapter;
+    }
 
     public override void Dispose() {
+        if (!isDisposed) adapter.deviceCount--;
         isDisposed = true;
     }
 
@@ -23,11 +27,13 @@ internal sealed class SimdDevice : GpuDevice
 
     public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
     {
+        adapter.bufferCount++;
         var array = new T[length];
         return new SimdBuffer<T>(this, array, bufferLabel);
     }
 
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel) {
+        adapter.bufferCount++;
         return new SimdBuffer<T>(this, data, bufferLabel);
     }
 
