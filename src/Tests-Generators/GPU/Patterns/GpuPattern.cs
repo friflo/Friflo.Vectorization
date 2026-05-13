@@ -6,6 +6,7 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.Intrinsics;
+// ReSharper disable InconsistentNaming
 
 namespace Tests.GPU;
 
