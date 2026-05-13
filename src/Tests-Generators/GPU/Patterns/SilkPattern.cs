@@ -121,8 +121,9 @@ fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
         return;
     }
     let weight_scalar = weight[index];
+    let input_scalar = input[index];
     // shader body generated from Blueprint method body
-    output[index] = (input[index] * weight_scalar) + uniforms.bias;
+    output[index] = (input_scalar * weight_scalar) + uniforms.bias;
 }
 """u8;
     
