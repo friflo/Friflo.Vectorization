@@ -28,14 +28,14 @@ public sealed class GpuTestGlobal
     public void RunBeforeAnyTests()
     {
         switch (TestBackend) {
-            case TestBackend.Scalar:    SetupSIMD(GpuBackendType.Scalar);   break;
-            case TestBackend.SIMD:      SetupSIMD(GpuBackendType.SIMD);     break;
+            case TestBackend.Scalar:    SetupCPU(GpuBackendType.Scalar);    break;
+            case TestBackend.SIMD:      SetupCPU(GpuBackendType.SIMD);      break;
             case TestBackend.WebGPU:    SetupWebGPU();                      break;
             case TestBackend.Silk:      SetupSilk();                        break;
         }
     }
     
-    private static void SetupSIMD (GpuBackendType backendType) {
+    private static void SetupCPU (GpuBackendType backendType) {
         var instance    = new CpuInstance();
         Adapter     = instance.CreateAdapter(backendType);
         Instance    = instance;
