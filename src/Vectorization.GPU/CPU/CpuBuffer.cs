@@ -2,10 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.GPU;
 
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.Vectorization.CPU;
 
 internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {

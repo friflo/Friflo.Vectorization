@@ -3,7 +3,11 @@
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
-namespace Friflo.Vectorization.GPU;
+
+using Friflo.Vectorization.GPU;
+
+// ReSharper disable once CheckNamespace
+namespace Friflo.Vectorization.CPU;
 
 public sealed class CpuInstance : GpuInstance
 {

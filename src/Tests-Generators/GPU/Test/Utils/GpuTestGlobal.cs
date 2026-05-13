@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
