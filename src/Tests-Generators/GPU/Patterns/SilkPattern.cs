@@ -27,8 +27,8 @@ public static class SilkPattern
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
-        if (weight.LastWritingTask != null) task.AddDependency(weight.LastWritingTask);
-        if (input.LastWritingTask != null)  task.AddDependency(input.LastWritingTask);
+        if (weight.LastWritingTask != null) task.AddDependency(weight);
+        if (input.LastWritingTask  != null) task.AddDependency(input);
         
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
@@ -73,10 +73,10 @@ public static class SilkPattern
         return gpuOutput;
     }
     
-    private static readonly int     ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private static readonly ulong   ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private static readonly ulong   ShadowMethod_GPU_UniformLayoutKey   = 42;   // unique hash key calculated by Generator
-    
+    private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
+    private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
     {

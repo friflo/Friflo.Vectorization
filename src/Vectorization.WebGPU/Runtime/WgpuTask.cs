@@ -157,8 +157,15 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         
         dependencies.Clear();
     }
-
-    public void AddDependency(GpuTask predecessor) {
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddDependency<T>(GpuBuffer<T> predecessor) where T : unmanaged
+    {
+        AddDependency(predecessor.LastWritingTask);
+    }
+    
+    private void AddDependency(GpuTask predecessor)
+    {
         if (predecessor == this) return; // Prevent brain-loop
         if (!dependencies.Contains(predecessor))
         {
