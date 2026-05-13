@@ -5,14 +5,14 @@
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.GPU;
 
-internal sealed class SimdDevice : GpuDevice
+internal sealed class CpuDevice : GpuDevice
 {
     private             bool        isDisposed;
-    internal readonly   SimdAdapter adapter;
+    internal readonly   CpuAdapter adapter;
     
     public override bool IsDisposed => isDisposed;
         
-    internal SimdDevice(SimdAdapter adapter, string label, int slotSize) : base(label, slotSize) {
+    internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
     }
 
@@ -29,12 +29,12 @@ internal sealed class SimdDevice : GpuDevice
     {
         adapter.bufferCount++;
         var array = new T[length];
-        return new SimdBuffer<T>(this, array, bufferLabel);
+        return new CpuBuffer<T>(this, array, bufferLabel);
     }
 
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel) {
         adapter.bufferCount++;
-        return new SimdBuffer<T>(this, data, bufferLabel);
+        return new CpuBuffer<T>(this, data, bufferLabel);
     }
 
     public override void Flush(bool wait = true) { }

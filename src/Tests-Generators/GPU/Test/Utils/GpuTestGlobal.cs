@@ -35,7 +35,7 @@ public sealed class GpuTestGlobal
     }
     
     private static void SetupSIMD (GpuBackendType backendType) {
-        var instance    = new SimdInstance();
+        var instance    = new CpuInstance();
         Adapter     = instance.CreateAdapter(backendType);
         Instance    = instance;
     }

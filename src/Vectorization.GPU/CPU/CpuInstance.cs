@@ -5,18 +5,18 @@
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.GPU;
 
-public sealed class SimdInstance : GpuInstance
+public sealed class CpuInstance : GpuInstance
 {
     private         bool isDisposed;
     
     public override bool IsDisposed => isDisposed;
     
-    public SimdAdapter CreateAdapter(GpuBackendType backendType) {
+    public CpuAdapter CreateAdapter(GpuBackendType backendType) {
         var info = backendType switch {
-            GpuBackendType.SIMD     => SimdAdapterInfo.Simd,
-            GpuBackendType.Scalar   => SimdAdapterInfo.Scalar
+            GpuBackendType.SIMD     => CpuAdapterInfo.Simd,
+            GpuBackendType.Scalar   => CpuAdapterInfo.Scalar
         };
-        return new SimdAdapter(info);
+        return new CpuAdapter(info);
     }
     
     public override void Dispose() {
@@ -28,7 +28,7 @@ public sealed class SimdInstance : GpuInstance
     }
     
     private static readonly GpuAdapterInfo[] SimdAdapterInfos = [
-        SimdAdapterInfo.Scalar,
-        SimdAdapterInfo.Simd
+        CpuAdapterInfo.Scalar,
+        CpuAdapterInfo.Simd
     ];
 }

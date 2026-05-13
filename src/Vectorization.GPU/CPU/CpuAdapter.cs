@@ -5,7 +5,7 @@
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.GPU;
 
-public sealed class SimdAdapter : GpuAdapter
+public sealed class CpuAdapter : GpuAdapter
 {
     private             bool            isDisposed;
     internal            long            deviceCount;
@@ -14,7 +14,7 @@ public sealed class SimdAdapter : GpuAdapter
     
     public override bool    IsDisposed => isDisposed;
     
-    internal SimdAdapter(GpuAdapterInfo info) {
+    internal CpuAdapter(GpuAdapterInfo info) {
         this.info = info;
     }
     
@@ -25,7 +25,7 @@ public sealed class SimdAdapter : GpuAdapter
     public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 65536)
     {
         deviceCount++;
-        return new SimdDevice(this, label, maxTasks);
+        return new CpuDevice(this, label, maxTasks);
     }
 
     public override GpuHandleDiff GenerateHandles() {
@@ -46,16 +46,16 @@ public sealed class SimdAdapter : GpuAdapter
     }
 }
 
-public sealed class SimdAdapterInfo : GpuAdapterInfo
+public sealed class CpuAdapterInfo : GpuAdapterInfo
 {
-    internal static readonly SimdAdapterInfo Scalar = new() {
+    internal static readonly CpuAdapterInfo Scalar = new() {
         AdapterType         = GpuAdapterType.CPU,
         BackendType         = GpuBackendType.Scalar,
-        Name                = "SIMD",
-        DriverDescription   = "SIMD Driver"
+        Name                = "Scalar",
+        DriverDescription   = "Scalar Driver"
     };
     
-    internal static readonly SimdAdapterInfo Simd = new() {
+    internal static readonly CpuAdapterInfo Simd = new() {
         AdapterType         = GpuAdapterType.CPU,
         BackendType         = GpuBackendType.SIMD,
         Name                = "SIMD",

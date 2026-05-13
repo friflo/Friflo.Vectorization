@@ -7,20 +7,20 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-internal sealed class SimdBuffer<T> : GpuBuffer<T> where T : unmanaged
+internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
     private   readonly  T[]         array;
-    private             SimdDevice  device;
+    private             CpuDevice  device;
     internal
     protected override  Span<T>     Span        => array.AsSpan();
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => device == null;
  
     
-    internal SimdBuffer(SimdDevice device, T[] array, string label)
+    internal CpuBuffer(CpuDevice device, T[] array, string label)
         : base(array.Length, label)
     {
-        this.array = array;
+        this.array  = array;
         this.device = device;
     }
 
