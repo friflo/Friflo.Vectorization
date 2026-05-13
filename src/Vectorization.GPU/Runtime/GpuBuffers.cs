@@ -17,7 +17,7 @@ public struct GpuBuffers
 {
     public  readonly    bool        isSpan;
     public  readonly    int         count;
-    public              ulong       hash        = OffsetBasis; // uses FNV-1a derivative hashing
+    public              ulong       hash; // uses FNV-1a derivative hashing
     private readonly    GpuDevice   device;
     private readonly    string      firstParam;
 
@@ -39,7 +39,7 @@ public struct GpuBuffers
             firstParam  = paramName;
             device      = bufferDevice;
             count       = buffer.Count;
-            unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
+            unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
             return;
         }
         ValidateError(buffer, paramName);
@@ -49,7 +49,7 @@ public struct GpuBuffers
     public void Validate(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
-        if (isSpan) {
+        if (isSpan && gpuBuffer == null) {
             return;
         }
         if (gpuBuffer != null) {
@@ -70,10 +70,11 @@ public struct GpuBuffers
     private void ValidateError(Buffer<float> buffer, string paramName)
     {
         var gpuBuffer = buffer.gpuBuffer;
-        /* if (gpuBuffer == null) {
+        if ((isSpan && gpuBuffer != null) ||
+           (!isSpan && gpuBuffer == null)) {
             throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
-        } */
-        var bufferDevice = gpuBuffer.Device;
+        }
+        var bufferDevice = gpuBuffer!.Device;
         if (bufferDevice == null) {
             throw new InvalidOperationException($"Existential Void: '{paramName}' is suffering from severe amnesia. It remembers being a GpuBuffer, but it has forgotten the Device that gave its life meaning. Without a Device, it’s just 8 bytes of disappointment.");
         }

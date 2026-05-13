@@ -60,15 +60,21 @@ public class Test_GPU_Exceptions : GpuTestBase
                 GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput1);
             });
             StringAssert.StartsWith("Archaeological Error:", e!.Message!);
-        }
-        {
-            /* var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.ShadowMethod(weight, input, 42, output);
+        } {
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(weight, gpuInput, 42, output);
             });
-            StringAssert.StartsWith("Identity Crisis:", e!.Message!); */
+            StringAssert.StartsWith("Identity Crisis:", e!.Message!);
+        } {
+            using var gpuWeight2 = device2.CreateBuffer(weight, GpuBufferUsage.Storage, "gpuWeight2"); 
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(gpuWeight2, input, 42, output);
+            });
+            StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         }
-        
+        GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
     }
+    
     
     [Test]
     public void Test_GPU_Repeat()
