@@ -51,8 +51,10 @@ jobs:
     - name: Push
       working-directory: ./
       run: |
-        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Attributes.${VERSION}.nupkg  --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
-        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Generators.${VERSION}.nupkg  --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.GPU.${VERSION}.nupkg        --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.WebGPU.${VERSION}.nupkg     --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Attributes.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
+        dotnet nuget push ${{ env.PACKAGE_DIRECTORY }}/Friflo.Vectorization.Generators.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_AUTH_TOKEN }}
 
 
     
