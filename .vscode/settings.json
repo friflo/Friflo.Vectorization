@@ -15,6 +15,7 @@
         "**/.obj": true,
 		"**/.bin": true,
         "**/*.csproj.xml": true,
+        "**/*.lscache": true,
 
         // root files / folders
         ".github": false,
