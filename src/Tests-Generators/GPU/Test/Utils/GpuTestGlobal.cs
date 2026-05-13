@@ -17,28 +17,25 @@ public enum TestBackend {
 [SetUpFixture]
 public sealed class GpuTestGlobal
 {
-    private static  GpuInstance   SimdInstance      { get; set; }
-    private static  GpuAdapter    SimdAdapter       { get; set; }
+    public static readonly TestBackend TestBackend = TestBackend.WebGPU;
     
-    private static  GpuInstance   WebGPUInstance    { get; set; }
-    private static  GpuAdapter    WebGPUAdapter     { get; set; }
-
-    private static  GpuInstance   SilkInstance      { get; set; }
-    private static  GpuAdapter    SilkAdapter       { get; set; }
-
+    public static   GpuInstance Instance    { get; private set; }
+    public static   GpuAdapter  Adapter     { get; private set; }
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
-        SetupSIMD();
-        SetupWebGPU();
-        // SetupSilk();
+        switch (TestBackend) {
+            case TestBackend.SIMD:      SetupSIMD();    break;
+            case TestBackend.WebGPU:    SetupWebGPU();  break;
+            case TestBackend.Silk:      SetupSilk();    break;
+        }
     }
     
     private static void SetupSIMD () {
         var instance    = new SimdInstance();
-        SimdAdapter     = instance.CreateAdapter();
-        SimdInstance    = instance;
+        Adapter     = instance.CreateAdapter();
+        Instance    = instance;
     }
     
     private static void SetupWebGPU () {
@@ -47,8 +44,8 @@ public sealed class GpuTestGlobal
         });
         var infos       = instance.GetAdapterInfos();
         var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
-        WebGPUAdapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
-        WebGPUInstance  = instance;
+        Adapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Instance  = instance;
     }
     
     private static void SetupSilk () {
@@ -57,33 +54,14 @@ public sealed class GpuTestGlobal
         });
         var infos       = instance.GetAdapterInfos();
         var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
-        SilkAdapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
-        SilkInstance  = instance;
+        Adapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Instance  = instance;
     }
     
     [OneTimeTearDown]
     public void RunAfterAllTests()
     {
-        SilkAdapter?.Dispose();
-        SilkInstance?.Dispose();
-        
-        WebGPUAdapter.Dispose();
-        WebGPUInstance.Dispose();
-    }
-
-    public static GpuInstance GetInstance(TestBackend backend) {
-        return backend switch {
-            TestBackend.SIMD    => SimdInstance,
-            TestBackend.WebGPU  => WebGPUInstance,
-            TestBackend.Silk    => SilkInstance
-        };
-    }
-
-    public static GpuAdapter GetAdapter(TestBackend backend) {
-        return backend switch {
-            TestBackend.SIMD    => SimdAdapter,
-            TestBackend.WebGPU  => WebGPUAdapter,
-            TestBackend.Silk    => SilkAdapter
-        };
+        Adapter.Dispose();
+        Instance.Dispose();
     }
 }

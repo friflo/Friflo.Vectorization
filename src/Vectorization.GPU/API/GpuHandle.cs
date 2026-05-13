@@ -58,7 +58,11 @@ public readonly struct GpuHandleDiff
                 ShaderModules.     Diff == 0 &&
                 PipelineLayouts.   Diff == 0);
     }
-    
+
+    public override string ToString() {
+        return $"Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}  BindGroups: {BindGroups.Active} {BindGroups.Diff,1:+0;-0;0}";
+    }
+
     public string GetState()
     {
         return $@"

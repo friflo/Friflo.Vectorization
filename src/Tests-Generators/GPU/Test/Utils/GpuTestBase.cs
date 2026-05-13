@@ -6,11 +6,11 @@ namespace Tests.GPU;
 
 public abstract class GpuTestBase
 {
-    protected       GpuInstance     Instance  => GpuTestGlobal.GetInstance(Backend);
-    protected       GpuAdapter      Adapter   => GpuTestGlobal.GetAdapter(Backend);
+    protected       GpuInstance     Instance  => GpuTestGlobal.Instance;
+    protected       GpuAdapter      Adapter   => GpuTestGlobal.Adapter;
+    protected       TestBackend     Backend   => GpuTestGlobal.TestBackend;
     
     // -----------------------  Local Setup -----------------------
-    public static   TestBackend     Backend         { get; private set; }
     protected       GpuDevice       Device          { get; private set; }
     private         GpuHandleDiff   StartHandles    { get; set; }
     public          GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Adapter.GenerateHandles());
@@ -18,11 +18,8 @@ public abstract class GpuTestBase
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
     
-    protected GpuTestBase(TestBackend backend) { Backend = backend; }
-
     [SetUp]
     public void BaseSetup() {
-        Console.WriteLine($"{Backend} >> ");
         Dbg.Instance    = this;
         StartHandles    = Adapter.GenerateHandles();
         Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
