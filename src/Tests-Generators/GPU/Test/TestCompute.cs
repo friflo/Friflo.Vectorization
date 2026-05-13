@@ -118,7 +118,8 @@ public class TestCompute : GpuTestBase
     [Test]
     public void Test_GPU_BufferBindGroupCaching()
     {
-        if (!Device.IsGpuDevice) return;
+        if (GpuTestGlobal.TestBackend == TestBackend.Scalar || GpuTestGlobal.TestBackend == TestBackend.SIMD)
+            return;
         
         var device    = Device;
 

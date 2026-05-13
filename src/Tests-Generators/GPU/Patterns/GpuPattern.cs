@@ -24,12 +24,11 @@ public  static partial class GpuPattern
         Buffer<float>   output,
         ExeType         exe = ExeType.GPU)
     {
-        var buffers = new GpuBuffers();
-        buffers.Validate(weight, nameof(weight));
-        buffers.Validate(input,  nameof(input));
-        buffers.Validate(output, nameof(output));
+        GpuBuffers buffers = new(weight, nameof(weight));
+        buffers.Validate        (input,  nameof(input));
+        buffers.Validate        (output, nameof(output));
 
-        if (buffers.IsGpuDevice) {
+        if (!buffers.isSpan) {
             switch (GpuTestGlobal.TestBackend) {
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);

@@ -13,7 +13,6 @@ public abstract class GpuDevice : IDisposable
     public  readonly    string  Label;
     public  readonly    int     SlotSize;
     public              bool    DebugMode   { get; set; } 
-    public  abstract    bool    IsGpuDevice { get; }
     
     public  override    string  ToString() => Label + (IsDisposed ? ": Disposed" : ": Alive");
 
