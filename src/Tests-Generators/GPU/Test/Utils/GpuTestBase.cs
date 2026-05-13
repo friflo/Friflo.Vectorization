@@ -48,7 +48,7 @@ public abstract class GpuTestBase
             return;
         }
         // return;
-        var str = handleDiff.GetState();
+        var str = handleDiff.GetState("[GPU RESOURCE LEAK DETECTED]");
         throw new InvalidOperationException(str);
     }
 }

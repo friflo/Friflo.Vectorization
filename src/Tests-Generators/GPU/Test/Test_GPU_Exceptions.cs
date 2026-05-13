@@ -113,7 +113,7 @@ public class Test_GPU_Exceptions : GpuTestBase
         Assert.NotNull(Instance.GetAdapterInfos());
         
         var info = Adapter.GetAdapterInfo();
-        Console.WriteLine($"Adapter: {info.AdapterType} | Backend: {info.BackendType} | Name: {info.Name} | Drive: {info.DriverDescription} | VendorID: {info.VendorID} | DeviceID: {info.DeviceID}");
+        Console.WriteLine($"Adapter: {info.AdapterType}  Backend: {info.BackendType}  Name: {info.Name}  Driver: {info.DriverDescription}  VendorID: {info.VendorID}  DeviceID: {info.DeviceID}");
         
         Assert.AreEqual("GpuTestBase", Device.Label);
         

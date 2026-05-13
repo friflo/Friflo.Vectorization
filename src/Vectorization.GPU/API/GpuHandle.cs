@@ -65,10 +65,9 @@ public readonly struct GpuHandleDiff
         return $"Backend: {BackendType}  Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}";
     }
 
-    public string GetState()
+    public string GetState(string title = "")
     {
-        return $@"
-[GPU RESOURCE LEAK DETECTED]
+        return $@"{title}
 BackendType: {BackendType}
 ResourceType    Start Delta
 --------------- ----- -----
