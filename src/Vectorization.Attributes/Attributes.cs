@@ -16,7 +16,7 @@ public sealed class VectorizeAttribute : Attribute
     public VectorizeAttribute(string simdMethod) { }
 }
 
-[AttributeUsage(AttributeTargets.Parameter)]
+[AttributeUsage(AttributeTargets.Method)]
 public sealed class KernelAttribute : Attribute { }
 
 
