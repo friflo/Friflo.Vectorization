@@ -43,6 +43,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal readonly   Instance*           instance;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
+    internal readonly   WgpuErrorHandler    errorHandler;
+    private             GCHandle            errorHandle;
         
     private  readonly   WgpuTask[]          taskPool;
     private  readonly   Stack<WgpuTask>     availableTasks;
@@ -116,6 +118,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
         if (deviceHandle.IsAllocated) {
             deviceHandle.Free();
         }
+        if (errorHandle.IsAllocated) {
+            errorHandle.Free();
+        }
         isDisposed = true;
     }
     
@@ -175,6 +180,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     internal WgpuDevice(
         string              label,
+        WgpuErrorHandler    errorHandler,
+        GCHandle            errorHandle,
         Instance*           instance,
         Device*             devicePtr,
         Queue*              queuePtr,
@@ -182,6 +189,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
         int                 slotSize)
     : base(label, slotSize)
     {
+        this.errorHandler   = errorHandler;
+        this.errorHandle    = errorHandle;
         this.instance       = instance;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
@@ -447,6 +456,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             };
             // Compile shader in driver
             var handle = wgpuDeviceCreateShaderModule(DevicePtr, &desc);
+            errorHandler.ThrowOnError();
             return new WgpuShaderModule(handle);
         }
     }

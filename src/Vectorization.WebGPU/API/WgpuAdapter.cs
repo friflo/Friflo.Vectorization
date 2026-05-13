@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
@@ -54,7 +53,11 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void UncapturedError_callback(Device** device, ErrorType errorType, StringView message, void* userdata1, void* userdata2) {
-        OnGpuError(errorType, message, userdata1);
+        if (userdata1 == null) return;
+        var handle = GCHandle.FromIntPtr((IntPtr)userdata1);
+        if (handle.Target is WgpuErrorHandler handler) {
+            handler.OnGpuError(errorType, message, userdata2);
+        }
     }
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -71,10 +74,15 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         var len = WgpuUtils.CopySpanToBuffer(label, labelBuffer, labelMaxCount);
+        
+        var errorHandler    = new WgpuErrorHandler();
+        var errorHandle     = GCHandle.Alloc(errorHandler);
+        
 		var deviceDesc = new DeviceDescriptor {
 			label = WgpuUtils.FromPtrLength(labelBuffer, len),
             uncapturedErrorCallbackInfo = new UncapturedErrorCallbackInfo {
-                callback = &UncapturedError_callback
+                callback = &UncapturedError_callback,
+                userdata1 = (void*)GCHandle.ToIntPtr(errorHandle)
             }
 		};
         var callbackInfo = new RequestDeviceCallbackInfo {
@@ -102,7 +110,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         // wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new WgpuDevice(label, instance, device, queuePtr, maxTasks, slotSize);
+        return new WgpuDevice(label, errorHandler, errorHandle, instance, device, queuePtr, maxTasks, slotSize);
     }
     
     public override GpuLimits GetAdapterLimits()
@@ -136,18 +144,6 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
             ShaderModules       = new GpuHandle((long)report.shaderModules.      numKeptFromUser),
             PipelineLayouts     = new GpuHandle((long)report.pipelineLayouts.    numKeptFromUser)
         };
-    }
-    
-    private static void OnGpuError(ErrorType type, StringView message, void* userData)
-    {
-        string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message.data, (int)message.length);
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine("--- [WEBGPU CRITICAL ERROR] ---");
-        Console.Error.WriteLine($"Type: {type}");
-        Console.Error.WriteLine($"Message: {errorMsg}");
-        Console.Error.WriteLine("-------------------------------");
-        Console.ResetColor();
-        if (Debugger.IsAttached) Debugger.Break();
     }
 }
 
