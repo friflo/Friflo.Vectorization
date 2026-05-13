@@ -61,7 +61,7 @@ public static class SilkPattern
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((input.Length + 63) / 64, 1, 1);        	// Execute ComputePass
+            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
