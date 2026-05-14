@@ -121,8 +121,8 @@ namespace VerifyVectorize
         if (velocity.LastWritingTask != null) task.AddDependency(velocity);
 
         // Recording (task provides Encoder)
-        var encoder = task.GetEncoder("ShadowMethod"u8);
-        using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
+        var encoder = task.GetEncoder("MoveExample"u8);
+        using (var pass = encoder.BeginComputePass("MoveExample"u8))
         {
             var effect = device.GetEffect(_MoveExample_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
@@ -136,7 +136,7 @@ namespace VerifyVectorize
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, velocity);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
+                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
                 device.UpdateBufferCache(_MoveExample_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -147,7 +147,7 @@ namespace VerifyVectorize
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
+            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "MoveExample_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
@@ -155,7 +155,7 @@ namespace VerifyVectorize
         }
         // connect task to output
         ((WgpuBuffer<float>)output).SetLastWritingTask(task);
-        task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
+        task.Finish(encoder, "MoveExample"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
@@ -175,16 +175,16 @@ namespace VerifyVectorize
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
             buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
-            bufferLayout = device.CreateBindGroupLayout(buffers, _MoveExample_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, _MoveExample_GPU_BufferLayoutKey, "MoveExample_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(_MoveExample_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, _MoveExample_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
+            uniformLayout   = device.CreateBindGroupLayout(uniform, _MoveExample_GPU_UniformLayoutKey, "MoveExample_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "ShadowMethod"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
+        var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
+        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
         return device.CreateEffect(_MoveExample_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
@@ -192,7 +192,7 @@ namespace VerifyVectorize
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>
     """
-    struct ShadowMethod_Uniforms {
+    struct MoveExample_Uniforms {
         bias    : f32,
         count   : u32
     };
@@ -201,10 +201,10 @@ namespace VerifyVectorize
     @group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
     @group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
 
-    @group(1) @binding(0) var<uniform>              uniforms:   	ShadowMethod_Uniforms;
+    @group(1) @binding(0) var<uniform>              uniforms:   	MoveExample_Uniforms;
 
     @compute @workgroup_size(64)
-    fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    fn MoveExample(@builtin(global_invocation_id) global_id: vec3<u32>) {
         let index = global_id.x;
         if (index >= uniforms.count) {
             return;

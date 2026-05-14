@@ -5,6 +5,7 @@ using System.Text;
 using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
@@ -96,13 +97,14 @@ public partial class Gen
         
         var blueprintMethod = query.BlueprintMethod;
         var hash            = query.Hash;
-        var methodName      = $"_{query.BlueprintMethod.Name}_GPU{hash}";
+        var methodName      = query.BlueprintMethod.Name;
+        var methodName_GPU  = $"_{methodName}_GPU{hash}";
         
         var shadowMethodSource =
 $$""""
 
     [SkipLocalsInit]
-    private {{(blueprintMethod.IsStatic ? "static " : "")}}GpuBuffer<float> {{methodName}}(
+    private {{(blueprintMethod.IsStatic ? "static " : "")}}GpuBuffer<float> {{methodName_GPU}}(
         in GpuBuffers buffers,{{signature}})
     {
         var device      = (WgpuDevice)buffers.GetDevice();
@@ -112,12 +114,12 @@ $$""""
         // Dependencies from inputs (out not Output!){{dependencies}}
 
         // Recording (task provides Encoder)
-        var encoder = task.GetEncoder("ShadowMethod"u8);
-        using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
+        var encoder = task.GetEncoder("{{methodName}}"u8);
+        using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
         {
-            var effect = device.GetEffect({{methodName}}_EffectSlot); // Each device has its own GpuEffect[] array
+            var effect = device.GetEffect({{methodName_GPU}}_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
-                effect = {{methodName}}_CreateEffect(device);
+                effect = {{methodName_GPU}}_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -125,18 +127,18 @@ $$""""
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bindGroupCount}}];{{bindGroupEntries}}
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
-                device.UpdateBufferCache({{methodName}}_EffectSlot, bufferGroup, buffers.hash);
+                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
+                device.UpdateBufferCache({{methodName_GPU}}_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
             
-            var uniforms = new {{methodName}}_Uniforms {
+            var uniforms = new {{methodName_GPU}}_Uniforms {
                 bias = bias,
                 count = buffers.count
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
+            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
@@ -144,44 +146,44 @@ $$""""
         }
         // connect task to output
         ((WgpuBuffer<float>)output).SetLastWritingTask(task);
-        task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
+        task.Finish(encoder, "{{methodName}}"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
         return null;
     }
     
-    private static readonly int {{methodName}}_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         {{methodName}}_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private const ulong         {{methodName}}_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+    private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
+    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 42; // unique hash key calculated by Generator
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect {{methodName}}_CreateEffect(WgpuDevice device)
+    private static WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
     {
-        var bufferLayout = device.GetBindGroupLayout({{methodName}}_BufferLayoutKey);
+        var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
             buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
-            bufferLayout = device.CreateBindGroupLayout(buffers, {{methodName}}_BufferLayoutKey, "ShadowMethod_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
         }
-        var uniformLayout = device.GetBindGroupLayout({{methodName}}_UniformLayoutKey);
+        var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, {{methodName}}_UniformLayoutKey, "ShadowMethod_uniforms"u8);
+            uniformLayout   = device.CreateBindGroupLayout(uniform, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule({{methodName}}_Shader(), "ShadowMethod"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
+        var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
+        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return device.CreateEffect({{methodName}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return device.CreateEffect({{methodName_GPU}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
-    private static ReadOnlySpan<byte> {{methodName}}_Shader() =>
+    private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """
-    struct ShadowMethod_Uniforms {
+    struct {{methodName}}_Uniforms {
         bias    : f32,
         count   : u32
     };
@@ -190,10 +192,10 @@ $$""""
     @group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
     @group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
 
-    @group(1) @binding(0) var<uniform>              uniforms:   	ShadowMethod_Uniforms;
+    @group(1) @binding(0) var<uniform>              uniforms:   	{{methodName}}_Uniforms;
 
     @compute @workgroup_size(64)
-    fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    fn {{methodName}}(@builtin(global_invocation_id) global_id: vec3<u32>) {
         let index = global_id.x;
         if (index >= uniforms.count) {
             return;
@@ -207,7 +209,7 @@ $$""""
         
     // struct for uniforms
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
-    private struct {{methodName}}_Uniforms
+    private struct {{methodName_GPU}}_Uniforms
     {
         [FieldOffset(0)]    public float    bias;
         [FieldOffset(4)]    public int      count;
