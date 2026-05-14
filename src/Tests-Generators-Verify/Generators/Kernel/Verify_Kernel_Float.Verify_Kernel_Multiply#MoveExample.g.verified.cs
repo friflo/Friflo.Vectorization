@@ -173,10 +173,9 @@ namespace VerifyVectorize
     {
         var bufferLayout = device.GetBindGroupLayout(_MoveExample_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
+            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
+            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<float> (0); // @group(0) @binding(0) var<storage, read_write>       position
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage <float> (1); // @group(0) @binding(1) var<storage, read      >       velocity
             bufferLayout = device.CreateBindGroupLayout(buffers, _MoveExample_GPU_BufferLayoutKey, "MoveExample_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(_MoveExample_GPU_UniformLayoutKey);

@@ -5,6 +5,7 @@ using System.Text;
 using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable ForCanBeConvertedToForeach
@@ -71,8 +72,9 @@ public partial class Gen
         var vectorTypes = query.VectorTypes;
         var signature           = new StringBuilder();
         var dependencies        = new StringBuilder();
-        var bindGroupEntries    = new StringBuilder();
-        int bindGroupCount = 0;
+        var bufferBindEntries   = new StringBuilder();
+        var bufferLayoutEntries = new StringBuilder();
+        int bufferCount = 0;
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
         int uniformCount = 1;
@@ -92,8 +94,11 @@ public partial class Gen
                 } else {
                     dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
                 }
-                bindGroupEntries.Append($"\n                entries[{bindGroupCount}] = WgpuBindGroup.From({bindGroupCount}, {paramName});");
-                bindGroupCount++;
+                bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
+                var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
+                var storageWgsl   = isOutput ? "read_write"       : "read      ";
+                bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // @group(0) @binding({bufferCount}) var<storage, {storageWgsl}>       {paramName}");
+                bufferCount++;
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
@@ -135,7 +140,7 @@ $$""""
             // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bindGroupCount}}];{{bindGroupEntries}}
+                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
                 device.UpdateBufferCache({{methodName_GPU}}_EffectSlot, bufferGroup, buffers.hash);
             }
@@ -170,10 +175,7 @@ $$""""
     {
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
+            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[{{bufferCount}}];{{bufferLayoutEntries}}
             bufferLayout = device.CreateBindGroupLayout(buffers, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
