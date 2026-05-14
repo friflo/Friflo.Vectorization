@@ -51,6 +51,12 @@ public partial class Gen : IIncrementalGenerator
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
         context.RegisterSourceOutput(vectorizeMethod, EmitResult);
+        
+        var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Vectorization.KernelAttribute",
+            predicate: (node, _) => node is MethodDeclarationSyntax,
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
+        context.RegisterSourceOutput(kernelMethod, EmitResult);
     }
     
     // ReSharper disable once UnusedMember.Local
@@ -101,18 +107,27 @@ public partial class Gen : IIncrementalGenerator
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new EmissionResult("", "", []);
         }
-        VectorMode vectorMode;
         var attributes = blueprintMethod.GetAttributes();
-        bool hasQueryAttribute      = GeneratorUtils.HasAttribute(attributes, "Friflo.Engine.ECS.QueryAttribute");
-        var  vectorizeData          = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
+        bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
+        var  vectorizeData      = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
+        bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.Vectorization.KernelAttribute");
 
-        if (trigger == GenerateTrigger.VectorizeAttribute) {
-            if (hasQueryAttribute) {
-                return new EmissionResult("", "", []); // already handled by GenerateTrigger.QueryAttribute
-            }
-            vectorMode = VectorMode.Vector;
-        } else {
-            vectorMode = VectorMode.Query;
+        VectorMode vectorMode;
+        switch (trigger) {
+            case GenerateTrigger.KernelAttribute:
+                vectorMode = VectorMode.Vector;
+                break;
+            case GenerateTrigger.VectorizeAttribute:
+                if (hasQueryAttribute || hasKernelAttribute) {
+                    return new EmissionResult("", "", []); // already handled by GenerateTrigger: QueryAttribute or KernelAttribute
+                }
+                vectorMode = VectorMode.Vector;
+                break;
+            case GenerateTrigger.QueryAttribute:
+                vectorMode = VectorMode.Query;
+                break;
+            default:
+                return new EmissionResult("", "", []); // unreachable
         }
         // Get the symbol for the interfaces; ITag and IComponent
         var compilation         = semanticModel.Compilation;
@@ -139,7 +154,7 @@ public partial class Gen : IIncrementalGenerator
             Hash            = hash,
             SemanticModel   = semanticModel
         };
-        if (vectorizeData != null) {
+        if (vectorizeData != null || hasKernelAttribute) {
             Vectorizer.Emit(query);
         }
         string shadowMethodSource;

@@ -123,7 +123,8 @@ public class Query
 public enum GenerateTrigger
 {
     QueryAttribute,
-    VectorizeAttribute
+    VectorizeAttribute,
+    KernelAttribute,
 }
 
 public struct Param
