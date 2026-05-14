@@ -125,9 +125,9 @@ namespace VerifyVectorize
         var encoder = task.GetEncoder("ShadowMethod"u8);
         using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
         {
-            var effect = device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
+            var effect = device.GetEffect(_MoveExample_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
-                effect = ShadowMethod_GPU_CreateEffect(device);
+                effect = _MoveExample_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -139,11 +139,11 @@ namespace VerifyVectorize
                 entries[1] = WgpuBindGroup.From  (1, input);
                 entries[2] = WgpuBindGroup.From  (2, output);
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
-                device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(_MoveExample_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
             
-            var uniforms = new ShadowMethod_GPU_Uniforms {
+            var uniforms = new _MoveExample_GPU_Uniforms {
                 bias = bias,
                 count = buffers.count
             };
@@ -164,35 +164,35 @@ namespace VerifyVectorize
         return null;
     }
     
-    private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+    private static readonly int _MoveExample_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private const ulong         _MoveExample_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
+    private const ulong         _MoveExample_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
+    private static WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
     {
-        var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
+        var bufferLayout = device.GetBindGroupLayout(_MoveExample_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
             buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShadowMethod_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, _MoveExample_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
         }
-        var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutKey);
+        var uniformLayout = device.GetBindGroupLayout(_MoveExample_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
+            uniformLayout   = device.CreateBindGroupLayout(uniform, _MoveExample_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
+        var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
         
-        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return device.CreateEffect(_MoveExample_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
-    private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() =>
+    private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>
     """
     struct ShadowMethod_Uniforms {
         bias    : f32,
@@ -220,7 +220,7 @@ namespace VerifyVectorize
         
     // struct for uniforms
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
-    private struct ShadowMethod_GPU_Uniforms
+    private struct _MoveExample_GPU_Uniforms
     {
         [FieldOffset(0)]    public float    bias;
         [FieldOffset(4)]    public int      count;
