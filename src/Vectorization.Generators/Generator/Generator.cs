@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 using Friflo.Vectorization.Generators;
+using Friflo.Vectorization.Generators.AVX;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -156,7 +157,7 @@ public partial class Gen : IIncrementalGenerator
             SemanticModel   = semanticModel
         };
         if (vectorizeData != null || hasKernelAttribute) {
-            Vectorizer.Emit(query);
+            AvxVectorizer.Emit(query);
         }
         string vectorMethodSource;
         string kernelMethodSource = "";

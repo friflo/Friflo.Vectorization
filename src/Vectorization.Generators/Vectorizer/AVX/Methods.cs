@@ -6,9 +6,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class Vectorizer
+public static partial class AvxVectorizer
 {
     private static ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {

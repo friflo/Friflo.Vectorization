@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using Friflo.Vectorization.Generators;
+using Friflo.Vectorization.Generators.AVX;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
@@ -22,7 +23,7 @@ public partial class Gen
         var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.vectorized);
-        var vectorizeBlock      = Vectorizer.EmitVectorizeBlock(query);
+        var vectorizeBlock      = AvxVectorizer.EmitVectorizeBlock(query);
         EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
         
         var hash            = query.Hash;

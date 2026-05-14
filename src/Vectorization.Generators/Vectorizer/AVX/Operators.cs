@@ -8,9 +8,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class Vectorizer
+public static partial class AvxVectorizer
 {
     private static StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {

@@ -6,9 +6,9 @@ using System.Text;
 
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class Vectorizer
+public static partial class AvxVectorizer
 {
     private static void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
