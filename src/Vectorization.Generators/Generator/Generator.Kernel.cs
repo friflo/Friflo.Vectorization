@@ -210,10 +210,7 @@ $$""""
         if (index >= uniforms.count) {
             return;
         }
-        // TODO Generate expression (currently handcraftet)
-        let position = position_arr[index];
-        let velocity = velocity_arr[index];
-        position_arr[index] = (position * velocity) + uniforms.deltaTime;
+{{query.wgslBody}}
     }
     """u8;
         

@@ -50,6 +50,7 @@ public class Query
     public          StringBuilder[]                 lanes;
     public          bool                            vectorized;
     public          string                          avxMethod = "";
+    public          string                          wgslBody = "";
     public readonly HashSet<string>                 readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
     public readonly List<string>                    dirtyVectors = [];      // contains vectors that are stored. Meaning they are "dirty"
     public readonly Dictionary<string, bool>        dirtyVectorsSet = [];   // value: true => Load required
@@ -60,7 +61,8 @@ public class Query
     public          int                             computeTempCount;
     public          int                             constLocalsCount;
     public          bool                            requireDeinterleave;
-    public          bool                            useDeinterleave;        // true => add Deinterleave() / Interleave() 
+    public          bool                            useDeinterleave;        // true => add Deinterleave() / Interleave()
+    public          bool                            isSingleLane; 
 
     
     public void AddDirty(string vectorName)
@@ -88,6 +90,10 @@ public class Query
     
     public string GetVectorName(string name, int i)
     {
+        if (isSingleLane) {
+            return name; // WGSL
+        }
+        
         if (!useDeinterleave) {
             if (paramTypes.TryGetValue(name, out var paramSoa)) {
                 if (paramSoa.isScalar) {

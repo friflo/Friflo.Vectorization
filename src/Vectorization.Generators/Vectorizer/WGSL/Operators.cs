@@ -13,8 +13,8 @@ public static partial class WgslVectorizer
 {
     private static StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {
-        var laneCount = query.laneCount;
-        ITypeSymbol? typeSymbol = null;
+        var laneCount = 1;
+        /* ITypeSymbol? typeSymbol = null;
         if (symbol is ILocalSymbol localSymbol) {
             typeSymbol = localSymbol.Type;
         }
@@ -25,20 +25,8 @@ public static partial class WgslVectorizer
         var (_, dimension, _) = VectorType.GetTypeDim(typeSymbol);
         if (query.useDeinterleave && !query.paramTypes.ContainsKey(parameterName)) {
             query.AddParam(parameterName, false, true, false, dimension);    
-        }
-        if (query.useDeinterleave && dimension == 1) {
-            laneCount = 2;
-        }
-        if (query.paramTypes.TryGetValue(parameterName, out var paramType)) {
-            if (paramType.dimension == 1) {
-                laneCount =  query.vectorDimension switch {
-                    2 => 2,
-                    3 => 1,
-                    4 => 1,
-                    _ => laneCount
-                };
-            }
-        }
+        } */
+
         var lanes = query.lanes = new StringBuilder[laneCount];
         for (int n = 0; n < laneCount; n++) {
             lanes[n] = new StringBuilder();
@@ -76,7 +64,7 @@ public static partial class WgslVectorizer
         {
             for (int i = 0; i < lanes.Length; i++) {
                 var vectorName = query.GetVectorName(left, i);
-                lanes[i].Append($"{vectorName} = Fma.MultiplyAdd(");
+                lanes[i].Append($"{vectorName} = fma(");
             }
             if (!Compute(lanes, query, assignBinary.Left)) {
                 return ComputeResult.Invalid;

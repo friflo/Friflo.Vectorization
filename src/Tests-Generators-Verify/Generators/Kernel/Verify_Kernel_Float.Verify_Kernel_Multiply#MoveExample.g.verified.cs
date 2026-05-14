@@ -208,10 +208,17 @@ namespace VerifyVectorize
         if (index >= uniforms.count) {
             return;
         }
-        // TODO Generate expression (currently handcraftet)
-        let position = position_arr[index];
-        let velocity = velocity_arr[index];
-        position_arr[index] = (position * velocity) + uniforms.deltaTime;
+        // --- 1. Load
+        var position = position_arr[index];
+        var velocity = velocity_arr[index];
+
+        // --- 2. Compute
+        // position += velocity * deltaTime;
+        position = fma(velocity, deltaTime, position);
+
+        // --- 3. Store
+        position_arr[index] = position;
+
     }
     """u8;
         

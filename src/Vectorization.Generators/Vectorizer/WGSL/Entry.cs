@@ -15,7 +15,9 @@ public static partial class WgslVectorizer
     public static bool Emit(Query query)
     {
         query.ResetQueryState();
-        return true;
+        query.laneCount     = 1;
+        query.isSingleLane  = true;
+        
         TraverseBody(query);
         return true;
     }
@@ -37,12 +39,12 @@ public static partial class WgslVectorizer
                         return false;
                     }
                     var statementText = Regex.Replace(statement.ToString(), @"\s+", " ").Trim();
-                    compute.AppendLine($"                    // {statementText}");
+                    compute.AppendLine($"        // {statementText}");
                     compute.Append(query.computeTemp);
                     query.computeTemp.Clear();
                     var lanes = query.lanes;
                     for (int n = 0; n < lanes.Length; n++) {
-                        compute.AppendLine($"                    {lanes[n]}");
+                        compute.AppendLine($"        {lanes[n]}");
                     }
                     compute.AppendLine();
                 }
@@ -92,54 +94,15 @@ public static partial class WgslVectorizer
                     break;
             }
         }
-        // const locals
-        locals.Append(query.locals);
-
-        var localBlock = "";
-        if (locals.Length > 0) {
-            localBlock = $"            // --- Locals\n{locals}";
-        }
-        
-        // --- fixed block
-        var @fixed = new StringBuilder();
-        foreach (var span in query.Spans) {
-            var vectorType = span.VectorType!;
-            var type = vectorType.Layout == VectorLayout.AoSoA
-                ? "float"
-                : vectorType.Parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            @fixed.Append($"            fixed ({type}* {vectorType.Name}_first = {vectorType.Name})");
-            @fixed.AppendLine();
-        }
-        // --- pointer assignment
-        var pointerAssignment = new StringBuilder();
-        var pointerIncrement  = new StringBuilder();
-        foreach (var vectorType in query.VectorTypes) {
-            if (!vectorType.IsSpan) continue;
-            pointerAssignment.AppendLine();
-            pointerAssignment.Append($"                float* {vectorType.Name}_ptr = (float*){vectorType.Name}_first;");
-            
-            var increment = vectorType.Dimension * query.scalarLaneCount * 8;
-            pointerIncrement.AppendLine($"                    {vectorType.Name}_ptr += {increment};");
-        }
-        var elementStep = query.vectorDimension switch {
-            1 => 32,
-            2 => 16,
-            3 => 8,
-            4 => 8,
-            _ => -1,
-        };
-        int step = 8;
 
 
 
-        
 
 
 
-        var source = $@"
+		var vectorizeBlock = EmitLoopBody(query, compute, body);
 
-";
-        query.avxMethod = source;
+        query.wgslBody = vectorizeBlock.ToString();
     }
     
     
@@ -174,6 +137,28 @@ public static partial class WgslVectorizer
         }
         query.Diagnostics.ReportDiagnosticSyntax(Errors.StatementUnsupported, statement, statement.ToFullString());
         return false;
+    }
+    
+    private static StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body)
+    {
+        var source = new StringBuilder();
+        source.AppendLine("        // --- 1. Load");
+        foreach (var vectorType in query.VectorTypes) {
+            EmitLoadVector(source, query, vectorType);
+        }
+        source.AppendLine();
+        
+        source.AppendLine("        // --- 2. Compute");
+        source.Append(compute);
+        
+        source.AppendLine("        // --- 3. Store");
+        if (body == null) {
+            return source;
+        }
+        foreach (var dirtyVector in query.dirtyVectors) {
+            EmitStoreVector(source, query, dirtyVector);
+        }
+        return source;
     }
     
     private static ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
