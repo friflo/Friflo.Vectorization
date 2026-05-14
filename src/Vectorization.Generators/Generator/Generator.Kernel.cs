@@ -74,6 +74,7 @@ public partial class Gen
         var dependencies        = new StringBuilder();
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
+        var bindings            = new StringBuilder();
         int bufferCount = 0;
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
@@ -97,7 +98,9 @@ public partial class Gen
                 bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
                 var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
                 var storageWgsl   = isOutput ? "read_write"       : "read      ";
-                bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // @group(0) @binding({bufferCount}) var<storage, {storageWgsl}>       {paramName}");
+                var binding = $"@group(0) @binding({bufferCount}) var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
+                bindings.Append($"    {binding}\n");
+                bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
                 bufferCount++;
                 continue;
             }
@@ -197,11 +200,7 @@ $$""""
         bias    : f32,
         count   : u32
     };
-
-    @group(0) @binding(0) var<storage, read>        weight_arr:     array<f32>;
-    @group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
-    @group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
-
+{{bindings}}
     @group(1) @binding(0) var<uniform>              uniforms:   	{{methodName}}_Uniforms;
 
     @compute @workgroup_size(64)
@@ -210,10 +209,10 @@ $$""""
         if (index >= uniforms.count) {
             return;
         }
-        let weight = weight_arr[index];
-        let input  = input_arr[index];
-        // shader body generated from Blueprint method body
-        output_arr[index] = (input * weight) + uniforms.bias;
+        // TODO Generate expression (currently handcraftet)
+        let position = position_arr[index];
+        let velocity = velocity_arr[index];
+        position_arr[index] = (position * velocity) + uniforms.deltaTime;
     }
     """u8;
         
