@@ -114,7 +114,7 @@ namespace VerifyVectorize
             float deltaTime)
     {
         var device      = (WgpuDevice)buffers.GetDevice();
-        // var gpuOutput   = output ?? device.RentBuffer<float>(buffers.count);
+        output ??= device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -156,11 +156,11 @@ namespace VerifyVectorize
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
-        ((WgpuBuffer<float>)gpuOutput).SetLastWritingTask(task);
+        ((WgpuBuffer<float>)output).SetLastWritingTask(task);
         task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
-        // gpuOutput.WaitInDebug();
+        // output.WaitInDebug();
         return null;
     }
     
