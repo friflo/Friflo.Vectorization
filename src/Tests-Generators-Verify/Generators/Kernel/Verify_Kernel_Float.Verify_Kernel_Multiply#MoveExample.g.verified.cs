@@ -114,12 +114,11 @@ namespace VerifyVectorize
             float deltaTime)
     {
         var device      = (WgpuDevice)buffers.GetDevice();
-        output ??= device.RentBuffer<float>(buffers.count);
+        // output ??= device.RentBuffer<float>(buffers.count);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
-        if (weight.LastWritingTask != null) task.AddDependency(weight);
-        if (input.LastWritingTask != null)  task.AddDependency(input);
+        if (velocity.LastWritingTask != null) task.AddDependency(velocity);
 
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
@@ -134,10 +133,9 @@ namespace VerifyVectorize
             // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = WgpuBindGroup.From  (0, weight);
-                entries[1] = WgpuBindGroup.From  (1, input);
-                entries[2] = WgpuBindGroup.From  (2, output);
+                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
+                entries[0] = WgpuBindGroup.From(0, position);
+                entries[1] = WgpuBindGroup.From(1, velocity);
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
                 device.UpdateBufferCache(_MoveExample_GPU_EffectSlot, bufferGroup, buffers.hash);
             }

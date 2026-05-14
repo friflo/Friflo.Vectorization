@@ -68,19 +68,29 @@ public partial class Gen
     private static string EmitKernelPrivate(Query query)
     {
         var vectorTypes = query.VectorTypes;
-        var signature = new StringBuilder();
+        var signature           = new StringBuilder();
+        var dependencies        = new StringBuilder();
+        var bindGroupEntries    = new StringBuilder();
+        int bindGroupCount = 0;
         
         for (int n = 0; n < vectorTypes.Length; n++)
         {
             var vectorType  = vectorTypes[n];
             var parameter   = vectorType.Parameter;
+            var paramName   = parameter.Name;
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.IsSpan) {
-                signature.Append($"\n            Buffer<{type}> {parameter.Name},");
+                bool isOutput = query.dirtyVectorsSet.ContainsKey(paramName);
+                signature.Append($"\n            Buffer<{type}> {paramName},");
+                if (!isOutput) {
+                    dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
+                }
+                bindGroupEntries.Append($"\n                entries[{n}] = WgpuBindGroup.From({n}, {paramName});");
+                bindGroupCount++;
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"\n            {type} {parameter.Name},");
+            signature.Append($"\n            {type} {paramName},");
         }
         signature.Length -= 1;
         
@@ -96,12 +106,10 @@ $$""""
         in GpuBuffers buffers,{{signature}})
     {
         var device      = (WgpuDevice)buffers.GetDevice();
-        output ??= device.RentBuffer<float>(buffers.count);
+        // output ??= device.RentBuffer<float>(buffers.count);  TODO
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-        if (weight.LastWritingTask != null) task.AddDependency(weight);
-        if (input.LastWritingTask != null)  task.AddDependency(input);
+        // Dependencies from inputs (out not Output!){{dependencies}}
 
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
@@ -116,10 +124,7 @@ $$""""
             // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = WgpuBindGroup.From  (0, weight);
-                entries[1] = WgpuBindGroup.From  (1, input);
-                entries[2] = WgpuBindGroup.From  (2, output);
+                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bindGroupCount}}];{{bindGroupEntries}}
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
                 device.UpdateBufferCache({{methodName}}_EffectSlot, bufferGroup, buffers.hash);
             }
