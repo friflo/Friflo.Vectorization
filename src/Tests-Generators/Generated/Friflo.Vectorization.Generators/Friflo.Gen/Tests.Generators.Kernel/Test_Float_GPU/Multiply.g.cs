@@ -165,10 +165,9 @@ namespace Tests.Generators.Kernel
     {
         var bufferLayout = device.GetBindGroupLayout(_Multiply_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
+            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
+            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<float> (0); // @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage <float> (1); // @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(buffers, _Multiply_GPU_BufferLayoutKey, "Multiply_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(_Multiply_GPU_UniformLayoutKey);
@@ -187,13 +186,10 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>
     """
     struct Multiply_Uniforms {
-        bias    : f32,
-        count   : u32
+        count   : u32;
     };
-
-    @group(0) @binding(0) var<storage, read>        weight_arr:     array<f32>;
-    @group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
-    @group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
+    @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
+    @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;
 
     @group(1) @binding(0) var<uniform>              uniforms:   	Multiply_Uniforms;
 
@@ -203,10 +199,10 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        let weight = weight_arr[index];
-        let input  = input_arr[index];
-        // shader body generated from Blueprint method body
-        output_arr[index] = (input * weight) + uniforms.bias;
+        // TODO Generate expression (currently handcraftet)
+        let position = position_arr[index];
+        let velocity = velocity_arr[index];
+        position_arr[index] = (position * velocity) + uniforms.deltaTime;
     }
     """u8;
         

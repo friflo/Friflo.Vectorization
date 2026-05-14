@@ -20,7 +20,7 @@ public static partial class Test_Float_GPU
         position *= velocity;
     } 
         
-    // [Test]
+    [Test]
     public static void Test_Kernel_Multiply()
     {
         var position        = new float[128];
@@ -31,7 +31,7 @@ public static partial class Test_Float_GPU
             velocity[n] = n + 100;
         }
         MultiplyVector(position,        velocity, false);
-        MultiplyVector(positionVector,  velocity);
+        MultiplyKernel(positionVector,  velocity);
         
         for (int n = 0; n < 128; n++) {
             Assert.That(position[n], Is.EqualTo(positionVector[n]));
