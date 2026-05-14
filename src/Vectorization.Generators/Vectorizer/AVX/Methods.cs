@@ -359,7 +359,7 @@ public static partial class AvxVectorizer
             var memberExpression = memberAccess.Expression;
             if (memberExpression is IdentifierNameSyntax identifierName) {
                 temp = identifierName.Identifier.Text;
-                return GetShapeFromExpression(query, expressionSyntax);
+                return Vectorizer.GetShapeFromExpression(query, expressionSyntax);
             }
         }
         temp = query.AddTemp();

@@ -3,7 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators.AVX;
+namespace Friflo.Vectorization.Generators.WGSL;
 
 public static partial class WgslVectorizer
 {

@@ -69,7 +69,7 @@ public static partial class AvxVectorizer
             query.readVectors.Add(left);  // e.g. += -=
         }
         var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
-        var leftShape = GetShapeFromExpression(query, assignment.Left);
+        var leftShape = Vectorizer.GetShapeFromExpression(query, assignment.Left);
         lanes = CreateLanes(query, leftSymbol, left);
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
         if (kind == SyntaxKind.AddAssignmentExpression && 
@@ -124,7 +124,7 @@ public static partial class AvxVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
-        var shape = GetShapeFromExpression(query, binary);
+        var shape = Vectorizer.GetShapeFromExpression(query, binary);
 
         // is reciprocal square root:     left / Sqrt(right) 
         if (kind == SyntaxKind.DivideExpression) {
