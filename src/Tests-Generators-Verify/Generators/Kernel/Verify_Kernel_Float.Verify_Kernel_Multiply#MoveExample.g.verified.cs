@@ -155,7 +155,8 @@ namespace VerifyVectorize
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
-        ((WgpuBuffer<float>)output).SetLastWritingTask(task);
+        ((WgpuBuffer<float>)position).SetLastWritingTask(task);
+
         task.Finish(encoder, "MoveExample"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 

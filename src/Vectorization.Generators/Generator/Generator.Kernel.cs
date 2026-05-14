@@ -76,6 +76,7 @@ public partial class Gen
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
         int uniformCount = 1;
+        var setTaskOnOutputs    = new StringBuilder();
         
         for (int n = 0; n < vectorTypes.Length; n++)
         {
@@ -86,7 +87,9 @@ public partial class Gen
             if (vectorType.IsSpan) {
                 bool isOutput = query.dirtyVectorsSet.ContainsKey(paramName);
                 signature.Append($"\n        Buffer<{type}> {paramName},");
-                if (!isOutput) {
+                if (isOutput) {
+                    setTaskOnOutputs.Append($"\n        ((WgpuBuffer<float>){paramName}).SetLastWritingTask(task);");
+                } else {
                     dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
                 }
                 bindGroupEntries.Append($"\n                entries[{bindGroupCount}] = WgpuBindGroup.From({bindGroupCount}, {paramName});");
@@ -149,8 +152,8 @@ $$""""
             pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
-        // connect task to output
-        ((WgpuBuffer<float>)output).SetLastWritingTask(task);
+        // connect task to output{{setTaskOnOutputs}}
+
         task.Finish(encoder, "{{methodName}}"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
