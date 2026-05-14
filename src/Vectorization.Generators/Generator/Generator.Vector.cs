@@ -11,9 +11,7 @@ namespace Friflo;
 
 public partial class Gen
 {
-    private static void EmitVectorSource(
-        Query query,
-        out string shadowMethodSource)
+    private static string EmitVectorSource(Query query)
     {
         var lambdaParameters    = EmitVectorLambdaParameters(query.VectorTypes);
         var methodSignature     = EmitVectorMethodSignature(query.VectorTypes, query.vectorized);
@@ -22,7 +20,7 @@ public partial class Gen
         var blueprintMethod = query.BlueprintMethod;
         var methodName      = query.BlueprintMethod.Name;
         
-            shadowMethodSource = $@"
+        var shadowMethodSource = $@"
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
@@ -32,6 +30,7 @@ public partial class Gen
                 {methodName}({lambdaParameters});
             }}
         }}";
+        return shadowMethodSource;
     }
     
     private static string EmitVectorBlock(Query query)
