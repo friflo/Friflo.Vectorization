@@ -25,6 +25,10 @@ namespace VerifyVectorize
             GpuBuffers buffers = new(position, nameof(position));
             buffers.Validate        (velocity, nameof(velocity));
 
+            if (!buffers.areSpans) {
+                // return MoveExample_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
+            }
+            _MoveExample_Avx(buffers.count, position.span, velocity.span, deltaTime);
             return null;
         }
 
