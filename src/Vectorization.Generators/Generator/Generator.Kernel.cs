@@ -88,14 +88,17 @@ public partial class Gen
         var methodName      = query.BlueprintMethod.Name;
         var hash            = query.Hash;
         
-        var shadowMethodSource = $@"
+        var shadowMethodSource =
+$$"""
+
         [SkipLocalsInit]
-        private {(blueprintMethod.IsStatic ? "static " : "")}GpuBuffer<float> _{methodName}_GPU{hash}(
-            in GpuBuffers buffers,{signature})
-        {{
+        private {{(blueprintMethod.IsStatic ? "static " : "")}}GpuBuffer<float> _{{methodName}}_GPU{{hash}}(
+            in GpuBuffers buffers,{{signature}})
+        {
             return null;
-        }}
-";
+        }
+
+""";
         return shadowMethodSource;
     }
 }
