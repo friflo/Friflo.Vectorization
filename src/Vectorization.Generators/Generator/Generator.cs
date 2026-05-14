@@ -160,6 +160,7 @@ public partial class Gen : IIncrementalGenerator
         }
         string vectorMethodSource;
         string kernelMethodSource = "";
+        string kernelMethodPrivate = "";
         var privateSource = "";
         if (vectorMode == VectorMode.Query) {
             EmitQuerySource(query, out vectorMethodSource, out privateSource);
@@ -169,7 +170,8 @@ public partial class Gen : IIncrementalGenerator
             }
             vectorMethodSource = EmitVectorSource(query);
             if (hasKernelAttribute) {
-                kernelMethodSource = EmitKernelSource(query);
+                kernelMethodSource  = EmitKernelSource(query);
+                kernelMethodPrivate = EmitKernelPrivate(query);
             }
         }
         var namespaces          = EmitNamespaces(query, hasKernelAttribute);
@@ -183,7 +185,7 @@ public partial class Gen : IIncrementalGenerator
     {{{kernelMethodSource}{vectorMethodSource}
 
     #region private members{privateSource}
-{query.avxMethod}
+{query.avxMethod}{kernelMethodPrivate}
     #endregion
     }}
 {(isGlobalNamespace ? "" : "}")}

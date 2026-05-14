@@ -27,8 +27,7 @@ public partial class Gen
             var parameter   = vectorType.Parameter;
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.IsSpan) {
-                // var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                signature.Append($"\n            Buffer<{type}> {parameter.Name}, ");
+                signature.Append($"\n            Buffer<{type}> {parameter.Name},");
                 if (n == 0) {
                     validate.Append($"            GpuBuffers buffers = new({parameter.Name}, nameof({parameter.Name}));\n");
                 } else {
@@ -39,11 +38,11 @@ public partial class Gen
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"\n            {type} {parameter.Name}, ");
+            signature.Append($"\n            {type} {parameter.Name},");
             gpuParams.Append($"{parameter.Name}, ");
             avxParams.Append($"{parameter.Name}, ");
         }
-        signature.Length -= 2;
+        signature.Length -= 1;
         gpuParams.Length -= 2;
         avxParams.Length -= 2;
         
@@ -57,9 +56,43 @@ public partial class Gen
         {{
 {validate}
             if (!buffers.areSpans) {{
-                // return {methodName}_GPU{hash}(buffers, {gpuParams});
+                return _{methodName}_GPU{hash}(buffers, {gpuParams});
             }}
-            _{methodName}_Avx{hash}(buffers.count, {avxParams});
+            {methodName}Vector({avxParams});
+            return null;
+        }}
+";
+        return shadowMethodSource;
+    }
+    
+    private static string EmitKernelPrivate(Query query)
+    {
+        var vectorTypes = query.VectorTypes;
+        var signature = new StringBuilder();
+        
+        for (int n = 0; n < vectorTypes.Length; n++)
+        {
+            var vectorType  = vectorTypes[n];
+            var parameter   = vectorType.Parameter;
+            var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (vectorType.IsSpan) {
+                signature.Append($"\n            Buffer<{type}> {parameter.Name},");
+                continue;
+            }
+            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
+            signature.Append($"\n            {type} {parameter.Name},");
+        }
+        signature.Length -= 1;
+        
+        var blueprintMethod = query.BlueprintMethod;
+        var methodName      = query.BlueprintMethod.Name;
+        var hash            = query.Hash;
+        
+        var shadowMethodSource = $@"
+        [SkipLocalsInit]
+        private {(blueprintMethod.IsStatic ? "static " : "")}GpuBuffer<float> _{methodName}_GPU{hash}(
+            in GpuBuffers buffers,{signature})
+        {{
             return null;
         }}
 ";
