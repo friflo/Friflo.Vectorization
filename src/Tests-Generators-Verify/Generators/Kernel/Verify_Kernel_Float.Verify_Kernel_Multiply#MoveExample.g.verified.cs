@@ -143,8 +143,8 @@ namespace VerifyVectorize
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _MoveExample_GPU_Uniforms {
-                bias = bias,
-                count = buffers.count
+                count = buffers.count,
+                deltaTime = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
@@ -221,8 +221,8 @@ namespace VerifyVectorize
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
     private struct _MoveExample_GPU_Uniforms
     {
-        [FieldOffset(0)]    public float    bias;
-        [FieldOffset(4)]    public int      count;
+        [FieldOffset(0)]    public int      count;
+        [FieldOffset(4)]    public float    deltaTime;
     }
 
     #endregion

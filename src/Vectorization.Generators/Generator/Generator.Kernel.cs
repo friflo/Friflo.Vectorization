@@ -73,6 +73,9 @@ public partial class Gen
         var dependencies        = new StringBuilder();
         var bindGroupEntries    = new StringBuilder();
         int bindGroupCount = 0;
+        var uniformAssignments  = new StringBuilder();
+        var uniformFields       = new StringBuilder();
+        int uniformCount = 1;
         
         for (int n = 0; n < vectorTypes.Length; n++)
         {
@@ -86,12 +89,15 @@ public partial class Gen
                 if (!isOutput) {
                     dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
                 }
-                bindGroupEntries.Append($"\n                entries[{n}] = WgpuBindGroup.From({n}, {paramName});");
+                bindGroupEntries.Append($"\n                entries[{bindGroupCount}] = WgpuBindGroup.From({bindGroupCount}, {paramName});");
                 bindGroupCount++;
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
             signature.Append($"\n            {type} {paramName},");
+            uniformAssignments.Append($"\n                {paramName} = {paramName},");
+            uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
+            uniformCount++;
         }
         signature.Length -= 1;
         
@@ -133,8 +139,7 @@ $$""""
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new {{methodName_GPU}}_Uniforms {
-                bias = bias,
-                count = buffers.count
+                count = buffers.count,{{uniformAssignments}}
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
@@ -211,8 +216,7 @@ $$""""
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
     private struct {{methodName_GPU}}_Uniforms
     {
-        [FieldOffset(0)]    public float    bias;
-        [FieldOffset(4)]    public int      count;
+        [FieldOffset(0)]    public int      count;{{uniformFields}}
     }
 
 """";
