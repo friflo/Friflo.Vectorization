@@ -248,6 +248,7 @@ public partial class Gen : IIncrementalGenerator
         if (query.vectorized) {
             intrinsics =@"
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;";

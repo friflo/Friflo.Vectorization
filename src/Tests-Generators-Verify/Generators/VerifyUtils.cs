@@ -5,6 +5,7 @@ using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -21,6 +22,7 @@ public static class VerifyUtils
             assemblyName: "TestProj",
             syntaxTrees: new[] { CSharpSyntaxTree.ParseText(source) },
             references: new[] {
+                MetadataReference.CreateFromFile(typeof(Instance)           .Assembly.Location),    // Friflo.Vectorization.WebGPU.Runtime
                 MetadataReference.CreateFromFile(typeof(WgpuInstance)       .Assembly.Location),    // Friflo.Vectorization.WebGPU
                 MetadataReference.CreateFromFile(typeof(GpuInstance)        .Assembly.Location),    // Friflo.Vectorization.GPU
                 MetadataReference.CreateFromFile(typeof(VectorizeAttribute) .Assembly.Location),    // Friflo.Vectorization.Attributes

@@ -154,8 +154,8 @@ $$""""
     }
     
     private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 1234; // TODO calculated unique hash key
+    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 5678; // TODO calculated unique hash key
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)

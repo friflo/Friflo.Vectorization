@@ -3,6 +3,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
@@ -163,8 +164,8 @@ namespace VerifyVectorize
     }
     
     private static readonly int _MoveExample_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         _MoveExample_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private const ulong         _MoveExample_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+    private const ulong         _MoveExample_GPU_BufferLayoutKey    = 1234; // TODO calculated unique hash key
+    private const ulong         _MoveExample_GPU_UniformLayoutKey   = 5678; // TODO calculated unique hash key
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
