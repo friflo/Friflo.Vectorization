@@ -86,7 +86,7 @@ public partial class Gen
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.IsSpan) {
                 bool isOutput = query.dirtyVectorsSet.ContainsKey(paramName);
-                signature.Append($"\n        Buffer<{type}> {paramName},");
+                signature.Append($"\n        GpuBuffer<{type}> {paramName},");
                 if (isOutput) {
                     setTaskOnOutputs.Append($"\n        ((WgpuBuffer<float>){paramName}).SetLastWritingTask(task);");
                 } else {

@@ -110,8 +110,8 @@ namespace VerifyVectorize
     [SkipLocalsInit]
     private GpuBuffer<float> _MoveExample_GPU(
         in GpuBuffers buffers,
-        Buffer<float> position,
-        Buffer<float> velocity,
+        GpuBuffer<float> position,
+        GpuBuffer<float> velocity,
         float deltaTime)
     {
         var device      = (WgpuDevice)buffers.GetDevice();

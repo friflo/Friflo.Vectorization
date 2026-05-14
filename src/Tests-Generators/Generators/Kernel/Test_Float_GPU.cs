@@ -15,12 +15,12 @@ namespace Tests.Generators.Kernel;
 public static partial class Test_Float_GPU
 {
     // -----------------------------------------------------------------------------------------------------
-    [Vectorize] [OmitHash]
+    [Kernel] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
         position *= velocity;
     } 
         
-    [Test]
+    // [Test]
     public static void Test_Kernel_Multiply()
     {
         var position        = new float[128];

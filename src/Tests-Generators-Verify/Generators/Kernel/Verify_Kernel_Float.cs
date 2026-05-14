@@ -23,7 +23,7 @@ public static class Verify_Kernel_Float
         // 2. Run
         var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
         
-        // VerifyUtils.CheckOutputCompilation(outputCompilation);
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
