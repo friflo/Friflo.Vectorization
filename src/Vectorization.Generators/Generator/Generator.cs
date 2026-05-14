@@ -207,11 +207,17 @@ public partial class Gen : IIncrementalGenerator
     
     private static string CreateFileName(IMethodSymbol methodSymbol, string hash)
     {
-        var fileName =
-            methodSymbol.ContainingType.ToDisplayString().Replace('<', '{').Replace('>', '}') + "/" +
-            methodSymbol.ToDisplayString(FullNameFormat).Replace('<', '{').Replace('>', '}');
+        // path format: <namespace>/<class name>/<method name>
+        // this format simplifies navigation in generated files
+        var path  = methodSymbol.ContainingType.ToDisplayString();
+        var index = path.LastIndexOf('.');
+        if (index != -1) {
+            path = string.Concat(path.Substring(0, index), "/", path.Substring(index + 1));
+        }
+        path = $"{path}/{methodSymbol.ToDisplayString(FullNameFormat)}";
+        path = path.Replace('<', '{').Replace('>', '}');
         // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
-        return $"{fileName}{hash}.g.cs";
+        return $"{path}{hash}.g.cs";
     }
     
     private static string EmitNamespaces(Query query)
