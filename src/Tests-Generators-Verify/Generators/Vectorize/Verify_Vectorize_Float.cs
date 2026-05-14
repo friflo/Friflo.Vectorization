@@ -2,7 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Threading.Tasks;
-using Friflo.Vectorization.Generators;
+using Friflo;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 using VerifyNUnit;
@@ -17,7 +17,7 @@ public static class Verify_Vectorize_Float
     {
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);
-        var generator = new AttributeQueryGenerator();
+        var generator = new Gen();
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run

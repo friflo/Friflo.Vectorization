@@ -4,15 +4,17 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
+using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+// Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
+namespace Friflo;
 
 [Generator]
-public partial class AttributeQueryGenerator : IIncrementalGenerator
+public partial class Gen : IIncrementalGenerator
 {
     // --- IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)

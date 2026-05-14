@@ -2,12 +2,14 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Text;
+using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+// Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
+namespace Friflo;
 
-public partial class AttributeQueryGenerator
+public partial class Gen
 {
     private static void EmitVectorSource(
         Query query,
