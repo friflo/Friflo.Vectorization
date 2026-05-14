@@ -43,7 +43,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Tests\Tests.csproj" />
-      <ProjectReference Include="..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
     </ItemGroup>
     
     <ItemGroup>

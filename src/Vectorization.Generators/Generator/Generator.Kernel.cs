@@ -85,7 +85,7 @@ public partial class Gen
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.IsSpan) {
                 bool isOutput = query.dirtyVectorsSet.ContainsKey(paramName);
-                signature.Append($"\n            Buffer<{type}> {paramName},");
+                signature.Append($"\n        Buffer<{type}> {paramName},");
                 if (!isOutput) {
                     dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
                 }
@@ -94,7 +94,7 @@ public partial class Gen
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"\n            {type} {paramName},");
+            signature.Append($"\n        {type} {paramName},");
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
             uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
             uniformCount++;
