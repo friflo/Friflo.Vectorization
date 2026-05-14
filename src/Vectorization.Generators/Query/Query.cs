@@ -118,6 +118,16 @@ public class Query
         }
         return $"{name}_{i}";
     }
+    
+    public void ResetQueryState()
+    {
+        lanes = null;
+        paramTypes.Clear();
+        locals.Clear();
+        computeTemp.Clear();
+        computeTempCount = 0;
+        constLocalsCount = 0;
+    }
 }
 
 public enum GenerateTrigger

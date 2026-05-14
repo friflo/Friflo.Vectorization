@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Friflo.Vectorization.Generators;
 using Friflo.Vectorization.Generators.AVX;
+using Friflo.Vectorization.Generators.WGSL;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -158,6 +159,9 @@ public partial class Gen : IIncrementalGenerator
         };
         if (vectorizeData != null || hasKernelAttribute) {
             AvxVectorizer.Emit(query);
+        }
+        if (hasKernelAttribute) {
+            WgslVectorizer.Emit(query);
         }
         string vectorMethodSource;
         string kernelMethodSource = "";

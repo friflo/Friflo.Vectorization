@@ -14,6 +14,8 @@ public static partial class WgslVectorizer
 {
     public static bool Emit(Query query)
     {
+        query.ResetQueryState();
+        return true;
         TraverseBody(query);
         return true;
     }

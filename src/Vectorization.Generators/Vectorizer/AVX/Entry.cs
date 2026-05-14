@@ -69,7 +69,11 @@ public static partial class AvxVectorizer
         }
         if (query.requireDeinterleave) {
             // 2. Pass
-            ResetQueryState(query);
+            query.ResetQueryState();
+            // Reset query state created by previous traversal. Generated code require Deinterleave() / Interleave()
+            query.useDeinterleave = true;
+            query.avxMethod = "";
+            
             success = initialStrategy switch {
                 Strategy.VerticalAoS    => Emit_Horizontal(query),
                 Strategy.MixedAdapter   => Emit_MixedAdapter(query),
@@ -87,19 +91,6 @@ public static partial class AvxVectorizer
     private static bool Emit_Horizontal  (Query query) {
         query.strategy = Strategy.Horizontal;
         return TraverseBody(query);
-    }
-
-    private static void ResetQueryState(Query query)
-    {
-        // Reset query state created by previous traversal. Generated code require Deinterleave() / Interleave()
-        query.useDeinterleave = true;
-        query.avxMethod = "";
-        query.lanes = null;
-        query.paramTypes.Clear();
-        query.locals.Clear();
-        query.computeTemp.Clear();
-        query.computeTempCount = 0;
-        query.constLocalsCount = 0;
     }
     
     private static bool TraverseBody(Query query)
