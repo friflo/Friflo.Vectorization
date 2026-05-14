@@ -78,6 +78,7 @@ public partial class Gen
         int bufferCount = 0;
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
+        var wgslFields          = new StringBuilder();
         int uniformCount = 1;
         var setTaskOnOutputs    = new StringBuilder();
         
@@ -108,6 +109,7 @@ public partial class Gen
             signature.Append($"\n        {type} {paramName},");
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
             uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
+            wgslFields.Append($"\n        {paramName} : f32;");
             uniformCount++;
         }
         signature.Length -= 1;
@@ -197,8 +199,7 @@ $$""""
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """
     struct {{methodName}}_Uniforms {
-        bias    : f32,
-        count   : u32
+        count   : u32;{{wgslFields}}
     };
 {{bindings}}
     @group(1) @binding(0) var<uniform>              uniforms:   	{{methodName}}_Uniforms;
