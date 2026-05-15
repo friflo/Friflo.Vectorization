@@ -19,41 +19,41 @@ public sealed partial class AvxVectorizer
         var argList = invocation.ArgumentList;
         switch (methodReduced)
         {
-            case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, "MathUtils.SinMathF",    argList);
-            case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, "MathUtils.CosMathF",    argList);
-            case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, "MathUtils.TanMathF",    argList);
-            case "System.MathF.Asin(float)":        return Method_Scalar    (lanes, query, "MathUtils.AsinMathF",   argList);
-            case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, "MathUtils.AcosMathF",   argList);
-            case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, "MathUtils.AtanMathF",   argList);
-            case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, "MathUtils.Atan2MathF",  argList);
-            case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, "MathUtils.AsinhMathF",  argList);
-            case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, "MathUtils.AcoshMathF",  argList);
-            case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, "MathUtils.AtanhMathF",  argList);
+            case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.SinMathF");
+            case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.CosMathF");
+            case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.TanMathF");
+            case "System.MathF.Asin(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AsinMathF");
+            case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AcosMathF");
+            case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AtanMathF");
+            case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, argList, "MathUtils.Atan2MathF");
+            case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AsinhMathF");
+            case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AcoshMathF");
+            case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AtanhMathF");
             
-            case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, DataShape.Vector,        argList);
-            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, DataShape.Scalar,        argList);
-            case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, DataShape.Vector,        argList);
-            case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, DataShape.Scalar,        argList);
-            case "Vector.Round(Vector)":            return Method_Round     (lanes, query, DataShape.Vector,        argList);
-            case "System.MathF.Round(float)":       return Method_Round     (lanes, query, DataShape.Scalar,        argList);
-            case "System.MathF.Floor(float)":       return Method_Floor     (lanes, query,                          argList);
-            case "System.MathF.Ceiling(float)":     return Method_Ceiling   (lanes, query,                          argList);
+            case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
+            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
+            case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, argList, DataShape.Vector);
+            case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, argList, DataShape.Scalar);
+            case "Vector.Round(Vector)":            return Method_Round     (lanes, query, argList, DataShape.Vector);
+            case "System.MathF.Round(float)":       return Method_Round     (lanes, query, argList, DataShape.Scalar);
+            case "System.MathF.Floor(float)":       return Method_Floor     (lanes, query, argList);
+            case "System.MathF.Ceiling(float)":     return Method_Ceiling   (lanes, query, argList);
             
-            case "System.MathF.Exp(float)":         return Method_Scalar    (lanes, query, "Vector256.Exp",         argList);
-            case "System.MathF.Log(float)":         return Method_Scalar    (lanes, query, "Vector256.Log",         argList);
-            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, "MathUtils.Log10MathF",  argList);
-            case "System.MathF.Log2(float)":        return Method_Scalar    (lanes, query, "Vector256.Log2",        argList);
-            case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, "MathUtils.PowMathF",    argList);
-            case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, "Avx.Sqrt",              argList);
+            case "System.MathF.Exp(float)":         return Method_Scalar    (lanes, query, argList, "Vector256.Exp");
+            case "System.MathF.Log(float)":         return Method_Scalar    (lanes, query, argList, "Vector256.Log");
+            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.Log10MathF");
+            case "System.MathF.Log2(float)":        return Method_Scalar    (lanes, query, argList, "Vector256.Log2");
+            case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, argList, "MathUtils.PowMathF");
+            case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, argList, "Avx.Sqrt");
             
-            case "System.MathF.Min(float, float)":          return Method_MinMax(lanes, query, DataShape.Scalar, "Min", argList);
-            case "Vector.Min(Vector, Vector)":              return Method_MinMax(lanes, query, DataShape.Vector, "Min", argList);
+            case "System.MathF.Min(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "Min");
+            case "Vector.Min(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "Min");
             
-            case "System.MathF.Max(float, float)":          return Method_MinMax(lanes, query, DataShape.Scalar, "Max", argList);
-            case "Vector.Max(Vector, Vector)":              return Method_MinMax(lanes, query, DataShape.Vector, "Max", argList);
+            case "System.MathF.Max(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "Max");
+            case "Vector.Max(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "Max");
             
-            case "System.Math.Clamp(float, float, float)":  return Method_Clamp     (lanes, query, DataShape.Scalar, argList);
-            case "Vector.Clamp(Vector, Vector, Vector)":    return Method_Clamp     (lanes, query, DataShape.Vector, argList);
+            case "System.Math.Clamp(float, float, float)":  return Method_Clamp     (lanes, query, argList, DataShape.Scalar);
+            case "Vector.Clamp(Vector, Vector, Vector)":    return Method_Clamp     (lanes, query, argList, DataShape.Vector);
             
             case "Vector.Lerp(Vector, Vector, float)":
             case "Vector.Lerp(Vector, Vector, Vector)":     return Method_Lerp      (lanes, query, argList);
@@ -75,7 +75,7 @@ public sealed partial class AvxVectorizer
         return ComputeResult.Invalid;
     }
 
-    public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
         var dim = query.vectorDimension;
         if (query.strategy == Strategy.VerticalAoS && dim == 3) {
@@ -85,7 +85,7 @@ public sealed partial class AvxVectorizer
         /*if (query.vectorDimension != 4) {
             return ComputeResult.Invalid;
         } */
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0, false)) {
             return ComputeResult.Invalid;
         }
@@ -129,9 +129,9 @@ public sealed partial class AvxVectorizer
         return DataShape.Vector;
     }
 
-    public ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, DataShape shape, string op, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op)
     {
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"Avx.{op}(");
         }
@@ -146,9 +146,9 @@ public sealed partial class AvxVectorizer
         return shape;
     }
     
-    public ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         lanes.Append("Avx.Min(");
         if (!Compute(lanes, query, args[2].Expression)) {
             return ComputeResult.Invalid;
@@ -188,13 +188,13 @@ public sealed partial class AvxVectorizer
         return DataShape.Vector;
     }
 
-    public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
         query.locals.AppendLine();
         lanes.Append("Avx.And(");
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -204,10 +204,10 @@ public sealed partial class AvxVectorizer
         return shape;
     }
     
-    public ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
         lanes.Append("Vector256.Truncate(");    // alternative: Avx.RoundToNearestInteger(v, 0x03 | 0x08);
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -215,10 +215,10 @@ public sealed partial class AvxVectorizer
         return shape;
     }
     
-    public ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
         lanes.Append("Vector256.Floor(");       // alternative: Avx.RoundToNearestInteger(value, 0x01 | 0x08);
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -226,10 +226,10 @@ public sealed partial class AvxVectorizer
         return DataShape.Scalar;
     }
     
-    public ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
         lanes.Append("Vector256.Ceiling(");     // alternative:  Avx.RoundToNearestInteger(value, 0x02 | 0x08);
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -237,10 +237,10 @@ public sealed partial class AvxVectorizer
         return DataShape.Scalar;
     }
     
-    public ComputeResult Method_Round(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Round(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
         lanes.Append("Vector256.Round(");       // alternative:  Avx.RoundToNearestInteger(value, 0x00 | 0x08);
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -248,12 +248,12 @@ public sealed partial class AvxVectorizer
         return shape;
     }
 
-    public ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method)
     {
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"{method}(");
         }
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         for (int i = 0; i < args.Count; i++)
         {
             if (i > 0) {
@@ -267,10 +267,10 @@ public sealed partial class AvxVectorizer
         return DataShape.Scalar;
     }
     
-    public ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
         query.requireDeinterleave = true;
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a, false)) {
             return ComputeResult.Invalid;
         }
@@ -292,10 +292,10 @@ public sealed partial class AvxVectorizer
         return DataShape.Vector;
     }
     
-    public ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
         query.requireDeinterleave = true;
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0, true)) {
             return ComputeResult.Invalid;
         }
@@ -382,10 +382,10 @@ public sealed partial class AvxVectorizer
         return shape;
     } 
 
-    public ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
+    public ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method)
     {
         query.requireDeinterleave = true;
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0, true)) {
             return ComputeResult.Invalid;
         }
