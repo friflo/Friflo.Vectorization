@@ -354,7 +354,7 @@ public sealed partial class AvxVectorizer : IVectorizer
             return Compute_MemberAccess(lanes, query, memberAccess);
         }
         if (syntax is IdentifierNameSyntax identifier) {
-            return Compute_IdentifierName(lanes, query, identifier);
+            return Vectorizer.Compute_IdentifierName(lanes, query, identifier);
         }
         if (syntax is InvocationExpressionSyntax invocation) {
             return Compute_Invocation(lanes, query, invocation);

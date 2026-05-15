@@ -60,29 +60,6 @@ public sealed partial class AvxVectorizer
         return shape;
     }
     
-    public ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
-    {
-        var name = identifierName.Identifier.Text;
-        for (int i = 0; i < lanes.Length; i++) {
-            var vectorName = query.GetVectorName(name, i);
-            lanes[i].Append(vectorName);
-        }
-        return Vectorizer.GetShapeFromExpression(query, identifierName);
-    }
-    
-
-    public string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
-    {
-        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-        {
-            var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
-            if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
-                return methodSymbol.ToDisplayString();
-            }
-        }
-        return null;
-    }
-
     public ComputeResult Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
     {
         var name = query.AddConst();

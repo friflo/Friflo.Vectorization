@@ -129,7 +129,7 @@ public sealed partial class AvxVectorizer
         // is reciprocal square root:     left / Sqrt(right) 
         if (kind == SyntaxKind.DivideExpression) {
             if (binary.Right is InvocationExpressionSyntax rightInvocation &&
-                GetMethodName(query, rightInvocation) == "System.MathF.Sqrt(float)")
+                Vectorizer.GetMethodName(query, rightInvocation) == "System.MathF.Sqrt(float)")
             {
                 lanes.Append("Avx.Multiply(Avx.ReciprocalSqrt(");
                 if (!Compute(lanes, query, rightInvocation.ArgumentList.Arguments[0].Expression)) {

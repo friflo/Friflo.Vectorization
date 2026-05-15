@@ -52,7 +52,5 @@ public interface IVectorizer
     
     // --- Symbols.cs
     public  ComputeResult   Compute_MemberAccess    (StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess);
-    public  ComputeResult   Compute_IdentifierName  (StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName);
-    public  string?         GetMethodName           (Query query, InvocationExpressionSyntax invocation);
     public  ComputeResult   Compute_Literal         (StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal);
 }

@@ -88,7 +88,7 @@ public sealed partial class WgslVectorizer
         // Special case optimization: x / Sqrt(y) -> x * inverseSqrt(y)
         if (kind == SyntaxKind.DivideExpression && 
             binary.Right is InvocationExpressionSyntax rightInv &&
-            GetMethodName(query, rightInv) == "System.MathF.Sqrt(float)")
+            Vectorizer.GetMethodName(query, rightInv) == "System.MathF.Sqrt(float)")
         {
             lanes[0].Append("(");
             if (!Compute(lanes, query, binary.Left)) return ComputeResult.Invalid;
