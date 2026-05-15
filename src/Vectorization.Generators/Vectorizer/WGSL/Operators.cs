@@ -37,62 +37,33 @@ public sealed partial class WgslVectorizer
     public ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
     {
         var kind = assignment.Kind();
-        var avxOperation = kind switch
-        {
-            SyntaxKind.SimpleAssignmentExpression   => "",              // =
-            SyntaxKind.AddAssignmentExpression      => "Avx.Add",       // +=
-            SyntaxKind.SubtractAssignmentExpression => "Avx.Subtract",  // -=
-            SyntaxKind.MultiplyAssignmentExpression => "Avx.Multiply",  // *=
-            SyntaxKind.DivideAssignmentExpression   => "Avx.Divide",    // /=
+        var wgslOp = kind switch {
+            SyntaxKind.SimpleAssignmentExpression   => "=",
+            SyntaxKind.AddAssignmentExpression      => "+=",
+            SyntaxKind.SubtractAssignmentExpression => "-=",
+            SyntaxKind.MultiplyAssignmentExpression => "*=",
+            SyntaxKind.DivideAssignmentExpression   => "/=",
             _                                       => null
         };
-        if (avxOperation is null) {
+        if (wgslOp is null) {
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
-        var leftIdentifier = Vectorizer.GetMemberName(assignment.Left).Identifier;
-        var left = leftIdentifier.Text;
+        var leftIdentifier  = Vectorizer.GetMemberName(assignment.Left).Identifier.Text;
+        var leftShape       = Vectorizer.GetShapeFromExpression(query, assignment.Left);
+        
+        // read vector for all cases except "="
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
-            query.readVectors.Add(left);  // e.g. += -=
+            query.readVectors.Add(leftIdentifier);
         }
-        var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
-        var leftShape = Vectorizer.GetShapeFromExpression(query, assignment.Left);
-        lanes = CreateLanes(query, leftSymbol, left);
-        // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
-        if (kind == SyntaxKind.AddAssignmentExpression && 
-            assignment.Right is BinaryExpressionSyntax assignBinary && assignBinary.Kind() is SyntaxKind.MultiplyExpression)
-        {
-            for (int i = 0; i < lanes.Length; i++) {
-                var vectorName = query.GetVectorName(left, i);
-                lanes[i].Append($"{vectorName} = fma(");
-            }
-            if (!Compute(lanes, query, assignBinary.Left)) {
-                return ComputeResult.Invalid;
-            }
-            lanes.Append(", ");
-            if (!Compute(lanes, query, assignBinary.Right)) {
-                return ComputeResult.Invalid;
-            }
-            for (int i = 0; i < lanes.Length; i++) {
-                var vectorName = query.GetVectorName(left, i);
-                lanes[i].Append($", {vectorName});");
-            }
-            query.AddDirty(left);
-            return leftShape;
-        }
-        for (int i = 0; i < lanes.Length; i++) {
-            var vectorName = query.GetVectorName(left, i);
-            if (kind == SyntaxKind.SimpleAssignmentExpression) {
-                lanes[i].Append($"{vectorName} = ");
-            } else {
-                lanes[i].Append($"{vectorName} = {avxOperation}({vectorName}, ");
-            }
-        }
+        lanes[0].Append($"{leftIdentifier} {wgslOp} ");
+
         if (!Compute(lanes, query, assignment.Right)) {
             return ComputeResult.Invalid;
         }
-        lanes.Append(kind == SyntaxKind.SimpleAssignmentExpression ? ";" : ");");
-        query.AddDirty(left);
+        lanes[0].Append(";");
+        
+        query.AddDirty(leftIdentifier);
         return leftShape;
     }
 
