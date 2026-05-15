@@ -40,6 +40,7 @@ public sealed partial class Gen : IIncrementalGenerator
         });
     }
     
+    // In algorithmic context this code generator is a "Recursive Descent Streaming Transpiler"
     private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
     {
         // Filter for methods with the attribute

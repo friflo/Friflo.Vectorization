@@ -2,24 +2,12 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Text;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
 public static class VectorUtils
 {
-    public static  IdentifierNameSyntax GetMemberName(ExpressionSyntax expressionSyntax)
-    {
-        if (expressionSyntax is MemberAccessExpressionSyntax leftExpressionSyntax) {
-            return leftExpressionSyntax.Expression as IdentifierNameSyntax;
-        }
-        if (expressionSyntax is IdentifierNameSyntax identifierNameSyntax) {
-            return identifierNameSyntax;
-        }
-        return null;
-    }
-    
     public static  bool InterleaveVector3(StringBuilder sb, string nm, Query query)
     {
         switch (query.vectorDimension) {

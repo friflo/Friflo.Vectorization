@@ -50,7 +50,7 @@ public sealed partial class WgslVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
-        var leftIdentifier = VectorUtils.GetMemberName(assignment.Left).Identifier;
+        var leftIdentifier = Vectorizer.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
             query.readVectors.Add(left);  // e.g. += -=

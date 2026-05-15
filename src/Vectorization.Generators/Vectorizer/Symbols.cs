@@ -11,6 +11,17 @@ namespace Friflo.Vectorization.Generators;
 
 public static class Vectorizer
 {
+    public static  IdentifierNameSyntax GetMemberName(ExpressionSyntax expressionSyntax)
+    {
+        if (expressionSyntax is MemberAccessExpressionSyntax leftExpressionSyntax) {
+            return leftExpressionSyntax.Expression as IdentifierNameSyntax;
+        }
+        if (expressionSyntax is IdentifierNameSyntax identifierNameSyntax) {
+            return identifierNameSyntax;
+        }
+        return null;
+    }
+    
     internal static DataShape GetShapeFromExpression(Query query, ExpressionSyntax expression) 
     {
         var typeInfo = query.SemanticModel.GetTypeInfo(expression);
