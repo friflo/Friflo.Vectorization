@@ -205,7 +205,7 @@ namespace Tests.Generators.Kernel
 
         // --- 2. Compute
         // position *= velocity;
-        position = Avx.Multiply(position, velocity);
+        position *= velocity;
 
         // --- 3. Store
         position_arr[index] = position;

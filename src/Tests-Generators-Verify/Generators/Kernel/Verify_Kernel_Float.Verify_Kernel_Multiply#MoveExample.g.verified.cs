@@ -214,7 +214,7 @@ namespace VerifyVectorize
 
         // --- 2. Compute
         // position += velocity * deltaTime;
-        position = fma(velocity, deltaTime, position);
+        position += (velocity * deltaTime);
 
         // --- 3. Store
         position_arr[index] = position;
