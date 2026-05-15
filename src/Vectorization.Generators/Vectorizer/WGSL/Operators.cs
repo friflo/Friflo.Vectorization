@@ -70,67 +70,43 @@ public sealed partial class WgslVectorizer
     public ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
     {
         var kind = binary.Kind();
-        var avxOperation = kind switch
-        {
-            SyntaxKind.AddExpression      => "Add",         // +
-            SyntaxKind.SubtractExpression => "Subtract",    // -
-            SyntaxKind.MultiplyExpression => "Multiply",    // *
-            SyntaxKind.DivideExpression   => "Divide",      // /
+        var wgslOp = kind switch {
+            SyntaxKind.AddExpression      => "+",
+            SyntaxKind.SubtractExpression => "-",
+            SyntaxKind.MultiplyExpression => "*",
+            SyntaxKind.DivideExpression   => "/",
             _                             => null
         };
-        if (avxOperation is null) {
+        if (wgslOp is null) {
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
         var shape = Vectorizer.GetShapeFromExpression(query, binary);
 
-        // is reciprocal square root:     left / Sqrt(right) 
-        if (kind == SyntaxKind.DivideExpression) {
-            if (binary.Right is InvocationExpressionSyntax rightInvocation &&
-                GetMethodName(query, rightInvocation) == "System.MathF.Sqrt(float)")
-            {
-                lanes.Append("Avx.Multiply(Avx.ReciprocalSqrt(");
-                if (!Compute(lanes, query, rightInvocation.ArgumentList.Arguments[0].Expression)) {
-                    return ComputeResult.Invalid;
-                }
-                lanes.Append("), ");
-                if (!Compute(lanes, query, binary.Left)) {
-                    return ComputeResult.Invalid;
-                }
-                lanes.Append(")");
-                return DataShape.Scalar;
-            }
-        }
-        // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
-        if (kind == SyntaxKind.AddExpression && 
-            binary.Left is BinaryExpressionSyntax multiplyBinary && multiplyBinary.Kind() is SyntaxKind.MultiplyExpression)
+        // Special case optimization: x / Sqrt(y) -> x * inverseSqrt(y)
+        if (kind == SyntaxKind.DivideExpression && 
+            binary.Right is InvocationExpressionSyntax rightInv &&
+            GetMethodName(query, rightInv) == "System.MathF.Sqrt(float)")
         {
-            lanes.Append("Fma.MultiplyAdd(");
-            if (!Compute(lanes, query, multiplyBinary.Left)) {
-                return ComputeResult.Invalid;
-            }
-            lanes.Append(", ");
-            if (!Compute(lanes, query, multiplyBinary.Right)) {
-                return ComputeResult.Invalid;
-            }
-            lanes.Append(", ");
-            if (!Compute(lanes, query, binary.Right)) {
-                return ComputeResult.Invalid;
-            }
-            lanes.Append(")");
+            lanes[0].Append("(");
+            if (!Compute(lanes, query, binary.Left)) return ComputeResult.Invalid;
+            
+            lanes[0].Append(" * inverseSqrt(");
+            
+            var sqrtArg = rightInv.ArgumentList.Arguments[0].Expression;
+            if (!Compute(lanes, query, sqrtArg)) return ComputeResult.Invalid;
+            
+            lanes[0].Append("))");
             return shape;
         }
-        for (int i = 0; i < lanes.Length; i++) {
-            lanes[i].Append($"Avx.{avxOperation}(");
-        }
-        if (!Compute(lanes, query, binary.Left)) {
-            return ComputeResult.Invalid;
-        }
-        lanes.Append(", ");
-        if (!Compute(lanes, query, binary.Right)) {
-            return ComputeResult.Invalid;
-        }
-        lanes.Append(")");
+        // default case:
+        lanes[0].Append("(");
+        if (!Compute(lanes, query, binary.Left)) return ComputeResult.Invalid;
+        
+        lanes[0].Append($" {wgslOp} ");
+        
+        if (!Compute(lanes, query, binary.Right)) return ComputeResult.Invalid;
+        lanes[0].Append(")");
         return shape;
     }
 }
