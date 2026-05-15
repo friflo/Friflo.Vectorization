@@ -100,9 +100,9 @@ public sealed partial class WgslVectorizer : IVectorizer
 
 
 
-		var vectorizeBlock = EmitLoopBody(query, compute, body, 0);
+		var vectorizeBody = EmitBody(query, compute, body, 0);
 
-        query.wgslBody = vectorizeBlock.ToString();
+        query.wgslBody = vectorizeBody.ToString();
     }
     
     
@@ -139,7 +139,7 @@ public sealed partial class WgslVectorizer : IVectorizer
         return false;
     }
     
-    public StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
+    public StringBuilder EmitBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
         source.AppendLine("        // --- 1. Load");

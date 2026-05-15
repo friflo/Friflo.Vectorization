@@ -20,7 +20,7 @@ public interface IVectorizer
     public  bool            TraverseBody        (Query query);
     public  bool            EmitCompute         (Query query, StringBuilder[] lanes, StatementSyntax statement);
     public  void            EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body);
-    public  StringBuilder   EmitLoopBody        (Query query, StringBuilder compute, BlockSyntax? body, int step);
+    public  StringBuilder   EmitBody            (Query query, StringBuilder compute, BlockSyntax? body, int step);
     public  ComputeResult   Compute             (StringBuilder[] lanes, Query query, ExpressionSyntax syntax);
     
     // --- IO.cs

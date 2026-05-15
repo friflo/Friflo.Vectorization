@@ -265,9 +265,9 @@ public sealed partial class AvxVectorizer : IVectorizer
             _ => -1,
         };
         int step = 8;
-        var vectorizeBlock = EmitLoopBody(query, compute, body, step);
+        var vectorizeBody = EmitBody(query, compute, body, step);
 
-        VectorUtils.TrimEnd(vectorizeBlock);
+        VectorUtils.TrimEnd(vectorizeBody);
         
         var strategyComment = query.strategy switch {
             Strategy.NativeSoA      => "// [Layout: [SoA] All]     - lane-native speed",
@@ -294,7 +294,7 @@ public sealed partial class AvxVectorizer : IVectorizer
 
                 for (; {(isQuery ? "i < paddedCount" : "i <= count")}; i += {elementStep})
                 {{
-{vectorizeBlock}
+{vectorizeBody}
 
 {pointerIncrement}                }}
             }}
@@ -321,7 +321,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         return sb;
     }
     
-    public StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
+    public StringBuilder EmitBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
         source.AppendLine("                    // --- 1. Load");
