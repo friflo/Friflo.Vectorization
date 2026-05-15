@@ -61,12 +61,12 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
     {
-        var name = query.AddConst();
-        query.locals.AppendLine($"            var {name}_scalar = Vector256.Create<float>({literal.Token.Text}); // literal");
-        query.locals.AppendLine();
-        for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"{name}_scalar");
+        var value = literal.Token.Text;
+        if (!value.Contains(".") && !value.Contains("e") && !value.Contains("f")) {
+            value += ".0";
         }
+        value = value.Replace("f", "");
+        lanes[0].Append(value);
         return ComputeResult.Scalar;
     }
 }
