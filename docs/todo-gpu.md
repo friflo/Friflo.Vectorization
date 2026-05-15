@@ -10,6 +10,13 @@
 
 
 ### done
+- Added feature parity of **source generation** for **WebGPU/WGSL** code with **AVX** generated code. Currently not tested.
+- Created hardware agnostics **GPU** API - `Gpu*` classes. Same project also contains **AVX** acceleration - `Cpu*` classes.  
+  https://www.nuget.org/packages/Friflo.Vectorization.GPU/
+- Implemented second project implementing the GPU API - `Wgpu*` classes with binding to **wgpu-native**.  
+  This enables support of **DX12**, **Vulkan** and **Metal**.  
+  Tested full GPU stack successful on various devices: **Windows 11** x64, **Linux** x64, **Mac Mini M2** arm64 and **Android** arm64.  
+  https://www.nuget.org/packages/Friflo.Vectorization.WebGPU/
 - Capture UncapturedError in  string lastError. Throw Exception with ThrowIfError() after Task.Finish(), QueueSubmit(), WaitInDebug(), ...
 - Check for instance callbacks. static callback methods recommended. All callbacks are now static methods
 - Generator: generate unique hash key for cached/deduplicated BindGroupLayout's using FNV-1a as in GpuBuffers
