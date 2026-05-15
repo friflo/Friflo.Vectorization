@@ -56,51 +56,7 @@ public sealed partial class WgslVectorizer : IVectorizer
     
     public void EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body)
     {
-        var locals = new StringBuilder();
-        // --- method signature
-        var signature = new StringBuilder();
-        foreach (var vectorType in query.VectorTypes) {
-            var parameter = vectorType.Parameter;
-            signature.Append(",");
-            if (vectorType.IsSpan) {
-                if (vectorType.ParamType == ParamType.Scalar) {
-                    VectorUtils.ScalarMask(locals, parameter.Name, query.vectorDimension);
-                }
-                if (vectorType.Layout == VectorLayout.AoSoA) {
-                    signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
-                    continue;
-                }
-                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {parameter.Name}");
-                continue;
-            }
-            signature.Append("\n            ");
-            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"{vectorType.FullQualifiedName} {parameter.Name}");
-            //
-            switch (vectorType.ParamType) {
-                case ParamType.Scalar:
-                    locals.AppendLine($"            var {parameter.Name}_scalar = Vector256.Create({parameter.Name});");
-                    locals.AppendLine();
-                    break;
-                default:                // TODO  type should be clear here 
-                case ParamType.Vector:
-                    VectorUtils.InterleaveVector3(locals, parameter.Name, query);
-                    locals.AppendLine();
-                    break;
-                case ParamType.Matrix4x4:
-                    VectorUtils.LoadMatrix(locals, parameter.Name, query.vectorDimension);
-                    locals.AppendLine();
-                    break;
-            }
-        }
-
-
-
-
-
-
-		var vectorizeBody = EmitBody(query, compute, body, 0);
+        var vectorizeBody = EmitBody(query, compute, body, 0);
 
         query.wgslBody = vectorizeBody.ToString();
     }
