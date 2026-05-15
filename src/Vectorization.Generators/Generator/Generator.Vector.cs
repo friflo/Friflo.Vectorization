@@ -13,91 +13,58 @@ public sealed partial class Gen
 {
     private static string EmitVectorSource(Query query)
     {
-        var lambdaParameters    = EmitVectorLambdaParameters(query.VectorTypes);
-        var methodSignature     = EmitVectorMethodSignature(query.VectorTypes, query.vectorized);
-        var vectorizeBlock      = EmitVectorBlock(query);
+        var vectorTypes = query.VectorTypes;
+        var vectorized  = query.vectorized;
+        var lambdaParameters    = new StringBuilder();
+        var methodSignature     = new StringBuilder();
+        var avxParameters       = new StringBuilder();
+        avxParameters.Append("count");
         
+        foreach (var vectorType in vectorTypes)
+        {
+            var parameter = vectorType.Parameter;
+            var type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            GeneratorUtils.AppendRefKind(lambdaParameters, parameter.RefKind);
+            avxParameters.Append(", ");
+            if (vectorType.IsSpan) {
+                lambdaParameters.Append($"{parameter.Name}[n], ");
+                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
+                methodSignature.Append($"{span}<{type}> {parameter.Name}, ");
+                avxParameters.Append(parameter.Name);
+                continue;
+            }
+            lambdaParameters.Append($"{parameter.Name}, ");
+            
+            GeneratorUtils.AppendRefKind(methodSignature, parameter.RefKind);
+            methodSignature.Append($"{type} {parameter.Name}, ");
+            
+            GeneratorUtils.AppendRefKind(avxParameters, parameter.RefKind);
+            avxParameters.Append(parameter.Name);
+        }
+        lambdaParameters.Length -= 2;
+        methodSignature.Length -= 2;
+        if (vectorized) {
+            methodSignature.Append(", bool vectorized = true");
+        }
         var blueprintMethod = query.BlueprintMethod;
-        var methodName      = query.BlueprintMethod.Name;
+        var methodName      = blueprintMethod.Name;
+        var avxMethod       = query.CustomMethod ?? $"_{methodName}_Avx{query.Hash}";
         
         var shadowMethodSource = $@"
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
             int count = {query.VectorTypes[0].Parameter.Name}.Length;
-            int n = 0;{vectorizeBlock}
+            int n = 0;
+            if (vectorized) {{
+                if (Avx.IsSupported) {{
+                    n = {avxMethod}({avxParameters});
+                }}
+            }}
             for (; n < count; n++) {{
                 {methodName}({lambdaParameters});
             }}
         }}";
         return shadowMethodSource;
-    }
-    
-    private static string EmitVectorBlock(Query query)
-    {
-        if (!query.vectorized) {
-            return "";
-        }
-        var sb = new StringBuilder();
-        sb.Append("count");
-        foreach (var vectorType in query.VectorTypes) {
-            sb.Append(", ");
-            var parameter = vectorType.Parameter;
-            if (vectorType.IsSpan) {
-                sb.Append(parameter.Name);
-                continue;
-            }
-            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
-            sb.Append(parameter.Name);
-        }
-        var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
-        var source = $@"
-            if (vectorized) {{
-                if (Avx.IsSupported) {{
-                    n = {avxMethod}({sb});
-                }}
-            }}";
-        return source;
-    }
-    
-    private static string EmitVectorMethodSignature(VectorType[] vectorTypes, bool vectorized)
-    {
-        var sb = new StringBuilder();
-        foreach (var vectorType in vectorTypes) {
-            if (sb.Length > 0) {
-                sb.Append(", ");
-            }
-            var parameter = vectorType.Parameter;
-            string type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (vectorType.IsSpan) {
-                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                sb.Append($"{span}<{type}> {parameter.Name}");
-                continue;
-            }
-            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
-            sb.Append($"{type} {parameter.Name}");
-        }
-        if (vectorized) {
-            sb.Append(", bool vectorized = true");
-        }
-        return sb.ToString();
-    }
-    
-    private static string EmitVectorLambdaParameters(VectorType[] vectorTypes)
-    {
-        var sb = new StringBuilder();
-        foreach (var vectorType in vectorTypes) {
-            if (sb.Length > 0) {
-                sb.Append(", ");
-            }
-            var parameter = vectorType.Parameter;
-            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
-            if (vectorType.IsSpan) {
-                sb.Append($"{parameter.Name}[n]");
-                continue;
-            }
-            sb.Append(parameter.Name);
-        }
-        return sb.ToString();
     }
 }
