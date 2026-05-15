@@ -10,9 +10,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class AvxVectorizer
+public partial class AvxVectorizer : IVectorizer
 {
-    public static bool Emit(Query query)
+    public bool Emit(Query query)
     {
         var vectorTypes = query.VectorTypes;
         if (vectorTypes.Length == 0) {
@@ -85,15 +85,15 @@ public static partial class AvxVectorizer
         query.vectorized = true;
         return true;
     }
-    private static bool Emit_NativeSoA   (Query query) => TraverseBody(query);
-    private static bool Emit_VerticalAoS (Query query) => TraverseBody(query);
-    private static bool Emit_MixedAdapter(Query query) => TraverseBody(query);
-    private static bool Emit_Horizontal  (Query query) {
+    public bool Emit_NativeSoA   (Query query) => TraverseBody(query);
+    public bool Emit_VerticalAoS (Query query) => TraverseBody(query);
+    public bool Emit_MixedAdapter(Query query) => TraverseBody(query);
+    public bool Emit_Horizontal  (Query query) {
         query.strategy = Strategy.Horizontal;
         return TraverseBody(query);
     }
     
-    private static bool TraverseBody(Query query)
+    public bool TraverseBody(Query query)
     {
         foreach (var type in query.VectorTypes) {
             query.AddParam(type.Parameter.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
@@ -125,7 +125,7 @@ public static partial class AvxVectorizer
         return true;
     }
     
-    public static string EmitVectorizeBlock(Query query)
+    public string EmitVectorizeBlock(Query query)
     {
         if (!query.vectorized) {
             return "";
@@ -155,7 +155,7 @@ public static partial class AvxVectorizer
         return source;
     }
     
-    private static bool EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement)
+    public bool EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement)
     {
         // Is local declaration - e.g.     var local = value;
         if (statement is LocalDeclarationStatementSyntax localDecl) {
@@ -188,7 +188,7 @@ public static partial class AvxVectorizer
         return false;
     }
     
-    private static void EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body)
+    public void EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body)
     {
         var locals = new StringBuilder();
         // --- method signature
@@ -304,7 +304,7 @@ public static partial class AvxVectorizer
         query.avxMethod = source;
     }
     
-    private static StringBuilder EmitLengthGuards(Query query)
+    public StringBuilder EmitLengthGuards(Query query)
     {
         var sb = new StringBuilder();
         var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";
@@ -321,7 +321,7 @@ public static partial class AvxVectorizer
         return sb;
     }
     
-    private static StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
+    public StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
         source.AppendLine("                    // --- 1. Load");
@@ -342,7 +342,7 @@ public static partial class AvxVectorizer
         return source;
     }
     
-    private static ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
+    public ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
     {
         if (syntax is AssignmentExpressionSyntax assignment) {
             return Compute_Assignment(lanes, query, assignment);

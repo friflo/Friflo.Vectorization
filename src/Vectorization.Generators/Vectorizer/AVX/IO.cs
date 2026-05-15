@@ -8,9 +8,9 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class AvxVectorizer
+public partial class AvxVectorizer
 {
-    private static void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
+    public void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
         if (!vectorType.IsSpan) {
             return;
@@ -110,7 +110,7 @@ $"""
         source.AppendLine();
     }
     
-    private static void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
+    public void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
         var vectorType = query.VectorTypes.FirstOrDefault(v => v.Parameter.Name == dirtyVector);
         if (vectorType == null) {

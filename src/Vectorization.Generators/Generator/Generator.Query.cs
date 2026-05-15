@@ -23,7 +23,7 @@ public partial class Gen
         var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.vectorized);
-        var vectorizeBlock      = AvxVectorizer.EmitVectorizeBlock(query);
+        var vectorizeBlock      = new AvxVectorizer().EmitVectorizeBlock(query);
         EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
         
         var hash            = query.Hash;

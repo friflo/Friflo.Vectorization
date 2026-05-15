@@ -8,9 +8,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
-public static partial class WgslVectorizer
+public partial class WgslVectorizer
 {
-    private static ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
+    public ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         var methodName = GetMethodName(query, invocation);
         var methodReduced = methodName?.Replace("System.Numerics.Vector2", "Vector")
@@ -75,7 +75,7 @@ public static partial class WgslVectorizer
         return ComputeResult.Invalid;
     }
 
-    private static ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var dim = query.vectorDimension;
         if (query.strategy == Strategy.VerticalAoS && dim == 3) {
@@ -129,7 +129,7 @@ public static partial class WgslVectorizer
         return DataShape.Vector;
     }
 
-    private static ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, DataShape shape, string op, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, DataShape shape, string op, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         for (int n = 0; n < lanes.Length; n++) {
@@ -146,7 +146,7 @@ public static partial class WgslVectorizer
         return shape;
     }
     
-    private static ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         lanes.Append("Avx.Min(");
@@ -165,7 +165,7 @@ public static partial class WgslVectorizer
         return shape;
     }
     
-    private static ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
         lanes.Append("Fma.MultiplyAdd(");
@@ -188,7 +188,7 @@ public static partial class WgslVectorizer
         return DataShape.Vector;
     }
 
-    private static ComputeResult Method_Abs(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
@@ -204,7 +204,7 @@ public static partial class WgslVectorizer
         return shape;
     }
     
-    private static ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Truncate(");    // alternative: Avx.RoundToNearestInteger(v, 0x03 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -215,7 +215,7 @@ public static partial class WgslVectorizer
         return shape;
     }
     
-    private static ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Floor(");       // alternative: Avx.RoundToNearestInteger(value, 0x01 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -226,7 +226,7 @@ public static partial class WgslVectorizer
         return DataShape.Scalar;
     }
     
-    private static ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Ceiling(");     // alternative:  Avx.RoundToNearestInteger(value, 0x02 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -237,7 +237,7 @@ public static partial class WgslVectorizer
         return DataShape.Scalar;
     }
     
-    private static ComputeResult Method_Round(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Round(StringBuilder[] lanes, Query query, DataShape shape, ArgumentListSyntax argumentSyntax)
     {
         lanes.Append("Vector256.Round(");       // alternative:  Avx.RoundToNearestInteger(value, 0x00 | 0x08);
         var args = argumentSyntax.Arguments;
@@ -248,7 +248,7 @@ public static partial class WgslVectorizer
         return shape;
     }
 
-    private static ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, string method, ArgumentListSyntax argumentSyntax)
     {
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"{method}(");
@@ -267,7 +267,7 @@ public static partial class WgslVectorizer
         return DataShape.Scalar;
     }
     
-    private static ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
@@ -292,7 +292,7 @@ public static partial class WgslVectorizer
         return DataShape.Vector;
     }
     
-    private static ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;
@@ -327,7 +327,7 @@ public static partial class WgslVectorizer
         return ComputeResult.Invalid;
     }
     
-    private static ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
+    public ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         query.requireDeinterleave = true;
         var expression = invocation.Expression;
@@ -353,7 +353,7 @@ public static partial class WgslVectorizer
         return ComputeResult.Invalid;
     }
     
-    private static ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier)
+    public ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier)
     {
         if (useIdentifier && expressionSyntax is MemberAccessExpressionSyntax memberAccess) {
             var memberExpression = memberAccess.Expression;
@@ -382,7 +382,7 @@ public static partial class WgslVectorizer
         return shape;
     } 
 
-    private static ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
+    public ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method)
     {
         query.requireDeinterleave = true;
         var args = argumentSyntax.Arguments;

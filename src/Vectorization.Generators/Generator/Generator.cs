@@ -158,10 +158,10 @@ public partial class Gen : IIncrementalGenerator
             SemanticModel   = semanticModel
         };
         if (vectorizeData != null || hasKernelAttribute) {
-            AvxVectorizer.Emit(query);
+            new AvxVectorizer().Emit(query);
         }
         if (hasKernelAttribute) {
-            WgslVectorizer.Emit(query);
+            new WgslVectorizer().Emit(query);
         }
         string vectorMethodSource;
         string kernelMethodSource = "";

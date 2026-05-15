@@ -9,9 +9,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
-public static partial class WgslVectorizer
+public partial class WgslVectorizer
 {
-    private static StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
+    public StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {
         var laneCount = 1;
         /* ITypeSymbol? typeSymbol = null;
@@ -34,7 +34,7 @@ public static partial class WgslVectorizer
         return lanes;
     }
     
-    private static ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
+    public ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
     {
         var kind = assignment.Kind();
         var avxOperation = kind switch
@@ -96,7 +96,7 @@ public static partial class WgslVectorizer
         return leftShape;
     }
 
-    private static ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
+    public ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
     {
         var kind = binary.Kind();
         var avxOperation = kind switch

@@ -10,9 +10,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class AvxVectorizer
+public partial class AvxVectorizer
 {
-    private static ComputeResult Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
+    public ComputeResult Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
     {
         var memberExpression = memberAccess.Expression;
         /* if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
@@ -60,7 +60,7 @@ public static partial class AvxVectorizer
         return shape;
     }
     
-    private static ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
+    public ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
     {
         var name = identifierName.Identifier.Text;
         for (int i = 0; i < lanes.Length; i++) {
@@ -71,7 +71,7 @@ public static partial class AvxVectorizer
     }
     
 
-    private static string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
+    public string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
     {
         if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
         {
@@ -83,7 +83,7 @@ public static partial class AvxVectorizer
         return null;
     }
 
-    private static ComputeResult Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
+    public ComputeResult Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name}_scalar = Vector256.Create<float>({literal.Token.Text}); // literal");

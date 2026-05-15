@@ -10,9 +10,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
-public static partial class WgslVectorizer
+public partial class WgslVectorizer : IVectorizer
 {
-    public static bool Emit(Query query)
+    public bool Emit(Query query)
     {
         query.ResetQueryState();
         query.laneCount     = 1;
@@ -22,7 +22,7 @@ public static partial class WgslVectorizer
         return true;
     }
     
-    private static bool TraverseBody(Query query)
+    public bool TraverseBody(Query query)
     {
         foreach (var type in query.VectorTypes) {
             query.AddParam(type.Parameter.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
@@ -54,7 +54,7 @@ public static partial class WgslVectorizer
         return true;
     }
     
-    private static void EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body)
+    public void EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body)
     {
         var locals = new StringBuilder();
         // --- method signature
@@ -100,13 +100,13 @@ public static partial class WgslVectorizer
 
 
 
-		var vectorizeBlock = EmitLoopBody(query, compute, body);
+		var vectorizeBlock = EmitLoopBody(query, compute, body, 0);
 
         query.wgslBody = vectorizeBlock.ToString();
     }
     
     
-    private static bool EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement)
+    public bool EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement)
     {
         // Is local declaration - e.g.     var local = value;
         if (statement is LocalDeclarationStatementSyntax localDecl) {
@@ -139,12 +139,12 @@ public static partial class WgslVectorizer
         return false;
     }
     
-    private static StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body)
+    public StringBuilder EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
         source.AppendLine("        // --- 1. Load");
         foreach (var vectorType in query.VectorTypes) {
-            EmitLoadVector(source, query, vectorType);
+            EmitLoadVector(source, query, vectorType, 0);
         }
         source.AppendLine();
         
@@ -156,12 +156,12 @@ public static partial class WgslVectorizer
             return source;
         }
         foreach (var dirtyVector in query.dirtyVectors) {
-            EmitStoreVector(source, query, dirtyVector);
+            EmitStoreVector(source, query, dirtyVector, 0);
         }
         return source;
     }
     
-    private static ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
+    public ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
     {
         if (syntax is AssignmentExpressionSyntax assignment) {
             return Compute_Assignment(lanes, query, assignment);

@@ -10,9 +10,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public static partial class AvxVectorizer
+public partial class AvxVectorizer
 {
-    private static StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
+    public StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {
         var laneCount = query.laneCount;
         ITypeSymbol? typeSymbol = null;
@@ -47,7 +47,7 @@ public static partial class AvxVectorizer
         return lanes;
     }
     
-    private static ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
+    public ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
     {
         var kind = assignment.Kind();
         var avxOperation = kind switch
@@ -109,7 +109,7 @@ public static partial class AvxVectorizer
         return leftShape;
     }
 
-    private static ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
+    public ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
     {
         var kind = binary.Kind();
         var avxOperation = kind switch
