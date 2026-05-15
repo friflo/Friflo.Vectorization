@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
@@ -16,16 +16,16 @@ namespace Friflo.Vectorization.Generators;
 public interface IVectorizer
 {
     // --- Entry.cs
-    public  bool            Emit(Query query);
-    public  bool            TraverseBody(Query query);
-    public  bool            EmitCompute(Query query, StringBuilder[] lanes, StatementSyntax statement);
+    public  bool            Emit                (Query query);
+    public  bool            TraverseBody        (Query query);
+    public  bool            EmitCompute         (Query query, StringBuilder[] lanes, StatementSyntax statement);
     public  void            EmitVectorizedMethod(Query query, StringBuilder compute, BlockSyntax? body);
-    public  StringBuilder   EmitLoopBody(Query query, StringBuilder compute, BlockSyntax? body, int step);
-    public  ComputeResult   Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax);
+    public  StringBuilder   EmitLoopBody        (Query query, StringBuilder compute, BlockSyntax? body, int step);
+    public  ComputeResult   Compute             (StringBuilder[] lanes, Query query, ExpressionSyntax syntax);
     
     // --- IO.cs
-    public  void            EmitLoadVector (StringBuilder source, Query query, VectorType vectorType, int step);
-    public  void            EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step);
+    public  void            EmitLoadVector      (StringBuilder source, Query query, VectorType vectorType, int step);
+    public  void            EmitStoreVector     (StringBuilder source, Query query, string dirtyVector, int step);
     
     // --- Methods.cs
     public  ComputeResult   Compute_Invocation  (StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation);
@@ -46,13 +46,13 @@ public interface IVectorizer
     public  ComputeResult   Method_Distance     (StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax, string method);
     
     // --- Operators.cs
-    public StringBuilder[]  CreateLanes(Query query, ISymbol? symbol, string parameterName);
-    public  ComputeResult   Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment);
-    public  ComputeResult   Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary);
+    public StringBuilder[]  CreateLanes         (Query query, ISymbol? symbol, string parameterName);
+    public  ComputeResult   Compute_Assignment  (StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment);
+    public  ComputeResult   Compute_Binary      (StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary);
     
     // --- Symbols.cs
-    public  ComputeResult   Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess);
-    public  ComputeResult   Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName);
-    public  string?         GetMethodName(Query query, InvocationExpressionSyntax invocation);
-    public  ComputeResult   Compute_Literal(StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal);
+    public  ComputeResult   Compute_MemberAccess    (StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess);
+    public  ComputeResult   Compute_IdentifierName  (StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName);
+    public  string?         GetMethodName           (Query query, InvocationExpressionSyntax invocation);
+    public  ComputeResult   Compute_Literal         (StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal);
 }
