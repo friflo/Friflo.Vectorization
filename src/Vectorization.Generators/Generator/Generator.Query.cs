@@ -121,7 +121,7 @@ public sealed partial class Gen
         }}";
     }
     
-    private static string EmitQueryMethodSignature(BlueprintParameter[] parameters, bool vectorized)
+    private static StringBuilder EmitQueryMethodSignature(BlueprintParameter[] parameters, bool vectorized)
     {
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
@@ -143,10 +143,10 @@ public sealed partial class Gen
         if (vectorized) {
             sb.Append(", bool vectorized = true");
         }
-        return sb.ToString();
+        return sb;
     }
     
-    private static string EmitQueryLambdaParameters(Query query)
+    private static StringBuilder EmitQueryLambdaParameters(Query query)
     {
         var sb = new StringBuilder();
         foreach (var parameter in query.Parameters) {
@@ -171,10 +171,10 @@ public sealed partial class Gen
             GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
             sb.Append(symbol.Name);
         }
-        return sb.ToString();
+        return sb;
     }
     
-    private static string EmitQueryFilters(ImmutableArray<AttributeData> attributes)
+    private static StringBuilder EmitQueryFilters(ImmutableArray<AttributeData> attributes)
     {
         var sb = new StringBuilder();
         foreach (var attribute in attributes) {
@@ -205,6 +205,6 @@ public sealed partial class Gen
                     break;
             }
         }
-        return sb.ToString();
+        return sb;
     }
 }
