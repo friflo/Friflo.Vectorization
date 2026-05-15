@@ -6,7 +6,7 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public static class VectorUtils
+public static class AvxUtils
 {
     public static  bool InterleaveVector3(StringBuilder sb, string nm, Query query)
     {

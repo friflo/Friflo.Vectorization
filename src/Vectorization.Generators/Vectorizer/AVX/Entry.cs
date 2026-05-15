@@ -198,7 +198,7 @@ public sealed partial class AvxVectorizer : IVectorizer
             signature.Append(",");
             if (vectorType.IsSpan) {
                 if (vectorType.ParamType == ParamType.Scalar) {
-                    VectorUtils.ScalarMask(locals, parameter.Name, query.vectorDimension);
+                    AvxUtils.ScalarMask(locals, parameter.Name, query.vectorDimension);
                 }
                 if (vectorType.Layout == VectorLayout.AoSoA) {
                     signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
@@ -219,11 +219,11 @@ public sealed partial class AvxVectorizer : IVectorizer
                     break;
                 default:                // TODO  type should be clear here 
                 case ParamType.Vector:
-                    VectorUtils.InterleaveVector3(locals, parameter.Name, query);
+                    AvxUtils.InterleaveVector3(locals, parameter.Name, query);
                     locals.AppendLine();
                     break;
                 case ParamType.Matrix4x4:
-                    VectorUtils.LoadMatrix(locals, parameter.Name, query.vectorDimension);
+                    AvxUtils.LoadMatrix(locals, parameter.Name, query.vectorDimension);
                     locals.AppendLine();
                     break;
             }
@@ -267,7 +267,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         int step = 8;
         var vectorizeBody = EmitBody(query, compute, body, step);
 
-        VectorUtils.TrimEnd(vectorizeBody);
+        AvxUtils.TrimEnd(vectorizeBody);
         
         var strategyComment = query.strategy switch {
             Strategy.NativeSoA      => "// [Layout: [SoA] All]     - lane-native speed",
