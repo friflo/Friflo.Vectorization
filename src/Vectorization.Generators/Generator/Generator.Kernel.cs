@@ -114,10 +114,11 @@ public sealed partial class Gen
         }
         signature.Length -= 1;
         
-        var blueprintMethod = query.BlueprintMethod;
-        var hash            = query.Hash;
-        var methodName      = query.BlueprintMethod.Name;
-        var methodName_GPU  = $"_{methodName}_GPU{hash}";
+        var blueprintMethod     = query.BlueprintMethod;
+        var hash                = query.Hash;
+        var methodName          = query.BlueprintMethod.Name;
+        var methodName_GPU      = $"_{methodName}_GPU{hash}";
+        var wgslHelperMethods   = GenerateWgslHelperMethods(query);
         
         var shadowMethodSource =
 $$""""
@@ -197,7 +198,7 @@ $$""""
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
-    """
+    """{{wgslHelperMethods}}
     struct {{methodName}}_Uniforms {
         count   : u32;{{wgslFields}}
     };
@@ -223,5 +224,25 @@ $$""""
 
 """";
         return shadowMethodSource;
+    }
+    
+    private static StringBuilder GenerateWgslHelperMethods(Query query)
+    {
+        var sb = new StringBuilder();
+        foreach (var helper in query.wgslHelperMethods)
+        {
+            switch (helper) {
+                case "distanceSquared2":
+                    sb.AppendLine("fn distanceSquared2(a: vec2f, b: vec2f) -> f32 { let d = a - b; return dot(d, d); }");
+                    break;
+                case "distanceSquared3":
+                    sb.AppendLine("fn distanceSquared3(a: vec3f, b: vec3f) -> f32 { let d = a - b; return dot(d, d); }");
+                    break;
+                case "distanceSquared4":
+                    sb.AppendLine("fn distanceSquared4(a: vec4f, b: vec4f) -> f32 { let d = a - b; return dot(d, d); }");
+                    break;
+            }
+        }
+        return sb;
     }
 }

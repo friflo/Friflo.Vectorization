@@ -62,7 +62,8 @@ public sealed class Query
     public          int                             constLocalsCount;
     public          bool                            requireDeinterleave;
     public          bool                            useDeinterleave;        // true => add Deinterleave() / Interleave()
-    public          bool                            isSingleLane; 
+    public          bool                            isSingleLane;
+    public readonly HashSet<string>                 wgslHelperMethods = new(); 
 
     
     public void AddDirty(string vectorName)

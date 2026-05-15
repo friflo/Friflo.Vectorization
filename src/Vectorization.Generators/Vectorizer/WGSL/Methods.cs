@@ -375,27 +375,21 @@ public sealed partial class WgslVectorizer
 
     public ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method)
     {
-        query.requireDeinterleave = true;
         var args = argList.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, $"{method} arg[0]", out var arg0, true)) {
-            return ComputeResult.Invalid;
+        var dim = query.vectorDimension;
+        
+        if (method == "Distance") {
+            lanes.Append("distance(");
+        } else if (method == "DistanceSquared") {
+            var helperName = $"distanceSquared{dim}"; // e.g. register distanceSquared3()
+            query.wgslHelperMethods.Add(helperName);
+            lanes.Append($"{helperName}(");
         }
-        if (!Compute_AddTemp(query, args[1].Expression, $"{method} arg[1]", out var arg1, true)) {
-            return ComputeResult.Invalid;
-        }
-        switch (query.vectorDimension)
-        {
-            case 2:
-                lanes[0].Append($"AvxVector2.{method}({arg0}_0,{arg0}_1, {arg1}_0,{arg1}_1)");
-                lanes[1].Append($"AvxVector2.{method}({arg0}_2,{arg0}_3, {arg1}_2,{arg1}_3)");
-                return DataShape.Scalar;
-            case 3:
-                lanes[0].Append($"AvxVector3.{method}({arg0}_0,{arg0}_1,{arg0}_2, {arg1}_0,{arg1}_1,{arg1}_2)");
-                return DataShape.Scalar;
-            case 4:
-                lanes[0].Append($"AvxVector4.{method}({arg0}_0,{arg0}_1,{arg0}_2,{arg0}_3, {arg1}_0,{arg1}_1,{arg1}_2,{arg1}_3)");
-                return DataShape.Scalar;
-        }
-        return ComputeResult.Invalid;
+        if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+        lanes.Append(", ");
+        if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
+        lanes.Append(")");
+        
+        return DataShape.Scalar;
     }
 }
