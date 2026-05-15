@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
@@ -14,47 +15,38 @@ public sealed partial class WgslVectorizer
     public ComputeResult Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess)
     {
         var memberExpression = memberAccess.Expression;
-        /* if (memberExpression is MemberAccessExpressionSyntax childMemberAccess) {
-        	// Required to for: Vector3.Length()
-            return Compute_MemberAccess(lanes, query, childMemberAccess);
-        } */
         if (memberExpression is not IdentifierNameSyntax identifierNameSyntax) {
             return ComputeResult.Invalid;
         }
-        var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
-        var symbol = symbolInfo.Symbol;
-        var shape = Vectorizer.GetShapeFromExpression(query, memberAccess);
-        var isStatic = symbol != null && symbol.IsStatic;
-        if (isStatic)
-        {
-            // var value = symbol!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var value = $"{symbol.ContainingType.ToDisplayString()}.{symbol.Name}"; 
-            var name = query.AddConst();
-            /* if (symbol is IPropertySymbol typeSymbol) {
-                var paramType = typeSymbol.Type.SpecialType == SpecialType.System_Single ? ParamType.Scalar : ParamType.Vector;
-                query.paramTypes.Add(name, paramType);
-            } */ 
-            query.locals.AppendLine($"            var {name} = {value}; // static");
-            var isScalar = VectorUtils.InterleaveVector3(query.locals, name, query);
-            query.AddParam(name, false, isScalar, false, 0);
-            query.locals.AppendLine();
-            
-            for (int n = 0; n < lanes.Length; n++) {
-                var vectorName = query.GetVectorName(name, n);
-                lanes[n].Append(vectorName);
+        var symbolInfo  = query.SemanticModel.GetSymbolInfo(memberAccess);
+        var symbol      = symbolInfo.Symbol;
+        var shape       = Vectorizer.GetShapeFromExpression(query, memberAccess);
+        var isStatic    = symbol != null && symbol.IsStatic;
+        if (isStatic) {
+            // Try reading constant value - e.g. MathF.PI
+            if (symbol is IFieldSymbol field && field.HasConstantValue) { 
+                object val = field.ConstantValue;
+                string literal = val switch {
+                    float f  => f.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    double d => d.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    _        => val?.ToString() ?? "0.0"
+                };
+                if (!literal.Contains(".")) literal += ".0";  // ensure type safety for floats
+                lanes[0].Append(literal);
+            } else  {
+                // fallback for non const fields / properties
+                var name = query.AddConst();
+                var value = $"{symbol.ContainingType.ToDisplayString()}.{symbol.Name}"; 
+                
+                query.locals.AppendLine($"            var {name} = {value}; // static");
+                query.AddParam(name, false, shape == DataShape.Scalar, false, 0);
+                query.locals.AppendLine();
+                lanes[0].Append(name);
             }
         } else {
             var name = identifierNameSyntax.Identifier.Text;
             query.readVectors.Add(name);
-            if (query.paramTypes.TryGetValue(name, out var paramType)) { // SOA
-                if (paramType.dimension == 1 && query.vectorDimension > 1) {
-                    query.requireDeinterleave = true;
-                }
-            }
-            for (int i = 0; i < lanes.Length; i++) {
-                var vectorName = query.GetVectorName(name, i);
-                lanes[i].Append(vectorName);
-            }
+            lanes[0].Append(name);
         }
         return shape;
     }

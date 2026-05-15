@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
