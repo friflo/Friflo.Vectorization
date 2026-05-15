@@ -75,5 +75,9 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="*.csproj.lscache" />
+  </ItemGroup>
 
 </Project>

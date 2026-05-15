@@ -83,5 +83,7 @@
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\MathUtils.cs">   <Link>Files\MathUtils.g.cs</Link>  </EmbeddedResource>
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\VectorUtils.cs"> <Link>Files\VectorUtils.g.cs</Link></EmbeddedResource>
   </ItemGroup>
-
+  <ItemGroup>
+    <None Remove="*.csproj.lscache" />
+  </ItemGroup>
 </Project>

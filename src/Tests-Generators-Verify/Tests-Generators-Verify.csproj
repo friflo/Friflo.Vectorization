@@ -100,6 +100,9 @@
         <ProjectReference Include="..\Vectorization.Generators\Friflo.Vectorization.Generators.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
     
+    <ItemGroup>
+        <None Remove="*.csproj.lscache" />
+    </ItemGroup>    
     <!--
     <PropertyGroup>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>

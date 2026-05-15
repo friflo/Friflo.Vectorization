@@ -56,5 +56,9 @@
     <ItemGroup>
         <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.g.cs" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <None Remove="*.csproj.lscache" />
+    </ItemGroup>
 
 </Project>
