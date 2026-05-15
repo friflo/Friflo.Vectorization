@@ -19,16 +19,53 @@ public sealed partial class Gen
         out string privateSource)
     {
         var attributeCode       = EmitQueryFilters(query.Attributes);
-        var componentArgs       = EmitQueryArgs(query.Spans);
-        var chunkVariables      = EmitQueryChunkVariables(query.Spans);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.vectorized);
         var vectorizeBlock      = new AvxVectorizer().EmitVectorizeBlock(query);
-        EmitSoAGetterAndSetter(query.Spans, out var getterAoS, out var setterAoS);
+        
+        var components = query.Spans;
+        var componentArgs   = new StringBuilder();
+        
+        var chunkVariables  = new StringBuilder();
+        var chungIndex      = 1;
+        
+        var getterAoS       = new StringBuilder();
+        var setterAoS       = new StringBuilder();
+        var getSetIndex     = 1;
+        
+        if (components.Length > 0) componentArgs.Append("<");
+        foreach (var component in components) {
+            // --- componentArgs
+            if (componentArgs.Length > 1) {
+                componentArgs.Append(", ");
+            }
+            string type = component.Symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            componentArgs.Append(type);
+            
+            // --- chunkVariables
+            var vectorType = component.VectorType;
+            // e.g. var componentSpan = chunk.Chunk1.Span;
+            if (chunkVariables.Length > 0) {
+                chunkVariables.AppendLine("");
+            }
+            chunkVariables.Append(vectorType?.Layout == VectorLayout.AoSoA
+                ? $"                var {vectorType.Name}Span = chunk.Chunk{chungIndex++}.GetLanesSoA();"
+                : $"                var {component.Symbol.Name}Span = chunk.Chunk{chungIndex++}.GetComponentSpan();");
+
+            // --- getterAoS / setterAoS
+            if (vectorType?.Layout == VectorLayout.AoSoA) {
+                getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{getSetIndex}.GetAoSoA(n);");
+                if (component.Symbol.RefKind == RefKind.Ref) {
+                    setterAoS.AppendLine($"                    chunk.Chunk{getSetIndex}.SetAoSoA(n, {vectorType.Name}AoS);");
+                }
+            }
+            getSetIndex++;
+        }
+        if (components.Length > 0) componentArgs.Append(">");
         
         var hash            = query.Hash;
         var blueprintMethod = query.BlueprintMethod;
-        var methodName      = query.BlueprintMethod.Name;
+        var methodName      = blueprintMethod.Name;
         
         if (query.Spans.Length == 0)
         {
@@ -63,6 +100,7 @@ public sealed partial class Gen
             return _query;
         }}";
         }
+        
         privateSource = $@"
         [EditorBrowsable(EditorBrowsableState.Never)]
         private static readonly int _{methodName}_Slot{hash} = EntityStore.UserDataNewSlot();
@@ -104,43 +142,6 @@ public sealed partial class Gen
         }
         if (vectorized) {
             sb.Append(", bool vectorized = true");
-        }
-        return sb.ToString();
-    }
-    
-    private static string EmitQueryArgs(BlueprintParameter[] components)
-    {
-        if (components.Length == 0) {
-            return "";
-        }
-        var sb = new StringBuilder();
-        sb.Append("<");
-        foreach (var component in components) {
-            if (sb.Length > 1) {
-                sb.Append(", ");
-            }
-            string type = component.Symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            sb.Append(type);
-        }
-        sb.Append(">");
-        return sb.ToString();
-    }
-    
-    private static string EmitQueryChunkVariables(BlueprintParameter[] components)
-    {
-        var sb = new StringBuilder();
-        var index = 1;
-        foreach (var component in components) {
-            var vectorType = component.VectorType;
-            // e.g. var componentSpan = chunk.Chunk1.Span;
-            if (sb.Length > 0) {
-                sb.AppendLine("");
-            }
-            if (vectorType?.Layout == VectorLayout.AoSoA) {
-                sb.Append($"                var {vectorType.Name}Span = chunk.Chunk{index++}.GetLanesSoA();");
-                continue;
-            }
-            sb.Append($"                var {component.Symbol.Name}Span = chunk.Chunk{index++}.GetComponentSpan();");
         }
         return sb.ToString();
     }
@@ -205,22 +206,5 @@ public sealed partial class Gen
             }
         }
         return sb.ToString();
-    }
-    
-    private static void EmitSoAGetterAndSetter(BlueprintParameter[] components, out StringBuilder getterAoS, out StringBuilder setterAoS)
-    {
-        getterAoS = new StringBuilder();
-        setterAoS = new StringBuilder();
-        var index = 1;
-        foreach (var component in components) {
-            var vectorType = component.VectorType;
-            if (vectorType?.Layout == VectorLayout.AoSoA) {
-                getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{index}.GetAoSoA(n);");
-                if (component.Symbol.RefKind == RefKind.Ref) {
-                    setterAoS.AppendLine($"                    chunk.Chunk{index}.SetAoSoA(n, {vectorType.Name}AoS);");
-                }
-            }
-            index++;
-        }
     }
 }
