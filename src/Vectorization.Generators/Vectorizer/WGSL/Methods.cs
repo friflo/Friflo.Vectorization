@@ -77,55 +77,24 @@ public sealed partial class WgslVectorizer
 
     public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        var dim = query.vectorDimension;
-        if (query.strategy == Strategy.VerticalAoS && dim == 3) {
-            query.requireDeinterleave = true; // no way to handle a 12 byte AoS efficient in the fast path
-            return ComputeResult.Vector;
-        }
-        /*if (query.vectorDimension != 4) {
-            return ComputeResult.Invalid;
-        } */
         var args = argList.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, $"Transform arg[0]", out var arg0, false)) {
-            return ComputeResult.Invalid;
+        // 1. matrix first (WGSL Standard: matrix * vector)
+        if (args[1].Expression is IdentifierNameSyntax identifierName) {
+            lanes.Append(identifierName.Identifier.Text);
+        } else {
+            if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
         }
-        if (args[1].Expression is IdentifierNameSyntax identifierNameSyntax) {
-            var m = identifierNameSyntax.Identifier.Text;
-            if (query.strategy == Strategy.VerticalAoS) {
-                lanes.Append($"AvxVector{dim}.TransformMatrixAoS(");
-                for (int n = 0; n < lanes.Length; n++) {
-                    if (dim == 2) {
-                        lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_3)");
-                    } else {
-                        lanes[n].Append($"{arg0}_{n}, {m}_0, {m}_1, {m}_2, {m}_3)");
-                    }
-                }
-            } else {
-                /* var result = query.AddTemp();
-                query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.TransformMatrixSoA({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3, {m}_0, {m}_1, {m}_2, {m}_3);");
-                lanes[0].Append($"{result}_0");
-                lanes[1].Append($"{result}_1");
-                lanes[2].Append($"{result}_2");
-                lanes[3].Append($"{result}_3"); */
+        lanes.Append(" * ");
 
-                lanes.Append($"AvxVector{dim}.TransformMatrixSoA(");
-                if (dim==2) {
-                    lanes[0].Append($"{arg0}_0, {arg0}_1, Vector256.Create({m}.M11), Vector256.Create({m}.M21), Vector256.Create({m}.M41))");
-                    lanes[1].Append($"{arg0}_0, {arg0}_1, Vector256.Create({m}.M12), Vector256.Create({m}.M22), Vector256.Create({m}.M42))");
-                    lanes[2].Append($"{arg0}_2, {arg0}_3, Vector256.Create({m}.M11), Vector256.Create({m}.M21), Vector256.Create({m}.M41))");
-                    lanes[3].Append($"{arg0}_2, {arg0}_3, Vector256.Create({m}.M12), Vector256.Create({m}.M22), Vector256.Create({m}.M42))");
-                } else {
-                    for (int n = 0; n < lanes.Length; n++) {
-                        var i = n + 1;
-                        var vectors = dim switch {
-                            3 => $"{arg0}_0, {arg0}_1, {arg0}_2",
-                            4 => $"{arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3"
-                        };
-                        lanes[n].Append($"{vectors}, Vector256.Create({m}.M1{i}), Vector256.Create({m}.M2{i}), Vector256.Create({m}.M3{i}), Vector256.Create({m}.M4{i}))");
-                    }
-                }
-            }
+        // 2. vector second - if vector is Vector3 we have to convert to vec4f first
+        if (query.vectorDimension == 3) {
+            lanes.Append("vec4f(");
+            if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+            lanes.Append(", 1.0)"); // 1.0 for position (Transform), 0.0 for direction
+        } else {
+            if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
         }
+
         return DataShape.Vector;
     }
 
