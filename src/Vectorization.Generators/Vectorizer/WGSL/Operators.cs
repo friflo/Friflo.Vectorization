@@ -50,7 +50,9 @@ public sealed partial class WgslVectorizer
             return ComputeResult.Invalid;
         }
         var leftIdentifier  = Vectorizer.GetMemberName(assignment.Left).Identifier.Text;
+		var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
         var leftShape       = Vectorizer.GetShapeFromExpression(query, assignment.Left);
+        lanes = CreateLanes(query, leftSymbol, leftIdentifier);
         
         // read vector for all cases except "="
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
