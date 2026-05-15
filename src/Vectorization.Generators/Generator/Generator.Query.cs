@@ -27,11 +27,9 @@ public sealed partial class Gen
         var componentArgs   = new StringBuilder();
         
         var chunkVariables  = new StringBuilder();
-        var chungIndex      = 1;
-        
+        var chunkIndex      = 1;
         var getterAoS       = new StringBuilder();
         var setterAoS       = new StringBuilder();
-        var getSetIndex     = 1;
         
         if (components.Length > 0) componentArgs.Append("<");
         foreach (var component in components) {
@@ -49,17 +47,17 @@ public sealed partial class Gen
                 chunkVariables.AppendLine("");
             }
             chunkVariables.Append(vectorType?.Layout == VectorLayout.AoSoA
-                ? $"                var {vectorType.Name}Span = chunk.Chunk{chungIndex++}.GetLanesSoA();"
-                : $"                var {component.Symbol.Name}Span = chunk.Chunk{chungIndex++}.GetComponentSpan();");
+                ? $"                var {vectorType.Name}Span = chunk.Chunk{chunkIndex}.GetLanesSoA();"
+                : $"                var {component.Symbol.Name}Span = chunk.Chunk{chunkIndex}.GetComponentSpan();");
 
             // --- getterAoS / setterAoS
             if (vectorType?.Layout == VectorLayout.AoSoA) {
-                getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{getSetIndex}.GetAoSoA(n);");
+                getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{chunkIndex}.GetAoSoA(n);");
                 if (component.Symbol.RefKind == RefKind.Ref) {
-                    setterAoS.AppendLine($"                    chunk.Chunk{getSetIndex}.SetAoSoA(n, {vectorType.Name}AoS);");
+                    setterAoS.AppendLine($"                    chunk.Chunk{chunkIndex}.SetAoSoA(n, {vectorType.Name}AoS);");
                 }
             }
-            getSetIndex++;
+            chunkIndex++;
         }
         if (components.Length > 0) componentArgs.Append(">");
         
