@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -291,31 +292,7 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier)
     {
-        if (useIdentifier && expressionSyntax is MemberAccessExpressionSyntax memberAccess) {
-            var memberExpression = memberAccess.Expression;
-            if (memberExpression is IdentifierNameSyntax identifierName) {
-                temp = identifierName.Identifier.Text;
-                return Vectorizer.GetShapeFromExpression(query, expressionSyntax);
-            }
-        }
-        temp = query.AddTemp();
-        var tempLanes = new StringBuilder[query.laneCount];
-        query.computeTemp.AppendLine($"                    //   {comment}");
-        for (int n = 0; n < tempLanes.Length; n++) {
-            tempLanes[n] = new StringBuilder();
-            tempLanes[n].Append($"                    Vector256<float> {temp}_{n} = ");
-        }
-        var shape = Compute(tempLanes, query, expressionSyntax); 
-        if (!shape) {
-            return ComputeResult.Invalid;
-        }
-        tempLanes.Append(";");
-        for (int n = 0; n < tempLanes.Length; n++) {
-            query.computeTemp.Append(tempLanes[n]);
-            query.computeTemp.AppendLine();
-        }
-        query.computeTemp.AppendLine();
-        return shape;
+        throw new Exception("Unexpected call. WGSL requires no temp variables for flattening");
     } 
 
     public ComputeResult Method_Distance(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method)
