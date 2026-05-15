@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 namespace Friflo;
 
-public partial class Gen
+public sealed partial class Gen
 {
     private static string EmitKernelSource(Query query)
     {

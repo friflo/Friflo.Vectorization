@@ -8,7 +8,7 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public partial class AvxVectorizer
+public sealed partial class AvxVectorizer
 {
     public void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {

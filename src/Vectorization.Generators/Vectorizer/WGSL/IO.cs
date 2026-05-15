@@ -8,7 +8,7 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
-public partial class WgslVectorizer
+public sealed partial class WgslVectorizer
 {
     public void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {

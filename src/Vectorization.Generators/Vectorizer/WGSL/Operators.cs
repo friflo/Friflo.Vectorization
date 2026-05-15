@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 
-public partial class WgslVectorizer
+public sealed partial class WgslVectorizer
 {
     public StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {

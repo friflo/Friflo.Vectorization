@@ -17,7 +17,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Friflo;
 
 [Generator]
-public partial class Gen : IIncrementalGenerator
+public sealed partial class Gen : IIncrementalGenerator
 {
     // --- IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)

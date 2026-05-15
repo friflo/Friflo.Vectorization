@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
-public class Diagnostics
+public sealed class Diagnostics
 {
     public required IMethodSymbol                   BlueprintMethod { get; init; }
     public readonly List<DiagnosticData>            list = new();

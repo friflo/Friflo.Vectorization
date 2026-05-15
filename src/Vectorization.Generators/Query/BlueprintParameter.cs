@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
-public class BlueprintParameter
+public sealed class BlueprintParameter
 {
     public required IParameterSymbol    Symbol      { get; init; }
     public required VectorType?         VectorType  { get; init; }

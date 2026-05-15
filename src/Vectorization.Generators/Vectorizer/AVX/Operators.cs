@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
-public partial class AvxVectorizer
+public sealed partial class AvxVectorizer
 {
     public StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {

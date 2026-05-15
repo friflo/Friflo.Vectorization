@@ -30,7 +30,7 @@ public enum Strategy
     Horizontal   = 3  // [Layout: Horizontal]    - lane-native speed + Deinterleave penalty
 }
 
-public class Query
+public sealed class Query
 {
     public required IMethodSymbol                   BlueprintMethod { get; init; }
     public required string?                         CustomMethod    { get; init; }

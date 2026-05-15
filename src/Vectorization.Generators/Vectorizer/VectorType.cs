@@ -22,7 +22,7 @@ public enum VectorLayout : byte
     AoSoA = 1
 }
 
-public class VectorType
+public sealed class VectorType
 {
     public required string           Name               { get; init; }
     public required IParameterSymbol Parameter          { get; init; }
