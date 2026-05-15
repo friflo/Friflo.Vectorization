@@ -307,28 +307,17 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
-        query.requireDeinterleave = true;
+        lanes.Append("length(");
+        
         var expression = invocation.Expression;
         if (invocation.Expression is MemberAccessExpressionSyntax memberAccess) {
             expression = memberAccess.Expression;
         }
-        if (!Compute_AddTemp(query, expression, "Length this", out var arg0, true)) {
+        if (!Compute(lanes, query, expression)) { 
             return ComputeResult.Invalid;
         }
-        switch (query.vectorDimension)
-        {
-            case 2:
-                lanes[0].Append($"AvxVector2.Length({arg0}_0, {arg0}_1)");
-                lanes[1].Append($"AvxVector2.Length({arg0}_2, {arg0}_3)");
-                return DataShape.Scalar;
-            case 3:
-                lanes[0].Append($"AvxVector3.Length({arg0}_0, {arg0}_1, {arg0}_2)");
-                return DataShape.Scalar;
-            case 4:
-                lanes[0].Append($"AvxVector4.Length({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3)");
-                return DataShape.Scalar;
-        }
-        return ComputeResult.Invalid;
+        lanes.Append(")");
+        return DataShape.Scalar;
     }
     
     public ComputeResult Compute_AddTemp(Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier)
