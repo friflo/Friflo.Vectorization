@@ -19,16 +19,16 @@ public sealed partial class WgslVectorizer
         var argList = invocation.ArgumentList;
         switch (methodReduced)
         {
-            case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.SinMathF");
-            case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.CosMathF");
-            case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.TanMathF");
-            case "System.MathF.Asin(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AsinMathF");
-            case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AcosMathF");
-            case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AtanMathF");
-            case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, argList, "MathUtils.Atan2MathF");
-            case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AsinhMathF");
-            case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AcoshMathF");
-            case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AtanhMathF");
+            case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, argList, "sin");
+            case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, argList, "cos");
+            case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, argList, "tan");
+            case "System.MathF.Asin(float)":        return Method_Scalar    (lanes, query, argList, "asin");
+            case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, argList, "acos");
+            case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, argList, "atan");
+            case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, argList, "atan2");
+            case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "asinh");
+            case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "acosh");
+            case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "atanh");
             
             case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
@@ -39,18 +39,18 @@ public sealed partial class WgslVectorizer
             case "System.MathF.Floor(float)":       return Method_Floor     (lanes, query, argList);
             case "System.MathF.Ceiling(float)":     return Method_Ceiling   (lanes, query, argList);
             
-            case "System.MathF.Exp(float)":         return Method_Scalar    (lanes, query, argList, "Vector256.Exp");
-            case "System.MathF.Log(float)":         return Method_Scalar    (lanes, query, argList, "Vector256.Log");
-            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.Log10MathF");
-            case "System.MathF.Log2(float)":        return Method_Scalar    (lanes, query, argList, "Vector256.Log2");
-            case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, argList, "MathUtils.PowMathF");
-            case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, argList, "Avx.Sqrt");
+            case "System.MathF.Exp(float)":         return Method_Scalar    (lanes, query, argList, "exp");
+            case "System.MathF.Log(float)":         return Method_Scalar    (lanes, query, argList, "log");     // in WGSL: log = ln
+            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, argList, "log10");   // TODO check log10 may be a helper. If not use: log(x)/2.3025
+            case "System.MathF.Log2(float)":        return Method_Scalar    (lanes, query, argList, "log2");
+            case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, argList, "pow");
+            case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, argList, "sqrt");
             
-            case "System.MathF.Min(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "Min");
-            case "Vector.Min(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "Min");
+            case "System.MathF.Min(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "min");
+            case "Vector.Min(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "min");
             
-            case "System.MathF.Max(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "Max");
-            case "Vector.Max(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "Max");
+            case "System.MathF.Max(float, float)":          return Method_MinMax    (lanes, query, argList, DataShape.Scalar, "max");
+            case "Vector.Max(Vector, Vector)":              return Method_MinMax    (lanes, query, argList, DataShape.Vector, "max");
             
             case "System.Math.Clamp(float, float, float)":  return Method_Clamp     (lanes, query, argList, DataShape.Scalar);
             case "Vector.Clamp(Vector, Vector, Vector)":    return Method_Clamp     (lanes, query, argList, DataShape.Vector);
@@ -133,7 +133,7 @@ public sealed partial class WgslVectorizer
     {
         var args = argList.Arguments;
         for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"Avx.{op}(");
+            lanes[n].Append($"{op}(");
         }
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
@@ -149,39 +149,35 @@ public sealed partial class WgslVectorizer
     public ComputeResult Method_Clamp(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
         var args = argList.Arguments;
-        lanes.Append("Avx.Min(");
-        if (!Compute(lanes, query, args[2].Expression)) {
-            return ComputeResult.Invalid;
-        }
-        lanes.Append(", Avx.Max(");
-        if (!Compute(lanes, query, args[1].Expression)) {
+        lanes.Append("clamp(");
+        if (!Compute(lanes, query, args[0].Expression)) { // value
             return ComputeResult.Invalid;
         }
         lanes.Append(", ");
-        if (!Compute(lanes, query, args[0].Expression)) {
+        if (!Compute(lanes, query, args[1].Expression)) { // low
             return ComputeResult.Invalid;
         }
-        lanes.Append("))");
+        lanes.Append(", ");
+        if (!Compute(lanes, query, args[2].Expression)) { // high
+            return ComputeResult.Invalid;
+        }
+        lanes.Append(")");
         return shape;
     }
     
     public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
     {
         var args = argumentSyntax.Arguments;
-        lanes.Append("Fma.MultiplyAdd(");
-        if (!Compute(lanes, query, args[2].Expression)) {
-            return ComputeResult.Invalid;
-        }
-        lanes.Append(", Avx.Subtract(");
-        if (!Compute(lanes, query, args[1].Expression)) {
+        lanes.Append("mix(");   // WGSL: mix(a, b, t)
+        if (!Compute(lanes, query, args[0].Expression)) {   // start value: a
             return ComputeResult.Invalid;
         }
         lanes.Append(", ");
-        if (!Compute(lanes, query, args[0].Expression)) {
+        if (!Compute(lanes, query, args[1].Expression)) {   // end value: b
             return ComputeResult.Invalid;
         }
-        lanes.Append("), ");
-        if (!Compute(lanes, query, args[0].Expression)) {
+        lanes.Append(", ");
+        if (!Compute(lanes, query, args[2].Expression)) {   // interpolation factor: t
             return ComputeResult.Invalid;
         }
         lanes.Append(")");
@@ -190,23 +186,18 @@ public sealed partial class WgslVectorizer
 
     public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
-        var name = query.AddConst();
-        query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
-        query.locals.AppendLine();
-        lanes.Append("Avx.And(");
+        lanes.Append("abs(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
-        for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($", {name})");
-        }
+        lanes.Append(")");
         return shape;
     }
     
     public ComputeResult Method_Truncate(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
-        lanes.Append("Vector256.Truncate(");    // alternative: Avx.RoundToNearestInteger(v, 0x03 | 0x08);
+        lanes.Append("trunc(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
@@ -217,7 +208,7 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Method_Floor(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        lanes.Append("Vector256.Floor(");       // alternative: Avx.RoundToNearestInteger(value, 0x01 | 0x08);
+        lanes.Append("floor(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
@@ -228,7 +219,7 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Method_Ceiling(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        lanes.Append("Vector256.Ceiling(");     // alternative:  Avx.RoundToNearestInteger(value, 0x02 | 0x08);
+        lanes.Append("ceil(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
@@ -239,7 +230,7 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Method_Round(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
-        lanes.Append("Vector256.Round(");       // alternative:  Avx.RoundToNearestInteger(value, 0x00 | 0x08);
+        lanes.Append("round(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
