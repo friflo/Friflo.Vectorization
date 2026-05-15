@@ -241,6 +241,9 @@ $$""""
                 case "distanceSquared4":
                     sb.AppendLine("fn distanceSquared4(a: vec4f, b: vec4f) -> f32 { let d = a - b; return dot(d, d); }");
                     break;
+                case "cross2d":
+                    sb.AppendLine("fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }");
+                    break;
             }
         }
         return sb;

@@ -260,62 +260,49 @@ public sealed partial class WgslVectorizer
     
     public ComputeResult Method_Cross(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        query.requireDeinterleave = true;
         var args = argList.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, "Cross arg[0]", out var a, false)) {
-            return ComputeResult.Invalid;
+        var dim = query.vectorDimension;
+
+        switch (dim) {
+            case 2:
+                query.wgslHelperMethods.Add("cross2d");  // 2D:  result = a.x * b.y - a.y * b.x (Scalar)
+                lanes.Append("cross2d(");
+                if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+                lanes.Append(", ");
+                if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
+                lanes.Append(")");
+                return DataShape.Scalar;
+            case 3:
+                lanes.Append("cross("); // standard WGSL cross(vec3f, vec3f)
+                if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+                lanes.Append(", ");
+                if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
+                lanes.Append(")");
+                return DataShape.Vector;
+            case 4:
+                lanes.Append("vec4f(cross("); // treat Vector4 Cross as Vector3 cross (ignore W)
+                lanes.Append("vec3f(");
+                if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+                lanes.Append("), vec3f(");
+                if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
+                lanes.Append(")), 0.0)");
+                return DataShape.Vector;
+            default:
+                query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, argList, $"Cross for dimension {dim}");
+                return ComputeResult.Invalid;
         }
-        if (!Compute_AddTemp(query, args[1].Expression, "Cross arg[1]", out var b, false)) {
-            return ComputeResult.Invalid;
-        }
-        if (query.vectorDimension == 2) {
-            lanes[0].Append($"Fma.MultiplySubtract({a}_0, {b}_1, Avx.Multiply({a}_1, {b}_0))");
-            lanes[1].Append($"Fma.MultiplySubtract({a}_2, {b}_3, Avx.Multiply({a}_3, {b}_2))");
-        }
-        if (query.vectorDimension == 3 || query.vectorDimension == 4) {
-            lanes[0].Append($"Fma.MultiplySubtract({a}_1, {b}_2, Avx.Multiply({a}_2, {b}_1))");
-            lanes[1].Append($"Fma.MultiplySubtract({a}_2, {b}_0, Avx.Multiply({a}_0, {b}_2))");
-            lanes[2].Append($"Fma.MultiplySubtract({a}_0, {b}_1, Avx.Multiply({a}_1, {b}_0))");
-            if (query.vectorDimension == 4) {
-                lanes[3].Append($"Avx.Multiply({a}_3, {b}_3)");
-            }
-        }
-        return DataShape.Vector;
     }
     
     public ComputeResult Method_Normalize(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        query.requireDeinterleave = true;
+        lanes.Append("normalize(");
+        
         var args = argList.Arguments;
-        if (!Compute_AddTemp(query, args[0].Expression, "Normalize arg[0]", out var arg0, true)) {
+        if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
-        var result = query.AddTemp();
-        switch (query.vectorDimension)
-        {
-            case 2:
-                query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1) = AvxVector2.Normalize({arg0}_0, {arg0}_1);");
-                query.computeTemp.AppendLine($"                    var ({result}_2, {result}_3) = AvxVector2.Normalize({arg0}_2, {arg0}_3);");
-                lanes[0].Append($"{result}_0");
-                lanes[1].Append($"{result}_1");
-                lanes[2].Append($"{result}_2");
-                lanes[3].Append($"{result}_3");
-                return DataShape.Vector;
-            case 3:
-                query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2) = AvxVector3.Normalize({arg0}_0, {arg0}_1, {arg0}_2);");
-                lanes[0].Append($"{result}_0");
-                lanes[1].Append($"{result}_1");
-                lanes[2].Append($"{result}_2");
-                return DataShape.Vector;
-            case 4:
-                query.computeTemp.AppendLine($"                    var ({result}_0, {result}_1, {result}_2, {result}_3) = AvxVector4.Normalize({arg0}_0, {arg0}_1, {arg0}_2, {arg0}_3);");
-                lanes[0].Append($"{result}_0");
-                lanes[1].Append($"{result}_1");
-                lanes[2].Append($"{result}_2");
-                lanes[3].Append($"{result}_3");
-                return DataShape.Vector;
-        }
-        return ComputeResult.Invalid;
+        lanes.Append(")");
+        return DataShape.Vector;
     }
     
     public ComputeResult Method_Length(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
