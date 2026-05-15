@@ -4,7 +4,7 @@
 using System.Text;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.Generators;
+namespace Friflo.Vectorization.Generators.AVX;
 
 public static class VectorUtils
 {
@@ -110,12 +110,4 @@ $"""
             stringBuilder.Length = len--;
         }
     }
-    
-    public  static void Append(this StringBuilder[] sb, string text)
-    {
-        for (int n = 0; n < sb.Length; n++) {
-            sb[n].Append(text);
-        }
-    }
-    
 }

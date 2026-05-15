@@ -69,4 +69,11 @@ public static class Vectorizer
             _ => DataShape.None
         };
     }
+    
+    public static void Append(this StringBuilder[] sb, string text)
+    {
+        for (int n = 0; n < sb.Length; n++) {
+            sb[n].Append(text);
+        }
+    }
 }
