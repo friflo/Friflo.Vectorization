@@ -163,8 +163,8 @@ namespace Tests.Generators.Kernel
     }
     
     private static readonly int _Multiply_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         _Multiply_GPU_BufferLayoutKey    = 1234; // TODO calculated unique hash key
-    private const ulong         _Multiply_GPU_UniformLayoutKey   = 5678; // TODO calculated unique hash key
+    private const ulong         _Multiply_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
+    private const ulong         _Multiply_GPU_UniformLayoutKey   = 0xd94656186c098495;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect _Multiply_GPU_CreateEffect(WgpuDevice device)

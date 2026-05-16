@@ -67,6 +67,18 @@ public sealed partial class Gen
         return shadowMethodSource;
     }
     
+    private const ulong HashStart = 14695981039346656037UL;
+    private const ulong HashPrime = 1099511628211UL;
+    
+    public enum BufferBindingType
+    {
+      BindingNotUsed    = 0,
+      Undefined         = 1,
+      Uniform           = 2,
+      Storage           = 3,
+      ReadOnlyStorage   = 4,
+    }
+    
     private static string EmitKernelPrivate(Query query)
     {
         var vectorTypes = query.VectorTypes;
@@ -75,10 +87,13 @@ public sealed partial class Gen
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
         var bindings            = new StringBuilder();
+        var bindingHash         = HashStart;
         int bufferCount = 0;
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
         var wgslFields          = new StringBuilder();
+        var uniformHash         = HashStart;
+        var uniformSize         = 0;
         int uniformCount = 1;
         var setTaskOnOutputs    = new StringBuilder();
         
@@ -102,6 +117,9 @@ public sealed partial class Gen
                 var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
                 bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
                 bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
+                bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= HashPrime;
+                bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= HashPrime;
+                // Note: the data type in a buffer is not relevant for layout. Need to understand why.
                 bufferCount++;
                 continue;
             }
@@ -110,7 +128,18 @@ public sealed partial class Gen
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
             uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
             wgslFields.Append($"\n        {paramName} : f32,");
+            uniformSize += 4;   // TODO use correct increment (field) size for: vec3, Vector4, ...
             uniformCount++;
+        }
+        unchecked {
+            // Simulate a Uniform-Binding on @binding(0) for whole uniform group
+            uniformHash ^= 0;                                   uniformHash *= HashPrime;
+            uniformHash ^= (ulong)BufferBindingType.Uniform;    uniformHash *= HashPrime;
+            // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout
+            // uniformSize + 4 because of 'count' u32 at the beginning
+            var totalBytes  = (uniformSize + 4);
+            var alignedSize = (totalBytes + 15) & ~15;          // round to multiple of 16
+            uniformHash ^= (ulong)alignedSize;                  uniformHash *= HashPrime;
         }
         signature.Length -= 1;
         
@@ -179,8 +208,8 @@ $$""""
     }
     
     private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
-    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 1234; // TODO calculated unique hash key
-    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 5678; // TODO calculated unique hash key
+    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 0x{{bindingHash:x}};
+    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 0x{{uniformHash:x}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
