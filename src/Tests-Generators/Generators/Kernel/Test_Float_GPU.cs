@@ -14,6 +14,11 @@ namespace Tests.Generators.Kernel;
 
 public partial class Test_Float_GPU : GpuTestBase
 {
+    private readonly float[]    scalar1 = new float[128];
+    private readonly float[]    scalar2 = new float[128];
+    private readonly float[]    buffer1 = new float[128];
+    private readonly float[]    buffer2 = new float[128];
+    
     // -----------------------------------------------------------------------------------------------------
     [Kernel] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
@@ -23,27 +28,23 @@ public partial class Test_Float_GPU : GpuTestBase
     [Test]
     public void Test_Kernel_Multiply()
     {
-        var position    = new float[128];
-        var velocity    = new float[128];
-        var position2   = new float[128];
-        var velocity2   = new float[128];
-
         for (int n = 0; n < 128; n++) {
-            position[n] = position2[n] = n;
-            velocity[n] = velocity2[n] = n + 100;
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuPosition   = Device.CreateBuffer(position2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuVelocity   = Device.CreateBuffer(velocity2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
-        MultiplyVector(position,    velocity, false);
-        MultiplyKernel(gpuPosition, gpuVelocity);
+        MultiplyVector(scalar1,    scalar2, false);
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
         
-        Device.Wait(gpuPosition);
+        Device.Wait(gpuBuffer1);
         
-        gpuPosition.Download(gpuPosition, position2);
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(position[n], Is.EqualTo(position2[n]));
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
 }
