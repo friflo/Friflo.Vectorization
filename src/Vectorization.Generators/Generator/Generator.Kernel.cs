@@ -67,8 +67,9 @@ public sealed partial class Gen
         return shadowMethodSource;
     }
     
-    private const ulong HashStart = 14695981039346656037UL;
-    private const ulong HashPrime = 1099511628211UL;
+    private const ulong BindingStartHash    = 14695981039346656037UL;
+    private const ulong UniformStartHash    = 11136453673324647311UL;
+    private const ulong Prime               = 1099511628211UL;
     
     public enum BufferBindingType
     {
@@ -87,12 +88,12 @@ public sealed partial class Gen
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
         var bindings            = new StringBuilder();
-        var bindingHash         = HashStart;
+        var bindingHash         = BindingStartHash;
         int bufferCount = 0;
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
         var wgslFields          = new StringBuilder();
-        var uniformHash         = HashStart;
+        var uniformHash         = UniformStartHash;
         var uniformSize         = 0;
         int uniformCount = 1;
         var setTaskOnOutputs    = new StringBuilder();
@@ -117,8 +118,8 @@ public sealed partial class Gen
                 var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
                 bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
                 bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
-                bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= HashPrime;
-                bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= HashPrime;
+                bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
+                bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
                 // Note: the data type in a buffer is not relevant for layout. Need to understand why.
                 bufferCount++;
                 continue;
@@ -137,9 +138,9 @@ public sealed partial class Gen
         var alignedSize = (totalBytes + 15) & ~15;          // round to multiple of 16
         unchecked {
             // Simulate a Uniform-Binding on @binding(0) for whole uniform group
-            uniformHash ^= 0;                                   uniformHash *= HashPrime;
-            uniformHash ^= (ulong)BufferBindingType.Uniform;    uniformHash *= HashPrime;
-            uniformHash ^= (ulong)alignedSize;                  uniformHash *= HashPrime;
+            uniformHash ^= 0;                                   uniformHash *= Prime;
+            uniformHash ^= (ulong)BufferBindingType.Uniform;    uniformHash *= Prime;
+            uniformHash ^= (ulong)alignedSize;                  uniformHash *= Prime;
         }
         signature.Length -= 1;
         
