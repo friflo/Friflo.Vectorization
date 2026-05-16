@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
@@ -105,5 +106,35 @@ public partial class Test_Float_GPU : GpuTestBase
         }
         MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void UseConstant([Span] ref float position) {
+        position += MathF.PI;
+    }
+    
+    [Test]
+    public void Test_Kernel_UseConstant()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        UseConstantVector(scalar1, false);
+        UseConstantKernel(gpuBuffer1);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+        }
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+    }
+
 
 }

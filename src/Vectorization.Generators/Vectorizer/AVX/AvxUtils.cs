@@ -12,7 +12,7 @@ public static class AvxUtils
     {
         switch (query.vectorDimension) {
             case 1:
-                sb.AppendLine($"  XXX       var {nm}_scalar = Vector256.Create({nm});");
+                sb.AppendLine($"            var {nm}_scalar = Vector256.Create({nm});");
                 return true;
             case 2:
                 if (query.useDeinterleave) {
