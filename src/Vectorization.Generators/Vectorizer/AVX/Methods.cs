@@ -32,6 +32,7 @@ public sealed partial class AvxVectorizer
             
             case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
+            case "System.MathF.Sign(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.SignMathF");
             case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, argList, DataShape.Scalar);
             case "Vector.Round(Vector)":            return Method_Round     (lanes, query, argList, DataShape.Vector);

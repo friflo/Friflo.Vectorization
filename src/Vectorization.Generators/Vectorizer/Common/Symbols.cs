@@ -32,6 +32,11 @@ public static class Vectorizer
             if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
                 return methodSymbol.ToDisplayString();
             }
+            // fallback e.g. in case of System.MathF.Sign
+            //      symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure
+            if (symbolInfo.CandidateSymbols.Length > 0 && symbolInfo.CandidateSymbols[0] is IMethodSymbol candidateMethod) {
+                return candidateMethod.ToDisplayString();  // return System.MathF.Sign(float)
+            }
         }
         return null;
     }
@@ -59,7 +64,9 @@ public static class Vectorizer
     
     private static DataShape GetSystemShape(ITypeSymbol type)
     {
-        if (type.SpecialType == SpecialType.System_Single) {
+        if (type.SpecialType == SpecialType.System_Single ||
+            type.SpecialType == SpecialType.System_Int32)
+        {
             return DataShape.Scalar;
         }
         string name = type.ToDisplayString();

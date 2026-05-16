@@ -35,7 +35,6 @@ public static class Verify_Kernel_Float
         var code =
 """
 using System.Numerics;
-using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 
 namespace VerifyVectorize;
@@ -57,7 +56,6 @@ public partial class MyExample
         var code =
 """
 using System.Numerics;
-using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 
 namespace VerifyVectorize;
@@ -68,6 +66,29 @@ public partial class MyExample
     void MoveExample([Span] ref float position, float deltaTime) {
         var local = deltaTime;
         position = local;
+    }
+}
+""";
+        await Verify(code);
+    }
+    
+    [Test]
+    public static async Task  Verify_Kernel_Sign()
+    {
+        var code =
+"""
+using System;
+using System.Numerics;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+public partial class Kernel_Sign_Example
+{
+    [Kernel]  [OmitHash]
+    void Kernel_Sign([Span] ref float position, float value) {
+        var sign = MathF.Sign(value);
+        position = sign;
     }
 }
 """;

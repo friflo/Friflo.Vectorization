@@ -205,6 +205,7 @@ public partial class Test_Float_GPU : GpuTestBase
     private static void Kernel_Misc([Span]ref float position, [Span] float velocity, float value)
     {
         var abs     = MathF.Abs(velocity);
+        var sign    = MathF.Sign(velocity);
         var floor   = MathF.Floor(velocity);
         var ceiling = MathF.Ceiling(velocity);
         var log     = MathF.Log(value);
@@ -214,7 +215,7 @@ public partial class Test_Float_GPU : GpuTestBase
         var pow     = MathF.Pow(abs, velocity);
         var round   = MathF.Round(velocity);
         var sqrt    = MathF.Sqrt(abs);
-        position = abs + floor + ceiling + log + log2 + log10 + exp + pow + round + sqrt;
+        position = abs + sign + floor + ceiling + log + log2 + log10 + exp + pow + round + sqrt;
     }
     
     [Test]

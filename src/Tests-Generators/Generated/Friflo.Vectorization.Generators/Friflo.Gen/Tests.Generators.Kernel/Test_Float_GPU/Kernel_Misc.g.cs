@@ -95,6 +95,12 @@ namespace Tests.Generators.Kernel
                     var abs_2 = Avx.And(velocity_2, const0);
                     var abs_3 = Avx.And(velocity_3, const0);
 
+                    // var sign = MathF.Sign(velocity);
+                    var sign_0 = MathUtils.SignMathF(velocity_0);
+                    var sign_1 = MathUtils.SignMathF(velocity_1);
+                    var sign_2 = MathUtils.SignMathF(velocity_2);
+                    var sign_3 = MathUtils.SignMathF(velocity_3);
+
                     // var floor = MathF.Floor(velocity);
                     var floor_0 = Vector256.Floor(velocity_0);
                     var floor_1 = Vector256.Floor(velocity_1);
@@ -149,11 +155,11 @@ namespace Tests.Generators.Kernel
                     var sqrt_2 = Avx.Sqrt(abs_2);
                     var sqrt_3 = Avx.Sqrt(abs_3);
 
-                    // position = abs + floor + ceiling + log + log2 + log10 + exp + pow + round + sqrt;
-                    position_0 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_0, floor_0), ceiling_0), log_0), log2_0), log10_0), exp_0), pow_0), round_0), sqrt_0);
-                    position_1 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_1, floor_1), ceiling_1), log_1), log2_1), log10_1), exp_1), pow_1), round_1), sqrt_1);
-                    position_2 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_2, floor_2), ceiling_2), log_2), log2_2), log10_2), exp_2), pow_2), round_2), sqrt_2);
-                    position_3 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_3, floor_3), ceiling_3), log_3), log2_3), log10_3), exp_3), pow_3), round_3), sqrt_3);
+                    // position = abs + sign + floor + ceiling + log + log2 + log10 + exp + pow + round + sqrt;
+                    position_0 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_0, sign_0), floor_0), ceiling_0), log_0), log2_0), log10_0), exp_0), pow_0), round_0), sqrt_0);
+                    position_1 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_1, sign_1), floor_1), ceiling_1), log_1), log2_1), log10_1), exp_1), pow_1), round_1), sqrt_1);
+                    position_2 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_2, sign_2), floor_2), ceiling_2), log_2), log2_2), log10_2), exp_2), pow_2), round_2), sqrt_2);
+                    position_3 = Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(Avx.Add(abs_3, sign_3), floor_3), ceiling_3), log_3), log2_3), log10_3), exp_3), pow_3), round_3), sqrt_3);
 
                     // --- 3. Store
                     Avx.Store(position_ptr +  0, position_0);
@@ -286,6 +292,7 @@ namespace Tests.Generators.Kernel
         var value = uniforms.value;
 
         var abs = abs(velocity);
+        var sign = sign(velocity);
         var floor = floor(velocity);
         var ceiling = ceil(velocity);
         var log = log(value);
@@ -295,7 +302,7 @@ namespace Tests.Generators.Kernel
         var pow = pow(abs, velocity);
         var round = round(velocity);
         var sqrt = sqrt(abs);
-        position = (((((((((abs + floor) + ceiling) + log) + log2) + log10) + exp) + pow) + round) + sqrt);
+        position = ((((((((((abs + sign) + floor) + ceiling) + log) + log2) + log10) + exp) + pow) + round) + sqrt);
 
         position_arr[index] = position;
     }
