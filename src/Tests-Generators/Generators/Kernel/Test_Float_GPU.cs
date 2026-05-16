@@ -137,7 +137,7 @@ public partial class Test_Float_GPU : GpuTestBase
     }
 
     // ----------------------------------------------
-    /* [Kernel] [OmitHash]
+    [Kernel] [OmitHash]
     private static void InverseSqrt([Span] ref float position) {
         position = 5 / MathF.Sqrt(position);
     }
@@ -160,10 +160,10 @@ public partial class Test_Float_GPU : GpuTestBase
         gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
         }
         MultiplyKernel(gpuBuffer1, gpuBuffer2);
-    } */
+    }
 
 
 }
