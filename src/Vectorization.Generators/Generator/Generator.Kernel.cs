@@ -109,7 +109,7 @@ public sealed partial class Gen
             signature.Append($"\n        {type} {paramName},");
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
             uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
-            wgslFields.Append($"\n        {paramName} : f32;");
+            wgslFields.Append($"\n        {paramName} : f32,");
             uniformCount++;
         }
         signature.Length -= 1;
@@ -200,7 +200,7 @@ $$""""
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """{{wgslHelperMethods}}
     struct {{methodName}}_Uniforms {
-        count   : u32;{{wgslFields}}
+        count   : u32,{{wgslFields}}
     };
 {{bindings}}
     @group(1) @binding(0) var<uniform>              uniforms:   	{{methodName}}_Uniforms;

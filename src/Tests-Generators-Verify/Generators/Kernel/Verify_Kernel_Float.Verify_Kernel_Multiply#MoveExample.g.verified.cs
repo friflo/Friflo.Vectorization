@@ -194,8 +194,8 @@ namespace VerifyVectorize
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>
     """
     struct MoveExample_Uniforms {
-        count   : u32;
-        deltaTime : f32;
+        count   : u32,
+        deltaTime : f32,
     };
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;

@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToConstant.Global
-namespace Tests.GPU;
+namespace Tests;
 
 public enum TestBackend {
     Scalar,
