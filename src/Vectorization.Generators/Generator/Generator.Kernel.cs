@@ -99,8 +99,8 @@ public sealed partial class Gen
                 bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
                 var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
                 var storageWgsl   = isOutput ? "read_write"       : "read      ";
-                var binding = $"@group(0) @binding({bufferCount}) var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
-                bindings.Append($"    {binding}\n");
+                var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
+                bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
                 bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
                 bufferCount++;
                 continue;
@@ -185,15 +185,17 @@ $$""""
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
     {
+        // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[{{bufferCount}}];{{bufferLayoutEntries}}
             bufferLayout = device.CreateBindGroupLayout(buffers, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
         }
+        // @group(1)
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
+            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);          // var<uniform>              uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);

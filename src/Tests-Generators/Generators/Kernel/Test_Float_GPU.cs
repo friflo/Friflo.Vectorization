@@ -18,7 +18,7 @@ public partial class Test_Float_GPU : GpuTestBase
     [Kernel] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
         position *= velocity;
-    } 
+    }
         
     [Test]
     public void Test_Kernel_Multiply()
