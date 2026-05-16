@@ -133,17 +133,17 @@ $$""""
 
         // Dependencies from inputs (out not Output!){{dependencies}}
 
-        // Recording (task provides Encoder)
+        // Recording - task provides Encoder
         var encoder = task.GetEncoder("{{methodName}}"u8);
         using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
         {
-            var effect = device.GetEffect({{methodName_GPU}}_EffectSlot); // Each device has its own GpuEffect[] array
+            var effect = device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = {{methodName_GPU}}_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
-            // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
+            // Creation of buffer bind group is expensive. Try get from cache with two entries.
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
@@ -156,20 +156,26 @@ $$""""
                 count = buffers.count,{{uniformAssignments}}
             };
             var entry = task.AsUniformEntry(0, uniforms);
-            // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
+            // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
-            pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.End();
         }
         // connect task to output{{setTaskOnOutputs}}
 
-        task.Finish(encoder, "{{methodName}}"u8); // extract CommandBuffer from Encoder
-        device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
+        task.Finish(encoder, "{{methodName}}"u8);
+        device.Enqueue(task); // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
         return null;
+    }
+    
+    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
+    private struct {{methodName_GPU}}_Uniforms
+    {
+        [FieldOffset(0)]    public int      count;{{uniformFields}}
     }
     
     private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -196,31 +202,24 @@ $$""""
         return device.CreateEffect({{methodName_GPU}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
-    // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """{{wgslHelperMethods}}
     struct {{methodName}}_Uniforms {
         count   : u32,{{wgslFields}}
     };
+    
 {{bindings}}
-    @group(1) @binding(0) var<uniform>              uniforms:   	{{methodName}}_Uniforms;
+    @group(1) @binding(0) var<uniform>              uniforms: {{methodName}}_Uniforms;
 
     @compute @workgroup_size(64)
-    fn {{methodName}}(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    fn {{methodName}}(@builtin(global_invocation_id) global_id: vec3<u32>)
+    {
         let index = global_id.x;
         if (index >= uniforms.count) {
             return;
         }
-{{query.wgslBody}}
-    }
+{{query.wgslBody}}    }
     """u8;
-        
-    // struct for uniforms
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
-    private struct {{methodName_GPU}}_Uniforms
-    {
-        [FieldOffset(0)]    public int      count;{{uniformFields}}
-    }
 
 """";
         return shadowMethodSource;

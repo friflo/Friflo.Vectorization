@@ -38,8 +38,8 @@ public sealed partial class WgslVectorizer : IVectorizer
                     if (!EmitCompute(query, null!, statement)) {
                         return false;
                     }
-                    var statementText = Regex.Replace(statement.ToString(), @"\s+", " ").Trim();
-                    compute.AppendLine($"        // {statementText}");
+                    // var statementText = Regex.Replace(statement.ToString(), @"\s+", " ").Trim();
+                    // compute.AppendLine($"        // {statementText}");
                     compute.Append(query.computeTemp);
                     query.computeTemp.Clear();
                     var lanes = query.lanes;
@@ -98,16 +98,13 @@ public sealed partial class WgslVectorizer : IVectorizer
     public StringBuilder EmitBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
-        source.AppendLine("        // --- 1. Load");
         foreach (var vectorType in query.VectorTypes) {
             EmitLoadVector(source, query, vectorType, 0);
         }
         source.AppendLine();
         
-        source.AppendLine("        // --- 2. Compute");
         source.Append(compute);
         
-        source.AppendLine("        // --- 3. Store");
         if (body == null) {
             return source;
         }

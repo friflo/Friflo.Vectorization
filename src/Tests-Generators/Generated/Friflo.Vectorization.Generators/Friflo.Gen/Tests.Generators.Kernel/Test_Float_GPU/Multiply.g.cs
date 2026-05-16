@@ -114,17 +114,17 @@ namespace Tests.Generators.Kernel
         // Dependencies from inputs (out not Output!)
         if (velocity.LastWritingTask != null) task.AddDependency(velocity);
 
-        // Recording (task provides Encoder)
+        // Recording - task provides Encoder
         var encoder = task.GetEncoder("Multiply"u8);
         using (var pass = encoder.BeginComputePass("Multiply"u8))
         {
-            var effect = device.GetEffect(_Multiply_GPU_EffectSlot); // Each device has its own GpuEffect[] array
+            var effect = device.GetEffect(_Multiply_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = _Multiply_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
-            // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
+            // Creation of buffer bind group is expensive. Try get from cache with two entries.
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
@@ -139,21 +139,27 @@ namespace Tests.Generators.Kernel
                 count = buffers.count,
             };
             var entry = task.AsUniformEntry(0, uniforms);
-            // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
+            // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Multiply_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
-            pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.End();
         }
         // connect task to output
         ((WgpuBuffer<float>)position).SetLastWritingTask(task);
 
-        task.Finish(encoder, "Multiply"u8); // extract CommandBuffer from Encoder
-        device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
+        task.Finish(encoder, "Multiply"u8);
+        device.Enqueue(task); // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
         return null;
+    }
+    
+    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
+    private struct _Multiply_GPU_Uniforms
+    {
+        [FieldOffset(0)]    public int      count;
     }
     
     private static readonly int _Multiply_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -182,43 +188,32 @@ namespace Tests.Generators.Kernel
         return device.CreateEffect(_Multiply_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
-    // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>
     """
     struct Multiply_Uniforms {
         count   : u32,
     };
+    
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;
 
-    @group(1) @binding(0) var<uniform>              uniforms:   	Multiply_Uniforms;
+    @group(1) @binding(0) var<uniform>              uniforms: Multiply_Uniforms;
 
     @compute @workgroup_size(64)
-    fn Multiply(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    fn Multiply(@builtin(global_invocation_id) global_id: vec3<u32>)
+    {
         let index = global_id.x;
         if (index >= uniforms.count) {
             return;
         }
-        // --- 1. Load
         var position = position_arr[index];
         var velocity = velocity_arr[index];
 
-        // --- 2. Compute
-        // position *= velocity;
         position *= velocity;
 
-        // --- 3. Store
         position_arr[index] = position;
-
     }
     """u8;
-        
-    // struct for uniforms
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
-    private struct _Multiply_GPU_Uniforms
-    {
-        [FieldOffset(0)]    public int      count;
-    }
 
     #endregion
     }
