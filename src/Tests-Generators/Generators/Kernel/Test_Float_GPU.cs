@@ -206,11 +206,14 @@ public partial class Test_Float_GPU : GpuTestBase
         var abs     = MathF.Abs(velocity);
         var floor   = MathF.Floor(velocity);
         var ceiling = MathF.Ceiling(velocity);
+        var log     = MathF.Log(value);
+        var log2    = MathF.Log2(value);
         var log10   = MathF.Log10(abs);
+        var exp     = MathF.Exp(velocity);
         var pow     = MathF.Pow(abs, velocity);
         var round   = MathF.Round(velocity);
         var sqrt    = MathF.Sqrt(abs);
-        position = abs + floor + ceiling + log10 + pow + round + sqrt;
+        position = abs + floor + ceiling + log + log2 + log10 + exp + pow + round + sqrt;
     }
     
     [Test]
@@ -231,7 +234,7 @@ public partial class Test_Float_GPU : GpuTestBase
         gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-2f));
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }
     }
     
