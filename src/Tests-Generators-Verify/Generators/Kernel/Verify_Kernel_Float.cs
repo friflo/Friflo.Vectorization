@@ -50,5 +50,28 @@ public partial class MyExample
 """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Kernel_Local_Var()
+    {
+        var code =
+"""
+using System.Numerics;
+using Friflo.Engine.ECS;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+public partial class MyExample
+{
+    [Kernel]  [OmitHash]
+    void MoveExample([Span] ref float position, float deltaTime) {
+        var local = deltaTime;
+        position = local;
+    }
+}
+""";
+        await Verify(code);
+    }
 
 }

@@ -162,8 +162,47 @@ public partial class Test_Float_GPU : GpuTestBase
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
         }
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Kernel_Trigonometry([Span]ref float position, [Span] float velocity, float value)
+    {
+        var fraction= velocity - MathF.Truncate(velocity);
+        var gtOne   = value + MathF.Abs(velocity);
+        var sin     = MathF.Sin(velocity);
+        var cos     = MathF.Cos(velocity);
+        var tan     = MathF.Tan(velocity);
+        var asin    = MathF.Asin(fraction);
+        var acos    = MathF.Acos(fraction);
+        var atan    = MathF.Atan(velocity);
+        var atan2   = MathF.Atan2(velocity, value);
+        var asinh   = MathF.Asinh(velocity);
+        var acosh   = MathF.Acosh(gtOne);
+        var atanh   = MathF.Atanh(fraction);
+        position += sin + cos + tan + asin + acos + atan + atan2 + asinh + acosh + atanh;
+    }
+    
+    // [Test]
+    public void Test_Kernel_Trigonometry()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
+        Kernel_TrigonometryVector(scalar1, scalar2, 1.1f, false);
+        Kernel_TrigonometryKernel(scalar1, scalar2, 1.1f);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
+        }
+    }
 
 }
