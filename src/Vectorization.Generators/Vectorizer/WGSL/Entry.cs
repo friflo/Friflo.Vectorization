@@ -43,7 +43,7 @@ public sealed partial class WgslVectorizer : IVectorizer
                     query.computeTemp.Clear();
                     var lanes = query.lanes;
                     for (int n = 0; n < lanes.Length; n++) {
-                        compute.AppendLine($"        {lanes[n]}");
+                        compute.Append($"        {lanes[n]}");
                     }
                     compute.AppendLine();
                 }
@@ -103,6 +103,7 @@ public sealed partial class WgslVectorizer : IVectorizer
         source.AppendLine();
         
         source.Append(compute);
+        source.AppendLine();
         
         if (body == null) {
             return source;

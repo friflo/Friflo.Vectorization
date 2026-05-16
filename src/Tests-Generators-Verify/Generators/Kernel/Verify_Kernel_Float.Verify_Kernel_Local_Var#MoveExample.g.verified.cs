@@ -211,7 +211,6 @@ namespace VerifyVectorize
         var deltaTime = uniforms.deltaTime;
 
         var local = deltaTime;
-
         position = local;
 
         position_arr[index] = position;

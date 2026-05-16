@@ -296,29 +296,17 @@ namespace Tests.Generators.Kernel
         var value = uniforms.value;
 
         var fraction = (velocity - trunc(velocity));
-
         var gtOne = (value + abs(velocity));
-
         var sin = sin(velocity);
-
         var cos = cos(velocity);
-
         var tan = tan(velocity);
-
         var asin = asin(fraction);
-
         var acos = acos(fraction);
-
         var atan = atan(velocity);
-
         var atan2 = atan2(velocity, value);
-
         var asinh = asinh(velocity);
-
         var acosh = acosh(gtOne);
-
         var atanh = atanh(fraction);
-
         position += (((((((((sin + cos) + tan) + asin) + acos) + atan) + atan2) + asinh) + acosh) + atanh);
 
         position_arr[index] = position;
