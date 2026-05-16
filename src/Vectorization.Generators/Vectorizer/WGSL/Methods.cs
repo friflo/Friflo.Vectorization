@@ -31,8 +31,9 @@ public sealed partial class WgslVectorizer
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "acosh");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "atanh");
             
-            case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
-            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
+            case "Vector.Abs(Vector)":              return Method_AbsSign   (lanes, query, argList, DataShape.Vector, "abs");
+            case "System.MathF.Abs(float)":         return Method_AbsSign   (lanes, query, argList, DataShape.Scalar, "abs");
+            case "System.MathF.Sign(float)":        return Method_AbsSign   (lanes, query, argList, DataShape.Scalar, "sign");
             case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, argList, DataShape.Scalar);
             case "Vector.Round(Vector)":            return Method_Round     (lanes, query, argList, DataShape.Vector);
@@ -154,9 +155,9 @@ public sealed partial class WgslVectorizer
         return DataShape.Vector;
     }
 
-    public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
+    public ComputeResult Method_AbsSign(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string method)
     {
-        lanes.Append("abs(");
+        lanes.Append($"{method}(");
         var args = argList.Arguments;
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
