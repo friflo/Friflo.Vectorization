@@ -19,7 +19,7 @@ public partial class Test_Float_GPU : GpuTestBase
     private readonly float[]    buffer1 = new float[128];
     private readonly float[]    buffer2 = new float[128];
     
-    // -----------------------------------------------------------------------------------------------------
+    // ----------------------------------------------
     [Kernel] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
         position *= velocity;
@@ -47,4 +47,63 @@ public partial class Test_Float_GPU : GpuTestBase
         }
         MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Assign([Span] ref float position, [Span] float velocity) {
+        position = velocity;
+    }
+    
+    [Test]
+    public void Test_Kernel_Assign()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        AssignVector(scalar1,    scalar2, false);
+        AssignKernel(gpuBuffer1, gpuBuffer2);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+        }
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Move([Span] ref float position, [Span] float velocity, float deltaTime) {
+        position += velocity * deltaTime;
+    }
+    
+    // [Test]
+    public void Test_Kernel_Fma()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        MoveVector(scalar1, scalar2, 42, false);
+        MoveKernel(gpuBuffer1, gpuBuffer2, 42);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+        }
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+    }
+
 }

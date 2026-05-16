@@ -166,7 +166,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     {
         var slots = effectSlots;
         if (slot >= slots.Length) {
-            var newSlots = new WgpuEffect[effectSlotCount];
+            var newSlots = new WgpuEffect[Math.Max(2 * slots.Length, slot + 1)];
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
