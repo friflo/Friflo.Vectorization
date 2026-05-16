@@ -136,5 +136,34 @@ public partial class Test_Float_GPU : GpuTestBase
         MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
 
+    // ----------------------------------------------
+    /* [Kernel] [OmitHash]
+    private static void InverseSqrt([Span] ref float position) {
+        position = 5 / MathF.Sqrt(position);
+    }
+    
+    [Test]
+    public void Test_Kernel_InverseSqrt()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        InverseSqrtVector(scalar1, false);
+        InverseSqrtKernel(gpuBuffer1);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+        }
+        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+    } */
+
 
 }
