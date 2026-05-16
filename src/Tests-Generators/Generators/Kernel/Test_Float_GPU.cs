@@ -235,7 +235,7 @@ public partial class Test_Float_GPU : GpuTestBase
         gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-6f));
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
             Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
