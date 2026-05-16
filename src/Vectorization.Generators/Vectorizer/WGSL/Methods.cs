@@ -42,7 +42,7 @@ public sealed partial class WgslVectorizer
             
             case "System.MathF.Exp(float)":         return Method_Scalar    (lanes, query, argList, "exp");
             case "System.MathF.Log(float)":         return Method_Scalar    (lanes, query, argList, "log");     // in WGSL: log = ln
-            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, argList, "log10");   // TODO check log10 may be a helper. If not use: log(x)/2.3025
+            case "System.MathF.Log10(float)":       return Method_Scalar    (lanes, query, argList, "log10");
             case "System.MathF.Log2(float)":        return Method_Scalar    (lanes, query, argList, "log2");
             case "System.MathF.Pow(float, float)":  return Method_Scalar    (lanes, query, argList, "pow");
             case "System.MathF.Sqrt(float)":        return Method_Scalar    (lanes, query, argList, "sqrt");
@@ -211,6 +211,8 @@ public sealed partial class WgslVectorizer
 
     public ComputeResult Method_Scalar(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method)
     {
+        if (method == "log10") query.wgslHelperMethods.Add("log10");
+
         for (int n = 0; n < lanes.Length; n++) {
             lanes[n].Append($"{method}(");
         }

@@ -46,7 +46,6 @@ public partial class Test_Float_GPU : GpuTestBase
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
     
     // ----------------------------------------------
@@ -75,7 +74,6 @@ public partial class Test_Float_GPU : GpuTestBase
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
     
     // ----------------------------------------------
@@ -104,7 +102,6 @@ public partial class Test_Float_GPU : GpuTestBase
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
     }
     
     // ----------------------------------------------
@@ -201,5 +198,42 @@ public partial class Test_Float_GPU : GpuTestBase
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-2f));
         }
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Kernel_Misc([Span]ref float position, [Span] float velocity, float value)
+    {
+        var abs     = MathF.Abs(velocity);
+        var floor   = MathF.Floor(velocity);
+        var ceiling = MathF.Ceiling(velocity);
+        var log10   = MathF.Log10(abs);
+        var pow     = MathF.Pow(abs, velocity);
+        var round   = MathF.Round(velocity);
+        var sqrt    = MathF.Sqrt(abs);
+        position = abs + floor + ceiling + log10 + pow + round + sqrt;
+    }
+    
+    [Test]
+    public void Test_Kernel_Misc()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        Kernel_MiscVector(scalar1, scalar2, 1.1f, false);
+        Kernel_MiscKernel(gpuBuffer1, gpuBuffer2, 1.1f);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-2f));
+        }
+    }
+    
 
 }

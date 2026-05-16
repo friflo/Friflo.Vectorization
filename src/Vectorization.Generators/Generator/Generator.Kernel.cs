@@ -260,8 +260,10 @@ $$""""
     private static StringBuilder GenerateWgslHelperMethods(Query query)
     {
         var sb = new StringBuilder();
+        if (query.wgslHelperMethods.Count > 0) sb.AppendLine();
         foreach (var helper in query.wgslHelperMethods)
         {
+            sb.Append("    ");
             switch (helper) {
                 case "distanceSquared2":
                     sb.AppendLine("fn distanceSquared2(a: vec2f, b: vec2f) -> f32 { let d = a - b; return dot(d, d); }");
@@ -274,6 +276,9 @@ $$""""
                     break;
                 case "cross2d":
                     sb.AppendLine("fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }");
+                    break;
+                case "log10":
+                    sb.AppendLine("fn log10(x: f32) -> f32 { return log(x) / 2.3025851; }");
                     break;
             }
         }
