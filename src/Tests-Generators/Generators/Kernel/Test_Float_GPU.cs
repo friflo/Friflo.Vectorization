@@ -196,6 +196,7 @@ public partial class Test_Float_GPU : GpuTestBase
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-2f));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
     
@@ -220,8 +221,8 @@ public partial class Test_Float_GPU : GpuTestBase
     public void Test_Kernel_Misc()
     {
         for (int n = 0; n < 128; n++) {
-            scalar1[n] = buffer1[n] = n;
-            scalar2[n] = buffer2[n] = n + 100;
+            scalar1[n] = buffer1[n] = n * 0.123f;
+            scalar2[n] = buffer2[n] = (n + 100) * 0.005f;
         }
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
@@ -234,9 +235,8 @@ public partial class Test_Float_GPU : GpuTestBase
         gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-6f));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
-    
-
 }
