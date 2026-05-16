@@ -220,8 +220,9 @@ namespace VerifyVectorize
         }
         var position = position_arr[index];
         var velocity = velocity_arr[index];
+        var deltaTime = uniforms.deltaTime;
 
-        position += (velocity * uniforms.deltaTime);
+        position += (velocity * deltaTime);
 
         position_arr[index] = position;
     }

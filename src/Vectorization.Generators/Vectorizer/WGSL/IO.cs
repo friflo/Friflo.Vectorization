@@ -13,6 +13,7 @@ public sealed partial class WgslVectorizer
     public void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
         if (!vectorType.IsSpan) {
+            source.AppendLine($"        var {vectorType.Name} = uniforms.{vectorType.Name};");
             return;
         }
         source.AppendLine($"        var {vectorType.Name} = {vectorType.Name}_arr[index];");

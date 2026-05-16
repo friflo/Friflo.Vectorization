@@ -93,11 +93,6 @@ public sealed class Query
     {
         if (isWgslLane) {
             // case: WGSL
-            if (paramTypes.TryGetValue(name, out var param2)) {
-                if (param2.isParam && !param2.isComponent) {
-                    return $"uniforms.{name}";
-                }
-            }
             return name;
         }
         // case: AVX
