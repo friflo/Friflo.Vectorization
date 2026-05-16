@@ -190,8 +190,8 @@ namespace VerifyVectorize
         var uniformLayout = device.GetBindGroupLayout(_MoveExample_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);          // var<uniform>              uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, _MoveExample_GPU_UniformLayoutKey, "MoveExample_uniforms"u8);
+            uniform[0]    = WgpuLayoutEntry.Uniform<_MoveExample_GPU_Uniforms> (0); // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(uniform, _MoveExample_GPU_UniformLayoutKey, "MoveExample_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);

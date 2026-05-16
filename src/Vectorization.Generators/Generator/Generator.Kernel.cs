@@ -131,14 +131,14 @@ public sealed partial class Gen
             uniformSize += 4;   // TODO use correct increment (field) size for: vec3, Vector4, ...
             uniformCount++;
         }
+        // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout
+        // uniformSize + 4 because of 'count' u32 at the beginning
+        var totalBytes  = (uniformSize + 4);
+        var alignedSize = (totalBytes + 15) & ~15;          // round to multiple of 16
         unchecked {
             // Simulate a Uniform-Binding on @binding(0) for whole uniform group
             uniformHash ^= 0;                                   uniformHash *= HashPrime;
             uniformHash ^= (ulong)BufferBindingType.Uniform;    uniformHash *= HashPrime;
-            // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout
-            // uniformSize + 4 because of 'count' u32 at the beginning
-            var totalBytes  = (uniformSize + 4);
-            var alignedSize = (totalBytes + 15) & ~15;          // round to multiple of 16
             uniformHash ^= (ulong)alignedSize;                  uniformHash *= HashPrime;
         }
         signature.Length -= 1;
@@ -201,7 +201,7 @@ $$""""
         return null;
     }
     
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
+    [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
     private struct {{methodName_GPU}}_Uniforms
     {
         [FieldOffset(0)]    public int      count;{{uniformFields}}
@@ -224,8 +224,8 @@ $$""""
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);          // var<uniform>              uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
+            uniform[0]    = WgpuLayoutEntry.Uniform<{{methodName_GPU}}_Uniforms> (0); // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(uniform, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);

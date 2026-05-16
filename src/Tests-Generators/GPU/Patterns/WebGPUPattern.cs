@@ -90,7 +90,7 @@ public static class WebGPUPattern
         var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);         // @group(1) @binding(0) var<uniform>             uniforms
+            uniform[0] = WgpuLayoutEntry.Uniform<ShadowMethod_GPU_Uniforms> (0); // @group(1)
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);

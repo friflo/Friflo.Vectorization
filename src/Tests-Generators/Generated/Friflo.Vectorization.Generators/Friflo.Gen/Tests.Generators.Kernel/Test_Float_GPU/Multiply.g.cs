@@ -181,8 +181,8 @@ namespace Tests.Generators.Kernel
         var uniformLayout = device.GetBindGroupLayout(_Multiply_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<float> (0);          // var<uniform>              uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, _Multiply_GPU_UniformLayoutKey, "Multiply_uniforms"u8);
+            uniform[0]    = WgpuLayoutEntry.Uniform<_Multiply_GPU_Uniforms> (0); // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(uniform, _Multiply_GPU_UniformLayoutKey, "Multiply_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Multiply_GPU_Shader(), "Multiply"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Multiply"u8);
