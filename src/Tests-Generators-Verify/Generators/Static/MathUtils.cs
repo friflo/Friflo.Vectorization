@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using static System.MathF;
 
 // ReSharper disable InconsistentNaming
@@ -134,5 +135,20 @@ public static class MathUtils {
     internal static Vector256<float> SqrtMathF(Vector256<float> x)
     {
         return Vector256.Create(Sqrt(x[0]), Sqrt(x[1]), Sqrt(x[2]), Sqrt(x[3]), Sqrt(x[4]), Sqrt(x[5]), Sqrt(x[6]), Sqrt(x[7]));
+    }
+    
+    [SkipLocalsInit]
+    internal static Vector256<float> SignMathF(Vector256<float> x)
+    {
+        Vector256<float> zero = Vector256<float>.Zero;
+        Vector256<float> one  = Vector256.Create(1.0f);
+
+        Vector256<float> isPositive = Avx.CompareGreaterThan(x, zero);
+        Vector256<float> isNegative = Avx.CompareLessThan(x, zero);
+
+        Vector256<float> posResult = Avx.And(isPositive, one);
+        Vector256<float> negResult = Avx.And(isNegative, one);
+
+        return Avx.Subtract(posResult, negResult);
     }
 }

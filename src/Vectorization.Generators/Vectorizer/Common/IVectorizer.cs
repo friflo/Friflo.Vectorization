@@ -33,7 +33,7 @@ public interface IVectorizer
     public  ComputeResult   Method_MinMax           (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op);
     public  ComputeResult   Method_Clamp            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
     public  ComputeResult   Method_Lerp             (StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax);
-    public  ComputeResult 	Method_AbsSign			(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string method);
+    public  ComputeResult   Method_Abs              (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
     public  ComputeResult   Method_Truncate         (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
     public  ComputeResult   Method_Floor            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
     public  ComputeResult   Method_Ceiling          (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);

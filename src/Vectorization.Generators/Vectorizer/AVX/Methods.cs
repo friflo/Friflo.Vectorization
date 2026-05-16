@@ -30,8 +30,8 @@ public sealed partial class AvxVectorizer
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AcoshMathF");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AtanhMathF");
             
-            case "Vector.Abs(Vector)":              return Method_AbsSign       (lanes, query, argList, DataShape.Vector, "abs");
-            case "System.MathF.Abs(float)":         return Method_AbsSign       (lanes, query, argList, DataShape.Scalar, "abs");
+            case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
+            case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
             case "Vector.Truncate(Vector)":         return Method_Truncate  (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Truncate(float)":    return Method_Truncate  (lanes, query, argList, DataShape.Scalar);
             case "Vector.Round(Vector)":            return Method_Round     (lanes, query, argList, DataShape.Vector);
@@ -188,7 +188,7 @@ public sealed partial class AvxVectorizer
         return DataShape.Vector;
     }
 
-    public ComputeResult Method_AbsSign(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string method)
+    public ComputeResult Method_Abs(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape)
     {
         var name = query.AddConst();
         query.locals.AppendLine($"            var {name} = Vector256.Create(0x7FFFFFFF).AsSingle(); // Abs()");
