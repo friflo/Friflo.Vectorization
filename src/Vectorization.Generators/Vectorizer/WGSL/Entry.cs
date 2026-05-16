@@ -15,7 +15,7 @@ public sealed partial class WgslVectorizer : IVectorizer
     {
         query.ResetQueryState();
         query.laneCount     = 1;
-        query.isSingleLane  = true;
+        query.isWgslLane  = true;
         
         TraverseBody(query);
         return true;

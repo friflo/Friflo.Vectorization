@@ -62,7 +62,7 @@ public sealed class Query
     public          int                             constLocalsCount;
     public          bool                            requireDeinterleave;
     public          bool                            useDeinterleave;        // true => add Deinterleave() / Interleave()
-    public          bool                            isSingleLane;
+    public          bool                            isWgslLane;
     public readonly HashSet<string>                 wgslHelperMethods = new(); 
 
     
@@ -91,10 +91,16 @@ public sealed class Query
     
     public string GetVectorName(string name, int i)
     {
-        if (isSingleLane) {
-            return name; // WGSL
+        if (isWgslLane) {
+            // case: WGSL
+            if (paramTypes.TryGetValue(name, out var param2)) {
+                if (param2.isParam && !param2.isComponent) {
+                    return $"uniforms.{name}";
+                }
+            }
+            return name;
         }
-        
+        // case: AVX
         if (!useDeinterleave) {
             if (paramTypes.TryGetValue(name, out var paramSoa)) {
                 if (paramSoa.isScalar) {

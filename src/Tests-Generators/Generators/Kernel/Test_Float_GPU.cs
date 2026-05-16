@@ -83,7 +83,7 @@ public partial class Test_Float_GPU : GpuTestBase
         position += velocity * deltaTime;
     }
     
-    // [Test]
+    [Test]
     public void Test_Kernel_Fma()
     {
         for (int n = 0; n < 128; n++) {

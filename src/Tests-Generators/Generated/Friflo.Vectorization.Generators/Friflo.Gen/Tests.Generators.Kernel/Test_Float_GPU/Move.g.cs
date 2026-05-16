@@ -220,7 +220,7 @@ namespace Tests.Generators.Kernel
         var position = position_arr[index];
         var velocity = velocity_arr[index];
 
-        position += (velocity * deltaTime);
+        position += (velocity * uniforms.deltaTime);
 
         position_arr[index] = position;
     }
