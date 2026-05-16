@@ -105,7 +105,7 @@ public sealed partial class Gen
             var paramName   = parameter.Name;
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             if (vectorType.IsSpan) {
-                bool isOutput = query.dirtyVectorsSet.ContainsKey(paramName);
+                bool isOutput = query.dirtyVectorsSet.Contains(paramName);
                 signature.Append($"\n        GpuBuffer<{type}> {paramName},");
                 if (isOutput) {
                     setTaskOnOutputs.Append($"\n        ((WgpuBuffer<float>){paramName}).SetLastWritingTask(task);");

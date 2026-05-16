@@ -53,7 +53,7 @@ public sealed class Query
     public          string                          wgslBody = "";
     public readonly HashSet<string>                 readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
     public readonly List<string>                    dirtyVectors = [];      // contains vectors that are stored. Meaning they are "dirty"
-    public readonly Dictionary<string, bool>        dirtyVectorsSet = [];   // value: true => Load required
+    public readonly HashSet<string>                 dirtyVectorsSet = [];   // value: true => Load required
     
     public readonly Dictionary<string, Param>       paramTypes = new ();
     public readonly StringBuilder                   locals = new ();
@@ -68,10 +68,9 @@ public sealed class Query
     
     public void AddDirty(string vectorName)
     {
-        if (!dirtyVectorsSet.ContainsKey(vectorName)) {
+        if (!dirtyVectorsSet.Contains(vectorName)) {
             dirtyVectors.Add(vectorName); // DIRTY
-            var loadRequired = readVectors.Contains(vectorName);
-            dirtyVectorsSet.Add(vectorName, loadRequired);
+            dirtyVectorsSet.Add(vectorName);
         }
     }
     
@@ -135,6 +134,7 @@ public sealed class Query
         computeTemp.Clear();
         computeTempCount = 0;
         constLocalsCount = 0;
+        // TODO clear   readVectors, dirtyVectors & dirtyVectorsSet
     }
 }
 

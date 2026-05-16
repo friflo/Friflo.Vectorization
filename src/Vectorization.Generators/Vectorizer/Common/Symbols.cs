@@ -15,11 +15,12 @@ public static class Vectorizer
     public static ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
     {
         var name = identifierName.Identifier.Text;
+        query.readVectors.Add(name); 	// Compute method is only called for read. Not for assignment
         for (int i = 0; i < lanes.Length; i++) {
             var vectorName = query.GetVectorName(name, i);
             lanes[i].Append(vectorName);
         }
-        return Vectorizer.GetShapeFromExpression(query, identifierName);
+        return GetShapeFromExpression(query, identifierName);
     }
     
 

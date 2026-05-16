@@ -15,12 +15,13 @@ public sealed partial class AvxVectorizer
         if (!vectorType.IsSpan) {
             return;
         }
-        var laneCount = query.laneCount;
-        var name = vectorType.Parameter.Name;
-        var typeName = vectorType.Parameter.Type.Name;
+        var laneCount   = query.laneCount;
+        var name        = vectorType.Parameter.Name;
+        var typeName    = vectorType.Parameter.Type.Name;
         if (vectorType.ParamType == ParamType.Scalar)
         {
-            if (query.dirtyVectorsSet.TryGetValue(vectorType.Parameter.Name, out var loadRequired)) {
+            if (query.dirtyVectorsSet.Contains(name)) {
+                var loadRequired = query.readVectors.Contains(name);
                 if (!loadRequired) {
                     // case: vector is write only
                     var count = vectorType.Dimension == 1 ? query.scalarLaneCount : laneCount;

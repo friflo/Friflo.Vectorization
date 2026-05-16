@@ -75,5 +75,29 @@ public partial class MyExample
 """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Vectorize_InverseSqrt()
+    {
+        var code =
+"""
+using System;
+using System.Numerics;
+using Friflo.Engine.ECS;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+public partial class MyExample
+{
+    [Vectorize]  [OmitHash]
+    private static void InverseSqrt([Span] ref float position) {
+        position = 5 / MathF.Sqrt(position);
+    }}
+""";
+        await Verify(code);
+    }
+    
+    
 
 }
