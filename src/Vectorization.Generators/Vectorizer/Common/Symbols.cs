@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
-public static class Vectorizer
+public static class Symbols
 {
     public static ComputeResult Compute_IdentifierName(StringBuilder[] lanes, Query query, IdentifierNameSyntax identifierName)
     {

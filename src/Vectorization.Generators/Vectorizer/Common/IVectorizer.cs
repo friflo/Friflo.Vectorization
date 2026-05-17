@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable UnusedMemberInSuper.Global

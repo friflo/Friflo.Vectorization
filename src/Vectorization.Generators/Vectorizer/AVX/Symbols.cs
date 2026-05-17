@@ -23,7 +23,7 @@ public sealed partial class AvxVectorizer
         }
         var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
         var symbol = symbolInfo.Symbol;
-        var shape = Vectorizer.GetShapeFromExpression(query, memberAccess);
+        var shape = Symbols.GetShapeFromExpression(query, memberAccess);
         var isStatic = symbol != null && symbol.IsStatic;
         if (isStatic)
         {

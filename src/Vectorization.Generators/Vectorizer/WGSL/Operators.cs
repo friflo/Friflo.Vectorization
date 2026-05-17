@@ -34,9 +34,9 @@ public sealed partial class WgslVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
-        var leftIdentifier  = Vectorizer.GetMemberName(assignment.Left).Identifier.Text;
+        var leftIdentifier  = Symbols.GetMemberName(assignment.Left).Identifier.Text;
 		var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
-        var leftShape       = Vectorizer.GetShapeFromExpression(query, assignment.Left);
+        var leftShape       = Symbols.GetShapeFromExpression(query, assignment.Left);
         lanes = CreateLanes(query, leftSymbol, leftIdentifier);
         
         // read vector for all cases except "="
@@ -68,12 +68,12 @@ public sealed partial class WgslVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
-        var shape = Vectorizer.GetShapeFromExpression(query, binary);
+        var shape = Symbols.GetShapeFromExpression(query, binary);
 
         // Special case optimization: x / Sqrt(y) -> x * inverseSqrt(y)
         if (kind == SyntaxKind.DivideExpression && 
             binary.Right is InvocationExpressionSyntax rightInv &&
-            Vectorizer.GetMethodName(query, rightInv) == "System.MathF.Sqrt(float)")
+            Symbols.GetMethodName(query, rightInv) == "System.MathF.Sqrt(float)")
         {
             lanes[0].Append("(");
             if (!Compute(lanes, query, binary.Left)) return ComputeResult.Invalid;

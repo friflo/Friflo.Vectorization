@@ -63,13 +63,13 @@ public sealed partial class AvxVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, assignment);
             return ComputeResult.Invalid;
         }
-        var leftIdentifier = Vectorizer.GetMemberName(assignment.Left).Identifier;
+        var leftIdentifier = Symbols.GetMemberName(assignment.Left).Identifier;
         var left = leftIdentifier.Text;
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
             query.readVectors.Add(left);  // e.g. += -=
         }
         var leftSymbol = query.SemanticModel.GetSymbolInfo(assignment.Left).Symbol;
-        var leftShape = Vectorizer.GetShapeFromExpression(query, assignment.Left);
+        var leftShape = Symbols.GetShapeFromExpression(query, assignment.Left);
         lanes = CreateLanes(query, leftSymbol, left);
         // FMA is a "Cheat Code" for:    (vel * dt) + pos    ->    Fma.MultiplyAdd(vel, dt, pos);
         if (kind == SyntaxKind.AddAssignmentExpression && 
@@ -124,12 +124,12 @@ public sealed partial class AvxVectorizer
             query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, binary);
             return ComputeResult.Invalid;
         }
-        var shape = Vectorizer.GetShapeFromExpression(query, binary);
+        var shape = Symbols.GetShapeFromExpression(query, binary);
 
         // is reciprocal square root:     left / Sqrt(right) 
         if (kind == SyntaxKind.DivideExpression) {
             if (binary.Right is InvocationExpressionSyntax rightInvocation &&
-                Vectorizer.GetMethodName(query, rightInvocation) == "System.MathF.Sqrt(float)")
+                Symbols.GetMethodName(query, rightInvocation) == "System.MathF.Sqrt(float)")
             {
                 lanes.Append("Avx.Multiply(Avx.ReciprocalSqrt(");
                 if (!Compute(lanes, query, rightInvocation.ArgumentList.Arguments[0].Expression)) {

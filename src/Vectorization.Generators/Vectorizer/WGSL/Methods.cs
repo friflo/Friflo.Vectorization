@@ -13,7 +13,7 @@ public sealed partial class WgslVectorizer
 {
     public ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
-        var methodName = Vectorizer.GetMethodName(query, invocation);
+        var methodName = Symbols.GetMethodName(query, invocation);
         var methodReduced = methodName?.Replace("System.Numerics.Vector2", "Vector")
                                        .Replace("System.Numerics.Vector3", "Vector")
                                        .Replace("System.Numerics.Vector4", "Vector");
