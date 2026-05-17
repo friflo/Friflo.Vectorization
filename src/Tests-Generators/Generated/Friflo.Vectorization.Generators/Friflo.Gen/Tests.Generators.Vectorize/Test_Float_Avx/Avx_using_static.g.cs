@@ -12,18 +12,18 @@ namespace Tests.Generators.Vectorize
 {
     public partial class Test_Float_Avx
     {
-        /// <summary>Vector method generated for: <see cref="Avx_Sign"/>.</summary>
-        public static void Avx_SignVector(Span<float> position, bool vectorized = true)
+        /// <summary>Vector method generated for: <see cref="Avx_using_static"/>.</summary>
+        public static void Avx_using_staticVector(Span<float> position, bool vectorized = true)
         {
             int count = position.Length;
             int n = 0;
             if (vectorized) {
                 if (Avx.IsSupported) {
-                    n = _Avx_Sign_Avx(count, position);
+                    n = _Avx_using_static_Avx(count, position);
                 }
             }
             for (; n < count; n++) {
-                Avx_Sign(ref position[n]);
+                Avx_using_static(ref position[n]);
             }
         }
 
@@ -31,7 +31,7 @@ namespace Tests.Generators.Vectorize
 
         // [Layout: AoS-Vertical]  - lane-native speed
         [SkipLocalsInit]
-        private static unsafe int _Avx_Sign_Avx(int count,
+        private static unsafe int _Avx_using_static_Avx(int count,
             Span<float> position)
         {
             int i = 0;

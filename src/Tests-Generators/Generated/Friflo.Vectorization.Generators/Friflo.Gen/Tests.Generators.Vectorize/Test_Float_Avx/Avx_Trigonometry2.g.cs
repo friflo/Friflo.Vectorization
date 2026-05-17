@@ -54,19 +54,19 @@ namespace Tests.Generators.Vectorize
                     Vector256<float> position_3 = Avx.LoadVector256(position_ptr + 24);  // Single
 
                     // --- 2. Compute
-                    // var sinh = MathF.Sinh(position);
+                    // var sinh = Sinh(position);
                     var sinh_0 = MathUtils.SinhMathF(position_0);
                     var sinh_1 = MathUtils.SinhMathF(position_1);
                     var sinh_2 = MathUtils.SinhMathF(position_2);
                     var sinh_3 = MathUtils.SinhMathF(position_3);
 
-                    // var cosh = MathF.Cosh(position);
+                    // var cosh = Cosh(position);
                     var cosh_0 = MathUtils.CoshMathF(position_0);
                     var cosh_1 = MathUtils.CoshMathF(position_1);
                     var cosh_2 = MathUtils.CoshMathF(position_2);
                     var cosh_3 = MathUtils.CoshMathF(position_3);
 
-                    // var tanh = MathF.Tanh(position);
+                    // var tanh = Tanh(position);
                     var tanh_0 = MathUtils.TanhMathF(position_0);
                     var tanh_1 = MathUtils.TanhMathF(position_1);
                     var tanh_2 = MathUtils.TanhMathF(position_2);

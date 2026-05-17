@@ -18,5 +18,11 @@ public static partial class Test_Errors
     private static void MissingSpan(ref Vector4 result, Vector4 vec1, Vector4 vec2) {
         result = Vector4.Cross(vec1, vec2);
     }
-
+    
+    /* [Vectorize]  [OmitHash]
+    private static void InternalError([Span] ref float value) {
+        value = CheckInternalError(value);        
+    }
+    
+    private static float CheckInternalError(float value) { return value; } */
 }

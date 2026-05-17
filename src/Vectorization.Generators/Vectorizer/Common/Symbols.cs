@@ -23,23 +23,30 @@ public static class Symbols
         return GetShapeFromExpression(query, identifierName);
     }
     
-
     public static string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
     {
-        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-        {
-            var symbolInfo = query.SemanticModel.GetSymbolInfo(memberAccess);
-            if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
-                return methodSymbol.ToDisplayString();
-            }
-            // fallback e.g. in case of System.MathF.Sign
-            //      symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure
-            if (symbolInfo.CandidateSymbols.Length > 0 && symbolInfo.CandidateSymbols[0] is IMethodSymbol candidateMethod) {
-                return candidateMethod.ToDisplayString();  // return System.MathF.Sign(float)
-            }
+        if (invocation.Expression is MemberAccessExpressionSyntax memberAccess) {
+            return GetSymbolName(query, memberAccess);
+        }
+        if (invocation.Expression is IdentifierNameSyntax identifierName) {
+            return GetSymbolName(query, identifierName);
         }
         return null;
     }
+    
+    private static string? GetSymbolName(Query query, ExpressionSyntax syntax)
+    {
+        var symbolInfo = query.SemanticModel.GetSymbolInfo(syntax);
+        if (symbolInfo.Symbol is IMethodSymbol methodSymbol) {
+            return methodSymbol.ToDisplayString();
+        }
+        // fallback e.g. in case of System.MathF.Sign
+        //      symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure
+        if (symbolInfo.CandidateSymbols.Length > 0 && symbolInfo.CandidateSymbols[0] is IMethodSymbol candidateMethod) {
+            return candidateMethod.ToDisplayString();  // return System.MathF.Sign(float)
+        }
+        return null;
+    }   
 
     public static  IdentifierNameSyntax GetMemberName(ExpressionSyntax expressionSyntax)
     {

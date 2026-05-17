@@ -98,6 +98,27 @@ public partial class MyExample
         await Verify(code);
     }
     
+    [Test]
+    public static async Task  Verify_Vectorize_using_static()
+    {
+        var code =
+"""
+using System;
+using Friflo.Vectorization;
+using static System.MathF;
+
+namespace VerifyVectorize;
+
+public partial class MyExample
+{
+    [Vectorize]  [OmitHash]
+    private static void UsingStatic([Span] ref float position) {
+        position = Sin(position);
+    }}
+""";
+        await Verify(code);
+    }
+    
     
 
 }

@@ -5,6 +5,7 @@
 using System;
 using Friflo.Vectorization;
 using NUnit.Framework;
+using static System.MathF;
 
 
 // ReSharper disable InconsistentNaming
@@ -43,9 +44,9 @@ public static partial class Test_Float_Avx
     [Vectorize] [OmitHash]
     private static void Avx_Trigonometry2([Span]ref float position)
     {
-        var sinh     = MathF.Sinh(position);
-        var cosh     = MathF.Cosh(position);
-        var tanh     = MathF.Tanh(position);
+        var sinh     = Sinh(position);
+        var cosh     = Cosh(position);
+        var tanh     = Tanh(position);
         position += sinh + cosh + tanh;
     }
     
@@ -71,11 +72,36 @@ public static partial class Test_Float_Avx
     [Vectorize] [OmitHash]
     private static void Avx_Sign([Span]ref float position)
     {
-        position = MathF.Sign(position);
+        position = Sign(position);
     }
     
     [Test]
     public static void Test_Avx_Sign()
+    {
+        var scalar1     = new float[128];
+        var scalar2     = new float[128];
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = scalar2[n] = (n - 64f) / 64f * 10;
+        }
+
+        Avx_SignVector(scalar1, false);
+        Avx_SignVector(scalar2);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(scalar2[n]));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Vectorize] [OmitHash]
+    private static void Avx_using_static([Span]ref float position)
+    {
+        position = Sign(position);
+    }
+    
+    [Test]
+    public static void Test_Avx_using_static()
     {
         var scalar1     = new float[128];
         var scalar2     = new float[128];

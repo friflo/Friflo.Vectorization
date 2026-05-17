@@ -13,6 +13,10 @@ public sealed partial class AvxVectorizer
     public ComputeResult Compute_Invocation(StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation)
     {
         var methodName = Symbols.GetMethodName(query, invocation);
+        if (methodName == null) {
+            query.Diagnostics.ReportDiagnosticSyntax(Errors.InternalError, invocation);
+            return ComputeResult.Invalid;
+        }
         var methodReduced = methodName?.Replace("System.Numerics.Vector2", "Vector")
                                        .Replace("System.Numerics.Vector3", "Vector")
                                        .Replace("System.Numerics.Vector4", "Vector");

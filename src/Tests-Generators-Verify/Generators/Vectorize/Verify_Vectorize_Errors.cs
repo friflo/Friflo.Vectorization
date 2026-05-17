@@ -49,5 +49,28 @@ public partial class MyExample
 """;
         await Verify(code);
     }
+    
+    /* [Test]
+    public static async Task  Verify_InternalError()
+    {
+        var code =
+"""
+using System.Numerics;
+using Friflo.Vectorization;
+
+namespace VerifyVectorize;
+
+public partial class MyExample
+{
+    [Vectorize] [OmitHash]
+    private static void InternalError([Span] ref float value) {
+        value = CheckInternalError(value);
+    }
+
+    public static float CheckInternalError(float value) { return value; }
+}
+""";
+        await Verify(code);
+    } */
  
 }
