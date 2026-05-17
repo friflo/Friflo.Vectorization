@@ -20,6 +20,7 @@ public sealed partial class WgslVectorizer
         var argList = invocation.ArgumentList;
         switch (methodReduced)
         {
+        	// --- Trigonometry
             case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, argList, "sin");
             case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, argList, "cos");
             case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, argList, "tan");
@@ -27,6 +28,7 @@ public sealed partial class WgslVectorizer
             case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, argList, "acos");
             case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, argList, "atan");
             case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, argList, "atan2");
+            // --- Trigonometry Hyperbolic
             case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "asinh");
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "acosh");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "atanh");

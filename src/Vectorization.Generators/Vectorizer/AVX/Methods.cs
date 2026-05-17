@@ -19,6 +19,7 @@ public sealed partial class AvxVectorizer
         var argList = invocation.ArgumentList;
         switch (methodReduced)
         {
+        	// --- Trigonometry
             case "System.MathF.Sin(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.SinMathF");
             case "System.MathF.Cos(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.CosMathF");
             case "System.MathF.Tan(float)":         return Method_Scalar    (lanes, query, argList, "MathUtils.TanMathF");
@@ -26,6 +27,7 @@ public sealed partial class AvxVectorizer
             case "System.MathF.Acos(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AcosMathF");
             case "System.MathF.Atan(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.AtanMathF");
             case "System.MathF.Atan2(float, float)":return Method_Scalar    (lanes, query, argList, "MathUtils.Atan2MathF");
+            // --- Trigonometry Hyperbolic
             case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AsinhMathF");
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AcoshMathF");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AtanhMathF");

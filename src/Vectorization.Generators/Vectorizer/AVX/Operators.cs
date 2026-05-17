@@ -50,8 +50,7 @@ public sealed partial class AvxVectorizer
     public ComputeResult Compute_Assignment(StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment)
     {
         var kind = assignment.Kind();
-        var avxOperation = kind switch
-        {
+        var avxOperation = kind switch        {
             SyntaxKind.SimpleAssignmentExpression   => "",              // =
             SyntaxKind.AddAssignmentExpression      => "Avx.Add",       // +=
             SyntaxKind.SubtractAssignmentExpression => "Avx.Subtract",  // -=
@@ -112,8 +111,7 @@ public sealed partial class AvxVectorizer
     public ComputeResult Compute_Binary(StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary)
     {
         var kind = binary.Kind();
-        var avxOperation = kind switch
-        {
+        var avxOperation = kind switch        {
             SyntaxKind.AddExpression      => "Add",         // +
             SyntaxKind.SubtractExpression => "Subtract",    // -
             SyntaxKind.MultiplyExpression => "Multiply",    // *

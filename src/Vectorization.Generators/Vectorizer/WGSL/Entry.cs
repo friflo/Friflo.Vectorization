@@ -97,14 +97,14 @@ public sealed partial class WgslVectorizer : IVectorizer
     public StringBuilder EmitBody(Query query, StringBuilder compute, BlockSyntax? body, int step)
     {
         var source = new StringBuilder();
+
         foreach (var vectorType in query.VectorTypes) {
             EmitLoadVector(source, query, vectorType, 0);
         }
-        source.AppendLine();
-        
+        source.AppendLine();        
         source.Append(compute);
         source.AppendLine();
-        
+
         if (body == null) {
             return source;
         }

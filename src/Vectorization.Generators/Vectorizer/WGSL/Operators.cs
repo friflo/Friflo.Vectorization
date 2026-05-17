@@ -48,8 +48,7 @@ public sealed partial class WgslVectorizer
         if (!Compute(lanes, query, assignment.Right)) {
             return ComputeResult.Invalid;
         }
-        lanes[0].Append(";");
-        
+        lanes[0].Append(";");        
         query.AddDirty(leftIdentifier);
         return leftShape;
     }
