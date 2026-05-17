@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
@@ -59,7 +60,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
         var customDescriptor = new DiagnosticDescriptor(
             id:             "ECSGEN008",
             title:          "Transpiler exception",
-            messageFormat:  "Transpiler exception - {0}",
+            messageFormat:  "{0}",
             category:       "Design",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
@@ -78,7 +79,31 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true
             );
-            productionContext.ReportDiagnostic(Diagnostic.Create(traceDescriptor, methodLocation, line.Trim()));
+            
+            var cleanLine   = line.Trim();
+            int inIndex     = cleanLine.IndexOf(" in ",   StringComparison.Ordinal);
+            int lineIndex   = cleanLine.IndexOf(":line ", StringComparison.Ordinal);
+            Location lineLocation;
+            
+            if (inIndex >= 0 && lineIndex > inIndex) {
+                var filePath = cleanLine.Substring(inIndex + 4, lineIndex - (inIndex + 4));
+                var lineNumStr = cleanLine.Substring(lineIndex + 6);
+                
+                if (int.TryParse(lineNumStr, out int lineNumber)) {
+                    var position = new LinePosition(lineNumber - 1, 0); 
+                    var lineSpan = new LinePositionSpan(position, position);
+                    lineLocation = Location.Create(filePath, new Microsoft.CodeAnalysis.Text.TextSpan(0, 0), lineSpan);
+                    int bracketIndex = cleanLine.IndexOf('(');
+                    if (bracketIndex > 0) {
+                        cleanLine = cleanLine.Substring(0, bracketIndex) + "()";
+                    }
+                } else {
+                    lineLocation = methodLocation ?? Location.None;
+                }
+            } else {
+                lineLocation = methodLocation ?? Location.None;
+            }
+            productionContext.ReportDiagnostic(Diagnostic.Create(traceDescriptor, lineLocation, cleanLine));
         }
     }
 }
