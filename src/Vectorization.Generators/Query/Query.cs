@@ -44,21 +44,21 @@ public sealed class Query
     public required string                              Hash            { get; init; }
     
     // --- mutable output
-    public required Diagnostics                 Diagnostics     { get; init; }
+    public required Diagnostics                 Diagnostics { get; init; }
     public          Strategy                    strategy;
     public          int                         vectorDimension;        // [1, 2, 3, 4]
     public          int                         laneCount;              // [4, 4, 3, 4]
     public          int                         scalarLaneCount;        // [4, 2, 1, 1]
     public          StringBuilder[]             lanes;
     public          bool                        vectorized;
-    public          string                      avxMethod = "";
-    public          string                      wgslBody = "";
-    public readonly HashSet<string>             readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
-    public readonly List<string>                dirtyVectors = [];      // contains vectors that are stored. Meaning they are "dirty"
-    public readonly HashSet<string>             dirtyVectorsSet = [];   // value: true => Load required
+    public          string                      avxMethod   = "";
+    public          string                      wgslBody    = "";
+    public readonly HashSet<string>             readVectors     = [];   // vectors that are used on the Right-Hand Side (RHS) of an expression
+    public readonly List<string>                dirtyVectors    = [];   // contains vectors that are stored. Meaning they are "dirty"
+    public readonly HashSet<string>             dirtyVectorsSet = [];   // same as dirtyVectors
     
-    public readonly Dictionary<string, Param>   paramTypes = new ();
-    public readonly StringBuilder               locals = new ();
+    public readonly Dictionary<string, Param>   paramTypes  = new ();
+    public readonly StringBuilder               locals      = new ();
     public readonly StringBuilder               computeTemp = new ();
     public          int                         computeTempCount;
     public          int                         constLocalsCount;
