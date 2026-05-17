@@ -130,11 +130,12 @@ public sealed class VectorType
         };
     }
     
-    public static int GetVectorTypeDimension(Query query, VectorType[] vectorTypes)
+    public static int GetVectorTypeDimension(Query query)
     {
         var dimension = 0;
         var success = true;
         IParameterSymbol? currentParameter = null;
+        var vectorTypes = query.VectorTypes;
         foreach (var vectorType in vectorTypes) {
             if (vectorType.ParamType == ParamType.None) {
                 success = false;

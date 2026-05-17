@@ -20,7 +20,7 @@ public sealed partial class Gen
     {
         var attributeCode       = EmitQueryFilters(query.Attributes);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
-        var methodSignature     = EmitQueryMethodSignature(query.Parameters, query.vectorized);
+        var methodSignature     = EmitQueryMethodSignature(query, query.vectorized);
         var vectorizeBlock      = new AvxVectorizer().EmitVectorizeBlock(query);
         
         var components = query.Spans;
@@ -119,10 +119,11 @@ public sealed partial class Gen
         }}";
     }
     
-    private static StringBuilder EmitQueryMethodSignature(BlueprintParameter[] parameters, bool vectorized)
+    private static StringBuilder EmitQueryMethodSignature(Query query, bool vectorized)
     {
         var sb = new StringBuilder();
         sb.Append("EntityStore _store");
+        var parameters = query.Parameters;
         foreach (var parameter in parameters) {
             if (parameter.IsSpan) {
                 continue;

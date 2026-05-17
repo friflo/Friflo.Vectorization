@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
+// ReSharper disable UseCollectionExpression
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
@@ -152,9 +153,9 @@ public sealed partial class Gen : IIncrementalGenerator
             CustomMethod    = customMethod,
             VectorMode      = vectorMode,
             Attributes      = attributes,
-            Parameters      = blueprintParameters,
-            VectorTypes     = vectorTypes,
-            Spans           = spans,
+            Parameters      = blueprintParameters.ToImmutableArray(),
+            VectorTypes     = vectorTypes.ToImmutableArray(),
+            Spans           = spans.ToImmutableArray(),
             Hash            = hash,
             SemanticModel   = semanticModel
         };

@@ -32,38 +32,40 @@ public enum Strategy
 
 public sealed class Query
 {
-    public required IMethodSymbol                   BlueprintMethod { get; init; }
-    public required string?                         CustomMethod    { get; init; }
-    public required VectorMode                      VectorMode      { get; init; }
-    public required ImmutableArray<AttributeData>   Attributes      { get; init; }
-    public required BlueprintParameter[]            Parameters      { get; init; }
-    public required VectorType[]                    VectorTypes     { get; init; }
-    public required BlueprintParameter[]            Spans           { get; init; }
-    public required SemanticModel                   SemanticModel   { get; init; }
-    public required string                          Hash            { get; init; }
-    // --- generated output
-    public required Diagnostics                     Diagnostics     { get; init; }
-    public          Strategy                        strategy;
-    public          int                             vectorDimension;        // [1, 2, 3, 4]
-    public          int                             laneCount;              // [4, 4, 3, 4]
-    public          int                             scalarLaneCount;        // [4, 2, 1, 1]
-    public          StringBuilder[]                 lanes;
-    public          bool                            vectorized;
-    public          string                          avxMethod = "";
-    public          string                          wgslBody = "";
-    public readonly HashSet<string>                 readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
-    public readonly List<string>                    dirtyVectors = [];      // contains vectors that are stored. Meaning they are "dirty"
-    public readonly HashSet<string>                 dirtyVectorsSet = [];   // value: true => Load required
+    // --- immutable input fields - created from blueprint method signature 
+    public required IMethodSymbol                       BlueprintMethod { get; init; }
+    public required string?                             CustomMethod    { get; init; }
+    public required VectorMode                          VectorMode      { get; init; }
+    public required ImmutableArray<AttributeData>       Attributes      { get; init; }
+    public required ImmutableArray<BlueprintParameter>  Parameters      { get; init; }
+    public required ImmutableArray<VectorType>          VectorTypes     { get; init; }
+    public required ImmutableArray<BlueprintParameter>  Spans           { get; init; }
+    public required SemanticModel                       SemanticModel   { get; init; }
+    public required string                              Hash            { get; init; }
     
-    public readonly Dictionary<string, Param>       paramTypes = new ();
-    public readonly StringBuilder                   locals = new ();
-    public readonly StringBuilder                   computeTemp = new ();
-    public          int                             computeTempCount;
-    public          int                             constLocalsCount;
-    public          bool                            requireDeinterleave;
-    public          bool                            useDeinterleave;        // true => add Deinterleave() / Interleave()
-    public          bool                            isWgslLane;
-    public readonly HashSet<string>                 wgslHelperMethods = new(); 
+    // --- mutable output
+    public required Diagnostics                 Diagnostics     { get; init; }
+    public          Strategy                    strategy;
+    public          int                         vectorDimension;        // [1, 2, 3, 4]
+    public          int                         laneCount;              // [4, 4, 3, 4]
+    public          int                         scalarLaneCount;        // [4, 2, 1, 1]
+    public          StringBuilder[]             lanes;
+    public          bool                        vectorized;
+    public          string                      avxMethod = "";
+    public          string                      wgslBody = "";
+    public readonly HashSet<string>             readVectors = [];       // vectors that are used on the Right-Hand Side (RHS) of an expression
+    public readonly List<string>                dirtyVectors = [];      // contains vectors that are stored. Meaning they are "dirty"
+    public readonly HashSet<string>             dirtyVectorsSet = [];   // value: true => Load required
+    
+    public readonly Dictionary<string, Param>   paramTypes = new ();
+    public readonly StringBuilder               locals = new ();
+    public readonly StringBuilder               computeTemp = new ();
+    public          int                         computeTempCount;
+    public          int                         constLocalsCount;
+    public          bool                        requireDeinterleave;
+    public          bool                        useDeinterleave;        // true => add Deinterleave() / Interleave()
+    public          bool                        isWgslLane;
+    public readonly HashSet<string>             wgslHelperMethods = new(); 
 
     
     public void AddDirty(string vectorName)

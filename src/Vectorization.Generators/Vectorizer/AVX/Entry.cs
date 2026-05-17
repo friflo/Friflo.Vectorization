@@ -18,7 +18,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         if (vectorTypes.Length == 0) {
             return false;
         }
-        var vectorTypeDimension = VectorType.GetVectorTypeDimension(query, vectorTypes);
+        var vectorTypeDimension = VectorType.GetVectorTypeDimension(query);
         if (vectorTypeDimension == 0) {
             return false;
         }
