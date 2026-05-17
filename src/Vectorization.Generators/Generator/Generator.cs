@@ -90,16 +90,7 @@ public sealed partial class Gen : IIncrementalGenerator
     private static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
     {
         if (emissionResult.exceptionMessage != null) {
-            var customDescriptor = new DiagnosticDescriptor(
-                id:             "ECSGEN008",
-                title:          "Internal transpiler exception",
-                messageFormat:  "Internal transpiler exception - {0}",
-                category:       "Design",
-                defaultSeverity: DiagnosticSeverity.Warning,
-                isEnabledByDefault: true,
-                description:    emissionResult.exceptionStacktrace
-            );
-            productionContext.ReportDiagnostic(Diagnostic.Create(customDescriptor, emissionResult.methodLocation, emissionResult.exceptionMessage));
+            emissionResult.ReportException(productionContext);
             return;
         }
         foreach (var data in emissionResult.diagnostics) {
@@ -126,7 +117,8 @@ public sealed partial class Gen : IIncrementalGenerator
             methodLocation = targetSymbol.Locations.FirstOrDefault();
             return GenerateMethod(ctx.SemanticModel, targetSymbol, trigger);
         } catch (Exception exception) {
-            return new EmissionResult(exception.ToString(), exception.StackTrace, methodLocation);
+            var exceptionMessage = $"{exception.GetType()} : {exception.Message}";
+            return new EmissionResult(exceptionMessage, exception.StackTrace, methodLocation);
         }
     }
     

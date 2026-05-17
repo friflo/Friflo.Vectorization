@@ -16,8 +16,8 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     private readonly int                    cachedHash;
     // --- exception
     public  readonly string?                exceptionMessage;
-    public  readonly string?                exceptionStacktrace;
-    public  readonly Location?              methodLocation;
+    private readonly string?                exceptionStacktrace;
+    private readonly Location?              methodLocation;
     
     public EmissionResult(string? message, string? stacktrace, Location? methodLocation)
     {
@@ -53,6 +53,34 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     // Required overrides (just in case)
     public override bool Equals(object obj) => obj is EmissionResult other && Equals(other);
     public override int GetHashCode() => cachedHash;
+    
+    public void ReportException (SourceProductionContext productionContext)
+    {
+        var customDescriptor = new DiagnosticDescriptor(
+            id:             "ECSGEN008",
+            title:          "Transpiler exception",
+            messageFormat:  "Transpiler exception - {0}",
+            category:       "Design",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true
+        );
+        productionContext.ReportDiagnostic(Diagnostic.Create(customDescriptor, methodLocation, exceptionMessage));
+        
+        var traceLines = exceptionStacktrace?.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+        
+        int frameIndex = 1;
+        foreach (var line in traceLines) {
+            var traceDescriptor = new DiagnosticDescriptor(
+                id:             $"ECSGEN008_{frameIndex++:D2}",
+                title:          "Transpiler Stacktrace",
+                messageFormat:  "{0}",
+                category:       "Design",
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true
+            );
+            productionContext.ReportDiagnostic(Diagnostic.Create(traceDescriptor, methodLocation, line.Trim()));
+        }
+    }
 }
 
 public record struct DiagnosticData(
