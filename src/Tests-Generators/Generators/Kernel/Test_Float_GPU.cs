@@ -240,4 +240,94 @@ public partial class Test_Float_GPU : GpuTestBase
             Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Kernel_Min([Span]ref float position, [Span] float velocity)
+    {
+        position = MathF.Min(position, velocity);
+    }
+    
+    [Test]
+    public void Test_Kernel_Min()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        Kernel_MinVector(scalar1, scalar2, false);
+        Kernel_MinKernel(gpuBuffer1, gpuBuffer2);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Kernel_Max([Span]ref float position, [Span] float velocity)
+    {
+        position = MathF.Max(position, velocity);
+    }
+    
+    [Test]
+    public void Test_Kernel_Max()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = n + 100;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        Kernel_MaxVector(scalar1, scalar2, false);
+        Kernel_MaxKernel(gpuBuffer1, gpuBuffer2);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Kernel_Clamp([Span]ref float position, [Span] float min, float max)
+    {
+        position = Math.Clamp(position, min, max);
+    }
+    
+    [Test]
+    public void Test_Kernel_Clamp()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n + 100;
+            scalar2[n] = buffer2[n] = n;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        Kernel_ClampVector(scalar1, scalar2, 200, false);
+        Kernel_ClampKernel(gpuBuffer1, gpuBuffer2, 200);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
 }
