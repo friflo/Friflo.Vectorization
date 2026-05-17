@@ -1,0 +1,18 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (8,20)-(8,30),
+      Message: Internal transpiler error - methodName == null at: Err._IE_(),
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: ECSGEN007,
+        Title: Internal error,
+        MessageFormat: Internal transpiler error - {0}: {1},
+        Category: Syntax,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

@@ -50,7 +50,7 @@ public partial class MyExample
         await Verify(code);
     }
     
-    /* [Test]
+    [Test]
     public static async Task  Verify_InternalError()
     {
         var code =
@@ -58,19 +58,22 @@ public partial class MyExample
 using System.Numerics;
 using Friflo.Vectorization;
 
-namespace VerifyVectorize;
-
-public partial class MyExample
-{
-    [Vectorize] [OmitHash]
-    private static void InternalError([Span] ref float value) {
-        value = CheckInternalError(value);
+namespace VerifyVectorize {
+    public partial class MyExample
+    {
+        [Vectorize] [OmitHash]
+        private static void InternalError([Span] ref float value) {
+            value = Err._IE_();
+        }
     }
+}
 
-    public static float CheckInternalError(float value) { return value; }
+internal static class Err
+{
+    internal static float _IE_() { return 123; }
 }
 """;
         await Verify(code);
-    } */
+    }
  
 }

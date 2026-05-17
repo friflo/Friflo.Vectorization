@@ -8,21 +8,24 @@ using Friflo.Vectorization;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Tests.Generators.Vectorize;
+namespace Tests.Generators.Vectorize {
 
+    public static partial class Test_Errors
+    {
+        // --- Expect:  ECSGEN006: No Vector method generated - At least one [Span] parameter must be specified
+        [Vectorize]  [OmitHash]
+        private static void MissingSpan(ref Vector4 result, Vector4 vec1, Vector4 vec2) {
+            result = Vector4.Cross(vec1, vec2);
+        }
+        
+        [Vectorize]  [OmitHash]
+        private static void InternalError([Span] ref float value) {
+            value = Err._IE_();
+        }
+    }
+}
 
-public static partial class Test_Errors
+internal static class Err
 {
-    // --- Expect:  ECSGEN006: No Vector method generated - At least one [Span] parameter must be specified
-    [Vectorize]  [OmitHash]
-    private static void MissingSpan(ref Vector4 result, Vector4 vec1, Vector4 vec2) {
-        result = Vector4.Cross(vec1, vec2);
-    }
-    
-    /* [Vectorize]  [OmitHash]
-    private static void InternalError([Span] ref float value) {
-        value = CheckInternalError(value);        
-    }
-    
-    private static float CheckInternalError(float value) { return value; } */
+    internal static float _IE_() { return 123; }
 }

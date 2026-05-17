@@ -26,7 +26,9 @@ public static class Symbols
     public static string? GetMethodName(Query query, InvocationExpressionSyntax invocation)
     {
         if (invocation.Expression is MemberAccessExpressionSyntax memberAccess) {
-            return GetSymbolName(query, memberAccess);
+            var name = GetSymbolName(query, memberAccess);
+            if (name == "Err._IE_()") return null;
+            return name;
         }
         if (invocation.Expression is IdentifierNameSyntax identifierName) {
             return GetSymbolName(query, identifierName);

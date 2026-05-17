@@ -66,9 +66,9 @@ public static class Errors
     public static readonly DiagnosticDescriptor InternalError = new (
         id: "ECSGEN007",
         title: "Internal error",
-        messageFormat: "Internal transpiler error - operation not supported: {0}",
+        messageFormat: "Internal transpiler error - {0}: {1}",
         category: "Syntax",
-        defaultSeverity: DiagnosticSeverity.Error,
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true
     );
 

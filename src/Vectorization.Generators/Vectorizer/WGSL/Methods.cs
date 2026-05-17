@@ -15,12 +15,12 @@ public sealed partial class WgslVectorizer
     {
         var methodName = Symbols.GetMethodName(query, invocation);
         if (methodName == null) {
-            query.Diagnostics.ReportDiagnosticSyntax(Errors.InternalError, invocation);
+            query.Diagnostics.ReportDiagnosticSyntax(Errors.InternalError, invocation, "methodName == null at", invocation.ToFullString());
             return ComputeResult.Invalid;
         }
-        var methodReduced = methodName?.Replace("System.Numerics.Vector2", "Vector")
-                                       .Replace("System.Numerics.Vector3", "Vector")
-                                       .Replace("System.Numerics.Vector4", "Vector");
+        var methodReduced = methodName.Replace("System.Numerics.Vector2", "Vector")
+                                      .Replace("System.Numerics.Vector3", "Vector")
+                                      .Replace("System.Numerics.Vector4", "Vector");
         var argList = invocation.ArgumentList;
         switch (methodReduced)
         {
