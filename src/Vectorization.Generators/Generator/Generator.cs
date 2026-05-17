@@ -1,7 +1,9 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Friflo.Vectorization.Generators;
@@ -85,8 +87,21 @@ public sealed partial class Gen : IIncrementalGenerator
 
     
     
-    private static void EmitResult(SourceProductionContext  productionContext, EmissionResult emissionResult)
+    private static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
     {
+        if (emissionResult.exceptionMessage != null) {
+            var customDescriptor = new DiagnosticDescriptor(
+                id:             "ECSGEN008",
+                title:          "Internal transpiler exception",
+                messageFormat:  "Internal transpiler exception - {0}",
+                category:       "Design",
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true,
+                description:    emissionResult.exceptionStacktrace
+            );
+            productionContext.ReportDiagnostic(Diagnostic.Create(customDescriptor, emissionResult.methodLocation, emissionResult.exceptionMessage));
+            return;
+        }
         foreach (var data in emissionResult.diagnostics) {
             var start       = new LinePosition(data.StartLine, data.StartColumn);
             var end         = new LinePosition(data.EndLine, data.EndColumn);
@@ -103,8 +118,16 @@ public sealed partial class Gen : IIncrementalGenerator
         productionContext.AddSource(emissionResult.name, text);
     }
     
-    private static EmissionResult TransformAttribute(GeneratorAttributeSyntaxContext ctx, CancellationToken _, GenerateTrigger trigger) {
-        return GenerateMethod(ctx.SemanticModel, ctx.TargetSymbol, trigger);
+    private static EmissionResult TransformAttribute(GeneratorAttributeSyntaxContext ctx, CancellationToken _, GenerateTrigger trigger)
+    {
+        Location? methodLocation = null;
+        try {
+            var targetSymbol = ctx.TargetSymbol;
+            methodLocation = targetSymbol.Locations.FirstOrDefault();
+            return GenerateMethod(ctx.SemanticModel, targetSymbol, trigger);
+        } catch (Exception exception) {
+            return new EmissionResult(exception.ToString(), exception.StackTrace, methodLocation);
+        }
     }
     
     private static EmissionResult GenerateMethod(SemanticModel semanticModel, ISymbol targetSymbol, GenerateTrigger trigger)

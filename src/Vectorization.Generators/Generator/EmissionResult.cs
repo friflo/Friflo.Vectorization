@@ -14,6 +14,17 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     public  readonly string                 code;
     public  readonly List<DiagnosticData>   diagnostics;
     private readonly int                    cachedHash;
+    // --- exception
+    public  readonly string?                exceptionMessage;
+    public  readonly string?                exceptionStacktrace;
+    public  readonly Location?              methodLocation;
+    
+    public EmissionResult(string? message, string? stacktrace, Location? methodLocation)
+    {
+        exceptionMessage    = message;
+        exceptionStacktrace = stacktrace;
+        this.methodLocation = methodLocation;
+    }
 
     public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
     {
