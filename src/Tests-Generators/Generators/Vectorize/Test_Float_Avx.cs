@@ -61,9 +61,33 @@ public static partial class Test_Float_Avx
         Avx_Trigonometry2Vector(scalar1, false);
         Avx_Trigonometry2Vector(scalar2);
         
-        
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(scalar2[n]).Within(0.01).Percent);
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Vectorize] [OmitHash]
+    private static void Avx_Sign([Span]ref float position)
+    {
+        position = MathF.Sign(position);
+    }
+    
+    [Test]
+    public static void Test_Avx_Sign()
+    {
+        var scalar1     = new float[128];
+        var scalar2     = new float[128];
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = scalar2[n] = (n - 64f) / 64f * 10;
+        }
+
+        Avx_SignVector(scalar1, false);
+        Avx_SignVector(scalar2);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(scalar2[n]));
             Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
