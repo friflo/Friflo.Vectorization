@@ -202,6 +202,38 @@ public partial class Test_Float_GPU : GpuTestBase
     
     // ----------------------------------------------
     [Kernel] [OmitHash]
+    private static void Kernel_Trigonometry2([Span]ref float position)
+    {
+        var sinh     = MathF.Sinh(position);
+        var cosh     = MathF.Cosh(position);
+        var tanh     = MathF.Tanh(position);
+        position += sinh + cosh + tanh;
+    }
+    
+    [Test]
+    public void Test_Kernel_Trigonometry2()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n - 64;
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+
+        Kernel_Trigonometry2Vector(scalar1, false);
+        Kernel_Trigonometry2Kernel(gpuBuffer1);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(0.01).Percent);
+            Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
     private static void Kernel_Misc([Span]ref float position, [Span] float velocity, float value)
     {
         var abs     = MathF.Abs(velocity);

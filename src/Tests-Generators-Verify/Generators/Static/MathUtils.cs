@@ -70,6 +70,24 @@ public static class MathUtils {
         return Vector256.Create(Atanh(x[0]), Atanh(x[1]), Atanh(x[2]), Atanh(x[3]), Atanh(x[4]), Atanh(x[5]), Atanh(x[6]), Atanh(x[7]));
     }
     
+    [SkipLocalsInit]
+    internal static Vector256<float> SinhMathF(Vector256<float> x)
+    {
+        return Vector256.Create(Sinh(x[0]), Sinh(x[1]), Sinh(x[2]), Sinh(x[3]), Sinh(x[4]), Sinh(x[5]), Sinh(x[6]), Sinh(x[7]));
+    }
+    
+    [SkipLocalsInit]
+    internal static Vector256<float> CoshMathF(Vector256<float> x)
+    {
+        return Vector256.Create(Cosh(x[0]), Cosh(x[1]), Cosh(x[2]), Cosh(x[3]), Cosh(x[4]), Cosh(x[5]), Cosh(x[6]), Cosh(x[7]));
+    }
+    
+    [SkipLocalsInit]
+    internal static Vector256<float> TanhMathF(Vector256<float> x)
+    {
+        return Vector256.Create(Tanh(x[0]), Tanh(x[1]), Tanh(x[2]), Tanh(x[3]), Tanh(x[4]), Tanh(x[5]), Tanh(x[6]), Tanh(x[7]));
+    }
+    
     // ------ misc
     [SkipLocalsInit]                    // TODO Vectorize in AvxUtils
     internal static Vector256<float>    AbsMathF(Vector256<float> x)

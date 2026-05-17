@@ -30,6 +30,9 @@ public sealed partial class WgslVectorizer
             case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "asinh");
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "acosh");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "atanh");
+            case "System.MathF.Sinh(float)":        return Method_Scalar    (lanes, query, argList, "sinh");
+            case "System.MathF.Cosh(float)":        return Method_Scalar    (lanes, query, argList, "cosh");
+            case "System.MathF.Tanh(float)":        return Method_Scalar    (lanes, query, argList, "tanh");
             
             case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);

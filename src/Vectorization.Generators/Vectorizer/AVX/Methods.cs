@@ -29,6 +29,9 @@ public sealed partial class AvxVectorizer
             case "System.MathF.Asinh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AsinhMathF");
             case "System.MathF.Acosh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AcoshMathF");
             case "System.MathF.Atanh(float)":       return Method_Scalar    (lanes, query, argList, "MathUtils.AtanhMathF");
+            case "System.MathF.Sinh(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.SinhMathF");
+            case "System.MathF.Cosh(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.CoshMathF");
+            case "System.MathF.Tanh(float)":        return Method_Scalar    (lanes, query, argList, "MathUtils.TanhMathF");
             
             case "Vector.Abs(Vector)":              return Method_Abs       (lanes, query, argList, DataShape.Vector);
             case "System.MathF.Abs(float)":         return Method_Abs       (lanes, query, argList, DataShape.Scalar);
