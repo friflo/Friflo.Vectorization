@@ -62,7 +62,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
             title:          "Transpiler exception",
             messageFormat:  "{0}",
             category:       "Design",
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
         productionContext.ReportDiagnostic(Diagnostic.Create(customDescriptor, methodLocation, exceptionMessage));
