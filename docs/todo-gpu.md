@@ -7,6 +7,7 @@
 - Establish Zero-Copy - "WriteBuffer" vs. "Mapping" (MappedAtCreation)
 - Handle: Out of Memory oder TDR
 - Optimization: Implement "Sub-Padding" for small uniforms in GpuTask.AsUniformEntry<>()
+- Optimization: Use a global uniform ring buffer with dynamic offsets to eliminate CreateBindGroup() for uniforms.
 
 
 ### done
