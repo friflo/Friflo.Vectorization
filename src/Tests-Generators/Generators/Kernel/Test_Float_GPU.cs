@@ -214,7 +214,7 @@ public partial class Test_Float_GPU : GpuTestBase
     public void Test_Kernel_Trigonometry2()
     {
         for (int n = 0; n < 128; n++) {
-            scalar1[n] = buffer1[n] = (n - 64f) / 64f * 20;
+            scalar1[n] = buffer1[n] = (n - 64f) / 64f * 10;
         }
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
