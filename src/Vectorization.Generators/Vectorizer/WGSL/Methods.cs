@@ -103,9 +103,7 @@ public sealed partial class WgslVectorizer
     public ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op)
     {
         var args = argList.Arguments;
-        for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"{op}(");
-        }
+        lanes[0].Append($"{op}(");
         if (!Compute(lanes, query, args[0].Expression)) {
             return ComputeResult.Invalid;
         }
@@ -214,9 +212,7 @@ public sealed partial class WgslVectorizer
     {
         if (method == "log10") query.wgslHelperMethods.Add("log10");
 
-        for (int n = 0; n < lanes.Length; n++) {
-            lanes[n].Append($"{method}(");
-        }
+        lanes[0].Append($"{method}(");
         var args = argList.Arguments;
         for (int i = 0; i < args.Count; i++)
         {

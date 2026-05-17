@@ -14,23 +14,8 @@ public sealed partial class WgslVectorizer
     public StringBuilder[] CreateLanes(Query query, ISymbol? symbol, string parameterName)
     {
         var laneCount = 1;
-        /* ITypeSymbol? typeSymbol = null;
-        if (symbol is ILocalSymbol localSymbol) {
-            typeSymbol = localSymbol.Type;
-        }
-        if (symbol is IFieldSymbol fieldSymbol) {
-            typeSymbol = fieldSymbol.Type;
-        }
-        // SOA
-        var (_, dimension, _) = VectorType.GetTypeDim(typeSymbol);
-        if (query.useDeinterleave && !query.paramTypes.ContainsKey(parameterName)) {
-            query.AddParam(parameterName, false, true, false, dimension);    
-        } */
-
         var lanes = query.lanes = new StringBuilder[laneCount];
-        for (int n = 0; n < laneCount; n++) {
-            lanes[n] = new StringBuilder();
-        }
+        lanes[0] = new StringBuilder();
         return lanes;
     }
     

@@ -46,7 +46,7 @@ public interface IVectorizer
     public  ComputeResult   Method_Distance         (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method);
     
     // --- Operators.cs
-    public StringBuilder[]  CreateLanes             (Query query, ISymbol? symbol, string parameterName);
+    public  StringBuilder[] CreateLanes             (Query query, ISymbol? symbol, string parameterName);
     public  ComputeResult   Compute_Assignment      (StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment);
     public  ComputeResult   Compute_Binary          (StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary);
     
