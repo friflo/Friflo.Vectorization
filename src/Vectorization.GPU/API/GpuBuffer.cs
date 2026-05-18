@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Threading;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -9,23 +10,34 @@ using System.Threading;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-
-public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
+[EditorBrowsable(EditorBrowsableState.Never)]
+public abstract class GpuBuffer : IDisposable
 {
     public    readonly  string      Label;
     public    readonly  int         Length;
     public	  readonly  long        Id              = GpuBufferUtils.NextId();
-    public              GpuTask     LastWritingTask { get; protected set; }
-    internal
-    protected abstract  Span<T>     Span            { get; }
     public	  abstract  GpuDevice   Device          { get; }
+    public              GpuTask     LastWritingTask { get; protected set; }
     public    override  string      ToString()      => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
-
+    
+    // --- abstract
+    public  abstract    bool        IsDisposed { get; }
+    public  abstract    void        Dispose();
+    
     protected GpuBuffer(int length, string label)
     {
         Label   = label;
         Length  = length;
     }
+}
+
+public abstract class GpuBuffer<T> : GpuBuffer  where T : unmanaged
+{
+    internal
+    protected abstract  Span<T>     Span            { get; }
+
+    protected GpuBuffer(int length, string label) :  base(length, label)
+    { }
     
     public T this[int index]
     {
@@ -45,10 +57,6 @@ public abstract class GpuBuffer<T> : IDisposable where T : unmanaged
         }
         Device.Flush();
     }
-    
-    // --- abstract
-    public  abstract    bool    IsDisposed { get; }
-    public  abstract    void    Dispose();
     
     public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);
 }
