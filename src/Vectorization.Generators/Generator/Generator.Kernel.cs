@@ -272,6 +272,7 @@ $$""""
             type        = "int",
             wgslType    = "u32",
             size        = 4,
+            alignment   = 4, 
             refKind     = RefKind.None,
             isCount     = true
         });
@@ -288,6 +289,7 @@ $$""""
                 type        = typeName,
                 wgslType    = "f32", 
                 size        = size,
+                alignment   = 4, 
                 offset      = offset,
                 refKind     = parameter.RefKind,
                 isCount     = false
@@ -295,17 +297,7 @@ $$""""
             offset += size;
             fields.Add(field);
         }
+        UniformCalculator.CalculateLayout(fields);
         return fields;
     }
-}
-
-public struct UniformField
-{
-    public required string      name;
-    public required string      type; // C# type
-    public required string      wgslType;
-    public          int         offset;
-    public required int         size;
-    public required RefKind     refKind;
-    public required bool        isCount;
 }
