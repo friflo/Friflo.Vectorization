@@ -124,12 +124,12 @@ public sealed partial class Gen
         }
         
         // ----------------- uniforms
-        var uniformFields       = GetUniformFields(query);
+        var uniformFields       = new List<UniformField>();
+        var alignedSize         = GetUniformFields(query, uniformFields);
         var uniformAssignments  = new StringBuilder();
         var structFields        = new StringBuilder();
         var wgslFields          = new StringBuilder();
         var uniformHash         = UniformStartHash;
-        var uniformSize         = 0;
 
         foreach (var field in uniformFields)
         {
@@ -141,10 +141,7 @@ public sealed partial class Gen
             uniformAssignments.Append($"\n                {field.name} = {right},");
             structFields.Append($"\n        [FieldOffset({field.offset})]    public {field.type,-10} {field.name};");
             wgslFields.Append($"\n        {field.name,-10} : {field.wgslType},");
-            uniformSize += field.size;
         }
-        // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout (wgsl:Std140)
-        var alignedSize = (uniformSize + 15) & ~15;          // round to multiple of 16
         unchecked {
             // Simulate a Uniform-Binding on @binding(0) for whole uniform group
             uniformHash ^= 0;                                   uniformHash *= Prime;
@@ -264,9 +261,8 @@ $$""""
         return shadowMethodSource;
     }
     
-    private static List<UniformField> GetUniformFields(Query query)
+    private static int GetUniformFields(Query query, List<UniformField> fields)
     {
-        var fields = new List<UniformField>();
         fields.Add(new UniformField {
             name        = "count",
             type        = "int",
@@ -297,7 +293,6 @@ $$""""
             offset += size;
             fields.Add(field);
         }
-        UniformCalculator.CalculateLayout(fields);
-        return fields;
+        return UniformCalculator.CalculateLayout(fields);;
     }
 }
