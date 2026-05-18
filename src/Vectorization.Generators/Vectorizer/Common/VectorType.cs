@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
