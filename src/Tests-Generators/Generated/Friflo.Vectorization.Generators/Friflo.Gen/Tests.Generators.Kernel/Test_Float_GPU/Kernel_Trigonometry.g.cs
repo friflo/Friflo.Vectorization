@@ -292,25 +292,25 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
-        var value = uniforms.value;
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
+        var _value = uniforms.value;
 
-        var fraction = (velocity - trunc(velocity));
-        var gtOne = (value + abs(velocity));
-        var sin = sin(velocity);
-        var cos = cos(velocity);
-        var tan = tan(velocity);
-        var asin = asin(fraction);
-        var acos = acos(fraction);
-        var atan = atan(velocity);
-        var atan2 = atan2(velocity, value);
-        var asinh = asinh(velocity);
-        var acosh = acosh(gtOne);
-        var atanh = atanh(fraction);
-        position += (((((((((sin + cos) + tan) + asin) + acos) + atan) + atan2) + asinh) + acosh) + atanh);
+        var _fraction = (_velocity - trunc(_velocity));
+        var _gtOne = (_value + abs(_velocity));
+        var _sin = sin(_velocity);
+        var _cos = cos(_velocity);
+        var _tan = tan(_velocity);
+        var _asin = asin(_fraction);
+        var _acos = acos(_fraction);
+        var _atan = atan(_velocity);
+        var _atan2 = atan2(_velocity, _value);
+        var _asinh = asinh(_velocity);
+        var _acosh = acosh(_gtOne);
+        var _atanh = atanh(_fraction);
+        _position += (((((((((_sin + _cos) + _tan) + _asin) + _acos) + _atan) + _atan2) + _asinh) + _acosh) + _atanh);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

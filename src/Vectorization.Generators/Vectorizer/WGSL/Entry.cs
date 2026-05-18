@@ -72,7 +72,7 @@ public sealed partial class WgslVectorizer : IVectorizer
                     var symbol = query.SemanticModel.GetDeclaredSymbol(variable);
                     lanes = CreateLanes(query, symbol, variableName);
                     for (int n = 0; n < lanes.Length; n++) {
-                        lanes[n].Append($"var {variableName} = ");
+                        lanes[n].Append($"var _{variableName} = ");
                     }
                     if (!Compute(lanes, query, initializerExpression)) {
                         return false;

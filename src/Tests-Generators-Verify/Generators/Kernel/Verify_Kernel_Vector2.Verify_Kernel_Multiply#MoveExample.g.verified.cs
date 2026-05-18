@@ -219,13 +219,13 @@ namespace VerifyVectorize
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
-        var deltaTime = uniforms.deltaTime;
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
+        var _deltaTime = uniforms.deltaTime;
 
-        position += (velocity * deltaTime);
+        _position += (_velocity * _deltaTime);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

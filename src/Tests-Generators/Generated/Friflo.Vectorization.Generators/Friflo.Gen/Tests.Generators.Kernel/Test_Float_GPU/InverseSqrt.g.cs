@@ -195,11 +195,11 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
+        var _position = position_arr[index];
 
-        position = (5.0 * inverseSqrt(position));
+        _position = (5.0 * inverseSqrt(_position));
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

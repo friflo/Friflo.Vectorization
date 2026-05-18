@@ -263,20 +263,20 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
-        var max = uniforms.max;
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
+        var _max = uniforms.max;
 
-        var abs = abs(velocity);
-        var trunc = trunc(velocity);
-        var round = round(velocity);
-        var min = min(position, velocity);
-        var max2 = max(position, velocity);
-        var clamp = clamp(position, velocity, max);
-        var lerp = mix(position, velocity, max);
-        position = ((((((abs + trunc) + round) + min) + max2) + clamp) + lerp);
+        var _abs = abs(_velocity);
+        var _trunc = trunc(_velocity);
+        var _round = round(_velocity);
+        var _min = min(_position, _velocity);
+        var _max2 = max(_position, _velocity);
+        var _clamp = clamp(_position, _velocity, _max);
+        var _lerp = mix(_position, _velocity, _max);
+        _position = ((((((_abs + _trunc) + _round) + _min) + _max2) + _clamp) + _lerp);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

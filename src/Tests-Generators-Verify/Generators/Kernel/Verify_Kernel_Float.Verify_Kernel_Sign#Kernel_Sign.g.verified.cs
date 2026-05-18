@@ -208,13 +208,13 @@ namespace VerifyVectorize
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var value = uniforms.value;
+        var _position = position_arr[index];
+        var _value = uniforms.value;
 
-        var sign = sign(value);
-        position = sign;
+        var _sign = sign(_value);
+        _position = _sign;
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

@@ -218,13 +218,13 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var min = min_arr[index];
-        var max = uniforms.max;
+        var _position = position_arr[index];
+        var _min = min_arr[index];
+        var _max = uniforms.max;
 
-        position = clamp(position, min, max);
+        _position = clamp(_position, _min, _max);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

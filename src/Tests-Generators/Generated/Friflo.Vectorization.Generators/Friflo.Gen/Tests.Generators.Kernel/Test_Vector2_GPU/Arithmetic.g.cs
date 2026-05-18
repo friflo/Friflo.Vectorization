@@ -251,19 +251,19 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
 
-        var add = (position + velocity);
-        var sub = (position - velocity);
-        var mul = (position * velocity);
-        var div = (position / velocity);
-        position += add;
-        position -= sub;
-        position += mul;
-        position -= div;
+        var _add = (_position + _velocity);
+        var _sub = (_position - _velocity);
+        var _mul = (_position * _velocity);
+        var _div = (_position / _velocity);
+        _position += _add;
+        _position -= _sub;
+        _position += _mul;
+        _position -= _div;
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

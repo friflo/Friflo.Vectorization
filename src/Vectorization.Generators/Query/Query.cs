@@ -57,9 +57,9 @@ public sealed class Query
     public readonly List<string>                dirtyVectors    = [];   // contains vectors that are stored. Meaning they are "dirty"
     public readonly HashSet<string>             dirtyVectorsSet = [];   // same as dirtyVectors
     
-    public readonly Dictionary<string, Param>   paramTypes  = new ();
-    public readonly StringBuilder               locals      = new ();
-    public readonly StringBuilder               computeTemp = new ();
+    public readonly Dictionary<string, Param>   paramTypes      = new ();
+    public readonly StringBuilder               locals          = new ();
+    public readonly StringBuilder               computeTemp     = new ();
     public          int                         computeTempCount;
     public          int                         constLocalsCount;
     public          bool                        requireDeinterleave;
@@ -94,7 +94,7 @@ public sealed class Query
     {
         if (isWgslLane) {
             // case: WGSL
-            return name;
+            return $"_{name}";
         }
         // case: AVX
         if (!useDeinterleave) {

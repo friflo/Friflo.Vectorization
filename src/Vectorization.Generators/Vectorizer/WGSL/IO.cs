@@ -11,11 +11,12 @@ public sealed partial class WgslVectorizer
 {
     public void EmitLoadVector(StringBuilder source, Query query, VectorType vectorType, int step)
     {
+        var name = vectorType.Name;
         if (!vectorType.IsSpan) {
-            source.AppendLine($"        var {vectorType.Name} = uniforms.{vectorType.Name};");
+            source.AppendLine($"        var _{name} = uniforms.{name};");
             return;
         }
-        source.AppendLine($"        var {vectorType.Name} = {vectorType.Name}_arr[index];");
+        source.AppendLine($"        var _{name} = {name}_arr[index];");
     }
     
     public void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
@@ -27,6 +28,6 @@ public sealed partial class WgslVectorizer
         if (!vectorType.IsSpan) {
             return;
         }
-        source.AppendLine($"        {dirtyVector}_arr[index] = {dirtyVector};");
+        source.AppendLine($"        {dirtyVector}_arr[index] = _{dirtyVector};");
     }
 }

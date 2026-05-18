@@ -288,24 +288,24 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
-        var value = uniforms.value;
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
+        var _value = uniforms.value;
 
-        var abs = abs(velocity);
-        var sign = sign(velocity);
-        var floor = floor(velocity);
-        var ceiling = ceil(velocity);
-        var log = log(value);
-        var log2 = log2(value);
-        var log10 = log10(abs);
-        var exp = exp(velocity);
-        var pow = pow(abs, velocity);
-        var round = round(velocity);
-        var sqrt = sqrt(abs);
-        position = ((((((((((abs + sign) + floor) + ceiling) + log) + log2) + log10) + exp) + pow) + round) + sqrt);
+        var _abs = abs(_velocity);
+        var _sign = sign(_velocity);
+        var _floor = floor(_velocity);
+        var _ceiling = ceil(_velocity);
+        var _log = log(_value);
+        var _log2 = log2(_value);
+        var _log10 = log10(_abs);
+        var _exp = exp(_velocity);
+        var _pow = pow(_abs, _velocity);
+        var _round = round(_velocity);
+        var _sqrt = sqrt(_abs);
+        _position = ((((((((((_abs + _sign) + _floor) + _ceiling) + _log) + _log2) + _log10) + _exp) + _pow) + _round) + _sqrt);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

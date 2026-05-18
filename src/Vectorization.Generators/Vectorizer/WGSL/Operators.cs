@@ -43,7 +43,7 @@ public sealed partial class WgslVectorizer
         if (kind != SyntaxKind.SimpleAssignmentExpression) {
             query.readVectors.Add(leftIdentifier);
         }
-        lanes[0].Append($"{leftIdentifier} {wgslOp} ");
+        lanes[0].Append($"_{leftIdentifier} {wgslOp} ");
 
         if (!Compute(lanes, query, assignment.Right)) {
             return ComputeResult.Invalid;

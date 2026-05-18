@@ -208,13 +208,13 @@ namespace VerifyVectorize
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var deltaTime = uniforms.deltaTime;
+        var _position = position_arr[index];
+        var _deltaTime = uniforms.deltaTime;
 
-        var local = deltaTime;
-        position = local;
+        var _local = _deltaTime;
+        _position = _local;
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

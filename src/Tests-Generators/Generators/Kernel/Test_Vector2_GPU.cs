@@ -96,7 +96,7 @@ public partial class Test_Vector2_GPU : GpuTestBase
         position    = abs + trunc + round + min + max2 + clamp + lerp;
     }
         
-    // [Test]
+    [Test]
     public void Test_Kernel_Misc()
     {
         for (int n = 0; n < 128; n++) {
@@ -114,7 +114,10 @@ public partial class Test_Vector2_GPU : GpuTestBase
         gpuBuffer1.Download(gpuBuffer1, buffer1);
         
         for (int n = 0; n < 128; n++) {
-            Assert.That(array1[n], Is.EqualTo(buffer1[n]));
+            var a = array1[n];
+            var b = buffer1[n];
+            Assert.That(a.X, Is.EqualTo(b.X).Within(1e-3f));
+            Assert.That(a.Y, Is.EqualTo(b.Y).Within(1e-3f));
         }
     }
 }

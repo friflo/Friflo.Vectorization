@@ -210,14 +210,14 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
+        var _position = position_arr[index];
 
-        var sinh = sinh(position);
-        var cosh = cosh(position);
-        var tanh = tanh(position);
-        position += ((sinh + cosh) + tanh);
+        var _sinh = sinh(_position);
+        var _cosh = cosh(_position);
+        var _tanh = tanh(_position);
+        _position += ((_sinh + _cosh) + _tanh);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 

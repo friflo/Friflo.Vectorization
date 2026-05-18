@@ -209,12 +209,12 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var position = position_arr[index];
-        var velocity = velocity_arr[index];
+        var _position = position_arr[index];
+        var _velocity = velocity_arr[index];
 
-        position = min(position, velocity);
+        _position = min(_position, _velocity);
 
-        position_arr[index] = position;
+        position_arr[index] = _position;
     }
     """u8;
 
