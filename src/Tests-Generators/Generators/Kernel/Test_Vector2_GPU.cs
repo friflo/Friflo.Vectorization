@@ -120,4 +120,41 @@ public partial class Test_Vector2_GPU : GpuTestBase
             Assert.That(a.Y, Is.EqualTo(b.Y).Within(1e-3f));
         }
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Advanced([Span] ref Vector2 position, [Span] Vector2 velocity) {
+        float   cross       = Vector2.Cross(position, velocity);
+        var     normalize   = Vector2.Normalize(velocity);
+        float   length      = position.Length();
+        float   dist        = Vector2.Distance(position, velocity);
+        float   distSquared = Vector2.DistanceSquared(position, velocity);
+        float   sum = cross + length + dist + distSquared;
+        position = sum * normalize;
+    }
+        
+    [Test]
+    public void Test_Kernel_Advanced()
+    {
+        for (int n = 0; n < 128; n++) {
+            array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
+            array2[n] = buffer2[n] = new Vector2(n * 0.1f + 100, n * 0.1f + 100);
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+
+        AdvancedVector(array1,     array2, false);
+        AdvancedKernel(gpuBuffer1, gpuBuffer2);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            var a = array1[n];
+            var b = buffer1[n];
+            Assert.That(a.X, Is.EqualTo(b.X).Within(1e-2f));
+            Assert.That(a.Y, Is.EqualTo(b.Y).Within(1e-2f));
+        }
+    }
 }
