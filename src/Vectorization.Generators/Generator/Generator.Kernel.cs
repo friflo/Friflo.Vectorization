@@ -83,6 +83,8 @@ public sealed partial class Gen
     private static string EmitKernelPrivate(Query query)
     {
         var vectorTypes = query.VectorTypes;
+        
+        // ----------------- buffers
         var signature           = new StringBuilder();
         var dependencies        = new StringBuilder();
         var bufferBindEntries   = new StringBuilder();
@@ -90,40 +92,53 @@ public sealed partial class Gen
         var bindings            = new StringBuilder();
         var bindingHash         = BindingStartHash;
         int bufferCount = 0;
+        var setTaskOnOutputs    = new StringBuilder();
+
+        for (int n = 0; n < vectorTypes.Length; n++)
+        {
+            var vectorType  = vectorTypes[n];
+            if (!vectorType.IsSpan) {
+                continue;
+            }
+            var parameter   = vectorType.Parameter;
+            var paramName   = parameter.Name;
+            var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            bool isOutput = query.dirtyVectorsSet.Contains(paramName);
+            signature.Append($"\n        GpuBuffer<{type}> {paramName},");
+            if (isOutput) {
+                setTaskOnOutputs.Append($"\n        ((WgpuBuffer<float>){paramName}).SetLastWritingTask(task);");
+            } else {
+                dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
+            }
+            bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
+            var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
+            var storageWgsl   = isOutput ? "read_write"       : "read      ";
+            var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
+            bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
+            bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
+            bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
+            bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
+            // Note: the data type in a buffer is not relevant for layout. Need to understand why.
+            bufferCount++;
+        }
+        
+        // ----------------- uniforms
         var uniformAssignments  = new StringBuilder();
         var uniformFields       = new StringBuilder();
         var wgslFields          = new StringBuilder();
         var uniformHash         = UniformStartHash;
         var uniformSize         = 0;
-        int uniformCount = 1;
-        var setTaskOnOutputs    = new StringBuilder();
+        int uniformCount        = 1;
         
         for (int n = 0; n < vectorTypes.Length; n++)
         {
             var vectorType  = vectorTypes[n];
+            if (vectorType.IsSpan) {
+                continue;
+            }
             var parameter   = vectorType.Parameter;
             var paramName   = parameter.Name;
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (vectorType.IsSpan) {
-                bool isOutput = query.dirtyVectorsSet.Contains(paramName);
-                signature.Append($"\n        GpuBuffer<{type}> {paramName},");
-                if (isOutput) {
-                    setTaskOnOutputs.Append($"\n        ((WgpuBuffer<float>){paramName}).SetLastWritingTask(task);");
-                } else {
-                    dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
-                }
-                bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
-                var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
-                var storageWgsl   = isOutput ? "read_write"       : "read      ";
-                var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
-                bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
-                bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<float> ({bufferCount}); // {binding }");
-                bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
-                bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
-                // Note: the data type in a buffer is not relevant for layout. Need to understand why.
-                bufferCount++;
-                continue;
-            }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
             signature.Append($"\n        {type} {paramName},");
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
