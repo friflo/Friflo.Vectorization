@@ -105,10 +105,11 @@ public sealed partial class Gen
             if (!vectorType.IsSpan) {
                 continue;
             }
-            var parameter   = vectorType.Parameter;
-            var paramName   = parameter.Name;
-            var type        = vectorType.FullQualifiedName;
-            bool isOutput = query.dirtyVectorsSet.Contains(paramName);
+            var parameter           = vectorType.Parameter;
+            var paramName           = parameter.Name;
+            var type                = vectorType.FullQualifiedName;
+            var (wgslType, _, _)    = UniformField.WgslTypeFromType(vectorType.FullQualifiedName);
+            bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
             signature.Append($"\n        GpuBuffer<{type}> {paramName},");
             if (isOutput) {
                 setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task);");
@@ -118,7 +119,7 @@ public sealed partial class Gen
             bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
-            var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<f32>;";
+            var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
             bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
             bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<{type}> ({bufferCount}); // {binding }");
             bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;

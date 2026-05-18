@@ -26,7 +26,7 @@ public partial class Test_Vector2_GPU : GpuTestBase
         position *= velocity;
     }
         
-    // [Test]
+    [Test]
     public void Test_Kernel_Multiply()
     {
         for (int n = 0; n < 128; n++) {

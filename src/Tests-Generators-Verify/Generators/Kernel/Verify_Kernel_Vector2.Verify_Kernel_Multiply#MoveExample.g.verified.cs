@@ -183,8 +183,8 @@ namespace VerifyVectorize
         var bufferLayout = device.GetBindGroupLayout(_MoveExample_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
-            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<Vector2> (0); // var<storage, read_write>  position_arr: array<f32>;
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage <Vector2> (1); // var<storage, read      >  velocity_arr: array<f32>;
+            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<Vector2> (0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage <Vector2> (1); // var<storage, read      >  velocity_arr: array<vec2<f32>>;
             bufferLayout = device.CreateBindGroupLayout(buffers, _MoveExample_GPU_BufferLayoutKey, "MoveExample_buffers"u8);
         }
         // @group(1)
@@ -207,8 +207,8 @@ namespace VerifyVectorize
         deltaTime  : f32,
     };
     
-    @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
-    @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;
+    @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec2<f32>>;
+    @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec2<f32>>;
 
     @group(1) @binding(0) var<uniform>              uniforms: MoveExample_Uniforms;
 
