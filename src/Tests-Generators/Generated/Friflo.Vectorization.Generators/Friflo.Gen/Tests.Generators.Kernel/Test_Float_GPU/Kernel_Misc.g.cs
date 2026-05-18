@@ -272,9 +272,9 @@ namespace Tests.Generators.Kernel
     fn log10(x: f32) -> f32 { return log(x) / 2.3025851; }
 
     struct Kernel_Misc_Uniforms {
-        count      : u32,
-        value      : f32,
-    };
+        count      : u32,           // offset:  0 size:  4
+        value      : f32,           // offset:  4 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;

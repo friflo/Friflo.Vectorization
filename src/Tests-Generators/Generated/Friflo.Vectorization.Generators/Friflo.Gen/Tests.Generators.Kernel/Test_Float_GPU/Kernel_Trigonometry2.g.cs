@@ -196,8 +196,8 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Kernel_Trigonometry2_GPU_Shader() =>
     """
     struct Kernel_Trigonometry2_Uniforms {
-        count      : u32,
-    };
+        count      : u32,           // offset:  0 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
 

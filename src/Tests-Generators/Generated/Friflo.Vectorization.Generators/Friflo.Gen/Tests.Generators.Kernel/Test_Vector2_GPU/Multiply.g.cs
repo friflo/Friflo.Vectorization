@@ -194,8 +194,8 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>
     """
     struct Multiply_Uniforms {
-        count      : u32,
-    };
+        count      : u32,           // offset:  0 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec2<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec2<f32>>;

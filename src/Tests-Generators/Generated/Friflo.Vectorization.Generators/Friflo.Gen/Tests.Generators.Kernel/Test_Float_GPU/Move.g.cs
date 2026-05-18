@@ -202,9 +202,9 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Move_GPU_Shader() =>
     """
     struct Move_Uniforms {
-        count      : u32,
-        deltaTime  : f32,
-    };
+        count      : u32,           // offset:  0 size:  4
+        deltaTime  : f32,           // offset:  4 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;

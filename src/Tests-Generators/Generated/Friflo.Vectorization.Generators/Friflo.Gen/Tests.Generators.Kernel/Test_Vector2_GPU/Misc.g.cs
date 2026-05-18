@@ -247,9 +247,9 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>
     """
     struct Misc_Uniforms {
-        max        : vec2<f32>,
-        count      : u32,
-    };
+        max        : vec2<f32>,     // offset:  0 size:  8
+        count      : u32,           // offset:  8 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec2<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec2<f32>>;

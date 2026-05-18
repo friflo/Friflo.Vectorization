@@ -279,8 +279,8 @@ namespace Tests.Generators.Kernel
     fn distanceSquared2(a: vec2<f32>, b: vec2<f32>) -> f32 { let d = a - b; return dot(d, d); }
 
     struct Advanced_Uniforms {
-        count      : u32,
-    };
+        count      : u32,           // offset:  0 size:  4
+    };                              //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec2<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec2<f32>>;
