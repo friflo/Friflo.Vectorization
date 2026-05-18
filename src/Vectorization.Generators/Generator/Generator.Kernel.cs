@@ -129,7 +129,6 @@ public sealed partial class Gen
         var wgslFields          = new StringBuilder();
         var uniformHash         = UniformStartHash;
         var uniformSize         = 0;
-        int uniformCount        = 0;
 
         foreach (var field in uniformFields)
         {
@@ -139,15 +138,12 @@ public sealed partial class Gen
             }
             var right = field.isCount ? "buffers.count" : field.name;
             uniformAssignments.Append($"\n                {field.name} = {right},");
-            structFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public {field.type,-10} {field.name};");
+            structFields.Append($"\n        [FieldOffset({field.offset})]    public {field.type,-10} {field.name};");
             wgslFields.Append($"\n        {field.name,-10} : {field.wgslType},");
-            uniformSize += 4;   // TODO use correct increment (field) size for: vec3, Vector4, ...
-            uniformCount++;
+            uniformSize += field.size;
         }
-        // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout
-        // uniformSize + 4 because of 'count' u32 at the beginning
-        var totalBytes  = (uniformSize + 4);
-        var alignedSize = (totalBytes + 15) & ~15;          // round to multiple of 16
+        // WebGPU requires 16-byte alignment for the size of the uniform type (= struct) in layout (wgsl:Std140)
+        var alignedSize = (uniformSize + 15) & ~15;          // round to multiple of 16
         unchecked {
             // Simulate a Uniform-Binding on @binding(0) for whole uniform group
             uniformHash ^= 0;                                   uniformHash *= Prime;
@@ -278,20 +274,24 @@ $$""""
             refKind     = RefKind.None,
             isCount     = true
         });
+        int offset = 4; // TODO remove
         foreach (var vectorType in query.VectorTypes) {
             if (vectorType.IsSpan) {
                 continue;
             }
             var parameter = vectorType.Parameter;
             var typeName = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var size = 4;
             var field = new UniformField {
                 name        = parameter.Name,
                 type        = typeName,
                 wgslType    = "f32", 
-                size        = 4,
+                size        = size,
+                offset      = offset,
                 refKind     = parameter.RefKind,
                 isCount     = false
             };
+            offset += size;
             list.Add(field);
         }
         return list;
@@ -331,6 +331,7 @@ public struct UniformField
     public required string      name;
     public required string      type; // C# type
     public required string      wgslType;
+    public          int         offset;
     public required int         size;
     public required RefKind     refKind;
     public required bool        isCount;
