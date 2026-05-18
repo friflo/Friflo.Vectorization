@@ -234,8 +234,8 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Kernel_Misc_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int      count;
-        [FieldOffset(4)]    public float    value;
+        [FieldOffset(0)]    public int        count;
+        [FieldOffset(4)]    public float      value;
     }
     
     private static readonly int _Kernel_Misc_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -271,8 +271,8 @@ namespace Tests.Generators.Kernel
     fn log10(x: f32) -> f32 { return log(x) / 2.3025851; }
 
     struct Kernel_Misc_Uniforms {
-        count   : u32,
-        value : f32,
+        count      : u32,
+        value      : f32,
     };
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;

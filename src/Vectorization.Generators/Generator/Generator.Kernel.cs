@@ -129,19 +129,18 @@ public sealed partial class Gen
         var wgslFields          = new StringBuilder();
         var uniformHash         = UniformStartHash;
         var uniformSize         = 0;
-        int uniformCount        = 1;
+        int uniformCount        = 0;
 
-        foreach (var uniformField in uniformFields)
+        foreach (var field in uniformFields)
         {
-            var vectorType  = uniformField.vectorType;
-            var parameter   = vectorType.Parameter;
-            var paramName   = parameter.Name;
-            var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"\n        {type} {paramName},");
-            uniformAssignments.Append($"\n                {paramName} = {paramName},");
-            structFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
-            wgslFields.Append($"\n        {paramName} : f32,");
+            GeneratorUtils.AppendRefKind(signature, field.refKind);
+            if (!field.isCount) {
+                signature.Append($"\n        {field.type} {field.name},");
+            }
+            var right = field.isCount ? "buffers.count" : field.name;
+            uniformAssignments.Append($"\n                {field.name} = {right},");
+            structFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public {field.type,-10} {field.name};");
+            wgslFields.Append($"\n        {field.name,-10} : {field.wgslType},");
             uniformSize += 4;   // TODO use correct increment (field) size for: vec3, Vector4, ...
             uniformCount++;
         }
@@ -196,8 +195,7 @@ $$""""
             }
             pass.SetBindGroup(0, bufferGroup);
             
-            var uniforms = new {{methodName_GPU}}_Uniforms {
-                count = buffers.count,{{uniformAssignments}}
+            var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -218,8 +216,7 @@ $$""""
     
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
     private struct {{methodName_GPU}}_Uniforms
-    {
-        [FieldOffset(0)]    public int      count;{{structFields}}
+    {{{structFields}}
     }
     
     private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -250,8 +247,7 @@ $$""""
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """{{wgslHelperMethods}}
-    struct {{methodName}}_Uniforms {
-        count   : u32,{{wgslFields}}
+    struct {{methodName}}_Uniforms {{{wgslFields}}
     };
     
 {{bindings}}
@@ -274,11 +270,28 @@ $$""""
     private static List<UniformField> GetUniformFields(Query query)
     {
         var list = new List<UniformField>();
+        list.Add(new UniformField {
+            name        = "count",
+            type        = "int",
+            wgslType    = "u32",
+            size        = 4,
+            refKind     = RefKind.None,
+            isCount     = true
+        });
         foreach (var vectorType in query.VectorTypes) {
             if (vectorType.IsSpan) {
                 continue;
             }
-            var field = new UniformField { vectorType = vectorType };
+            var parameter = vectorType.Parameter;
+            var typeName = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var field = new UniformField {
+                name        = parameter.Name,
+                type        = typeName,
+                wgslType    = "f32", 
+                size        = 4,
+                refKind     = parameter.RefKind,
+                isCount     = false
+            };
             list.Add(field);
         }
         return list;
@@ -315,5 +328,10 @@ $$""""
 
 public struct UniformField
 {
-    public required VectorType vectorType;
+    public required string      name;
+    public required string      type; // C# type
+    public required string      wgslType;
+    public required int         size;
+    public required RefKind     refKind;
+    public required bool        isCount;
 }

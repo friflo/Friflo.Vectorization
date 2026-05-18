@@ -158,8 +158,8 @@ namespace VerifyVectorize
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Kernel_Sign_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int      count;
-        [FieldOffset(4)]    public float    value;
+        [FieldOffset(0)]    public int        count;
+        [FieldOffset(4)]    public float      value;
     }
     
     private static readonly int _Kernel_Sign_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -192,8 +192,8 @@ namespace VerifyVectorize
     private static ReadOnlySpan<byte> _Kernel_Sign_GPU_Shader() =>
     """
     struct Kernel_Sign_Uniforms {
-        count   : u32,
-        value : f32,
+        count      : u32,
+        value      : f32,
     };
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;

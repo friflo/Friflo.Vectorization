@@ -162,7 +162,7 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Kernel_Trigonometry2_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int      count;
+        [FieldOffset(0)]    public int        count;
     }
     
     private static readonly int _Kernel_Trigonometry2_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -195,7 +195,7 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Kernel_Trigonometry2_GPU_Shader() =>
     """
     struct Kernel_Trigonometry2_Uniforms {
-        count   : u32,
+        count      : u32,
     };
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;

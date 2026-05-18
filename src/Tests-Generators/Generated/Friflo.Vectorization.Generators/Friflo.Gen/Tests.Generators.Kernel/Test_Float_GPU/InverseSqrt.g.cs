@@ -147,7 +147,7 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _InverseSqrt_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int      count;
+        [FieldOffset(0)]    public int        count;
     }
     
     private static readonly int _InverseSqrt_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -180,7 +180,7 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _InverseSqrt_GPU_Shader() =>
     """
     struct InverseSqrt_Uniforms {
-        count   : u32,
+        count      : u32,
     };
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;

@@ -166,8 +166,8 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Move_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int      count;
-        [FieldOffset(4)]    public float    deltaTime;
+        [FieldOffset(0)]    public int        count;
+        [FieldOffset(4)]    public float      deltaTime;
     }
     
     private static readonly int _Move_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -201,8 +201,8 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Move_GPU_Shader() =>
     """
     struct Move_Uniforms {
-        count   : u32,
-        deltaTime : f32,
+        count      : u32,
+        deltaTime  : f32,
     };
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
