@@ -112,6 +112,10 @@ public class UniformField
         if (finalRemainder != 0) {
             currentOffset += (maxAlignment - finalRemainder);
         }
+        
+        fields.Clear();
+        fields.AddRange(orderedFields); // update original list
+        
         // Write back the ordered results to the original list references
         return currentOffset;
     }
