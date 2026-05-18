@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Text;
 using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
@@ -94,9 +95,8 @@ public sealed partial class Gen
         int bufferCount = 0;
         var setTaskOnOutputs    = new StringBuilder();
 
-        for (int n = 0; n < vectorTypes.Length; n++)
+        foreach (var vectorType in vectorTypes)
         {
-            var vectorType  = vectorTypes[n];
             if (!vectorType.IsSpan) {
                 continue;
             }
@@ -123,26 +123,24 @@ public sealed partial class Gen
         }
         
         // ----------------- uniforms
+        var uniformFields       = GetUniformFields(query);
         var uniformAssignments  = new StringBuilder();
-        var uniformFields       = new StringBuilder();
+        var structFields        = new StringBuilder();
         var wgslFields          = new StringBuilder();
         var uniformHash         = UniformStartHash;
         var uniformSize         = 0;
         int uniformCount        = 1;
-        
-        for (int n = 0; n < vectorTypes.Length; n++)
+
+        foreach (var uniformField in uniformFields)
         {
-            var vectorType  = vectorTypes[n];
-            if (vectorType.IsSpan) {
-                continue;
-            }
+            var vectorType  = uniformField.vectorType;
             var parameter   = vectorType.Parameter;
             var paramName   = parameter.Name;
             var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
             signature.Append($"\n        {type} {paramName},");
             uniformAssignments.Append($"\n                {paramName} = {paramName},");
-            uniformFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
+            structFields.Append($"\n        [FieldOffset({4 * uniformCount})]    public float    {paramName};");
             wgslFields.Append($"\n        {paramName} : f32,");
             uniformSize += 4;   // TODO use correct increment (field) size for: vec3, Vector4, ...
             uniformCount++;
@@ -165,6 +163,7 @@ public sealed partial class Gen
         var methodName_GPU      = $"_{methodName}_GPU{hash}";
         var wgslHelperMethods   = GenerateWgslHelperMethods(query);
         
+        // ----------------- generate method
         var shadowMethodSource =
 $$""""
 
@@ -220,7 +219,7 @@ $$""""
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
     private struct {{methodName_GPU}}_Uniforms
     {
-        [FieldOffset(0)]    public int      count;{{uniformFields}}
+        [FieldOffset(0)]    public int      count;{{structFields}}
     }
     
     private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -272,6 +271,19 @@ $$""""
         return shadowMethodSource;
     }
     
+    private static List<UniformField> GetUniformFields(Query query)
+    {
+        var list = new List<UniformField>();
+        foreach (var vectorType in query.VectorTypes) {
+            if (vectorType.IsSpan) {
+                continue;
+            }
+            var field = new UniformField { vectorType = vectorType };
+            list.Add(field);
+        }
+        return list;
+    }
+    
     private static StringBuilder GenerateWgslHelperMethods(Query query)
     {
         var sb = new StringBuilder();
@@ -299,4 +311,9 @@ $$""""
         }
         return sb;
     }
+}
+
+public struct UniformField
+{
+    public required VectorType vectorType;
 }
