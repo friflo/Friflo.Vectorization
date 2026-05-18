@@ -30,7 +30,7 @@ public partial class Test_Vector2_GPU : GpuTestBase
     public void Test_Kernel_Multiply()
     {
         for (int n = 0; n < 128; n++) {
-            array1[n] = buffer1[n] = new Vector2(n,n);
+            array1[n] = buffer1[n] = new Vector2(n+1,n+1);
             array2[n] = buffer2[n] = new Vector2(n+100,n+100);
         }
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
@@ -38,6 +38,41 @@ public partial class Test_Vector2_GPU : GpuTestBase
 
         MultiplyVector(array1,    array2, false);
         MultiplyKernel(gpuBuffer1, gpuBuffer2);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(array1[n], Is.EqualTo(buffer1[n]));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Arithmetic([Span] ref Vector2 position, [Span] Vector2 velocity) {
+        var add = position + velocity;
+        var sub = position - velocity;
+        var mul = position * velocity;
+        var div = position / velocity;
+        position += add;
+        position -= sub;
+        position += mul;
+        position -= div;
+    }
+        
+    [Test]
+    public void Test_Kernel_Arithmetic()
+    {
+        for (int n = 0; n < 128; n++) {
+            array1[n] = buffer1[n] = new Vector2(n,n);
+            array2[n] = buffer2[n] = new Vector2(n+100,n+100);
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+
+        ArithmeticVector(array1,    array2, false);
+        ArithmeticKernel(gpuBuffer1, gpuBuffer2);
         
         Device.Wait(gpuBuffer1);
         
