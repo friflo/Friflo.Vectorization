@@ -82,4 +82,39 @@ public partial class Test_Vector2_GPU : GpuTestBase
             Assert.That(array1[n], Is.EqualTo(buffer1[n]));
         }
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Misc([Span] ref Vector2 position, [Span] Vector2 velocity, Vector2 max) {
+        var abs     = Vector2.Abs(velocity);
+        var trunc   = Vector2.Truncate(velocity);
+        var round   = Vector2.Round(velocity);
+        var min     = Vector2.Min(position, velocity);
+        var max2    = Vector2.Max(position, velocity);
+        var clamp   = Vector2.Clamp(position, velocity, max);
+        var lerp    = Vector2.Lerp(position, velocity, max);
+        position    = abs + trunc + round + min + max2 + clamp + lerp;
+    }
+        
+    // [Test]
+    public void Test_Kernel_Misc()
+    {
+        for (int n = 0; n < 128; n++) {
+            array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
+            array2[n] = buffer2[n] = new Vector2(n * 0.1f + 100, n * 0.1f + 100);
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+
+        MiscVector(array1,     array2,     new Vector2(5.5f, 6.6f), false);
+        MiscKernel(gpuBuffer1, gpuBuffer2, new Vector2(5.5f, 6.6f));
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(array1[n], Is.EqualTo(buffer1[n]));
+        }
+    }
 }
