@@ -24,8 +24,9 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    private GpuBuffers(bool areSpans) {
-        this.areSpans = true;
+    private GpuBuffers(int count) {
+        this.count      = count;
+        this.areSpans   = true;
     }
     
     private GpuBuffers(int count, ulong hash, GpuDevice device, string firstParam) {
@@ -40,18 +41,18 @@ public struct GpuBuffers
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            return new GpuBuffers(true);
+            return new GpuBuffers(buffer.Count);
         }
         var bufferDevice = gpuBuffer.Device;
         ulong hash;
         unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(buffer.Count, hash, bufferDevice, paramName);
+        var buffers = new GpuBuffers(gpuBuffer.Length, hash, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {
             return buffers;
         }
-        buffers.ValidateError(buffer, paramName);
+        buffers.ValidateError(gpuBuffer, buffer.Count, paramName);
         return default;
     }
     
@@ -67,19 +68,18 @@ public struct GpuBuffers
             if (bufferDevice != null    &&
                !bufferDevice.IsDisposed &&
                 bufferDevice == device  &&
-                buffer.Count == count)
+                gpuBuffer.Length == count)
             {
                 unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
             }
         }
-        ValidateError(buffer, paramName);
+        ValidateError(gpuBuffer, buffer.Count, paramName);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private void ValidateError<T>(Buffer<T> buffer, string paramName) where T : unmanaged
+    private void ValidateError(GpuBuffer gpuBuffer, int bufferLength, string paramName)
     {
-        var gpuBuffer = buffer.gpuBuffer;
         if ((areSpans && gpuBuffer != null) ||
            (!areSpans && gpuBuffer == null)) {
             throw new InvalidOperationException($"Identity Crisis: Parameter '{paramName}' identifies as a GPU resource but lacks hardware-credentials.");
@@ -91,8 +91,8 @@ public struct GpuBuffers
         if (bufferDevice.IsDisposed) {
             throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
         }
-        if (buffer.Count != count) {
-            throw new InvalidOperationException($"Totalitarian Sizing: Parameter '{paramName}' (Count: {buffer.Count}) is trying to start a revolution against the established order of '{firstParam}' (Count: {count}). In this method, the first parameter is the Law. Everyone else must follow its lead or be purged from the pipeline.");
+        if (bufferLength != count) {
+            throw new InvalidOperationException($"Totalitarian Sizing: Parameter '{paramName}' (Count: {bufferLength}) is trying to start a revolution against the established order of '{firstParam}' (Count: {count}). In this method, the first parameter is the Law. Everyone else must follow its lead or be purged from the pipeline.");
         }
         if (bufferDevice == device) {
             return;    
