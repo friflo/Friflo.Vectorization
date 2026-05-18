@@ -6,6 +6,7 @@ using System.Text;
 using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable UseObjectOrCollectionInitializer
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
@@ -156,7 +157,7 @@ public sealed partial class Gen
         var hash                = query.Hash;
         var methodName          = query.BlueprintMethod.Name;
         var methodName_GPU      = $"_{methodName}_GPU{hash}";
-        var wgslHelperMethods   = GenerateWgslHelperMethods(query);
+        var wgslHelperMethods   = WgslHelper.GenerateWgslHelperMethods(query);
         
         // ----------------- generate method
         var shadowMethodSource =
@@ -265,8 +266,8 @@ $$""""
     
     private static List<UniformField> GetUniformFields(Query query)
     {
-        var list = new List<UniformField>();
-        list.Add(new UniformField {
+        var fields = new List<UniformField>();
+        fields.Add(new UniformField {
             name        = "count",
             type        = "int",
             wgslType    = "u32",
@@ -292,37 +293,9 @@ $$""""
                 isCount     = false
             };
             offset += size;
-            list.Add(field);
+            fields.Add(field);
         }
-        return list;
-    }
-    
-    private static StringBuilder GenerateWgslHelperMethods(Query query)
-    {
-        var sb = new StringBuilder();
-        if (query.wgslHelperMethods.Count > 0) sb.AppendLine();
-        foreach (var helper in query.wgslHelperMethods)
-        {
-            sb.Append("    ");
-            switch (helper) {
-                case "distanceSquared2":
-                    sb.AppendLine("fn distanceSquared2(a: vec2f, b: vec2f) -> f32 { let d = a - b; return dot(d, d); }");
-                    break;
-                case "distanceSquared3":
-                    sb.AppendLine("fn distanceSquared3(a: vec3f, b: vec3f) -> f32 { let d = a - b; return dot(d, d); }");
-                    break;
-                case "distanceSquared4":
-                    sb.AppendLine("fn distanceSquared4(a: vec4f, b: vec4f) -> f32 { let d = a - b; return dot(d, d); }");
-                    break;
-                case "cross2d":
-                    sb.AppendLine("fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }");
-                    break;
-                case "log10":
-                    sb.AppendLine("fn log10(x: f32) -> f32 { return log(x) / 2.3025851; }");
-                    break;
-            }
-        }
-        return sb;
+        return fields;
     }
 }
 
