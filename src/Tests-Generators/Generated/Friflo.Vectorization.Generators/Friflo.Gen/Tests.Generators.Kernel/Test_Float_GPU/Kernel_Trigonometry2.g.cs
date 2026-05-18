@@ -21,7 +21,7 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<float> Kernel_Trigonometry2Kernel(
             Buffer<float> position)
         {
-            GpuBuffers buffers = new(position, nameof(position));
+            var buffers = GpuBuffers.Create(position, nameof(position));
 
             if (!buffers.areSpans) {
                 return _Kernel_Trigonometry2_GPU(buffers, position.gpuBuffer);

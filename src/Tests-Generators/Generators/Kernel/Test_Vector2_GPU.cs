@@ -19,14 +19,14 @@ public partial class Test_Vector2_GPU : GpuTestBase
     private readonly Vector2[]    array2  = new Vector2[128];
     private readonly Vector2[]    buffer1 = new Vector2[128];
     private readonly Vector2[]    buffer2 = new Vector2[128];
-    /*
+
     // ----------------------------------------------
     [Kernel] [OmitHash]
     private static void Multiply([Span] ref Vector2 position, [Span] Vector2 velocity) {
         position *= velocity;
     }
         
-    [Test]
+    // [Test]
     public void Test_Kernel_Multiply()
     {
         for (int n = 0; n < 128; n++) {
@@ -46,5 +46,5 @@ public partial class Test_Vector2_GPU : GpuTestBase
         for (int n = 0; n < 128; n++) {
             Assert.That(array1[n], Is.EqualTo(buffer1[n]));
         }
-    } */
+    }
 }

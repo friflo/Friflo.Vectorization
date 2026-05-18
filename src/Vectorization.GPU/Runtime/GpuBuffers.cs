@@ -24,29 +24,39 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public GpuBuffers(Buffer<float> buffer, string paramName )
-    {
-        var gpuBuffer = buffer.gpuBuffer;
-        if (gpuBuffer == null) {
-            areSpans = true;
-            return;
-        }
-        var bufferDevice = gpuBuffer.Device;
-        if (bufferDevice != null    &&
-           !bufferDevice.IsDisposed)
-        {
-            firstParam  = paramName;
-            device      = bufferDevice;
-            count       = buffer.Count;
-            unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-            return;
-        }
-        ValidateError(buffer, paramName);
+    private GpuBuffers(bool areSpans) {
+        this.areSpans = true;
+    }
+    
+    private GpuBuffers(int count, ulong hash, GpuDevice device, string firstParam) {
+        this.count      = count;
+        this.hash       = hash;
+        this.device     = device;
+        this.firstParam = firstParam;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Validate(Buffer<float> buffer, string paramName)
+    public static GpuBuffers Create<T>(Buffer<T> buffer, string paramName) where T : unmanaged
+    {
+        var gpuBuffer = buffer.gpuBuffer;
+        if (gpuBuffer == null) {
+            return new GpuBuffers(true);
+        }
+        var bufferDevice = gpuBuffer.Device;
+        ulong hash;
+        unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
+        var buffers = new GpuBuffers(buffer.Count, hash, bufferDevice, paramName);
+        if (bufferDevice != null    &&
+           !bufferDevice.IsDisposed)
+        {
+            return buffers;
+        }
+        buffers.ValidateError(buffer, paramName);
+        return default;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Validate<T>(Buffer<T> buffer, string paramName) where T : unmanaged
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (areSpans && gpuBuffer == null) {
@@ -67,7 +77,7 @@ public struct GpuBuffers
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private void ValidateError(Buffer<float> buffer, string paramName)
+    private void ValidateError<T>(Buffer<T> buffer, string paramName) where T : unmanaged
     {
         var gpuBuffer = buffer.gpuBuffer;
         if ((areSpans && gpuBuffer != null) ||

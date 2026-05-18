@@ -35,9 +35,9 @@ public sealed partial class Gen
             if (vectorType.IsSpan) {
                 signature.Append($"\n            Buffer<{type}> {parameter.Name},");
                 if (n == 0) {
-                    validate.Append($"            GpuBuffers buffers = new({parameter.Name}, nameof({parameter.Name}));\n");
+                    validate.Append($"            var buffers = GpuBuffers.Create({parameter.Name}, nameof({parameter.Name}));\n");
                 } else {
-                    validate.Append($"            buffers.Validate        ({parameter.Name}, nameof({parameter.Name}));\n");
+                    validate.Append($"            buffers.Validate({parameter.Name}, nameof({parameter.Name}));\n");
                 }
                 gpuParams.Append($"{parameter.Name}.gpuBuffer, ");
                 avxParams.Append($"{parameter.Name}.span, ");

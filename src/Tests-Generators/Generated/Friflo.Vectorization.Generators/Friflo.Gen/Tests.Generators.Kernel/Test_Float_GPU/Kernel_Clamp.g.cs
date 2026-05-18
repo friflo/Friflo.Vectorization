@@ -23,8 +23,8 @@ namespace Tests.Generators.Kernel
             Buffer<float> min,
             float max)
         {
-            GpuBuffers buffers = new(position, nameof(position));
-            buffers.Validate        (min, nameof(min));
+            var buffers = GpuBuffers.Create(position, nameof(position));
+            buffers.Validate(min, nameof(min));
 
             if (!buffers.areSpans) {
                 return _Kernel_Clamp_GPU(buffers, position.gpuBuffer, min.gpuBuffer, max);

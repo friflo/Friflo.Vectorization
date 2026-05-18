@@ -23,8 +23,8 @@ namespace Tests.Generators.Kernel
             Buffer<float> velocity,
             float value)
         {
-            GpuBuffers buffers = new(position, nameof(position));
-            buffers.Validate        (velocity, nameof(velocity));
+            var buffers = GpuBuffers.Create(position, nameof(position));
+            buffers.Validate(velocity, nameof(velocity));
 
             if (!buffers.areSpans) {
                 return _Kernel_Misc_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, value);

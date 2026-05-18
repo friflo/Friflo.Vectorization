@@ -22,8 +22,8 @@ namespace Tests.Generators.Kernel
             Buffer<float> position,
             Buffer<float> velocity)
         {
-            GpuBuffers buffers = new(position, nameof(position));
-            buffers.Validate        (velocity, nameof(velocity));
+            var buffers = GpuBuffers.Create(position, nameof(position));
+            buffers.Validate(velocity, nameof(velocity));
 
             if (!buffers.areSpans) {
                 return _Kernel_Min_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);

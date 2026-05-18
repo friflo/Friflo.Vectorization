@@ -29,9 +29,9 @@ public  static partial class GpuPattern
         Buffer<float>   output,
         ExeType         exe = ExeType.GPU)
     {
-        GpuBuffers buffers = new(weight, nameof(weight));
-        buffers.Validate        (input,  nameof(input));
-        buffers.Validate        (output, nameof(output));
+        var buffers = GpuBuffers.Create(weight, nameof(weight));
+        buffers.Validate (input,  nameof(input));
+        buffers.Validate (output, nameof(output));
 
         if (!buffers.areSpans) {
             switch (GpuTestGlobal.TestBackend) {

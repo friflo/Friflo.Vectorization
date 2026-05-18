@@ -23,7 +23,7 @@ namespace VerifyVectorize
             Buffer<float> position,
             float deltaTime)
         {
-            GpuBuffers buffers = new(position, nameof(position));
+            var buffers = GpuBuffers.Create(position, nameof(position));
 
             if (!buffers.areSpans) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);

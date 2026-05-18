@@ -23,8 +23,8 @@ namespace Tests.Generators.Kernel
             Buffer<float> velocity,
             float deltaTime)
         {
-            GpuBuffers buffers = new(position, nameof(position));
-            buffers.Validate        (velocity, nameof(velocity));
+            var buffers = GpuBuffers.Create(position, nameof(position));
+            buffers.Validate(velocity, nameof(velocity));
 
             if (!buffers.areSpans) {
                 return _Move_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);

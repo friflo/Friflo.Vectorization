@@ -21,7 +21,7 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<float> UseConstantKernel(
             Buffer<float> position)
         {
-            GpuBuffers buffers = new(position, nameof(position));
+            var buffers = GpuBuffers.Create(position, nameof(position));
 
             if (!buffers.areSpans) {
                 return _UseConstant_GPU(buffers, position.gpuBuffer);
