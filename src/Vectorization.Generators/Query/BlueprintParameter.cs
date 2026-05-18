@@ -11,6 +11,7 @@ namespace Friflo.Vectorization.Generators;
 public sealed class BlueprintParameter
 {
     public required IParameterSymbol    Symbol      { get; init; }
+    public required string              TypeName    { get; init; }
     public required VectorType?         VectorType  { get; init; }
     public required bool                IsSpan      { get; init; }
     public required bool                IsEntity    { get; init; }
@@ -39,18 +40,22 @@ public sealed class BlueprintParameter
             var parameter = parameters[n];
             VectorType? vectorType  = null;
             bool        isSpan      = false;
+            var typeName = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            if (typeName.StartsWith("global::System.Numerics.")){
+                typeName = typeName.Substring("global::System.Numerics.".Length);
+            }
             switch (vectorMode) {
                 case VectorMode.Query:
                     isSpan      = IsComponent(parameter.Type, componentInterface!);
-                    vectorType  = VectorType.GetComponentVectorType(parameter, isSpan);
+                    vectorType  = VectorType.GetComponentVectorType(parameter, typeName, isSpan);
                     break;
                 case VectorMode.Vector:
                     isSpan      = GeneratorUtils.HasAttribute(parameter.GetAttributes(), "Friflo.Vectorization.SpanAttribute");
-                    vectorType  = VectorType.GetSpanVectorType(parameter, isSpan);
+                    vectorType  = VectorType.GetSpanVectorType(parameter, typeName, isSpan);
                     break;
             }
             bool isEntity = !isSpan && IsEntityParameter(parameter, entityStruct!);
-            blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
+            blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, TypeName = typeName, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
         }
         return blueprintParam;
     }

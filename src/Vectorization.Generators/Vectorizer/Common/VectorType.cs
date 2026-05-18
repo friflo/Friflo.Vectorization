@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
@@ -54,10 +55,9 @@ public sealed class VectorType
         return vectorTypes;
     }
     
-    public static VectorType? GetComponentVectorType(IParameterSymbol symbol, bool isComponent)
+    public static VectorType? GetComponentVectorType(IParameterSymbol symbol, string typeName, bool isComponent)
     {
         var type = symbol.Type;
-        var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         if (!isComponent) {
             return CreateVectorType(symbol, typeName, false, symbol.Type, VectorLayout.AoS);
         }
@@ -77,10 +77,8 @@ public sealed class VectorType
         return CreateVectorType(symbol, typeName, true, valueField.Type, layout);
     }
     
-    public static VectorType GetSpanVectorType(IParameterSymbol symbol, bool isSpan)
+    public static VectorType GetSpanVectorType(IParameterSymbol symbol, string typeName, bool isSpan)
     {
-        var type        = symbol.Type;
-        var typeName    = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var vectorType  = CreateVectorType(symbol, typeName, isSpan, symbol.Type, VectorLayout.AoS);
         return vectorType;
     }

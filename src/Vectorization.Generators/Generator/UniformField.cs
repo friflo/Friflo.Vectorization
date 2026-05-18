@@ -58,7 +58,7 @@ public class UniformField
                 continue;
             }
             var parameter = vectorType.Parameter;
-            var typeName = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var typeName = vectorType.FullQualifiedName;
             
             (string wgslType, int size, int alignment) = WgslTypeFromType(typeName);
             

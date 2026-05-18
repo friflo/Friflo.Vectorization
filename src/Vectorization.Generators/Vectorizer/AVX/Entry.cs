@@ -242,7 +242,7 @@ public sealed partial class AvxVectorizer : IVectorizer
             var vectorType = span.VectorType!;
             var type = vectorType.Layout == VectorLayout.AoSoA
                 ? "float"
-                : vectorType.Parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                : vectorType.FullQualifiedName;
             @fixed.Append($"            fixed ({type}* {vectorType.Name}_first = {vectorType.Name})");
             @fixed.AppendLine();
         }

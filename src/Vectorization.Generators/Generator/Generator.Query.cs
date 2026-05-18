@@ -37,7 +37,7 @@ public sealed partial class Gen
             if (componentArgs.Length > 1) {
                 componentArgs.Append(", ");
             }
-            string type = component.Symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            string type = component.TypeName;
             componentArgs.Append(type);
             
             // --- chunkVariables
@@ -134,8 +134,7 @@ public sealed partial class Gen
             }
             sb.Append(", ");
             GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
-            string type = symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            sb.Append(type);
+            sb.Append(parameter.TypeName);
             sb.Append(" ");
             sb.Append(symbol.Name);
         }

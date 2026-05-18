@@ -23,7 +23,7 @@ public sealed partial class Gen
         foreach (var vectorType in vectorTypes)
         {
             var parameter = vectorType.Parameter;
-            var type = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var type = vectorType.FullQualifiedName;
             GeneratorUtils.AppendRefKind(lambdaParameters, parameter.RefKind);
             avxParameters.Append(", ");
             if (vectorType.IsSpan) {

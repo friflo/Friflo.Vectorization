@@ -269,6 +269,7 @@ public sealed partial class Gen : IIncrementalGenerator
         var intrinsics = "";
         if (query.vectorized) {
             intrinsics =@"
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;

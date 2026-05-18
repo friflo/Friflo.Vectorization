@@ -29,7 +29,7 @@ public sealed partial class Gen
         {
             var vectorType  = vectorTypes[n];
             var parameter   = vectorType.Parameter;
-            var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var type        = vectorType.FullQualifiedName;
             if (vectorType.IsSpan) {
                 signature.Append($"\n            Buffer<{type}> {parameter.Name},");
                 if (n == 0) {
@@ -103,7 +103,7 @@ public sealed partial class Gen
             }
             var parameter   = vectorType.Parameter;
             var paramName   = parameter.Name;
-            var type        = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var type        = vectorType.FullQualifiedName;
             bool isOutput = query.dirtyVectorsSet.Contains(paramName);
             signature.Append($"\n        GpuBuffer<{type}> {paramName},");
             if (isOutput) {
