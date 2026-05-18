@@ -18,16 +18,16 @@ public static class WgslHelper
             sb.Append("    ");
             switch (helper) {
                 case "distanceSquared2":
-                    sb.AppendLine("fn distanceSquared2(a: vec2f, b: vec2f) -> f32 { let d = a - b; return dot(d, d); }");
+                    sb.AppendLine("fn distanceSquared2(a: vec2<f32>, b: vec2<f32>) -> f32 { let d = a - b; return dot(d, d); }");
                     break;
                 case "distanceSquared3":
-                    sb.AppendLine("fn distanceSquared3(a: vec3f, b: vec3f) -> f32 { let d = a - b; return dot(d, d); }");
+                    sb.AppendLine("fn distanceSquared3(a: vec3<f32>, b: vec3<f32>) -> f32 { let d = a - b; return dot(d, d); }");
                     break;
                 case "distanceSquared4":
-                    sb.AppendLine("fn distanceSquared4(a: vec4f, b: vec4f) -> f32 { let d = a - b; return dot(d, d); }");
+                    sb.AppendLine("fn distanceSquared4(a: vec4<f32>, b: vec4<f32>) -> f32 { let d = a - b; return dot(d, d); }");
                     break;
                 case "cross2d":
-                    sb.AppendLine("fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }");
+                    sb.AppendLine("fn cross2d(a: vec2<f32>, b: vec2<f32>) -> f32 { return a.x * b.y - a.y * b.x; }");
                     break;
                 case "log10":
                     sb.AppendLine("fn log10(x: f32) -> f32 { return log(x) / 2.3025851; }");

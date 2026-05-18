@@ -97,9 +97,9 @@ public sealed partial class WgslVectorizer
         }
         lanes.Append(" * ");
 
-        // 2. vector second - if vector is Vector3 we have to convert to vec4f first
+        // 2. vector second - if vector is Vector3 we have to convert to vec4<f32> first
         if (query.vectorDimension == 3) {
-            lanes.Append("vec4f(");
+            lanes.Append("vec4<f32>(");
             if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
             lanes.Append(", 1.0)"); // 1.0 for position (Transform), 0.0 for direction
         } else {
@@ -251,17 +251,17 @@ public sealed partial class WgslVectorizer
                 lanes.Append(")");
                 return DataShape.Scalar;
             case 3:
-                lanes.Append("cross("); // standard WGSL cross(vec3f, vec3f)
+                lanes.Append("cross("); // standard WGSL cross(vec3<f32>, vec3<f32>)
                 if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
                 lanes.Append(", ");
                 if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
                 lanes.Append(")");
                 return DataShape.Vector;
             case 4:
-                lanes.Append("vec4f(cross("); // treat Vector4 Cross as Vector3 cross (ignore W)
-                lanes.Append("vec3f(");
+                lanes.Append("vec4<f32>(cross("); // treat Vector4 Cross as Vector3 cross (ignore W)
+                lanes.Append("vec3<f32>(");
                 if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
-                lanes.Append("), vec3f(");
+                lanes.Append("), vec3<f32>(");
                 if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
                 lanes.Append(")), 0.0)");
                 return DataShape.Vector;
