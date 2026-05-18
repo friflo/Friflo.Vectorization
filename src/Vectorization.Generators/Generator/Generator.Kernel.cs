@@ -125,7 +125,7 @@ public sealed partial class Gen
         
         // ----------------- uniforms
         var uniformFields       = new List<UniformField>();
-        var alignedSize         = GetUniformFields(query, uniformFields);
+        var alignedSize         = UniformField.GetUniformFields(query, uniformFields);
         var uniformAssignments  = new StringBuilder();
         var structFields        = new StringBuilder();
         var wgslFields          = new StringBuilder();
@@ -261,38 +261,5 @@ $$""""
         return shadowMethodSource;
     }
     
-    private static int GetUniformFields(Query query, List<UniformField> fields)
-    {
-        fields.Add(new UniformField {
-            name        = "count",
-            type        = "int",
-            wgslType    = "u32",
-            size        = 4,
-            alignment   = 4, 
-            refKind     = RefKind.None,
-            isCount     = true
-        });
-        int offset = 4; // TODO remove
-        foreach (var vectorType in query.VectorTypes) {
-            if (vectorType.IsSpan) {
-                continue;
-            }
-            var parameter = vectorType.Parameter;
-            var typeName = parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var size = 4;
-            var field = new UniformField {
-                name        = parameter.Name,
-                type        = typeName,
-                wgslType    = "f32", 
-                size        = size,
-                alignment   = 4, 
-                offset      = offset,
-                refKind     = parameter.RefKind,
-                isCount     = false
-            };
-            offset += size;
-            fields.Add(field);
-        }
-        return UniformCalculator.CalculateLayout(fields);;
-    }
+
 }
