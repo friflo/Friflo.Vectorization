@@ -25,6 +25,9 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
         exceptionMessage    = message;
         exceptionStacktrace = stacktrace;
         this.methodLocation = methodLocation;
+        name        = "";
+        code        = "";
+        diagnostics = [];
     }
 
     public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
@@ -92,7 +95,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
                 if (int.TryParse(lineNumStr, out int lineNumber)) {
                     var position = new LinePosition(lineNumber - 1, 0); 
                     var lineSpan = new LinePositionSpan(position, position);
-                    lineLocation = Location.Create(filePath, new Microsoft.CodeAnalysis.Text.TextSpan(0, 0), lineSpan);
+                    lineLocation = Location.Create(filePath, new TextSpan(0, 0), lineSpan);
                     int bracketIndex = cleanLine.IndexOf('(');
                     if (bracketIndex > 0) {
                         cleanLine = cleanLine.Substring(0, bracketIndex) + "()";

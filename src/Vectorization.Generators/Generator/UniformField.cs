@@ -36,6 +36,8 @@ public class UniformField
 
             "Vector4" or "global::System.Numerics.Vector4"      => ("vec4<f32>", 16, 16),
             
+            "Matrix4x4" or "global::System.Numerics.Matrix4x4"  => ("mat4x4<f32>", 64, 16),
+            
             _ => throw new NotSupportedException($"Type '{typeName}' not supported.")
         };
     }

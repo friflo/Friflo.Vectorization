@@ -86,28 +86,46 @@ public sealed partial class WgslVectorizer
         return ComputeResult.Invalid;
     }
 
-    public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
-    {
-        var args = argList.Arguments;
-        // 1. matrix first (WGSL Standard: matrix * vector)
-        if (args[1].Expression is IdentifierNameSyntax identifierName) {
-            lanes.Append(identifierName.Identifier.Text);
-        } else {
-            if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
-        }
-        lanes.Append(" * ");
+public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
+{
+    var args = argList.Arguments;
+    if (query.vectorDimension < 4) {
+        lanes.Append("(");
+    }
+    // 1. matrix first (WGSL Standard: matrix * vector)
+    if (args[1].Expression is IdentifierNameSyntax identifierName) {
+        var name = query.GetVectorName(identifierName.Identifier.Text, 0);
+        lanes.Append(name);
+    } else {
+        if (!Compute(lanes, query, args[1].Expression)) return ComputeResult.Invalid;
+    }
+    lanes.Append(" * ");
 
-        // 2. vector second - if vector is Vector3 we have to convert to vec4<f32> first
-        if (query.vectorDimension == 3) {
+    // vector second - we convert vector to vev4 if needed
+    switch (query.vectorDimension)
+    {
+        case 2:
             lanes.Append("vec4<f32>(");
             if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
-            lanes.Append(", 1.0)"); // 1.0 for position (Transform), 0.0 for direction
-        } else {
+            lanes.Append(", 0.0, 1.0)"); // Z = 0.0, W = 1.0 for translation
+            break;
+        case 3:
+            lanes.Append("vec4<f32>(");
             if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
-        }
-
-        return DataShape.Vector;
+            lanes.Append(", 1.0)"); // W = 1.0 for translation
+            break;
+        default:
+            if (!Compute(lanes, query, args[0].Expression)) return ComputeResult.Invalid;
+            break;
     }
+    // convert back to original vector
+    if (query.vectorDimension == 2) {
+        lanes.Append(").xy");
+    } else if (query.vectorDimension == 3) {
+        lanes.Append(").xyz");
+    }
+    return DataShape.Vector;
+}
 
     public ComputeResult Method_MinMax(StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op)
     {

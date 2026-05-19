@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Numerics;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
@@ -155,6 +156,44 @@ public partial class Test_Vector2_GPU : GpuTestBase
             var b = buffer1[n];
             Assert.That(a.X, Is.EqualTo(b.X).Within(1e-2f));
             Assert.That(a.Y, Is.EqualTo(b.Y).Within(1e-2f));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void Transform([Span] ref Vector2 position, Matrix4x4 matrix) {
+        position = Vector2.Transform(position, matrix);
+    }
+        
+    [Test]
+    public void Test_Kernel_Transform()
+    {
+        Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(
+            10f * (MathF.PI / 180.0f), // Yaw
+            20f * (MathF.PI / 180.0f), // Pitch
+            30f * (MathF.PI / 180.0f)  // Roll
+        );
+        Matrix4x4 trans = Matrix4x4.CreateTranslation(new Vector3(1f, 2f, 3f));
+        var matrix = Matrix4x4.Multiply(rot, trans);
+        
+        for (int n = 0; n < 128; n++) {
+            array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
+        }
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+
+        TransformVector(array1,     matrix, false);
+        TransformKernel(gpuBuffer1, matrix);
+        
+        Device.Wait(gpuBuffer1);
+        
+        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        
+        for (int n = 0; n < 128; n++) {
+            var a = array1[n];
+            var b = buffer1[n];
+            Assert.That(a.X, Is.EqualTo(b.X).Within(1e-6f));
+            Assert.That(a.Y, Is.EqualTo(b.Y).Within(1e-6f));
         }
     }
 }
