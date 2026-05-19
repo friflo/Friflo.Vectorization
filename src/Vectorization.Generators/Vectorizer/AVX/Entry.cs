@@ -96,7 +96,7 @@ public sealed partial class AvxVectorizer : IVectorizer
     public bool TraverseBody(Query query)
     {
         foreach (var type in query.VectorTypes) {
-            query.AddParam(type.Parameter.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
+            query.AddParam(type.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
         }
         foreach (var syntaxReference in query.BlueprintMethod.DeclaringSyntaxReferences)
         {
@@ -136,14 +136,14 @@ public sealed partial class AvxVectorizer : IVectorizer
             sb.Append(", ");
             var parameter = vectorType.Parameter;
             if (vectorType.IsSpan) {
-                sb.Append($"{parameter.Name}Span");
+                sb.Append($"{vectorType.Name}Span");
                 /* if (vectorType.layout == VectorLayout.SoA) {
                     sb.Append($", chunk.Chunk{n+1}.GetStrideSoA()");
                 } */
                 continue;
             }
             GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
-            sb.Append(parameter.Name);
+            sb.Append(vectorType.Name);
         }
         var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
         var source = $@"
@@ -198,32 +198,32 @@ public sealed partial class AvxVectorizer : IVectorizer
             signature.Append(",");
             if (vectorType.IsSpan) {
                 if (vectorType.ParamType == ParamType.Scalar) {
-                    AvxUtils.ScalarMask(locals, parameter.Name, query.vectorDimension);
+                    AvxUtils.ScalarMask(locals, vectorType.Name, query.vectorDimension);
                 }
                 if (vectorType.Layout == VectorLayout.AoSoA) {
-                    signature.Append($"\n            Span<float> {parameter.Name}"); // , int {parameter.Name}_stride");
+                    signature.Append($"\n            Span<float> {vectorType.Name}"); // , int {parameter.Name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {parameter.Name}");
+                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {vectorType.Name}");
                 continue;
             }
             signature.Append("\n            ");
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"{vectorType.FullQualifiedName} {parameter.Name}");
+            signature.Append($"{vectorType.FullQualifiedName} {vectorType.Name}");
             //
             switch (vectorType.ParamType) {
                 case ParamType.Scalar:
-                    locals.AppendLine($"            var {parameter.Name}_scalar = Vector256.Create({parameter.Name});");
+                    locals.AppendLine($"            var {parameter.Name}_scalar = Vector256.Create({vectorType.Name});");
                     locals.AppendLine();
                     break;
                 default:                // TODO  type should be clear here 
                 case ParamType.Vector:
-                    AvxUtils.InterleaveVector3(locals, parameter.Name, query);
+                    AvxUtils.InterleaveVector3(locals, vectorType.Name, query);
                     locals.AppendLine();
                     break;
                 case ParamType.Matrix4x4:
-                    AvxUtils.LoadMatrix(locals, parameter.Name, query.vectorDimension);
+                    AvxUtils.LoadMatrix(locals, vectorType.Name, query.vectorDimension);
                     locals.AppendLine();
                     break;
             }

@@ -31,22 +31,23 @@ public sealed partial class Gen
         {
             var vectorType  = vectorTypes[n];
             var parameter   = vectorType.Parameter;
+            var name        = vectorType.Name;
             var type        = vectorType.FullQualifiedName;
             if (vectorType.IsSpan) {
-                signature.Append($"\n            Buffer<{type}> {parameter.Name},");
+                signature.Append($"\n            Buffer<{type}> {name},");
                 if (n == 0) {
-                    validate.Append($"            var buffers = GpuBuffers.Create({parameter.Name}, nameof({parameter.Name}));\n");
+                    validate.Append($"            var buffers = GpuBuffers.Create({name}, nameof({name}));\n");
                 } else {
-                    validate.Append($"            buffers.Validate({parameter.Name}, nameof({parameter.Name}));\n");
+                    validate.Append($"            buffers.Validate({name}, nameof({name}));\n");
                 }
-                gpuParams.Append($"{parameter.Name}.gpuBuffer, ");
-                avxParams.Append($"{parameter.Name}.span, ");
+                gpuParams.Append($"{name}.gpuBuffer, ");
+                avxParams.Append($"{name}.span, ");
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"\n            {type} {parameter.Name},");
-            gpuParams.Append($"{parameter.Name}, ");
-            avxParams.Append($"{parameter.Name}, ");
+            signature.Append($"\n            {type} {name},");
+            gpuParams.Append($"{name}, ");
+            avxParams.Append($"{name}, ");
         }
         signature.Length -= 1;
         gpuParams.Length -= 2;
@@ -106,7 +107,7 @@ public sealed partial class Gen
                 continue;
             }
             var parameter           = vectorType.Parameter;
-            var paramName           = parameter.Name;
+            var paramName           = vectorType.Name;
             var type                = vectorType.FullQualifiedName;
             var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);

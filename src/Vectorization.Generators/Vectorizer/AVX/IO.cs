@@ -16,7 +16,7 @@ public sealed partial class AvxVectorizer
             return;
         }
         var laneCount   = query.laneCount;
-        var name        = vectorType.Parameter.Name;
+        var name        = vectorType.Name;
         var typeName    = vectorType.Parameter.Type.Name;
         if (vectorType.ParamType == ParamType.Scalar)
         {
@@ -113,14 +113,14 @@ $"""
     
     public void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
-        var vectorType = query.VectorTypes.FirstOrDefault(v => v.Parameter.Name == dirtyVector);
+        var vectorType = query.VectorTypes.FirstOrDefault(v => v.Name == dirtyVector);
         if (vectorType == null) {
             return;
         }
         if (!vectorType.IsSpan) {
             return;
         }
-        var name = vectorType.Parameter.Name;
+        var name = vectorType.Name;
         if (query.useDeinterleave ||
             query.strategy == Strategy.MixedAdapter && vectorType.Layout == VectorLayout.AoS)
         {

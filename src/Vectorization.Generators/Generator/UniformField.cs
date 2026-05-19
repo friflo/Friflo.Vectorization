@@ -64,7 +64,7 @@ public class UniformField
             (string wgslType, int size, int alignment) = WgslTypeFromType(typeName);
             
             var field = new UniformField {
-                name        = parameter.Name,
+                name        = vectorType.Name,
                 type        = typeName,
                 wgslType    = wgslType, 
                 size        = size,

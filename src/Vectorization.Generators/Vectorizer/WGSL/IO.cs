@@ -21,7 +21,7 @@ public sealed partial class WgslVectorizer
     
     public void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)
     {
-        var vectorType = query.VectorTypes.FirstOrDefault(v => v.Parameter.Name == dirtyVector);
+        var vectorType = query.VectorTypes.FirstOrDefault(v => v.Name == dirtyVector);
         if (vectorType == null) {
             return;
         }

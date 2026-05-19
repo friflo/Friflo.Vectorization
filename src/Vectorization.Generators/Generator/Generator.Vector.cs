@@ -22,24 +22,25 @@ public sealed partial class Gen
         
         foreach (var vectorType in vectorTypes)
         {
-            var parameter = vectorType.Parameter;
-            var type = vectorType.FullQualifiedName;
+            var parameter   = vectorType.Parameter;
+            var type        = vectorType.FullQualifiedName;
+            var name        = vectorType.Name;
             GeneratorUtils.AppendRefKind(lambdaParameters, parameter.RefKind);
             avxParameters.Append(", ");
             if (vectorType.IsSpan) {
-                lambdaParameters.Append($"{parameter.Name}[n], ");
+                lambdaParameters.Append($"{name}[n], ");
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                methodSignature.Append($"{span}<{type}> {parameter.Name}, ");
-                avxParameters.Append(parameter.Name);
+                methodSignature.Append($"{span}<{type}> {name}, ");
+                avxParameters.Append(name);
                 continue;
             }
-            lambdaParameters.Append($"{parameter.Name}, ");
+            lambdaParameters.Append($"{name}, ");
             
             GeneratorUtils.AppendRefKind(methodSignature, parameter.RefKind);
-            methodSignature.Append($"{type} {parameter.Name}, ");
+            methodSignature.Append($"{type} {name}, ");
             
             GeneratorUtils.AppendRefKind(avxParameters, parameter.RefKind);
-            avxParameters.Append(parameter.Name);
+            avxParameters.Append(name);
         }
         lambdaParameters.Length -= 2;
         methodSignature.Length -= 2;
@@ -54,7 +55,7 @@ public sealed partial class Gen
         /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
         public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
         {{
-            int count = {query.VectorTypes[0].Parameter.Name}.Length;
+            int count = {query.VectorTypes[0].Name}.Length;
             int n = 0;
             if (vectorized) {{
                 if (Avx.IsSupported) {{

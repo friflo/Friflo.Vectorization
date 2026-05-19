@@ -47,8 +47,8 @@ public sealed partial class Gen
                 chunkVariables.AppendLine("");
             }
             chunkVariables.Append(vectorType?.Layout == VectorLayout.AoSoA
-                ? $"                var {vectorType.Name}Span = chunk.Chunk{chunkIndex}.GetLanesSoA();"
-                : $"                var {component.Symbol.Name}Span = chunk.Chunk{chunkIndex}.GetComponentSpan();");
+                ? $"                var {component.Name}Span = chunk.Chunk{chunkIndex}.GetLanesSoA();"
+                : $"                var {component.Name}Span = chunk.Chunk{chunkIndex}.GetComponentSpan();");
 
             // --- getterAoS / setterAoS
             if (vectorType?.Layout == VectorLayout.AoSoA) {
@@ -136,7 +136,7 @@ public sealed partial class Gen
             GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
             sb.Append(parameter.TypeName);
             sb.Append(" ");
-            sb.Append(symbol.Name);
+            sb.Append(parameter.Name);
         }
         if (vectorized) {
             sb.Append(", bool vectorized = true");
@@ -156,10 +156,10 @@ public sealed partial class Gen
                 GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
                 var vectorType = parameter.VectorType;
                 if (vectorType?.Layout == VectorLayout.AoSoA) {
-                    sb.Append($"{symbol.Name}AoS");                                                          // TODO fix name SoA
+                    sb.Append($"{parameter.Name}AoS");                                                          // TODO fix name SoA
                     continue;
                 }
-                sb.Append($"{symbol.Name}Span[n]");
+                sb.Append($"{parameter.Name}Span[n]");
                 continue;
             }
             if (parameter.IsEntity) {
@@ -167,7 +167,7 @@ public sealed partial class Gen
                 continue;
             }
             GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
-            sb.Append(symbol.Name);
+            sb.Append(parameter.Name);
         }
         return sb;
     }

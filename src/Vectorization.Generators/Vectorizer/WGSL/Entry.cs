@@ -24,7 +24,7 @@ public sealed partial class WgslVectorizer : IVectorizer
     public bool TraverseBody(Query query)
     {
         foreach (var type in query.VectorTypes) {
-            query.AddParam(type.Parameter.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
+            query.AddParam(type.Name, type.IsSpan, type.IsScalar, true, type.Dimension);
         }
         foreach (var syntaxReference in query.BlueprintMethod.DeclaringSyntaxReferences)
         {

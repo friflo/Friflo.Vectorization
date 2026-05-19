@@ -10,13 +10,14 @@ namespace Friflo.Vectorization.Generators;
 
 public sealed class BlueprintParameter
 {
+    public required string              Name        { get; init; }
     public required IParameterSymbol    Symbol      { get; init; }
     public required string              TypeName    { get; init; }
     public required VectorType?         VectorType  { get; init; }
     public required bool                IsSpan      { get; init; }
     public required bool                IsEntity    { get; init; }
 
-    public override string ToString() => Symbol.Name;
+    public override string ToString() => Name;
     
     private static bool IsComponent(ITypeSymbol typeSymbol, INamedTypeSymbol componentInterface) {
         return typeSymbol.AllInterfaces.Contains(componentInterface);
@@ -55,7 +56,14 @@ public sealed class BlueprintParameter
                     break;
             }
             bool isEntity = !isSpan && IsEntityParameter(parameter, entityStruct!);
-            blueprintParam[n] = new BlueprintParameter{ Symbol = parameter, TypeName = typeName, VectorType = vectorType, IsSpan = isSpan, IsEntity = isEntity };
+            blueprintParam[n] = new BlueprintParameter {
+                Name        = parameter.Name,
+                Symbol      = parameter,
+                TypeName    = typeName,
+                VectorType  = vectorType,
+                IsSpan      = isSpan,
+                IsEntity    = isEntity
+            };
         }
         return blueprintParam;
     }
