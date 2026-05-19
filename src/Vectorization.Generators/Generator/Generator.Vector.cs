@@ -22,24 +22,23 @@ public sealed partial class Gen
         
         foreach (var vectorType in vectorTypes)
         {
-            var parameter   = vectorType.Parameter;
             var type        = vectorType.FullQualifiedName;
             var name        = vectorType.Name;
-            GeneratorUtils.AppendRefKind(lambdaParameters, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(lambdaParameters, vectorType.RefKind);
             avxParameters.Append(", ");
             if (vectorType.IsSpan) {
                 lambdaParameters.Append($"{name}[n], ");
-                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
+                var span = vectorType.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
                 methodSignature.Append($"{span}<{type}> {name}, ");
                 avxParameters.Append(name);
                 continue;
             }
             lambdaParameters.Append($"{name}, ");
             
-            GeneratorUtils.AppendRefKind(methodSignature, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(methodSignature, vectorType.RefKind);
             methodSignature.Append($"{type} {name}, ");
             
-            GeneratorUtils.AppendRefKind(avxParameters, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(avxParameters, vectorType.RefKind);
             avxParameters.Append(name);
         }
         lambdaParameters.Length -= 2;

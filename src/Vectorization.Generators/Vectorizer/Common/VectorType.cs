@@ -26,6 +26,7 @@ public sealed class VectorType
 {
     public required string           Name               { get; init; }
     public required IParameterSymbol Parameter          { get; init; }
+    public required RefKind          RefKind            { get; init; }
     public required string           FullQualifiedName  { get; init; }
     public required bool             IsSpan             { get; init; }
     public required bool             IsScalar           { get; init; }
@@ -116,6 +117,7 @@ public sealed class VectorType
         return new VectorType {
             Name                = parameter.Name, 
             Parameter           = parameter,
+            RefKind             = parameter.RefKind,
             FullQualifiedName   = fullQualifiedName,
             IsSpan              = isSpan,
             IsScalar            = isScalar,  

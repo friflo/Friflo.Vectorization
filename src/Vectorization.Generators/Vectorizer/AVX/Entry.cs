@@ -134,7 +134,6 @@ public sealed partial class AvxVectorizer : IVectorizer
         for (int n = 0; n < query.VectorTypes.Length; n++) {
             var vectorType = query.VectorTypes[n];
             sb.Append(", ");
-            var parameter = vectorType.Parameter;
             if (vectorType.IsSpan) {
                 sb.Append($"{vectorType.Name}Span");
                 /* if (vectorType.layout == VectorLayout.SoA) {
@@ -142,7 +141,7 @@ public sealed partial class AvxVectorizer : IVectorizer
                 } */
                 continue;
             }
-            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(sb, vectorType.RefKind);
             sb.Append(vectorType.Name);
         }
         var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
@@ -195,8 +194,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         var signature = new StringBuilder();
         foreach (var vectorType in query.VectorTypes)
         {
-            var parameter   = vectorType.Parameter;
-            var name        = vectorType.Name;
+            var name = vectorType.Name;
             signature.Append(",");
             if (vectorType.IsSpan) {
                 if (vectorType.ParamType == ParamType.Scalar) {
@@ -206,12 +204,12 @@ public sealed partial class AvxVectorizer : IVectorizer
                     signature.Append($"\n            Span<float> {name}"); // , int {name}_stride");
                     continue;
                 }
-                var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
+                var span = vectorType.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
                 signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {name}");
                 continue;
             }
             signature.Append("\n            ");
-            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(signature, vectorType.RefKind);
             signature.Append($"{vectorType.FullQualifiedName} {name}");
             //
             switch (vectorType.ParamType) {

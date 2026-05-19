@@ -30,7 +30,6 @@ public sealed partial class Gen
         for (int n = 0; n < vectorTypes.Length; n++)
         {
             var vectorType  = vectorTypes[n];
-            var parameter   = vectorType.Parameter;
             var name        = vectorType.Name;
             var type        = vectorType.FullQualifiedName;
             if (vectorType.IsSpan) {
@@ -44,7 +43,7 @@ public sealed partial class Gen
                 avxParams.Append($"{name}.span, ");
                 continue;
             }
-            GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
+            GeneratorUtils.AppendRefKind(signature, vectorType.RefKind);
             signature.Append($"\n            {type} {name},");
             gpuParams.Append($"{name}, ");
             avxParams.Append($"{name}, ");
@@ -106,7 +105,6 @@ public sealed partial class Gen
             if (!vectorType.IsSpan) {
                 continue;
             }
-            var parameter           = vectorType.Parameter;
             var paramName           = vectorType.Name;
             var type                = vectorType.FullQualifiedName;
             var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
