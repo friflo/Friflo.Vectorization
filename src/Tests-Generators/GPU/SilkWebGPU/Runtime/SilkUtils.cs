@@ -8,7 +8,7 @@ using System.Text;
 namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 
-internal static class WgpuUtils
+internal static class SilkUtils
 {
     internal static int GetMaxCount(ReadOnlySpan<char> span)
     {

@@ -12,13 +12,13 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.SilkWebGPU;
 
-public sealed unsafe class WgpuAdapter : GpuAdapter
+public sealed unsafe class SilkAdapter : GpuAdapter
 {
     private readonly    Webgpu          wgpu;
     private readonly    Wgpu            wgpuEx;
     private readonly    Adapter*        adapter;
     private readonly    Instance*       instance;
-    private readonly    WgpuAdapterInfo info;
+    private readonly    SilkAdapterInfo info;
     private             bool            isDisposed;
         
     public  override    bool            IsDisposed          => isDisposed;
@@ -35,7 +35,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         GC.SuppressFinalize(this);
     }
     
-   ~WgpuAdapter() {
+   ~SilkAdapter() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -48,7 +48,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         isDisposed = true;
     }
     
-    internal WgpuAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, WgpuAdapterInfo info)
+    internal SilkAdapter(Webgpu wgpu, Wgpu wgpuEx, Adapter* adapter, Instance* instance, SilkAdapterInfo info)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
@@ -72,7 +72,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (device == null) {
-            WgpuInstance.PumpEvents(wgpu, wgpuEx, instance);
+            SilkInstance.PumpEvents(wgpu, wgpuEx, instance);
             if (startTime.ElapsedMilliseconds > timeOutMs) throw new TimeoutException("While requesting device");
         }
         Marshal.FreeHGlobal(name); // after device is set is safe to release. name is consumed asyn
@@ -82,7 +82,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new WgpuDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
+        return new SilkDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
     }
     
     public override GpuLimits GetAdapterLimits()

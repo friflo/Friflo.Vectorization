@@ -17,9 +17,9 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class WgpuTask : GpuTask
+public sealed unsafe class SilkTask : GpuTask
 {
-    private  readonly   WgpuDevice          device;
+    private  readonly   SilkDevice          device;
     internal readonly   Webgpu              wgpu;
     private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
@@ -41,7 +41,7 @@ public sealed unsafe class WgpuTask : GpuTask
 
     
 
-    internal WgpuTask(WgpuDevice device, int taskIndex) {
+    internal SilkTask(SilkDevice device, int taskIndex) {
         this.device         = device;
         wgpu                = device.wgpu;
         slotSize            = device.SlotSize;
@@ -53,7 +53,7 @@ public sealed unsafe class WgpuTask : GpuTask
     
     // The task provides / owns the Encoder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
+    public SilkEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
         var encoder     = device.CreateEncoder(this, encoderLabel); 
         currentEncoder  = encoder.handle;
         return encoder;
@@ -88,7 +88,7 @@ public sealed unsafe class WgpuTask : GpuTask
         throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {slotSize}.");
     } 
     
-    public void Finish(WgpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
+    public void Finish(SilkEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -109,7 +109,7 @@ public sealed unsafe class WgpuTask : GpuTask
         }
     }
     
-    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    public SilkBindGroup CreateBindGroup(SilkBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
@@ -120,11 +120,11 @@ public sealed unsafe class WgpuTask : GpuTask
             };
             var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
-            return new WgpuBindGroup(handle);
+            return new SilkBindGroup(handle);
         }
     }
     
-    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
+    public SilkBindGroup CreateBindGroup(SilkBindGroupLayout layout, Span<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel)
         fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
@@ -136,7 +136,7 @@ public sealed unsafe class WgpuTask : GpuTask
             };
             var handle = wgpu.DeviceCreateBindGroup(device.DevicePtr, &descriptor);
             createdBindGroups.Add((nint)handle);
-            return new WgpuBindGroup(handle);
+            return new SilkBindGroup(handle);
         }
     }
     

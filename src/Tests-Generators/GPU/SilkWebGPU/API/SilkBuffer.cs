@@ -14,10 +14,10 @@ namespace Friflo.Vectorization.SilkWebGPU;
 
 
 
-public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
+public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
-    private             WgpuDevice  device { get; set; }
+    private             SilkDevice  device { get; set; }
     private   readonly  Webgpu      wgpu;
     private   readonly  uint        SizeInBytes;
     
@@ -34,7 +34,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         GC.SuppressFinalize(this);
     }
     
-   ~WgpuBuffer() {
+   ~SilkBuffer() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -46,7 +46,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int length, string bufferLabel)
+    internal SilkBuffer(SilkDevice device, Buffer* buffer, int length, string bufferLabel)
         : base(length, bufferLabel)
     {
         this.device = device;
@@ -91,7 +91,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         var readBuffer  = wg.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         var encoder = wg.DeviceCreateCommandEncoder(DevicePtr, null);
-        wg.CommandEncoderCopyBufferToBuffer(encoder, ((WgpuBuffer<T>)gpuBuffer).handle, 0, readBuffer, 0, size);
+        wg.CommandEncoderCopyBufferToBuffer(encoder, ((SilkBuffer<T>)gpuBuffer).handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wg.CommandEncoderFinish(encoder, null);
         wg.QueueSubmit(QueuePtr, 1, &commandBuffer);  	// releases commandBuffer

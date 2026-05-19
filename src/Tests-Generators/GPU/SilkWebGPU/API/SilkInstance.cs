@@ -49,7 +49,7 @@ namespace Friflo.Vectorization.SilkWebGPU;
  */
 
 
-public sealed unsafe class WgpuInstance : GpuInstance
+public sealed unsafe class SilkInstance : GpuInstance
 {
     private readonly    Webgpu      wgpu;
     private readonly    Wgpu        wgpuEx;
@@ -74,7 +74,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         return wgpuEx;
     }
     
-    private WgpuInstance(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
+    private SilkInstance(Webgpu wgpu, Wgpu wgpuEx, Instance* instance)
     {
         this.wgpu       = wgpu;
         this.wgpuEx     = wgpuEx;
@@ -87,7 +87,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         GC.SuppressFinalize(this);
     }
     
-   ~WgpuInstance() {
+   ~SilkInstance() {
         Dispose(false);  // false: release only native pointers.
     }
     
@@ -100,7 +100,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         isDisposed = true;
     }
 
-    public static WgpuInstance CreateInstance(InstanceExtras instanceExtras)
+    public static SilkInstance CreateInstance(InstanceExtras instanceExtras)
     {
         var wgpu    = WgpuStatic;
         var wgpuEx  = WgpuExStatic;
@@ -119,10 +119,10 @@ public sealed unsafe class WgpuInstance : GpuInstance
         if (instance == null) {
             throw new Exception("The Void Stares Back: Failed to create GpuInstance. Check your drivers!");
         }
-        return new WgpuInstance(wgpu, wgpuEx, instance);
+        return new SilkInstance(wgpu, wgpuEx, instance);
     }
     
-    public WgpuAdapter RequestAdapter(RequestAdapterOptions options, WgpuAdapterInfo adapterInfo)
+    public SilkAdapter RequestAdapter(RequestAdapterOptions options, SilkAdapterInfo adapterInfo)
     {
 		Adapter* adapter = null;
         if (adapterInfo != null) {
@@ -143,8 +143,8 @@ public sealed unsafe class WgpuInstance : GpuInstance
         }
         var props = new AdapterProperties();
         wgpu.AdapterGetProperties(adapter, ref props);
-        var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
-        return new WgpuAdapter(wgpu, wgpuEx, adapter, instance, info);
+        var info = SilkAdapterInfo.CreateAdapterInfo(props, adapter);
+        return new SilkAdapter(wgpu, wgpuEx, adapter, instance, info);
     }
     
     public GlobalReport GenerateReport () {
@@ -167,11 +167,11 @@ public sealed unsafe class WgpuInstance : GpuInstance
         }
     }
     
-    public override WgpuAdapterInfo[] GetAdapterInfos()
+    public override SilkAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
         nuint adapterCount = wgpuEx.InstanceEnumerateAdapters(instance, &options, null);
-        var infos = new WgpuAdapterInfo[adapterCount];
+        var infos = new SilkAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
         wgpuEx.InstanceEnumerateAdapters(instance, &options, adapters);
@@ -180,7 +180,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
             Adapter* adapter = adapters[i];
             AdapterProperties props = default;
             wgpu.AdapterGetProperties(adapter, &props);
-            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
+            infos[i] = SilkAdapterInfo.CreateAdapterInfo(props, adapter);
         }
         return infos;
     }

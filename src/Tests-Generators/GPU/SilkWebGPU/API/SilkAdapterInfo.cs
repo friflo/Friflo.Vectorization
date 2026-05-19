@@ -10,13 +10,13 @@ using Silk.NET.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.SilkWebGPU;
 
-public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
+public sealed unsafe class SilkAdapterInfo : GpuAdapterInfo
 {
     public      Adapter*    Adapter     { get; private init; }
 
-    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
+    internal static SilkAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
     {
-        return new WgpuAdapterInfo {
+        return new SilkAdapterInfo {
             VendorID            = props.VendorID,
             DeviceID            = props.DeviceID,
             AdapterType         = (GpuAdapterType)props.AdapterType,

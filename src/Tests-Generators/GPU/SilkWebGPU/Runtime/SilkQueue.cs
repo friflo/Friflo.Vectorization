@@ -12,12 +12,12 @@ using Buffer = Silk.NET.WebGPU.Buffer;
 namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-internal readonly unsafe struct WgpuQueue
+internal readonly unsafe struct SilkQueue
 {
-    private  readonly   WgpuDevice   device;
+    private  readonly   SilkDevice   device;
     internal readonly   Queue*      handle;
     
-    public WgpuQueue(WgpuDevice device, Queue* handle) {
+    public SilkQueue(SilkDevice device, Queue* handle) {
         this.device = device;
         this.handle = handle;
     }
@@ -32,7 +32,7 @@ internal readonly unsafe struct WgpuQueue
     {
         // Cast userData pointer back to GCHandle
         GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
-        if (handle.Target is WgpuTask task) {
+        if (handle.Target is SilkTask task) {
             task.SetCompleted(true);
             handle.Free(); // free handle - otherwise leak
         }

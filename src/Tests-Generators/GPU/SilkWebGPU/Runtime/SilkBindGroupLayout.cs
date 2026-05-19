@@ -10,33 +10,33 @@ namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct WgpuBindGroupLayout
+public readonly unsafe struct SilkBindGroupLayout
 {
     internal readonly   BindGroupLayout*    handle;         // must contain only this single file
     public              bool                IsCreated =>    handle != null;
     
     public override     string              ToString()  => handle != null ? "Created" : "null";
     
-    internal WgpuBindGroupLayout (BindGroupLayout* handle) {
+    internal SilkBindGroupLayout (BindGroupLayout* handle) {
         this.handle = handle;
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct WgpuLayoutEntry
+public readonly struct SilkLayoutEntry
 {
     internal readonly   int                 Binding;
     internal readonly   BufferBindingType   Type;
 
     public override string ToString() => $"{Binding} {Type}";
 
-    private WgpuLayoutEntry(int binding, BufferBindingType type) {
+    private SilkLayoutEntry(int binding, BufferBindingType type) {
         Binding = binding;
         Type    = type;
     }
     
-    public static WgpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
-    public static WgpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
-    public static WgpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
+    public static SilkLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
+    public static SilkLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
+    public static SilkLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
 }

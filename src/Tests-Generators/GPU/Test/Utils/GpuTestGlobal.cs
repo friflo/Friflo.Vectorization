@@ -52,7 +52,7 @@ public sealed class GpuTestGlobal
     }
     
     private static void SetupSilk () {
-        var instance = Friflo.Vectorization.SilkWebGPU.WgpuInstance.CreateInstance(new Silk.NET.WebGPU.Extensions.WGPU.InstanceExtras {
+        var instance = Friflo.Vectorization.SilkWebGPU.SilkInstance.CreateInstance(new Silk.NET.WebGPU.Extensions.WGPU.InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
         var infos       = instance.GetAdapterInfos();

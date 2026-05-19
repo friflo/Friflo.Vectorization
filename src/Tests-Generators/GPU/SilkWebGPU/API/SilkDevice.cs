@@ -38,7 +38,7 @@ namespace Friflo.Vectorization.SilkWebGPU;
 // Developer Ergonomics
 //  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
-public sealed unsafe class WgpuDevice : GpuDevice
+public sealed unsafe class SilkDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   bool                IsDisposed  => isDisposed;
@@ -47,15 +47,15 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
         
-    private  readonly   WgpuTask[]          taskPool;
-    private  readonly   Stack<WgpuTask>     availableTasks;
-    internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
-    private  readonly   WgpuQueue           queue;
+    private  readonly   SilkTask[]          taskPool;
+    private  readonly   Stack<SilkTask>     availableTasks;
+    internal readonly   SilkBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
+    private  readonly   SilkQueue           queue;
     
     private static      int                 effectSlotCount;
-    private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
-    private             List<WgpuTask>      pendingTasks    = new(1024);
-    private             List<WgpuTask>      inFlightTasks   = new(1024);
+    private             SilkEffect[]        effectSlots  	= new SilkEffect[4];
+    private             List<SilkTask>      pendingTasks    = new(1024);
+    private             List<SilkTask>      inFlightTasks   = new(1024);
     private             GCHandle            deviceHandle;
     private readonly    void*               deviceHandlePtr;
     
@@ -72,7 +72,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     // A finalizer can be call from any thread.
-    ~WgpuDevice() {
+    ~SilkDevice() {
         Dispose(false); // false: release only native pointers
     }
 
@@ -126,13 +126,13 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuTask RentTask() {
+    public SilkTask RentTask() {
         lock (availableTasks) {
             return availableTasks.Pop();
         }
     }
 
-    private void ReturnTask(WgpuTask task)
+    private void ReturnTask(SilkTask task)
     {
         task.Reset();
         lock (availableTasks) {
@@ -150,7 +150,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public static int NewEffectSlot() => Interlocked.Increment(ref effectSlotCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuEffect GetEffect(int slot) {
+    public SilkEffect GetEffect(int slot) {
         var slots = effectSlots;
         if (slot < slots.Length) {
             return slots[slot];
@@ -158,27 +158,27 @@ public sealed unsafe class WgpuDevice : GpuDevice
         return default;
     }
     
-    public ref WgpuEffect CreateEffect(
+    public ref SilkEffect CreateEffect(
         int                 slot,
-        WgpuComputePipeline  pipeline,
-        WgpuBindGroupLayout bufferLayout,
-        WgpuBindGroupLayout uniformLayout)
+        SilkComputePipeline  pipeline,
+        SilkBindGroupLayout bufferLayout,
+        SilkBindGroupLayout uniformLayout)
     {
         var slots = effectSlots;
         if (slot >= slots.Length) {
-            var newSlots = new WgpuEffect[effectSlotCount];
+            var newSlots = new SilkEffect[effectSlotCount];
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
-        slots[slot] = new WgpuEffect(pipeline, bufferLayout, uniformLayout);
+        slots[slot] = new SilkEffect(pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
     }
     
-    public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
+    public void UpdateBufferCache(int slot, SilkBindGroup bindGroup, ulong hash) {
         effectSlots[slot].bufferCache.Update(wgpu, bindGroup, hash);
     }
 
-    internal WgpuDevice(
+    internal SilkDevice(
         Webgpu              wgpu,
         Wgpu                wgpuEx,
         string              label,
@@ -192,15 +192,15 @@ public sealed unsafe class WgpuDevice : GpuDevice
         this.wgpuEx         = wgpuEx;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
-        queue               = new WgpuQueue(this, queuePtr);
+        queue               = new SilkQueue(this, queuePtr);
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
-        taskPool            = new WgpuTask[maxTasks];
-        availableTasks      = new Stack<WgpuTask>(maxTasks);
+        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
+        taskPool            = new SilkTask[maxTasks];
+        availableTasks      = new Stack<SilkTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
-            var task = new WgpuTask(this, i);
+            var task = new SilkTask(this, i);
             taskPool[i] = task;
             availableTasks.Push(task);
         }
@@ -210,7 +210,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         wgpuEx.DevicePoll(DevicePtr, true, null);
     }
 
-    internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
+    internal SilkEncoder CreateEncoder(SilkTask task, ReadOnlySpan<byte> encoderLabel)
     {
         fixed (byte* labelPtr = encoderLabel)
         {
@@ -218,11 +218,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 Label = labelPtr
             };
             var encoder = wgpu.DeviceCreateCommandEncoder(DevicePtr, &desc);
-            return new WgpuEncoder(task, encoder);
+            return new SilkEncoder(task, encoder);
         }
     }
 
-    internal void WriteBuffer<T>(WgpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
+    internal void WriteBuffer<T>(SilkBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
         queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
     }
     
@@ -230,7 +230,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
         var handle = GCHandle.FromIntPtr((IntPtr)userData);
-        if (handle.Target is WgpuDevice device) {
+        if (handle.Target is SilkDevice device) {
             device.ReturnPendingTasks();
         }
     }
@@ -246,7 +246,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Enqueue(WgpuTask task)
+    public void Enqueue(SilkTask task)
     {
         pendingTasks.Add(task);
         if (pendingTasks.Count >= 1024) { 
@@ -291,7 +291,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        var task = (WgpuTask)buffer.LastWritingTask;
+        var task = (SilkTask)buffer.LastWritingTask;
         if (task == null || task.IsCompleted) return;
 
         // We register a callback for the specific task completion
@@ -325,7 +325,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
 
-    private IEnumerable<WgpuTask> SortTasks(GpuTask finalTask)
+    private IEnumerable<SilkTask> SortTasks(GpuTask finalTask)
     {
         throw new NotImplementedException();
     }
@@ -334,9 +334,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
     {
         uint    size            = (uint)(data.Length * sizeof(T));
         
-        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
+        int     labelMaxCount   = SilkUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        SilkUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,
@@ -360,9 +360,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
     {
-        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
+        int     labelMaxCount   = SilkUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        SilkUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
         
         var desc = new BufferDescriptor {
             Label           = labelBuffer,
@@ -410,7 +410,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, buffer, length, bufferLabel);
+        return new SilkBuffer<T>(this, buffer, length, bufferLabel);
     }
     
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
@@ -418,11 +418,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var length      = data.Length;
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, handle, length, bufferLabel);
+        return new SilkBuffer<T>(this, handle, length, bufferLabel);
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
-    public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
+    public SilkShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {
         fixed (byte* pShaderBytes = wgslSource)
         fixed (byte* labelPtr = shaderLabel)
@@ -440,22 +440,22 @@ public sealed unsafe class WgpuDevice : GpuDevice
             };
             // Compile shader in driver
             var handle = wgpu.DeviceCreateShaderModule(DevicePtr, &desc);
-            return new WgpuShaderModule(handle);
+            return new SilkShaderModule(handle);
         }
     }
     
-    public WgpuComputePipeline CreateComputePipeline(
-        WgpuShaderModule    module,
-        WgpuBindGroupLayout bufferLayout,
-        WgpuBindGroupLayout uniformLayout,
+    public SilkComputePipeline CreateComputePipeline(
+        SilkShaderModule    module,
+        SilkBindGroupLayout bufferLayout,
+        SilkBindGroupLayout uniformLayout,
         ReadOnlySpan<byte>  entryPoint)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
+        Span<SilkBindGroupLayout> layouts = stackalloc SilkBindGroupLayout[2];
         layouts[0] = bufferLayout;
         layouts[1] = uniformLayout;
         
         fixed (byte*                pEntryPoint = entryPoint)
-        fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
+        fixed (SilkBindGroupLayout*  layoutsPtr  = layouts)
         {
             var layoutDesc = new PipelineLayoutDescriptor {
                 Label                   = pEntryPoint,
@@ -472,7 +472,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                     }
                 };
                 var handle = wgpu.DeviceCreateComputePipeline(DevicePtr, &computeDesc);
-                return new WgpuComputePipeline(handle);
+                return new SilkComputePipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpu.PipelineLayoutRelease(pipelineLayout);
                 if (module.handle  != null) wgpu.ShaderModuleRelease(module.handle);
@@ -482,7 +482,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuBindGroupLayout GetBindGroupLayout(ulong hashKey) {
+    public SilkBindGroupLayout GetBindGroupLayout(ulong hashKey) {
         var cache = layoutCache;
         for (int n =  0; n < layoutCacheCount; n++) {
             if (hashKey == cache[n].hashKey) {
@@ -492,7 +492,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         return default;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(Span<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public SilkBindGroupLayout CreateBindGroupLayout(Span<SilkLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -526,7 +526,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 Array.Copy(cache, newCache, cache.Length);
                 cache = layoutCache = newCache;
             }
-            var layout = new WgpuBindGroupLayout(handle);
+            var layout = new SilkBindGroupLayout(handle);
             cache[layoutCacheCount++] = new CachedGroupLayout { hashKey = hashKey, layout = layout };
             return layout;
         }

@@ -14,37 +14,37 @@ using Silk.NET.WebGPU;
 namespace Friflo.Vectorization.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuEncoder
+public readonly unsafe struct SilkEncoder
 {
-    private  readonly   WgpuTask        task;
+    private  readonly   SilkTask        task;
     internal readonly   CommandEncoder* handle;
     public   override   string          ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuEncoder(WgpuTask task, CommandEncoder* handle) {
+    internal SilkEncoder(SilkTask task, CommandEncoder* handle) {
         this.task   = task;
         this.handle = handle;
     }
     
     // --- ComputePass methods
-    public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
+    public SilkComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
         fixed (byte* labelPtr = passLabel)
         {
             var desc            = new ComputePassDescriptor { Label = labelPtr };
             var passHandle      = task.wgpu.CommandEncoderBeginComputePass(handle, &desc);
             task.currentPass    = passHandle;
-            return new WgpuComputePass(task, passHandle);
+            return new SilkComputePass(task, passHandle);
         }
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuComputePass : IDisposable {
-    private readonly    WgpuTask            task;
+public readonly unsafe struct SilkComputePass : IDisposable {
+    private readonly    SilkTask            task;
     private readonly    ComputePassEncoder* handle;
     public  override    string              ToString() => handle != null ? "Created" : "null";
     
-    public WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
+    public SilkComputePass(SilkTask task, ComputePassEncoder* handle) {
         this.task   = task;
         this.handle = handle;
     }
@@ -54,7 +54,7 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPipeline(WgpuComputePipeline pipeline) {
+    public void SetPipeline(SilkComputePipeline pipeline) {
         task.wgpu.ComputePassEncoderSetPipeline(handle, pipeline.handle);
     }
     
@@ -74,7 +74,7 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBindGroup(int groupIndex, WgpuBindGroup bindGroup)
+    public void SetBindGroup(int groupIndex, SilkBindGroup bindGroup)
     {
         // 4th and 5th parameter are for dynamic offsets (0/null)
         task.wgpu.ComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
@@ -82,14 +82,14 @@ public readonly unsafe struct WgpuComputePass : IDisposable {
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuBindGroup
+public readonly unsafe struct SilkBindGroup
 {
     internal readonly   BindGroup*  handle;
     public              bool        IsCreated => handle != null;
     
     public   override   string      ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuBindGroup(BindGroup* handle) {
+    internal SilkBindGroup(BindGroup* handle) {
         this.handle = handle;
     }
     
@@ -98,7 +98,7 @@ public readonly unsafe struct WgpuBindGroup
     {
         return new BindGroupEntry {
             Binding = (uint)binding,
-            Buffer  = ((WgpuBuffer<T>)buffer).handle,
+            Buffer  = ((SilkBuffer<T>)buffer).handle,
             Offset  = 0,
             Size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
         };
