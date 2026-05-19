@@ -53,7 +53,7 @@ public sealed partial class Gen
             // --- getterAoS / setterAoS
             if (vectorType?.Layout == VectorLayout.AoSoA) {
                 getterAoS.AppendLine($"                    var {vectorType.Name}AoS = chunk.Chunk{chunkIndex}.GetAoSoA(n);");
-                if (component.Symbol.RefKind == RefKind.Ref) {
+                if (component.RefKind == RefKind.Ref) {
                     setterAoS.AppendLine($"                    chunk.Chunk{chunkIndex}.SetAoSoA(n, {vectorType.Name}AoS);");
                 }
             }
@@ -128,12 +128,11 @@ public sealed partial class Gen
             if (parameter.IsSpan) {
                 continue;
             }
-            var symbol = parameter.Symbol;
             if (parameter.IsEntity) {
                 continue;
             }
             sb.Append(", ");
-            GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.TypeName);
             sb.Append(" ");
             sb.Append(parameter.Name);
@@ -148,12 +147,11 @@ public sealed partial class Gen
     {
         var sb = new StringBuilder();
         foreach (var parameter in query.Parameters) {
-            var symbol = parameter.Symbol;
             if (sb.Length > 0) {
                 sb.Append(", ");
             }
             if (parameter.IsSpan) {
-                GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
+                GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
                 var vectorType = parameter.VectorType;
                 if (vectorType?.Layout == VectorLayout.AoSoA) {
                     sb.Append($"{parameter.Name}AoS");                                                          // TODO fix name SoA
@@ -166,7 +164,7 @@ public sealed partial class Gen
                 sb.Append(query.Spans.Length == 0 ? "entity" : "_entities.EntityAt(n)");
                 continue;
             }
-            GeneratorUtils.AppendRefKind(sb, symbol.RefKind);
+            GeneratorUtils.AppendRefKind(sb, parameter.RefKind);
             sb.Append(parameter.Name);
         }
         return sb;

@@ -12,6 +12,7 @@ public sealed class BlueprintParameter
 {
     public required string              Name        { get; init; } // = Symbol.Name
     public required IParameterSymbol    Symbol      { get; init; }
+    public required RefKind             RefKind     { get; init; }
     public required string              TypeName    { get; init; }
     public required VectorType?         VectorType  { get; init; }
     public required bool                IsSpan      { get; init; }
@@ -60,6 +61,7 @@ public sealed class BlueprintParameter
                 Name        = parameter.Name,
                 Symbol      = parameter,
                 TypeName    = typeName,
+                RefKind     = parameter.RefKind,     
                 VectorType  = vectorType,
                 IsSpan      = isSpan,
                 IsEntity    = isEntity
