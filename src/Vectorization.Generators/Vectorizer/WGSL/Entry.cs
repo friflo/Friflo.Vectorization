@@ -116,25 +116,17 @@ public sealed partial class WgslVectorizer : IVectorizer
     
     public ComputeResult Compute(StringBuilder[] lanes, Query query, ExpressionSyntax syntax)
     {
-        if (syntax is AssignmentExpressionSyntax assignment) {
-            return Compute_Assignment(lanes, query, assignment);
+        switch (syntax)
+        {
+            case AssignmentExpressionSyntax     assignment:     return Compute_Assignment               (lanes, query, assignment);
+            case BinaryExpressionSyntax         binary:         return Compute_Binary                   (lanes, query, binary);
+            case MemberAccessExpressionSyntax   memberAccess:   return Compute_MemberAccess             (lanes, query, memberAccess);
+            case IdentifierNameSyntax           identifier:     return Symbols.Compute_IdentifierName   (lanes, query, identifier);
+            case InvocationExpressionSyntax     invocation:     return Compute_Invocation               (lanes, query, invocation);
+            case LiteralExpressionSyntax        literal:        return Compute_Literal                  (lanes, query, literal);
+            default:
+                query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, syntax, syntax.ToFullString());
+                return ComputeResult.Invalid;
         }
-        if (syntax is BinaryExpressionSyntax binary) {
-            return Compute_Binary(lanes, query, binary);
-        }
-        if (syntax is MemberAccessExpressionSyntax memberAccess) {
-            return Compute_MemberAccess(lanes, query, memberAccess);
-        }
-        if (syntax is IdentifierNameSyntax identifier) {
-            return Symbols.Compute_IdentifierName(lanes, query, identifier);
-        }
-        if (syntax is InvocationExpressionSyntax invocation) {
-            return Compute_Invocation(lanes, query, invocation);
-        }
-        if (syntax is LiteralExpressionSyntax literal) {
-            return Compute_Literal(lanes, query, literal);
-        }
-        query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, syntax, syntax.ToFullString());
-        return ComputeResult.Invalid;
     }
 }
