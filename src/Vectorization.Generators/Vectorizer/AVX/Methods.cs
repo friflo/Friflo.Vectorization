@@ -175,9 +175,9 @@ public sealed partial class AvxVectorizer
         return shape;
     }
     
-    public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         lanes.Append("Fma.MultiplyAdd(");
         if (!Compute(lanes, query, args[2].Expression)) {
             return ComputeResult.Invalid;

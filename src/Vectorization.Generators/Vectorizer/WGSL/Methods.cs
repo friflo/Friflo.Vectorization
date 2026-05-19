@@ -161,9 +161,9 @@ public ComputeResult Method_Transform(StringBuilder[] lanes, Query query, Argume
         return shape;
     }
     
-    public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax)
+    public ComputeResult Method_Lerp(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
     {
-        var args = argumentSyntax.Arguments;
+        var args = argList.Arguments;
         lanes.Append("mix(");   // WGSL: mix(a, b, t)
         if (!Compute(lanes, query, args[0].Expression)) {   // start value: a
             return ComputeResult.Invalid;
