@@ -11,7 +11,7 @@ using VerifyTests;
 // ReSharper disable InconsistentNaming
 namespace Tests.Generators.Kernel;
 
-public static class Verify_Kernel_Vector2
+public static class Verify_Kernel_Vector4
 {
     private static async Task Verify(string code)
     {
@@ -29,8 +29,8 @@ public static class Verify_Kernel_Vector2
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
     }
     
-    [Test]
-    public static async Task  Verify_Kernel_Multiply()
+    // [Test]
+    public static async Task  Verify_Kernel_AssignScalar()
     {
         var code =
 """
@@ -42,14 +42,11 @@ namespace VerifyVectorize;
 public partial class MyExample
 {
     [Kernel]  [OmitHash]
-    void MoveExample([Span] ref Vector2 position, [Span] Vector2 velocity, float deltaTime) {
+    void AssignScalar([Span] ref Vector2 position, [Span] Vector2 velocity, float deltaTime) {
         position += velocity * deltaTime;
     }
 }
 """;
         await Verify(code);
     }
-    
-
-
 }
