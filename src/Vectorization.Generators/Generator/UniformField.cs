@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis;
 namespace Friflo.Vectorization.Generators;
 
 
-public class UniformField
+public sealed class UniformField
 {
     public required string  name;
     public required string  type;       // C# type
