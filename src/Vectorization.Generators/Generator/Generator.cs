@@ -25,12 +25,6 @@ public sealed partial class Gen : IIncrementalGenerator
     // --- IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-#if DEBUG_XXX
-        if (!System.Diagnostics.Debugger.IsAttached)
-        {
-            System.Diagnostics.Debugger.Launch();
-        }
-#endif
         RegisterStreamingTranspiler(context);
         // RegisterTranspiler_BadCommonApproach(context);
         
