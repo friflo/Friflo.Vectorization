@@ -108,7 +108,7 @@ public sealed partial class Gen
             var parameter           = vectorType.Parameter;
             var paramName           = parameter.Name;
             var type                = vectorType.FullQualifiedName;
-            var (wgslType, _, _)    = UniformField.WgslTypeFromType(vectorType.FullQualifiedName);
+            var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
             signature.Append($"\n        GpuBuffer<{type}> {paramName},");
             if (isOutput) {
