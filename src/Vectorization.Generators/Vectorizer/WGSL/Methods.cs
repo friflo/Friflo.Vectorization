@@ -80,13 +80,13 @@ public sealed partial class WgslVectorizer
             case "Vector.DistanceSquared(Vector, Vector)":  return Method_Distance  (lanes, query, argList, "DistanceSquared");
             
             case "Vector.Transform(Vector, System.Numerics.Matrix4x4)":
-                return Method_Vector4_Transform(lanes, query, argList);
+                return Method_Transform(lanes, query, argList);
         }
         query.Diagnostics.ReportDiagnosticSyntax(Errors.OperationUnsupported, invocation, invocation.ToFullString());
         return ComputeResult.Invalid;
     }
 
-public ComputeResult Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
+public ComputeResult Method_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList)
 {
     var args = argList.Arguments;
     if (query.vectorDimension < 4) {

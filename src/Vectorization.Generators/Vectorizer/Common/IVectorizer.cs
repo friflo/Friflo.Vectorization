@@ -28,29 +28,29 @@ public interface IVectorizer
     public  void            EmitStoreVector     (StringBuilder source, Query query, string dirtyVector, int step);
     
     // --- Methods.cs
-    public  ComputeResult   Compute_Invocation      (StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation);
-    public  ComputeResult   Method_Vector4_Transform(StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
-    public  ComputeResult   Method_MinMax           (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op);
-    public  ComputeResult   Method_Clamp            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
-    public  ComputeResult   Method_Lerp             (StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax);
-    public  ComputeResult   Method_Abs              (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
-    public  ComputeResult   Method_Truncate         (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
-    public  ComputeResult   Method_Floor            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
-    public  ComputeResult   Method_Ceiling          (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
-    public  ComputeResult   Method_Round            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
-    public  ComputeResult   Method_Scalar           (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method);
-    public  ComputeResult   Method_Cross            (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
-    public  ComputeResult   Method_Normalize        (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
-    public  ComputeResult   Method_Length           (StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation);
-    public  ComputeResult   Compute_AddTemp         (Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier);
-    public  ComputeResult   Method_Distance         (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method);
+    public  ComputeResult   Compute_Invocation  (StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation);
+    public  ComputeResult   Method_Transform    (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
+    public  ComputeResult   Method_MinMax       (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape, string op);
+    public  ComputeResult   Method_Clamp        (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
+    public  ComputeResult   Method_Lerp         (StringBuilder[] lanes, Query query, ArgumentListSyntax argumentSyntax);
+    public  ComputeResult   Method_Abs          (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
+    public  ComputeResult   Method_Truncate     (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
+    public  ComputeResult   Method_Floor        (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
+    public  ComputeResult   Method_Ceiling      (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
+    public  ComputeResult   Method_Round        (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, DataShape shape);
+    public  ComputeResult   Method_Scalar       (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method);
+    public  ComputeResult   Method_Cross        (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
+    public  ComputeResult   Method_Normalize    (StringBuilder[] lanes, Query query, ArgumentListSyntax argList);
+    public  ComputeResult   Method_Length       (StringBuilder[] lanes, Query query, InvocationExpressionSyntax invocation);
+    public  ComputeResult   Compute_AddTemp     (Query query, ExpressionSyntax expressionSyntax, string comment, out string temp, bool useIdentifier);
+    public  ComputeResult   Method_Distance     (StringBuilder[] lanes, Query query, ArgumentListSyntax argList, string method);
     
     // --- Operators.cs
-    public  StringBuilder[] CreateLanes             (Query query, ISymbol? symbol, string parameterName);
-    public  ComputeResult   Compute_Assignment      (StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment);
-    public  ComputeResult   Compute_Binary          (StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary);
+    public  StringBuilder[] CreateLanes         (Query query, ISymbol? symbol, string parameterName);
+    public  ComputeResult   Compute_Assignment  (StringBuilder[] lanes, Query query, AssignmentExpressionSyntax assignment);
+    public  ComputeResult   Compute_Binary      (StringBuilder[] lanes, Query query, BinaryExpressionSyntax binary);
     
     // --- Symbols.cs
-    public  ComputeResult   Compute_MemberAccess    (StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess);
-    public  ComputeResult   Compute_Literal         (StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal);
+    public  ComputeResult   Compute_MemberAccess(StringBuilder[] lanes, Query query, MemberAccessExpressionSyntax memberAccess);
+    public  ComputeResult   Compute_Literal     (StringBuilder[] lanes, Query query, LiteralExpressionSyntax literal);
 }
