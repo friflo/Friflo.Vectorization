@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 
@@ -85,10 +86,10 @@ public sealed partial class AvxVectorizer : IVectorizer
         query.vectorized = true;
         return true;
     }
-    public bool Emit_NativeSoA   (Query query) => TraverseBody(query);
-    public bool Emit_VerticalAoS (Query query) => TraverseBody(query);
-    public bool Emit_MixedAdapter(Query query) => TraverseBody(query);
-    public bool Emit_Horizontal  (Query query) {
+    private bool Emit_NativeSoA   (Query query) => TraverseBody(query);
+    private bool Emit_VerticalAoS (Query query) => TraverseBody(query);
+    private bool Emit_MixedAdapter(Query query) => TraverseBody(query);
+    private bool Emit_Horizontal  (Query query) {
         query.strategy = Strategy.Horizontal;
         return TraverseBody(query);
     }
@@ -125,7 +126,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         return true;
     }
     
-    public string EmitVectorizeBlock(Query query)
+    public static string EmitVectorizeBlock(Query query)
     {
         if (!query.vectorized) {
             return "";
@@ -304,7 +305,7 @@ public sealed partial class AvxVectorizer : IVectorizer
         query.avxMethod = source;
     }
     
-    public StringBuilder EmitLengthGuards(Query query)
+    private static StringBuilder EmitLengthGuards(Query query)
     {
         var sb = new StringBuilder();
         var count = query.VectorMode == VectorMode.Query ? "paddedCount" : "count";

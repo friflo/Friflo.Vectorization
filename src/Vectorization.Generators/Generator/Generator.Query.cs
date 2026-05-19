@@ -21,7 +21,7 @@ public sealed partial class Gen
         var attributeCode       = EmitQueryFilters(query.Attributes);
         var lambdaParameters    = EmitQueryLambdaParameters(query);
         var methodSignature     = EmitQueryMethodSignature(query, query.vectorized);
-        var vectorizeBlock      = new AvxVectorizer().EmitVectorizeBlock(query);
+        var vectorizeBlock      = AvxVectorizer.EmitVectorizeBlock(query);
         
         var components = query.Spans;
         var componentArgs   = new StringBuilder();

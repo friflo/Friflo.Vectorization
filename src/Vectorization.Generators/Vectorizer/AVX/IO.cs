@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Text;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
