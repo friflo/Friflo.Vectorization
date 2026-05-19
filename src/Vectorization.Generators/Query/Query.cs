@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
@@ -60,8 +61,8 @@ public sealed class Query
     public readonly Dictionary<string, Param>   paramTypes      = new ();
     public readonly StringBuilder               locals          = new ();
     public readonly StringBuilder               computeTemp     = new ();
-    public          int                         computeTempCount;
-    public          int                         constLocalsCount;
+    private         int                         computeTempCount;
+    private         int                         constLocalsCount;
     public          bool                        requireDeinterleave;
     public          bool                        useDeinterleave;        // true => add Deinterleave() / Interleave()
     public          bool                        isWgslLane;
