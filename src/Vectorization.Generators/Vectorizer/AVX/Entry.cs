@@ -193,37 +193,39 @@ public sealed partial class AvxVectorizer : IVectorizer
         var locals = new StringBuilder();
         // --- method signature
         var signature = new StringBuilder();
-        foreach (var vectorType in query.VectorTypes) {
-            var parameter = vectorType.Parameter;
+        foreach (var vectorType in query.VectorTypes)
+        {
+            var parameter   = vectorType.Parameter;
+            var name        = vectorType.Name;
             signature.Append(",");
             if (vectorType.IsSpan) {
                 if (vectorType.ParamType == ParamType.Scalar) {
-                    AvxUtils.ScalarMask(locals, vectorType.Name, query.vectorDimension);
+                    AvxUtils.ScalarMask(locals, name, query.vectorDimension);
                 }
                 if (vectorType.Layout == VectorLayout.AoSoA) {
-                    signature.Append($"\n            Span<float> {vectorType.Name}"); // , int {parameter.Name}_stride");
+                    signature.Append($"\n            Span<float> {name}"); // , int {name}_stride");
                     continue;
                 }
                 var span = parameter.RefKind == RefKind.Ref ? "Span" : "ReadOnlySpan";
-                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {vectorType.Name}");
+                signature.Append($"\n            {span}<{vectorType.FullQualifiedName}> {name}");
                 continue;
             }
             signature.Append("\n            ");
             GeneratorUtils.AppendRefKind(signature, parameter.RefKind);
-            signature.Append($"{vectorType.FullQualifiedName} {vectorType.Name}");
+            signature.Append($"{vectorType.FullQualifiedName} {name}");
             //
             switch (vectorType.ParamType) {
                 case ParamType.Scalar:
-                    locals.AppendLine($"            var {parameter.Name}_scalar = Vector256.Create({vectorType.Name});");
+                    locals.AppendLine($"            var {name}_scalar = Vector256.Create({name});");
                     locals.AppendLine();
                     break;
                 default:                // TODO  type should be clear here 
                 case ParamType.Vector:
-                    AvxUtils.InterleaveVector3(locals, vectorType.Name, query);
+                    AvxUtils.InterleaveVector3(locals, name, query);
                     locals.AppendLine();
                     break;
                 case ParamType.Matrix4x4:
-                    AvxUtils.LoadMatrix(locals, vectorType.Name, query.vectorDimension);
+                    AvxUtils.LoadMatrix(locals, name, query.vectorDimension);
                     locals.AppendLine();
                     break;
             }

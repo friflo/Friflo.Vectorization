@@ -10,7 +10,7 @@ namespace Friflo.Vectorization.Generators;
 
 public sealed class BlueprintParameter
 {
-    public required string              Name        { get; init; }
+    public required string              Name        { get; init; } // = Symbol.Name
     public required IParameterSymbol    Symbol      { get; init; }
     public required string              TypeName    { get; init; }
     public required VectorType?         VectorType  { get; init; }
