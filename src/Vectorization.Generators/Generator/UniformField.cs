@@ -25,16 +25,14 @@ public class UniformField
     {
         return typeName switch
         {
-            // scalar
             "float"   or "global::System.Single"                => ("f32",        4,  4),
             "int"     or "global::System.Int32"                 => ("i32",        4,  4),
             "uint"    or "global::System.UInt32"                => ("u32",        4,  4),
-            "bool"    or "global::System.Boolean"               => ("bool",       4,  4), // In WGSL bool in Uniforms 4 Bytes
+            "bool"    or "global::System.Boolean"               => ("bool",       4,  4), // in WGSL bool in Uniforms 4 Bytes
 
             "Vector2" or "global::System.Numerics.Vector2"      => ("vec2<f32>",  8,  8),
             
-            // Vector3 (special case in WGSL: size 12, but alignment 16!)
-            "Vector3" or "global::System.Numerics.Vector3"      => ("vec3<f32>", 12, 16),
+            "Vector3" or "global::System.Numerics.Vector3"      => ("vec3<f32>", 12, 16), // special case in WGSL: size 12, but alignment 16!
 
             "Vector4" or "global::System.Numerics.Vector4"      => ("vec4<f32>", 16, 16),
             
