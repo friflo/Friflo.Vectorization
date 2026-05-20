@@ -23,15 +23,15 @@ public readonly struct BufferView<T> where T : unmanaged
     }
 }
 
-public readonly struct InBufferView<T> where T : unmanaged
+public readonly struct ReadOnlyView<T> where T : unmanaged
 {
     private readonly    GpuBuffer<T>    GpuBuffer;
     public  readonly    int             Offset;
     public  readonly    int             Length;
     
-    public  ReadOnlySpan<T>             Span =>  GpuBuffer.Span.Slice(Offset, Length);
+    public              ReadOnlySpan<T> Span =>  GpuBuffer.Span.Slice(Offset, Length);
 
-    internal InBufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
+    internal ReadOnlyView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
         GpuBuffer   = gpuBuffer;
         Offset      = offset;

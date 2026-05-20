@@ -60,10 +60,10 @@ public readonly ref struct InBuffer<T> where T : unmanaged
         length      = memory.Length;
     }
     
-    private InBuffer(InBufferView<T> memory) {
-        span        = memory.Span;
-        length      = memory.Length;
-        offset      = memory.Offset;
+    private InBuffer(ReadOnlyView<T> view) {
+        span        = view.Span;
+        length      = view.Length;
+        offset      = view.Offset;
     }
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
@@ -76,7 +76,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
-    public static implicit operator InBuffer<T>(InBufferView<T>   view)       => new(view);
+    public static implicit operator InBuffer<T>(ReadOnlyView<T>   view)       => new(view);
     public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer);
 }
 

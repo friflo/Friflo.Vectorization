@@ -39,13 +39,8 @@ public abstract class GpuBuffer<T> : GpuBuffer  where T : unmanaged
     protected GpuBuffer(int length, string label) :  base(length, label)
     { }
     
-    public BufferView<T> Slice(int start, int length) {
-        return new BufferView<T>(this, start, length);
-    }
-    
-    public InBufferView<T> AsReadOnly(int start, int length) {
-        return new InBufferView<T>(this, start, length);
-    }
+    public BufferView<T>   Slice     (int start, int length) => new (this, start, length);
+    public ReadOnlyView<T> AsReadOnly(int start, int length) => new (this, start, length);
     
     public T this[int index]
     {
