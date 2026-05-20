@@ -36,8 +36,8 @@ public  static class GpuPattern
 
         if (buffers.ComputeGPU) {
             switch (GpuTestGlobal.TestBackend) {
-                case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
-                case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
+                case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight, input, bias, output);
+                case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);
             }
         }
         MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.ComputeSIMD);

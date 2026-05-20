@@ -17,12 +17,15 @@ public static class SilkPattern
     [SkipLocalsInit]
     internal static GpuBuffer<float> ShadowMethod_GPU(
         in GpuBuffers       buffers,
-        GpuBuffer<float>    weight,
-        GpuBuffer<float>    input,
-        float               bias,
-        GpuBuffer<float>    output)
+        in InBuffer<float>  weight_,
+        in InBuffer<float>  input_,
+        in float            bias,
+        in Buffer<float>    output_)
     {
         var device      = (SilkDevice)buffers.device;
+        var input       = weight_.gpuBuffer;
+        var weight      = input_.gpuBuffer;
+        var output      = output_.gpuBuffer;
         var gpuOutput   = output ?? device.RentBuffer<float>(buffers.length);
         using var task  = device.RentTask();
 
