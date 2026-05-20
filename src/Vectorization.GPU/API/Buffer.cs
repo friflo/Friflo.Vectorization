@@ -17,13 +17,19 @@ public ref struct Buffer<T> where T : unmanaged
     public Buffer(Span<T> span) {
         this.span = span;
     }
+    
+    public Buffer(Memory<T> memory) {
+        span = memory.Span;
+    }
+    
     public Buffer(GpuBuffer<T> gpuBuffer) {
         this.gpuBuffer  = gpuBuffer;
         span            = gpuBuffer.Span;
     }
     
-    public static implicit operator Buffer<T>(T[] array)                => new(array);
-    public static implicit operator Buffer<T>(Span<T> span)             => new(span);
-    public static implicit operator Buffer<T>(GpuBuffer<T> gpuBuffer)   => new(gpuBuffer);
+    public static implicit operator Buffer<T>(T[]           array)      => new(array);
+    public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
+    public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
+    public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
 }
 
