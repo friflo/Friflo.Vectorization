@@ -4,25 +4,28 @@
 using System;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization;
-
-/// <summary>
-/// <b>Experimental attribute</b> - Applies vectorization to a method generated with <c>[Query]</c>.
-/// </summary>
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class VectorizeAttribute : Attribute
+namespace Friflo.Vectorization
 {
-    public VectorizeAttribute() {}
-    public VectorizeAttribute(string simdMethod) { }
+    /// <summary>
+    /// <b>Experimental attribute</b> - Applies vectorization to a method generated with <c>[Query]</c>.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class VectorizeAttribute : Attribute
+    {
+        public VectorizeAttribute() {}
+        public VectorizeAttribute(string simdMethod) { }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class OmitHashAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public sealed class SpanAttribute : Attribute { }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class KernelAttribute : Attribute { }
-
-
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class OmitHashAttribute : Attribute { }
-
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SpanAttribute : Attribute { }
+namespace Friflo.Vectorization.GPU
+{
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class KernelAttribute : Attribute { }
+}
 

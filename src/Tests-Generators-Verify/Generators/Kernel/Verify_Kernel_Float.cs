@@ -36,6 +36,7 @@ public static class Verify_Kernel_Float
 """
 using System.Numerics;
 using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
 
 namespace VerifyVectorize;
 
@@ -57,6 +58,7 @@ public partial class MyExample
 """
 using System.Numerics;
 using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
 
 namespace VerifyVectorize;
 
@@ -80,6 +82,7 @@ public partial class MyExample
 using System;
 using System.Numerics;
 using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
 
 namespace VerifyVectorize;
 

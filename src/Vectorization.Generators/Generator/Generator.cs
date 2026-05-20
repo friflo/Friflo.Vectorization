@@ -54,7 +54,7 @@ public sealed partial class Gen : IIncrementalGenerator
         context.RegisterSourceOutput(vectorizeMethod, EmitResult);
         
         var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.KernelAttribute",
+            "Friflo.Vectorization.GPU.KernelAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
         context.RegisterSourceOutput(kernelMethod, EmitResult);
@@ -124,7 +124,7 @@ public sealed partial class Gen : IIncrementalGenerator
         var attributes = blueprintMethod.GetAttributes();
         bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
         var  vectorizeData      = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
-        bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.Vectorization.KernelAttribute");
+        bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.Vectorization.GPU.KernelAttribute");
 
         VectorMode vectorMode;
         switch (trigger) {
