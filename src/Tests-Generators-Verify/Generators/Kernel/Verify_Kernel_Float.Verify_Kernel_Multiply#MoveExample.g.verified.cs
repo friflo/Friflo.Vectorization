@@ -116,7 +116,7 @@ namespace VerifyVectorize
         GpuBuffer<float> velocity,
         float deltaTime)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<float>(buffers.count);  TODO
         using var task  = device.RentTask();
 

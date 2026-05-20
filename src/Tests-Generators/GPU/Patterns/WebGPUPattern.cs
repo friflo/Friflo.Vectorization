@@ -21,7 +21,7 @@ public static class WebGPUPattern
         float               bias,
         GpuBuffer<float>    output)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         output ??= device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();
 

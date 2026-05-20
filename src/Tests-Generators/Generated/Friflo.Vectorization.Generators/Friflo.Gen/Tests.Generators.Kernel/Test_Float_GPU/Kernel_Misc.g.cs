@@ -183,7 +183,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<float> velocity,
         float value)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<float>(buffers.count);  TODO
         using var task  = device.RentTask();
 

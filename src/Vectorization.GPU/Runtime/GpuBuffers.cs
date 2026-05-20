@@ -19,10 +19,10 @@ public struct GpuBuffers
 {
     public  readonly    int         count;
     public              ulong       hash; // uses FNV-1a derivative hashing
+    public  readonly    GpuDevice   device;
     private readonly    bool        areSpans;
-    private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
-    public  readonly    ComputeMode computeMode;
+    private readonly    ComputeMode computeMode;
     
     public              bool        ComputeGPU  => computeMode == ComputeMode.GPU;
     public              bool        ComputeSIMD => computeMode == ComputeMode.SIMD;
@@ -111,11 +111,6 @@ public struct GpuBuffers
             return;    
         }
         throw new InvalidOperationException($"Diplomatic Incident: '{paramName}' is carrying a passport from a different Device-Jurisdiction. We cannot grant asylum to resources that were minted under the authority of another master. '{firstParam}' was here first; respect the borders.");
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly GpuDevice GetDevice() {             // TODO remove
-        return device;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]

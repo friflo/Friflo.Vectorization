@@ -22,7 +22,7 @@ public static class SilkPattern
         float               bias,
         GpuBuffer<float>    output)
     {
-        var device      = (SilkDevice)buffers.GetDevice();
+        var device      = (SilkDevice)buffers.device;
         var gpuOutput   = output ?? device.RentBuffer<float>(buffers.count);
         using var task  = device.RentTask();
 

@@ -160,7 +160,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<Vector4> velocity,
         Vector4 max)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<Vector4>(buffers.count);  TODO
         using var task  = device.RentTask();
 

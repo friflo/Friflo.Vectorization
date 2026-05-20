@@ -109,7 +109,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<Vector4> position,
         GpuBuffer<Vector4> velocity)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<Vector4>(buffers.count);  TODO
         using var task  = device.RentTask();
 

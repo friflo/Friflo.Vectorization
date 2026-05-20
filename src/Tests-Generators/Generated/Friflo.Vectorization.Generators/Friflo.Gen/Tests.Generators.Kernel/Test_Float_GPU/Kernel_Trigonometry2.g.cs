@@ -114,7 +114,7 @@ namespace Tests.Generators.Kernel
         in GpuBuffers buffers,
         GpuBuffer<float> position)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<float>(buffers.count);  TODO
         using var task  = device.RentTask();
 

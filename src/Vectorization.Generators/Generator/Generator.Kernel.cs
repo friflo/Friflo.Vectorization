@@ -169,7 +169,7 @@ $$""""
     private {{(blueprintMethod.IsStatic ? "static " : "")}}GpuBuffer<{{outputType}}> {{methodName_GPU}}(
         in GpuBuffers buffers,{{signature}})
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<{{outputType}}>(buffers.count);  TODO
         using var task  = device.RentTask();
 

@@ -113,7 +113,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<Vector4> position,
         Matrix4x4 matrix)
     {
-        var device      = (WgpuDevice)buffers.GetDevice();
+        var device      = (WgpuDevice)buffers.device;
         // output ??= device.RentBuffer<Vector4>(buffers.count);  TODO
         using var task  = device.RentTask();
 
