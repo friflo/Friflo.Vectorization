@@ -12,6 +12,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public  readonly    Span<T>         span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
     public  readonly    int             length;
+    public  readonly    int             offset;
     
     private Buffer(Span<T> span) {
         this.span   = span;
@@ -23,6 +24,12 @@ public readonly ref struct Buffer<T> where T : unmanaged
         length      = memory.Length;
     }
     
+    private Buffer(BufferView<T> view) {
+        span        = view.Span;
+        length      = view.Length;
+        offset      = view.Offset;
+    }
+    
     private Buffer(GpuBuffer<T> gpuBuffer) {
         this.gpuBuffer  = gpuBuffer;
         span            = gpuBuffer.Span;
@@ -32,6 +39,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(T[]           array)      => new(array);
     public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
     public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
+    public static implicit operator Buffer<T>(BufferView<T> view)       => new(view);
     public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
 }
 
@@ -40,6 +48,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public  readonly    ReadOnlySpan<T> span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
     public  readonly    int             length;
+    public  readonly    int             offset;
     
     private InBuffer(ReadOnlySpan<T> span) {
         this.span   = span;
@@ -49,6 +58,12 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     private InBuffer(ReadOnlyMemory<T> memory) {
         span        = memory.Span;
         length      = memory.Length;
+    }
+    
+    private InBuffer(InBufferView<T> memory) {
+        span        = memory.Span;
+        length      = memory.Length;
+        offset      = memory.Offset;
     }
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
@@ -61,6 +76,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
+    public static implicit operator InBuffer<T>(InBufferView<T>   view)       => new(view);
     public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer);
 }
 
