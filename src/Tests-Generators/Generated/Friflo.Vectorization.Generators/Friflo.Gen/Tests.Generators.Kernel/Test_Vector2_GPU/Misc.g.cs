@@ -190,8 +190,10 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Misc_GPU_Uniforms {
-                max = max,
-                count = buffers.length,
+                max             = max,
+                count           = buffers.length,
+                position_off    = 0,
+                velocity_off    = 0,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -211,16 +213,18 @@ namespace Tests.Generators.Kernel
         return null;
     }
     
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
+    [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL layout: std140/std430
     private struct _Misc_GPU_Uniforms
     {
         [FieldOffset(0)]    public Vector2    max;
         [FieldOffset(8)]    public int        count;
+        [FieldOffset(12)]    public int        position_off;
+        [FieldOffset(16)]    public int        velocity_off;
     }
     
     private static readonly int _Misc_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
     private const ulong         _Misc_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
-    private const ulong         _Misc_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private const ulong         _Misc_GPU_UniformLayoutKey   = 0xeab624e96837ef37;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static WgpuEffect _Misc_GPU_CreateEffect(WgpuDevice device)
@@ -249,9 +253,11 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>
     """
     struct Misc_Uniforms {
-        max        : vec2<f32>,     // offset:  0 size:  8
-        count      : u32,           // offset:  8 size:  4
-    };                              //            size: 16
+        max             : vec2<f32>,     // offset:  0 size:  8
+        count           : u32,           // offset:  8 size:  4
+        position_off    : u32,           // offset: 12 size:  4
+        velocity_off    : u32,           // offset: 16 size:  4
+    };                                   //            size: 32
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec2<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec2<f32>>;
@@ -265,8 +271,8 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
-        var _velocity = velocity_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
+        var _velocity = velocity_arr[uniforms.velocity_off + index];
         var _max = uniforms.max;
 
         var _abs = abs(_velocity);

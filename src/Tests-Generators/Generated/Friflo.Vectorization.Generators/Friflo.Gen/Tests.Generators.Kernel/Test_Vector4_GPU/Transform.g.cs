@@ -141,8 +141,9 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Transform_GPU_Uniforms {
-                matrix = matrix,
-                count = buffers.length,
+                matrix          = matrix,
+                count           = buffers.length,
+                position_off    = 0,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -167,6 +168,7 @@ namespace Tests.Generators.Kernel
     {
         [FieldOffset(0)]    public Matrix4x4  matrix;
         [FieldOffset(64)]    public int        count;
+        [FieldOffset(68)]    public int        position_off;
     }
     
     private static readonly int _Transform_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -199,9 +201,10 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Transform_GPU_Shader() =>
     """
     struct Transform_Uniforms {
-        matrix     : mat4x4<f32>,   // offset:  0 size: 64
-        count      : u32,           // offset: 64 size:  4
-    };                              //            size: 80
+        matrix          : mat4x4<f32>,   // offset:  0 size: 64
+        count           : u32,           // offset: 64 size:  4
+        position_off    : u32,           // offset: 68 size:  4
+    };                                   //            size: 80
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec4<f32>>;
 
@@ -214,7 +217,7 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
         var _matrix = uniforms.matrix;
 
         _position = _matrix * _position;

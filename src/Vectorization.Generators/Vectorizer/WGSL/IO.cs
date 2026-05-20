@@ -16,7 +16,7 @@ public sealed partial class WgslVectorizer
             source.AppendLine($"        var _{name} = uniforms.{name};");
             return;
         }
-        source.AppendLine($"        var _{name} = {name}_arr[index];");
+        source.AppendLine($"        var _{name} = {name}_arr[uniforms.{name}_off + index];");
     }
     
     public void EmitStoreVector(StringBuilder source, Query query, string dirtyVector, int step)

@@ -145,8 +145,10 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Kernel_Clamp_GPU_Uniforms {
-                count = buffers.length,
-                max = max,
+                count           = buffers.length,
+                position_off    = 0,
+                min_off         = 0,
+                max             = max,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -170,7 +172,9 @@ namespace Tests.Generators.Kernel
     private struct _Kernel_Clamp_GPU_Uniforms
     {
         [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public float      max;
+        [FieldOffset(4)]    public int        position_off;
+        [FieldOffset(8)]    public int        min_off;
+        [FieldOffset(12)]    public float      max;
     }
     
     private static readonly int _Kernel_Clamp_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -204,9 +208,11 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Kernel_Clamp_GPU_Shader() =>
     """
     struct Kernel_Clamp_Uniforms {
-        count      : u32,           // offset:  0 size:  4
-        max        : f32,           // offset:  4 size:  4
-    };                              //            size: 16
+        count           : u32,           // offset:  0 size:  4
+        position_off    : u32,           // offset:  4 size:  4
+        min_off         : u32,           // offset:  8 size:  4
+        max             : f32,           // offset: 12 size:  4
+    };                                   //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  min_arr: array<f32>;
@@ -220,8 +226,8 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
-        var _min = min_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
+        var _min = min_arr[uniforms.min_off + index];
         var _max = uniforms.max;
 
         _position = clamp(_position, _min, _max);

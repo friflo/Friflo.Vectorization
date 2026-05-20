@@ -4,22 +4,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
+public enum UniformFieldType
+{
+    Count,
+    Offset,
+    Parameter
+}
 
 public sealed class UniformField
 {
-    public required string  name;
-    public required string  type;       // C# type
-    public required string  wgslType;   // i32, f32, vec2<f32>, vec3<f32>, ...
-    public          int     offset;     // is calculated
-    public required int     size;       // 4, 8, 12, 16, ...
-    public required int     alignment;  // 4, 8, 16  (note: vec3<f32> size: 12, alignment: 16) 
-    public required RefKind refKind;
-    public required bool    isCount;
+    public required string              name;
+    public required string              value;
+    public required string              type;       // C# type
+    public required string              wgslType;   // i32, f32, vec2<f32>, vec3<f32>, ...
+    public          int                 offset;     // is calculated
+    public required int                 size;       // 4, 8, 12, 16, ...
+    public required int                 alignment;  // 4, 8, 16  (note: vec3<f32> size: 12, alignment: 16) 
+    public required UniformFieldType    fieldType;
     
     public static (string wgslType, int size, int alignment) WgslTypeFromType(string typeName)
     {
@@ -46,31 +51,39 @@ public sealed class UniformField
     {
         fields.Add(new UniformField {
             name        = "count",
+            value       = "buffers.length",
             type        = "int",
             wgslType    = "u32",
             size        = 4,
             alignment   = 4, 
-            refKind     = RefKind.None,
-            isCount     = true
+            fieldType   = UniformFieldType.Count
         });
 
         foreach (var vectorType in query.VectorTypes) {
             if (vectorType.IsSpan) {
+                fields.Add(new UniformField {
+                    name        = vectorType.Name + "_off",
+                    value       = "0",      // vectorType.Name + ".offset",
+                    type        = "int",
+                    wgslType    = "u32",
+                    size        = 4,
+                    alignment   = 4, 
+                    fieldType   = UniformFieldType.Offset
+                });
                 continue;
             }
-            var parameter = vectorType.Parameter;
             var typeName = vectorType.FullQualifiedName;
             
             (string wgslType, int size, int alignment) = WgslTypeFromType(typeName);
             
             var field = new UniformField {
                 name        = vectorType.Name,
+                value       = vectorType.Name,
                 type        = typeName,
                 wgslType    = wgslType, 
                 size        = size,
                 alignment   = alignment, 
-                refKind     = parameter.RefKind,
-                isCount     = false
+                fieldType   = UniformFieldType.Parameter
             };
             fields.Add(field);
         }

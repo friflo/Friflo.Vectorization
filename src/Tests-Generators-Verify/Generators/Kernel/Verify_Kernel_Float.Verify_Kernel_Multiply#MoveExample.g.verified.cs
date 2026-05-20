@@ -146,8 +146,10 @@ namespace VerifyVectorize
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _MoveExample_GPU_Uniforms {
-                count = buffers.length,
-                deltaTime = deltaTime,
+                count           = buffers.length,
+                position_off    = 0,
+                velocity_off    = 0,
+                deltaTime       = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -171,7 +173,9 @@ namespace VerifyVectorize
     private struct _MoveExample_GPU_Uniforms
     {
         [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public float      deltaTime;
+        [FieldOffset(4)]    public int        position_off;
+        [FieldOffset(8)]    public int        velocity_off;
+        [FieldOffset(12)]    public float      deltaTime;
     }
     
     private static readonly int _MoveExample_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -205,9 +209,11 @@ namespace VerifyVectorize
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>
     """
     struct MoveExample_Uniforms {
-        count      : u32,           // offset:  0 size:  4
-        deltaTime  : f32,           // offset:  4 size:  4
-    };                              //            size: 16
+        count           : u32,           // offset:  0 size:  4
+        position_off    : u32,           // offset:  4 size:  4
+        velocity_off    : u32,           // offset:  8 size:  4
+        deltaTime       : f32,           // offset: 12 size:  4
+    };                                   //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<f32>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<f32>;
@@ -221,8 +227,8 @@ namespace VerifyVectorize
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
-        var _velocity = velocity_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
+        var _velocity = velocity_arr[uniforms.velocity_off + index];
         var _deltaTime = uniforms.deltaTime;
 
         _position += (_velocity * _deltaTime);

@@ -181,7 +181,9 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Arithmetic_GPU_Uniforms {
-                count = buffers.length,
+                count           = buffers.length,
+                position_off    = 0,
+                velocity_off    = 0,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -205,6 +207,8 @@ namespace Tests.Generators.Kernel
     private struct _Arithmetic_GPU_Uniforms
     {
         [FieldOffset(0)]    public int        count;
+        [FieldOffset(4)]    public int        position_off;
+        [FieldOffset(8)]    public int        velocity_off;
     }
     
     private static readonly int _Arithmetic_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -238,8 +242,10 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Arithmetic_GPU_Shader() =>
     """
     struct Arithmetic_Uniforms {
-        count      : u32,           // offset:  0 size:  4
-    };                              //            size: 16
+        count           : u32,           // offset:  0 size:  4
+        position_off    : u32,           // offset:  4 size:  4
+        velocity_off    : u32,           // offset:  8 size:  4
+    };                                   //            size: 16
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec4<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec4<f32>>;
@@ -253,8 +259,8 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
-        var _velocity = velocity_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
+        var _velocity = velocity_arr[uniforms.velocity_off + index];
 
         var _add = (_position + _velocity);
         var _sub = (_position - _velocity);

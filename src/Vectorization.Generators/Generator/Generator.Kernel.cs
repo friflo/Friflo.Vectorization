@@ -141,14 +141,12 @@ public sealed partial class Gen
 
         foreach (var field in uniformFields)
         {
-            GeneratorUtils.AppendRefKind(signature, field.refKind);
-            if (!field.isCount) {
+            if (field.fieldType == UniformFieldType.Parameter) {
                 signature.Append($"\n        {field.type} {field.name},");
             }
-            var right = field.isCount ? "buffers.length" : field.name;
-            uniformAssignments.Append($"\n                {field.name} = {right},");
+            uniformAssignments.Append($"\n                {field.name,-15} = {field.value},");
             structFields.Append($"\n        [FieldOffset({field.offset})]    public {field.type,-10} {field.name};");
-            wgslFields.Append($"\n        {field.name,-10} : ").AppendFormat("{0,-15}", $"{field.wgslType},").Append($"// offset: {field.offset,2} size: {field.size,2}");
+            wgslFields.Append($"\n        {field.name,-15} : ").AppendFormat("{0,-15}", $"{field.wgslType},").Append($"// offset: {field.offset,2} size: {field.size,2}");
         }
         unchecked {
             // Simulate a Uniform-Binding on @binding(0) for whole uniform group
@@ -250,7 +248,7 @@ $$""""
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>
     """{{wgslHelperMethods}}
     struct {{methodName}}_Uniforms {{{wgslFields}}
-    };                              //            size: {{alignedSize,2}}
+    };                                   //            size: {{alignedSize,2}}
     
 {{bindings}}
     @group(1) @binding(0) var<uniform>              uniforms: {{methodName}}_Uniforms;

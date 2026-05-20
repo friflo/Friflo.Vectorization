@@ -190,8 +190,10 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Misc_GPU_Uniforms {
-                max = max,
-                count = buffers.length,
+                max             = max,
+                count           = buffers.length,
+                position_off    = 0,
+                velocity_off    = 0,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -216,6 +218,8 @@ namespace Tests.Generators.Kernel
     {
         [FieldOffset(0)]    public Vector4    max;
         [FieldOffset(16)]    public int        count;
+        [FieldOffset(20)]    public int        position_off;
+        [FieldOffset(24)]    public int        velocity_off;
     }
     
     private static readonly int _Misc_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
@@ -249,9 +253,11 @@ namespace Tests.Generators.Kernel
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>
     """
     struct Misc_Uniforms {
-        max        : vec4<f32>,     // offset:  0 size: 16
-        count      : u32,           // offset: 16 size:  4
-    };                              //            size: 32
+        max             : vec4<f32>,     // offset:  0 size: 16
+        count           : u32,           // offset: 16 size:  4
+        position_off    : u32,           // offset: 20 size:  4
+        velocity_off    : u32,           // offset: 24 size:  4
+    };                                   //            size: 32
     
     @group(0) @binding(0) var<storage, read_write>  position_arr: array<vec4<f32>>;
     @group(0) @binding(1) var<storage, read      >  velocity_arr: array<vec4<f32>>;
@@ -265,8 +271,8 @@ namespace Tests.Generators.Kernel
         if (index >= uniforms.count) {
             return;
         }
-        var _position = position_arr[index];
-        var _velocity = velocity_arr[index];
+        var _position = position_arr[uniforms.position_off + index];
+        var _velocity = velocity_arr[uniforms.velocity_off + index];
         var _max = uniforms.max;
 
         var _abs = abs(_velocity);
