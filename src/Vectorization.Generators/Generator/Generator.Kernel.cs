@@ -61,10 +61,10 @@ public sealed partial class Gen
         public {(blueprintMethod.IsStatic ? "static " : "")}GpuBuffer<{outputType}> {methodName}Kernel({signature})
         {{
 {validate}
-            if (buffers.IsGpuDevice) {{
+            if (buffers.IsGPU) {{
                 return _{methodName}_GPU{hash}(buffers, {gpuParams});
             }}
-            {methodName}Vector({avxParams});
+            {methodName}Vector({avxParams}, buffers.Vectorized);
             return null;
         }}
 ";

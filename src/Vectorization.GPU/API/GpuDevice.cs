@@ -22,7 +22,7 @@ public abstract class GpuDevice : IDisposable
     }
     
     // --- abstract
-    public abstract bool            IsGpuDevice { get; }
+    public abstract GpuExeType      ExeType     { get; }
     public abstract bool            IsDisposed  { get; }
     public abstract void            Dispose();
     
@@ -33,5 +33,12 @@ public abstract class GpuDevice : IDisposable
     public abstract void            Flush(bool wait = true);
     public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;
     public abstract void            SubmitGraph(GpuTask finalTask);
+}
+
+public enum GpuExeType
+{
+    Scalar,
+    SIMD,
+    GPU
 }
 

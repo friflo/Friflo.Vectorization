@@ -25,10 +25,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGpuDevice) {
+            if (buffers.IsGPU) {
                 return _Kernel_Max_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            Kernel_MaxVector(position.span, velocity.span);
+            Kernel_MaxVector(position.span, velocity.span, buffers.Vectorized);
             return null;
         }
 

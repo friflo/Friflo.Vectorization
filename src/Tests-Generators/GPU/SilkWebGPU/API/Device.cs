@@ -41,7 +41,7 @@ namespace Friflo.Vectorization.SilkWebGPU;
 public sealed unsafe class SilkDevice : GpuDevice
 {
     private             bool                isDisposed;
-    public   override   bool                IsGpuDevice => true;
+    public   override   GpuExeType          ExeType     => GpuExeType.GPU;
     public   override   bool                IsDisposed  => isDisposed;
     internal readonly   Webgpu              wgpu;
     private  readonly   Wgpu                wgpuEx;

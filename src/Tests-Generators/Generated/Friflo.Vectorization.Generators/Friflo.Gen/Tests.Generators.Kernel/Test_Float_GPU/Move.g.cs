@@ -26,10 +26,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGpuDevice) {
+            if (buffers.IsGPU) {
                 return _Move_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
             }
-            MoveVector(position.span, velocity.span, deltaTime);
+            MoveVector(position.span, velocity.span, deltaTime, buffers.Vectorized);
             return null;
         }
 

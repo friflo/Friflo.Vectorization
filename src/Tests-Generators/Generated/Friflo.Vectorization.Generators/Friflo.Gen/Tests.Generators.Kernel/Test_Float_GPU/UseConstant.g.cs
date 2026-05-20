@@ -23,10 +23,10 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (buffers.IsGpuDevice) {
+            if (buffers.IsGPU) {
                 return _UseConstant_GPU(buffers, position.gpuBuffer);
             }
-            UseConstantVector(position.span);
+            UseConstantVector(position.span, buffers.Vectorized);
             return null;
         }
 

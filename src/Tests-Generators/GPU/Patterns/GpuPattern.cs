@@ -33,13 +33,13 @@ public  static partial class GpuPattern
         buffers.Validate (input,  nameof(input));
         buffers.Validate (output, nameof(output));
 
-        if (buffers.IsGpuDevice) {
+        if (buffers.IsGPU) {
             switch (GpuTestGlobal.TestBackend) {
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
             }
         }
-        MultiplyAddVector_gen(weight.span, input.span, bias, output.span);
+        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.Vectorized);
         return output.gpuBuffer;
     }
     

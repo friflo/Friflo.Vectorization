@@ -23,10 +23,10 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (buffers.IsGpuDevice) {
+            if (buffers.IsGPU) {
                 return _InverseSqrt_GPU(buffers, position.gpuBuffer);
             }
-            InverseSqrtVector(position.span);
+            InverseSqrtVector(position.span, buffers.Vectorized);
             return null;
         }
 

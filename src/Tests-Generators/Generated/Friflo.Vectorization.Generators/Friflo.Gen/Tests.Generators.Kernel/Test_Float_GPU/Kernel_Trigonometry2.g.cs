@@ -23,10 +23,10 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (buffers.IsGpuDevice) {
+            if (buffers.IsGPU) {
                 return _Kernel_Trigonometry2_GPU(buffers, position.gpuBuffer);
             }
-            Kernel_Trigonometry2Vector(position.span);
+            Kernel_Trigonometry2Vector(position.span, buffers.Vectorized);
             return null;
         }
 

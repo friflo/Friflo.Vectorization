@@ -20,8 +20,12 @@ public struct GpuBuffers
     public              ulong       hash; // uses FNV-1a derivative hashing
     private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
+    private readonly    GpuExeType  exeType;
     
-    public              bool        IsGpuDevice => device?.IsGpuDevice ?? false;
+    public              bool        IsGPU       => exeType == GpuExeType.GPU;
+    public              bool        Vectorized  => exeType == GpuExeType.SIMD;
+
+    
 
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
@@ -29,6 +33,7 @@ public struct GpuBuffers
     private GpuBuffers(int count) {
         this.count      = count;
         this.areSpans   = true;
+        exeType         = GpuExeType.Scalar; // TODO can be SIMD too
     }
     
     private GpuBuffers(int count, ulong hash, GpuDevice device, string firstParam) {
@@ -36,6 +41,7 @@ public struct GpuBuffers
         this.hash       = hash;
         this.device     = device;
         this.firstParam = firstParam;
+        exeType         = device.ExeType;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
