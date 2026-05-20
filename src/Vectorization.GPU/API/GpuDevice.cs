@@ -45,7 +45,10 @@ public abstract class GpuDevice : IDisposable
 public enum ComputeMode {
     /// <summary> Automatically selects the optimal mode based on device capabilities. </summary>
     Device  = 0,
-    /// <summary> Executes operations using scalar CPU instructions. </summary>
+    /// <summary>
+    /// Executes operations using scalar CPU instructions. <br/>
+    /// This mode enables simple debugging of your <c>[Kernel]</c> blueprint method.
+    /// </summary>
     Scalar  = 1,
     /// <summary> Executes operations using SIMD CPU instructions. </summary>
     SIMD    = 2,
