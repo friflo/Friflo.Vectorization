@@ -23,8 +23,8 @@ public  static class GpuPattern
     }
     // generated shadow Method
     public static GpuBuffer<float> ShadowMethod(
-        Buffer<float>   weight,
-        Buffer<float>   input,
+      InBuffer<float>   weight,
+      InBuffer<float>   input,
         float           bias,
         Buffer<float>   output,
         ComputeMode     computeMode = ComputeMode.Device)
