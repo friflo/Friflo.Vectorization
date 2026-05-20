@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Transform_GPU(buffers, position, matrix);
             }
-            TransformVector(position.span, matrix, buffers.ComputeSIMD);
+            TransformVector(position.Span, matrix, buffers.ComputeSIMD);
             return null;
         }
 
@@ -118,7 +118,7 @@ namespace Tests.Generators.Kernel
         in Matrix4x4       matrix)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
+        var position    = position_.GpuBuffer;
         
         // output ??= device.RentBuffer<Vector2>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -148,7 +148,7 @@ namespace Tests.Generators.Kernel
             var uniforms = new _Transform_GPU_Uniforms {
                 matrix          = matrix,
                 count           = buffers.length,
-                position_off    = position_.offset,
+                position_off    = position_.Offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

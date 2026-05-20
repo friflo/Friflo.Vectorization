@@ -31,7 +31,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Kernel_Clamp_GPU(buffers, position, min, max);
             }
-            Kernel_ClampVector(position.span, min.span, max, buffers.ComputeSIMD);
+            Kernel_ClampVector(position.Span, min.Span, max, buffers.ComputeSIMD);
             return null;
         }
 
@@ -117,8 +117,8 @@ namespace Tests.Generators.Kernel
         in float           max)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var min         = min_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var min         = min_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -149,8 +149,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Kernel_Clamp_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
-                min_off         = min_.offset,
+                position_off    = position_.Offset,
+                min_off         = min_.Offset,
                 max             = max,
             };
             var entry = task.AsUniformEntry(0, uniforms);

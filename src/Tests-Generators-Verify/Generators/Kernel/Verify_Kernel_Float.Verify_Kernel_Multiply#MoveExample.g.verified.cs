@@ -32,7 +32,7 @@ namespace VerifyVectorize
             if (buffers.ComputeGPU) {
                 return _MoveExample_GPU(buffers, position, velocity, deltaTime);
             }
-            MoveExampleVector(position.span, velocity.span, deltaTime, buffers.ComputeSIMD);
+            MoveExampleVector(position.Span, velocity.Span, deltaTime, buffers.ComputeSIMD);
             return null;
         }
 
@@ -118,8 +118,8 @@ namespace VerifyVectorize
         in float           deltaTime)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var velocity    = velocity_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var velocity    = velocity_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -150,8 +150,8 @@ namespace VerifyVectorize
             
             var uniforms = new _MoveExample_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
-                velocity_off    = velocity_.offset,
+                position_off    = position_.Offset,
+                velocity_off    = velocity_.Offset,
                 deltaTime       = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);

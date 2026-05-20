@@ -30,7 +30,7 @@ namespace VerifyVectorize
             if (buffers.ComputeGPU) {
                 return _Kernel_Sign_GPU(buffers, position, value);
             }
-            Kernel_SignVector(position.span, value, buffers.ComputeSIMD);
+            Kernel_SignVector(position.Span, value, buffers.ComputeSIMD);
             return null;
         }
 
@@ -111,7 +111,7 @@ namespace VerifyVectorize
         in float           value)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
+        var position    = position_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -140,7 +140,7 @@ namespace VerifyVectorize
             
             var uniforms = new _Kernel_Sign_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
+                position_off    = position_.Offset,
                 value           = value,
             };
             var entry = task.AsUniformEntry(0, uniforms);

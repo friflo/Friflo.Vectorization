@@ -43,7 +43,7 @@ public sealed partial class Gen
                     validate.Append($"            buffers.Validate ({name}, nameof({name}));\n");
                 }
                 gpuParams.Append($"{name}, ");
-                avxParams.Append($"{name}.span, ");
+                avxParams.Append($"{name}.Span, ");
                 continue;
             }
             GeneratorUtils.AppendRefKind(signature, vectorType.RefKind);
@@ -116,7 +116,7 @@ public sealed partial class Gen
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
             var paramType           = vectorType.RefKind == RefKind.Ref ? "in Buffer  " : "in InBuffer";
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
-            bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.gpuBuffer;");
+            bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
             if (isOutput) {
                 setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task);");
             } else {

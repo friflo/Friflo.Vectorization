@@ -31,7 +31,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Misc_GPU(buffers, position, velocity, max);
             }
-            MiscVector(position.span, velocity.span, max, buffers.ComputeSIMD);
+            MiscVector(position.Span, velocity.Span, max, buffers.ComputeSIMD);
             return null;
         }
 
@@ -162,8 +162,8 @@ namespace Tests.Generators.Kernel
         in Vector4         max)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var velocity    = velocity_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var velocity    = velocity_.GpuBuffer;
         
         // output ??= device.RentBuffer<Vector4>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -195,8 +195,8 @@ namespace Tests.Generators.Kernel
             var uniforms = new _Misc_GPU_Uniforms {
                 max             = max,
                 count           = buffers.length,
-                position_off    = position_.offset,
-                velocity_off    = velocity_.offset,
+                position_off    = position_.Offset,
+                velocity_off    = velocity_.Offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

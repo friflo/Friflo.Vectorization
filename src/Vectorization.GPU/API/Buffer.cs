@@ -9,32 +9,32 @@ namespace Friflo.Vectorization.GPU;
 
 public readonly ref struct Buffer<T> where T : unmanaged
 {
-    public  readonly    Span<T>         span;
-    public  readonly    GpuBuffer<T>    gpuBuffer;
-    public  readonly    int             length;
-    public  readonly    int             offset;
+    public  readonly    Span<T>         Span;
+    public  readonly    GpuBuffer<T>    GpuBuffer;
+    public  readonly    int             Length;
+    public  readonly    int             Offset;
     
     private Buffer(Span<T> span) {
-        this.span   = span;
-        length      = span.Length;
+        Span        = span;
+        Length      = span.Length;
     }
     
     private Buffer(Memory<T> memory) {
-        span        = memory.Span;
-        length      = memory.Length;
+        Span        = memory.Span;
+        Length      = memory.Length;
     }
     
     private Buffer(BufferView<T> view) {
-        gpuBuffer   = view.gpuBuffer;
-        span        = view.Span;
-        length      = view.Length;
-        offset      = view.Offset;
+        GpuBuffer   = view.gpuBuffer;
+        Span        = view.Span;
+        Length      = view.Length;
+        Offset      = view.Offset;
     }
     
     private Buffer(GpuBuffer<T> gpuBuffer) {
-        this.gpuBuffer  = gpuBuffer;
-        span            = gpuBuffer.Span;
-        length          = gpuBuffer.Length;
+        GpuBuffer   = gpuBuffer;
+        Span        = gpuBuffer.Span;
+        Length      = gpuBuffer.Length;
     }
     
     public static implicit operator Buffer<T>(T[]           array)      => new(array);
@@ -46,32 +46,32 @@ public readonly ref struct Buffer<T> where T : unmanaged
 
 public readonly ref struct InBuffer<T> where T : unmanaged
 {
-    public  readonly    ReadOnlySpan<T> span;
-    public  readonly    GpuBuffer<T>    gpuBuffer;
-    public  readonly    int             length;
-    public  readonly    int             offset;
+    public  readonly    ReadOnlySpan<T> Span;
+    public  readonly    GpuBuffer<T>    GpuBuffer;
+    public  readonly    int             Length;
+    public  readonly    int             Offset;
     
     private InBuffer(ReadOnlySpan<T> span) {
-        this.span   = span;
-        length      = span.Length;
+        Span        = span;
+        Length      = span.Length;
     }
     
     private InBuffer(ReadOnlyMemory<T> memory) {
-        span        = memory.Span;
-        length      = memory.Length;
+        Span        = memory.Span;
+        Length      = memory.Length;
     }
     
     private InBuffer(ReadOnlyView<T> view) {
-        gpuBuffer   = view.gpuBuffer;
-        span        = view.Span;
-        length      = view.Length;
-        offset      = view.Offset;
+        GpuBuffer   = view.gpuBuffer;
+        Span        = view.Span;
+        Length      = view.Length;
+        Offset      = view.Offset;
     }
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
-        this.gpuBuffer  = gpuBuffer;
-        span            = gpuBuffer.Span;
-        length          = gpuBuffer.Length;
+        GpuBuffer   = gpuBuffer;
+        Span        = gpuBuffer.Span;
+        Length      = gpuBuffer.Length;
     }
     
     // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available

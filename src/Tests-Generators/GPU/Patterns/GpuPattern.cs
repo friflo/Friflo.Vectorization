@@ -40,8 +40,8 @@ public  static class GpuPattern
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);
             }
         }
-        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.ComputeSIMD);
-        return output.gpuBuffer;
+        MultiplyAddVector_gen(weight.Span, input.Span, bias, output.Span, buffers.ComputeSIMD);
+        return output.GpuBuffer;
     }
     
     // generated AVX method

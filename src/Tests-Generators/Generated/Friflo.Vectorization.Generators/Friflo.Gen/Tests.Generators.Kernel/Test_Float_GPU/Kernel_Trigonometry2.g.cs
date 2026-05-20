@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Kernel_Trigonometry2_GPU(buffers, position);
             }
-            Kernel_Trigonometry2Vector(position.span, buffers.ComputeSIMD);
+            Kernel_Trigonometry2Vector(position.Span, buffers.ComputeSIMD);
             return null;
         }
 
@@ -116,7 +116,7 @@ namespace Tests.Generators.Kernel
         in Buffer  <float> position_)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
+        var position    = position_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -145,7 +145,7 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Kernel_Trigonometry2_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
+                position_off    = position_.Offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

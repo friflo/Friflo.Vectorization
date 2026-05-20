@@ -30,7 +30,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Assign_GPU(buffers, position, velocity);
             }
-            AssignVector(position.span, velocity.span, buffers.ComputeSIMD);
+            AssignVector(position.Span, velocity.Span, buffers.ComputeSIMD);
             return null;
         }
 
@@ -111,8 +111,8 @@ namespace Tests.Generators.Kernel
         in InBuffer<float> velocity_)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var velocity    = velocity_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var velocity    = velocity_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -143,8 +143,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Assign_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
-                velocity_off    = velocity_.offset,
+                position_off    = position_.Offset,
+                velocity_off    = velocity_.Offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

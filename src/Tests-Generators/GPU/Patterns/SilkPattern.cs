@@ -23,9 +23,9 @@ public static class SilkPattern
         in Buffer<float>    output_)
     {
         var device      = (SilkDevice)buffers.device;
-        var input       = weight_.gpuBuffer;
-        var weight      = input_.gpuBuffer;
-        var output      = output_.gpuBuffer;
+        var input       = weight_.GpuBuffer;
+        var weight      = input_.GpuBuffer;
+        var output      = output_.GpuBuffer;
         var gpuOutput   = output ?? device.RentBuffer<float>(buffers.length);
         using var task  = device.RentTask();
 

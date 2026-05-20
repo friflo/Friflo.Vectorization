@@ -31,7 +31,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Kernel_Trigonometry_GPU(buffers, position, velocity, value);
             }
-            Kernel_TrigonometryVector(position.span, velocity.span, value, buffers.ComputeSIMD);
+            Kernel_TrigonometryVector(position.Span, velocity.Span, value, buffers.ComputeSIMD);
             return null;
         }
 
@@ -191,8 +191,8 @@ namespace Tests.Generators.Kernel
         in float           value)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var velocity    = velocity_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var velocity    = velocity_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -223,8 +223,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Kernel_Trigonometry_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
-                velocity_off    = velocity_.offset,
+                position_off    = position_.Offset,
+                velocity_off    = velocity_.Offset,
                 value           = value,
             };
             var entry = task.AsUniformEntry(0, uniforms);

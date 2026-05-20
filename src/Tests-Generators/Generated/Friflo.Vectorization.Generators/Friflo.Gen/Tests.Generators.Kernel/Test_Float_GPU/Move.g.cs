@@ -31,7 +31,7 @@ namespace Tests.Generators.Kernel
             if (buffers.ComputeGPU) {
                 return _Move_GPU(buffers, position, velocity, deltaTime);
             }
-            MoveVector(position.span, velocity.span, deltaTime, buffers.ComputeSIMD);
+            MoveVector(position.Span, velocity.Span, deltaTime, buffers.ComputeSIMD);
             return null;
         }
 
@@ -117,8 +117,8 @@ namespace Tests.Generators.Kernel
         in float           deltaTime)
     {
         var device      = (WgpuDevice)buffers.device;
-        var position    = position_.gpuBuffer;
-        var velocity    = velocity_.gpuBuffer;
+        var position    = position_.GpuBuffer;
+        var velocity    = velocity_.GpuBuffer;
         
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
@@ -149,8 +149,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Move_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.offset,
-                velocity_off    = velocity_.offset,
+                position_off    = position_.Offset,
+                velocity_off    = velocity_.Offset,
                 deltaTime       = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
