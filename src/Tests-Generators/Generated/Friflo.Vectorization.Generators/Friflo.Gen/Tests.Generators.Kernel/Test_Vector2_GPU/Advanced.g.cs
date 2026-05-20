@@ -316,7 +316,7 @@ namespace Tests.Generators.Kernel
         var _sum = (((_cross + _length) + _dist) + _distSquared);
         _position = (_sum * _normalize);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

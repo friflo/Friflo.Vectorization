@@ -221,7 +221,7 @@ namespace VerifyVectorize
         var _sign = sign(_value);
         _position = _sign;
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

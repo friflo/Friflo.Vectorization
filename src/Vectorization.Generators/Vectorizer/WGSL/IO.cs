@@ -28,6 +28,6 @@ public sealed partial class WgslVectorizer
         if (!vectorType.IsSpan) {
             return;
         }
-        source.AppendLine($"        {dirtyVector}_arr[index] = _{dirtyVector};");
+        source.AppendLine($"        {dirtyVector}_arr[uniforms.{vectorType.Name}_off + index] = _{dirtyVector};");
     }
 }

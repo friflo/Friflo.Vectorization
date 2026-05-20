@@ -207,7 +207,7 @@ namespace Tests.Generators.Kernel
 
         _position += 3.1415927;
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

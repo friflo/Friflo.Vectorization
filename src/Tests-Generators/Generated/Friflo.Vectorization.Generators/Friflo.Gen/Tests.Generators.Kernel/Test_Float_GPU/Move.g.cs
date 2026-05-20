@@ -235,7 +235,7 @@ namespace Tests.Generators.Kernel
 
         _position += (_velocity * _deltaTime);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

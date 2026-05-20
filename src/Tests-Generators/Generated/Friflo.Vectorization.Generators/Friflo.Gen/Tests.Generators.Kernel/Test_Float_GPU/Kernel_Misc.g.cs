@@ -316,7 +316,7 @@ namespace Tests.Generators.Kernel
         var _sqrt = sqrt(_abs);
         _position = ((((((((((_abs + _sign) + _floor) + _ceiling) + _log) + _log2) + _log10) + _exp) + _pow) + _round) + _sqrt);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

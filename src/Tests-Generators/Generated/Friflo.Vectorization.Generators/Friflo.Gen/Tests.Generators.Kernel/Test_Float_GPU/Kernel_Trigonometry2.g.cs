@@ -224,7 +224,7 @@ namespace Tests.Generators.Kernel
         var _tanh = tanh(_position);
         _position += ((_sinh + _cosh) + _tanh);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

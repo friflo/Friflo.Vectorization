@@ -274,7 +274,7 @@ namespace Tests.Generators.Kernel
         _position += _mul;
         _position -= _div;
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

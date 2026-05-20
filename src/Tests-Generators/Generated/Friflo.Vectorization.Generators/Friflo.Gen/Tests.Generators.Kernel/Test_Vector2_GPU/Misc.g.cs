@@ -287,7 +287,7 @@ namespace Tests.Generators.Kernel
         var _lerp = mix(_position, _velocity, _max);
         _position = ((((((_abs + _trunc) + _round) + _min) + _max2) + _clamp) + _lerp);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

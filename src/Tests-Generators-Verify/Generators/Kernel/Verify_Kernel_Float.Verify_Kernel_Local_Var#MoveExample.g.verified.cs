@@ -221,7 +221,7 @@ namespace VerifyVectorize
         var _local = _deltaTime;
         _position = _local;
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

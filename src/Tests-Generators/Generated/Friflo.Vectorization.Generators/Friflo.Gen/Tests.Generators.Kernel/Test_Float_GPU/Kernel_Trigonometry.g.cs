@@ -321,7 +321,7 @@ namespace Tests.Generators.Kernel
         var _atanh = atanh(_fraction);
         _position += (((((((((_sin + _cos) + _tan) + _asin) + _acos) + _atan) + _atan2) + _asinh) + _acosh) + _atanh);
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 

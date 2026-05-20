@@ -227,7 +227,7 @@ namespace Tests.Generators.Kernel
 
         _position = (_matrix * vec4<f32>(_position, 0.0, 1.0)).xy;
 
-        position_arr[index] = _position;
+        position_arr[uniforms.position_off + index] = _position;
     }
     """u8;
 
