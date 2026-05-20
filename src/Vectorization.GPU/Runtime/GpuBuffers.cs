@@ -67,7 +67,7 @@ public struct GpuBuffers
         var bufferDevice = gpuBuffer.Device;
         ulong hash;
         unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(computeMode, gpuBuffer.Length, hash, bufferDevice, paramName);
+        var buffers = new GpuBuffers(computeMode, count, hash, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {
@@ -98,7 +98,7 @@ public struct GpuBuffers
             if (bufferDevice != null    &&
                !bufferDevice.IsDisposed &&
                 bufferDevice == device  &&
-                gpuBuffer.Length == bufferCount)
+                bufferCount  == count)
             {
                 unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
