@@ -11,6 +11,7 @@ internal sealed class CpuDevice : GpuDevice
 {
     private             bool        isDisposed;
     internal readonly   CpuAdapter  adapter;
+    public   override   bool        IsGpuDevice => false;
     public   override   bool        IsDisposed  => isDisposed;
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {

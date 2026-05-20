@@ -26,7 +26,7 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (!buffers.areSpans) {
+            if (buffers.IsGpuDevice) {
                 return _Kernel_Misc_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, value);
             }
             Kernel_MiscVector(position.span, velocity.span, value);

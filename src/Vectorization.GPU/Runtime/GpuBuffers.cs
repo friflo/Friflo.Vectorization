@@ -18,8 +18,10 @@ public struct GpuBuffers
     public  readonly    bool        areSpans;
     public  readonly    int         count;
     public              ulong       hash; // uses FNV-1a derivative hashing
-    private readonly    GpuDevice   device;
+    private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
+    
+    public              bool        IsGpuDevice => device?.IsGpuDevice ?? false;
 
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;

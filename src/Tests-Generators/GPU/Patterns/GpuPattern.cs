@@ -33,7 +33,7 @@ public  static partial class GpuPattern
         buffers.Validate (input,  nameof(input));
         buffers.Validate (output, nameof(output));
 
-        if (!buffers.areSpans) {
+        if (buffers.IsGpuDevice) {
             switch (GpuTestGlobal.TestBackend) {
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);

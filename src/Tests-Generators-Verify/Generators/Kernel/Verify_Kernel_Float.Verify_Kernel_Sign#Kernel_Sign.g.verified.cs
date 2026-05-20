@@ -25,7 +25,7 @@ namespace VerifyVectorize
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (!buffers.areSpans) {
+            if (buffers.IsGpuDevice) {
                 return _Kernel_Sign_GPU(buffers, position.gpuBuffer, value);
             }
             Kernel_SignVector(position.span, value);

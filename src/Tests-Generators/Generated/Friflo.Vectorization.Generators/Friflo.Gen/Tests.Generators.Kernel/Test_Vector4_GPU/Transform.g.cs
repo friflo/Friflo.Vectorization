@@ -24,7 +24,7 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (!buffers.areSpans) {
+            if (buffers.IsGpuDevice) {
                 return _Transform_GPU(buffers, position.gpuBuffer, matrix);
             }
             TransformVector(position.span, matrix);

@@ -25,7 +25,7 @@ namespace VerifyVectorize
         {
             var buffers = GpuBuffers.Create(position, nameof(position));
 
-            if (!buffers.areSpans) {
+            if (buffers.IsGpuDevice) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);
             }
             MoveExampleVector(position.span, deltaTime);

@@ -25,7 +25,7 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (!buffers.areSpans) {
+            if (buffers.IsGpuDevice) {
                 return _Advanced_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
             AdvancedVector(position.span, velocity.span);

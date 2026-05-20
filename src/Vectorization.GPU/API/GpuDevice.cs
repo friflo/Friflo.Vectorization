@@ -22,7 +22,8 @@ public abstract class GpuDevice : IDisposable
     }
     
     // --- abstract
-    public abstract bool            IsDisposed { get; }
+    public abstract bool            IsGpuDevice { get; }
+    public abstract bool            IsDisposed  { get; }
     public abstract void            Dispose();
     
     public abstract GpuLimits       GetDeviceLimits();
