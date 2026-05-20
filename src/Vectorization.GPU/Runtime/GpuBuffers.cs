@@ -70,7 +70,51 @@ public struct GpuBuffers
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static GpuBuffers Create<T>(ComputeMode computeMode, InBuffer<T> buffer, string paramName) where T : unmanaged
+    {
+        var gpuBuffer = buffer.gpuBuffer;
+        if (gpuBuffer == null) {
+            if (computeMode == ComputeMode.GPU) {
+                NoDevice();
+            }
+            return new GpuBuffers(computeMode, buffer.Count);
+        }
+        var bufferDevice = gpuBuffer.Device;
+        ulong hash;
+        unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
+        var buffers = new GpuBuffers(computeMode, gpuBuffer.Length, hash, bufferDevice, paramName);
+        if (bufferDevice != null    &&
+           !bufferDevice.IsDisposed)
+        {
+            return buffers;
+        }
+        buffers.ValidateError(gpuBuffer, buffer.Count, paramName);
+        return default;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate<T>(Buffer<T> buffer, string paramName) where T : unmanaged
+    {
+        var gpuBuffer = buffer.gpuBuffer;
+        if (areSpans && gpuBuffer == null) {
+            return;
+        }
+        if (gpuBuffer != null) {
+            var bufferDevice = gpuBuffer.Device;
+            if (bufferDevice != null    &&
+               !bufferDevice.IsDisposed &&
+                bufferDevice == device  &&
+                gpuBuffer.Length == count)
+            {
+                unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
+                return;
+            }
+        }
+        ValidateError(gpuBuffer, buffer.Count, paramName);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Validate<T>(InBuffer<T> buffer, string paramName) where T : unmanaged
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (areSpans && gpuBuffer == null) {

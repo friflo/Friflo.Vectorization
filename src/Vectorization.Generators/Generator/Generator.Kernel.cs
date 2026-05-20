@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Friflo.Vectorization.Generators;
+using Microsoft.CodeAnalysis;
 
 // ReSharper disable UseObjectOrCollectionInitializer
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -33,7 +34,8 @@ public sealed partial class Gen
             var name        = vectorType.Name;
             var type        = vectorType.FullQualifiedName;
             if (vectorType.IsSpan) {
-                signature.Append($"\n            Buffer<{type}> {name},");
+                var bufferType  = vectorType.RefKind == RefKind.Ref ? "  Buffer" : "InBuffer";
+                signature.Append($"\n          {bufferType}<{type}> {name},");
                 if (n == 0) {
                     validate.Append($"            var buffers = GpuBuffers.Create(mode, {name}, nameof({name}));\n");
                 } else {
