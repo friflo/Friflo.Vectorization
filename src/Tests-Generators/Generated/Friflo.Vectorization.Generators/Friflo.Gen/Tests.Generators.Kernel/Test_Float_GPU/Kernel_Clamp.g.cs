@@ -21,9 +21,10 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<float> Kernel_ClampKernel(
             Buffer<float> position,
             Buffer<float> min,
-            float max)
+            float max,
+            ExeType exeType = ExeType.Auto)
         {
-            var buffers = GpuBuffers.Create(position, nameof(position));
+            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
             buffers.Validate(min, nameof(min));
 
             if (buffers.IsGPU) {

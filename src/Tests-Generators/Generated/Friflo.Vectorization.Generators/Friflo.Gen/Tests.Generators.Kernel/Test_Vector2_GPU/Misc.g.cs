@@ -21,9 +21,10 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<Vector2> MiscKernel(
             Buffer<Vector2> position,
             Buffer<Vector2> velocity,
-            Vector2 max)
+            Vector2 max,
+            ExeType exeType = ExeType.Auto)
         {
-            var buffers = GpuBuffers.Create(position, nameof(position));
+            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
             if (buffers.IsGPU) {

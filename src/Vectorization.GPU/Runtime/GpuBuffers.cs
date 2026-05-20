@@ -32,31 +32,31 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    private GpuBuffers(int count) {
+    private GpuBuffers(ExeType exeType, int count) {
         this.count      = count;
         this.areSpans   = true;
-        exeType         = ExeType.Scalar; // TODO can be SIMD too
+        this.exeType    = exeType == ExeType.Auto ? ExeType.SIMD : exeType;
     }
     
-    private GpuBuffers(int count, ulong hash, GpuDevice device, string firstParam) {
+    private GpuBuffers(ExeType exeType, int count, ulong hash, GpuDevice device, string firstParam) {
         this.count      = count;
         this.hash       = hash;
         this.device     = device;
         this.firstParam = firstParam;
-        exeType         = device.ExeType;
+        this.exeType    = exeType == ExeType.Auto ? device.ExeType : exeType;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static GpuBuffers Create<T>(Buffer<T> buffer, string paramName) where T : unmanaged
+    public static GpuBuffers Create<T>(ExeType exeType, Buffer<T> buffer, string paramName) where T : unmanaged
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            return new GpuBuffers(buffer.Count);
+            return new GpuBuffers(exeType, buffer.Count);
         }
         var bufferDevice = gpuBuffer.Device;
         ulong hash;
         unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(gpuBuffer.Length, hash, bufferDevice, paramName);
+        var buffers = new GpuBuffers(exeType, gpuBuffer.Length, hash, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {

@@ -8,9 +8,10 @@ using System;
 namespace Friflo.Vectorization.GPU;
 
 public enum ExeType {
-    Scalar,
-    SIMD,
-    GPU
+    Auto    = 0,
+    Scalar  = 1,
+    SIMD    = 2,
+    GPU     = 3
 }
 
 public ref struct Buffer<T> where T : unmanaged
