@@ -33,3 +33,33 @@ public ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
 }
 
+// Consider using
+public ref struct ReadOnlyBuffer<T> where T : unmanaged
+{
+    public              ReadOnlySpan<T> span;
+    public  readonly    GpuBuffer<T>    gpuBuffer;
+    
+    public 	            int 			Count => gpuBuffer?.Length ?? span.Length;
+    
+    public ReadOnlyBuffer(ReadOnlySpan<T> span) {
+        this.span = span;
+    }
+    
+    public ReadOnlyBuffer(ReadOnlyMemory<T> memory) {
+        span = memory.Span;
+    }
+    
+    public ReadOnlyBuffer(GpuBuffer<T> gpuBuffer) {
+        this.gpuBuffer  = gpuBuffer;
+        span            = gpuBuffer.Span;
+    }
+    
+    // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available
+    
+    public static implicit operator ReadOnlyBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
+    public static implicit operator ReadOnlyBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
+    public static implicit operator ReadOnlyBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer);
+}
+
+
+
