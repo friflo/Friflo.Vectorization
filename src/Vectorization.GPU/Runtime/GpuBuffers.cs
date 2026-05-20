@@ -51,6 +51,9 @@ public struct GpuBuffers
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
+            if (computeMode == ComputeMode.GPU) {
+                NoDevice();
+            }
             return new GpuBuffers(computeMode, buffer.Count);
         }
         var bufferDevice = gpuBuffer.Device;
@@ -111,15 +114,12 @@ public struct GpuBuffers
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly GpuDevice GetDevice() {
-        if (device != null) {
-            return device;
-        }
-        throw NoDevice();
+    public readonly GpuDevice GetDevice() {             // TODO remove
+        return device;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private static InvalidOperationException NoDevice() {
-         return new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
+    private static void NoDevice() {
+         throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
 }

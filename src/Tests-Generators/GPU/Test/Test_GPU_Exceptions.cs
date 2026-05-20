@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -71,6 +72,14 @@ public class Test_GPU_Exceptions : GpuTestBase
                 GpuPattern.ShadowMethod(gpuWeight2, input, 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
+        } {
+            using var instance  = new CpuInstance();
+            using var adapter   = instance.CreateAdapter(GpuBackendType.Scalar);
+            using var device    = adapter.CreateDevice("Scalar");
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(weight, input, 42, output, ComputeMode.GPU);
+            });
+            StringAssert.StartsWith("The Ghost Orchestra: ", e!.Message!);
         }
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
     }
