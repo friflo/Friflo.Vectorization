@@ -47,12 +47,12 @@ public struct GpuBuffers
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GpuBuffers Create<T>(Buffer<T> buffer, string paramName, ComputeMode computeMode) where T : unmanaged {
-        return Create(buffer.gpuBuffer, buffer.Length, paramName, computeMode);
+        return Create(buffer.gpuBuffer, buffer.length, paramName, computeMode);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GpuBuffers Create<T>(InBuffer<T> buffer, string paramName, ComputeMode computeMode) where T : unmanaged {
-        return Create(buffer.gpuBuffer, buffer.Length, paramName, computeMode);
+        return Create(buffer.gpuBuffer, buffer.length, paramName, computeMode);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,12 +79,12 @@ public struct GpuBuffers
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate<T>(Buffer<T> buffer, string paramName) where T : unmanaged {
-        Validate(buffer.gpuBuffer, buffer.Length, paramName);
+        Validate(buffer.gpuBuffer, buffer.length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate<T>(InBuffer<T> buffer, string paramName) where T : unmanaged {
-        Validate(buffer.gpuBuffer, buffer.Length, paramName);
+        Validate(buffer.gpuBuffer, buffer.length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

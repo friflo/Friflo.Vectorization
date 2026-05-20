@@ -7,24 +7,26 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public ref struct Buffer<T> where T : unmanaged
+public readonly ref struct Buffer<T> where T : unmanaged
 {
-    public              Span<T>         span;
+    public  readonly    Span<T>         span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
-    
-    public 	            int 			Length => gpuBuffer?.Length ?? span.Length;
+    public  readonly    int             length;
     
     private Buffer(Span<T> span) {
-        this.span = span;
+        this.span   = span;
+        length      = span.Length;
     }
     
     private Buffer(Memory<T> memory) {
-        span = memory.Span;
+        span        = memory.Span;
+        length      = memory.Length;
     }
     
     private Buffer(GpuBuffer<T> gpuBuffer) {
         this.gpuBuffer  = gpuBuffer;
         span            = gpuBuffer.Span;
+        length          = gpuBuffer.Length;
     }
     
     public static implicit operator Buffer<T>(T[]           array)      => new(array);
@@ -33,24 +35,26 @@ public ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
 }
 
-public ref struct InBuffer<T> where T : unmanaged
+public readonly ref struct InBuffer<T> where T : unmanaged
 {
-    public              ReadOnlySpan<T> span;
+    public  readonly    ReadOnlySpan<T> span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
-    
-    public 	            int 			Length => gpuBuffer?.Length ?? span.Length;
+    public  readonly    int             length;
     
     private InBuffer(ReadOnlySpan<T> span) {
-        this.span = span;
+        this.span   = span;
+        length      = span.Length;
     }
     
     private InBuffer(ReadOnlyMemory<T> memory) {
-        span = memory.Span;
+        span        = memory.Span;
+        length      = memory.Length;
     }
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
         this.gpuBuffer  = gpuBuffer;
         span            = gpuBuffer.Span;
+        length          = gpuBuffer.Length;
     }
     
     // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available
