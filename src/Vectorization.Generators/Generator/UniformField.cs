@@ -63,7 +63,7 @@ public sealed class UniformField
             if (vectorType.IsSpan) {
                 fields.Add(new UniformField {
                     name        = vectorType.Name + "_off",
-                    value       = "0",      // vectorType.Name + ".offset",
+                    value       = vectorType.Name + "_.offset",
                     type        = "int",
                     wgslType    = "u32",
                     size        = 4,

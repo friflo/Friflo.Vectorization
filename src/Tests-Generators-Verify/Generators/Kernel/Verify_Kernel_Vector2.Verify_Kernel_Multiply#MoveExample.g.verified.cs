@@ -30,7 +30,7 @@ namespace VerifyVectorize
             buffers.Validate (velocity, nameof(velocity));
 
             if (buffers.ComputeGPU) {
-                return _MoveExample_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
+                return _MoveExample_GPU(buffers, position, velocity, deltaTime);
             }
             MoveExampleVector(position.span, velocity.span, deltaTime, buffers.ComputeSIMD);
             return null;
@@ -112,12 +112,15 @@ namespace VerifyVectorize
 
     [SkipLocalsInit]
     private GpuBuffer<Vector2> _MoveExample_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<Vector2> position,
-        GpuBuffer<Vector2> velocity,
-        float deltaTime)
+        in GpuBuffers      buffers,
+        in Buffer  <Vector2> position_,
+        in InBuffer<Vector2> velocity_,
+        in float           deltaTime)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        var velocity    = velocity_.gpuBuffer;
+        
         // output ??= device.RentBuffer<Vector2>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -147,8 +150,8 @@ namespace VerifyVectorize
             
             var uniforms = new _MoveExample_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = 0,
-                velocity_off    = 0,
+                position_off    = position_.offset,
+                velocity_off    = velocity_.offset,
                 deltaTime       = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
@@ -172,9 +175,9 @@ namespace VerifyVectorize
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _MoveExample_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public int        position_off;
-        [FieldOffset(8)]    public int        velocity_off;
+        [FieldOffset( 0)]    public int        count;
+        [FieldOffset( 4)]    public int        position_off;
+        [FieldOffset( 8)]    public int        velocity_off;
         [FieldOffset(12)]    public float      deltaTime;
     }
     

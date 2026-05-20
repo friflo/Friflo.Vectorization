@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             buffers.Validate (velocity, nameof(velocity));
 
             if (buffers.ComputeGPU) {
-                return _Misc_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, max);
+                return _Misc_GPU(buffers, position, velocity, max);
             }
             MiscVector(position.span, velocity.span, max, buffers.ComputeSIMD);
             return null;
@@ -156,12 +156,15 @@ namespace Tests.Generators.Kernel
 
     [SkipLocalsInit]
     private static GpuBuffer<Vector2> _Misc_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<Vector2> position,
-        GpuBuffer<Vector2> velocity,
-        Vector2 max)
+        in GpuBuffers      buffers,
+        in Buffer  <Vector2> position_,
+        in InBuffer<Vector2> velocity_,
+        in Vector2         max)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        var velocity    = velocity_.gpuBuffer;
+        
         // output ??= device.RentBuffer<Vector2>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -192,8 +195,8 @@ namespace Tests.Generators.Kernel
             var uniforms = new _Misc_GPU_Uniforms {
                 max             = max,
                 count           = buffers.length,
-                position_off    = 0,
-                velocity_off    = 0,
+                position_off    = position_.offset,
+                velocity_off    = velocity_.offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -216,8 +219,8 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL layout: std140/std430
     private struct _Misc_GPU_Uniforms
     {
-        [FieldOffset(0)]    public Vector2    max;
-        [FieldOffset(8)]    public int        count;
+        [FieldOffset( 0)]    public Vector2    max;
+        [FieldOffset( 8)]    public int        count;
         [FieldOffset(12)]    public int        position_off;
         [FieldOffset(16)]    public int        velocity_off;
     }

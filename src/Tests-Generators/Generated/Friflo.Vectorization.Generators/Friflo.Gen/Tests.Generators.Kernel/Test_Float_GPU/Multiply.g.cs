@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             buffers.Validate (velocity, nameof(velocity));
 
             if (buffers.ComputeGPU) {
-                return _Multiply_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
+                return _Multiply_GPU(buffers, position, velocity);
             }
             MultiplyVector(position.span, velocity.span, buffers.ComputeSIMD);
             return null;
@@ -106,11 +106,14 @@ namespace Tests.Generators.Kernel
 
     [SkipLocalsInit]
     private static GpuBuffer<float> _Multiply_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<float> position,
-        GpuBuffer<float> velocity)
+        in GpuBuffers      buffers,
+        in Buffer  <float> position_,
+        in InBuffer<float> velocity_)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        var velocity    = velocity_.gpuBuffer;
+        
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -140,8 +143,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Multiply_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = 0,
-                velocity_off    = 0,
+                position_off    = position_.offset,
+                velocity_off    = velocity_.offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -164,9 +167,9 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Multiply_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public int        position_off;
-        [FieldOffset(8)]    public int        velocity_off;
+        [FieldOffset( 0)]    public int        count;
+        [FieldOffset( 4)]    public int        position_off;
+        [FieldOffset( 8)]    public int        velocity_off;
     }
     
     private static readonly int _Multiply_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();

@@ -27,7 +27,7 @@ namespace Tests.Generators.Kernel
             GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
-                return _Transform_GPU(buffers, position.gpuBuffer, matrix);
+                return _Transform_GPU(buffers, position, matrix);
             }
             TransformVector(position.span, matrix, buffers.ComputeSIMD);
             return null;
@@ -110,11 +110,13 @@ namespace Tests.Generators.Kernel
 
     [SkipLocalsInit]
     private static GpuBuffer<Vector4> _Transform_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<Vector4> position,
-        Matrix4x4 matrix)
+        in GpuBuffers      buffers,
+        in Buffer  <Vector4> position_,
+        in Matrix4x4       matrix)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        
         // output ??= device.RentBuffer<Vector4>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -143,7 +145,7 @@ namespace Tests.Generators.Kernel
             var uniforms = new _Transform_GPU_Uniforms {
                 matrix          = matrix,
                 count           = buffers.length,
-                position_off    = 0,
+                position_off    = position_.offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -166,7 +168,7 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 80)]  // WGSL layout: std140/std430
     private struct _Transform_GPU_Uniforms
     {
-        [FieldOffset(0)]    public Matrix4x4  matrix;
+        [FieldOffset( 0)]    public Matrix4x4  matrix;
         [FieldOffset(64)]    public int        count;
         [FieldOffset(68)]    public int        position_off;
     }

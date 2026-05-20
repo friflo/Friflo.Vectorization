@@ -42,7 +42,7 @@ public sealed partial class Gen
                 } else {
                     validate.Append($"            buffers.Validate ({name}, nameof({name}));\n");
                 }
-                gpuParams.Append($"{name}.gpuBuffer, ");
+                gpuParams.Append($"{name}, ");
                 avxParams.Append($"{name}.span, ");
                 continue;
             }
@@ -96,6 +96,7 @@ public sealed partial class Gen
         
         // ----------------- buffers
         var signature           = new StringBuilder();
+        var bufferInit          = new StringBuilder();
         var dependencies        = new StringBuilder();
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
@@ -113,7 +114,9 @@ public sealed partial class Gen
             var type                = vectorType.FullQualifiedName;
             var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
-            signature.Append($"\n        GpuBuffer<{type}> {paramName},");
+            var paramType           = vectorType.RefKind == RefKind.Ref ? "in Buffer  " : "in InBuffer";
+            signature.Append($"\n        {paramType}<{type}> {paramName}_,");
+            bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.gpuBuffer;");
             if (isOutput) {
                 setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task);");
             } else {
@@ -142,10 +145,10 @@ public sealed partial class Gen
         foreach (var field in uniformFields)
         {
             if (field.fieldType == UniformFieldType.Parameter) {
-                signature.Append($"\n        {field.type} {field.name},");
+                signature.Append($"\n        in {field.type,-15} {field.name},");
             }
             uniformAssignments.Append($"\n                {field.name,-15} = {field.value},");
-            structFields.Append($"\n        [FieldOffset({field.offset})]    public {field.type,-10} {field.name};");
+            structFields.Append($"\n        [FieldOffset({field.offset,2})]    public {field.type,-10} {field.name};");
             wgslFields.Append($"\n        {field.name,-15} : ").AppendFormat("{0,-15}", $"{field.wgslType},").Append($"// offset: {field.offset,2} size: {field.size,2}");
         }
         unchecked {
@@ -168,9 +171,10 @@ $$""""
 
     [SkipLocalsInit]
     private {{(blueprintMethod.IsStatic ? "static " : "")}}GpuBuffer<{{outputType}}> {{methodName_GPU}}(
-        in GpuBuffers buffers,{{signature}})
+        in GpuBuffers      buffers,{{signature}})
     {
-        var device      = (WgpuDevice)buffers.device;
+        var device      = (WgpuDevice)buffers.device;{{bufferInit}}
+        
         // output ??= device.RentBuffer<{{outputType}}>(buffers.length);  TODO
         using var task  = device.RentTask();
 

@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             buffers.Validate (min, nameof(min));
 
             if (buffers.ComputeGPU) {
-                return _Kernel_Clamp_GPU(buffers, position.gpuBuffer, min.gpuBuffer, max);
+                return _Kernel_Clamp_GPU(buffers, position, min, max);
             }
             Kernel_ClampVector(position.span, min.span, max, buffers.ComputeSIMD);
             return null;
@@ -111,12 +111,15 @@ namespace Tests.Generators.Kernel
 
     [SkipLocalsInit]
     private static GpuBuffer<float> _Kernel_Clamp_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<float> position,
-        GpuBuffer<float> min,
-        float max)
+        in GpuBuffers      buffers,
+        in Buffer  <float> position_,
+        in InBuffer<float> min_,
+        in float           max)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        var min         = min_.gpuBuffer;
+        
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -146,8 +149,8 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Kernel_Clamp_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = 0,
-                min_off         = 0,
+                position_off    = position_.offset,
+                min_off         = min_.offset,
                 max             = max,
             };
             var entry = task.AsUniformEntry(0, uniforms);
@@ -171,9 +174,9 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Kernel_Clamp_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public int        position_off;
-        [FieldOffset(8)]    public int        min_off;
+        [FieldOffset( 0)]    public int        count;
+        [FieldOffset( 4)]    public int        position_off;
+        [FieldOffset( 8)]    public int        min_off;
         [FieldOffset(12)]    public float      max;
     }
     

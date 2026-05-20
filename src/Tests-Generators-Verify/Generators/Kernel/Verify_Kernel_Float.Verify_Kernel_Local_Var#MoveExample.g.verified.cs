@@ -28,7 +28,7 @@ namespace VerifyVectorize
             GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
-                return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);
+                return _MoveExample_GPU(buffers, position, deltaTime);
             }
             MoveExampleVector(position.span, deltaTime, buffers.ComputeSIMD);
             return null;
@@ -106,11 +106,13 @@ namespace VerifyVectorize
 
     [SkipLocalsInit]
     private GpuBuffer<float> _MoveExample_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<float> position,
-        float deltaTime)
+        in GpuBuffers      buffers,
+        in Buffer  <float> position_,
+        in float           deltaTime)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -138,7 +140,7 @@ namespace VerifyVectorize
             
             var uniforms = new _MoveExample_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = 0,
+                position_off    = position_.offset,
                 deltaTime       = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
@@ -162,9 +164,9 @@ namespace VerifyVectorize
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _MoveExample_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public int        position_off;
-        [FieldOffset(8)]    public float      deltaTime;
+        [FieldOffset( 0)]    public int        count;
+        [FieldOffset( 4)]    public int        position_off;
+        [FieldOffset( 8)]    public float      deltaTime;
     }
     
     private static readonly int _MoveExample_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();

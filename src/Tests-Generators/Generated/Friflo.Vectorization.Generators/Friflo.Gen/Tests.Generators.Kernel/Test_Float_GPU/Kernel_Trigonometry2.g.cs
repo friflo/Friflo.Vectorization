@@ -26,7 +26,7 @@ namespace Tests.Generators.Kernel
             GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
-                return _Kernel_Trigonometry2_GPU(buffers, position.gpuBuffer);
+                return _Kernel_Trigonometry2_GPU(buffers, position);
             }
             Kernel_Trigonometry2Vector(position.span, buffers.ComputeSIMD);
             return null;
@@ -112,10 +112,12 @@ namespace Tests.Generators.Kernel
 
     [SkipLocalsInit]
     private static GpuBuffer<float> _Kernel_Trigonometry2_GPU(
-        in GpuBuffers buffers,
-        GpuBuffer<float> position)
+        in GpuBuffers      buffers,
+        in Buffer  <float> position_)
     {
         var device      = (WgpuDevice)buffers.device;
+        var position    = position_.gpuBuffer;
+        
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
@@ -143,7 +145,7 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Kernel_Trigonometry2_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = 0,
+                position_off    = position_.offset,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
@@ -166,8 +168,8 @@ namespace Tests.Generators.Kernel
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
     private struct _Kernel_Trigonometry2_GPU_Uniforms
     {
-        [FieldOffset(0)]    public int        count;
-        [FieldOffset(4)]    public int        position_off;
+        [FieldOffset( 0)]    public int        count;
+        [FieldOffset( 4)]    public int        position_off;
     }
     
     private static readonly int _Kernel_Trigonometry2_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
