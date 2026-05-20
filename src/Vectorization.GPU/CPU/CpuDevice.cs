@@ -11,13 +11,13 @@ internal sealed class CpuDevice : GpuDevice
 {
     private             bool        isDisposed;
     internal readonly   CpuAdapter  adapter;
-    private  readonly   GpuExeType  exeType;
-    public   override   GpuExeType  ExeType     => exeType;
+    private  readonly   ExeType     exeType;
+    public   override   ExeType     ExeType     => exeType;
     public   override   bool        IsDisposed  => isDisposed;
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
-        exeType = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? GpuExeType.Scalar : GpuExeType.SIMD;
+        exeType = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ExeType.Scalar : ExeType.SIMD;
     }
 
     public override void Dispose() {

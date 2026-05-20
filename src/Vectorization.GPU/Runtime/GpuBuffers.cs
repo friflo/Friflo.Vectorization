@@ -22,10 +22,10 @@ public struct GpuBuffers
     private readonly    bool        areSpans;
     private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
-    private readonly    GpuExeType  exeType;
+    private readonly    ExeType     exeType;
     
-    public              bool        IsGPU       => exeType == GpuExeType.GPU;
-    public              bool        IsSIMD      => exeType == GpuExeType.SIMD;
+    public              bool        IsGPU       => exeType == ExeType.GPU;
+    public              bool        IsSIMD      => exeType == ExeType.SIMD;
 
     
 
@@ -35,7 +35,7 @@ public struct GpuBuffers
     private GpuBuffers(int count) {
         this.count      = count;
         this.areSpans   = true;
-        exeType         = GpuExeType.Scalar; // TODO can be SIMD too
+        exeType         = ExeType.Scalar; // TODO can be SIMD too
     }
     
     private GpuBuffers(int count, ulong hash, GpuDevice device, string firstParam) {
