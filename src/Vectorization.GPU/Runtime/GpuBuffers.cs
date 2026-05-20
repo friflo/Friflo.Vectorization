@@ -31,12 +31,14 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GpuBuffers(ComputeMode computeMode, int length) {
         this.length         = length;
         this.areSpans       = true;
         this.computeMode    = computeMode == ComputeMode.Device ? ComputeMode.SIMD : computeMode;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GpuBuffers(ComputeMode computeMode, int length, ulong hash, GpuDevice device, string firstParam) {
         this.length         = length;
         this.hash           = hash;
