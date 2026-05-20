@@ -9,32 +9,32 @@ namespace Friflo.Vectorization.GPU;
 
 public readonly struct BufferView<T> where T : unmanaged
 {
-    private readonly    GpuBuffer<T>    GpuBuffer;
-    public  readonly    int             Offset;
-    public  readonly    int             Length;
+    internal readonly   GpuBuffer<T>    gpuBuffer;
+    public   readonly   int             Offset;
+    public   readonly   int             Length;
     
-    public              Span<T>         Span =>  GpuBuffer.Span.Slice(Offset, Length);  
+    public              Span<T>         Span =>  gpuBuffer.Span.Slice(Offset, Length);  
 
     internal BufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
-        GpuBuffer   = gpuBuffer;
-        Offset      = offset;
-        Length      = length;
+        this.gpuBuffer  = gpuBuffer;
+        Offset          = offset;
+        Length          = length;
     }
 }
 
 public readonly struct ReadOnlyView<T> where T : unmanaged
 {
-    private readonly    GpuBuffer<T>    GpuBuffer;
-    public  readonly    int             Offset;
-    public  readonly    int             Length;
+    internal readonly   GpuBuffer<T>    gpuBuffer;
+    public   readonly   int             Offset;
+    public   readonly   int             Length;
     
-    public              ReadOnlySpan<T> Span =>  GpuBuffer.Span.Slice(Offset, Length);
+    public              ReadOnlySpan<T> Span =>  gpuBuffer.Span.Slice(Offset, Length);
 
     internal ReadOnlyView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
-        GpuBuffer   = gpuBuffer;
-        Offset      = offset;
-        Length      = length;
+        this.gpuBuffer  = gpuBuffer;
+        Offset          = offset;
+        Length          = length;
     }
 }

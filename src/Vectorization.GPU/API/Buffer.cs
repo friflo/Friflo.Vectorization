@@ -25,6 +25,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     }
     
     private Buffer(BufferView<T> view) {
+        gpuBuffer   = view.gpuBuffer;
         span        = view.Span;
         length      = view.Length;
         offset      = view.Offset;
@@ -61,6 +62,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     }
     
     private InBuffer(ReadOnlyView<T> view) {
+        gpuBuffer   = view.gpuBuffer;
         span        = view.Span;
         length      = view.Length;
         offset      = view.Offset;
