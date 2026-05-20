@@ -116,7 +116,7 @@ namespace Tests.Generators.Kernel
         float deltaTime)
     {
         var device      = (WgpuDevice)buffers.device;
-        // output ??= device.RentBuffer<float>(buffers.count);  TODO
+        // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -144,7 +144,7 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Move_GPU_Uniforms {
-                count = buffers.count,
+                count = buffers.length,
                 deltaTime = deltaTime,
             };
             var entry = task.AsUniformEntry(0, uniforms);
@@ -152,7 +152,7 @@ namespace Tests.Generators.Kernel
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Move_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
         // connect task to output

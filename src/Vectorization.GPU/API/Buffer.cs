@@ -12,7 +12,7 @@ public ref struct Buffer<T> where T : unmanaged
     public              Span<T>         span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
     
-    public 	            int 			Count => gpuBuffer?.Length ?? span.Length;
+    public 	            int 			Length => gpuBuffer?.Length ?? span.Length;
     
     private Buffer(Span<T> span) {
         this.span = span;
@@ -38,7 +38,7 @@ public ref struct InBuffer<T> where T : unmanaged
     public              ReadOnlySpan<T> span;
     public  readonly    GpuBuffer<T>    gpuBuffer;
     
-    public 	            int 			Count => gpuBuffer?.Length ?? span.Length;
+    public 	            int 			Length => gpuBuffer?.Length ?? span.Length;
     
     private InBuffer(ReadOnlySpan<T> span) {
         this.span = span;

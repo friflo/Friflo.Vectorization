@@ -23,7 +23,7 @@ public static class SilkPattern
         GpuBuffer<float>    output)
     {
         var device      = (SilkDevice)buffers.device;
-        var gpuOutput   = output ?? device.RentBuffer<float>(buffers.count);
+        var gpuOutput   = output ?? device.RentBuffer<float>(buffers.length);
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -54,14 +54,14 @@ public static class SilkPattern
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
                 bias = bias,
-                count = buffers.count
+                count = buffers.length
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);       // Execute ComputePass
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);       // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output

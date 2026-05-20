@@ -115,7 +115,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<float> position)
     {
         var device      = (WgpuDevice)buffers.device;
-        // output ??= device.RentBuffer<float>(buffers.count);  TODO
+        // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -141,14 +141,14 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Kernel_Trigonometry2_GPU_Uniforms {
-                count = buffers.count,
+                count = buffers.length,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Trigonometry2_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
         // connect task to output

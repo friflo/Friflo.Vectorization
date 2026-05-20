@@ -161,7 +161,7 @@ namespace Tests.Generators.Kernel
         Vector2 max)
     {
         var device      = (WgpuDevice)buffers.device;
-        // output ??= device.RentBuffer<Vector2>(buffers.count);  TODO
+        // output ??= device.RentBuffer<Vector2>(buffers.length);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -190,14 +190,14 @@ namespace Tests.Generators.Kernel
             
             var uniforms = new _Misc_GPU_Uniforms {
                 max = max,
-                count = buffers.count,
+                count = buffers.length,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Misc_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
         // connect task to output

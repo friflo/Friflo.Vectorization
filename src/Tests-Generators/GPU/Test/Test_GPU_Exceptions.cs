@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;

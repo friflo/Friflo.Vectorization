@@ -17,7 +17,7 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuBuffers
 {
-    public  readonly    int         count;
+    public  readonly    int         length;
     public              ulong       hash; // uses FNV-1a derivative hashing
     public  readonly    GpuDevice   device;
     private readonly    bool        areSpans;
@@ -31,14 +31,14 @@ public struct GpuBuffers
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    private GpuBuffers(ComputeMode computeMode, int count) {
-        this.count          = count;
+    private GpuBuffers(ComputeMode computeMode, int length) {
+        this.length         = length;
         this.areSpans       = true;
         this.computeMode    = computeMode == ComputeMode.Device ? ComputeMode.SIMD : computeMode;
     }
     
-    private GpuBuffers(ComputeMode computeMode, int count, ulong hash, GpuDevice device, string firstParam) {
-        this.count          = count;
+    private GpuBuffers(ComputeMode computeMode, int length, ulong hash, GpuDevice device, string firstParam) {
+        this.length         = length;
         this.hash           = hash;
         this.device         = device;
         this.firstParam     = firstParam;
@@ -47,48 +47,48 @@ public struct GpuBuffers
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GpuBuffers Create<T>(ComputeMode computeMode, Buffer<T> buffer, string paramName) where T : unmanaged {
-        return Create(computeMode, buffer.gpuBuffer, buffer.Count, paramName);
+        return Create(computeMode, buffer.gpuBuffer, buffer.Length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GpuBuffers Create<T>(ComputeMode computeMode, InBuffer<T> buffer, string paramName) where T : unmanaged {
-        return Create(computeMode, buffer.gpuBuffer, buffer.Count, paramName);
+        return Create(computeMode, buffer.gpuBuffer, buffer.Length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static GpuBuffers Create(ComputeMode computeMode, GpuBuffer gpuBuffer, int count, string paramName)
+    private static GpuBuffers Create(ComputeMode computeMode, GpuBuffer gpuBuffer, int length, string paramName)
     {
         if (gpuBuffer == null) {
             if (computeMode == ComputeMode.GPU) {
                 NoDevice();
             }
-            return new GpuBuffers(computeMode, count);
+            return new GpuBuffers(computeMode, length);
         }
         var bufferDevice = gpuBuffer.Device;
         ulong hash;
         unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(computeMode, count, hash, bufferDevice, paramName);
+        var buffers = new GpuBuffers(computeMode, length, hash, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {
             return buffers;
         }
-        buffers.ValidateError(gpuBuffer, count, paramName);
+        buffers.ValidateError(gpuBuffer, length, paramName);
         return default;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate<T>(Buffer<T> buffer, string paramName) where T : unmanaged {
-        Validate(buffer.gpuBuffer, buffer.Count, paramName);
+        Validate(buffer.gpuBuffer, buffer.Length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Validate<T>(InBuffer<T> buffer, string paramName) where T : unmanaged {
-        Validate(buffer.gpuBuffer, buffer.Count, paramName);
+        Validate(buffer.gpuBuffer, buffer.Length, paramName);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Validate(GpuBuffer gpuBuffer, int bufferCount, string paramName)
+    private void Validate(GpuBuffer gpuBuffer, int bufferLength, string paramName)
     {
         if (areSpans && gpuBuffer == null) {
             return;
@@ -97,14 +97,14 @@ public struct GpuBuffers
             var bufferDevice = gpuBuffer.Device;
             if (bufferDevice != null    &&
                !bufferDevice.IsDisposed &&
-                bufferDevice == device  &&
-                bufferCount  == count)
+                bufferDevice  == device  &&
+                bufferLength  == length)
             {
                 unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
             }
         }
-        ValidateError(gpuBuffer, bufferCount, paramName);
+        ValidateError(gpuBuffer, bufferLength, paramName);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
@@ -121,8 +121,8 @@ public struct GpuBuffers
         if (bufferDevice.IsDisposed) {
             throw new InvalidOperationException($"Archaeological Error: You are trying to use '{paramName}', which belongs to a Device that has already been sent to the silicon graveyard. Stop digging in the trash and use a living Device!");
         }
-        if (bufferLength != count) {
-            throw new InvalidOperationException($"Totalitarian Sizing: Parameter '{paramName}' (Count: {bufferLength}) is trying to start a revolution against the established order of '{firstParam}' (Count: {count}). In this method, the first parameter is the Law. Everyone else must follow its lead or be purged from the pipeline.");
+        if (bufferLength != length) {
+            throw new InvalidOperationException($"Totalitarian Sizing: Parameter '{paramName}' (Length: {bufferLength}) is trying to start a revolution against the established order of '{firstParam}' (Length: {length}). In this method, the first parameter is the Law. Everyone else must follow its lead or be purged from the pipeline.");
         }
         if (bufferDevice == device) {
             return;    

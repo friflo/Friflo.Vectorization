@@ -152,7 +152,7 @@ namespace Tests.Generators.Kernel
         GpuBuffer<Vector4> velocity)
     {
         var device      = (WgpuDevice)buffers.device;
-        // output ??= device.RentBuffer<Vector4>(buffers.count);  TODO
+        // output ??= device.RentBuffer<Vector4>(buffers.length);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -180,14 +180,14 @@ namespace Tests.Generators.Kernel
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new _Arithmetic_GPU_Uniforms {
-                count = buffers.count,
+                count = buffers.length,
             };
             var entry = task.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Arithmetic_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
         // connect task to output

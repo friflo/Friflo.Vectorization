@@ -144,7 +144,7 @@ public sealed partial class Gen
             if (!field.isCount) {
                 signature.Append($"\n        {field.type} {field.name},");
             }
-            var right = field.isCount ? "buffers.count" : field.name;
+            var right = field.isCount ? "buffers.length" : field.name;
             uniformAssignments.Append($"\n                {field.name} = {right},");
             structFields.Append($"\n        [FieldOffset({field.offset})]    public {field.type,-10} {field.name};");
             wgslFields.Append($"\n        {field.name,-10} : ").AppendFormat("{0,-15}", $"{field.wgslType},").Append($"// offset: {field.offset,2} size: {field.size,2}");
@@ -172,7 +172,7 @@ $$""""
         in GpuBuffers buffers,{{signature}})
     {
         var device      = (WgpuDevice)buffers.device;
-        // output ??= device.RentBuffer<{{outputType}}>(buffers.count);  TODO
+        // output ??= device.RentBuffer<{{outputType}}>(buffers.length);  TODO
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!){{dependencies}}
@@ -203,7 +203,7 @@ $$""""
             var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.count + 63) / 64, 1, 1);
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
         // connect task to output{{setTaskOnOutputs}}
