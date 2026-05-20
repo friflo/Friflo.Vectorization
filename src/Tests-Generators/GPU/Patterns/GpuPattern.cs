@@ -39,7 +39,7 @@ public  static partial class GpuPattern
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
             }
         }
-        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.Vectorized);
+        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.IsSIMD);
         return output.gpuBuffer;
     }
     

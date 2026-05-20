@@ -26,7 +26,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _InverseSqrt_GPU(buffers, position.gpuBuffer);
             }
-            InverseSqrtVector(position.span, buffers.Vectorized);
+            InverseSqrtVector(position.span, buffers.IsSIMD);
             return null;
         }
 

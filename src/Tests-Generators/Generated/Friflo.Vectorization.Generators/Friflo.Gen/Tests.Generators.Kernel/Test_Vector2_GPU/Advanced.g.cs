@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Advanced_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            AdvancedVector(position.span, velocity.span, buffers.Vectorized);
+            AdvancedVector(position.span, velocity.span, buffers.IsSIMD);
             return null;
         }
 

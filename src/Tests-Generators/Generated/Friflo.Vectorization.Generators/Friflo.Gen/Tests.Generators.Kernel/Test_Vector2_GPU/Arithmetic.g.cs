@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Arithmetic_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            ArithmeticVector(position.span, velocity.span, buffers.Vectorized);
+            ArithmeticVector(position.span, velocity.span, buffers.IsSIMD);
             return null;
         }
 

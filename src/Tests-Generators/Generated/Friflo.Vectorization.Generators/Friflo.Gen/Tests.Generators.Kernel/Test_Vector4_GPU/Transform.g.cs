@@ -27,7 +27,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Transform_GPU(buffers, position.gpuBuffer, matrix);
             }
-            TransformVector(position.span, matrix, buffers.Vectorized);
+            TransformVector(position.span, matrix, buffers.IsSIMD);
             return null;
         }
 

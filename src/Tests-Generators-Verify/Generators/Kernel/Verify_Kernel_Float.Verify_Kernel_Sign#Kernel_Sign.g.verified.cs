@@ -28,7 +28,7 @@ namespace VerifyVectorize
             if (buffers.IsGPU) {
                 return _Kernel_Sign_GPU(buffers, position.gpuBuffer, value);
             }
-            Kernel_SignVector(position.span, value, buffers.Vectorized);
+            Kernel_SignVector(position.span, value, buffers.IsSIMD);
             return null;
         }
 

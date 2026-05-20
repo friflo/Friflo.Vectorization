@@ -64,7 +64,7 @@ public sealed partial class Gen
             if (buffers.IsGPU) {{
                 return _{methodName}_GPU{hash}(buffers, {gpuParams});
             }}
-            {methodName}Vector({avxParams}, buffers.Vectorized);
+            {methodName}Vector({avxParams}, buffers.IsSIMD);
             return null;
         }}
 ";

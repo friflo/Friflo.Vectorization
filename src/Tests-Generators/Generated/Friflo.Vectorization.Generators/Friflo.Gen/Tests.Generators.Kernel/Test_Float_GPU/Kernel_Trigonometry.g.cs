@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Kernel_Trigonometry_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, value);
             }
-            Kernel_TrigonometryVector(position.span, velocity.span, value, buffers.Vectorized);
+            Kernel_TrigonometryVector(position.span, velocity.span, value, buffers.IsSIMD);
             return null;
         }
 

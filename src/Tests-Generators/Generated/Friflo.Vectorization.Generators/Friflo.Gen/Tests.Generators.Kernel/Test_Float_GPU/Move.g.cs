@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Move_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
             }
-            MoveVector(position.span, velocity.span, deltaTime, buffers.Vectorized);
+            MoveVector(position.span, velocity.span, deltaTime, buffers.IsSIMD);
             return null;
         }
 

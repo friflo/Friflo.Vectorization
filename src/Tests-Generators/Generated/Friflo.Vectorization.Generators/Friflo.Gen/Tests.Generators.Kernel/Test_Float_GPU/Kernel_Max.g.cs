@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Kernel_Max_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            Kernel_MaxVector(position.span, velocity.span, buffers.Vectorized);
+            Kernel_MaxVector(position.span, velocity.span, buffers.IsSIMD);
             return null;
         }
 

@@ -28,7 +28,7 @@ namespace VerifyVectorize
             if (buffers.IsGPU) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);
             }
-            MoveExampleVector(position.span, deltaTime, buffers.Vectorized);
+            MoveExampleVector(position.span, deltaTime, buffers.IsSIMD);
             return null;
         }
 

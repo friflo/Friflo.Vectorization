@@ -28,7 +28,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Assign_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            AssignVector(position.span, velocity.span, buffers.Vectorized);
+            AssignVector(position.span, velocity.span, buffers.IsSIMD);
             return null;
         }
 

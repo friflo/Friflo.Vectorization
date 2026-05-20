@@ -26,7 +26,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Kernel_Trigonometry2_GPU(buffers, position.gpuBuffer);
             }
-            Kernel_Trigonometry2Vector(position.span, buffers.Vectorized);
+            Kernel_Trigonometry2Vector(position.span, buffers.IsSIMD);
             return null;
         }
 

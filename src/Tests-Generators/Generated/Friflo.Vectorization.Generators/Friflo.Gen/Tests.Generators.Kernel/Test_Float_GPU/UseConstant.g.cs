@@ -26,7 +26,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _UseConstant_GPU(buffers, position.gpuBuffer);
             }
-            UseConstantVector(position.span, buffers.Vectorized);
+            UseConstantVector(position.span, buffers.IsSIMD);
             return null;
         }
 

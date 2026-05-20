@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
+
+// ReSharper disable InconsistentNaming
 // ReSharper disable UseNullPropagation
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
@@ -23,7 +25,7 @@ public struct GpuBuffers
     private readonly    GpuExeType  exeType;
     
     public              bool        IsGPU       => exeType == GpuExeType.GPU;
-    public              bool        Vectorized  => exeType == GpuExeType.SIMD;
+    public              bool        IsSIMD      => exeType == GpuExeType.SIMD;
 
     
 

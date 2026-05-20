@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Misc_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, max);
             }
-            MiscVector(position.span, velocity.span, max, buffers.Vectorized);
+            MiscVector(position.span, velocity.span, max, buffers.IsSIMD);
             return null;
         }
 

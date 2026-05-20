@@ -30,7 +30,7 @@ namespace VerifyVectorize
             if (buffers.IsGPU) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
             }
-            MoveExampleVector(position.span, velocity.span, deltaTime, buffers.Vectorized);
+            MoveExampleVector(position.span, velocity.span, deltaTime, buffers.IsSIMD);
             return null;
         }
 

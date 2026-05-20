@@ -29,7 +29,7 @@ namespace Tests.Generators.Kernel
             if (buffers.IsGPU) {
                 return _Kernel_Clamp_GPU(buffers, position.gpuBuffer, min.gpuBuffer, max);
             }
-            Kernel_ClampVector(position.span, min.span, max, buffers.Vectorized);
+            Kernel_ClampVector(position.span, min.span, max, buffers.IsSIMD);
             return null;
         }
 
