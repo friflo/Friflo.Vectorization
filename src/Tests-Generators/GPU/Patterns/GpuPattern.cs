@@ -10,7 +10,7 @@ using Friflo.Vectorization.Intrinsics;
 
 namespace Tests.GPU;
 
-public  static partial class GpuPattern
+public  static class GpuPattern
 {
     // [Vectorize]
     public static void MultiplyAdd(
@@ -85,9 +85,9 @@ public  static partial class GpuPattern
         fixed (float* input_first = input)
         fixed (float* output_first = output)
         {
-            float* weight_ptr = (float*)weight_first;
-            float* input_ptr = (float*)input_first;
-            float* output_ptr = (float*)output_first;
+            float* weight_ptr = weight_first;
+            float* input_ptr = input_first;
+            float* output_ptr = output_first;
 
             for (; i <= count; i += 32)
             {
