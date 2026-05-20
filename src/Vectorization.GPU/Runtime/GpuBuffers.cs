@@ -17,9 +17,9 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public struct GpuBuffers
 {
-    public  readonly    bool        areSpans;
     public  readonly    int         count;
     public              ulong       hash; // uses FNV-1a derivative hashing
+    private readonly    bool        areSpans;
     private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
     private readonly    GpuExeType  exeType;
