@@ -46,17 +46,17 @@ public struct GpuBuffers
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static GpuBuffers Create<T>(ComputeMode computeMode, Buffer<T> buffer, string paramName) where T : unmanaged {
-        return Create(computeMode, buffer.gpuBuffer, buffer.Length, paramName);
+    public static GpuBuffers Create<T>(Buffer<T> buffer, string paramName, ComputeMode computeMode) where T : unmanaged {
+        return Create(buffer.gpuBuffer, buffer.Length, paramName, computeMode);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static GpuBuffers Create<T>(ComputeMode computeMode, InBuffer<T> buffer, string paramName) where T : unmanaged {
-        return Create(computeMode, buffer.gpuBuffer, buffer.Length, paramName);
+    public static GpuBuffers Create<T>(InBuffer<T> buffer, string paramName, ComputeMode computeMode) where T : unmanaged {
+        return Create(buffer.gpuBuffer, buffer.Length, paramName, computeMode);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static GpuBuffers Create(ComputeMode computeMode, GpuBuffer gpuBuffer, int length, string paramName)
+    private static GpuBuffers Create(GpuBuffer gpuBuffer, int length, string paramName, ComputeMode computeMode)
     {
         if (gpuBuffer == null) {
             if (computeMode == ComputeMode.GPU) {

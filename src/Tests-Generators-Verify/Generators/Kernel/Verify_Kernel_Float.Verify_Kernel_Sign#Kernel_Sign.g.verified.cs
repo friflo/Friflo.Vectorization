@@ -24,7 +24,8 @@ namespace VerifyVectorize
             float value,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
                 return _Kernel_Sign_GPU(buffers, position.gpuBuffer, value);

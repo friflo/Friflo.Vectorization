@@ -24,7 +24,8 @@ namespace VerifyVectorize
             float deltaTime,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);

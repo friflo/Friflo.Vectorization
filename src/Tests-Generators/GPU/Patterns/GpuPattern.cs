@@ -29,7 +29,8 @@ public  static partial class GpuPattern
         Buffer<float>   output,
         ComputeMode     computeMode = ComputeMode.Device)
     {
-        var buffers = GpuBuffers.Create(computeMode, weight, nameof(weight));
+        var buffers =
+        GpuBuffers.Create(weight, nameof(weight), computeMode);
         buffers.Validate (input,  nameof(input));
         buffers.Validate (output, nameof(output));
 

@@ -23,8 +23,9 @@ namespace Tests.Generators.Kernel
           InBuffer<Vector2> velocity,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
-            buffers.Validate(velocity, nameof(velocity));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
+            buffers.Validate (velocity, nameof(velocity));
 
             if (buffers.ComputeGPU) {
                 return _Arithmetic_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);

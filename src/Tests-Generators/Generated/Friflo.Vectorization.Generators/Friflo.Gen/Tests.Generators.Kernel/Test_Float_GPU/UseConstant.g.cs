@@ -22,7 +22,8 @@ namespace Tests.Generators.Kernel
             Buffer<float> position,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
                 return _UseConstant_GPU(buffers, position.gpuBuffer);

@@ -37,9 +37,10 @@ public sealed partial class Gen
                 var bufferType  = vectorType.RefKind == RefKind.Ref ? "  Buffer" : "InBuffer";
                 signature.Append($"\n          {bufferType}<{type}> {name},");
                 if (n == 0) {
-                    validate.Append($"            var buffers = GpuBuffers.Create(mode, {name}, nameof({name}));\n");
+                    validate.Append($"            var buffers =\n");
+                    validate.Append($"            GpuBuffers.Create({name}, nameof({name}), mode);\n");
                 } else {
-                    validate.Append($"            buffers.Validate({name}, nameof({name}));\n");
+                    validate.Append($"            buffers.Validate ({name}, nameof({name}));\n");
                 }
                 gpuParams.Append($"{name}.gpuBuffer, ");
                 avxParams.Append($"{name}.span, ");

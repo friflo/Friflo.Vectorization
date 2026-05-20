@@ -24,8 +24,9 @@ namespace Tests.Generators.Kernel
             float max,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
-            buffers.Validate(min, nameof(min));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
+            buffers.Validate (min, nameof(min));
 
             if (buffers.ComputeGPU) {
                 return _Kernel_Clamp_GPU(buffers, position.gpuBuffer, min.gpuBuffer, max);

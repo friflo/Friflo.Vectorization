@@ -23,7 +23,8 @@ namespace Tests.Generators.Kernel
             Matrix4x4 matrix,
             ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(mode, position, nameof(position));
+            var buffers =
+            GpuBuffers.Create(position, nameof(position), mode);
 
             if (buffers.ComputeGPU) {
                 return _Transform_GPU(buffers, position.gpuBuffer, matrix);
