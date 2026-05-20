@@ -27,10 +27,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Kernel_Trigonometry_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, value);
             }
-            Kernel_TrigonometryVector(position.span, velocity.span, value, buffers.IsSIMD);
+            Kernel_TrigonometryVector(position.span, velocity.span, value, buffers.ComputeSIMD);
             return null;
         }
 

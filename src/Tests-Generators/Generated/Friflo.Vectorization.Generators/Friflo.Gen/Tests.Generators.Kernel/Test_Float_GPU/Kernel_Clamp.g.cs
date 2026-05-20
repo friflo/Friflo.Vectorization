@@ -27,10 +27,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(min, nameof(min));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Kernel_Clamp_GPU(buffers, position.gpuBuffer, min.gpuBuffer, max);
             }
-            Kernel_ClampVector(position.span, min.span, max, buffers.IsSIMD);
+            Kernel_ClampVector(position.span, min.span, max, buffers.ComputeSIMD);
             return null;
         }
 

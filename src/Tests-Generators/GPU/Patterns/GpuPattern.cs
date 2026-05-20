@@ -27,19 +27,19 @@ public  static partial class GpuPattern
         Buffer<float>   input,
         float           bias,
         Buffer<float>   output,
-        ComputeMode         computeMode = ComputeMode.Device)
+        ComputeMode     computeMode = ComputeMode.Device)
     {
         var buffers = GpuBuffers.Create(computeMode, weight, nameof(weight));
         buffers.Validate (input,  nameof(input));
         buffers.Validate (output, nameof(output));
 
-        if (buffers.IsGPU) {
+        if (buffers.ComputeGPU) {
             switch (GpuTestGlobal.TestBackend) {
                 case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
                 case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight.gpuBuffer, input.gpuBuffer, bias, output.gpuBuffer);
             }
         }
-        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.IsSIMD);
+        MultiplyAddVector_gen(weight.span, input.span, bias, output.span, buffers.ComputeSIMD);
         return output.gpuBuffer;
     }
     

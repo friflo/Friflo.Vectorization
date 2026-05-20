@@ -26,10 +26,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Multiply_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer);
             }
-            MultiplyVector(position.span, velocity.span, buffers.IsSIMD);
+            MultiplyVector(position.span, velocity.span, buffers.ComputeSIMD);
             return null;
         }
 

@@ -22,10 +22,10 @@ public struct GpuBuffers
     private readonly    bool        areSpans;
     private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
-    private readonly    ComputeMode     computeMode;
+    public  readonly    ComputeMode computeMode;
     
-    public              bool        IsGPU       => computeMode == ComputeMode.GPU;
-    public              bool        IsSIMD      => computeMode == ComputeMode.SIMD;
+    public              bool        ComputeGPU  => computeMode == ComputeMode.GPU;
+    public              bool        ComputeSIMD => computeMode == ComputeMode.SIMD;
 
     
 

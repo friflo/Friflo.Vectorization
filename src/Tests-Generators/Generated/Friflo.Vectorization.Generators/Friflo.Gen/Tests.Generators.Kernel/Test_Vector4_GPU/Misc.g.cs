@@ -27,10 +27,10 @@ namespace Tests.Generators.Kernel
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Misc_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, max);
             }
-            MiscVector(position.span, velocity.span, max, buffers.IsSIMD);
+            MiscVector(position.span, velocity.span, max, buffers.ComputeSIMD);
             return null;
         }
 

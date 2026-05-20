@@ -28,10 +28,10 @@ namespace VerifyVectorize
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, velocity.gpuBuffer, deltaTime);
             }
-            MoveExampleVector(position.span, velocity.span, deltaTime, buffers.IsSIMD);
+            MoveExampleVector(position.span, velocity.span, deltaTime, buffers.ComputeSIMD);
             return null;
         }
 

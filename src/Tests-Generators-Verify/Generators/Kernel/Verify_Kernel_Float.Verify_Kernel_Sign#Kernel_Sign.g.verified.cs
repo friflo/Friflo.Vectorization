@@ -26,10 +26,10 @@ namespace VerifyVectorize
         {
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Kernel_Sign_GPU(buffers, position.gpuBuffer, value);
             }
-            Kernel_SignVector(position.span, value, buffers.IsSIMD);
+            Kernel_SignVector(position.span, value, buffers.ComputeSIMD);
             return null;
         }
 

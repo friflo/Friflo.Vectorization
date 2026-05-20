@@ -62,10 +62,10 @@ public sealed partial class Gen
             ComputeMode mode = ComputeMode.Device)
         {{
 {validate}
-            if (buffers.IsGPU) {{
+            if (buffers.ComputeGPU) {{
                 return _{methodName}_GPU{hash}(buffers, {gpuParams});
             }}
-            {methodName}Vector({avxParams}, buffers.IsSIMD);
+            {methodName}Vector({avxParams}, buffers.ComputeSIMD);
             return null;
         }}
 ";

@@ -25,10 +25,10 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _Transform_GPU(buffers, position.gpuBuffer, matrix);
             }
-            TransformVector(position.span, matrix, buffers.IsSIMD);
+            TransformVector(position.span, matrix, buffers.ComputeSIMD);
             return null;
         }
 

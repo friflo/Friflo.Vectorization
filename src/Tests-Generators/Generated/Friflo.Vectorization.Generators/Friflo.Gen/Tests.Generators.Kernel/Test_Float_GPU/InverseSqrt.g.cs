@@ -24,10 +24,10 @@ namespace Tests.Generators.Kernel
         {
             var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
-            if (buffers.IsGPU) {
+            if (buffers.ComputeGPU) {
                 return _InverseSqrt_GPU(buffers, position.gpuBuffer);
             }
-            InverseSqrtVector(position.span, buffers.IsSIMD);
+            InverseSqrtVector(position.span, buffers.ComputeSIMD);
             return null;
         }
 
