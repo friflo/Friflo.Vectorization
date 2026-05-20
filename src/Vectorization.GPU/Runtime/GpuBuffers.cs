@@ -118,3 +118,28 @@ public struct GpuBuffers
          throw new InvalidOperationException("The Ghost Orchestra: You've provided parameters, but not a single one carries a soul (GpuDevice). I cannot conduct a symphony of zeros. Initialize your data or go back to Scalar-Land!");
     }
 }
+
+/*
+ * ======================================================================================
+ * THE GHOST ORCHESTRA: A GUIDE TO THE SYMPHONY
+ * ======================================================================================
+ * * Status: Requires User Attention
+ * Symptom: You have summoned a kernel, but the stage is empty.
+ *
+ * The Ghost Orchestra appears when your execution parameters are technically sound, 
+ * but lack the "soul"—the GpuDevice. You are attempting to conduct a high-performance 
+ * computation, but you have failed to assign a physical reality to your data.
+ *
+ * THE PROTOCOL FOR RESOLUTION:
+ * 1. Check your ComputeMode: Are you requesting ComputeMode.GPU? If so, the system 
+ * expects a live, connected GpuDevice.
+ * 2. Verify the Soul: Ensure your buffer has been initialized with a valid GpuDevice 
+ * via your Adapter.
+ * 3. The Scalar Escape: If you do not have a GPU or simply wish to perform a quick 
+ * test, revert your ComputeMode to Scalar. The "Scalar-Land" is always open and 
+ * requires no hardware credentials—it is the safest harbor for your data.
+ *
+ * "The music of computation cannot play in the void. Provide the hardware, 
+ * or embrace the simplicity of the CPU."
+ * ======================================================================================
+ */
