@@ -27,9 +27,9 @@ public  static partial class GpuPattern
         Buffer<float>   input,
         float           bias,
         Buffer<float>   output,
-        ExeType         exeType = ExeType.Auto)
+        ComputeMode         computeMode = ComputeMode.Device)
     {
-        var buffers = GpuBuffers.Create(exeType, weight, nameof(weight));
+        var buffers = GpuBuffers.Create(computeMode, weight, nameof(weight));
         buffers.Validate (input,  nameof(input));
         buffers.Validate (output, nameof(output));
 

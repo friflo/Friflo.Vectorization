@@ -3,6 +3,7 @@
 
 using Friflo.Vectorization.GPU;
 
+// ReSharper disable ConvertToAutoProperty
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.CPU;
@@ -11,13 +12,13 @@ internal sealed class CpuDevice : GpuDevice
 {
     private             bool        isDisposed;
     internal readonly   CpuAdapter  adapter;
-    private  readonly   ExeType     exeType;
-    public   override   ExeType     ExeType     => exeType;
-    public   override   bool        IsDisposed  => isDisposed;
+    private  readonly   ComputeMode defaultComputeMode;
+    public   override   ComputeMode DefaultComputeMode  => defaultComputeMode;
+    public   override   bool        IsDisposed          => isDisposed;
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
-        exeType = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ExeType.Scalar : ExeType.SIMD;
+        defaultComputeMode = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ComputeMode.Scalar : ComputeMode.SIMD;
     }
 
     public override void Dispose() {

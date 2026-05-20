@@ -22,9 +22,9 @@ namespace VerifyVectorize
         public GpuBuffer<float> Kernel_SignKernel(
             Buffer<float> position,
             float value,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
             if (buffers.IsGPU) {
                 return _Kernel_Sign_GPU(buffers, position.gpuBuffer, value);

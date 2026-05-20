@@ -22,41 +22,41 @@ public struct GpuBuffers
     private readonly    bool        areSpans;
     private readonly    GpuDevice?  device;
     private readonly    string      firstParam;
-    private readonly    ExeType     exeType;
+    private readonly    ComputeMode     computeMode;
     
-    public              bool        IsGPU       => exeType == ExeType.GPU;
-    public              bool        IsSIMD      => exeType == ExeType.SIMD;
+    public              bool        IsGPU       => computeMode == ComputeMode.GPU;
+    public              bool        IsSIMD      => computeMode == ComputeMode.SIMD;
 
     
 
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
-    private GpuBuffers(ExeType exeType, int count) {
-        this.count      = count;
-        this.areSpans   = true;
-        this.exeType    = exeType == ExeType.Auto ? ExeType.SIMD : exeType;
+    private GpuBuffers(ComputeMode computeMode, int count) {
+        this.count          = count;
+        this.areSpans       = true;
+        this.computeMode    = computeMode == ComputeMode.Device ? ComputeMode.SIMD : computeMode;
     }
     
-    private GpuBuffers(ExeType exeType, int count, ulong hash, GpuDevice device, string firstParam) {
-        this.count      = count;
-        this.hash       = hash;
-        this.device     = device;
-        this.firstParam = firstParam;
-        this.exeType    = exeType == ExeType.Auto ? device.ExeType : exeType;
+    private GpuBuffers(ComputeMode computeMode, int count, ulong hash, GpuDevice device, string firstParam) {
+        this.count          = count;
+        this.hash           = hash;
+        this.device         = device;
+        this.firstParam     = firstParam;
+        this.computeMode    = computeMode == ComputeMode.Device ? device.DefaultComputeMode : computeMode;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static GpuBuffers Create<T>(ExeType exeType, Buffer<T> buffer, string paramName) where T : unmanaged
+    public static GpuBuffers Create<T>(ComputeMode computeMode, Buffer<T> buffer, string paramName) where T : unmanaged
     {
         var gpuBuffer = buffer.gpuBuffer;
         if (gpuBuffer == null) {
-            return new GpuBuffers(exeType, buffer.Count);
+            return new GpuBuffers(computeMode, buffer.Count);
         }
         var bufferDevice = gpuBuffer.Device;
         ulong hash;
         unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(exeType, gpuBuffer.Length, hash, bufferDevice, paramName);
+        var buffers = new GpuBuffers(computeMode, gpuBuffer.Length, hash, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {

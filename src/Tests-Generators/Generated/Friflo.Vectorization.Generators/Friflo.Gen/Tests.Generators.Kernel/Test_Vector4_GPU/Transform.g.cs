@@ -21,9 +21,9 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<Vector4> TransformKernel(
             Buffer<Vector4> position,
             Matrix4x4 matrix,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
             if (buffers.IsGPU) {
                 return _Transform_GPU(buffers, position.gpuBuffer, matrix);

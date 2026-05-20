@@ -23,9 +23,9 @@ namespace VerifyVectorize
             Buffer<float> position,
             Buffer<float> velocity,
             float deltaTime,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
             if (buffers.IsGPU) {

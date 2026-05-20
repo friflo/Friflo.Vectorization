@@ -22,9 +22,9 @@ namespace Tests.Generators.Kernel
             Buffer<float> position,
             Buffer<float> min,
             float max,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(min, nameof(min));
 
             if (buffers.IsGPU) {

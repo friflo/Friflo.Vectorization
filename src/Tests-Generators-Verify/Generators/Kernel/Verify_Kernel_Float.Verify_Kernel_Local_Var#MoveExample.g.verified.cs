@@ -22,9 +22,9 @@ namespace VerifyVectorize
         public GpuBuffer<float> MoveExampleKernel(
             Buffer<float> position,
             float deltaTime,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
 
             if (buffers.IsGPU) {
                 return _MoveExample_GPU(buffers, position.gpuBuffer, deltaTime);

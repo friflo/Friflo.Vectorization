@@ -21,9 +21,9 @@ namespace Tests.Generators.Kernel
         public static GpuBuffer<Vector4> MultiplyKernel(
             Buffer<Vector4> position,
             Buffer<Vector4> velocity,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
             if (buffers.IsGPU) {

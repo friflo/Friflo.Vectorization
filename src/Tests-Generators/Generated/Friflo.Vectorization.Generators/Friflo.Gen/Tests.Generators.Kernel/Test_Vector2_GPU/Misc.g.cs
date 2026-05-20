@@ -22,9 +22,9 @@ namespace Tests.Generators.Kernel
             Buffer<Vector2> position,
             Buffer<Vector2> velocity,
             Vector2 max,
-            ExeType exeType = ExeType.Auto)
+            ComputeMode mode = ComputeMode.Device)
         {
-            var buffers = GpuBuffers.Create(exeType, position, nameof(position));
+            var buffers = GpuBuffers.Create(mode, position, nameof(position));
             buffers.Validate(velocity, nameof(velocity));
 
             if (buffers.IsGPU) {

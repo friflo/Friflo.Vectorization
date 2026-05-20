@@ -20,7 +20,7 @@ public class TestCompute : GpuTestBase
         
         UseSpan(weight);
         
-        var result1 = GpuPattern.ShadowMethod(weight, input, 42, output, ExeType.SIMD);
+        var result1 = GpuPattern.ShadowMethod(weight, input, 42, output, ComputeMode.SIMD);
         // result1 - no Wait() on result1. Nothing will happen - user is surprised :)
         
     //  UseSpan(weight); // compiler error
@@ -29,7 +29,7 @@ public class TestCompute : GpuTestBase
         var gpuWeight = device.CreateBuffer<float>(100, GpuBufferUsage.None, "weight");
         var gpuInput  = device.CreateBuffer<float>(100, GpuBufferUsage.None, "input");
         var output2   = device.CreateBuffer<float>(100, GpuBufferUsage.None, "output2");
-        var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, output2, ExeType.SIMD);
+        var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, output2, ComputeMode.SIMD);
         device.Wait(result2);
     }
     
@@ -52,8 +52,8 @@ public class TestCompute : GpuTestBase
     
 
     // --- compact examples of some generated shadow method stubs
-    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ExeType exe) { return null; }
-    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ExeType exe) { return null; }
+    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ComputeMode compute) { return null; }
+    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ComputeMode compute) { return null; }
     
     public static GpuBuffer<byte> InitWeights(GpuDevice device) {
         return null;
@@ -64,9 +64,9 @@ public class TestCompute : GpuTestBase
     {
         using var device    = Adapter.CreateDevice("DependencyFlow");
         var weight = InitWeights(device);
-        var a = ComputeLayer1(weight, input, ExeType.GPU);
+        var a = ComputeLayer1(weight, input, ComputeMode.GPU);
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
-        var b = ComputeLayer2(a, ExeType.GPU);
+        var b = ComputeLayer2(a, ComputeMode.GPU);
         device.Wait(b);
     }
     
