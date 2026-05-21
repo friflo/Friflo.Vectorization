@@ -21,14 +21,30 @@ public abstract class GpuDevice : IDisposable
         SlotSize    = slotSize;
     }
     
+    public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>(T[] data, string label) where T : unmanaged {
+        return CreateBuffer(data, GpuBufferUsage.Storage, label);
+    }
+    
+    public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>(T[] data, string label) where T : unmanaged {
+        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, label);  // CopySrc - enable Download()  GPU -> CPU
+    }
+    
+    public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T>(T[] data, string label) where T : unmanaged {
+        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopyDst, label);  // CopyDst - enable Upload() CPU -> GPU
+    }
+    
+    public IScopedGpuBuffer<T>   CreateScopedBuffer<T>(T[] data, string label) where T : unmanaged {
+        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc | GpuBufferUsage.CopyDst, label);
+    }
+
     // --- abstract
     public abstract ComputeMode     DefaultComputeMode  { get; }
     public abstract bool            IsDisposed          { get; }
     public abstract void            Dispose();
     
     public abstract GpuLimits       GetDeviceLimits();
-    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel) where T : unmanaged;
-    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   GpuBufferUsage usage, string bufferLabel) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, GpuBufferUsage usage, string label) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   GpuBufferUsage usage, string label) where T : unmanaged;
     
     public abstract void            Flush(bool wait = true);
     public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;

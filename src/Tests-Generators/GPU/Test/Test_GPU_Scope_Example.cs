@@ -12,7 +12,7 @@ public static class Test_GPU_Scope_Example
     } 
     
     
-    private static void Upload(IScopedGpuBuffer<float> gpuBuffer)
+    private static void Upload(IScopedWriteBuffer<float> gpuBuffer)
     {
         // update buffer data
         using var writer = gpuBuffer.GetWriter();
@@ -23,11 +23,11 @@ public static class Test_GPU_Scope_Example
     } // <-- Upload
 
     
-    private static void Download(IScopedGpuBuffer<float> gpuBuffer)
+    private static void Download(IScopedReadBuffer<float> gpuBuffer)
     {
         using var reader = gpuBuffer.GetReader();
         
-        // at this point GPU data is already downloaded
+        // At this point GPU data is already downloaded
         ReadOnlySpan<float> results = reader.Span;
         for (int i = 0; i < results.Length; i++) {
             Console.WriteLine($"Ergebnis {i}: {results[i]}");

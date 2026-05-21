@@ -7,11 +7,19 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public interface IScopedGpuBuffer<T> : IDisposable where T : unmanaged
+
+public interface IScopedReadBuffer<T> : IDisposable where T : unmanaged
 {
-    public BufferWriter<T>  GetWriter();
     public BufferReader<T>  GetReader();
 }
+
+public interface IScopedWriteBuffer<T> : IDisposable where T : unmanaged
+{
+    public BufferWriter<T>  GetWriter();
+}
+
+public interface IScopedGpuBuffer<T> : IScopedReadBuffer<T>, IScopedWriteBuffer<T> where T : unmanaged { }
+
 
 public readonly ref struct BufferWriter<T>  where T : unmanaged
 {

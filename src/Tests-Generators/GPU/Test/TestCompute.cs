@@ -130,7 +130,7 @@ public class TestCompute : GpuTestBase
         var output3 = new float[65];
         for (int n = 0; n < 64; ++n) { weight[n] = n; input[n]  = n + 1000; }
         using var gpuWeight   = device.CreateBuffer(weight,  GpuBufferUsage.Storage, "weight");
-        using var gpuInput    = device.CreateBuffer(input,   GpuBufferUsage.Storage, "input");
+        using var gpuInput    = device.CreateReadOnlyBuffer(input, "input");
         using var gpuOutput   = device.CreateBuffer(output,  GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
         using var gpuOutput2  = device.CreateBuffer(output2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output2");
         using var gpuOutput3  = device.CreateBuffer(output3, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output3");
@@ -138,19 +138,19 @@ public class TestCompute : GpuTestBase
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 42, gpuOutput);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 43, gpuOutput2);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 43, gpuOutput2);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(4, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 44, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 44, gpuOutput);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(5, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 45, gpuOutput3);
+        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 45, gpuOutput3);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(7, HandleDiff.BindGroups.Diff);
         
