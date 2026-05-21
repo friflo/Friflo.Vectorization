@@ -43,7 +43,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
     // --- GPU buffers
     public static implicit operator Buffer<T>(BufferView<T> view)       => new(view);
-    public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
+    // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer); intentionally not available
 }
 
 public readonly ref struct InBuffer<T> where T : unmanaged

@@ -45,6 +45,10 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
 {
     internal readonly  Memory<T>  hostMemory;
     
+    protected GpuBuffer(Memory<T> hostMemory, string label) :  base(hostMemory.Length, label) {
+        this.hostMemory = hostMemory;
+    }
+    
     /// <summary> Gets the raw CPU-side backing memory for this buffer. </summary>
     /// <remarks>
     /// <b>Synchronization Notice:</b> This memory is not automatically synchronized with the GPU.
@@ -59,17 +63,12 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     /// </item>
     /// </list>
     /// </remarks>
-    public Memory<T>  HostMemory => hostMemory;
-
-    protected GpuBuffer(Memory<T> hostMemory, string label) :  base(hostMemory.Length, label) {
-        this.hostMemory = hostMemory;
-    }
+    public BufferView<T>    InOut   => new (this, 0, Length);
+    public ReadOnlyView<T>  In      => new (this, 0, Length);
     
     public BufferView<T>    Slice     (int start, int length) => new (this, start, length);
     public ReadOnlyView<T>  AsReadOnly(int start, int length) => new (this, start, length);
     
-    public BufferView<T>    RW  => new (this, 0, Length);
-    public ReadOnlyView<T>  In  => new (this, 0, Length);
 
     public BufferWriter<T>  GetWriter() {
         // optional check if buffer is ready for write access. E.g. fence state
