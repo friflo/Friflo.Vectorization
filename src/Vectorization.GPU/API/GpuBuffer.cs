@@ -36,7 +36,12 @@ public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
     public ReadOnlyView<T>  ReadOnlyView { get; }
 }
 
-public abstract class GpuBuffer<T> : GpuBuffer, IReadOnlyGpuBuffer<T>  where T : unmanaged
+
+public abstract class GpuBuffer<T> :    // enable raw access to buffer data without any safety guards
+    GpuBuffer,                          // enables non-generic access to fields like: Length, Device, ... 
+    IReadOnlyGpuBuffer<T>,              // enables read only access to immutable buffer data
+    IScopedGpuBuffer<T>                 // enables read / write of buffer data without race conditions
+        where T : unmanaged
 {
     internal readonly  Memory<T>  hostMemory;
     
@@ -66,7 +71,16 @@ public abstract class GpuBuffer<T> : GpuBuffer, IReadOnlyGpuBuffer<T>  where T :
     public BufferView<T>    BufferView      => new (this, 0, Length);
     public ReadOnlyView<T>  ReadOnlyView    => new (this, 0, Length);
 
-    
+    public BufferWriter<T>  GetWriter() {
+        // optional check if buffer is ready for write access. E.g. fence state
+        return new BufferWriter<T>(this, hostMemory.Span);
+    }
+
+    public BufferReader<T>  GetReader() {
+        // this.Download();
+        return new BufferReader<T>(this, hostMemory.Span);
+    }
+
     public T this[int index]
     {
         get {
