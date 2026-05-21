@@ -33,7 +33,7 @@ public abstract class GpuBuffer : IDisposable
 
 public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 {
-    public ReadOnlyView<T>  ReadOnlyView { get; }
+    public ReadOnlyView<T>  In { get; }
 }
 
 
@@ -68,8 +68,8 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     public BufferView<T>    Slice     (int start, int length) => new (this, start, length);
     public ReadOnlyView<T>  AsReadOnly(int start, int length) => new (this, start, length);
     
-    public BufferView<T>    BufferView      => new (this, 0, Length);
-    public ReadOnlyView<T>  ReadOnlyView    => new (this, 0, Length);
+    public BufferView<T>    RW  => new (this, 0, Length);
+    public ReadOnlyView<T>  In  => new (this, 0, Length);
 
     public BufferWriter<T>  GetWriter() {
         // optional check if buffer is ready for write access. E.g. fence state

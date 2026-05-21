@@ -29,7 +29,7 @@ public class TestCompute : GpuTestBase
         var gpuWeight = device.CreateBuffer<float>(100, GpuBufferUsage.None, "weight");
         var gpuInput  = device.CreateBuffer<float>(100, GpuBufferUsage.None, "input");
         var output2   = device.CreateBuffer<float>(100, GpuBufferUsage.None, "output2");
-        var result2 = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, output2, ComputeMode.SIMD);
+        var result2 = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2, ComputeMode.SIMD);
         device.Wait(result2);
     }
     
@@ -44,7 +44,7 @@ public class TestCompute : GpuTestBase
         // Fire Layer 1 to 50
         GpuBuffer<float> result = null;
         foreach (var layer in layers) {
-            result = GpuPattern.ShadowMethod(layer.weight, layer.input, 42, layer.output);
+            result = GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output);
         }
         // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
         device.Wait(result);
@@ -77,7 +77,7 @@ public class TestCompute : GpuTestBase
         using var gpuWeight   = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "weight");
         using var gpuInput    = device.CreateBuffer<float>(64,  GpuBufferUsage.Storage, "input");
         using var gpuOutput   = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
     }
     
     [Test]
@@ -98,16 +98,16 @@ public class TestCompute : GpuTestBase
         using var gpuOutput   = device.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "output");
         
         // var start1 = Mem.GetAllocatedBytes();                        // TODO should add allocation check for first call
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
         // Mem.AssertNoAlloc(start1);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
 
         var start3 = Mem.GetAllocatedBytes();
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
         Mem.AssertNoAlloc(start3);
 
-        using var result = GpuPattern.ShadowMethod(gpuWeight, gpuInput, 42, gpuOutput);
+        using var result = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
         
         device.Wait(result);
         
@@ -138,19 +138,19 @@ public class TestCompute : GpuTestBase
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 42, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 43, gpuOutput2);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 43, gpuOutput2);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(4, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 44, gpuOutput);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 44, gpuOutput);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(5, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
         
-        GpuPattern.ShadowMethod(gpuWeight, gpuInput.ReadOnlyView, 45, gpuOutput3);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 45, gpuOutput3);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(7, HandleDiff.BindGroups.Diff);
         

@@ -37,8 +37,8 @@ public partial class Test_Vector4_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
-        MultiplyVector(array1,    array2, false);
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+        MultiplyVector(array1,     array2, false);
+        MultiplyKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -72,8 +72,8 @@ public partial class Test_Vector4_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
-        ArithmeticVector(array1,    array2, false);
-        ArithmeticKernel(gpuBuffer1, gpuBuffer2);
+        ArithmeticVector(array1,     array2, false);
+        ArithmeticKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -107,8 +107,8 @@ public partial class Test_Vector4_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
-        MiscVector(array1,     array2,     new Vector4(5.5f, 6.6f, 7.7f, 8.8f), false);
-        MiscKernel(gpuBuffer1, gpuBuffer2, new Vector4(5.5f, 6.6f, 7.7f, 8.8f));
+        MiscVector(array1,     array2,        new Vector4(5.5f, 6.6f, 7.7f, 8.8f), false);
+        MiscKernel(gpuBuffer1, gpuBuffer2.In, new Vector4(5.5f, 6.6f, 7.7f, 8.8f));
         
         Device.Wait(gpuBuffer1);
         
@@ -186,7 +186,7 @@ public partial class Test_Vector4_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
-        TransformVector(array1,     matrix, false);
+        TransformVector(array1,        matrix, false);
         TransformKernel(gpuBuffer1, matrix);
         
         Device.Wait(gpuBuffer1);

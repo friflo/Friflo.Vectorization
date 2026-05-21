@@ -37,7 +37,7 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
 
         MultiplyVector(scalar1,    scalar2, false);
-        MultiplyKernel(gpuBuffer1, gpuBuffer2);
+        MultiplyKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -65,7 +65,7 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
         AssignVector(scalar1,    scalar2, false);
-        AssignKernel(gpuBuffer1, gpuBuffer2);
+        AssignKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -121,8 +121,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        MoveVector(scalar1, scalar2, 42, false);
-        MoveKernel(gpuBuffer1, gpuBuffer2, 42);
+        MoveVector(scalar1,    scalar2,       42, false);
+        MoveKernel(gpuBuffer1, gpuBuffer2.In, 42);
         
         Device.Wait(gpuBuffer1);
         
@@ -216,8 +216,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        Kernel_TrigonometryVector(scalar1, scalar2, 1.1f, false);
-        Kernel_TrigonometryKernel(gpuBuffer1, gpuBuffer2, 1.1f);
+        Kernel_TrigonometryVector(scalar1,    scalar2,       1.1f, false);
+        Kernel_TrigonometryKernel(gpuBuffer1, gpuBuffer2.In, 1.1f);
         
         Device.Wait(gpuBuffer1);
         
@@ -289,8 +289,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        Kernel_MiscVector(scalar1, scalar2, 1.1f, false);
-        Kernel_MiscKernel(gpuBuffer1, gpuBuffer2, 1.1f);
+        Kernel_MiscVector(scalar1,    scalar2,       1.1f, false);
+        Kernel_MiscKernel(gpuBuffer1, gpuBuffer2.In, 1.1f);
         
         Device.Wait(gpuBuffer1);
         
@@ -319,8 +319,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        Kernel_MinVector(scalar1, scalar2, false);
-        Kernel_MinKernel(gpuBuffer1, gpuBuffer2);
+        Kernel_MinVector(scalar1,    scalar2, false);
+        Kernel_MinKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -349,8 +349,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        Kernel_MaxVector(scalar1, scalar2, false);
-        Kernel_MaxKernel(gpuBuffer1, gpuBuffer2);
+        Kernel_MaxVector(scalar1,    scalar2, false);
+        Kernel_MaxKernel(gpuBuffer1, gpuBuffer2.In);
         
         Device.Wait(gpuBuffer1);
         
@@ -379,8 +379,8 @@ public partial class Test_Float_GPU : GpuTestBase
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
 
-        Kernel_ClampVector(scalar1, scalar2, 200, false);
-        Kernel_ClampKernel(gpuBuffer1, gpuBuffer2, 200);
+        Kernel_ClampVector(scalar1,    scalar2,       200, false);
+        Kernel_ClampKernel(gpuBuffer1, gpuBuffer2.In, 200);
         
         Device.Wait(gpuBuffer1);
         
