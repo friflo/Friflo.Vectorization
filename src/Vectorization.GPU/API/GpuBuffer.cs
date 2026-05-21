@@ -31,8 +31,15 @@ public abstract class GpuBuffer : IDisposable
     }
 }
 
-public abstract class GpuBuffer<T> : GpuBuffer  where T : unmanaged
+public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 {
+    public ReadOnlyView<T>  ReadOnlyView { get; }
+}
+
+public abstract class GpuBuffer<T> : GpuBuffer, IReadOnlyGpuBuffer<T>  where T : unmanaged
+{
+    internal readonly  Memory<T>  hostMemory;
+    
     /// <summary> Gets the raw CPU-side backing memory for this buffer. </summary>
     /// <remarks>
     /// <b>Synchronization Notice:</b> This memory is not automatically synchronized with the GPU.
@@ -47,14 +54,18 @@ public abstract class GpuBuffer<T> : GpuBuffer  where T : unmanaged
     /// </item>
     /// </list>
     /// </remarks>
-    public readonly  Memory<T>  HostMemory;
+    public Memory<T>  HostMemory => hostMemory;
 
     protected GpuBuffer(Memory<T> hostMemory, string label) :  base(hostMemory.Length, label) {
-        HostMemory = hostMemory;
+        this.hostMemory = hostMemory;
     }
     
-    public BufferView<T>   Slice     (int start, int length) => new (this, start, length);
-    public ReadOnlyView<T> AsReadOnly(int start, int length) => new (this, start, length);
+    public BufferView<T>    Slice     (int start, int length) => new (this, start, length);
+    public ReadOnlyView<T>  AsReadOnly(int start, int length) => new (this, start, length);
+    
+    public BufferView<T>    BufferView      => new (this, 0, Length);
+    public ReadOnlyView<T>  ReadOnlyView    => new (this, 0, Length);
+
     
     public T this[int index]
     {

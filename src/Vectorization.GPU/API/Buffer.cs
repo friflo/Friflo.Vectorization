@@ -33,7 +33,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     
     private Buffer(GpuBuffer<T> gpuBuffer) {
         GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.HostMemory.Span;
+        Span        = gpuBuffer.hostMemory.Span;
         Length      = gpuBuffer.Length;
     }
     
@@ -72,7 +72,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
         GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.HostMemory.Span;
+        Span        = gpuBuffer.hostMemory.Span;
         Length      = gpuBuffer.Length;
     }
     
