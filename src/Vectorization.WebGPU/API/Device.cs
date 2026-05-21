@@ -427,15 +427,15 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var wgpuUsage   = FromGpuBufferUsage(usage);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, buffer, length, bufferLabel);
+        var array       = new T[length];
+        return new WgpuBuffer<T>(this, buffer, array, bufferLabel);
     }
     
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage   = FromGpuBufferUsage(usage);
-        var length      = data.Length;
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, handle, length, bufferLabel);
+        return new WgpuBuffer<T>(this, handle, data, bufferLabel);
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

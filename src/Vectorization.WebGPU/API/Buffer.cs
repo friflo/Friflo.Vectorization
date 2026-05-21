@@ -21,7 +21,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
     private             WgpuDevice  device { get; set; }
     private   readonly  uint        SizeInBytes;
 
-    protected override  Span<T>     Span        => default;
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
     
@@ -45,11 +44,11 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int length, string bufferLabel)
-        : base(length, bufferLabel)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, Memory<T> hostMemory, string bufferLabel)
+        : base(hostMemory, bufferLabel)
     {
         this.device = device;
-        SizeInBytes = (uint)(length * Unsafe.SizeOf<T>());
+        SizeInBytes = (uint)(Length * Unsafe.SizeOf<T>());
         handle      = buffer;
     }
     

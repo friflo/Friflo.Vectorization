@@ -78,6 +78,35 @@ public partial class Test_Float_GPU : GpuTestBase
     
     // ----------------------------------------------
     [Kernel] [OmitHash]
+    private static void Add([Span] ref float dst, [Span] float src) {
+        dst += src;
+    }
+    
+    [Test]
+    public void Test_Kernel_Buffers()
+    {
+        for (int n = 0; n < 128; n++) {
+            buffer1[n] = n;
+            buffer2[n] = n;
+        }
+        using var gpuDst   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "dst");
+        using var gpuSrc   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "src");
+        BufferView<float>   view1 = gpuDst.Slice     (10, 10);
+        ReadOnlyView<float> view2 = gpuSrc.AsReadOnly(20, 10);
+
+        AddKernel(view1, view2);
+        
+        Device.Wait(gpuDst);
+        
+        gpuDst.Download(gpuDst, buffer1);
+        
+        for (int n = 0; n < 10; n++) {
+            Assert.That(view1.Span[n], Is.EqualTo(30 + 2 * n));
+        }
+    }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
     private static void Move([Span] ref float position, [Span] float velocity, float deltaTime) {
         position += velocity * deltaTime;
     }

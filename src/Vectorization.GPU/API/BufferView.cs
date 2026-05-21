@@ -13,7 +13,7 @@ public readonly struct BufferView<T> where T : unmanaged
     public   readonly   int             Offset;
     public   readonly   int             Length;
     
-    public              Span<T>         Span =>  gpuBuffer.Span.Slice(Offset, Length);  
+    public              Span<T>         Span =>  gpuBuffer.HostMemory.Span.Slice(Offset, Length);
 
     internal BufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
@@ -29,7 +29,7 @@ public readonly struct ReadOnlyView<T> where T : unmanaged
     public   readonly   int             Offset;
     public   readonly   int             Length;
     
-    public              ReadOnlySpan<T> Span =>  gpuBuffer.Span.Slice(Offset, Length);
+    public              ReadOnlySpan<T> Span =>  gpuBuffer.HostMemory.Span.Slice(Offset, Length);
 
     internal ReadOnlyView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {

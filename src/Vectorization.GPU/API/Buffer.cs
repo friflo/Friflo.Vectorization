@@ -27,19 +27,21 @@ public readonly ref struct Buffer<T> where T : unmanaged
     private Buffer(BufferView<T> view) {
         GpuBuffer   = view.gpuBuffer;
         Span        = view.Span;
-        Length      = view.Length;
         Offset      = view.Offset;
+        Length      = view.Length;
     }
     
     private Buffer(GpuBuffer<T> gpuBuffer) {
         GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.Span;
+        Span        = gpuBuffer.HostMemory.Span;
         Length      = gpuBuffer.Length;
     }
     
+    // --- CPU buffers
     public static implicit operator Buffer<T>(T[]           array)      => new(array);
     public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
     public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
+    // --- GPU buffers
     public static implicit operator Buffer<T>(BufferView<T> view)       => new(view);
     public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer);
 }
@@ -64,20 +66,22 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     private InBuffer(ReadOnlyView<T> view) {
         GpuBuffer   = view.gpuBuffer;
         Span        = view.Span;
-        Length      = view.Length;
         Offset      = view.Offset;
+        Length      = view.Length;
     }
     
     private InBuffer(GpuBuffer<T> gpuBuffer) {
         GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.Span;
+        Span        = gpuBuffer.HostMemory.Span;
         Length      = gpuBuffer.Length;
     }
     
     // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available
     
+    // --- CPU buffers
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
+    // --- GPU buffers
     public static implicit operator InBuffer<T>(ReadOnlyView<T>   view)       => new(view);
     public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer);
 }

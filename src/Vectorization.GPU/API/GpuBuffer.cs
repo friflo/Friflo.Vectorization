@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Buffers;
 using System.ComponentModel;
 using System.Threading;
 
@@ -33,11 +34,25 @@ public abstract class GpuBuffer : IDisposable
 
 public abstract class GpuBuffer<T> : GpuBuffer  where T : unmanaged
 {
-    internal
-    protected abstract  Span<T>     Span            { get; }
+    /// <summary> Gets the raw CPU-side backing memory for this buffer. </summary>
+    /// <remarks>
+    /// <b>Synchronization Notice:</b> This memory is not automatically synchronized with the GPU.
+    /// <list type="bullet">
+    /// <item> <b>Concurrency:</b><br/>
+    ///   CPU and GPU must not access this memory simultaneously to avoid data races.
+    ///   Ensure the GPU has finished all pending work before modifying this memory.
+    /// </item>
+    /// <item> <b>Explicit Sync:</b><br/>
+    ///   Modifications to this memory are only reflected on the GPU after calling <c>Upload()</c>.
+    ///   GPU updates are only visible in this memory after calling <c>Download()</c>.
+    /// </item>
+    /// </list>
+    /// </remarks>
+    public readonly  Memory<T>  HostMemory;
 
-    protected GpuBuffer(int length, string label) :  base(length, label)
-    { }
+    protected GpuBuffer(Memory<T> hostMemory, string label) :  base(hostMemory.Length, label) {
+        HostMemory = hostMemory;
+    }
     
     public BufferView<T>   Slice     (int start, int length) => new (this, start, length);
     public ReadOnlyView<T> AsReadOnly(int start, int length) => new (this, start, length);

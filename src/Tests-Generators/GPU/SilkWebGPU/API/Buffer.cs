@@ -21,7 +21,6 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
     private   readonly  Webgpu      wgpu;
     private   readonly  uint        SizeInBytes;
     
-    protected override  Span<T>     Span    => default;
     public    override  GpuDevice   Device  => device;
 
     public    override  bool        IsDisposed => handle == null;
@@ -46,12 +45,12 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
         device = null;
     }
 
-    internal SilkBuffer(SilkDevice device, Buffer* buffer, int length, string bufferLabel)
-        : base(length, bufferLabel)
+    internal SilkBuffer(SilkDevice device, Buffer* buffer, Memory<T> hostMemory, string bufferLabel)
+        : base(hostMemory, bufferLabel)
     {
         this.device = device;
         wgpu        = device.wgpu;
-        SizeInBytes = (uint)(length * Unsafe.SizeOf<T>());
+        SizeInBytes = (uint)(Length * Unsafe.SizeOf<T>());
         handle      = buffer;
     }
     

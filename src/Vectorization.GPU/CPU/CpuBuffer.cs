@@ -10,18 +10,14 @@ namespace Friflo.Vectorization.CPU;
 
 internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
-    private   readonly  T[]         array;
-    private             CpuDevice  device;
-    internal
-    protected override  Span<T>     Span        => array.AsSpan();
+    private             CpuDevice   device;
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => device == null;
  
     
-    internal CpuBuffer(CpuDevice device, T[] array, string label)
-        : base(array.Length, label)
+    internal CpuBuffer(CpuDevice device, Memory<T> hostMemory, string label)
+        : base(hostMemory, label)
     {
-        this.array  = array;
         this.device = device;
     }
 
