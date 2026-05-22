@@ -38,12 +38,18 @@ public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 }
 
 
+/// <summary>
+/// Represents the base class for GPU-mapped memory buffers.<br/>
+/// It contains a CPU host memory and supports synchronization of the memory with the GPU.<br/>
+/// It provides methods returning <see cref="BufferView{T}"/> and <see cref="ReadOnlyView{T}"/> to access the host memory. 
+/// </summary>
 public abstract class GpuBuffer<T> :    // enable raw access to buffer data without any safety guards
     GpuBuffer,                          // enables non-generic access to fields like: Length, Device, ... 
     IReadOnlyGpuBuffer<T>,              // enables read only access to immutable buffer data
     IScopedGpuBuffer<T>                 // enables read / write of buffer data without race conditions
         where T : unmanaged
 {
+    /// <summary> The CPU-accessible host memory used as a staging area for GPU synchronization. </summary>
     internal readonly  Memory<T>  hostMemory;
     
     protected GpuBuffer(Memory<T> hostMemory, string label) :  base(hostMemory.Length, label) {
@@ -65,9 +71,12 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     /// </list>
     /// </remarks>
     public BufferView<T>    InOut   => new (this, 0, Length);
+    /// <summary> Gets a read-only view of the entire buffer. </summary>
     public ReadOnlyView<T>  In      => new (this, 0, Length);
     
+    /// <summary> Creates a read-write view of a sub-region within this buffer. </summary>
     public BufferView<T>    Slice     (int start, int length) => new (this, start, length);
+    /// <summary> Creates a read-only view of a sub-region within this buffer. </summary>
     public ReadOnlyView<T>  AsReadOnly(int start, int length) => new (this, start, length);
     
 
