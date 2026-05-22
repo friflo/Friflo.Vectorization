@@ -21,7 +21,7 @@ internal struct BindGroups
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuEncoder
+public readonly unsafe ref struct WgpuEncoder
 {
     private  readonly   WgpuTask        task;
     internal readonly   CommandEncoder* handle;
@@ -46,7 +46,7 @@ public readonly unsafe struct WgpuEncoder
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuComputePass : IDisposable {
+public readonly unsafe ref struct WgpuComputePass : IDisposable {
     private readonly    WgpuTask            task;
     private readonly    ComputePassEncoder* handle;
     public  override    string              ToString() => handle != null ? "Created" : "null";
