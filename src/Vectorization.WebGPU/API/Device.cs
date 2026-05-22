@@ -514,7 +514,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         return default;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(Span<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
