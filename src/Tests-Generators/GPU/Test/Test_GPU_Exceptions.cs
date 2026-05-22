@@ -1,6 +1,7 @@
 ﻿using System;
 using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -87,6 +88,22 @@ public class Test_GPU_Exceptions : GpuTestBase
             });
             StringAssert.StartsWith("Archaeological Error:", e!.Message!);
         }
+    }
+    
+    [Test]
+    public void Test_GPU_Exceptions_conflicting_usages()
+    {
+        using var device    = Adapter.CreateDevice("device");
+        using var gpuWeight = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "gpuWeight");
+        using var gpuOutput = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
+        
+        var e = Assert.Throws<WgpuException>(() => {
+            ExpectedCommandBuffers++; // Symptom of root cause error
+            GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.InOut, 42, gpuOutput.InOut);
+        })!;
+        StringAssert.Contains("gpuOutput",          e.Message);
+        StringAssert.Contains("conflicting usages", e.Message);
+        StringAssert.Contains("STORAGE_READ_WRITE", e.Message);
     }
     
     

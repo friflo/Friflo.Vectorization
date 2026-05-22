@@ -103,6 +103,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
             wgpuCommandEncoderRelease(currentEncoder);
             currentEncoder = null;
         }
+        if (device.errorHandler.errorType != ErrorType.NoError) {
+            device.ReturnTask(this);
+            device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
+        }
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
@@ -145,6 +149,8 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         
         var bufferHandler = commandBuffer;
         if (bufferHandler != null) {
+            // Note: In case wgpuCommandEncoderFinish() detected a validation error
+            //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
             wgpuCommandBufferRelease(bufferHandler);
             commandBuffer = null;
         }

@@ -11,7 +11,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal sealed class WgpuErrorHandler
 {
-    private  ErrorType   errorType = ErrorType.NoError;
+    internal ErrorType   errorType = ErrorType.NoError;
     private  string      message;
     
     internal unsafe void OnGpuError(ErrorType type, StringView errorMessage, void* userData)
@@ -37,7 +37,7 @@ internal sealed class WgpuErrorHandler
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private void ThrowException()
+    internal void ThrowException()
     {
         var error = errorType;
         errorType = ErrorType.NoError;

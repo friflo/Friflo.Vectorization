@@ -49,16 +49,16 @@ public readonly struct GpuHandleDiff
         };
     }
     
-    public bool IsDiffZero()
+    public bool IsDiffZero(int expectedCommandBuffers)
     {
-        return (Devices.           Diff == 0 &&
-                Buffers.           Diff == 0 &&
-                BindGroups.        Diff == 0 &&
-                BindGroupLayouts.  Diff == 0 &&
-                ComputePipelines.  Diff == 0 &&
-                CommandBuffers.    Diff == 0 &&
-                ShaderModules.     Diff == 0 &&
-                PipelineLayouts.   Diff == 0);
+        return (Devices.           Diff                          == 0 &&
+                Buffers.           Diff                          == 0 &&
+                BindGroups.        Diff                          == 0 &&
+                BindGroupLayouts.  Diff                          == 0 &&
+                ComputePipelines.  Diff                          == 0 &&
+                CommandBuffers.    Diff - expectedCommandBuffers == 0 &&
+                ShaderModules.     Diff                          == 0 &&
+                PipelineLayouts.   Diff                          == 0);
     }
 
     public override string ToString() {

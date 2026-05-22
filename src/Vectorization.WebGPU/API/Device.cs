@@ -133,7 +133,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
 
-    private void ReturnTask(WgpuTask task)
+    internal void ReturnTask(WgpuTask task)
     {
         task.Reset();
         lock (availableTasks) {

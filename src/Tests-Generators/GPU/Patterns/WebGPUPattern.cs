@@ -68,8 +68,8 @@ public static class WebGPUPattern
         }
         // connect task to output
         ((WgpuBuffer<float>)output).SetLastWritingTask(task);
-        task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
-        device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
+        task.Finish(encoder, "ShadowMethod"u8);     // extract CommandBuffer from Encoder
+        device.Enqueue(task);                       // queues CommandBuffer only. No Submit().
 
         output.WaitInDebug();
         return output;

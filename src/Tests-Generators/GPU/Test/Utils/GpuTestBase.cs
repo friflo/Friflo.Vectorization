@@ -2,6 +2,7 @@
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 
+// ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
 public abstract class GpuTestBase
@@ -14,15 +15,17 @@ public abstract class GpuTestBase
     protected       GpuDevice       Device          { get; private set; }
     private         GpuHandleDiff   StartHandles    { get; set; }
     public          GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Adapter.GenerateHandles());
+    protected       int             ExpectedCommandBuffers;
 
     protected virtual int MaxTasks => 64;
     protected virtual int SlotSize => 64 * 1024;
     
     [SetUp]
     public void BaseSetup() {
-        Dbg.Instance    = this;
-        StartHandles    = Adapter.GenerateHandles();
-        Device          = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        Dbg.Instance            = this;
+        StartHandles            = Adapter.GenerateHandles();
+        ExpectedCommandBuffers  = 0;
+        Device                  = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
     }
 
     [TearDown]
@@ -39,12 +42,12 @@ public abstract class GpuTestBase
         var finalReport = Adapter.GenerateHandles();
         var finalDiff   = StartHandles.GetHandleDiff(finalReport);
         
-        AssertResourceLeaks(finalDiff);
+        AssertResourceLeaks(finalDiff, ExpectedCommandBuffers);
     }
 
-    private static void AssertResourceLeaks(GpuHandleDiff handleDiff)
+    private static void AssertResourceLeaks(GpuHandleDiff handleDiff, int expectedCommandBuffers)
     {
-        if (handleDiff.IsDiffZero()) {
+        if (handleDiff.IsDiffZero(expectedCommandBuffers)) {
             return;
         }
         // return;
