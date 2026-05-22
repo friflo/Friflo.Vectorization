@@ -187,14 +187,14 @@ namespace Tests.Generators.Kernel
         var bufferLayout = device.GetBindGroupLayout(_Transform_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
-            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<Vector2> (0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
+            buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
             bufferLayout = device.CreateBindGroupLayout(buffers, _Transform_GPU_BufferLayoutKey, "Transform_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Transform_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform<_Transform_GPU_Uniforms> (0); // var<uniform>              uniforms
+            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(uniform, _Transform_GPU_UniformLayoutKey, "Transform_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Transform_GPU_Shader(), "Transform"u8);

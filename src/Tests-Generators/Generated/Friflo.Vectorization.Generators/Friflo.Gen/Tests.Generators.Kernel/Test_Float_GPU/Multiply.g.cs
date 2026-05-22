@@ -183,15 +183,15 @@ namespace Tests.Generators.Kernel
         var bufferLayout = device.GetBindGroupLayout(_Multiply_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
-            buffers[0] = WgpuLayoutEntry.ReadWriteStorage<float> (0); // var<storage, read_write>  position_arr: array<f32>;
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage <float> (1); // var<storage, read      >  velocity_arr: array<f32>;
+            buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<f32>;
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  velocity_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(buffers, _Multiply_GPU_BufferLayoutKey, "Multiply_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Multiply_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform<_Multiply_GPU_Uniforms> (0); // var<uniform>              uniforms
+            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(uniform, _Multiply_GPU_UniformLayoutKey, "Multiply_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Multiply_GPU_Shader(), "Multiply"u8);

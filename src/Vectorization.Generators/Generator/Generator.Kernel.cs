@@ -127,7 +127,7 @@ public sealed partial class Gen
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
             bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
-            bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}<{type}> ({bufferCount}); // {binding }");
+            bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}({bufferCount}); // {binding }");
             bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
             bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
             // Note: the data type in a buffer is not relevant for layout. Need to understand why.
@@ -240,7 +240,7 @@ $$""""
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform<{{methodName_GPU}}_Uniforms> (0); // var<uniform>              uniforms
+            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(uniform, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);

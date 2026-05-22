@@ -85,15 +85,15 @@ public static class WebGPUPattern
         var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage<float> (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage<float> (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage<float>(2); // @group(0) @binding(2) var<storage, read_write> output
+            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0); // @group(0) @binding(0) var<storage, read>       weight
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // @group(0) @binding(1) var<storage, read>       input
+            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2); // @group(0) @binding(2) var<storage, read_write> output
             bufferLayout = device.CreateBindGroupLayout(buffers, ShadowMethod_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform<ShadowMethod_GPU_Uniforms> (0); // @group(1)
+            uniform[0] = WgpuLayoutEntry.Uniform(0); // @group(1)
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);

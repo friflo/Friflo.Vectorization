@@ -35,7 +35,7 @@ public readonly struct WgpuLayoutEntry
         Type    = type;
     }
     
-    public static WgpuLayoutEntry Uniform<T>(int binding)            => new (binding,    BufferBindingType.Uniform);
-    public static WgpuLayoutEntry ReadWriteStorage<T>(int binding)   => new (binding,    BufferBindingType.Storage);
-    public static WgpuLayoutEntry ReadOnlyStorage<T>(int binding)    => new (binding,    BufferBindingType.ReadOnlyStorage);
+    public static WgpuLayoutEntry Uniform         (int binding) => new (binding, BufferBindingType.Uniform);
+    public static WgpuLayoutEntry ReadWriteStorage(int binding) => new (binding, BufferBindingType.Storage);
+    public static WgpuLayoutEntry ReadOnlyStorage (int binding) => new (binding, BufferBindingType.ReadOnlyStorage);
 }
