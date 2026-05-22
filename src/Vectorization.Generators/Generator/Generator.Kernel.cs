@@ -184,9 +184,9 @@ $$""""
         var encoder = task.GetEncoder("{{methodName}}"u8);
         using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
         {
-            var effect = device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
-                effect = {{methodName_GPU}}_CreateEffect(device);
+                effect = ref {{methodName_GPU}}_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -228,7 +228,7 @@ $$""""
     private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 0x{{uniformHash:x}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
+    private static ref WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
@@ -246,7 +246,7 @@ $$""""
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return device.CreateEffect({{methodName_GPU}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect({{methodName_GPU}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

@@ -151,13 +151,15 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public static int NewEffectSlot() => Interlocked.Increment(ref effectSlotCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuEffect GetEffect(int slot) {
+    public ref WgpuEffect GetEffect(int slot) {
         var slots = effectSlots;
         if (slot < slots.Length) {
-            return slots[slot];
+            return ref slots[slot];
         }
-        return default;
+        return ref MissingEffect;
     }
+    
+    private static WgpuEffect MissingEffect;
     
     public ref WgpuEffect CreateEffect(
         int                 slot,

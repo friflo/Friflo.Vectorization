@@ -36,9 +36,9 @@ public static class WebGPUPattern
         var encoder = task.GetEncoder("ShadowMethod"u8);
         using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
         {
-            var effect = device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
+            ref var effect = ref device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
-                effect = ShadowMethod_GPU_CreateEffect(device);
+                effect = ref ShadowMethod_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -80,7 +80,7 @@ public static class WebGPUPattern
     private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
@@ -99,7 +99,7 @@ public static class WebGPUPattern
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ShadowMethod"u8);
         
-        return device.CreateEffect(ShadowMethod_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(ShadowMethod_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)

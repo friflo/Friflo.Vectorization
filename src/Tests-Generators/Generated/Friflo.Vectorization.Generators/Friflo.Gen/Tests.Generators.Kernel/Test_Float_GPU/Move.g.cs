@@ -130,9 +130,9 @@ namespace Tests.Generators.Kernel
         var encoder = task.GetEncoder("Move"u8);
         using (var pass = encoder.BeginComputePass("Move"u8))
         {
-            var effect = device.GetEffect(_Move_GPU_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Move_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
-                effect = _Move_GPU_CreateEffect(device);
+                effect = ref _Move_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -185,7 +185,7 @@ namespace Tests.Generators.Kernel
     private const ulong         _Move_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect _Move_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuEffect _Move_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Move_GPU_BufferLayoutKey);
@@ -205,7 +205,7 @@ namespace Tests.Generators.Kernel
         var shaderModule    = device.CreateShaderModule(_Move_GPU_Shader(), "Move"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Move"u8);
         
-        return device.CreateEffect(_Move_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Move_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Move_GPU_Shader() =>
