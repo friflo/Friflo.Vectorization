@@ -3,6 +3,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -75,10 +78,26 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     public ReadOnlyView<T>  In      => new (this, 0, Length);
     
     /// <summary> Creates a read-write view of a sub-region within this buffer. </summary>
-    public BufferView<T>    Slice     (int start, int length) => new (this, start, length);
+    public BufferView<T>    Slice     (int start, int length)
+    {
+        if (start >= 0 && length >= 0 && start + length <= Length)
+            return new BufferView<T>(this, start, length);
+        throw OutOfRangeException(start, length);
+    }
+
     /// <summary> Creates a read-only view of a sub-region within this buffer. </summary>
-    public ReadOnlyView<T>  AsReadOnly(int start, int length) => new (this, start, length);
+    public ReadOnlyView<T>  AsReadOnly(int start, int length)
+    {
+        if (start >= 0 && length >= 0 && start + length <= Length)
+            return new ReadOnlyView<T>(this, start, length);
+        throw OutOfRangeException(start, length);
+    }
     
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    private IndexOutOfRangeException OutOfRangeException(int start, int length) {
+        return new IndexOutOfRangeException($"Range: [{start}, {start + length}]  Length: {Length}  Buffer: {Label}");
+    }
+
 
     public BufferWriter<T>  GetWriter() {
         // optional check if buffer is ready for write access. E.g. fence state
