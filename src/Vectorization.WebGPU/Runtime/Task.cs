@@ -18,18 +18,19 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe class WgpuTask : GpuTask, IDisposable
 {
     private  readonly   WgpuDevice          device;
-    private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
-    internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
+    private             CommandEncoder*     currentEncoder;                 // GpuTask owns CommandEncoder* and ensures release
+    internal            ComputePassEncoder* currentPass;                    // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
-    private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
+    private readonly    nint[]              createdBindGroups = new nint[8]; // GpuTask owns all created BindGroup* and ensures release  
+    private             int                 createdBindGroupsCount;
     internal            CommandBuffer*      commandBuffer;
-    private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
+    private readonly    List<GpuTask>       dependencies = new();           // Tasks that MUST finish before this one starts
     
     private readonly    int                 taskIndex;
-    private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
-    private             uint                uniformOffset;             	// cursor in pool slice used as a ring buffer
-    private readonly    byte[]              stagingBuffer;              // CPU-cache for uniform buffer
+    private readonly    uint                uniformBase;                    // base position in pool slice - used as a ring buffer
+    private             uint                uniformOffset;             	    // cursor in pool slice used as a ring buffer
+    private readonly    byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
     private readonly    int                 slotSize;
     private readonly    Buffer*             globalUniformPool;
     
@@ -119,7 +120,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
                 entries     = &bindEntry
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            createdBindGroups.Add((nint)handle);
+            createdBindGroups[createdBindGroupsCount++] = (nint)handle;
             return new WgpuBindGroup(handle);
         }
     }
@@ -135,17 +136,17 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
                 entries     = nativeEntryPtr
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            createdBindGroups.Add((nint)handle);
+            createdBindGroups[createdBindGroupsCount++] = (nint)handle;
             return new WgpuBindGroup(handle);
         }
     }
     
     internal void Reset()
     {
-        foreach (var ptr in createdBindGroups) {
-            wgpuBindGroupRelease((BindGroup*)ptr);
+        for (int n = 0; n < createdBindGroupsCount; n++) {
+            wgpuBindGroupRelease((BindGroup*)createdBindGroups[n]);
         }
-        createdBindGroups.Clear();
+        createdBindGroupsCount = 0;
         
         var bufferHandler = commandBuffer;
         if (bufferHandler != null) {

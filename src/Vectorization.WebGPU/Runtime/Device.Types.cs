@@ -10,6 +10,29 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+internal struct TaskArray
+{
+    internal readonly   WgpuTask[]  tasks;
+    internal            int         count;
+    
+    internal TaskArray(int length) {
+        tasks = new WgpuTask[length];
+    }
+    
+    internal void Clear() {
+        count = 0;
+    }
+    
+    internal void Push(WgpuTask task) {
+        tasks[count++] = task;
+    }
+    
+    internal WgpuTask Pop() {
+        return tasks[--count];
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public unsafe struct WgpuEffect 
 {
     public   readonly   WgpuComputePipeline pipeline;

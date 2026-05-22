@@ -48,14 +48,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private             GCHandle            errorHandle;
         
     private  readonly   WgpuTask[]          taskPool;
-    private  readonly   Stack<WgpuTask>     availableTasks;
+    private             TaskArray           availableTasks;
     internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
     private  readonly   WgpuQueue           queue;
     
     private static      int                 effectSlotCount;
     private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
-    private             List<WgpuTask>      pendingTasks    = new(1024);
-    private             List<WgpuTask>      inFlightTasks   = new(1024);
+    private             TaskArray           pendingTasks;
+    private             TaskArray           inFlightTasks;
     private             GCHandle            deviceHandle;
     private readonly    void*               deviceHandlePtr;
     
@@ -128,7 +128,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public WgpuTask RentTask() {
-        lock (availableTasks) {
+        lock (availableTasks.tasks) {
             return availableTasks.Pop();
         }
     }
@@ -136,7 +136,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal void ReturnTask(WgpuTask task)
     {
         task.Reset();
-        lock (availableTasks) {
+        lock (availableTasks.tasks) {
             availableTasks.Push(task);
         }
     }
@@ -201,7 +201,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
         taskPool            = new WgpuTask[maxTasks];
-        availableTasks      = new Stack<WgpuTask>(maxTasks);
+        availableTasks      = new TaskArray(maxTasks);
+        pendingTasks        = new TaskArray(maxTasks);
+        inFlightTasks       = new TaskArray(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
             var task = new WgpuTask(this, i);
             taskPool[i] = task;
@@ -242,8 +244,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private void ReturnPendingTasks() {
          // Be ultra safe. DevicePoll() in Dispose(disposing) should already ensure HandleTasksFinished() is not fired anymore
         if (isDisposed) return; 
-        for (int i = 0; i < inFlightTasks.Count; i++) {
-            var task = inFlightTasks[i];
+        for (int i = 0; i < inFlightTasks.count; i++) {
+            var task = inFlightTasks.tasks[i];
             ReturnTask(task);
         }
         inFlightTasks.Clear();
@@ -252,8 +254,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Enqueue(WgpuTask task)
     {
-        pendingTasks.Add(task);
-        if (pendingTasks.Count >= 1024) { 
+        pendingTasks.Push(task);
+        if (pendingTasks.count >= 1024) { 
             Flush(); // ensure list does not grow unlimited
         }
     }
@@ -261,21 +263,21 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public override void Flush(bool wait = true)
     {
         var tasks = pendingTasks;
-        int count = tasks.Count;
+        int count = tasks.count;
         if (count == 0 && !wait) return;
         
         // Is previous batch already send?
-        while (inFlightTasks.Count > 0) {
+        while (inFlightTasks.count > 0) {
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         }
         var future = new Future();
         if (count > 0) {
             // Submit command buffers to queue
-            var commandBuffers = stackalloc CommandBuffer*[tasks.Count];
-            for (int n = 0; n < tasks.Count; n++) {
-                commandBuffers[n] = tasks[n].commandBuffer;
+            var commandBuffers = stackalloc CommandBuffer*[count];
+            for (int n = 0; n < count; n++) {
+                commandBuffers[n] = tasks.tasks[n].commandBuffer;
             }
-            wgpuQueueSubmit(queue.handle, (uint)tasks.Count, commandBuffers);
+            wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);
             
             // Swap list references
             var temp        = inFlightTasks;
@@ -292,7 +294,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
         // If deterministic result is required, wait until the current batch finishes
         if (wait) {
-            if  (future.id != 0 && inFlightTasks.Count > 0) {
+            if  (future.id != 0 && inFlightTasks.count > 0) {
                 var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
                 wgpuInstanceWaitAny(instance, 1, &waitInfo, uint.MaxValue);
                 wgpuInstanceProcessEvents(instance);
