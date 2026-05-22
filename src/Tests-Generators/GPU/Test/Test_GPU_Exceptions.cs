@@ -92,8 +92,10 @@ public class Test_GPU_Exceptions : GpuTestBase
     
     [Test]
     public void Test_GPU_Exceptions_conflicting_usages()
-    {
+    {        
         using var device    = Adapter.CreateDevice("device");
+        if (device.DefaultComputeMode != ComputeMode.GPU) return;
+        
         using var gpuWeight = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "gpuWeight");
         using var gpuOutput = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
         
