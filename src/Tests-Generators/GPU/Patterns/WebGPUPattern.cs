@@ -22,8 +22,8 @@ public static class WebGPUPattern
         in Buffer<float>    output_)
     {
         var device      = (WgpuDevice)buffers.device;
-        var input       = weight_.GpuBuffer;
-        var weight      = input_.GpuBuffer;
+        var input       = input_.GpuBuffer;
+        var weight      = weight_.GpuBuffer;
         var output      = output_.GpuBuffer;
         output ??= device.RentBuffer<float>(buffers.length);
         using var task  = device.RentTask();
