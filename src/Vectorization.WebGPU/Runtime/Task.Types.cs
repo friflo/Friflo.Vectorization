@@ -14,6 +14,13 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+[InlineArray(4)] // generator creates only 2 bind groups
+internal struct BindGroups
+{
+    private nint _element0;
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuEncoder
 {
     private  readonly   WgpuTask        task;

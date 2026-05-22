@@ -21,7 +21,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     internal            ComputePassEncoder* currentPass;                    // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
-    private readonly    nint[]              createdBindGroups = new nint[8]; // GpuTask owns all created BindGroup* and ensures release  
+    private             BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
     private             int                 createdBindGroupsCount;
     internal            CommandBuffer*      commandBuffer;
     private             GpuTask[]           dependencies = new GpuTask[4];  // Tasks that MUST finish before this one starts
