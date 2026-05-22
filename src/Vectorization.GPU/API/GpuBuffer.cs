@@ -34,6 +34,7 @@ public abstract class GpuBuffer : IDisposable
 public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 {
     public ReadOnlyView<T>  In { get; }
+    public ReadOnlyView<T>  AsReadOnly(int start, int length);
 }
 
 

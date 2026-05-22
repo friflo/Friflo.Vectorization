@@ -44,7 +44,8 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
     // --- GPU buffers
     public static implicit operator Buffer<T>(BufferView<T> view)       => new(view);
-    // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer); intentionally not available
+    
+    // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer);      intentionally not available
 }
 
 /// <summary> Specify a read-only buffer for a Kernel method as input parameter </summary>
@@ -85,7 +86,6 @@ public readonly ref struct InBuffer<T> where T : unmanaged
         Length      = view.Length;
     }
     
-    // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available
     
     // --- CPU buffers
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
@@ -94,7 +94,8 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public static implicit operator InBuffer<T>(ReadOnlyView<T>   view)       => new(view);
     public static implicit operator InBuffer<T>(BufferView<T>     view)       => new(view); // read/write buffer also allowed
     
-    // public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer); intentionally not available
+    // public static implicit operator InBuffer<T>      (GpuBuffer<T> gpuBuffer);   intentionally not available
+    // public static implicit operator ReadOnlyBuffer<T>(T[] array));               intentionally not available
 }
 
 internal static class BufferUtils
