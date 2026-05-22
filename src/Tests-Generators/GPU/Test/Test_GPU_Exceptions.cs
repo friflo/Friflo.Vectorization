@@ -34,11 +34,11 @@ public class Test_GPU_Exceptions : GpuTestBase
         StringAssert.EndsWith  ("): Alive",   gpuWeight.ToString());
         Assert.IsFalse(gpuWeight.IsDisposed);
 
-        {   // Scope important to Dispose() result (=output)
-            using var result = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
-        } {
+        { 
+            var gpuOutput2   = device1.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput2");
+            gpuOutput2.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+                GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
@@ -54,21 +54,14 @@ public class Test_GPU_Exceptions : GpuTestBase
             });
             StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
         } {
-            using var gpuOutput1 = device1.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuOutput1");
-            device1.Dispose();
-            var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput1.InOut);
-            });
-            StringAssert.StartsWith("Archaeological Error:", e!.Message!);
-        } {
-            var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.ShadowMethod(weight, gpuInput.In, 42, output);
-            });
-            StringAssert.StartsWith("Identity Crisis:", e!.Message!);
-        } {
             using var gpuWeight2 = device2.CreateBuffer(weight, GpuBufferUsage.Storage, "gpuWeight2"); 
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight2.In, input, 42, output);
+            });
+            StringAssert.StartsWith("Identity Crisis:", e!.Message!);
+        }  {
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(weight, gpuInput.In, 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         } {
@@ -81,6 +74,17 @@ public class Test_GPU_Exceptions : GpuTestBase
             StringAssert.StartsWith("The Ghost Orchestra: ", e!.Message!);
         }
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
+        GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
+        
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.InOut, 42, gpuOutput.InOut);
+        {
+            using var gpuOutput1 = device1.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuOutput1");
+            device1.Dispose();
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+            });
+            StringAssert.StartsWith("Archaeological Error:", e!.Message!);
+        }
     }
     
     

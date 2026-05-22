@@ -7,6 +7,11 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+/// <summary> Used to specify read-write buffers as input/output parameter </summary>
+/// <remarks>
+/// Generic types that can be converted into an input/output parameter are:<br/>
+/// <see cref="BufferView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
+/// </remarks>
 public readonly ref struct Buffer<T> where T : unmanaged
 {
     public  readonly    Span<T>         Span;
@@ -31,12 +36,6 @@ public readonly ref struct Buffer<T> where T : unmanaged
         Length      = view.Length;
     }
     
-    private Buffer(GpuBuffer<T> gpuBuffer) {
-        GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.hostMemory.Span;
-        Length      = gpuBuffer.Length;
-    }
-    
     // --- CPU buffers
     public static implicit operator Buffer<T>(T[]           array)      => new(array);
     public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
@@ -46,6 +45,11 @@ public readonly ref struct Buffer<T> where T : unmanaged
     // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer); intentionally not available
 }
 
+/// <summary> Used to specify read-only buffers as input parameter </summary>
+/// <remarks>
+/// Generic types that can be converted into an input parameter are:<br/>
+/// <see cref="ReadOnlyView{T}"/>, <see cref="BufferView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
+/// </remarks>
 public readonly ref struct InBuffer<T> where T : unmanaged
 {
     public  readonly    ReadOnlySpan<T> Span;
@@ -70,10 +74,11 @@ public readonly ref struct InBuffer<T> where T : unmanaged
         Length      = view.Length;
     }
     
-    private InBuffer(GpuBuffer<T> gpuBuffer) {
-        GpuBuffer   = gpuBuffer;
-        Span        = gpuBuffer.hostMemory.Span;
-        Length      = gpuBuffer.Length;
+    private InBuffer(BufferView<T> view) {
+        GpuBuffer   = view.gpuBuffer;
+        Span        = view.Span;
+        Offset      = view.Offset;
+        Length      = view.Length;
     }
     
     // public static implicit operator ReadOnlyBuffer<T>(T[] array)  new(array); intentionally not available
@@ -83,6 +88,8 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
     // --- GPU buffers
     public static implicit operator InBuffer<T>(ReadOnlyView<T>   view)       => new(view);
+    public static implicit operator InBuffer<T>(BufferView<T>     view)       => new(view); // read/write buffer also allowed
+    
     // public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer); intentionally not available
 }
 
