@@ -122,9 +122,9 @@ namespace VerifyVectorize
         var encoder = task.GetEncoder("MoveExample"u8);
         using (var pass = encoder.BeginComputePass("MoveExample"u8))
         {
-            var effect = device.GetEffect(_MoveExample_GPU_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_MoveExample_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
-                effect = _MoveExample_GPU_CreateEffect(device);
+                effect = ref _MoveExample_GPU_CreateEffect(device);
             }
             pass.SetPipeline(effect.pipeline);
             
@@ -174,7 +174,7 @@ namespace VerifyVectorize
     private const ulong         _MoveExample_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_MoveExample_GPU_BufferLayoutKey);
@@ -193,7 +193,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
-        return device.CreateEffect(_MoveExample_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_MoveExample_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>
