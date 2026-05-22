@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -25,7 +24,8 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     private readonly    nint[]              createdBindGroups = new nint[8]; // GpuTask owns all created BindGroup* and ensures release  
     private             int                 createdBindGroupsCount;
     internal            CommandBuffer*      commandBuffer;
-    private readonly    List<GpuTask>       dependencies = new();           // Tasks that MUST finish before this one starts
+    private             GpuTask[]           dependencies = new GpuTask[4];  // Tasks that MUST finish before this one starts
+    private             int                 dependenciesCount;
     
     private readonly    int                 taskIndex;
     private readonly    uint                uniformBase;                    // base position in pool slice - used as a ring buffer
@@ -162,7 +162,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         IsCompleted 	= false;
         IsSubmitted 	= false;
         
-        dependencies.Clear();
+        dependenciesCount = 0;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -174,9 +174,15 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     private void AddDependency(GpuTask predecessor)
     {
         if (predecessor == this) return; // Prevent brain-loop
-        if (!dependencies.Contains(predecessor))
+        var count = dependenciesCount;
+        if (Array.IndexOf(dependencies, predecessor, 0, count) == -1)
         {
-            dependencies.Add(predecessor);
+            if (count == dependencies.Length) {
+                var newDependencies = new GpuTask[2 * count];
+                Array.Copy(dependencies, 0, newDependencies, 0, count);
+                dependencies = newDependencies;
+            }
+            dependencies[dependenciesCount++] = predecessor;
         }
     }
 
