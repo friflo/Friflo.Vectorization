@@ -475,14 +475,16 @@ public sealed unsafe class WgpuDevice : GpuDevice
         fixed (byte*                pEntryPoint = entryPoint)
         fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
         {
+            var label = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint);
             var layoutDesc = new PipelineLayoutDescriptor {
-                label                   = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint),
+                label                   = label,
                 bindGroupLayoutCount    = 2,
                 bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             try {
                 var computeDesc = new ComputePipelineDescriptor {
+                    label       = label,
                     layout      = pipelineLayout,
                     compute     = new ComputeState {	// was: new ProgrammableStageDescriptor
                         module      = module.handle,
