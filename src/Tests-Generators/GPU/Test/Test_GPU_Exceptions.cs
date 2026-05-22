@@ -76,7 +76,9 @@ public class Test_GPU_Exceptions : GpuTestBase
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.InOut, 42, gpuOutput.InOut);
+        using var gpuOutput3   = device1.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput3");
+         // gpuOutput3.InOut can also be used for InBuffer<float> parameter
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
         {
             using var gpuOutput1 = device1.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuOutput1");
             device1.Dispose();

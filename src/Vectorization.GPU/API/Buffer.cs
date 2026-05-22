@@ -7,7 +7,7 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-/// <summary> Used to specify read-write buffers as input/output parameter </summary>
+/// <summary> Specify a read-write buffer for a Kernel method as input/output parameter </summary>
 /// <remarks>
 /// Generic types that can be converted into an input/output parameter are:<br/>
 /// <see cref="BufferView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
@@ -18,6 +18,8 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public  readonly    GpuBuffer<T>    GpuBuffer;
     public  readonly    int             Length;
     public  readonly    int             Offset;
+    
+    public  override    string          ToString() => BufferUtils.ToString(GpuBuffer, "Span");
     
     private Buffer(Span<T> span) {
         Span        = span;
@@ -45,7 +47,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer)  => new(gpuBuffer); intentionally not available
 }
 
-/// <summary> Used to specify read-only buffers as input parameter </summary>
+/// <summary> Specify a read-only buffer for a Kernel method as input parameter </summary>
 /// <remarks>
 /// Generic types that can be converted into an input parameter are:<br/>
 /// <see cref="ReadOnlyView{T}"/>, <see cref="BufferView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
@@ -56,7 +58,9 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public  readonly    GpuBuffer<T>    GpuBuffer;
     public  readonly    int             Length;
     public  readonly    int             Offset;
-    
+
+    public  override    string          ToString() => BufferUtils.ToString(GpuBuffer, "ReadOnlySpan");
+
     private InBuffer(ReadOnlySpan<T> span) {
         Span        = span;
         Length      = span.Length;
@@ -91,6 +95,31 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public static implicit operator InBuffer<T>(BufferView<T>     view)       => new(view); // read/write buffer also allowed
     
     // public static implicit operator InBuffer<T>(GpuBuffer<T>      gpuBuffer)  => new(gpuBuffer); intentionally not available
+}
+
+internal static class BufferUtils
+{
+    internal static string ToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
+    {
+        TypeCode typeCode = Type.GetTypeCode(typeof(T));
+        var typeName = typeCode switch {
+            TypeCode.Boolean    => "bool",
+            TypeCode.Char       => "char",
+            TypeCode.SByte      => "sbyte",
+            TypeCode.Byte       => "byte",
+            TypeCode.Int16      => "short",
+            TypeCode.UInt16     => "ushort",
+            TypeCode.Int32      => "int",
+            TypeCode.UInt32     => "uint",
+            TypeCode.Int64      => "long",
+            TypeCode.UInt64     => "ulong",
+            TypeCode.Single     => "float",
+            TypeCode.Double     => "double",
+            TypeCode.Decimal    => "decimal",
+            _                   => typeof(T).Name
+        };
+        return gpuBuffer != null ? $"GpuBuffer<{typeName}> '{gpuBuffer.Label}'" : $"{spanType}<{typeName}>";
+    }
 }
 
 
