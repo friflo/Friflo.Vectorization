@@ -45,7 +45,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
     }
 
     internal WgpuBuffer(WgpuDevice device, Buffer* buffer, Memory<T> hostMemory, string bufferLabel)
-        : base(hostMemory, bufferLabel)
+        : base(hostMemory, bufferLabel, (nint)buffer)
     {
         this.device = device;
         SizeInBytes = (uint)(Length * Unsafe.SizeOf<T>());

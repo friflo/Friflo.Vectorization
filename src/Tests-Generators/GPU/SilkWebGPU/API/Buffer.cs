@@ -46,7 +46,7 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
     }
 
     internal SilkBuffer(SilkDevice device, Buffer* buffer, Memory<T> hostMemory, string bufferLabel)
-        : base(hostMemory, bufferLabel)
+        : base(hostMemory, bufferLabel, (nint)buffer)
     {
         this.device = device;
         wgpu        = device.wgpu;

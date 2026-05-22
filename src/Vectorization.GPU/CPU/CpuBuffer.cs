@@ -16,7 +16,7 @@ internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
  
     
     internal CpuBuffer(CpuDevice device, Memory<T> hostMemory, string label)
-        : base(hostMemory, label)
+        : base(hostMemory, label, 0)
     {
         this.device = device;
     }
