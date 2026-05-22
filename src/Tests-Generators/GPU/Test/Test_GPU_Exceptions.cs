@@ -99,7 +99,7 @@ public class Test_GPU_Exceptions : GpuTestBase
         
         var e = Assert.Throws<WgpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error
-            GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.InOut, 42, gpuOutput.InOut);
+            GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
         })!;
         StringAssert.Contains("gpuOutput",          e.Message);
         StringAssert.Contains("conflicting usages", e.Message);
