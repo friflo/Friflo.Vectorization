@@ -73,7 +73,7 @@ internal unsafe struct BufferData
     internal readonly   int                 elementSize;
     internal readonly   int                 length;
     internal readonly   Buffer*             storageHandle;
-    internal readonly   Buffer*             stagingHandle;
+    internal            Buffer*             stagingHandle;
     internal            List<BufferRange>   requestedRanges;
     
     internal BufferData(IWgpuBuffer wgpu, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {

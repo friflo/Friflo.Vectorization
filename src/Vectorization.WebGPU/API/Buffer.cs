@@ -23,12 +23,11 @@ internal unsafe interface IWgpuBuffer {
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
 {
-    internal            Buffer*             handle { get; private set; }
-    private             WgpuDevice          device { get; set; }
-    private  readonly   uint                SizeInBytes;    
-    private  readonly   BufferData          data;
-
-
+    internal            Buffer*     handle { get; private set; }
+    private             WgpuDevice  device { get; set; }
+    private  readonly   uint        SizeInBytes;    
+    private             BufferData  data;
+    // --- GpuBuffer
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
     
@@ -52,8 +51,10 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     {
         if (handle == null) return;
         wgpuBufferRelease(handle);
+        wgpuBufferRelease(data.stagingHandle);
         handle = null;
         device = null;
+        data.stagingHandle = null;
     }
 
     internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int bufferId, Buffer* statingHandle, Memory<T> hostMemory, string bufferLabel)

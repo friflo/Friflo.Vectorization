@@ -400,7 +400,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private Buffer* CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
     {
-        return null;
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
@@ -448,9 +447,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage       = FromGpuBufferUsage(usage);
-        var sizeInBytes     = length * Unsafe.SizeOf<T>();
-        var buffer          = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        var stagingHandle   = CreateStagingBuffer((uint)sizeInBytes, bufferLabel);
+        var sizeInBytes     = (uint)(length * Unsafe.SizeOf<T>());
+        var buffer          = CreateBuffer(sizeInBytes, wgpuUsage, bufferLabel);
+        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
         var array           = new T[length];
         var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferEntries.Count, stagingHandle, array, bufferLabel);
         bufferEntries.Add(new BufferEntry(gpuBuffer));
@@ -460,9 +459,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
     {
         var wgpuUsage       = FromGpuBufferUsage(usage);
-        var sizeInBytes     = data.Length * Unsafe.SizeOf<T>();
+        var sizeInBytes     = (uint)(data.Length * Unsafe.SizeOf<T>());
         var handle          = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        var stagingHandle   = CreateStagingBuffer((uint)sizeInBytes, bufferLabel);
+        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
         var gpuBuffer       = new WgpuBuffer<T>(this, handle, bufferEntries.Count, stagingHandle, data, bufferLabel);
         bufferEntries.Add(new BufferEntry(gpuBuffer));
         return gpuBuffer;
