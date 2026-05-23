@@ -522,25 +522,18 @@ public sealed unsafe class WgpuDevice : GpuDevice
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             
             // simply map the whole memory instead of the smaller ranges
-            /* wgpuBufferMapAsync(     TODO implement callback
-                buffer.stagingHandle, 
-                MapMode.Read,
-                0,
-                totalBufferSizeInBytes,
-                (status, userdata) => {
-                    // Dieser Callback läuft auf dem Thread, der wgpuDeviceTick aufruft
-                    Interlocked.Decrement(ref remainingMaps);
-                }, 
-                null
-            ); */
+            var callbackInfo = new BufferMapCallbackInfo {
+                mode        = CallbackMode.AllowProcessEvents,
+                callback    = &BufferMap_callback,
+                userdata1   = &remainingMaps
+            };
+            wgpuBufferMapAsync(buffer.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
         }
-
         // the only single CPU-Stall: wait until all buffers are mapped
         while (Thread.VolatileRead(ref remainingMaps) > 0) {
             // wgpuDeviceTick(NativePtr);
             wgpuInstanceProcessEvents(instance);
         }
-
         // direct CPU -> CPU transfer staging memory -> host memory
         foreach (var buffer in activeBuffers)
         {
@@ -551,6 +544,13 @@ public sealed unsafe class WgpuDevice : GpuDevice
             buffer.requestedRanges.Clear();
         }
         activeBuffers.Clear();
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    internal static void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+        if (userdata1== null) return;
+        var remainingMaps = (int*)userdata1;
+        Interlocked.Decrement(ref *remainingMaps);
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
