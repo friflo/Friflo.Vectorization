@@ -8,7 +8,7 @@ using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.Intrinsics;
 // ReSharper disable InconsistentNaming
 
-namespace Kernel.Tests;
+namespace Kernel.Lab;
 
 public  static class GpuPattern
 {

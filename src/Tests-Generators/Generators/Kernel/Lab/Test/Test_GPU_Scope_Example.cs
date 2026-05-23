@@ -2,7 +2,7 @@
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable InconsistentNaming
-namespace Kernel.Tests;
+namespace Kernel.Lab;
 
 public static class Test_GPU_Scope_Example
 {

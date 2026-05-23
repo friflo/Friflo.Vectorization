@@ -8,7 +8,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
-namespace Kernel.Tests;
+namespace Kernel.Lab;
 
 public static class WebGPUPattern
 {

@@ -9,7 +9,7 @@ using Silk.NET.WebGPU;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
-namespace Kernel.Tests;
+namespace Kernel.Lab;
 
 public static class SilkPattern
 {

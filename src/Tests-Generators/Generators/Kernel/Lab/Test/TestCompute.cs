@@ -5,7 +5,7 @@ using NUnit.Framework;
 using Tests.Utils;
 
 // ReSharper disable InconsistentNaming
-namespace Kernel.Tests;
+namespace Kernel.Lab;
 
 public class TestCompute : KernelBase
 {
