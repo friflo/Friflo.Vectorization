@@ -141,25 +141,19 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     
     void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> requestedRanges)
     {
-        uint totalByteSize = (uint)(Length * data.elementSize);
-        Span<byte> gpuSourceSpan = new Span<byte>(pMapped, (int)totalByteSize);
+        ReadOnlySpan<T> gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
+        Span<T>         hostTargetSpan  = hostMemory.Span;
 
-        // 2. Das C#-HostMemory des Users ebenfalls als Byte-Span greifen
-        Span<byte> hostDestinationSpan = MemoryMarshal.AsBytes(hostMemory.Span);
-
-        // 3. Über alle ursprünglich angemeldeten (unoptimierten) Lese-Anfragen iterieren
+        // iterate unoptimized requested ranges
         foreach (var request in requestedRanges)
         {
-            // Wir berechnen die exakten Byte-Offsets für diese spezifische Anfrage
-            int byteOffset  = request.start  * data.elementSize;
-            int byteSize    = request.length * data.elementSize;
+            int start   = request.start;
+            int length  = request.length;
 
-            // Sub-Spans für die punktgenaue Kopie herausschneiden
-            ReadOnlySpan<byte> sourceSlice = gpuSourceSpan.Slice(byteOffset, byteSize);
-            Span<byte> destinationSlice = hostDestinationSpan.Slice(byteOffset, byteSize);
+            ReadOnlySpan<T>  sourceSlice = gpuSourceSpan.Slice (start, length);
+            Span<T>          targetSlice = hostTargetSpan.Slice(start, length);
 
-            // Der eigentliche, ultraschnelle CPU-zu-CPU Transfer (entspricht memmove/memcpy)
-            sourceSlice.CopyTo(destinationSlice);
+            sourceSlice.CopyTo(targetSlice);
         }
     }
 }

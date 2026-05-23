@@ -14,7 +14,9 @@ internal readonly struct BufferRange : IComparable<BufferRange>
     internal readonly int bufferId;
     internal readonly int start;
     internal readonly int length;
-    
+
+    public override string ToString() => $"bufferI: {bufferId}  start: {start}:  length={length}";
+
     public int CompareTo(BufferRange other) => start.CompareTo(other.start);
 
     internal BufferRange(int bufferId, int start, int length)
