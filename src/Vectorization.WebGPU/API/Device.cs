@@ -470,8 +470,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private readonly    List<BufferRange>   tempRanges    = new();
     private readonly    List<BufferData>    activeBuffers = new ();
     
-    public void Download()
+    public override void Download()
     {
+        return;
         for (int n = 0; n < pendingTasks.count; n++) {
             var task = pendingTasks.tasks[n];
             foreach (var range in task.requestedRanges) {

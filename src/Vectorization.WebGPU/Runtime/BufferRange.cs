@@ -17,7 +17,7 @@ internal readonly struct BufferRange : IComparable<BufferRange>
     
     public int CompareTo(BufferRange other) => start.CompareTo(other.start);
 
-    private BufferRange(int bufferId, int start, int length)
+    internal BufferRange(int bufferId, int start, int length)
     {
         this.bufferId   = bufferId;
         this.start      = start;

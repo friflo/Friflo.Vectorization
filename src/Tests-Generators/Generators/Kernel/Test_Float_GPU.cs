@@ -97,6 +97,8 @@ public partial class Test_Float_GPU : KernelBase
         
         Device.Wait(gpuDst);
         
+        Device.Download();
+        
         gpuDst.Download(gpuDst, buffer1);
         
         for (int n = 0; n < 10; n++) {

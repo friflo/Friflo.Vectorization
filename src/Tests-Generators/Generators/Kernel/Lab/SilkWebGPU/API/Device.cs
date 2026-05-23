@@ -305,6 +305,8 @@ public sealed unsafe class SilkDevice : GpuDevice
             Poll(wait: true); 
         }
     }
+    
+    public override void Download() { }
         
     public override void SubmitGraph(GpuTask finalTask)
     {

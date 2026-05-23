@@ -45,6 +45,8 @@ internal sealed class CpuDevice : GpuDevice
     public override void Flush(bool wait = true) { }
 
     public override void Wait<T>(GpuBuffer<T> buffer) { }
+    
+    public override void Download() { }
 
     public override void SubmitGraph(GpuTask finalTask) { }
 }
