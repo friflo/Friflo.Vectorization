@@ -14,7 +14,7 @@ public static class WebGPUPattern
 {
     // generated GPU method
     [SkipLocalsInit]
-    internal static GpuBuffer<float> ShadowMethod_GPU(
+    internal static void ShadowMethod_GPU(
         in GpuBuffers       buffers,
         in InBuffer<float>  weight_,
         in InBuffer<float>  input_,
@@ -25,7 +25,7 @@ public static class WebGPUPattern
         var input       = input_.GpuBuffer;
         var weight      = weight_.GpuBuffer;
         var output      = output_.GpuBuffer;
-        output ??= device.RentBuffer<float>(buffers.length);
+        
         using var task  = device.RentTask();
 
         // Dependencies from inputs (out not Output!)
@@ -72,7 +72,6 @@ public static class WebGPUPattern
         device.Enqueue(task);                       // queues CommandBuffer only. No Submit().
 
         output.WaitInDebug();
-        return output;
     }
     
     private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();

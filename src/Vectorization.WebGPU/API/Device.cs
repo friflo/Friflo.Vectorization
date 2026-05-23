@@ -141,11 +141,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
     
-    public GpuBuffer<T> RentBuffer<T>(int inputLength) where T : unmanaged
-    {
-        throw new NotImplementedException();
-    }
-    
+ 
     // --- effectSlots
     // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int
     public static int NewEffectSlot() => Interlocked.Increment(ref effectSlotCount);

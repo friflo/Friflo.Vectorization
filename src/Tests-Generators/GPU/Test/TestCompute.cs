@@ -20,7 +20,7 @@ public class TestCompute : GpuTestBase
         
         UseSpan(weight);
         
-        var result1 = GpuPattern.ShadowMethod(weight, input, 42, output, ComputeMode.SIMD);
+        GpuPattern.ShadowMethod(weight, input, 42, output, ComputeMode.SIMD);
         // result1 - no Wait() on result1. Nothing will happen - user is surprised :)
         
     //  UseSpan(weight); // compiler error
@@ -29,8 +29,8 @@ public class TestCompute : GpuTestBase
         var gpuWeight = device.CreateBuffer<float>(100, GpuBufferUsage.None, "weight");
         var gpuInput  = device.CreateBuffer<float>(100, GpuBufferUsage.None, "input");
         var output2   = device.CreateBuffer<float>(100, GpuBufferUsage.None, "output2");
-        var result2 = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
-        device.Wait(result2);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
+        device.Wait(output2);
     }
     
     public class ModelLayer {
@@ -42,12 +42,12 @@ public class TestCompute : GpuTestBase
     public static void RunInference(ModelLayer[] layers, GpuDevice device)
     {
         // Fire Layer 1 to 50
-        GpuBuffer<float> result = null;
+
         foreach (var layer in layers) {
-            result = GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output.InOut);
+            GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
         // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
-        device.Wait(result);
+        device.Wait(layers[0].output);
     }
     
 
@@ -107,11 +107,11 @@ public class TestCompute : GpuTestBase
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Mem.AssertNoAlloc(start3);
 
-        using var result = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         
-        device.Wait(result);
+        device.Wait(gpuOutput);
         
-        gpuOutput.Download(result, output);
+        gpuOutput.Download(gpuOutput, output);
         Assert.AreEqual(42, output[0]);
     }
     

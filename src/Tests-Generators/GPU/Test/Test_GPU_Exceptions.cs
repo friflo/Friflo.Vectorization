@@ -126,12 +126,11 @@ public class Test_GPU_Exceptions : GpuTestBase
             using var gpuInput    = device.CreateBuffer(input,  GpuBufferUsage.Storage, "gpuInput");
             using var gpuOutput   = device.CreateBuffer(output, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
             
-            GpuBuffer<float> result = null;
             for (int n = 0; n < 5; ++n) {
-                result = GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+                GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
                 Console.WriteLine(HandleDiff.GetState());
             }
-            device.Wait(result);
+            device.Wait(gpuOutput);
         }
         Console.WriteLine(HandleDiff.GetState());
     }

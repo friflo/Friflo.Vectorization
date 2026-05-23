@@ -22,7 +22,7 @@ public  static class GpuPattern
         output = weight * input + bias;
     }
     // generated shadow Method
-    public static GpuBuffer<float> ShadowMethod(
+    public static void ShadowMethod(
       InBuffer<float>   weight,
       InBuffer<float>   input,
         float           bias,
@@ -36,12 +36,11 @@ public  static class GpuPattern
 
         if (buffers.ComputeGPU) {
             switch (GpuTestGlobal.TestBackend) {
-                case TestBackend.WebGPU:    return WebGPUPattern.ShadowMethod_GPU(buffers, weight, input, bias, output);
-                case TestBackend.Silk:      return SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);
+                case TestBackend.WebGPU:    WebGPUPattern.ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
+                case TestBackend.Silk:      SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
             }
         }
         MultiplyAddVector_gen(weight.Span, input.Span, bias, output.Span, buffers.ComputeSIMD);
-        return output.GpuBuffer;
     }
     
     // generated AVX method
