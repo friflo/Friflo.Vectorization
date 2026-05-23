@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -27,12 +28,13 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     private             GpuTask[]           dependencies = new GpuTask[4];  // Tasks that MUST finish before this one starts
     private             int                 dependenciesCount;
     
-    private readonly    int                 taskIndex;
-    private readonly    uint                uniformBase;                    // base position in pool slice - used as a ring buffer
+    private  readonly   int                 taskIndex;
+    private  readonly   uint                uniformBase;                    // base position in pool slice - used as a ring buffer
     private             uint                uniformOffset;             	    // cursor in pool slice used as a ring buffer
-    private readonly    byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
-    private readonly    int                 slotSize;
-    private readonly    Buffer*             globalUniformPool;
+    private  readonly   byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
+    private  readonly   int                 slotSize;
+    private  readonly   Buffer*             globalUniformPool;
+    internal readonly   List<BufferRange>   requestedRanges = new();
     
     
     // A simple state flag for the scheduler

@@ -11,6 +11,8 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
@@ -61,6 +63,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
+    private readonly    List<BufferEntry>   bufferEntries = new ();
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
@@ -395,6 +398,26 @@ public sealed unsafe class WgpuDevice : GpuDevice
         return buffer;
     }
     
+    private Buffer* CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
+    {
+        return null;
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        
+        var desc = new BufferDescriptor {
+            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
+            size            = size,
+            usage           = (ulong)(BufferUsage.CopyDst | BufferUsage.MapRead),
+            mappedAtCreation = WgpuUtils.FromBool(false)
+        };
+        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
+        if (buffer == null) {
+            throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
+        }
+        return buffer;
+    }
+    
     private static BufferUsage FromGpuBufferUsage(GpuBufferUsage usage)
     {
         return
@@ -424,18 +447,110 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
     {
-        var wgpuUsage   = FromGpuBufferUsage(usage);
-        var sizeInBytes = length * Unsafe.SizeOf<T>();
-        var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        var array       = new T[length];
-        return new WgpuBuffer<T>(this, buffer, array, bufferLabel);
+        var wgpuUsage       = FromGpuBufferUsage(usage);
+        var sizeInBytes     = length * Unsafe.SizeOf<T>();
+        var buffer          = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
+        var stagingHandle   = CreateStagingBuffer((uint)sizeInBytes, bufferLabel);
+        var array           = new T[length];
+        var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferEntries.Count, stagingHandle, array, bufferLabel);
+        bufferEntries.Add(new BufferEntry(gpuBuffer));
+        return gpuBuffer;
     }
     
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
     {
-        var wgpuUsage   = FromGpuBufferUsage(usage);
-        var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        return new WgpuBuffer<T>(this, handle, data, bufferLabel);
+        var wgpuUsage       = FromGpuBufferUsage(usage);
+        var sizeInBytes     = data.Length * Unsafe.SizeOf<T>();
+        var handle          = CreateBufferWithData(data, wgpuUsage, bufferLabel);
+        var stagingHandle   = CreateStagingBuffer((uint)sizeInBytes, bufferLabel);
+        var gpuBuffer       = new WgpuBuffer<T>(this, handle, bufferEntries.Count, stagingHandle, data, bufferLabel);
+        bufferEntries.Add(new BufferEntry(gpuBuffer));
+        return gpuBuffer;
+    }
+    
+    private readonly    List<BufferRange>   tempRanges    = new();
+    private readonly    List<BufferData>    activeBuffers = new ();
+    
+    public void Download()
+    {
+        for (int n = 0; n < pendingTasks.count; n++) {
+            var task = pendingTasks.tasks[n];
+            foreach (var range in task.requestedRanges) {
+                bufferEntries[range.bufferId].requestedRanges.Add(range);
+            }
+        }
+        var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, null);
+        activeBuffers.Clear();
+
+        foreach (var bufferEntry in bufferEntries)
+        {
+            if (bufferEntry.requestedRanges.Count == 0) {
+                continue;
+            }
+            var buffer              = bufferEntry.wgpuBuffer.GetBufferData();
+            buffer.requestedRanges  = bufferEntry.requestedRanges;
+            activeBuffers.Add(buffer);
+
+            var  optimizedRanges = BufferRange.GetOptimizedRanges(bufferEntry.requestedRanges, tempRanges);
+            uint elementSize     = (uint)buffer.elementSize;
+            foreach (var range in optimizedRanges)
+            {
+                uint byteOffset = (uint)range.Start  * elementSize;
+                uint byteSize   = (uint)range.Length * elementSize;
+
+                // GPU internal copy from fast compute memory in persistent stating buffer
+                wgpuCommandEncoderCopyBufferToBuffer(
+                    encoder,
+                    buffer.storageHandle,   // source: GPU Storage [Storage]
+                    byteOffset,
+                    buffer.stagingHandle,   // target: persistant Readback [MapRead]
+                    byteOffset,
+                    byteSize
+                );
+            }
+        }
+
+        // finish commands and send to GOU queue
+        var commandBuffer = wgpuCommandEncoderFinish(encoder, null);
+        wgpuQueueSubmit(QueuePtr, 1, &commandBuffer);
+        wgpuCommandEncoderRelease(encoder);
+
+        int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
+        
+        foreach (var buffer in activeBuffers)
+        {
+            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
+            
+            // simply map the whole memory instead of the smaller ranges
+            /* wgpuBufferMapAsync(     TODO implement callback
+                buffer.stagingHandle, 
+                MapMode.Read,
+                0,
+                totalBufferSizeInBytes,
+                (status, userdata) => {
+                    // Dieser Callback läuft auf dem Thread, der wgpuDeviceTick aufruft
+                    Interlocked.Decrement(ref remainingMaps);
+                }, 
+                null
+            ); */
+        }
+
+        // the only single CPU-Stall: wait until all buffers are mapped
+        while (Thread.VolatileRead(ref remainingMaps) > 0) {
+            // wgpuDeviceTick(NativePtr);
+            wgpuInstanceProcessEvents(instance);
+        }
+
+        // direct CPU -> CPU transfer staging memory -> host memory
+        foreach (var buffer in activeBuffers)
+        {
+            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
+            void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
+            buffer.wgpu.ExecuteCpuCopy(pMapped, buffer.requestedRanges);    // copy staging memory to host memory
+            wgpuBufferUnmap(buffer.stagingHandle);                          // unmap so CPU is able to access
+            buffer.requestedRanges.Clear();
+        }
+        activeBuffers.Clear();
     }
 
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

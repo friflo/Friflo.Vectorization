@@ -10,19 +10,23 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
 
+internal unsafe interface IWgpuBuffer {
+    internal    BufferData  GetBufferData();
+    internal void ExecuteCpuCopy(void* pMapped, List<BufferRange> bufferRanges);
+}
 
-public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
+public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
 {
-    internal            Buffer*         handle { get; private set; }
-    private             WgpuDevice      device { get; set; }
-    private  readonly   uint            SizeInBytes;
-    private  readonly   List<SubRange>  requestedRanges = new();
-    private  readonly   List<SubRange>  optimizedRanges = new();
+    internal            Buffer*             handle { get; private set; }
+    private             WgpuDevice          device { get; set; }
+    private  readonly   uint                SizeInBytes;    
+    private  readonly   BufferData          data;
 
 
     public    override  GpuDevice   Device      => device;
@@ -30,8 +34,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
     
     public void SetLastWritingTask(GpuTask task, in Buffer<T> buffer)
     {
-        LastWritingTask = task;
-        // requestedRanges.Add(new SubRange(buffer.Offset, buffer.Length));
+        LastWritingTask     = task;
+        // ((WgpuTask)task).requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
     }
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
@@ -52,12 +56,13 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, Memory<T> hostMemory, string bufferLabel)
-        : base(hostMemory, bufferLabel, (nint)buffer)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int bufferId, Buffer* statingHandle, Memory<T> hostMemory, string bufferLabel)
+        : base(hostMemory, bufferLabel, (nint)buffer, bufferId)
     {
-        this.device = device;
-        SizeInBytes = (uint)(Length * Unsafe.SizeOf<T>());
-        handle      = buffer;
+        this.device     = device;
+        SizeInBytes     = (uint)(Length * Unsafe.SizeOf<T>());
+        handle          = buffer;
+        data            = new BufferData(this, Marshal.SizeOf<T>(), Length, handle, statingHandle);
     }
     
     public T this[int index]
@@ -128,6 +133,33 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         wgpuBufferUnmap(readBuffer);
         wgpuBufferDestroy(readBuffer);
         wgpuBufferRelease(readBuffer);
+    }
+    
+    // --- IWgpuBuffer
+    BufferData IWgpuBuffer.GetBufferData() => data;
+    
+    void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> requestedRanges)
+    {
+        uint totalByteSize = (uint)(Length * data.elementSize);
+        Span<byte> gpuSourceSpan = new Span<byte>(pMapped, (int)totalByteSize);
+
+        // 2. Das C#-HostMemory des Users ebenfalls als Byte-Span greifen
+        Span<byte> hostDestinationSpan = MemoryMarshal.AsBytes(hostMemory.Span);
+
+        // 3. Über alle ursprünglich angemeldeten (unoptimierten) Lese-Anfragen iterieren
+        foreach (var request in requestedRanges)
+        {
+            // Wir berechnen die exakten Byte-Offsets für diese spezifische Anfrage
+            int byteOffset  = request.Start  * data.elementSize;
+            int byteSize    = request.Length * data.elementSize;
+
+            // Sub-Spans für die punktgenaue Kopie herausschneiden
+            ReadOnlySpan<byte> sourceSlice = gpuSourceSpan.Slice(byteOffset, byteSize);
+            Span<byte> destinationSlice = hostDestinationSpan.Slice(byteOffset, byteSize);
+
+            // Der eigentliche, ultraschnelle CPU-zu-CPU Transfer (entspricht memmove/memcpy)
+            sourceSlice.CopyTo(destinationSlice);
+        }
     }
 }
 

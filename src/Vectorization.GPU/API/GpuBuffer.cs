@@ -19,6 +19,7 @@ public abstract class GpuBuffer : IDisposable
     public    readonly  string      Label;
     public    readonly  int         Length;
     public	  readonly  long        Id              = GpuBufferUtils.NextId();
+    public	  readonly  int         DeviceBufferId;
     public	  abstract  GpuDevice   Device          { get; }
     public              GpuTask     LastWritingTask { get; protected set; }
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -29,12 +30,13 @@ public abstract class GpuBuffer : IDisposable
     // --- abstract
     public  abstract    bool        IsDisposed { get; }
     public  abstract    void        Dispose();
-    
-    protected GpuBuffer(int length, string label, nint nativeHandle)
+
+    protected GpuBuffer(int length, string label, nint nativeHandle, int bufferId)
     {
         Label           = label;
         Length          = length;
         NativeHandle    = nativeHandle;
+        DeviceBufferId  = bufferId;
     }
 }
 
@@ -57,9 +59,11 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
         where T : unmanaged
 {
     /// <summary> The CPU-accessible host memory used as a staging area for GPU synchronization. </summary>
-    internal readonly  Memory<T>  hostMemory;
+    protected internal readonly  Memory<T>    hostMemory;
     
-    protected GpuBuffer(Memory<T> hostMemory, string label, nint nativeHandle) :  base(hostMemory.Length, label, nativeHandle) {
+    protected GpuBuffer(Memory<T> hostMemory, string label, nint nativeHandle, int bufferId)
+        :  base(hostMemory.Length, label, nativeHandle, bufferId)
+    {
         this.hostMemory = hostMemory;
     }
     

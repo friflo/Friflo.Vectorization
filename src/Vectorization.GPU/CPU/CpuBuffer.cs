@@ -16,7 +16,7 @@ internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
  
     
     internal CpuBuffer(CpuDevice device, Memory<T> hostMemory, string label)
-        : base(hostMemory, label, 0)
+        : base(hostMemory, label, 0, 0)
     {
         this.device = device;
     }
@@ -25,6 +25,6 @@ internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         if (device != null) device.adapter.bufferCount--;
         device = null;
     }
-
+    
     public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) { }
 }
