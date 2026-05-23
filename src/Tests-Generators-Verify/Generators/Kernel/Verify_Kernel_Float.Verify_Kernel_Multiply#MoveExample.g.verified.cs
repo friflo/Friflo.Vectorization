@@ -163,7 +163,7 @@ namespace VerifyVectorize
             pass.End();
         }
         // connect task to output
-        ((WgpuBuffer<float>)position).SetLastWritingTask(task);
+        ((WgpuBuffer<float>)position).SetLastWritingTask(task, position_);
 
         task.Finish(encoder, "MoveExample"u8);
         device.Enqueue(task); // queues CommandBuffer only. No Submit().

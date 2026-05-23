@@ -371,7 +371,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             System.Buffer.MemoryCopy(pData, pMapped, size, size);
         }
         // Important: WebGPU has to unmap before GPU can use memory
-        wgpuBufferUnmap(buffer);
+        wgpuBufferUnmap(buffer); // initiate copy data to an extern GPU. returns immediately. Upload executes async. 
         
         return buffer;
     }

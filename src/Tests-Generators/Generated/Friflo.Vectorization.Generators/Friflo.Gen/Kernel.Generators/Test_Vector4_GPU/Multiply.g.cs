@@ -155,7 +155,7 @@ namespace Kernel.Generators
             pass.End();
         }
         // connect task to output
-        ((WgpuBuffer<Vector4>)position).SetLastWritingTask(task);
+        ((WgpuBuffer<Vector4>)position).SetLastWritingTask(task, position_);
 
         task.Finish(encoder, "Multiply"u8);
         device.Enqueue(task); // queues CommandBuffer only. No Submit().

@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
@@ -17,14 +18,21 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T> where T : unmanaged
 {
-    internal            Buffer*     handle { get; private set; }
-    private             WgpuDevice  device { get; set; }
-    private   readonly  uint        SizeInBytes;
+    internal            Buffer*         handle { get; private set; }
+    private             WgpuDevice      device { get; set; }
+    private  readonly   uint            SizeInBytes;
+    private  readonly   List<SubRange>  requestedRanges = new();
+    private  readonly   List<SubRange>  optimizedRanges = new();
+
 
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
     
-    public void SetLastWritingTask(GpuTask task) => LastWritingTask = task;
+    public void SetLastWritingTask(GpuTask task, in Buffer<T> buffer)
+    {
+        LastWritingTask = task;
+        // requestedRanges.Add(new SubRange(buffer.Offset, buffer.Length));
+    }
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {

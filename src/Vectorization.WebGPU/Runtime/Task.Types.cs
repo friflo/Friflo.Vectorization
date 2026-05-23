@@ -111,3 +111,15 @@ public readonly unsafe struct WgpuBindGroup
         };
     }
 }
+
+internal readonly struct SubRange
+{
+    internal readonly int Start;
+    internal readonly int Length;
+
+    internal SubRange(int start, int length)
+    {
+        Start   = start;
+        Length  = length;
+    }
+}

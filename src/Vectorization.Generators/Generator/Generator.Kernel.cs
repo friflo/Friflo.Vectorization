@@ -118,7 +118,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
             bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
             if (isOutput) {
-                setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task);");
+                setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task, {paramName}_);");
             } else {
                 dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
             }
