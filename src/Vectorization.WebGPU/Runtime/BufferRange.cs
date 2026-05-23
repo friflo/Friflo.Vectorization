@@ -12,16 +12,16 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 internal readonly struct BufferRange : IComparable<BufferRange>
 {
     internal readonly int bufferId;
-    internal readonly int Start;
-    internal readonly int Length;
+    internal readonly int start;
+    internal readonly int length;
     
-    public int CompareTo(BufferRange other) => this.Start.CompareTo(other.Start);
+    public int CompareTo(BufferRange other) => start.CompareTo(other.start);
 
     private BufferRange(int bufferId, int start, int length)
     {
         this.bufferId   = bufferId;
-        Start           = start;
-        Length          = length;
+        this.start      = start;
+        this.length     = length;
     }
     
     internal static List<BufferRange> GetOptimizedRanges(List<BufferRange> requestedRanges, List<BufferRange> optimizedRanges)
@@ -41,12 +41,12 @@ internal readonly struct BufferRange : IComparable<BufferRange>
         for (int i = 1; i < requestedRanges.Count; i++) {
             var next = requestedRanges[i];
             // do ranges overlap (e.g. [0,10] und [10,20])
-            if (next.Start <= current.Start + current.Length) {
-                int currentEnd  = current.Start + current.Length;
-                int nextEnd     = next.Start + next.Length;
+            if (next.start <= current.start + current.length) {
+                int currentEnd  = current.start + current.length;
+                int nextEnd     = next.start + next.length;
                 int newEnd      = Math.Max(currentEnd, nextEnd);
                 
-                current = new BufferRange(current.bufferId, current.Start, newEnd - current.Start);
+                current = new BufferRange(current.bufferId, current.start, newEnd - current.start);
             } else {
                 optimizedRanges.Add(current);
                 current = next;

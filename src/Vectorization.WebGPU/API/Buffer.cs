@@ -151,8 +151,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         foreach (var request in requestedRanges)
         {
             // Wir berechnen die exakten Byte-Offsets für diese spezifische Anfrage
-            int byteOffset  = request.Start  * data.elementSize;
-            int byteSize    = request.Length * data.elementSize;
+            int byteOffset  = request.start  * data.elementSize;
+            int byteSize    = request.length * data.elementSize;
 
             // Sub-Spans für die punktgenaue Kopie herausschneiden
             ReadOnlySpan<byte> sourceSlice = gpuSourceSpan.Slice(byteOffset, byteSize);

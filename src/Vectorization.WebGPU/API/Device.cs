@@ -407,7 +407,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var desc = new BufferDescriptor {
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
-            usage           = (ulong)(BufferUsage.CopyDst | BufferUsage.MapRead),
+            usage           = (ulong)(BufferUsage.CopyDst | BufferUsage.MapRead), // CopyDst | MapRead => staging buffer
             mappedAtCreation = WgpuUtils.FromBool(false)
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
@@ -494,8 +494,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
             uint elementSize     = (uint)buffer.elementSize;
             foreach (var range in optimizedRanges)
             {
-                uint byteOffset = (uint)range.Start  * elementSize;
-                uint byteSize   = (uint)range.Length * elementSize;
+                uint byteOffset = (uint)range.start  * elementSize;
+                uint byteSize   = (uint)range.length * elementSize;
 
                 // GPU internal copy from fast compute memory in persistent stating buffer
                 wgpuCommandEncoderCopyBufferToBuffer(
