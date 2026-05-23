@@ -14,7 +14,9 @@ internal struct TaskArray
 {
     internal readonly   WgpuTask[]  tasks;
     internal            int         count;
-    
+
+    public   override   string      ToString() => $"count: {count}";
+
     internal TaskArray(int length) {
         tasks = new WgpuTask[length];
     }

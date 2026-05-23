@@ -96,10 +96,11 @@ public partial class Test_Float_GPU : KernelBase
         AddKernel(view1, view2);
         
         Device.Wait(gpuDst);
-        
-        Device.Download();
-        
         gpuDst.Download(gpuDst, buffer1);
+        
+        // Device.Flush(true);
+        // Device.Download();
+        
         
         for (int n = 0; n < 10; n++) {
             Assert.That(view1.Span[n], Is.EqualTo(30 + 2 * n));

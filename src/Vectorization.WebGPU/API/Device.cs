@@ -472,9 +472,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     public override void Download()
     {
-        return;
-        for (int n = 0; n < pendingTasks.count; n++) {
-            var task = pendingTasks.tasks[n];
+        if (inFlightTasks.count == 0) {                     // TODO remove workaround. Submit with Kernel tasks.
+            return;
+        }
+        for (int n = 0; n < inFlightTasks.count; n++) {
+            var task = inFlightTasks.tasks[n];
             foreach (var range in task.requestedRanges) {
                 bufferEntries[range.bufferId].requestedRanges.Add(range);
             }
@@ -513,6 +515,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
         // finish commands and send to GOU queue
         var commandBuffer = wgpuCommandEncoderFinish(encoder, null);
         wgpuQueueSubmit(QueuePtr, 1, &commandBuffer);
+        
+        wgpuCommandBufferRelease(commandBuffer);
         wgpuCommandEncoderRelease(encoder);
 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
