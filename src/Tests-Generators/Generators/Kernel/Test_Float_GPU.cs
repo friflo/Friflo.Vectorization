@@ -6,14 +6,13 @@ using System;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
-using Tests.GPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Tests.Generators.Kernel;
+namespace Kernel.Generators;
 
 
-public partial class Test_Float_GPU : GpuTestBase
+public partial class Test_Float_GPU : KernelBase
 {
     private readonly float[]    scalar1 = new float[128];
     private readonly float[]    scalar2 = new float[128];

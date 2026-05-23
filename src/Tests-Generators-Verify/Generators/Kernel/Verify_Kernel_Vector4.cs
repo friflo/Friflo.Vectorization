@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using Friflo;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
+using Tests.Generators;
 using VerifyNUnit;
 using VerifyTests;
 
 // ReSharper disable InconsistentNaming
-namespace Tests.Generators.Kernel;
+namespace Kernel;
 
 public static class Verify_Kernel_Vector4
 {

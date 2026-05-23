@@ -1,0 +1,64 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Silk.NET.WebGPU;
+using Buffer = Silk.NET.WebGPU.Buffer;
+
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable once CheckNamespace
+namespace Kernel.SilkWebGPU.Runtime;
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+internal readonly unsafe struct SilkQueue
+{
+    private  readonly   SilkDevice   device;
+    internal readonly   Queue*      handle;
+    
+    public SilkQueue(SilkDevice device, Queue* handle) {
+        this.device = device;
+        this.handle = handle;
+    }
+    
+    public void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
+    {
+        device.wgpu.QueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
+    }
+    
+    // TODO use this static method to avoid allocation by lambda
+    private static void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
+    {
+        // Cast userData pointer back to GCHandle
+        GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
+        if (handle.Target is SilkTask task) {
+            task.SetCompleted(true);
+            handle.Free(); // free handle - otherwise leak
+        }
+    }
+    
+    // We keep a static reference to avoid GC is not moving/collection the callback
+    private static readonly PfnQueueWorkDoneCallback NativeWorkDoneCallback = 
+        PfnQueueWorkDoneCallback.From(HandleNativeWorkDone);
+
+    private static void HandleNativeWorkDone(QueueWorkDoneStatus status, void* userData)
+    {
+        // userData enables going back to CLR
+        var handle = GCHandle.FromIntPtr((IntPtr)userData);
+        if (handle.Target is Action<QueueWorkDoneStatus> callback) {
+            callback(status);
+        }
+        handle.Free(); // free to avoid leak
+    }
+
+    public void OnSubmittedWorkDone(int i, Action<QueueWorkDoneStatus> callback)
+    {
+        // We have to pin the callback to avoid moving callback by GC
+        GCHandle callbackHandle = GCHandle.Alloc(callback); // handle is freed in HandleNativeWorkDone()
+        void* userData = (void*)GCHandle.ToIntPtr(callbackHandle);
+
+        // call native API with static function pointer
+        device.wgpu.QueueOnSubmittedWorkDone(this.handle, NativeWorkDoneCallback, userData);
+    }
+}

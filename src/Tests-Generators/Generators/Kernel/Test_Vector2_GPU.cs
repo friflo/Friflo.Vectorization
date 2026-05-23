@@ -7,14 +7,13 @@ using System.Numerics;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
-using Tests.GPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Tests.Generators.Kernel;
+namespace Kernel.Generators;
 
 
-public partial class Test_Vector2_GPU : GpuTestBase
+public partial class Test_Vector2_GPU : KernelBase
 {
     private readonly Vector2[]    array1  = new Vector2[128];
     private readonly Vector2[]    array2  = new Vector2[128];
