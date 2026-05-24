@@ -52,7 +52,7 @@ jobs:
         RUST_BACKTRACE: "1"
         WGPU_LOG_LEVEL: error
       run: |
-        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -r linux-x64 -c Debug --no-build --verbosity normal
+        dotnet test src/Tests-Generators/Tests-Generators-Code.csproj          -r linux-x64 -c Debug --no-build --verbosity normal --blame-crash --blame-crash-dump-type full
         dotnet test src/Tests-Generators-Verify/Tests-Generators-Verify.csproj -r linux-x64 -c Debug --no-build --verbosity normal
 
     
