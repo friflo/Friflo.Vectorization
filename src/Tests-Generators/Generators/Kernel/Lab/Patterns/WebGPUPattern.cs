@@ -22,6 +22,8 @@ public static class WebGPUPattern
     {
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder;
+        recorder.Init();
+        
         var input       = recorder.RequireRead     (input_);
         var weight      = recorder.RequireRead     (weight_);
         var output      = recorder.RequireReadWrite(output_);

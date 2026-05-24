@@ -32,17 +32,22 @@ public sealed unsafe class CommandRecorder : IDisposable
     private  readonly   Buffer*             globalUniformPool;
     internal readonly   List<BufferRange>   requestedRanges = new();
     internal readonly   List<nint>          commandBuffers  = new();
+    private             int                 kernelId;
     internal            bool                createNewPass;
     
     internal            bool                isSubmitted;        // TODO remove
     internal            bool                isCompleted;        // TODO remove
     
     
+    public void Init() {
+        kernelId++;
+    }
+    
     public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = device.bufferEntries[gpuBuffer.DeviceBufferId].bufferSegments;
-        if(false) createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length));
+        createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
         return gpuBuffer;
     }
     
@@ -50,7 +55,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = device.bufferEntries[buffer.GpuBuffer.DeviceBufferId].bufferSegments;
-        if(false) createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length));
+        createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
         return gpuBuffer;
     }
     

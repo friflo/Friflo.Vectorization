@@ -98,14 +98,21 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var gpuWeight = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "gpuWeight");
         using var gpuOutput = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
-        
-        var e = Assert.Throws<WgpuException>(() => {
-            ExpectedCommandBuffers++; // Symptom of root cause error
-            GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
-        })!;
-        StringAssert.Contains("gpuOutput",          e.Message);
-        StringAssert.Contains("conflicting usages", e.Message);
-        StringAssert.Contains("STORAGE_READ_WRITE", e.Message);
+        {
+            var e = Assert.Throws<InvalidOperationException>(() => {
+                GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
+            })!;
+            StringAssert.StartsWith("Conflicting Usages:", e!.Message!);
+        }
+        if (false) {
+            var e = Assert.Throws<WgpuException>(() => {
+                ExpectedCommandBuffers++; // Symptom of root cause error
+                GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
+            })!;
+            StringAssert.Contains("gpuOutput",          e.Message);
+            StringAssert.Contains("conflicting usages", e.Message);
+            StringAssert.Contains("STORAGE_READ_WRITE", e.Message);
+        }
     }
     
     

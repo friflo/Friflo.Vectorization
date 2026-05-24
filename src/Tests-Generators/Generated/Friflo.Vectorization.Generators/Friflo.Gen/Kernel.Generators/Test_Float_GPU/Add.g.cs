@@ -112,6 +112,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
+        recorder.Init();
 
         var dst         = recorder.RequireReadWrite(dst_);
         var src         = recorder.RequireRead     (src_);

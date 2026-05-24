@@ -173,6 +173,7 @@ $$""""
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
+        recorder.Init();
 {{bufferInit}}
 
         // Recording - recorder provides Encoder
