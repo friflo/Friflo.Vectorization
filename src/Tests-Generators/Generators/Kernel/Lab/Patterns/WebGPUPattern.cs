@@ -22,11 +22,10 @@ public static class WebGPUPattern
         in Buffer<float>    output_)
     {
         var device      = (WgpuDevice)buffers.device;
-        var input       = input_.GpuBuffer;
-        var weight      = weight_.GpuBuffer;
-        var output      = output_.GpuBuffer;
-        
         using var recorder = device.Recorder;
+        var input       = recorder.RequireRead     (input_);
+        var weight      = recorder.RequireRead     (weight_);
+        var output      = recorder.RequireReadWrite(output_);
 
         // Recording (task provides Encoder)
         var encoder = recorder.GetEncoder("ShadowMethod"u8);

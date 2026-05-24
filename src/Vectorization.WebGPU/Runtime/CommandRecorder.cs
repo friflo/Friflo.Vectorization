@@ -36,6 +36,16 @@ public sealed unsafe class CommandRecorder : IDisposable
     internal            bool                isSubmitted;        // TODO remove
     internal            bool                isCompleted;        // TODO remove
     
+    public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
+    {
+        return buffer.GpuBuffer;
+    }
+    
+    public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
+    {
+        return buffer.GpuBuffer;
+    }
+    
     public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
         if (false) requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));

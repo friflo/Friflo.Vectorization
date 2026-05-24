@@ -110,11 +110,11 @@ namespace Kernel.Generators
         in Buffer  <float> dst_,
         in InBuffer<float> src_)
     {
-        var device      = (WgpuDevice)buffers.device;
-        var dst         = dst_.GpuBuffer;
-        var src         = src_.GpuBuffer;
-
+        var device         = (WgpuDevice)buffers.device;
         using var recorder = device.Recorder;
+
+        var dst         = recorder.RequireReadWrite(dst_);
+        var src         = recorder.RequireRead     (src_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Add"u8);

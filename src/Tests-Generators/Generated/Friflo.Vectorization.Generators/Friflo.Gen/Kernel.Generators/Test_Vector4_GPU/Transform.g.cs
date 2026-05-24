@@ -114,10 +114,10 @@ namespace Kernel.Generators
         in Buffer  <Vector4> position_,
         in Matrix4x4       matrix)
     {
-        var device      = (WgpuDevice)buffers.device;
-        var position    = position_.GpuBuffer;
-
+        var device         = (WgpuDevice)buffers.device;
         using var recorder = device.Recorder;
+
+        var position    = recorder.RequireReadWrite(position_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Transform"u8);

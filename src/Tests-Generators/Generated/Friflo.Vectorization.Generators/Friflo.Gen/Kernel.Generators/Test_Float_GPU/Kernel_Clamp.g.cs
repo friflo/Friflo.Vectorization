@@ -116,11 +116,11 @@ namespace Kernel.Generators
         in InBuffer<float> min_,
         in float           max)
     {
-        var device      = (WgpuDevice)buffers.device;
-        var position    = position_.GpuBuffer;
-        var min         = min_.GpuBuffer;
-
+        var device         = (WgpuDevice)buffers.device;
         using var recorder = device.Recorder;
+
+        var position    = recorder.RequireReadWrite(position_);
+        var min         = recorder.RequireRead     (min_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Kernel_Clamp"u8);

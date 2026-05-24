@@ -97,7 +97,6 @@ public sealed partial class Gen
         // ----------------- buffers
         var signature           = new StringBuilder();
         var bufferInit          = new StringBuilder();
-        var dependencies        = new StringBuilder();
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
         var bindings            = new StringBuilder();
@@ -116,7 +115,8 @@ public sealed partial class Gen
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
             var paramType           = vectorType.RefKind == RefKind.Ref ? "in Buffer  " : "in InBuffer";
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
-            bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
+            var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
+            bufferInit.Append($"\n        var {paramName,-11} = recorder.{requireType}({paramName}_);");
             if (isOutput) {
                 setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
             }
@@ -171,9 +171,9 @@ $$""""
     private {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName_GPU}}(
         in GpuBuffers      buffers,{{signature}})
     {
-        var device      = (WgpuDevice)buffers.device;{{bufferInit}}
-
+        var device         = (WgpuDevice)buffers.device;
         using var recorder = device.Recorder;
+{{bufferInit}}
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("{{methodName}}"u8);

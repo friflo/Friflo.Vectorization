@@ -110,11 +110,11 @@ namespace Kernel.Generators
         in Buffer  <Vector2> position_,
         in InBuffer<Vector2> velocity_)
     {
-        var device      = (WgpuDevice)buffers.device;
-        var position    = position_.GpuBuffer;
-        var velocity    = velocity_.GpuBuffer;
-
+        var device         = (WgpuDevice)buffers.device;
         using var recorder = device.Recorder;
+
+        var position    = recorder.RequireReadWrite(position_);
+        var velocity    = recorder.RequireRead     (velocity_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Multiply"u8);
