@@ -21,7 +21,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     private             CommandEncoder*     currentEncoder;                 // GpuTask owns CommandEncoder* and ensures release
     internal            ComputePassEncoder* currentPass;                    // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
-    // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
+    // 4 slots cover the standard WebGPU maxBindGroups limit, ensuring a zero-allocation steady state.
     internal            BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
     internal            int                 createdBindGroupsCount;
     private             CommandBuffer*      commandBuffer;
@@ -50,7 +50,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         stagingBuffer       = new byte[device.SlotSize];
     }
     
-    // The task provides / owns the Encoder
+    // The recorder provides / owns the Encoder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public WgpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
         var encoder     = device.CreateEncoder(this, encoderLabel); 

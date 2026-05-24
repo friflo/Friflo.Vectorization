@@ -30,7 +30,6 @@ namespace Friflo.Vectorization.WebGPU;
 // GPU & Compute Capabilities
 //  - Cross-Backend Compatibility:      unified API for Vulkan, DirectX 12, and Metal
 //  - Hybrid Compute Support:           Seamlessly switch between Hardware Acceleration (GPU), AVX/SIMD or Scalar
-//  - Non-Blocking Dependency Tracking: Automatic GPU task synchronization via a "Last Writing Task" mechanism
 // Resource & Thread Management     
 //  - Thread-Safe Command Dispatch      Designed for multithreaded environments
 //  - Low-Overhead Resource Pooling     Efficient "Rent/Return" patterns for Tasks and Buffers to maintain a fixed memory footprint
@@ -51,7 +50,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     public   readonly   CommandRecorder     Recorder;
     // private          TaskArray           availableTasks;     TASK_TAG
-    internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
+    internal readonly   WgpuBuffer<byte>    globalUniformPool;
     private  readonly   WgpuQueue           queue;
     
     private static      int                 effectSlotCount;
@@ -85,7 +84,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         if (disposing) {
             // case: only manual Dispose() call
             globalUniformPool?.Dispose();
-            // TODO dispose taskPool, pendingTasks & GpuEffect
+            // TODO dispose recorder, pendingTasks & GpuEffect
             
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
@@ -324,7 +323,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         // var task = (WgpuTask)buffer.LastWritingTask;			TASK_TAG
         // if (task == null || task.IsCompleted) return;
 
-        // We register a callback for the specific task completion
+        // We register a callback for completion
         bool completed = false;
         queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
             completed = true;
