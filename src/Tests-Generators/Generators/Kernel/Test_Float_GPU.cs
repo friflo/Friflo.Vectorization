@@ -60,19 +60,19 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        Console.WriteLine("---- Test_Kernel_Assign 1");     Console.Out.Flush();
+
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        Console.WriteLine("---- Test_Kernel_Assign 2");     Console.Out.Flush();
+
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
-        Console.WriteLine("---- Test_Kernel_Assign 3");     Console.Out.Flush();
+
         AssignVector(scalar1,          scalar2, false);
-        Console.WriteLine("---- Test_Kernel_Assign 4");     Console.Out.Flush();
+
         AssignKernel(gpuBuffer1.InOut, gpuBuffer2.In);
-        Console.WriteLine("---- Test_Kernel_Assign 5");     Console.Out.Flush();
+
         Device.Wait(gpuBuffer1);
-        Console.WriteLine("---- Test_Kernel_Assign 6");     Console.Out.Flush();
+
         gpuBuffer1.Download(gpuBuffer1, buffer1);
-        Console.WriteLine("---- Test_Kernel_Assign 7");     Console.Out.Flush();
+
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
         }

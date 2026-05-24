@@ -237,10 +237,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
     // -------------------------------- Task Dependency Tracking --------------------------------
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
     {
-        /* var handle = GCHandle.FromIntPtr((IntPtr)userData);      // TASK_TAG
+        var handle = GCHandle.FromIntPtr((IntPtr)userData);
         if (handle.Target is WgpuDevice device) {
-            device.ReturnPendingTasks();
-        } */
+            device.inFlightCommandBufferCount--;
+        }
     }
     
     /* private void ReturnPendingTasks() {      					// TASK_TAG
@@ -262,12 +262,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     } */
     
+    private int inFlightCommandBufferCount;
+    
     public override void Flush(bool wait = true)
     {
         // var tasks = pendingTasks;
         int count = Recorder.commandBuffers.Count;
         if (count == 0 && !wait) return;
-        int inFlightCommandBufferCount = count;
+        inFlightCommandBufferCount = 1;
         /* // Is previous batch already send?
         
         while (Thread.VolatileRead(ref inFlightCommandBufferCount) > 0) {
@@ -297,8 +299,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             var callbackInfo = new QueueWorkDoneCallbackInfo {
                 mode        = CallbackMode.AllowProcessEvents,
                 callback    = &QueueOnSubmittedWorkDone_callback,
-                userdata1   = deviceHandlePtr,
-                userdata2   = &inFlightCommandBufferCount
+                userdata1   = deviceHandlePtr
             };
             future = wgpuQueueOnSubmittedWorkDone(queue.handle, callbackInfo);
         }
@@ -315,9 +316,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void QueueOnSubmittedWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userdata1, void* userdata2) {
-        var inFlightCommandBufferCount = (int*)userdata2;
-        (*inFlightCommandBufferCount)--;
-        // HandleTasksFinished(status, userdata1);
+        HandleTasksFinished(status, userdata1);
     }
 
     public override void Wait<T>(GpuBuffer<T> buffer)

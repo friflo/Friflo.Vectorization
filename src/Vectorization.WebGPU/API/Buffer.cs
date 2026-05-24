@@ -116,7 +116,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
             wgpuInstanceWaitAny(device.instance, 1, &waitInfo, uint.MaxValue);
         }
         while (!mapFinished) {   // used in wgpu v19
-            // dev.Poll(true);         // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
+            // same as: wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
             wgpuInstanceProcessEvents(device.instance);
         }
         // get result back in original array
