@@ -22,7 +22,7 @@ public static class WebGPUPattern
         in Buffer<float>    output_)
     {
         var device      = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var recorder    = device.Recorder;
         var input       = recorder.RequireRead     (input_);
         var weight      = recorder.RequireRead     (weight_);
         var output      = recorder.RequireReadWrite(output_);

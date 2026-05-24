@@ -161,8 +161,8 @@ namespace Kernel.Generators
         in InBuffer<Vector4> velocity_,
         in Vector4         max)
     {
-        var device         = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var device   = (WgpuDevice)buffers.device;
+        var recorder = device.Recorder;
 
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);

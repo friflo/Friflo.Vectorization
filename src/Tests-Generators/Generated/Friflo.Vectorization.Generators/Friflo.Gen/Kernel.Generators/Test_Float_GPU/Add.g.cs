@@ -110,8 +110,8 @@ namespace Kernel.Generators
         in Buffer  <float> dst_,
         in InBuffer<float> src_)
     {
-        var device         = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var device   = (WgpuDevice)buffers.device;
+        var recorder = device.Recorder;
 
         var dst         = recorder.RequireReadWrite(dst_);
         var src         = recorder.RequireRead     (src_);

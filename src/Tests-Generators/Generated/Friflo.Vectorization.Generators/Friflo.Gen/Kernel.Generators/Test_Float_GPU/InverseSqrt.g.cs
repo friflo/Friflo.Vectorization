@@ -100,8 +100,8 @@ namespace Kernel.Generators
         in GpuBuffers      buffers,
         in Buffer  <float> position_)
     {
-        var device         = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var device   = (WgpuDevice)buffers.device;
+        var recorder = device.Recorder;
 
         var position    = recorder.RequireReadWrite(position_);
 

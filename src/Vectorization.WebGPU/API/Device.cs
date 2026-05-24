@@ -48,7 +48,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal readonly   WgpuErrorHandler    errorHandler;
     private             GCHandle            errorHandle;
     
-    public   readonly   CommandRecorder     Recorder;
+    private readonly    ThreadLocal<CommandRecorder>    threadRecorders;
+    public              CommandRecorder                 Recorder        => threadRecorders.Value!;
     // private          TaskArray           availableTasks;     TASK_TAG
     internal readonly   WgpuBuffer<byte>    globalUniformPool;
     private  readonly   WgpuQueue           queue;
@@ -93,6 +94,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 }
                 // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
+            
+            // dispose all CommandRecorder's
+            if (threadRecorders.IsValueCreated) {
+                foreach (var recorder in threadRecorders.Values) {  // trackAllValues is true, wo we can iterate
+                    recorder?.Dispose();
+                }
+            }
+            threadRecorders.Dispose();
         }
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
@@ -200,7 +209,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
-        Recorder            = new CommandRecorder(this);
+        threadRecorders = new ThreadLocal<CommandRecorder>(
+            valueFactory: () => new CommandRecorder(this),
+            trackAllValues: true
+        );
         /* taskPool            = new WgpuTask[maxTasks];    TASK_TAG
          availableTasks      = new TaskArray(maxTasks);
         pendingTasks        = new TaskArray(maxTasks);
@@ -266,8 +278,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
     public override void Flush(bool wait = true)
     {
         // var tasks = pendingTasks;
-        int count = Recorder.commandBuffers.Count;
-        if (count == 0 && !wait) return;
+        var recorder    = Recorder;
+        int count       = recorder.commandBuffers.Count;
+        if (count == 0 && !wait) {
+            return;
+        }
         inFlightCommandBufferCount = 1;
         /* // Is previous batch already send?
         
@@ -279,11 +294,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
             // Submit command buffers to queue
             var commandBuffers = stackalloc CommandBuffer*[count];
             for (int n = 0; n < count; n++) {
-                commandBuffers[n] = (CommandBuffer*)Recorder.commandBuffers[n];
+                commandBuffers[n] = (CommandBuffer*)recorder.commandBuffers[n];
             }
             wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);
             
-            Recorder.commandBuffers.Clear();
+            recorder.commandBuffers.Clear();
             for (int n = 0; n < count; n++) {
                 // Note: In case wgpuCommandEncoderFinish() detected a validation error
                 //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers

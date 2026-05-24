@@ -110,8 +110,8 @@ namespace VerifyVectorize
         in Buffer  <float> position_,
         in float           deltaTime)
     {
-        var device         = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var device   = (WgpuDevice)buffers.device;
+        var recorder = device.Recorder;
 
         var position    = recorder.RequireReadWrite(position_);
 

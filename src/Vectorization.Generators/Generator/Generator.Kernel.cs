@@ -171,8 +171,8 @@ $$""""
     private {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName_GPU}}(
         in GpuBuffers      buffers,{{signature}})
     {
-        var device         = (WgpuDevice)buffers.device;
-        using var recorder = device.Recorder;
+        var device   = (WgpuDevice)buffers.device;
+        var recorder = device.Recorder;
 {{bufferInit}}
 
         // Recording - recorder provides Encoder
