@@ -43,16 +43,12 @@ public sealed class KernelFixture
     }
     
     private static void SetupWebGPU () {
-        Console.WriteLine("---- KernelFixture 1");     Console.Out.Flush();
         var instance = WgpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
-        Console.WriteLine("---- KernelFixture 2");     Console.Out.Flush();
         var infos       = instance.GetAdapterInfos();
-        Console.WriteLine("---- KernelFixture 3");     Console.Out.Flush();
         var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
         Adapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
-        Console.WriteLine("---- KernelFixture 4");     Console.Out.Flush();
         Instance  = instance;
     }
     

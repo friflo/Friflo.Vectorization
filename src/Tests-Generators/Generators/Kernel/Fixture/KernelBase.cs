@@ -23,12 +23,9 @@ public abstract class KernelBase
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance            = this;
-        Console.WriteLine("---- KernelBase 3");     Console.Out.Flush();
         StartHandles            = Adapter.GenerateHandles();
         ExpectedCommandBuffers  = 0;
-        Console.WriteLine("---- KernelBase 4");     Console.Out.Flush();
         Device                  = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
-        Console.WriteLine("---- KernelBase 5");     Console.Out.Flush();
     }
 
     [TearDown]
