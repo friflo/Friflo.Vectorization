@@ -23,13 +23,13 @@ internal struct BindGroups
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct WgpuEncoder
 {
-    private  readonly   WgpuTask        task;
+    private  readonly   CommandRecorder recorder;
     internal readonly   CommandEncoder* handle;
     public   override   string          ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuEncoder(WgpuTask task, CommandEncoder* handle) {
-        this.task   = task;
-        this.handle = handle;
+    internal WgpuEncoder(CommandRecorder recorder, CommandEncoder* handle) {
+        this.recorder   = recorder;
+        this.handle     = handle;
     }
     
     // --- ComputePass methods
@@ -39,20 +39,20 @@ public readonly unsafe ref struct WgpuEncoder
         {
             var desc            = new ComputePassDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, passLabel) };
             var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
-            task.currentPass    = passHandle;
-            return new WgpuComputePass(task, passHandle);
+            recorder.currentPass    = passHandle;
+            return new WgpuComputePass(recorder, passHandle);
         }
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct WgpuComputePass : IDisposable {
-    private readonly    WgpuTask            task;
+    private readonly    CommandRecorder     recorder;
     private readonly    ComputePassEncoder* handle;
     public  override    string              ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuComputePass(WgpuTask task, ComputePassEncoder* handle) {
-        this.task   = task;
+    internal WgpuComputePass(CommandRecorder recorder, ComputePassEncoder* handle) {
+        this.recorder   = recorder;
         this.handle = handle;
     }
     
@@ -77,11 +77,11 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void End() {
-        for (int n = 0; n < task.createdBindGroupsCount; n++) {
-            wgpuBindGroupRelease((BindGroup*)task.createdBindGroups[n]);
+        for (int n = 0; n < recorder.createdBindGroupsCount; n++) {
+            wgpuBindGroupRelease((BindGroup*)recorder.createdBindGroups[n]);
         }
-        task.createdBindGroupsCount = 0;
-        task.ClosePass();
+        recorder.createdBindGroupsCount = 0;
+        recorder.ClosePass();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -49,7 +49,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal readonly   WgpuErrorHandler    errorHandler;
     private             GCHandle            errorHandle;
     
-    public   readonly   WgpuTask            Recorder;
+    public   readonly   CommandRecorder     Recorder;
     // private          TaskArray           availableTasks;     TASK_TAG
     internal readonly   WgpuBuffer<byte>    globalUniformPool;      // Each task uses its own slice from this pool
     private  readonly   WgpuQueue           queue;
@@ -201,7 +201,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
-        Recorder            = new WgpuTask(this);
+        Recorder            = new CommandRecorder(this);
         /* taskPool            = new WgpuTask[maxTasks];    TASK_TAG
          availableTasks      = new TaskArray(maxTasks);
         pendingTasks        = new TaskArray(maxTasks);
@@ -218,7 +218,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     //     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
     // }
 
-    internal WgpuEncoder CreateEncoder(WgpuTask task, ReadOnlySpan<byte> encoderLabel)
+    internal WgpuEncoder CreateEncoder(CommandRecorder recorder, ReadOnlySpan<byte> encoderLabel)
     {
         fixed (byte* labelPtr = encoderLabel)
         {
@@ -226,7 +226,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel)
             };
             var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
-            return new WgpuEncoder(task, encoder);
+            return new WgpuEncoder(recorder, encoder);
         }
     }
 

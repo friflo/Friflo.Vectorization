@@ -32,8 +32,8 @@ internal readonly unsafe struct WgpuQueue
     {
         // Cast userData pointer back to GCHandle
         GCHandle handle = GCHandle.FromIntPtr((IntPtr)userData);
-        if (handle.Target is WgpuTask task) {
-            task.SetCompleted(true);
+        if (handle.Target is CommandRecorder recorder) {
+            recorder.isCompleted = true;
             handle.Free(); // free handle - otherwise leak
         }
     }

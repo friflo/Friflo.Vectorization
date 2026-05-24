@@ -15,7 +15,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class WgpuTask : IDisposable
+public sealed unsafe class CommandRecorder : IDisposable
 {
     private  readonly   WgpuDevice          device;
     private             CommandEncoder*     currentEncoder;                 // GpuTask owns CommandEncoder* and ensures release
@@ -33,8 +33,8 @@ public sealed unsafe class WgpuTask : IDisposable
     internal readonly   List<BufferRange>   requestedRanges = new();
     internal readonly   List<nint>          commandBuffers  = new();
     
-    internal            bool                IsSubmitted     { get; private set; }   // TODO remove
-    internal            bool                IsCompleted     { get; private set; }   // TODO remove
+    internal            bool                isSubmitted;        // TODO remove
+    internal            bool                isCompleted;        // TODO remove
     
     public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
@@ -43,7 +43,7 @@ public sealed unsafe class WgpuTask : IDisposable
 
     
 
-    internal WgpuTask(WgpuDevice device) {
+    internal CommandRecorder(WgpuDevice device) {
         this.device         = device;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
@@ -160,8 +160,8 @@ public sealed unsafe class WgpuTask : IDisposable
         
         Dispose();
         
-        IsCompleted 	= false;
-        IsSubmitted 	= false;
+        isCompleted 	= false;
+        isSubmitted 	= false;
     }
     
     public void Dispose()
@@ -179,13 +179,5 @@ public sealed unsafe class WgpuTask : IDisposable
             wgpuComputePassEncoderRelease(currentPass);
             currentPass = null;
         }
-    }
-
-    internal void SetSubmitted(bool submitted) {
-        IsSubmitted = submitted;
-    }
-
-    internal void SetCompleted(bool completed) {
-        IsCompleted = completed;
     }
 }
