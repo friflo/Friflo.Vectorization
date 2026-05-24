@@ -104,7 +104,7 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit]
+    [SkipLocalsInit] // Lock-free GPU kernel participating in Immediate Pass Batching
     private static void _Kernel_Min_GPU(
         in GpuBuffers      buffers,
         in Buffer  <float> position_,

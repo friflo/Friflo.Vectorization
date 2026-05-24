@@ -186,7 +186,7 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit]
+    [SkipLocalsInit] // Lock-free GPU kernel participating in Immediate Pass Batching
     private static void _Advanced_GPU(
         in GpuBuffers      buffers,
         in Buffer  <Vector2> position_,

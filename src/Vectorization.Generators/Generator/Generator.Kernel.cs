@@ -167,7 +167,7 @@ public sealed partial class Gen
         var shadowMethodSource =
 $$""""
 
-    [SkipLocalsInit]
+    [SkipLocalsInit] // Lock-free GPU kernel participating in Immediate Pass Batching
     private {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName_GPU}}(
         in GpuBuffers      buffers,{{signature}})
     {

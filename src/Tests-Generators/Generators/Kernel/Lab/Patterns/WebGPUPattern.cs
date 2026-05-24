@@ -12,8 +12,7 @@ namespace Kernel.Lab;
 
 public static class WebGPUPattern
 {
-    // generated GPU method
-    [SkipLocalsInit]
+    [SkipLocalsInit] // Lock-free GPU kernel participating in Immediate Pass Batching
     internal static void ShadowMethod_GPU(
         in GpuBuffers       buffers,
         in InBuffer<float>  weight_,
