@@ -104,7 +104,7 @@ namespace VerifyVectorize
             return i;
         }
 
-    [SkipLocalsInit] // Lock-free GPU kernel participating in Immediate Pass Batching
+    [SkipLocalsInit] // Lock-free GPU kernel with deferred, hazard-driven pass batching
     private void _MoveExample_GPU(
         in GpuBuffers      buffers,
         in Buffer  <float> position_,
