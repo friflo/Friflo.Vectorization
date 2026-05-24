@@ -118,7 +118,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
             bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
             if (isOutput) {
-                setTaskOnOutputs.Append($"\n        task.TrackWrite({paramName}_);");
+                setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
             }
             bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
@@ -173,10 +173,10 @@ $$""""
     {
         var device      = (WgpuDevice)buffers.device;{{bufferInit}}
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("{{methodName}}"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("{{methodName}}"u8);
         using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
         {
             ref var effect = ref device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
@@ -189,23 +189,23 @@ $$""""
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
                 device.UpdateBufferCache({{methodName_GPU}}_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
             
             var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }{{setTaskOnOutputs}}
 
-        task.Finish(encoder, "{{methodName}}"u8);
+        recorder.Finish(encoder, "{{methodName}}"u8);
 
         // output.WaitInDebug();
     }

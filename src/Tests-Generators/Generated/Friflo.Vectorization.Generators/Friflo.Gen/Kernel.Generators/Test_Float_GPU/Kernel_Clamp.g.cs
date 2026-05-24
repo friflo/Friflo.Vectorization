@@ -120,10 +120,10 @@ namespace Kernel.Generators
         var position    = position_.GpuBuffer;
         var min         = min_.GpuBuffer;
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("Kernel_Clamp"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("Kernel_Clamp"u8);
         using (var pass = encoder.BeginComputePass("Kernel_Clamp"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Clamp_GPU_EffectSlot); // simple GpuEffect[] array lookup
@@ -138,7 +138,7 @@ namespace Kernel.Generators
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, min);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Clamp_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Clamp_buffers"u8);
                 device.UpdateBufferCache(_Kernel_Clamp_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -149,17 +149,17 @@ namespace Kernel.Generators
                 min_off         = min_.Offset,
                 max             = max,
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Clamp_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Clamp_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        task.TrackWrite(position_);
+        recorder.TrackWrite(position_);
 
-        task.Finish(encoder, "Kernel_Clamp"u8);
+        recorder.Finish(encoder, "Kernel_Clamp"u8);
 
         // output.WaitInDebug();
     }

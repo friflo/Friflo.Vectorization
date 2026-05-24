@@ -114,10 +114,10 @@ namespace Kernel.Generators
         var dst         = dst_.GpuBuffer;
         var src         = src_.GpuBuffer;
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("Add"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("Add"u8);
         using (var pass = encoder.BeginComputePass("Add"u8))
         {
             ref var effect = ref device.GetEffect(_Add_GPU_EffectSlot); // simple GpuEffect[] array lookup
@@ -132,7 +132,7 @@ namespace Kernel.Generators
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, dst);
                 entries[1] = WgpuBindGroup.From(1, src);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
                 device.UpdateBufferCache(_Add_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -142,17 +142,17 @@ namespace Kernel.Generators
                 dst_off         = dst_.Offset,
                 src_off         = src_.Offset,
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Add_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Add_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        task.TrackWrite(dst_);
+        recorder.TrackWrite(dst_);
 
-        task.Finish(encoder, "Add"u8);
+        recorder.Finish(encoder, "Add"u8);
 
         // output.WaitInDebug();
     }

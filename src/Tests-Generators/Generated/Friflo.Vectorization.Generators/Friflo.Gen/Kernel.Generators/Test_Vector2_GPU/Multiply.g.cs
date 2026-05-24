@@ -114,10 +114,10 @@ namespace Kernel.Generators
         var position    = position_.GpuBuffer;
         var velocity    = velocity_.GpuBuffer;
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("Multiply"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("Multiply"u8);
         using (var pass = encoder.BeginComputePass("Multiply"u8))
         {
             ref var effect = ref device.GetEffect(_Multiply_GPU_EffectSlot); // simple GpuEffect[] array lookup
@@ -132,7 +132,7 @@ namespace Kernel.Generators
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, velocity);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "Multiply_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Multiply_buffers"u8);
                 device.UpdateBufferCache(_Multiply_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -142,17 +142,17 @@ namespace Kernel.Generators
                 position_off    = position_.Offset,
                 velocity_off    = velocity_.Offset,
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Multiply_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Multiply_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        task.TrackWrite(position_);
+        recorder.TrackWrite(position_);
 
-        task.Finish(encoder, "Multiply"u8);
+        recorder.Finish(encoder, "Multiply"u8);
 
         // output.WaitInDebug();
     }
