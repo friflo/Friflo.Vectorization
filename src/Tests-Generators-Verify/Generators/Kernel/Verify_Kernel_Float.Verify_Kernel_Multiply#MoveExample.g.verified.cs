@@ -121,10 +121,10 @@ namespace VerifyVectorize
         var position    = position_.GpuBuffer;
         var velocity    = velocity_.GpuBuffer;
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("MoveExample"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("MoveExample"u8);
         using (var pass = encoder.BeginComputePass("MoveExample"u8))
         {
             ref var effect = ref device.GetEffect(_MoveExample_GPU_EffectSlot); // simple GpuEffect[] array lookup
@@ -139,7 +139,7 @@ namespace VerifyVectorize
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, velocity);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
                 device.UpdateBufferCache(_MoveExample_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -150,17 +150,17 @@ namespace VerifyVectorize
                 velocity_off    = velocity_.Offset,
                 deltaTime       = deltaTime,
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "MoveExample_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MoveExample_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        task.TrackWrite(position_);
+        recorder.TrackWrite(position_);
 
-        task.Finish(encoder, "MoveExample"u8);
+        recorder.Finish(encoder, "MoveExample"u8);
 
         // output.WaitInDebug();
     }

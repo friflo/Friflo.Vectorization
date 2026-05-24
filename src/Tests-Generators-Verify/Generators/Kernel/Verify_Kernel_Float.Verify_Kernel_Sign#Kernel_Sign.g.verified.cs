@@ -113,10 +113,10 @@ namespace VerifyVectorize
         var device      = (WgpuDevice)buffers.device;
         var position    = position_.GpuBuffer;
 
-        using var task  = device.Recorder;
+        using var recorder = device.Recorder;
 
-        // Recording - task provides Encoder
-        var encoder = task.GetEncoder("Kernel_Sign"u8);
+        // Recording - recorder provides Encoder
+        var encoder = recorder.GetEncoder("Kernel_Sign"u8);
         using (var pass = encoder.BeginComputePass("Kernel_Sign"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Sign_GPU_EffectSlot); // simple GpuEffect[] array lookup
@@ -130,7 +130,7 @@ namespace VerifyVectorize
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
                 entries[0] = WgpuBindGroup.From(0, position);
-                bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Sign_buffers"u8);
+                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Sign_buffers"u8);
                 device.UpdateBufferCache(_Kernel_Sign_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup(0, bufferGroup);
@@ -140,17 +140,17 @@ namespace VerifyVectorize
                 position_off    = position_.Offset,
                 value           = value,
             };
-            var entry = task.AsUniformEntry(0, uniforms);
+            var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = task.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Sign_uniforms"u8);
+            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Sign_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        task.TrackWrite(position_);
+        recorder.TrackWrite(position_);
 
-        task.Finish(encoder, "Kernel_Sign"u8);
+        recorder.Finish(encoder, "Kernel_Sign"u8);
 
         // output.WaitInDebug();
     }
