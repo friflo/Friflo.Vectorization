@@ -26,7 +26,7 @@ public static class WebGPUPattern
         var weight      = weight_.GpuBuffer;
         var output      = output_.GpuBuffer;
         
-        using var task  = device.RentTask();
+        var task        = device.Recorder;
 
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
@@ -62,10 +62,9 @@ public static class WebGPUPattern
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);       // Execute ComputePass
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
-        // connect task to output
-        ((WgpuBuffer<float>)output).SetLastWritingTask(task, output_);
+        task.TrackWrite(output_);
+        
         task.Finish(encoder, "ShadowMethod"u8);     // extract CommandBuffer from Encoder
-        device.Enqueue(task);                       // queues CommandBuffer only. No Submit().
 
         output.WaitInDebug();
     }

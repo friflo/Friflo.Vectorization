@@ -48,5 +48,4 @@ internal sealed class CpuDevice : GpuDevice
     
     public override void Download() { }
 
-    public override void SubmitGraph(GpuTask finalTask) { }
 }

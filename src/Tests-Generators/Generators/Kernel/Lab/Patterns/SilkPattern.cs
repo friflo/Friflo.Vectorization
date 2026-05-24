@@ -64,7 +64,7 @@ public static class SilkPattern
             pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
         }
         // connect task to output
-        ((SilkBuffer<float>)gpuOutput).SetLastWritingTask(task);
+        // ((SilkBuffer<float>)gpuOutput).SetLastWritingTask(task);
         task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 

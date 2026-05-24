@@ -118,7 +118,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
             bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
             if (isOutput) {
-                setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task, {paramName}_);");
+                setTaskOnOutputs.Append($"\n        task.TrackWrite({paramName}_);");
             }
             bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
@@ -172,9 +172,8 @@ $$""""
         in GpuBuffers      buffers,{{signature}})
     {
         var device      = (WgpuDevice)buffers.device;{{bufferInit}}
-        
-        // output ??= device.RentBuffer<{{outputType}}>(buffers.length);  TODO
-        using var task  = device.RentTask();
+
+        using var task  = device.Recorder;
 
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("{{methodName}}"u8);
@@ -204,11 +203,9 @@ $$""""
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
-        }
-        // connect task to output{{setTaskOnOutputs}}
+        }{{setTaskOnOutputs}}
 
         task.Finish(encoder, "{{methodName}}"u8);
-        device.Enqueue(task); // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
     }

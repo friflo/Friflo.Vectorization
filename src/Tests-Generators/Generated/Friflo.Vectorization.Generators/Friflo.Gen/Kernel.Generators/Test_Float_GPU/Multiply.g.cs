@@ -113,9 +113,8 @@ namespace Kernel.Generators
         var device      = (WgpuDevice)buffers.device;
         var position    = position_.GpuBuffer;
         var velocity    = velocity_.GpuBuffer;
-        
-        // output ??= device.RentBuffer<float>(buffers.length);  TODO
-        using var task  = device.RentTask();
+
+        using var task  = device.Recorder;
 
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("Multiply"u8);
@@ -151,11 +150,9 @@ namespace Kernel.Generators
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
             pass.End();
         }
-        // connect task to output
-        ((WgpuBuffer<float>)position).SetLastWritingTask(task, position_);
+        task.TrackWrite(position_);
 
         task.Finish(encoder, "Multiply"u8);
-        device.Enqueue(task); // queues CommandBuffer only. No Submit().
 
         // output.WaitInDebug();
     }

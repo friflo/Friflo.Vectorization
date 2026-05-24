@@ -140,19 +140,19 @@ public class TestCompute : KernelBase
         
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(1, HandleDiff.BindGroups.Diff);
         
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 43, gpuOutput2.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(4, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 44, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(5, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
         
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 45, gpuOutput3.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(7, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
         device.Wait(gpuOutput);
         

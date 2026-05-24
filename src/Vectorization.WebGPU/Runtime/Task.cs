@@ -22,29 +22,30 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     internal            ComputePassEncoder* currentPass;                    // GpuTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
-    private             BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
-    private             int                 createdBindGroupsCount;
+    internal            BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
+    internal            int                 createdBindGroupsCount;
     internal            CommandBuffer*      commandBuffer;
     
-    private  readonly   int                 taskIndex;
-    private  readonly   uint                uniformBase;                    // base position in pool slice - used as a ring buffer
     private             uint                uniformOffset;             	    // cursor in pool slice used as a ring buffer
     private  readonly   byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
     internal readonly   List<BufferRange>   requestedRanges = new();
+    internal readonly   List<nint>          commandBuffers  = new();
     
     
-    // A simple state flag for the scheduler
+    
+    public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
+    {
+        if (false) requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
+    }
 
     
 
-    internal WgpuTask(WgpuDevice device, int taskIndex) {
+    internal WgpuTask(WgpuDevice device) {
         this.device         = device;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
-        this.taskIndex      = taskIndex;
-        uniformBase         = (uint)(taskIndex * slotSize);
         stagingBuffer       = new byte[device.SlotSize];
     }
     
@@ -68,28 +69,26 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         fixed (byte* pDest = &stagingBuffer[alignedOffset]) {
             *(T*)pDest = value;
         }
-        uint absoluteOffset = uniformBase + alignedOffset;
-        
         uniformOffset = alignedOffset + size;
 
         return new BindGroupEntry {
             binding = (uint)binding,
             buffer  = globalUniformPool,
-            offset  = absoluteOffset,
+            offset  = alignedOffset,
             size    = size
         };
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private void ThrowUniformSlotOverflow() {
-        throw new IndexOutOfRangeException($"Uniform slot overflow. taskIndex: {taskIndex} slotSize: {slotSize}.");
+        throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
     } 
     
     public void Finish(WgpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
-                device.WriteBuffer(device.globalUniformPool, uniformBase, pData, uniformOffset);
+                device.WriteBuffer(device.globalUniformPool, 0, pData, uniformOffset);
             }
         }
         // TODO  Ultimate performance upgrade
@@ -105,9 +104,10 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
             currentEncoder = null;
         }
         if (device.errorHandler.errorType != ErrorType.NoError) {
-            device.ReturnTask(this);
+            // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
+        commandBuffers.Add((nint)commandBuffer);
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
@@ -141,7 +141,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         }
     }
     
-    internal void Reset()
+    internal void Reset()     // TODO remove
     {
         for (int n = 0; n < createdBindGroupsCount; n++) {
             wgpuBindGroupRelease((BindGroup*)createdBindGroups[n]);

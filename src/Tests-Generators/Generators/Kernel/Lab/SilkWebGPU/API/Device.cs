@@ -309,26 +309,6 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     public override void Download() { }
         
-    public override void SubmitGraph(GpuTask finalTask)
-    {
-        // 1. Flatten the tree (Breadth-First or Depth-First Search)
-        // To find the correct execution order (Topological Sort)
-        var executionOrder = SortTasks(finalTask);
-
-        // 2. Submit them in order
-        foreach (var task in executionOrder)
-        {
-            if (task.IsSubmitted) continue;
-            
-            // Every task in WebGPU within the same Queue is 
-            // guaranteed to start in submission order.
-            var ptr = task.commandBuffer;
-            wgpu.QueueSubmit(QueuePtr, 1, &ptr);
-            
-            task.SetSubmitted(true);
-        }
-    }
-
     private IEnumerable<SilkTask> SortTasks(GpuTask finalTask)
     {
         throw new NotImplementedException();

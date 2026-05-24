@@ -31,11 +31,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
     
-    public void SetLastWritingTask(WgpuTask task, in Buffer<T> buffer)
-    {
-        if (false) task.requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
-    }
-
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
         Dispose(true);

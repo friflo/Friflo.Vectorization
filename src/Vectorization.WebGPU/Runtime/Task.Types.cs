@@ -77,7 +77,11 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void End() {
-        task.ClosePass(); 
+        for (int n = 0; n < task.createdBindGroupsCount; n++) {
+            wgpuBindGroupRelease((BindGroup*)task.createdBindGroups[n]);
+        }
+        task.createdBindGroupsCount = 0;
+        task.ClosePass();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
