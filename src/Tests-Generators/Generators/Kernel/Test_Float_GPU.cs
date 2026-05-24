@@ -60,7 +60,7 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        De.WriteLine("---- Test_Kernel_Assign 1");
+        Console.WriteLine("---- Test_Kernel_Assign 1");     Console.Out.Flush();
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
         Console.WriteLine("---- Test_Kernel_Assign 2");     Console.Out.Flush();
         using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
