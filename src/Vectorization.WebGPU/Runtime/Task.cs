@@ -15,7 +15,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class WgpuTask : GpuTask, IDisposable
+public sealed unsafe class WgpuTask : IDisposable
 {
     private  readonly   WgpuDevice          device;
     private             CommandEncoder*     currentEncoder;                 // GpuTask owns CommandEncoder* and ensures release
@@ -24,7 +24,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
     internal            BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
     internal            int                 createdBindGroupsCount;
-    internal            CommandBuffer*      commandBuffer;
+    private             CommandBuffer*      commandBuffer;
     
     private             uint                uniformOffset;             	    // cursor in pool slice used as a ring buffer
     private  readonly   byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
@@ -33,7 +33,8 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     internal readonly   List<BufferRange>   requestedRanges = new();
     internal readonly   List<nint>          commandBuffers  = new();
     
-    
+    internal            bool                IsSubmitted     { get; private set; }   // TODO remove
+    internal            bool                IsCompleted     { get; private set; }   // TODO remove
     
     public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
@@ -163,7 +164,7 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         IsSubmitted 	= false;
     }
     
-    public override void Dispose()
+    public void Dispose()
     {
         ClosePass();
         if (currentEncoder != null) {

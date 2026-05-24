@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
@@ -17,7 +16,7 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 namespace Kernel.SilkWebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe class SilkTask : GpuTask
+public sealed unsafe class SilkTask : IDisposable
 {
     private  readonly   SilkDevice          device;
     internal readonly   Webgpu              wgpu;
@@ -34,6 +33,9 @@ public sealed unsafe class SilkTask : GpuTask
     private readonly    byte[]              stagingBuffer;              // CPU-cache for uniform buffer
     private readonly    int                 slotSize;
     private readonly    Buffer*             globalUniformPool;
+    
+    internal            bool                IsSubmitted     { get; private set; }   // TODO remove
+    internal            bool                IsCompleted     { get; private set; }   // TODO remove
     
     
     // A simple state flag for the scheduler
@@ -159,7 +161,7 @@ public sealed unsafe class SilkTask : GpuTask
         IsSubmitted 	= false;
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         ClosePass();
         if (currentEncoder != null) {

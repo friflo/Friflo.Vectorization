@@ -309,11 +309,6 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     public override void Download() { }
         
-    private IEnumerable<SilkTask> SortTasks(GpuTask finalTask)
-    {
-        throw new NotImplementedException();
-    }
-
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));
