@@ -198,7 +198,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Kernel_Trigonometry"u8);
-        using (var pass = encoder.BeginComputePass("Kernel_Trigonometry"u8))
+        using (var pass = encoder.BeginComputePass(_Kernel_Trigonometry_GPU_EffectSlot, "Kernel_Trigonometry"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Trigonometry_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

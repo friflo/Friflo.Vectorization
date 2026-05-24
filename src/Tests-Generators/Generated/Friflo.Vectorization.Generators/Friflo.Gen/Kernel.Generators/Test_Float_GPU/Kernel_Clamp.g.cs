@@ -124,7 +124,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Kernel_Clamp"u8);
-        using (var pass = encoder.BeginComputePass("Kernel_Clamp"u8))
+        using (var pass = encoder.BeginComputePass(_Kernel_Clamp_GPU_EffectSlot, "Kernel_Clamp"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Clamp_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

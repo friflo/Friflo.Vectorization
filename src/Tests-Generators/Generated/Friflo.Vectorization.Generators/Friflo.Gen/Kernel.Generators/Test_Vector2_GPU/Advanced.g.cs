@@ -200,7 +200,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Advanced"u8);
-        using (var pass = encoder.BeginComputePass("Advanced"u8))
+        using (var pass = encoder.BeginComputePass(_Advanced_GPU_EffectSlot, "Advanced"u8))
         {
             ref var effect = ref device.GetEffect(_Advanced_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

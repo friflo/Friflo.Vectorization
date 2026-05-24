@@ -29,7 +29,7 @@ public static class WebGPUPattern
 
         // Recording (task provides Encoder)
         var encoder = recorder.GetEncoder("ShadowMethod"u8);
-        using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = encoder.BeginComputePass(ShadowMethod_GPU_EffectSlot, "ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {

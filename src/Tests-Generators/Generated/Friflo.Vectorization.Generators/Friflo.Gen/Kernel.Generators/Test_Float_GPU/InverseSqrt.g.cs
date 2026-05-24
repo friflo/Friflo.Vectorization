@@ -107,7 +107,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("InverseSqrt"u8);
-        using (var pass = encoder.BeginComputePass("InverseSqrt"u8))
+        using (var pass = encoder.BeginComputePass(_InverseSqrt_GPU_EffectSlot, "InverseSqrt"u8))
         {
             ref var effect = ref device.GetEffect(_InverseSqrt_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

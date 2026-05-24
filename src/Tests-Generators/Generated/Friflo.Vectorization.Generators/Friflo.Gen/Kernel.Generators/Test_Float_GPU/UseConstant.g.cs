@@ -108,7 +108,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("UseConstant"u8);
-        using (var pass = encoder.BeginComputePass("UseConstant"u8))
+        using (var pass = encoder.BeginComputePass(_UseConstant_GPU_EffectSlot, "UseConstant"u8))
         {
             ref var effect = ref device.GetEffect(_UseConstant_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

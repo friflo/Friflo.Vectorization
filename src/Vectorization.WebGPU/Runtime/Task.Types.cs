@@ -33,7 +33,7 @@ public readonly unsafe ref struct WgpuEncoder
     }
     
     // --- ComputePass methods
-    public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
+    public WgpuComputePass BeginComputePass(int kernelId, ReadOnlySpan<byte> passLabel)
     {
         fixed (byte* labelPtr = passLabel)
         {

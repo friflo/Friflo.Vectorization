@@ -160,7 +160,7 @@ namespace Kernel.Generators
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Arithmetic"u8);
-        using (var pass = encoder.BeginComputePass("Arithmetic"u8))
+        using (var pass = encoder.BeginComputePass(_Arithmetic_GPU_EffectSlot, "Arithmetic"u8))
         {
             ref var effect = ref device.GetEffect(_Arithmetic_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
