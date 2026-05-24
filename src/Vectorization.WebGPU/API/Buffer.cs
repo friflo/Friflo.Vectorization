@@ -33,7 +33,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     
     public void SetLastWritingTask(WgpuTask task, in Buffer<T> buffer)
     {
-        LastWritingTask     = task;
         if (false) task.requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
     }
 
@@ -69,9 +68,9 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     public T this[int index]
     {
         get {
-            if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
+            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
                 device.Wait(this); // force Compute before CPU reads value
-            }
+            }*/
             return InternalDownloadValue(index);
         }
     }

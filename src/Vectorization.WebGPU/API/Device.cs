@@ -311,15 +311,16 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        var task = (WgpuTask)buffer.LastWritingTask;
-        if (task == null || task.IsCompleted) return;
+        // var task = (WgpuTask)buffer.LastWritingTask;			TASK_TAG
+        // if (task == null || task.IsCompleted) return;
 
         // We register a callback for the specific task completion
+        bool completed = false;
         queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
-            task.SetCompleted(true);
+            completed = true;
         });
 
-        while (!task.IsCompleted) {
+        while (!completed) {
             // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
             // Poll(wait: true);
             wgpuInstanceProcessEvents(instance);

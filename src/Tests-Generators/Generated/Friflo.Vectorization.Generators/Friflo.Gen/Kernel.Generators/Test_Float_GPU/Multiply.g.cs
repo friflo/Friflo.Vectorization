@@ -117,9 +117,6 @@ namespace Kernel.Generators
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-        if (velocity.LastWritingTask != null) task.AddDependency(velocity);
-
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("Multiply"u8);
         using (var pass = encoder.BeginComputePass("Multiply"u8))

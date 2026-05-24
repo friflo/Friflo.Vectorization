@@ -21,7 +21,7 @@ public abstract class GpuBuffer : IDisposable
     public	  readonly  long        Id              = GpuBufferUtils.NextId();
     public	  readonly  int         DeviceBufferId;
     public	  abstract  GpuDevice   Device          { get; }
-    public              GpuTask     LastWritingTask { get; protected set; }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public	  readonly  nint        NativeHandle;
     
@@ -120,9 +120,9 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     public T this[int index]
     {
         get {
-            if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
+            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
                 Device.Wait(this); // force Compute before CPU reads value
-            }
+            }*/
             throw new NotImplementedException();
             // return InternalDownloadValue(index);
         }

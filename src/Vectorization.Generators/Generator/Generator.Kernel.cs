@@ -119,8 +119,6 @@ public sealed partial class Gen
             bufferInit.Append($"\n        var {paramName,-11} = {paramName}_.GpuBuffer;");
             if (isOutput) {
                 setTaskOnOutputs.Append($"\n        ((WgpuBuffer<{type}>){paramName}).SetLastWritingTask(task, {paramName}_);");
-            } else {
-                dependencies.Append($"\n        if ({paramName}.LastWritingTask != null) task.AddDependency({paramName});");
             }
             bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
@@ -177,8 +175,6 @@ $$""""
         
         // output ??= device.RentBuffer<{{outputType}}>(buffers.length);  TODO
         using var task  = device.RentTask();
-
-        // Dependencies from inputs (out not Output!){{dependencies}}
 
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("{{methodName}}"u8);

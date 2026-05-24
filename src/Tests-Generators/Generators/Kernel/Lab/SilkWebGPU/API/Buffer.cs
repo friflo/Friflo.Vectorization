@@ -25,7 +25,7 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
 
     public    override  bool        IsDisposed => handle == null;
 
-    public void SetLastWritingTask(GpuTask task) => LastWritingTask = task;
+    public void SetLastWritingTask(GpuTask task) { } // LastWritingTask = task;   // TODO remove
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
@@ -57,9 +57,9 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
     public T this[int index]
     {
         get {
-            if (LastWritingTask != null && !LastWritingTask.IsCompleted) {
+            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
                 Device.Wait(this); // force Compute before CPU reads value
-            }
+            } */
             return InternalDownloadValue(index);
         }
     }

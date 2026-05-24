@@ -123,8 +123,6 @@ namespace Kernel.Generators
         // output ??= device.RentBuffer<Vector2>(buffers.length);  TODO
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("Transform"u8);
         using (var pass = encoder.BeginComputePass("Transform"u8))

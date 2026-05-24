@@ -123,9 +123,6 @@ namespace Kernel.Generators
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-        if (min.LastWritingTask != null) task.AddDependency(min);
-
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("Kernel_Clamp"u8);
         using (var pass = encoder.BeginComputePass("Kernel_Clamp"u8))

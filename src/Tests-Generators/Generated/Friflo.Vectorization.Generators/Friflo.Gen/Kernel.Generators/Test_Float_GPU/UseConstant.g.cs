@@ -107,8 +107,6 @@ namespace Kernel.Generators
         // output ??= device.RentBuffer<float>(buffers.length);  TODO
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-
         // Recording - task provides Encoder
         var encoder = task.GetEncoder("UseConstant"u8);
         using (var pass = encoder.BeginComputePass("UseConstant"u8))

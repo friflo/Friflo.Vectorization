@@ -29,10 +29,6 @@ public static class SilkPattern
         var gpuOutput   = output ?? device.RentBuffer<float>(buffers.length);
         using var task  = device.RentTask();
 
-        // Dependencies from inputs (out not Output!)
-        if (weight.LastWritingTask != null) task.AddDependency(weight);
-        if (input.LastWritingTask  != null) task.AddDependency(input);
-        
         // Recording (task provides Encoder)
         var encoder = task.GetEncoder("ShadowMethod"u8);
         using (var pass = encoder.BeginComputePass("ShadowMethod"u8))

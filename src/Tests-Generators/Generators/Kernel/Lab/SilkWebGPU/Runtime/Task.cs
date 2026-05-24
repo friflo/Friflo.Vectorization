@@ -27,7 +27,6 @@ public sealed unsafe class SilkTask : GpuTask
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
     private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
     internal            CommandBuffer*      commandBuffer;
-    private readonly    List<GpuTask>       dependencies = new();       // Tasks that MUST finish before this one starts
     
     private readonly    int                 taskIndex;
     private readonly    uint                uniformBase;                // base position in pool slice - used as a ring buffer
@@ -158,23 +157,6 @@ public sealed unsafe class SilkTask : GpuTask
         
         IsCompleted 	= false;
         IsSubmitted 	= false;
-        
-        dependencies.Clear();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddDependency<T>(GpuBuffer<T> predecessor) where T : unmanaged
-    {
-        AddDependency(predecessor.LastWritingTask);
-    }
-    
-    private void AddDependency(GpuTask predecessor)
-    {
-        if (predecessor == this) return; // Prevent brain-loop
-        if (!dependencies.Contains(predecessor))
-        {
-            dependencies.Add(predecessor);
-        }
     }
 
     public override void Dispose()

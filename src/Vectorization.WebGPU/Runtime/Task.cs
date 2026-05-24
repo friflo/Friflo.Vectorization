@@ -25,8 +25,6 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
     private             BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
     private             int                 createdBindGroupsCount;
     internal            CommandBuffer*      commandBuffer;
-    private             GpuTask[]           dependencies = new GpuTask[4];  // Tasks that MUST finish before this one starts
-    private             int                 dependenciesCount;
     
     private  readonly   int                 taskIndex;
     private  readonly   uint                uniformBase;                    // base position in pool slice - used as a ring buffer
@@ -163,31 +161,8 @@ public sealed unsafe class WgpuTask : GpuTask, IDisposable
         
         IsCompleted 	= false;
         IsSubmitted 	= false;
-        
-        dependenciesCount = 0;
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddDependency<T>(GpuBuffer<T> predecessor) where T : unmanaged
-    {
-        AddDependency(predecessor.LastWritingTask);
-    }
-    
-    private void AddDependency(GpuTask predecessor)
-    {
-        if (predecessor == this) return; // Prevent brain-loop
-        var count = dependenciesCount;
-        if (Array.IndexOf(dependencies, predecessor, 0, count) == -1)
-        {
-            if (count == dependencies.Length) {
-                var newDependencies = new GpuTask[2 * count];
-                Array.Copy(dependencies, 0, newDependencies, 0, count);
-                dependencies = newDependencies;
-            }
-            dependencies[dependenciesCount++] = predecessor;
-        }
-    }
-
     public override void Dispose()
     {
         ClosePass();

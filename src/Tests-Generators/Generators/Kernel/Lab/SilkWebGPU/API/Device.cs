@@ -292,15 +292,16 @@ public sealed unsafe class SilkDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        var task = (SilkTask)buffer.LastWritingTask;
-        if (task == null || task.IsCompleted) return;
+        // var task = (SilkTask)buffer.LastWritingTask;		TASK_TAG
+        // if (task == null || task.IsCompleted) return;
+        var completed = false;
 
         // We register a callback for the specific task completion
         queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
-            task.SetCompleted(true);
+            completed = true;
         });
 
-        while (!task.IsCompleted) {
+        while (!completed) {
             // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
             Poll(wait: true); 
         }
