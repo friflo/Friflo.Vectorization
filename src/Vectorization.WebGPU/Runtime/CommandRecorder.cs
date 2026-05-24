@@ -38,11 +38,13 @@ public sealed unsafe class CommandRecorder : IDisposable
     
     public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
+        _ = new SegmentKey(buffer.Offset, buffer.Length);
         return buffer.GpuBuffer;
     }
     
     public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
+        _ = new SegmentKey(buffer.Offset, buffer.Length);
         return buffer.GpuBuffer;
     }
     
