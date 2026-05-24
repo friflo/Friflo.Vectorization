@@ -42,7 +42,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = device.bufferEntries[gpuBuffer.DeviceBufferId].bufferSegments;
-        createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length));
+        if(false) createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length));
         return gpuBuffer;
     }
     
@@ -50,7 +50,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = device.bufferEntries[buffer.GpuBuffer.DeviceBufferId].bufferSegments;
-        createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length));
+        if(false) createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length));
         return gpuBuffer;
     }
     

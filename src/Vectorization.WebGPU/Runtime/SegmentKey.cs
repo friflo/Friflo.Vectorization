@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+// ReSharper disable InvertIf
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -31,7 +32,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
         return start == other.start && length == other.length;
     }
 
-    public override bool Equals(object? obj) {
+    public override bool Equals(object obj) {
         return obj is SegmentKey other && Equals(other);
     }
 
@@ -45,11 +46,27 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     
     internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
     {
+        if (segmentMap.TryGetValue(key, out var state))
+        {
+            if (state == SegmentState.Write) {
+                // conflict: Read-After-Write (RAW) Hazard!
+                segmentMap[key] = SegmentState.Read;
+                return true;                            
+            }
+            return false;
+        }
+        segmentMap.Add(key, SegmentState.Read);
         return false;
     }
     
     internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
     {
+        if (segmentMap.TryGetValue(key, out _)) {
+            // conflict: In either case if Read (WAR-Hazard) or Write (WAW-Hazard) before.
+            segmentMap[key] = SegmentState.Write;
+            return true;
+        }
+        segmentMap.Add(key, SegmentState.Write);
         return false;
     }
 
