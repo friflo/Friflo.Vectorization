@@ -43,6 +43,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         kernelId++;
     }
     
+    [StackTraceHidden]
     public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
@@ -51,6 +52,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         return gpuBuffer;
     }
     
+    [StackTraceHidden]
     public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;

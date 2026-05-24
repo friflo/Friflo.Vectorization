@@ -102,7 +102,7 @@ public class Test_GPU_Exceptions : KernelBase
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
             })!;
-            StringAssert.StartsWith("Conflicting Usages:", e!.Message!);
+            StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
         }
         if (false) {
             var e = Assert.Throws<WgpuException>(() => {

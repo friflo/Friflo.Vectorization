@@ -88,6 +88,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private static void ThrowConflictingUsages(string param)
     {
-        throw new InvalidOperationException($"Conflicting Usages: {param}");
+        throw new InvalidOperationException($"Schrödinger's Buffer: Parameter '{param}' is suffering from a temporal personality split. " +
+            $"You are trying to read from it and write to it within the EXACT SAME kernel execution. Pick a side, time traveler!");
     }
 }
