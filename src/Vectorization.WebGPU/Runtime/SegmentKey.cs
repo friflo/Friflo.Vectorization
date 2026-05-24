@@ -44,6 +44,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     public static bool operator ==(SegmentKey left, SegmentKey right) => left.Equals(right);
     public static bool operator !=(SegmentKey left, SegmentKey right) => !left.Equals(right);
     
+    // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
     {
         if (segmentMap.TryGetValue(key, out var state))
@@ -59,6 +60,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
         return false;
     }
     
+    // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
     {
         if (segmentMap.TryGetValue(key, out _)) {
