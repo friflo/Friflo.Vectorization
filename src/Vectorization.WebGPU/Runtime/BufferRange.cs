@@ -61,8 +61,9 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
 internal readonly struct BufferEntry
 {
-    internal readonly   IWgpuBuffer         wgpuBuffer;
-    internal readonly   List<BufferRange>   requestedRanges = new();
+    internal readonly   IWgpuBuffer                             wgpuBuffer;
+    internal readonly   List<BufferRange>                       requestedRanges = new();
+    internal readonly   Dictionary<SegmentKey, SegmentState>    bufferSegments  = new();
     
     internal BufferEntry(IWgpuBuffer wgpuBuffer) {
         this.wgpuBuffer = wgpuBuffer;

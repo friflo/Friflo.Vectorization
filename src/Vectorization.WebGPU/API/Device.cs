@@ -53,16 +53,16 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal readonly   WgpuBuffer<byte>    globalUniformPool;
     private  readonly   WgpuQueue           queue;
     
-    private static      int                 effectSlotCount;
+    private  static     int                 effectSlotCount;
     private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
     // private          TaskArray           pendingTasks;       TASK_TAG
     // private          TaskArray           inFlightTasks;      TASK_TAG
     private             GCHandle            deviceHandle;
-    private readonly    void*               deviceHandlePtr;
+    private  readonly   void*               deviceHandlePtr;
     
-    private static      int                 layoutCacheCount;
+    private  static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
-    private readonly    List<BufferEntry>   bufferEntries = new ();
+    internal readonly   List<BufferEntry>   bufferEntries = new ();
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.

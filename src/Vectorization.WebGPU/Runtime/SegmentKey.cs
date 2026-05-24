@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -41,4 +42,15 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     // optional operator for fast comparison in code
     public static bool operator ==(SegmentKey left, SegmentKey right) => left.Equals(right);
     public static bool operator !=(SegmentKey left, SegmentKey right) => !left.Equals(right);
+    
+    internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
+    {
+        return false;
+    }
+    
+    internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key)
+    {
+        return false;
+    }
+
 }
