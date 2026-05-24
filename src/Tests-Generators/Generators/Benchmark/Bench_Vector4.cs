@@ -117,7 +117,6 @@ public partial class Bench_Vector4
     [Benchmark] [Test]
     public void Vector4_TransformMatrix4x4_AoSoA_Vectorized()
     {
-        Console.WriteLine("---- Vector4_TransformMatrix4x4_AoSoA_Vectorized");     Console.Out.Flush();
         var query = TransformMatrix4x4_AoSoAQuery(store, matrix);
     }
     
