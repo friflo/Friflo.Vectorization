@@ -4,7 +4,7 @@
 using System.ComponentModel;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
-// file contains structs created by:  GpuDevice
+// file contains structs created by:  WgpuDevice
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;

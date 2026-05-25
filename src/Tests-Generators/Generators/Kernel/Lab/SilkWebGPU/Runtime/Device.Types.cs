@@ -5,7 +5,7 @@ using System.ComponentModel;
 using Silk.NET.WebGPU;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
 
-// file contains structs created by:  GpuDevice
+// file contains structs created by:  SilkDevice
 
 // ReSharper disable once CheckNamespace
 namespace Kernel.SilkWebGPU.Runtime;

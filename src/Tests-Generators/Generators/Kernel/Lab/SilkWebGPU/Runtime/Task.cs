@@ -20,11 +20,11 @@ public sealed unsafe class SilkTask : IDisposable
 {
     private  readonly   SilkDevice          device;
     internal readonly   Webgpu              wgpu;
-    private             CommandEncoder*     currentEncoder;             // GpuTask owns CommandEncoder* and ensures release
-    internal            ComputePassEncoder* currentPass;                // GpuTask owns ComputePassEncoder* and ensures release
+    private             CommandEncoder*     currentEncoder;             // SilkTask owns CommandEncoder* and ensures release
+    internal            ComputePassEncoder* currentPass;                // SilkTask owns ComputePassEncoder* and ensures release
     // Pre-allocated to avoid heap growth during the hot loop.
     // 4 slots cover the standard WebGPU maxBindGroups limit for most tasks, ensuring a zero-allocation steady state.
-    private readonly    List<nint>          createdBindGroups = new(4); // GpuTask owns all created BindGroup* and ensures release  
+    private readonly    List<nint>          createdBindGroups = new(4); // SilkTask owns all created BindGroup* and ensures release  
     internal            CommandBuffer*      commandBuffer;
     
     private readonly    int                 taskIndex;

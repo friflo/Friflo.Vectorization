@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Silk.NET.WebGPU;
 
-// file contains structs created by:  GpuTask
+// file contains structs created by:  SilkTask
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace

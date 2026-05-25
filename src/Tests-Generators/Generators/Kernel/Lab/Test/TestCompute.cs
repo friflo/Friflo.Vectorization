@@ -46,7 +46,7 @@ public class TestCompute : KernelBase
         foreach (var layer in layers) {
             GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
-        // Wait only on lastTask. Very efficient. GpuTask works intern with DevicePoll()
+        // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
         device.Wait(layers[0].output);
     }
     

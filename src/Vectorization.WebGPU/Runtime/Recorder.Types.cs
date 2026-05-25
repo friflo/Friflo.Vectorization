@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
-// file contains structs created by:  GpuTask
+// file contains structs created by:  CommandRecorder
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
