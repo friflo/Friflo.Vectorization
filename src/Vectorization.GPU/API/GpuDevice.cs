@@ -22,19 +22,19 @@ public abstract class GpuDevice : IDisposable
     }
     
     public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>    (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.StaticIn, label, type);
+        return CreateBuffer(data, label, BufferProfile.StaticIn, type);
     }
     
     public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>  (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label, type);
+        return CreateBuffer(data, label, BufferProfile.InOut, type);
     }
     
     public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T> (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label, type);
+        return CreateBuffer(data, label, BufferProfile.InOut, type);
     }
     
     public IScopedGpuBuffer<T>   CreateScopedBuffer<T>      (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label, type);
+        return CreateBuffer(data, label, BufferProfile.InOut, type);
     }
 
     // --- abstract
@@ -43,8 +43,8 @@ public abstract class GpuDevice : IDisposable
     public abstract void            Dispose();
     
     public abstract GpuLimits       GetDeviceLimits();
-    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, BufferProfile profile, string label, BufferType type = BufferType.Storage) where T : unmanaged;
-    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   BufferProfile profile, string label, BufferType type = BufferType.Storage) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     
     public abstract void            Flush(bool wait = true);
     public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;

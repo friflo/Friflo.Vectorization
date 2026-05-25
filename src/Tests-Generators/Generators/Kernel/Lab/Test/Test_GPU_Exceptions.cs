@@ -27,35 +27,35 @@ public class Test_GPU_Exceptions : KernelBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = device1.CreateBuffer(weight, BufferProfile.StaticIn, "gpuWeight");
-        using var gpuInput    = device1.CreateBuffer(input,  BufferProfile.StaticIn, "gpuInput");
-        using var gpuOutput   = device1.CreateBuffer(output, BufferProfile.InOut,    "gpuOutput");
+        using var gpuWeight   = device1.CreateBuffer(weight, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuInput    = device1.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
+        using var gpuOutput   = device1.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
         
         StringAssert.StartsWith("gpuWeight(", gpuWeight.ToString());
         StringAssert.EndsWith  ("): Alive",   gpuWeight.ToString());
         Assert.IsFalse(gpuWeight.IsDisposed);
 
         { 
-            var gpuOutput2   = device1.CreateBuffer(output, BufferProfile.InOut, "gpuOutput2");
+            var gpuOutput2   = device1.CreateBuffer(output, "gpuOutput2", BufferProfile.InOut);
             gpuOutput2.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
-            using var gpuOutput2 = device2.CreateBuffer(input,  BufferProfile.StaticIn, "gpuOutput2");
+            using var gpuOutput2 = device2.CreateBuffer(input, "gpuOutput2", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
-            using var gpuOutputSmall = device1.CreateBuffer(new float[63],  BufferProfile.StaticIn, "gpuOutput1");
+            using var gpuOutputSmall = device1.CreateBuffer(new float[63], "gpuOutput1", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutputSmall.InOut);
             });
             StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
         } {
-            using var gpuWeight2 = device2.CreateBuffer(weight, BufferProfile.StaticIn, "gpuWeight2"); 
+            using var gpuWeight2 = device2.CreateBuffer(weight, "gpuWeight2", BufferProfile.StaticIn); 
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight2.In, input, 42, output);
             });
@@ -77,11 +77,11 @@ public class Test_GPU_Exceptions : KernelBase
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
         GpuPattern.ShadowMethod(weight, input, 42, output); // using only spans
         
-        using var gpuOutput3   = device1.CreateBuffer(output, BufferProfile.InOut, "gpuOutput3");
+        using var gpuOutput3   = device1.CreateBuffer(output, "gpuOutput3", BufferProfile.InOut);
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
         GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
         {
-            using var gpuOutput1 = device1.CreateBuffer(input,  BufferProfile.StaticIn, "gpuOutput1");
+            using var gpuOutput1 = device1.CreateBuffer(input, "gpuOutput1", BufferProfile.StaticIn);
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
@@ -96,8 +96,8 @@ public class Test_GPU_Exceptions : KernelBase
         using var device    = Adapter.CreateDevice("device");
         if (device.DefaultComputeMode != ComputeMode.GPU) return;
         
-        using var gpuWeight = device.CreateBuffer<float>(64, BufferProfile.StaticIn, "gpuWeight");
-        using var gpuOutput = device.CreateBuffer<float>(64, BufferProfile.InOut,    "gpuOutput");
+        using var gpuWeight = device.CreateBuffer<float>(64, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuOutput = device.CreateBuffer<float>(64, "gpuOutput", BufferProfile.InOut);
 
         var e = Assert.Throws<InvalidOperationException>(() => {
             GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
@@ -111,8 +111,8 @@ public class Test_GPU_Exceptions : KernelBase
         using var device    = Adapter.CreateDevice("device");
         if (device.DefaultComputeMode != ComputeMode.GPU) return;
         
-        using var gpuWeight = device.CreateBuffer<float>(64, BufferProfile.StaticIn, "gpuWeight");
-        using var gpuOutput = device.CreateBuffer<float>(64, BufferProfile.InOut,    "gpuOutput");
+        using var gpuWeight = device.CreateBuffer<float>(64, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuOutput = device.CreateBuffer<float>(64, "gpuOutput", BufferProfile.InOut);
         
         var inputSlice   = gpuOutput.Slice(0, 10);
         var outputSlice1 = gpuOutput.Slice(0, 10);
@@ -141,9 +141,9 @@ public class Test_GPU_Exceptions : KernelBase
                 weight[n] = n;
                 input[n]  = n + 1000;
             }
-            using var gpuWeight   = device.CreateBuffer(weight, BufferProfile.StaticIn, "gpuWeight");
-            using var gpuInput    = device.CreateBuffer(input,  BufferProfile.StaticIn, "gpuInput");
-            using var gpuOutput   = device.CreateBuffer(output, BufferProfile.InOut,    "gpuOutput");
+            using var gpuWeight   = device.CreateBuffer(weight, "gpuWeight", BufferProfile.StaticIn);
+            using var gpuInput    = device.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
+            using var gpuOutput   = device.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
             
             for (int n = 0; n < 5; ++n) {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
@@ -157,7 +157,7 @@ public class Test_GPU_Exceptions : KernelBase
     [Test]
     public void Test_GPU_Adapter()
     {
-        using var gpuWeight   = Device.CreateBuffer<float>(100, BufferProfile.StaticIn, "test-buffer");
+        using var gpuWeight   = Device.CreateBuffer<float>(100, "test-buffer", BufferProfile.StaticIn);
         Assert.AreEqual("test-buffer",  gpuWeight.Label);
         Assert.AreEqual(100,            gpuWeight.Length);
         

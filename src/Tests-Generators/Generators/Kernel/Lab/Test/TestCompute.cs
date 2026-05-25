@@ -26,9 +26,9 @@ public class TestCompute : KernelBase
     //  UseSpan(weight); // compiler error
         
         using var device    = Adapter.CreateDevice("ExampleCompute");
-        var gpuWeight = device.CreateBuffer<float>(100, BufferProfile.StaticIn, "weight");
-        var gpuInput  = device.CreateBuffer<float>(100, BufferProfile.StaticIn, "input");
-        var output2   = device.CreateBuffer<float>(100, BufferProfile.StaticIn, "output2");
+        var gpuWeight = device.CreateBuffer<float>(100, "weight",   BufferProfile.StaticIn);
+        var gpuInput  = device.CreateBuffer<float>(100, "input",    BufferProfile.StaticIn);
+        var output2   = device.CreateBuffer<float>(100, "output2",  BufferProfile.StaticIn);
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
         device.Wait(output2);
     }
@@ -74,9 +74,9 @@ public class TestCompute : KernelBase
     private void WarmUpDevice()
     {
         using var device    = Adapter.CreateDevice("WarmUpDevice");
-        using var gpuWeight   = device.CreateBuffer<float>(64, BufferProfile.StaticIn,  "weight");
-        using var gpuInput    = device.CreateBuffer<float>(64, BufferProfile.StaticIn,  "input");
-        using var gpuOutput   = device.CreateBuffer<float>(64, BufferProfile.InOut,     "output");
+        using var gpuWeight   = device.CreateBuffer<float>(64,  "weight",   BufferProfile.StaticIn);
+        using var gpuInput    = device.CreateBuffer<float>(64,  "input",    BufferProfile.StaticIn);
+        using var gpuOutput   = device.CreateBuffer<float>(64,  "output",   BufferProfile.InOut);
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
     }
     
@@ -93,9 +93,9 @@ public class TestCompute : KernelBase
             weight[n] = n;
             input[n]  = n + 1000;
         }
-        using var gpuWeight   = device.CreateBuffer(weight, BufferProfile.StaticIn, "weight");
-        using var gpuInput    = device.CreateBuffer(input,  BufferProfile.StaticIn, "input");
-        using var gpuOutput   = device.CreateBuffer(output, BufferProfile.InOut,    "output");
+        using var gpuWeight   = device.CreateBuffer(weight, "weight", BufferProfile.StaticIn);
+        using var gpuInput    = device.CreateBuffer(input,  "input",  BufferProfile.StaticIn);
+        using var gpuOutput   = device.CreateBuffer(output, "output", BufferProfile.InOut);
         
         // var start1 = Mem.GetAllocatedBytes();                        // TODO should add allocation check for first call
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
@@ -129,11 +129,11 @@ public class TestCompute : KernelBase
         var output2 = new float[65];
         var output3 = new float[65];
         for (int n = 0; n < 64; ++n) { weight[n] = n; input[n]  = n + 1000; }
-        using var gpuWeight   = device.CreateBuffer(weight,  BufferProfile.StaticIn, "weight");
+        using var gpuWeight   = device.CreateBuffer(weight,  "weight",  BufferProfile.StaticIn);
         using var gpuInput    = device.CreateReadOnlyBuffer(input, "input");
-        using var gpuOutput   = device.CreateBuffer(output,  BufferProfile.InOut, "output");
-        using var gpuOutput2  = device.CreateBuffer(output2, BufferProfile.InOut, "output2");
-        using var gpuOutput3  = device.CreateBuffer(output3, BufferProfile.InOut, "output3");
+        using var gpuOutput   = device.CreateBuffer(output,  "output",  BufferProfile.InOut);
+        using var gpuOutput2  = device.CreateBuffer(output2, "output2", BufferProfile.InOut);
+        using var gpuOutput3  = device.CreateBuffer(output3, "output3", BufferProfile.InOut);
         
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);

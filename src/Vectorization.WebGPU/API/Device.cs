@@ -188,7 +188,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, BufferProfile.StaticIn, "globalUniformPool", BufferType.Uniform);
+        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
         threadRecorders = new ThreadLocal<CommandRecorder>(
             valueFactory: () => new CommandRecorder(this),
             trackAllValues: true
@@ -404,7 +404,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
         var sizeInBytes     = (uint)(length * Unsafe.SizeOf<T>());
@@ -416,7 +416,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         return gpuBuffer;
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(T[] data, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(T[] data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
         var sizeInBytes     = (uint)(data.Length * Unsafe.SizeOf<T>());
