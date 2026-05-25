@@ -136,30 +136,37 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
 /// </summary>
 public enum BufferProfile
 {
-    /// <summary> CPU writes / reads </summary>                 <remarks>BufferUsage: Storage | CopyDst | CopySrc</remarks>
-    InOut,
-    /// <summary> CPU writes once  </summary>                   <remarks>BufferUsage: Storage | CopyDst</remarks>
-    StaticIn,
-    /// <summary> CPU only reads a compute result </summary>    <remarks>BufferUsage: Storage | CopySrc</remarks>
-    PureOut
+    /// <summary> CPU writes / reads </summary>                 <remarks>BufferUsage: CopyDst | CopySrc</remarks>
+    InOut       = 0,
+    
+    /// <summary> CPU writes once  </summary>                   <remarks>BufferUsage: CopyDst</remarks>
+    StaticIn    = 1,
+    
+    /// <summary> CPU only reads a compute result </summary>    <remarks>BufferUsage: CopySrc</remarks>
+    PureOut     = 2
 }
 
-[Flags]
-public enum GpuBufferUsage
+/// <summary>
+/// Defines the hardware-specific role and optimization path of the buffer inside the GPU pipeline.
+/// </summary>
+public enum BufferType
 {
-    None            = 0x0,
-    MapRead         = 0x1,
-    MapWrite        = 0x2,
-    CopySrc         = 0x4,
-    CopyDst         = 0x8,
-    Index           = 0x10,
-    Vertex          = 0x20,
-    Uniform         = 0x40,
-    Storage         = 0x80,
-    Indirect        = 0x100,
-    QueryResolve    = 0x200,
-//  Force32         = 0x7FFFFFFF,
+    /// <summary> Large data arrays accessible by compute and graphics shaders. </summary>
+    Storage     = 0,
+    
+    /// <summary> Small, fast, read-only configuration data for shaders. </summary>
+    Uniform     = 1,
+    
+    /// <summary> Fed directly into the Vertex Input Assembly stage to draw geometry. </summary>
+    Vertex      = 2,
+    
+    /// <summary> Fed directly into the Index Input Assembly stage to lookup vertices. </summary>
+    Index       = 3,
+    
+    /// <summary> Contains execution arguments for indirect dispatch or draw calls. </summary>
+    Indirect    = 4
 }
+
 
 internal static class GpuBufferUtils
 {

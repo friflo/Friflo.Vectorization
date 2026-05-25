@@ -22,19 +22,19 @@ public abstract class GpuDevice : IDisposable
     }
     
     public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, GpuBufferUsage.Storage, label);
+        return CreateBuffer(data, BufferProfile.StaticIn, label);
     }
     
     public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, label);  // CopySrc - enable Download()  GPU -> CPU
+        return CreateBuffer(data, BufferProfile.InOut, label);
     }
     
     public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopyDst, label);  // CopyDst - enable Upload() CPU -> GPU
+        return CreateBuffer(data, BufferProfile.InOut, label);
     }
     
     public IScopedGpuBuffer<T>   CreateScopedBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc | GpuBufferUsage.CopyDst, label);
+        return CreateBuffer(data, BufferProfile.InOut, label);
     }
 
     // --- abstract
@@ -43,8 +43,8 @@ public abstract class GpuDevice : IDisposable
     public abstract void            Dispose();
     
     public abstract GpuLimits       GetDeviceLimits();
-    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, GpuBufferUsage usage, string label) where T : unmanaged;
-    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   GpuBufferUsage usage, string label) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, BufferProfile profile, string label, BufferType type = BufferType.Storage) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   BufferProfile profile, string label, BufferType type = BufferType.Storage) where T : unmanaged;
     
     public abstract void            Flush(bool wait = true);
     public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;

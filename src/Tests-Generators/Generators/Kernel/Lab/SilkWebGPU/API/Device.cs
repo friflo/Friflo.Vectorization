@@ -197,7 +197,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, GpuBufferUsage.Uniform | GpuBufferUsage.CopyDst, "globalUniformPool");
+        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, BufferProfile.StaticIn, "globalUniformPool", BufferType.Uniform);
         taskPool            = new SilkTask[maxTasks];
         availableTasks      = new Stack<SilkTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -364,19 +364,23 @@ public sealed unsafe class SilkDevice : GpuDevice
         return buffer;
     }
     
-    private static BufferUsage FromGpuBufferUsage(GpuBufferUsage usage)
+    private static BufferUsage FromBufferProfile(BufferProfile profile, BufferType type)
     {
-        return
-            ((usage & GpuBufferUsage.MapRead)       != 0 ? BufferUsage.MapRead      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.MapWrite)      != 0 ? BufferUsage.MapWrite     : BufferUsage.None) |
-            ((usage & GpuBufferUsage.CopySrc)       != 0 ? BufferUsage.CopySrc      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.CopyDst)       != 0 ? BufferUsage.CopyDst      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Index)         != 0 ? BufferUsage.Index        : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Vertex)        != 0 ? BufferUsage.Vertex       : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Uniform)       != 0 ? BufferUsage.Uniform      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Storage)       != 0 ? BufferUsage.Storage      : BufferUsage.None) |
-            ((usage & GpuBufferUsage.Indirect)      != 0 ? BufferUsage.Indirect     : BufferUsage.None) |
-            ((usage & GpuBufferUsage.QueryResolve)  != 0 ? BufferUsage.QueryResolve : BufferUsage.None);
+        var usage = profile switch {
+            BufferProfile.InOut     => BufferUsage.CopyDst | BufferUsage.CopySrc,
+            BufferProfile.StaticIn  => BufferUsage.CopyDst,
+            BufferProfile.PureOut   =>                       BufferUsage.CopySrc,
+            _                       => throw new InvalidOperationException()
+        };
+        var typeUsage = type switch {
+            BufferType.Storage      => BufferUsage.Storage,
+            BufferType.Uniform      => BufferUsage.Uniform,
+            BufferType.Vertex       => BufferUsage.Vertex,
+            BufferType.Index        => BufferUsage.Index,
+            BufferType.Indirect     => BufferUsage.Indirect,
+            _                       => throw new InvalidOperationException()
+        };
+        return usage | typeUsage;
     }
     
     public override GpuLimits GetDeviceLimits()
@@ -392,18 +396,18 @@ public sealed unsafe class SilkDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage)
     {
-        var wgpuUsage   = FromGpuBufferUsage(usage);
+        var wgpuUsage   = FromBufferProfile(profile, type);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
         var array       = new T[length];
         return new SilkBuffer<T>(this, buffer, array, bufferLabel);
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel)
+    public override GpuBuffer<T> CreateBuffer<T>(T[] data, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage)
     {
-        var wgpuUsage   = FromGpuBufferUsage(usage);
+        var wgpuUsage   = FromBufferProfile(profile, type);
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
         return new SilkBuffer<T>(this, handle, data, bufferLabel);
     }

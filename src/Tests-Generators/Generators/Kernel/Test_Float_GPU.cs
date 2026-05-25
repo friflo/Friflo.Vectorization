@@ -32,8 +32,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         MultiplyVector(scalar1,    		 scalar2, false);
         MultiplyKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -61,9 +61,9 @@ public partial class Test_Float_GPU : KernelBase
             scalar2[n] = buffer2[n] = n + 100;
         }
 
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
 
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         AssignVector(scalar1,          scalar2, false);
 
@@ -91,8 +91,8 @@ public partial class Test_Float_GPU : KernelBase
             buffer1[n] = n;
             buffer2[n] = n;
         }
-        using var gpuDst   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "dst");
-        using var gpuSrc   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "src");
+        using var gpuDst   = Device.CreateBuffer(buffer1, BufferProfile.InOut, "dst");
+        using var gpuSrc   = Device.CreateBuffer(buffer2, BufferProfile.InOut, "src");
         BufferView<float>   view1 = gpuDst.Slice     (10, 10);
         ReadOnlyView<float> view2 = gpuSrc.AsReadOnly(20, 10);
 
@@ -123,8 +123,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         MoveVector(scalar1,          scalar2,       42, false);
         MoveKernel(gpuBuffer1.InOut, gpuBuffer2.In, 42);
@@ -151,7 +151,7 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut, "position");
 
         UseConstantVector(scalar1, false);
         UseConstantKernel(gpuBuffer1.InOut);
@@ -178,7 +178,7 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut, "position");
 
         InverseSqrtVector(scalar1, false);
         InverseSqrtKernel(gpuBuffer1.InOut);
@@ -218,8 +218,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_TrigonometryVector(scalar1,    	    scalar2,       1.1f, false);
         Kernel_TrigonometryKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
@@ -250,8 +250,8 @@ public partial class Test_Float_GPU : KernelBase
         for (int n = 0; n < 128; n++) {
             scalar1[n] = buffer1[n] = (n - 64f) / 64f * 10;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_Trigonometry2Vector(scalar1, false);
         Kernel_Trigonometry2Kernel(gpuBuffer1.InOut);
@@ -291,8 +291,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n * 0.123f;
             scalar2[n] = buffer2[n] = (n + 100) * 0.005f;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_MiscVector(scalar1,          scalar2,       1.1f, false);
         Kernel_MiscKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
@@ -321,8 +321,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_MinVector(scalar1,          scalar2, false);
         Kernel_MinKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -351,8 +351,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n;
             scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_MaxVector(scalar1,          scalar2, false);
         Kernel_MaxKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -381,8 +381,8 @@ public partial class Test_Float_GPU : KernelBase
             scalar1[n] = buffer1[n] = n + 100;
             scalar2[n] = buffer2[n] = n;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");
 
         Kernel_ClampVector(scalar1,          scalar2,       200, false);
         Kernel_ClampKernel(gpuBuffer1.InOut, gpuBuffer2.In, 200);

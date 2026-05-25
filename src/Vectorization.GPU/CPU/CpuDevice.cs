@@ -30,14 +30,14 @@ internal sealed class CpuDevice : GpuDevice
         return new GpuLimits();
     }
 
-    public override GpuBuffer<T> CreateBuffer<T>(int length, GpuBufferUsage usage, string bufferLabel)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage)
     {
         adapter.bufferCount++;
         var array = new T[length];
         return new CpuBuffer<T>(this, array, bufferLabel);
     }
 
-    public override GpuBuffer<T> CreateBuffer<T>(T[] data, GpuBufferUsage usage, string bufferLabel) {
+    public override GpuBuffer<T> CreateBuffer<T>(T[] data, BufferProfile profile, string bufferLabel, BufferType type = BufferType.Storage) {
         adapter.bufferCount++;
         return new CpuBuffer<T>(this, data, bufferLabel);
     }

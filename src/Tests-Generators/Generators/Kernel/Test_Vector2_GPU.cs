@@ -33,8 +33,8 @@ public partial class Test_Vector2_GPU : KernelBase
             array1[n] = buffer1[n] = new Vector2(n+1,n+1);
             array2[n] = buffer2[n] = new Vector2(n+100,n+100);
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         MultiplyVector(array1,           array2, false);
         MultiplyKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -68,8 +68,8 @@ public partial class Test_Vector2_GPU : KernelBase
             array1[n] = buffer1[n] = new Vector2(n,n);
             array2[n] = buffer2[n] = new Vector2(n+100,n+100);
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         ArithmeticVector(array1,           array2, false);
         ArithmeticKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -103,8 +103,8 @@ public partial class Test_Vector2_GPU : KernelBase
             array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
             array2[n] = buffer2[n] = new Vector2(n * 0.1f + 100, n * 0.1f + 100);
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         MiscVector(array1,           array2,        new Vector2(5.5f, 6.6f), false);
         MiscKernel(gpuBuffer1.InOut, gpuBuffer2.In, new Vector2(5.5f, 6.6f));
@@ -140,8 +140,8 @@ public partial class Test_Vector2_GPU : KernelBase
             array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
             array2[n] = buffer2[n] = new Vector2(n * 0.1f + 100, n * 0.1f + 100);
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         AdvancedVector(array1,           array2, false);
         AdvancedKernel(gpuBuffer1.InOut, gpuBuffer2.In);
@@ -178,8 +178,8 @@ public partial class Test_Vector2_GPU : KernelBase
         for (int n = 0; n < 128; n++) {
             array1[n] = buffer1[n] = new Vector2(n * 0.1f,       n * 0.1f);
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer1   = Device.CreateBuffer(buffer1, BufferProfile.InOut,    "position");
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, BufferProfile.StaticIn, "velocity");        
 
         TransformVector(array1,           matrix, false);
         TransformKernel(gpuBuffer1.InOut, matrix);
