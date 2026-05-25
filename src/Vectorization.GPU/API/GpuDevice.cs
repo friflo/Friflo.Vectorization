@@ -21,20 +21,20 @@ public abstract class GpuDevice : IDisposable
         SlotSize    = slotSize;
     }
     
-    public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.StaticIn, label);
+    public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>    (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
+        return CreateBuffer(data, BufferProfile.StaticIn, label, type);
     }
     
-    public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label);
+    public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>  (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
+        return CreateBuffer(data, BufferProfile.InOut, label, type);
     }
     
-    public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label);
+    public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T> (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
+        return CreateBuffer(data, BufferProfile.InOut, label, type);
     }
     
-    public IScopedGpuBuffer<T>   CreateScopedBuffer<T>(T[] data, string label) where T : unmanaged {
-        return CreateBuffer(data, BufferProfile.InOut, label);
+    public IScopedGpuBuffer<T>   CreateScopedBuffer<T>      (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
+        return CreateBuffer(data, BufferProfile.InOut, label, type);
     }
 
     // --- abstract
