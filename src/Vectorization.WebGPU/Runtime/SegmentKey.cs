@@ -51,6 +51,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelId, int kernelSeq, string param)
     {
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
+        bool hasConflict = false;
         if (exists) {
             if (state.kernelSeq == kernelSeq) {
                 if (state.isWrite) {
@@ -59,16 +60,12 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
                 return false;
             }
             bool pipelineChanged    = state.kernelId != kernelId;
-            bool hasConflict        = state.isWrite || pipelineChanged;
-            state.kernelSeq = kernelSeq;
-            state.kernelId  = kernelId;
-            state.isWrite   = false;
-            return hasConflict;
+            hasConflict             = state.isWrite || pipelineChanged;
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;
         state.isWrite   = false;
-        return false;
+        return hasConflict;
     }
     
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
@@ -76,22 +73,19 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelId, int kernelSeq, string param)
     {
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
+        bool hasConflict = false;
         if (exists) {
             if (state.kernelSeq == kernelSeq) {
                 ThrowConflictingUsages(param);
                 return false;
             }
-            bool pipelineChanged   =  state.kernelId != kernelId;
-            bool hasConflict       = !state.isWrite || pipelineChanged;
-            state.kernelSeq = kernelSeq;
-            state.kernelId  = kernelId;
-            state.isWrite   = true;
-            return hasConflict;
+            bool pipelineChanged    =  state.kernelId != kernelId;
+            hasConflict             = !state.isWrite || pipelineChanged;
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;
         state.isWrite   = true;
-        return false;
+        return hasConflict;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
