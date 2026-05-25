@@ -15,6 +15,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal struct SegmentState
 {
+    internal int  kernelId;    // last kernel seq
     internal int  kernelSeq;    // last kernel seq
     internal bool isWrite;      // true = Write, false = Read
 }
@@ -47,40 +48,48 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [StackTraceHidden]
-    internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelId, string param)
+    internal static bool AddRead(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelId, int kernelSeq, string param)
     {
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
         if (exists) {
-            if (state.isWrite) {
-                if (state.kernelSeq == kernelId) {
-                    ThrowConflictingUsages(param); // same buffer is used for read & write
+            if (state.kernelSeq == kernelSeq) {
+                if (state.isWrite) {
+                    ThrowConflictingUsages(param);
                 }
-                state.kernelSeq = kernelId;
-                state.isWrite   = false;
-                return true;  // conflict: Read-After-Write (RAW) Hazard!
+                return false;
             }
-            state.kernelSeq = kernelId;
-            return false;
+            bool pipelineChanged    = state.kernelId != kernelId;
+            bool hasConflict        = state.isWrite || pipelineChanged;
+            state.kernelSeq = kernelSeq;
+            state.kernelId  = kernelId;
+            state.isWrite   = false;
+            return hasConflict;
         }
-        state.kernelSeq = kernelId;
+        state.kernelSeq = kernelSeq;
+        state.kernelId  = kernelId;
         state.isWrite   = false;
         return false;
     }
     
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [StackTraceHidden]
-    internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelSeq, string param)
+    internal static bool AddReadWrite(Dictionary<SegmentKey, SegmentState> segmentMap, SegmentKey key, int kernelId, int kernelSeq, string param)
     {
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
         if (exists) {
             if (state.kernelSeq == kernelSeq) {
-                ThrowConflictingUsages(param);  // same buffer is used for read & write
+                ThrowConflictingUsages(param);
+                return false;
             }
+            bool pipelineChanged   =  state.kernelId != kernelId;
+            bool hasConflict       = !state.isWrite || pipelineChanged;
             state.kernelSeq = kernelSeq;
+            state.kernelId  = kernelId;
             state.isWrite   = true;
-            return true; // conflict: In either case if Read (WAR-Hazard) or Write (WAW-Hazard) before.
+            return hasConflict;
         }
         state.kernelSeq = kernelSeq;
+        state.kernelId  = kernelId;
         state.isWrite   = true;
         return false;
     }
