@@ -39,12 +39,13 @@ public sealed unsafe class CommandRecorder : IDisposable
     internal readonly   List<nint>          commandBuffers  = new();
     private             int                 kernelSeq;
     private             int                 kernelId        = -1;
-    internal            bool                createNewPass;
+    private             bool                createNewPass;
     
     internal            bool                isSubmitted;        // TODO remove
     internal            bool                isCompleted;        // TODO remove
-    
-    
+
+    public   override   string              ToString()      => $"newPass: {createNewPass}";
+
     public void Init(int id) {
         createNewPass   = kernelId != id;
         kernelId        = id;

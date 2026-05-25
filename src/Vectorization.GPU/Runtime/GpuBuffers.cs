@@ -27,7 +27,9 @@ public struct GpuBuffers
     public              bool        ComputeGPU  => computeMode == ComputeMode.GPU;
     public              bool        ComputeSIMD => computeMode == ComputeMode.SIMD;
 
-    
+    public  override    string 		ToString()  => $"length: {length}  mode: {computeMode}  device: {device}";
+
+
     private const ulong Prime       = 0x100000001b3;
     private const ulong OffsetBasis = 0xcbf29ce484222325;
     
