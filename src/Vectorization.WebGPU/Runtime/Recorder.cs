@@ -70,7 +70,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         return gpuBuffer;
     }
     
-    private ref BufferEntry GetBufferEntry(int bufferId)
+    private ref BufferEntry GetBufferEntry(uint bufferId)
     {
         if (bufferId < bufferEntries.Length) {
             ref var entry = ref bufferEntries[bufferId];
@@ -83,7 +83,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private ref BufferEntry ResizeBufferEntries(int bufferId)
+    private ref BufferEntry ResizeBufferEntries(uint bufferId)
     {
         var newEntries  = new BufferEntry[bufferId + 1];
         var entries     = bufferEntries;
@@ -257,7 +257,7 @@ public sealed unsafe class CommandRecorder : IDisposable
             if (ranges == null || ranges.Count == 0) {
                 continue;
             }
-            var buffer              = bufferMap[bufferEntry.bufferId].GetBufferData();
+            var buffer              = bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             buffer.requestedRanges  = ranges;
             activeBuffers.Add(buffer);
 

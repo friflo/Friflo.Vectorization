@@ -22,8 +22,10 @@ public abstract class GpuBuffer : IDisposable
     public    readonly  string      Label;
     public    readonly  int         Length;
     public	  readonly  long        Id              = GpuBufferUtils.NextId();
-    public	  readonly  int         DeviceBufferId;
     public	  abstract  GpuDevice   Device          { get; }
+    
+    [EditorBrowsable(EditorBrowsableState.Never)] [CLSCompliant(false)]
+    public	  readonly  uint        DeviceBufferId;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public	  readonly  nint        NativeHandle;
@@ -39,7 +41,7 @@ public abstract class GpuBuffer : IDisposable
         Label           = label;
         Length          = length;
         NativeHandle    = nativeHandle;
-        DeviceBufferId  = bufferId;
+        DeviceBufferId  = (uint)bufferId;
     }
 }
 

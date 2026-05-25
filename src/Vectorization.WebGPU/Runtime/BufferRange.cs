@@ -11,7 +11,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal readonly struct BufferRange : IComparable<BufferRange>
 {
-    internal readonly   int     bufferId;
+    internal readonly   uint    bufferId;
     internal readonly   int     start;
     internal readonly   int     length;
 
@@ -19,7 +19,7 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
     public int CompareTo(BufferRange other) => start.CompareTo(other.start);
 
-    internal BufferRange(int bufferId, int start, int length)
+    internal BufferRange(uint bufferId, int start, int length)
     {
         this.bufferId   = bufferId;
         this.start      = start;
@@ -61,13 +61,13 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
 internal readonly struct BufferEntry
 {
-    internal readonly   int                                     bufferId;
+    internal readonly   uint                                    bufferId;
     internal readonly   List<BufferRange>                       requestedRanges;
     internal readonly   Dictionary<SegmentKey, SegmentState>    bufferSegments;
 
     public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
 
-    internal BufferEntry(int bufferId) {
+    internal BufferEntry(uint bufferId) {
         this.bufferId   = bufferId;
         requestedRanges = new List<BufferRange>();
         bufferSegments  = new Dictionary<SegmentKey, SegmentState>();
