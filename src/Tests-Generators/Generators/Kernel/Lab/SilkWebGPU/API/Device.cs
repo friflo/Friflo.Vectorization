@@ -301,7 +301,6 @@ public sealed unsafe class SilkDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        // var task = (SilkTask)buffer.LastWritingTask;		TASK_TAG
         // if (task == null || task.IsCompleted) return;
         var completed = false;
 

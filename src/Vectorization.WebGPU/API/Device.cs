@@ -50,14 +50,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private readonly    ThreadLocal<CommandRecorder>    threadRecorders;
     public              CommandRecorder                 Recorder        => threadRecorders.Value!;
-    // private          TaskArray           availableTasks;     TASK_TAG
     internal readonly   WgpuBuffer<byte>    globalUniformPool;
     private  readonly   WgpuQueue           queue;
     
     private  static     int                 effectSlotCount;
     private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
-    // private          TaskArray           pendingTasks;       TASK_TAG
-    // private          TaskArray           inFlightTasks;      TASK_TAG
     private             GCHandle            deviceHandle;
     private  readonly   void*               deviceHandlePtr;
     
@@ -135,23 +132,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
         isDisposed = true;
     }
-    
-    
-    /* [MethodImpl(MethodImplOptions.AggressiveInlining)]     // TASK_TAG
-    public WgpuTask RentTask() {
-        lock (availableTasks.tasks) {
-            return availableTasks.Pop();
-        } 
-    }
-
-    internal void ReturnTask(WgpuTask task)
-    {
-        task.Reset();
-        lock (availableTasks.tasks) {
-            availableTasks.Push(task);
-        }
-    } */
-    
  
     // --- effectSlots
     // NewGpuEffectSlot() is called only once per shadow method. It stores the slot index in a static readonly int
@@ -213,15 +193,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
             valueFactory: () => new CommandRecorder(this),
             trackAllValues: true
         );
-        /* taskPool            = new WgpuTask[maxTasks];    TASK_TAG
-         availableTasks      = new TaskArray(maxTasks);
-        pendingTasks        = new TaskArray(maxTasks);
-        inFlightTasks       = new TaskArray(maxTasks);
-        for (int i = 0; i < maxTasks; i++) {
-            var task = new WgpuTask(this);
-            taskPool[i] = task;
-            availableTasks.Push(task);
-        } */
     }
     
     // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
@@ -253,25 +224,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
             device.inFlightCommandBufferCount--;
         }
     }
-    
-    /* private void ReturnPendingTasks() {      					// TASK_TAG
-         // Be ultra safe. DevicePoll() in Dispose(disposing) should already ensure HandleTasksFinished() is not fired anymore
-        if (isDisposed) return; 
-        for (int i = 0; i < inFlightTasks.count; i++) {
-            var task = inFlightTasks.tasks[i];
-            ReturnTask(task);
-        }
-        inFlightTasks.Clear();
-    } */
-    
-    /* [MethodImpl(MethodImplOptions.AggressiveInlining)]   		TASK_TAG
-    public void Enqueue(WgpuTask task)
-    {
-        pendingTasks.Push(task);
-        if (pendingTasks.count >= 1024) { 
-            Flush(); // ensure list does not grow unlimited
-        }
-    } */
     
     private int inFlightCommandBufferCount;
     
@@ -305,10 +257,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
                 wgpuCommandBufferRelease(commandBuffers[n]);
             }
-            /* // Swap list references   TASK_TAG
-            var temp        = inFlightTasks;
-            inFlightTasks   = tasks;
-            pendingTasks    = temp; */
             
             // Register callback for the new In-Flight batch
             var callbackInfo = new QueueWorkDoneCallbackInfo {
@@ -344,7 +292,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
 
     public override void Wait<T>(GpuBuffer<T> buffer)
     {
-        // var task = (WgpuTask)buffer.LastWritingTask;			TASK_TAG
         // if (task == null || task.IsCompleted) return;
 
         // We register a callback for completion
