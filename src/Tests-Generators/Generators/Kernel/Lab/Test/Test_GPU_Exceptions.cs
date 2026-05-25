@@ -98,21 +98,33 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var gpuWeight = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "gpuWeight");
         using var gpuOutput = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
-        {
-            var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
-            })!;
-            StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
-        }
-        if (false) {
-            var e = Assert.Throws<WgpuException>(() => {
-                ExpectedCommandBuffers++; // Symptom of root cause error
-                GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
-            })!;
-            StringAssert.Contains("gpuOutput",          e.Message);
-            StringAssert.Contains("conflicting usages", e.Message);
-            StringAssert.Contains("STORAGE_READ_WRITE", e.Message);
-        }
+
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            GpuPattern.ShadowMethod(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
+        })!;
+        StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
+    }
+    
+    [Test]
+    public void Test_GPU_Exceptions_conflicting_usages_wgpu()
+    {        
+        using var device    = Adapter.CreateDevice("device");
+        if (device.DefaultComputeMode != ComputeMode.GPU) return;
+        
+        using var gpuWeight = device.CreateBuffer<float>(64, GpuBufferUsage.Storage, "gpuWeight");
+        using var gpuOutput = device.CreateBuffer<float>(64, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "gpuOutput");
+        
+        var inputSlice   = gpuOutput.Slice(0, 10);
+        var outputSlice1 = gpuOutput.Slice(0, 10);
+        var outputSlice2 = gpuOutput.Slice(20,10);
+
+        var e = Assert.Throws<WgpuException>(() => {
+            ExpectedCommandBuffers++; // Symptom of root cause error
+            GpuPattern.ShadowMethod(inputSlice, outputSlice1, 42, outputSlice2);
+        })!;
+        StringAssert.Contains("gpuOutput",          e.Message);
+        StringAssert.Contains("conflicting usages", e.Message);
+        StringAssert.Contains("STORAGE_READ_WRITE", e.Message);
     }
     
     
