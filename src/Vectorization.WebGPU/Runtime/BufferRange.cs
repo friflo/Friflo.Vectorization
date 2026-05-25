@@ -61,14 +61,14 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
 internal readonly struct BufferEntry
 {
-    internal readonly   IWgpuBuffer                             wgpuBuffer;
+    internal readonly   int                                     bufferId;
     internal readonly   List<BufferRange>                       requestedRanges;
     internal readonly   Dictionary<SegmentKey, SegmentState>    bufferSegments;
 
-    public   override   string      ToString() => wgpuBuffer?.ToString();
+    public override string ToString() => bufferId == 0 ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
 
-    internal BufferEntry(IWgpuBuffer wgpuBuffer) {
-        this.wgpuBuffer = wgpuBuffer;
+    internal BufferEntry(int bufferId) {
+        this.bufferId   = bufferId;
         requestedRanges = new List<BufferRange>();
         bufferSegments  = new Dictionary<SegmentKey, SegmentState>();
     }

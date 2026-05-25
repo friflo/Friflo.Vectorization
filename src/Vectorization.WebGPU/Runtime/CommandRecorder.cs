@@ -71,7 +71,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         if (bufferId < bufferEntries.Length) {
             ref var entry = ref bufferEntries[bufferId];
             if (entry.bufferSegments == null) {
-                entry = new BufferEntry(device.bufferMap[bufferId]);
+                entry = new BufferEntry(bufferId);
             }
             return ref entry;
         }
@@ -85,7 +85,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         var entries     = bufferEntries;
         Array.Copy(entries, newEntries, entries.Length);
         bufferEntries  = newEntries;
-        newEntries[bufferId] = new BufferEntry(device.bufferMap[bufferId]);
+        newEntries[bufferId] = new BufferEntry(bufferId);
         return ref newEntries[bufferId];
     }
     
@@ -251,7 +251,7 @@ public sealed unsafe class CommandRecorder : IDisposable
             if (bufferEntry.requestedRanges.Count == 0) {
                 continue;
             }
-            var buffer              = bufferEntry.wgpuBuffer.GetBufferData();
+            var buffer              = device.bufferMap[bufferEntry.bufferId].GetBufferData();
             buffer.requestedRanges  = bufferEntry.requestedRanges;
             activeBuffers.Add(buffer);
 
