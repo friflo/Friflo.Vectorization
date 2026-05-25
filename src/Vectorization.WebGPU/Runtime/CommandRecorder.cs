@@ -240,22 +240,24 @@ public sealed unsafe class CommandRecorder : IDisposable
     internal void Download()
     {
         foreach (var range in requestedRanges) {
-            bufferEntries[range.bufferId].requestedRanges?.Add(range);
+            bufferEntries[range.bufferId].requestedRanges.Add(range);
         }
         
         var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         activeBuffers.Clear();
+        var bufferMap = device.bufferMap;
 
         foreach (var bufferEntry in bufferEntries)
         {
-            if (bufferEntry.requestedRanges.Count == 0) {
+            var ranges = bufferEntry.requestedRanges;
+            if (ranges == null || ranges.Count == 0) {
                 continue;
             }
-            var buffer              = device.bufferMap[bufferEntry.bufferId].GetBufferData();
-            buffer.requestedRanges  = bufferEntry.requestedRanges;
+            var buffer              = bufferMap[bufferEntry.bufferId].GetBufferData();
+            buffer.requestedRanges  = ranges;
             activeBuffers.Add(buffer);
 
-            var  optimizedRanges = BufferRange.GetOptimizedRanges(bufferEntry.requestedRanges, tempRanges);
+            var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
             uint elementSize     = (uint)buffer.elementSize;
             foreach (var range in optimizedRanges)
             {
@@ -306,7 +308,7 @@ public sealed unsafe class CommandRecorder : IDisposable
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
             
-            var wgpuBuffer = device.bufferMap[buffer.bufferId];
+            var wgpuBuffer = bufferMap[buffer.bufferId];
             wgpuBuffer.ExecuteCpuCopy(pMapped, buffer.requestedRanges);     // copy staging memory to host memory
             
             wgpuBufferUnmap(buffer.stagingHandle);                          // unmap so CPU is able to access
