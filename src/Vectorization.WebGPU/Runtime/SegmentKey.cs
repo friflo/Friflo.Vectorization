@@ -15,7 +15,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal struct SegmentState
 {
-    internal int  kernelId;    // last kernel seq
+    internal int  kernelId;     // last kernel ID
     internal int  kernelSeq;    // last kernel seq
     internal bool isWrite;      // true = Write, false = Read
 }
@@ -55,9 +55,8 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
         if (exists) {
             if (state.kernelSeq == kernelSeq) {
                 if (state.isWrite) {
-                    ThrowConflictingUsages(param);
+                    throw ThrowConflictingUsages(param);
                 }
-                return false;
             }
             bool pipelineChanged    = state.kernelId != kernelId;
             hasConflict             = state.isWrite || pipelineChanged;
@@ -76,8 +75,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
         bool hasConflict = false;
         if (exists) {
             if (state.kernelSeq == kernelSeq) {
-                ThrowConflictingUsages(param);
-                return false;
+                throw ThrowConflictingUsages(param);
             }
             bool pipelineChanged    =  state.kernelId != kernelId;
             hasConflict             = !state.isWrite || pipelineChanged;
@@ -89,9 +87,9 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private static void ThrowConflictingUsages(string param)
+    private static InvalidOperationException ThrowConflictingUsages(string param)
     {
-        throw new InvalidOperationException($"Schrödinger's Buffer: Parameter '{param}' is suffering from a temporal personality split. " +
+        return new InvalidOperationException($"Schrödinger's Buffer: Parameter '{param}' is suffering from a temporal personality split. " +
             $"You are trying to read from it and write to it within the EXACT SAME kernel execution. Pick a side, time traveler!");
     }
 }
