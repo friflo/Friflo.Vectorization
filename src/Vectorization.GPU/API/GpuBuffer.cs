@@ -127,17 +127,11 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
             // return InternalDownloadValue(index);
         }
     }
-
-    public void WaitInDebug()
-    {
-        if (!Device.DebugMode) {
-            return;
-        }
-        Device.Flush();
-    }
     
     public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);
 }
+
+
 
 [Flags]
 public enum GpuBufferUsage

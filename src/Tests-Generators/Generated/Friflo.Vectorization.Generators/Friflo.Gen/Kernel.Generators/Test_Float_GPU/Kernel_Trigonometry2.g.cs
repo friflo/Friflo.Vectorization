@@ -157,7 +157,7 @@ namespace Kernel.Generators
 
         recorder.Finish(encoder, "Kernel_Trigonometry2"u8);
 
-        // output.WaitInDebug();
+        // device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430

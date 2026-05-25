@@ -255,6 +255,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         }
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public override void Flush(bool wait = true)
     {
         var tasks = pendingTasks;
@@ -288,6 +289,14 @@ public sealed unsafe class SilkDevice : GpuDevice
                 wgpuEx.DevicePoll(DevicePtr, true, null);
             }
         }
+    }
+    
+    public void WaitInDebug()
+    {
+        if (!DebugMode) {
+            return;
+        }
+        Flush();
     }
 
     public override void Wait<T>(GpuBuffer<T> buffer)

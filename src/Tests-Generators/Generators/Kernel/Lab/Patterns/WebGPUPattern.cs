@@ -66,7 +66,7 @@ public static class WebGPUPattern
         
         recorder.Finish(encoder, "ShadowMethod"u8);     // extract CommandBuffer from Encoder
 
-        output.WaitInDebug();
+        device.WaitInDebug();
     }
     
     private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();

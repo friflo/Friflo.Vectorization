@@ -207,7 +207,7 @@ namespace Kernel.Generators
 
         recorder.Finish(encoder, "Misc"u8);
 
-        // output.WaitInDebug();
+        // device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL layout: std140/std430

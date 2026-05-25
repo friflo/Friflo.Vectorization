@@ -68,7 +68,7 @@ public static class SilkPattern
         task.Finish(encoder, "ShadowMethod"u8); // extract CommandBuffer from Encoder
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
 
-        gpuOutput.WaitInDebug();
+        device.WaitInDebug();
         return gpuOutput;
     }
     

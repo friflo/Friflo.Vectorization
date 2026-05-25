@@ -208,7 +208,7 @@ $$""""
 
         recorder.Finish(encoder, "{{methodName}}"u8);
 
-        // output.WaitInDebug();
+        // device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
