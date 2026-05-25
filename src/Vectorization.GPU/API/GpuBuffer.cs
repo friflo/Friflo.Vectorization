@@ -136,13 +136,13 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
 /// </summary>
 public enum BufferProfile
 {
-    /// <summary> CPU writes / reads </summary>                 <remarks>BufferUsage: CopyDst | CopySrc</remarks>
+    /// <summary> CPU can write/read data to/from GPU. </summary>           <remarks>BufferUsage: CopyDst | CopySrc</remarks>
     InOut       = 0,
     
-    /// <summary> CPU writes once  </summary>                   <remarks>BufferUsage: CopyDst</remarks>
+    /// <summary> CPU writes data once to GPU. </summary>                   <remarks>BufferUsage: CopyDst</remarks>
     StaticIn    = 1,
     
-    /// <summary> CPU only reads a compute result </summary>    <remarks>BufferUsage: CopySrc</remarks>
+    /// <summary> CPU can only read compute results from GPU. </summary>    <remarks>BufferUsage: CopySrc</remarks>
     PureOut     = 2
 }
 
