@@ -7,9 +7,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -30,7 +33,9 @@ public sealed unsafe class CommandRecorder : IDisposable
     private  readonly   byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
-    internal readonly   List<BufferRange>   requestedRanges = new();
+    private  readonly   List<BufferRange>   requestedRanges = new();
+    private             BufferEntry[]       bufferEntries   = [];
+
     internal readonly   List<nint>          commandBuffers  = new();
     private             int                 kernelId;
     internal            bool                createNewPass;
@@ -47,7 +52,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
-        var segments    = device.bufferEntries[gpuBuffer.DeviceBufferId].bufferSegments;
+        var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
         createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
         return gpuBuffer;
     }
@@ -56,9 +61,32 @@ public sealed unsafe class CommandRecorder : IDisposable
     public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
-        var segments    = device.bufferEntries[buffer.GpuBuffer.DeviceBufferId].bufferSegments;
+        var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
         createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
         return gpuBuffer;
+    }
+    
+    private ref BufferEntry GetBufferEntry(int bufferId)
+    {
+        if (bufferId < bufferEntries.Length) {
+            ref var entry = ref bufferEntries[bufferId];
+            if (entry.bufferSegments == null) {
+                entry = new BufferEntry(device.bufferMap[bufferId]);
+            }
+            return ref entry;
+        }
+        return ref ResizeBufferEntries(bufferId);
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private ref BufferEntry ResizeBufferEntries(int bufferId)
+    {
+        var newEntries  = new BufferEntry[bufferId + 1];
+        var entries     = bufferEntries;
+        Array.Copy(entries, newEntries, entries.Length);
+        bufferEntries  = newEntries;
+        newEntries[bufferId] = new BufferEntry(device.bufferMap[bufferId]);
+        return ref newEntries[bufferId];
     }
     
     public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
@@ -204,5 +232,90 @@ public sealed unsafe class CommandRecorder : IDisposable
             wgpuComputePassEncoderRelease(currentPass);
             currentPass = null;
         }
+    }
+    
+    private readonly    List<BufferRange>   tempRanges    = new();
+    private readonly    List<BufferData>    activeBuffers = new ();
+    
+    internal void Download()
+    {
+        foreach (var range in requestedRanges) {
+            bufferEntries[range.bufferId].requestedRanges?.Add(range);
+        }
+        
+        var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
+        activeBuffers.Clear();
+
+        foreach (var bufferEntry in bufferEntries)
+        {
+            if (bufferEntry.requestedRanges.Count == 0) {
+                continue;
+            }
+            var buffer              = bufferEntry.wgpuBuffer.GetBufferData();
+            buffer.requestedRanges  = bufferEntry.requestedRanges;
+            activeBuffers.Add(buffer);
+
+            var  optimizedRanges = BufferRange.GetOptimizedRanges(bufferEntry.requestedRanges, tempRanges);
+            uint elementSize     = (uint)buffer.elementSize;
+            foreach (var range in optimizedRanges)
+            {
+                uint byteOffset = (uint)range.start  * elementSize;
+                uint byteSize   = (uint)range.length * elementSize;
+
+                // GPU internal copy from fast compute memory in persistent stating buffer
+                wgpuCommandEncoderCopyBufferToBuffer(
+                    encoder,
+                    buffer.storageHandle,   // source: GPU Storage [Storage]
+                    byteOffset,
+                    buffer.stagingHandle,   // target: persistant Readback [MapRead]
+                    byteOffset,
+                    byteSize
+                );
+            }
+        }
+
+        // finish commands and send to GOU queue
+        var sendCommandBuffer = wgpuCommandEncoderFinish(encoder, null);
+        wgpuQueueSubmit(device.QueuePtr, 1, &sendCommandBuffer);
+        
+        wgpuCommandBufferRelease(sendCommandBuffer);
+        wgpuCommandEncoderRelease(encoder);
+
+        int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
+        
+        foreach (var buffer in activeBuffers)
+        {
+            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
+            
+            // simply map the whole memory instead of the smaller ranges
+            var callbackInfo = new BufferMapCallbackInfo {
+                mode        = CallbackMode.AllowProcessEvents,
+                callback    = &BufferMap_callback,
+                userdata1   = &remainingMaps
+            };
+            wgpuBufferMapAsync(buffer.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
+        }
+        // the only single CPU-Stall: wait until all buffers are mapped
+        while (Thread.VolatileRead(ref remainingMaps) > 0) {
+            // wgpuDeviceTick(NativePtr);
+            wgpuInstanceProcessEvents(device.instance);
+        }
+        // direct CPU -> CPU transfer staging memory -> host memory
+        foreach (var buffer in activeBuffers)
+        {
+            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
+            void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
+            buffer.wgpu.ExecuteCpuCopy(pMapped, buffer.requestedRanges);    // copy staging memory to host memory
+            wgpuBufferUnmap(buffer.stagingHandle);                          // unmap so CPU is able to access
+            buffer.requestedRanges.Clear();
+        }
+        activeBuffers.Clear();
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+        if (userdata1== null) return;
+        var remainingMaps = (int*)userdata1;
+        Interlocked.Decrement(ref *remainingMaps);
     }
 }

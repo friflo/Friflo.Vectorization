@@ -10,6 +10,8 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
