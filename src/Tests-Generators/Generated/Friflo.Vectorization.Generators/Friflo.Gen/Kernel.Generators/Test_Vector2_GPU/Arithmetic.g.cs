@@ -154,14 +154,14 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init();
+        recorder.Init(_Arithmetic_GPU_EffectSlot);
 
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Arithmetic"u8);
-        using (var pass = encoder.BeginComputePass(_Arithmetic_GPU_EffectSlot, "Arithmetic"u8))
+        using (var pass = encoder.BeginComputePass("Arithmetic"u8))
         {
             ref var effect = ref device.GetEffect(_Arithmetic_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

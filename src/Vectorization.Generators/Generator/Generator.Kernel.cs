@@ -173,12 +173,12 @@ $$""""
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init();
+        recorder.Init({{methodName_GPU}}_EffectSlot);
 {{bufferInit}}
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("{{methodName}}"u8);
-        using (var pass = encoder.BeginComputePass({{methodName_GPU}}_EffectSlot, "{{methodName}}"u8))
+        using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
         {
             ref var effect = ref device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

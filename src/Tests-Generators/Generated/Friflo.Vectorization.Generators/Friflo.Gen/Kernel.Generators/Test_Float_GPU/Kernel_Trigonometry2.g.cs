@@ -117,13 +117,13 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init();
+        recorder.Init(_Kernel_Trigonometry2_GPU_EffectSlot);
 
         var position    = recorder.RequireReadWrite(position_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Kernel_Trigonometry2"u8);
-        using (var pass = encoder.BeginComputePass(_Kernel_Trigonometry2_GPU_EffectSlot, "Kernel_Trigonometry2"u8))
+        using (var pass = encoder.BeginComputePass("Kernel_Trigonometry2"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Trigonometry2_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

@@ -118,14 +118,14 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init();
+        recorder.Init(_Move_GPU_EffectSlot);
 
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);
 
         // Recording - recorder provides Encoder
         var encoder = recorder.GetEncoder("Move"u8);
-        using (var pass = encoder.BeginComputePass(_Move_GPU_EffectSlot, "Move"u8))
+        using (var pass = encoder.BeginComputePass("Move"u8))
         {
             ref var effect = ref device.GetEffect(_Move_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {

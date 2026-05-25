@@ -37,15 +37,18 @@ public sealed unsafe class CommandRecorder : IDisposable
     private             BufferEntry[]       bufferEntries   = [];
 
     internal readonly   List<nint>          commandBuffers  = new();
-    private             int                 kernelId;
+    private             int                 kernelSeq;
+    private             int                 kernelId        = -1;
     internal            bool                createNewPass;
     
     internal            bool                isSubmitted;        // TODO remove
     internal            bool                isCompleted;        // TODO remove
     
     
-    public void Init() {
-        kernelId++;
+    public void Init(int id) {
+        createNewPass   = kernelId != id;
+        kernelId        = id;
+        kernelSeq++;
     }
     
     [StackTraceHidden]
@@ -53,7 +56,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
-        createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
+        createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
@@ -62,7 +65,7 @@ public sealed unsafe class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
-        createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, gpuBuffer.Label);
+        createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
