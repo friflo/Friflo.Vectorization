@@ -131,7 +131,18 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
     public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);
 }
 
-
+/// <summary>
+/// Defines allowed data flow of <see cref="GpuBuffer{T}"/> data from CPU to GPU.<br/>
+/// </summary>
+public enum BufferProfile
+{
+    /// <summary> CPU writes / reads </summary>                 <remarks>BufferUsage: Storage | CopyDst | CopySrc</remarks>
+    InOut,
+    /// <summary> CPU writes once  </summary>                   <remarks>BufferUsage: Storage | CopyDst</remarks>
+    StaticIn,
+    /// <summary> CPU only reads a compute result </summary>    <remarks>BufferUsage: Storage | CopySrc</remarks>
+    PureOut
+}
 
 [Flags]
 public enum GpuBufferUsage
