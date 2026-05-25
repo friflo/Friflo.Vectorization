@@ -23,8 +23,8 @@ public abstract class GpuAdapterInfo
 {
     public  GpuAdapterType  AdapterType         { get; protected init; }
     public  GpuBackendType  BackendType         { get; protected init; }
-    public  uint            VendorID            { get; protected init; }
-    public  uint            DeviceID            { get; protected init; }
+    public  int             VendorID            { get; protected init; }
+    public  int             DeviceID            { get; protected init; }
     public  string          Name                { get; protected init; }
     public  string          DriverDescription   { get; protected init; }
 
@@ -33,10 +33,10 @@ public abstract class GpuAdapterInfo
 
 public readonly struct GpuLimits
 {
-    public  ulong   MaxStorageBufferBindingSize         { get; init; }
-    public  uint    MaxComputeWorkgroupStorageSize      { get; init; }
-    public  uint    MaxBindGroups                       { get; init; }
-    public  uint    MaxComputeInvocationsPerWorkgroup   { get; init; }
+    public  long    MaxStorageBufferBindingSize         { get; init; }
+    public  int     MaxComputeWorkgroupStorageSize      { get; init; }
+    public  int     MaxBindGroups                       { get; init; }
+    public  int     MaxComputeInvocationsPerWorkgroup   { get; init; }
 }
 
 public enum GpuAdapterType

@@ -8,11 +8,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+[assembly: CLSCompliant(true)]
+
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+[CLSCompliant(true)]
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class GpuBuffer : IDisposable
 {

@@ -67,6 +67,11 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
+  <!-- error on CLSCompliant warnings -->
+  <PropertyGroup>
+    <WarningsAsErrors>CS3001;CS3002;CS3003;CS3005</WarningsAsErrors>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
   </ItemGroup>

@@ -397,10 +397,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
         var limits = new Limits();
         wgpuDeviceGetLimits(DevicePtr, &limits);
         return new GpuLimits {
-            MaxStorageBufferBindingSize         = limits.maxStorageBufferBindingSize,  
-            MaxComputeWorkgroupStorageSize      = limits.maxComputeWorkgroupStorageSize, 
-            MaxBindGroups                       = limits.maxBindGroups, 
-            MaxComputeInvocationsPerWorkgroup   = limits.maxComputeInvocationsPerWorkgroup, 
+            MaxStorageBufferBindingSize         = (long)limits.maxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = (int) limits.maxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = (int) limits.maxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = (int) limits.maxComputeInvocationsPerWorkgroup, 
         };
     }
     

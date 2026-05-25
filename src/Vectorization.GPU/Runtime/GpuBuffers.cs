@@ -18,6 +18,7 @@ namespace Friflo.Vectorization.GPU.Runtime;
 public struct GpuBuffers
 {
     public  readonly    int         length;
+    [CLSCompliant(false)]
     public              ulong       hash; // uses FNV-1a derivative hashing
     public  readonly    GpuDevice   device;
     private readonly    bool        areSpans;

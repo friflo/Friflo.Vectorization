@@ -91,10 +91,10 @@ public sealed unsafe class SilkAdapter : GpuAdapter
         wgpu.AdapterGetLimits(adapter, &supportedLimits);
         var limits = supportedLimits.Limits;
         return new GpuLimits {
-            MaxStorageBufferBindingSize         = limits.MaxStorageBufferBindingSize,  
-            MaxComputeWorkgroupStorageSize      = limits.MaxComputeWorkgroupStorageSize, 
-            MaxBindGroups                       = limits.MaxBindGroups, 
-            MaxComputeInvocationsPerWorkgroup   = limits.MaxComputeInvocationsPerWorkgroup, 
+            MaxStorageBufferBindingSize         = (long)limits.MaxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = (int) limits.MaxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = (int) limits.MaxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = (int) limits.MaxComputeInvocationsPerWorkgroup, 
         };
     }
     

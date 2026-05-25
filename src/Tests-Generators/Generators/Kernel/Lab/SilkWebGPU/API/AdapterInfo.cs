@@ -17,8 +17,8 @@ public sealed unsafe class SilkAdapterInfo : GpuAdapterInfo
     internal static SilkAdapterInfo CreateAdapterInfo(AdapterProperties props, Adapter* adapter)
     {
         return new SilkAdapterInfo {
-            VendorID            = props.VendorID,
-            DeviceID            = props.DeviceID,
+            VendorID            = (int)props.VendorID,
+            DeviceID            = (int)props.DeviceID,
             AdapterType         = (GpuAdapterType)props.AdapterType,
             BackendType         = (GpuBackendType)props.BackendType,
             Name                = PtrToString(props.Name),

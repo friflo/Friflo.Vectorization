@@ -120,10 +120,10 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var limits = new Limits();
         wgpuAdapterGetLimits(adapter, &limits);
         return new GpuLimits {
-            MaxStorageBufferBindingSize         = limits.maxStorageBufferBindingSize,  
-            MaxComputeWorkgroupStorageSize      = limits.maxComputeWorkgroupStorageSize, 
-            MaxBindGroups                       = limits.maxBindGroups, 
-            MaxComputeInvocationsPerWorkgroup   = limits.maxComputeInvocationsPerWorkgroup, 
+            MaxStorageBufferBindingSize         = (long)limits.maxStorageBufferBindingSize,  
+            MaxComputeWorkgroupStorageSize      = (int) limits.maxComputeWorkgroupStorageSize, 
+            MaxBindGroups                       = (int) limits.maxBindGroups, 
+            MaxComputeInvocationsPerWorkgroup   = (int) limits.maxComputeInvocationsPerWorkgroup, 
         };
     }
     
