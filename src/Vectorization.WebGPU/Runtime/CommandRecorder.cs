@@ -274,7 +274,7 @@ public sealed unsafe class CommandRecorder : IDisposable
             }
         }
 
-        // finish commands and send to GOU queue
+        // finish commands and send to GPU queue
         var sendCommandBuffer = wgpuCommandEncoderFinish(encoder, null);
         wgpuQueueSubmit(device.QueuePtr, 1, &sendCommandBuffer);
         
@@ -305,7 +305,10 @@ public sealed unsafe class CommandRecorder : IDisposable
         {
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
-            buffer.wgpu.ExecuteCpuCopy(pMapped, buffer.requestedRanges);    // copy staging memory to host memory
+            
+            var wgpuBuffer = device.bufferMap[buffer.bufferId];
+            wgpuBuffer.ExecuteCpuCopy(pMapped, buffer.requestedRanges);     // copy staging memory to host memory
+            
             wgpuBufferUnmap(buffer.stagingHandle);                          // unmap so CPU is able to access
             buffer.requestedRanges.Clear();
         }

@@ -76,15 +76,15 @@ internal readonly struct BufferEntry
 
 internal unsafe struct BufferData
 {
-    internal readonly   IWgpuBuffer         wgpu;
+    internal readonly   int                 bufferId;
     internal readonly   int                 elementSize;
     internal readonly   int                 length;
     internal readonly   Buffer*             storageHandle;
     internal            Buffer*             stagingHandle;
     internal            List<BufferRange>   requestedRanges;
     
-    internal BufferData(IWgpuBuffer wgpu, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {
-        this.wgpu           = wgpu;
+    internal BufferData(int bufferId, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {
+        this.bufferId       = bufferId;
         this.elementSize    = elementSize;
         this.length         = length;
         this.storageHandle  = storageHandle;

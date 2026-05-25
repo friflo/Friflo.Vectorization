@@ -59,7 +59,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         this.device     = device;
         SizeInBytes     = (uint)(Length * Unsafe.SizeOf<T>());
         handle          = buffer;
-        data            = new BufferData(this, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
+        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
     }
     
     public T this[int index]
