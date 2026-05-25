@@ -12,6 +12,8 @@ using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -249,7 +251,7 @@ public sealed unsafe class CommandRecorder : IDisposable
         
         var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         activeBuffers.Clear();
-        var bufferMap = device.bufferMap;
+        ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
         foreach (var bufferEntry in bufferEntries)
         {
@@ -288,8 +290,9 @@ public sealed unsafe class CommandRecorder : IDisposable
         wgpuCommandEncoderRelease(encoder);
 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
+        Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         
-        foreach (var buffer in activeBuffers)
+        foreach (ref var buffer in activeBuffersSpan)
         {
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             
@@ -307,7 +310,7 @@ public sealed unsafe class CommandRecorder : IDisposable
             wgpuInstanceProcessEvents(device.instance);
         }
         // direct CPU -> CPU transfer staging memory -> host memory
-        foreach (var buffer in activeBuffers)
+        foreach (ref var buffer in activeBuffersSpan)
         {
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
