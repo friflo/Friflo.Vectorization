@@ -65,7 +65,7 @@ internal readonly struct BufferEntry
     internal readonly   List<BufferRange>                       requestedRanges;
     internal readonly   Dictionary<SegmentKey, SegmentState>    bufferSegments;
 
-    public override string ToString() => bufferId == 0 ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
+    public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
 
     internal BufferEntry(int bufferId) {
         this.bufferId   = bufferId;
