@@ -20,7 +20,9 @@ public readonly struct BufferView<T> where T : unmanaged
     /// Gets a <see cref="Span{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// Modifications to this span directly update the host memory, which needs synchronization with the GPU.
     /// </summary>
-    public              Span<T>         Span =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    public              Span<T>         Span        =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+
+    public   override   string          ToString()  => BufferUtils.ViewToString("BufferView", gpuBuffer, Offset, Length);
 
     internal BufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
@@ -43,7 +45,9 @@ public readonly struct ReadOnlyView<T> where T : unmanaged
     /// Gets a <see cref="ReadOnlySpan{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// This view provides restricted, read-only access to the mapped host memory.
     /// </summary>
-    public              ReadOnlySpan<T> Span =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    public              ReadOnlySpan<T> Span        =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    
+    public   override   string          ToString()  => BufferUtils.ViewToString("ReadOnlyView", gpuBuffer, Offset, Length);
 
     internal ReadOnlyView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {

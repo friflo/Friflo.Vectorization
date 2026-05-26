@@ -19,7 +19,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public  readonly    int             Length;
     public  readonly    int             Offset;
     
-    public  override    string          ToString() => BufferUtils.ToString(GpuBuffer, "Span");
+    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "Span");
     
     private Buffer(Span<T> span) {
         Span        = span;
@@ -60,7 +60,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public  readonly    int             Length;
     public  readonly    int             Offset;
 
-    public  override    string          ToString() => BufferUtils.ToString(GpuBuffer, "ReadOnlySpan");
+    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "ReadOnlySpan");
 
     private InBuffer(ReadOnlySpan<T> span) {
         Span        = span;
@@ -100,16 +100,37 @@ public readonly ref struct InBuffer<T> where T : unmanaged
 
 internal static class BufferUtils
 {
-    internal static string ToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
+    // --- Buffer<>, InBuffer<>
+    internal static string BufferToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
     {
         var type     = typeof(T);
         var typeCode = Type.GetTypeCode(type);
-        return ToString(gpuBuffer != null, typeCode, type.Name, gpuBuffer?.Label, spanType);
+        return BufferToString(gpuBuffer != null, typeCode, type.Name, gpuBuffer?.Label, spanType);
     }
     
-    private static string ToString(bool isBuffer, TypeCode typeCode, string typeName, string label, string spanType)
+    private static string BufferToString(bool isBuffer, TypeCode typeCode, string typeName, string label, string spanType)
     {
-        typeName = typeCode switch {
+        typeName = GetTypeName(typeCode, typeName);
+        return isBuffer ? $"GpuBuffer<{typeName}> '{label}'" : $"{spanType}<{typeName}>";
+    }
+    
+    // --- BufferView<>, ReadOnlyView<>
+    internal static string ViewToString<T>(string structName, GpuBuffer<T> gpuBuffer, int offset, int length) where T : unmanaged
+    {
+        var type     = typeof(T);
+        var typeCode = Type.GetTypeCode(type);
+        return ViewToString(structName, typeCode, type.Name, gpuBuffer.Label, offset, length);
+    }
+    
+    private static string ViewToString(string structName, TypeCode typeCode, string typeName, string label, int offset, int length)
+    {
+        typeName = GetTypeName(typeCode, typeName);
+        return $"{structName}<{typeName}> '{label}' [{offset}, {offset + length}]";
+    }
+    
+    private static string GetTypeName(TypeCode typeCode, string typeName)
+    {
+        return typeCode switch {
             TypeCode.Boolean    => "bool",
             TypeCode.Char       => "char",
             TypeCode.SByte      => "sbyte",
@@ -125,7 +146,6 @@ internal static class BufferUtils
             TypeCode.Decimal    => "decimal",
             _                   => typeName
         };
-        return isBuffer ? $"GpuBuffer<{typeName}> '{label}'" : $"{spanType}<{typeName}>";
     }
 }
 
