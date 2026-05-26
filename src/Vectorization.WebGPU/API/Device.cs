@@ -290,7 +290,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
         Flush();
     }
 
-    public override void Wait<T>(GpuBuffer<T> buffer)
+    // TODO - remove - kept temporary for reference
+    private void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
     {
         // if (task == null || task.IsCompleted) return;
 

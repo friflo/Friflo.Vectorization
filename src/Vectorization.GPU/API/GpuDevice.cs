@@ -47,7 +47,6 @@ public abstract class GpuDevice : IDisposable
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     
     public abstract void            Flush(bool wait = true);
-    public abstract void            Wait<T>(GpuBuffer<T> buffer) where T : unmanaged;
     public abstract void            Download();
 }
 

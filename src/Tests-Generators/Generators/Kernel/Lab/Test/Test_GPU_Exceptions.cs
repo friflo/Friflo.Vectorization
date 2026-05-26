@@ -149,7 +149,7 @@ public class Test_GPU_Exceptions : KernelBase
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
                 Console.WriteLine(HandleDiff.GetState());
             }
-            device.Wait(gpuOutput);
+            device.Download();
         }
         Console.WriteLine(HandleDiff.GetState());
     }

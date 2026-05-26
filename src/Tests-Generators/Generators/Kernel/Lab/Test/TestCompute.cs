@@ -30,7 +30,8 @@ public class TestCompute : KernelBase
         var gpuInput  = device.CreateBuffer<float>(100, "input",    BufferProfile.StaticIn);
         var output2   = device.CreateBuffer<float>(100, "output2",  BufferProfile.StaticIn);
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
-        device.Wait(output2);
+        
+        device.Download();
     }
     
     public class ModelLayer {
@@ -47,7 +48,7 @@ public class TestCompute : KernelBase
             GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
         // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
-        device.Wait(layers[0].output);
+        device.Download();
     }
     
 
@@ -67,7 +68,8 @@ public class TestCompute : KernelBase
         var a = ComputeLayer1(weight.InOut, input, ComputeMode.GPU);
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
         var b = ComputeLayer2(a.InOut, ComputeMode.GPU);
-        device.Wait(b);
+        
+        device.Download();
     }
     
     // Force one time allocations caused by JIT
