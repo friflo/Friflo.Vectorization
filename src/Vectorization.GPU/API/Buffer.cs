@@ -102,8 +102,14 @@ internal static class BufferUtils
 {
     internal static string ToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
     {
-        TypeCode typeCode = Type.GetTypeCode(typeof(T));
-        var typeName = typeCode switch {
+        var type     = typeof(T);
+        var typeCode = Type.GetTypeCode(type);
+        return ToString(gpuBuffer != null, typeCode, type.Name, gpuBuffer?.Label, spanType);
+    }
+    
+    private static string ToString(bool isBuffer, TypeCode typeCode, string typeName, string label, string spanType)
+    {
+        typeName = typeCode switch {
             TypeCode.Boolean    => "bool",
             TypeCode.Char       => "char",
             TypeCode.SByte      => "sbyte",
@@ -117,9 +123,9 @@ internal static class BufferUtils
             TypeCode.Single     => "float",
             TypeCode.Double     => "double",
             TypeCode.Decimal    => "decimal",
-            _                   => typeof(T).Name
+            _                   => typeName
         };
-        return gpuBuffer != null ? $"GpuBuffer<{typeName}> '{gpuBuffer.Label}'" : $"{spanType}<{typeName}>";
+        return isBuffer ? $"GpuBuffer<{typeName}> '{label}'" : $"{spanType}<{typeName}>";
     }
 }
 
