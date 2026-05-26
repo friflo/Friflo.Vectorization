@@ -43,6 +43,11 @@ public abstract class GpuBuffer : IDisposable
         NativeHandle    = nativeHandle;
         DeviceBufferId  = (uint)bufferId;
     }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
+    protected IndexOutOfRangeException OutOfRangeException(int start, int length) {
+        return new IndexOutOfRangeException($"Range: [{start}, {start + length}]  Length: {Length}  Buffer: {Label}");
+    }
 }
 
 public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
@@ -104,11 +109,6 @@ public abstract class GpuBuffer<T> :
         if (start >= 0 && length >= 0 && start + length <= Length)
             return new ReadOnlyView<T>(this, start, length);
         throw OutOfRangeException(start, length);
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private IndexOutOfRangeException OutOfRangeException(int start, int length) {
-        return new IndexOutOfRangeException($"Range: [{start}, {start + length}]  Length: {Length}  Buffer: {Label}");
     }
 
 
