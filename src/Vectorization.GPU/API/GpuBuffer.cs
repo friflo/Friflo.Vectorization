@@ -121,19 +121,8 @@ public abstract class GpuBuffer<T> :    // enable raw access to buffer data with
         // this.Download();
         return new BufferReader<T>(this, hostMemory.Span);
     }
-
-    public T this[int index]
-    {
-        get {
-            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
-                Device.Wait(this); // force Compute before CPU reads value
-            }*/
-            throw new NotImplementedException();
-            // return InternalDownloadValue(index);
-        }
-    }
     
-    public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);
+    public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);  // TODO remove - will become obsolete
 }
 
 /// <summary>
