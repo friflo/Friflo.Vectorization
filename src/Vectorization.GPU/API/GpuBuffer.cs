@@ -55,9 +55,9 @@ public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 /// <summary>
 /// Represents the base class for GPU-mapped memory buffers.<br/>
 /// It contains a CPU host memory and supports synchronization of the memory with the GPU.<br/>
-/// It provides methods returning <see cref="BufferView{T}"/> and <see cref="ReadOnlyView{T}"/> to access the host memory. 
+/// It provides methods returning <see cref="BufferView{T}"/> and <see cref="ReadOnlyView{T}"/> to for safe host memory access. 
 /// </summary>
-public abstract class GpuBuffer<T> :    // enable raw access to buffer data without any safety guards
+public abstract class GpuBuffer<T> :
     GpuBuffer,                          // enables non-generic access to fields like: Length, Device, ... 
     IReadOnlyGpuBuffer<T>,              // enables read only access to immutable buffer data
     IScopedGpuBuffer<T>                 // enables read / write of buffer data without race conditions
