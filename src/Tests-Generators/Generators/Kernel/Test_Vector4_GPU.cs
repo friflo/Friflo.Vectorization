@@ -39,9 +39,7 @@ public partial class Test_Vector4_GPU : KernelBase
         MultiplyVector(array1,           array2, false);
         MultiplyKernel(gpuBuffer1.InOut, gpuBuffer2.In);
         
-        Device.Wait(gpuBuffer1);
-        
-        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        Device.Download();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(array1[n], Is.EqualTo(buffer1[n]));
@@ -74,9 +72,7 @@ public partial class Test_Vector4_GPU : KernelBase
         ArithmeticVector(array1,           array2, false);
         ArithmeticKernel(gpuBuffer1.InOut, gpuBuffer2.In);
         
-        Device.Wait(gpuBuffer1);
-        
-        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        Device.Download();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(array1[n], Is.EqualTo(buffer1[n]));
@@ -109,9 +105,7 @@ public partial class Test_Vector4_GPU : KernelBase
         MiscVector(array1,     		 array2,        new Vector4(5.5f, 6.6f, 7.7f, 8.8f), false);
         MiscKernel(gpuBuffer1.InOut, gpuBuffer2.In, new Vector4(5.5f, 6.6f, 7.7f, 8.8f));
         
-        Device.Wait(gpuBuffer1);
-        
-        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        Device.Download();
         
         for (int n = 0; n < 128; n++) {
             var a = array1[n];
@@ -188,9 +182,7 @@ public partial class Test_Vector4_GPU : KernelBase
         TransformVector(array1,           matrix, false);
         TransformKernel(gpuBuffer1.InOut, matrix);
         
-        Device.Wait(gpuBuffer1);
-        
-        gpuBuffer1.Download(gpuBuffer1, buffer1);
+        Device.Download();
         
         for (int n = 0; n < 128; n++) {
             var a = array1[n];
