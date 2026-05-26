@@ -19,16 +19,14 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder : IDisposable
 {
     private  readonly   WgpuDevice          device;
-    private             CommandEncoder*     currentEncoder;                 // GpuTask owns CommandEncoder* and ensures release
-    internal            ComputePassEncoder* currentPass;                    // GpuTask owns ComputePassEncoder* and ensures release
-    // Pre-allocated to avoid heap growth during the hot loop.
-    // 4 slots cover the standard WebGPU maxBindGroups limit, ensuring a zero-allocation steady state.
-    internal            BindGroups          createdBindGroups;              // GpuTask owns all created BindGroup* and ensures release  
+    private             CommandEncoder*     currentEncoder;
+    internal            ComputePassEncoder* currentPass;
+    internal            BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
     internal            int                 createdBindGroupsCount;
     private             CommandBuffer*      commandBuffer;
     
-    private             uint                uniformOffset;             	    // cursor in pool slice used as a ring buffer
-    private  readonly   byte[]              stagingBuffer;                  // CPU-cache for uniform buffer
+    private             uint                uniformOffset;          // cursor in pool slice used as a ring buffer
+    private  readonly   byte[]              stagingBuffer;          // CPU-cache for uniform buffer
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
 
@@ -37,8 +35,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             int                 kernelId        = -1;
     private             bool                createNewPass;
     
-    internal            bool                isSubmitted;        // TODO remove
-    internal            bool                isCompleted;        // TODO remove
+    internal            bool                isSubmitted;            // TODO remove
+    internal            bool                isCompleted;            // TODO remove
 
     public   override   string              ToString()      => $"newPass: {createNewPass}";
 
