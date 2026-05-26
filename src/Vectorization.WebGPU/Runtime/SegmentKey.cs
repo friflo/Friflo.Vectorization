@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// ReSharper disable ArrangeRedundantParentheses
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
 // ReSharper disable once CheckNamespace
@@ -58,8 +59,8 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
                     throw ThrowConflictingUsages(param);
                 }
             }
-            bool pipelineChanged    = state.kernelId != kernelId;
-            hasConflict             = state.isWrite || pipelineChanged;
+            hasConflict =   (state.kernelId != kernelId) // pipeline changed
+                        ||   state.isWrite;
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;
@@ -77,8 +78,8 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
             if (state.kernelSeq == kernelSeq) {
                 throw ThrowConflictingUsages(param);
             }
-            bool pipelineChanged    =  state.kernelId != kernelId;
-            hasConflict             = !state.isWrite || pipelineChanged;
+            hasConflict =  (state.kernelId != kernelId) // pipeline changed
+                        || !state.isWrite;
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;
