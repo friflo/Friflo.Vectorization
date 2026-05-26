@@ -60,7 +60,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private  static     int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache     = new CachedGroupLayout[64];
-    internal readonly   List<IWgpuBuffer>   bufferMap       = new ();
+    internal readonly   List<IWgpuBuffer>   bufferMap       = [];
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.

@@ -30,7 +30,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
 
-    internal readonly   List<nint>          commandBuffers  = new();
+    internal readonly   List<nint>          commandBuffers  = [];
     private             int                 kernelSeq;
     private             int                 kernelId        = -1;
     private             bool                createNewPass;
