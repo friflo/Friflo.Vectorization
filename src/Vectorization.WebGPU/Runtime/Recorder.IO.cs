@@ -46,6 +46,8 @@ public sealed unsafe partial class CommandRecorder
     
     internal void Download()
     {
+        device.Flush();
+        
         foreach (var range in requestedRanges) {
             bufferEntries[range.bufferId].requestedRanges.Add(range);
         }
