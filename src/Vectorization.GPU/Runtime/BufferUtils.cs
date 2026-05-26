@@ -2,11 +2,18 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 
+// ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.GPU.Runtime;
 
 internal static class BufferUtils
 {
+    private static long IdCounter;
+    
+    internal static long NextId() => Interlocked.Increment(ref IdCounter);
+    
+    
     // --- Buffer<>, InBuffer<>
     internal static string BufferToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
     {

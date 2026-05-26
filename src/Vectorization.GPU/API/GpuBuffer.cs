@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Threading;
+using Friflo.Vectorization.GPU.Runtime;
 
 [assembly: CLSCompliant(true)]
 
@@ -21,7 +21,7 @@ public abstract class GpuBuffer : IDisposable
 {
     public    readonly  string      Label;
     public    readonly  int         Length;
-    public	  readonly  long        Id              = GpuBufferUtils.NextId();
+    public	  readonly  long        Id              = BufferUtils.NextId();
     public	  abstract  GpuDevice   Device          { get; }
     
     [EditorBrowsable(EditorBrowsableState.Never)] [CLSCompliant(false)]
@@ -157,13 +157,5 @@ public enum BufferType
     
     /// <summary> Contains execution arguments for indirect dispatch or draw calls. </summary>
     Indirect    = 4
-}
-
-
-internal static class GpuBufferUtils
-{
-    private static long IdCounter;
-    
-    internal static long NextId() => Interlocked.Increment(ref IdCounter);
 }
 
