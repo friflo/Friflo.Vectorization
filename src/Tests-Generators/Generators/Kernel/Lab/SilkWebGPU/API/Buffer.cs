@@ -52,21 +52,6 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
         handle      = buffer;
     }
     
-    public T this[int index]
-    {
-        get {
-            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
-                Device.Wait(this); // force Compute before CPU reads value
-            } */
-            return InternalDownloadValue(index);
-        }
-    }
-
-    private T InternalDownloadValue(int index)
-    {
-        throw new NotImplementedException();
-    }
-
     public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;

@@ -12,21 +12,20 @@ public struct AlignedArray<T> where T : struct
     public  readonly int     Length;
 
     public AlignedArray(int length) {
-        this.Length = length;
+        Length = length;
         int sizeOfT = Unsafe.SizeOf<T>();
         
-        // Wir brauchen Platz für (length * sizeOfT) Bytes. 
-        // +31 Bytes Puffer, um sicher eine 32-Byte-Grenze zu finden.
+        // add additional 31 bytes to enable offsetting
         int totalBytes = (length * sizeOfT) + 31;
         int floatCount = (totalBytes + sizeof(float) - 1) / sizeof(float);
         
-        // Pinned, damit der GC die Adresse nicht unter dem Hintern wegzieht
+        // Pinned, to prevent GC moving the memory
         _rawPinned = GC.AllocateArray<float>(floatCount, pinned: true);
         
         unsafe {
             fixed (float* ptr = _rawPinned) {
                 long addr = (long)ptr;
-                // Berechne wie viele BYTES wir überspringen müssen, um auf 0, 32, 64... zu kommen
+                // calculate how many bytes need to be skipped to get alignment: 0, 32, 64... 
                 int byteSkip = (int)((32 - (addr & 31)) & 31);
                 _floatOffset = byteSkip / sizeof(float);
                 
@@ -35,9 +34,6 @@ public struct AlignedArray<T> where T : struct
         }
     }
 
-    /// <summary>
-    /// Das Herzstück für den Benchmark: Erzeugt einen perfekt ausgerichteten Span.
-    /// </summary>
     public Span<T> Span {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
@@ -46,9 +42,6 @@ public struct AlignedArray<T> where T : struct
         }
     }
 
-    /// <summary>
-    /// Schneller Indexer für Einzelzugriffe
-    /// </summary>
     public ref T this[int index] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => ref Unsafe.Add(ref Unsafe.As<float, T>(ref _rawPinned[_floatOffset]), index);

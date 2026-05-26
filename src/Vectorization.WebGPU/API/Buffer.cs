@@ -62,21 +62,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
     }
     
-    public T this[int index]
-    {
-        get {
-            /* if (LastWritingTask != null && !LastWritingTask.IsCompleted) { TASK_TAG
-                device.Wait(this); // force Compute before CPU reads value
-            }*/
-            return InternalDownloadValue(index);
-        }
-    }
-
-    private T InternalDownloadValue(int index)
-    {
-        throw new NotImplementedException();
-    }
-    
+    // TODO obsolete - will be removed
     public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
