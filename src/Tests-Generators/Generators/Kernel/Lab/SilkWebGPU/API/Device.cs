@@ -364,7 +364,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         return buffer;
     }
     
-    private static BufferUsage FromBufferProfile(BufferProfile profile, BufferType type)
+    private static BufferUsage GetBufferUsage(BufferProfile profile, BufferType type)
     {
         var usage = profile switch {
             BufferProfile.InOut     => BufferUsage.CopyDst | BufferUsage.CopySrc,
@@ -398,7 +398,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     public override GpuBuffer<T> CreateBuffer<T>(int length, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
-        var wgpuUsage   = FromBufferProfile(profile, type);
+        var wgpuUsage   = GetBufferUsage(profile, type);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
         var array       = new T[length];
@@ -407,7 +407,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
-        var wgpuUsage   = FromBufferProfile(profile, type);
+        var wgpuUsage   = GetBufferUsage(profile, type);
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);
         return new SilkBuffer<T>(this, handle, data, bufferLabel);
     }
