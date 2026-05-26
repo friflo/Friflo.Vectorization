@@ -62,7 +62,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
     }
     
-    // TODO obsolete - kept temporary for reference - will be removed 
+    // TODO obsolete - kept temporary for reference - will be removed
+#if DEBUG
     private void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
@@ -117,6 +118,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         wgpuBufferDestroy(readBuffer);
         wgpuBufferRelease(readBuffer);
     }
+#endif
     
     // --- IWgpuBuffer
     BufferData IWgpuBuffer.GetBufferData() => data;
@@ -141,6 +143,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     }
 }
 
+#if DEBUG
+// TODO obsolete - was used by Download() - will be removed
 internal static class BufferUtils
 {
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -150,5 +154,5 @@ internal static class BufferUtils
         *mapFinished = true;
     }
 }
-
+#endif
 
