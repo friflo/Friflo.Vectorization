@@ -100,7 +100,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         return new WgpuInstance(instance);
     }
     
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void RequestAdapter_callback(RequestAdapterStatus status, Adapter* adapter, StringView message, void* userdata1, void* userdata2)
     {
         if (userdata1 == null) return;

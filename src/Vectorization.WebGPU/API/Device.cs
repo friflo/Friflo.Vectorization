@@ -277,7 +277,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
         }
     }
     
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void QueueOnSubmittedWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userdata1, void* userdata2) {
         HandleTasksFinished(status, userdata1);
     }

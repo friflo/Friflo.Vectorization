@@ -51,7 +51,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
     }
     
     
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void UncapturedError_callback(Device** device, ErrorType errorType, StringView message, void* userdata1, void* userdata2) {
         if (userdata1 == null) return;
         var handle = GCHandle.FromIntPtr((IntPtr)userdata1);
@@ -62,7 +62,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         }
     }
     
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void RequestDevice_callback(RequestDeviceStatus status, Device* device, StringView message, void* userdata1, void* userdata2)
     {
         if (userdata1 == null) return;

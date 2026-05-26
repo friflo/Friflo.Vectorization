@@ -38,7 +38,7 @@ internal readonly unsafe struct WgpuQueue
         }
     }
     
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void QueueWorkDone_callback(QueueWorkDoneStatus status, StringView message, void* userData1, void* userData2)
     {
         var handle = GCHandle.FromIntPtr((IntPtr)userData1);
