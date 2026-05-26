@@ -35,8 +35,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             int                 kernelId        = -1;
     private             bool                createNewPass;
     
-    internal            bool                isSubmitted;            // TODO remove
-    internal            bool                isCompleted;            // TODO remove
 
     public   override   string              ToString()      => $"newPass: {createNewPass}";
 
@@ -186,9 +184,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         uniformOffset = 0; // reset local uniform cursor
         
         Dispose();
-        
-        isCompleted 	= false;
-        isSubmitted 	= false;
     }
     
     public void Dispose()
