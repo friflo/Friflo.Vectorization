@@ -98,11 +98,10 @@ public partial class Test_Float_GPU : KernelBase
 
         AddKernel(view1, view2);
         
-        Device.Wait(gpuDst);
-        gpuDst.Download(gpuDst, buffer1);
-        
-        // Device.Flush(true);
-        // Device.Download();
+        // Device.Wait(gpuDst);
+        // gpuDst.Download(gpuDst, buffer1);
+
+        Device.Download();
         
         
         for (int n = 0; n < 10; n++) {
