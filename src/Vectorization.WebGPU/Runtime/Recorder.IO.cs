@@ -60,8 +60,8 @@ public sealed unsafe partial class CommandRecorder
             if (ranges == null || ranges.Count == 0) {
                 continue;
             }
-            // Important: buffer must be a copy. requestedRanges is assigned requestedRanges.
-            //            requestedRanges are owned by the recorder and must be accessed in the recorder thread.
+            // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
+            //            They are owned by the recorder and must only be accessed in the recorder thread.
             var buffer              = bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             buffer.requestedRanges  = ranges;
             activeBuffers.Add(buffer);
