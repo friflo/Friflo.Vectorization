@@ -17,7 +17,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder
 {
     private             BufferEntry[]       bufferEntries   = [];
-    private  readonly   List<BufferRange>   requestedRanges = new();
+    private readonly    List<BufferRange>   requestedRanges = new();
     private readonly    List<BufferRange>   tempRanges      = new();
     private readonly    List<BufferData>    activeBuffers   = new ();
     
