@@ -109,9 +109,10 @@ public class TestCompute : KernelBase
 
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         
-        device.Wait(gpuOutput);
+        // device.Wait(gpuOutput);
+        // gpuOutput.Download(gpuOutput, output);
+        device.Download();
         
-        gpuOutput.Download(gpuOutput, output);
         Assert.AreEqual(42, output[0]);
     }
     
@@ -154,9 +155,11 @@ public class TestCompute : KernelBase
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        device.Wait(gpuOutput);
+        // device.Wait(gpuOutput);
+        // gpuOutput.Download(gpuOutput, output);
         
-        gpuOutput.Download(gpuOutput, output);
+        device.Download();
+        
         Assert.AreEqual(44, output[0]);
     }
     

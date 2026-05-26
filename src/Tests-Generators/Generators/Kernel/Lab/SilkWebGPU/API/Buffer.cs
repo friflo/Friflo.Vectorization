@@ -12,9 +12,12 @@ using Webgpu = Silk.NET.WebGPU.WebGPU;
 // ReSharper disable once CheckNamespace
 namespace Kernel.SilkWebGPU;
 
+public interface ISilkBuffer
+{
+    public void Download();
+}
 
-
-public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
+public sealed unsafe class SilkBuffer<T> : GpuBuffer<T>, ISilkBuffer where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }
     private             SilkDevice  device { get; set; }
@@ -52,15 +55,17 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
         handle      = buffer;
     }
     
-    public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
+    // public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) { } // obsolete
+    
+    public void Download() // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
         dev.Flush();
         
-        if (targetArray.Length < gpuBuffer.Length)
-            throw new Exception("Target array is too small!");
+        // if (targetArray.Length < gpuBuffer.Length)
+        //    throw new Exception("Target array is too small!");
 
-        uint size = (uint)(gpuBuffer.Length * sizeof(T));
+        uint size = (uint)(hostMemory.Length * sizeof(T));
         
         var readDesc = new BufferDescriptor {
             Size = size,
@@ -73,7 +78,7 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
         var readBuffer  = wg.DeviceCreateBuffer(DevicePtr, &readDesc);
 
         var encoder = wg.DeviceCreateCommandEncoder(DevicePtr, null);
-        wg.CommandEncoderCopyBufferToBuffer(encoder, ((SilkBuffer<T>)gpuBuffer).handle, 0, readBuffer, 0, size);
+        wg.CommandEncoderCopyBufferToBuffer(encoder, handle, 0, readBuffer, 0, size);
         
         var commandBuffer = wg.CommandEncoderFinish(encoder, null);
         wg.QueueSubmit(QueuePtr, 1, &commandBuffer);  	// releases commandBuffer
@@ -91,7 +96,7 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T> where T : unmanaged
 
         // get result back in original array
         void* pMapped = wg.BufferGetMappedRange(readBuffer, 0, size);
-        fixed (void* pTarget = targetArray) {
+        fixed (void* pTarget = hostMemory.Span) {
             System.Buffer.MemoryCopy(pMapped, pTarget, size, size);
         }
         // cleanup

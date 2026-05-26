@@ -121,8 +121,6 @@ public abstract class GpuBuffer<T> :
         // this.Download();
         return new BufferReader<T>(this, hostMemory.Span);
     }
-    
-    public  abstract    void    Download(GpuBuffer<T> gpuBuffer, T[] targetArray);  // TODO remove - will become obsolete
 }
 
 /// <summary>

@@ -315,7 +315,21 @@ public sealed unsafe class SilkDevice : GpuDevice
         }
     }
     
-    public override void Download() { }
+    private readonly List<ISilkBuffer> requestedBuffers = [];
+    
+    public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
+    {
+        requestedBuffers.Add((ISilkBuffer)buffer.GpuBuffer);
+    }
+    
+    // not efficient but enables use of the same Download() API
+    public override void Download()
+    {
+        foreach (var buffer in requestedBuffers) {
+            buffer.Download();
+        }
+        requestedBuffers.Clear();
+    }
         
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {

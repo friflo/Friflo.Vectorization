@@ -62,8 +62,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
     }
     
-    // TODO obsolete - will be removed
-    public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
+    // TODO obsolete - kept temporary for reference - will be removed 
+    private void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
         dev.Flush();

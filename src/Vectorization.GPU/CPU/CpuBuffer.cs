@@ -25,6 +25,4 @@ internal sealed class CpuBuffer<T> : GpuBuffer<T> where T : unmanaged
         if (device != null) device.adapter.bufferCount--;
         device = null;
     }
-    
-    public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) { }
 }
