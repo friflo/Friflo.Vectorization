@@ -23,8 +23,9 @@ public sealed unsafe partial class CommandRecorder
     
     private ref BufferEntry GetBufferEntry(uint bufferId)
     {
-        if (bufferId < bufferEntries.Length) {
-            ref var entry = ref bufferEntries[bufferId];
+        var entries = bufferEntries;
+        if (bufferId < entries.Length) {
+            ref var entry = ref entries[bufferId];
             if (entry.bufferSegments == null) {
                 entry = new BufferEntry(bufferId);
             }
