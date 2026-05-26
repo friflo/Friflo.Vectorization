@@ -5,7 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
