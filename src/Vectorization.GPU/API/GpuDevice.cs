@@ -58,16 +58,21 @@ public abstract class GpuDevice : IDisposable
 /// supported execution strategy based on its specific hardware capabilities
 /// (e.g., preferring GPU over SIMD, and SIMD over Scalar).
 /// </remarks>
-public enum ComputeMode {
+public enum ComputeMode
+{
     /// <summary> Automatically selects the optimal mode based on device capabilities. </summary>
     Device  = 0,
+    
     /// <summary>
     /// Executes operations using scalar CPU instructions. <br/>
     /// This mode enables simple debugging of your <c>[Kernel]</c> blueprint method.
     /// </summary>
+    /// 
     Scalar  = 1,
+    
     /// <summary> Executes operations using SIMD CPU instructions. </summary>
     SIMD    = 2,
+    
     /// <summary> Executes operations using GPU compute shaders. </summary>
     GPU     = 3
 }
