@@ -137,14 +137,15 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     
     void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> requestedRanges)
     {
-        ReadOnlySpan<T> gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
-        Span<T>         hostTargetSpan  = hostMemory.Span;
+        ReadOnlySpan<T>     gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
+        Span<T>             hostTargetSpan  = hostMemory.Span;
+        Span<BufferRange>   ranges          = CollectionsMarshal.AsSpan(requestedRanges);
 
         // iterate unoptimized requested ranges
-        foreach (var request in requestedRanges)
+        foreach (var range in ranges)
         {
-            int start   = request.start;
-            int length  = request.length;
+            int start   = range.start;
+            int length  = range.length;
 
             ReadOnlySpan<T>  sourceSlice = gpuSourceSpan.Slice (start, length);
             Span<T>          targetSlice = hostTargetSpan.Slice(start, length);
