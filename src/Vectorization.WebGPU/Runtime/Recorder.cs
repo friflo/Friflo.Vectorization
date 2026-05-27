@@ -137,6 +137,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         foreach (var segmentMap in clearSegmentMaps) {
             segmentMap.Clear();
         }
+        clearSegmentMaps.Clear();
+        
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
         }
