@@ -21,7 +21,7 @@ public class Test_GPU_Misc : KernelBase
         Buffer  <float> inOutBuffer  = inOutView;
         InBuffer<float> staticBuffer = staticView;
         
-        Assert.AreEqual("GpuBuffer<float> 'InOut'",     inOutBuffer.ToString());
-        Assert.AreEqual("GpuBuffer<float> 'StaticIn'",  staticBuffer.ToString());
+        Assert.AreEqual("GpuBuffer<float> 'InOut'  Length: 10",     inOutBuffer.ToString());
+        Assert.AreEqual("GpuBuffer<float> 'StaticIn'  Length: 10",  staticBuffer.ToString());
     }
 }

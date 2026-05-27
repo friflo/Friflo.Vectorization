@@ -15,17 +15,17 @@ internal static class BufferUtils
     
     
     // --- Buffer<>, InBuffer<>
-    internal static string BufferToString<T>(GpuBuffer<T> gpuBuffer, string spanType) where T : unmanaged
+    internal static string BufferToString<T>(GpuBuffer<T> gpuBuffer, string spanType, int length) where T : unmanaged
     {
         var type     = typeof(T);
         var typeCode = Type.GetTypeCode(type);
-        return BufferToString(gpuBuffer != null, typeCode, type.Name, gpuBuffer?.Label, spanType);
+        return BufferToString(gpuBuffer != null, typeCode, type.Name, gpuBuffer?.Label, spanType, length);
     }
     
-    private static string BufferToString(bool isBuffer, TypeCode typeCode, string typeName, string label, string spanType)
+    private static string BufferToString(bool isBuffer, TypeCode typeCode, string typeName, string label, string spanType, int length)
     {
         typeName = GetTypeName(typeCode, typeName);
-        return isBuffer ? $"GpuBuffer<{typeName}> '{label}'" : $"{spanType}<{typeName}>";
+        return isBuffer ? $"GpuBuffer<{typeName}> '{label}'  Length: {length}" : $"{spanType}<{typeName}>  Length: {length}";
     }
     
     // --- BufferView<>, ReadOnlyView<>

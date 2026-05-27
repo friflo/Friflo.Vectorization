@@ -20,7 +20,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public  readonly    int             Length;
     public  readonly    int             Offset;
     
-    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "Span");
+    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "Span", Length);
     
     private Buffer(Span<T> span) {
         Span        = span;
@@ -61,7 +61,7 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public  readonly    int             Length;
     public  readonly    int             Offset;
 
-    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "ReadOnlySpan");
+    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "ReadOnlySpan", Length);
 
     private InBuffer(ReadOnlySpan<T> span) {
         Span        = span;
