@@ -15,8 +15,8 @@ public class Test_GPU_Misc : KernelBase
         var inOutView  = inOut.Slice(10,10);
         var staticView = staticIn.AsReadOnly(10,10);
         
-        Assert.AreEqual("BufferView<float> 'InOut' [10, 20]",       inOutView.ToString());
-        Assert.AreEqual("ReadOnlyView<float> 'StaticIn' [10, 20]",  staticView.ToString());
+        Assert.AreEqual("BufferView<float> 'InOut' [10..20]",       inOutView.ToString());
+        Assert.AreEqual("ReadOnlyView<float> 'StaticIn' [10..20]",  staticView.ToString());
         
         Buffer  <float> inOutBuffer  = inOutView;
         InBuffer<float> staticBuffer = staticView;

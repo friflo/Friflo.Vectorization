@@ -28,7 +28,7 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     private readonly    int     start;
     private readonly    int     length;
     
-    public  override    string  ToString() => $"[{start}, {start + length}]";
+    public  override    string  ToString() => $"[{start}..{start + length}]";
     
     internal SegmentKey(int start, int length) {
         this.length = length;

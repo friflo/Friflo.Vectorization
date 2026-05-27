@@ -39,7 +39,7 @@ internal static class BufferUtils
     private static string ViewToString(string structName, TypeCode typeCode, string typeName, string label, int offset, int length)
     {
         typeName = GetTypeName(typeCode, typeName);
-        return $"{structName}<{typeName}> '{label}' [{offset}, {offset + length}]";
+        return $"{structName}<{typeName}> '{label}' [{offset}..{offset + length}]";
     }
     
     private static string GetTypeName(TypeCode typeCode, string typeName)
