@@ -48,7 +48,10 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     }
     
     public void Dispose() {
-        End();
+        if (recorder.enablePassBatching) {
+            return;
+        }
+        recorder.Finish(label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,17 +67,6 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
             (uint)workgroupCountY, 
             (uint)workgroupCountZ
         );
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void End() {
-        for (int n = 0; n < recorder.createdBindGroupsCount; n++) {
-            wgpuBindGroupRelease((BindGroup*)recorder.createdBindGroups[n]);
-        }
-        recorder.createdBindGroupsCount = 0;
-        recorder.ClosePass();
-        
-        recorder.Finish(label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

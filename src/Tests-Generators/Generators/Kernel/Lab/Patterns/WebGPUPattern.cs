@@ -28,7 +28,7 @@ public static class WebGPUPattern
         var weight      = recorder.RequireRead     (weight_);
         var output      = recorder.RequireReadWrite(output_);
 
-        using (WgpuComputePass pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {

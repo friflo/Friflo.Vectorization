@@ -21,8 +21,10 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private  readonly   WgpuDevice          device;
     private             WgpuEncoder         currentEncoder;
     private             ComputePassEncoder* currentPass;
-    internal            BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
-    internal            int                 createdBindGroupsCount;
+    internal            bool                enablePassBatching;
+    
+    private             BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
+    private             int                 createdBindGroupsCount;
     private             CommandBuffer*      commandBuffer;
     
     private             uint                uniformOffset;          // cursor in pool slice used as a ring buffer
@@ -30,7 +32,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
 
-    internal readonly   List<nint>          commandBuffers  = [];
+    internal readonly   List<nint>          commandBuffers  = [];   // only used if enablePassBatching == false
     private             int                 kernelSeq;
     private             int                 kernelId        = -1;
     private             bool                createNewPass;
@@ -115,8 +117,16 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
     } 
     
+    /// Called only if <see cref="enablePassBatching"/> == false
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
+        for (var n = 0; n < createdBindGroupsCount; n++) {
+            wgpuBindGroupRelease((BindGroup*)createdBindGroups[n]);
+        }
+        createdBindGroupsCount = 0;
+        ClosePass();
+        
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
                 device.WriteBuffer(device.globalUniformPool, 0, pData, uniformOffset);
@@ -127,7 +137,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         
-        CommandEncoder* encoderHandle = currentEncoder.handle;
+        var encoderHandle = currentEncoder.handle;
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
             commandBuffer  = wgpuCommandEncoderFinish(encoderHandle, &descriptor);
