@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+global using SegmentMap = System.Collections.Generic.Dictionary<Friflo.Vectorization.WebGPU.Runtime.SegmentKey, Friflo.Vectorization.WebGPU.Runtime.SegmentState>;
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -61,16 +63,16 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
 internal readonly struct BufferEntry
 {
-    internal readonly   uint                                    bufferId;
-    internal readonly   List<BufferRange>                       requestedRanges;
-    internal readonly   Dictionary<SegmentKey, SegmentState>    bufferSegments;
+    internal readonly   uint                bufferId;
+    internal readonly   List<BufferRange>   requestedRanges;
+    internal readonly   SegmentMap          bufferSegments;
 
     public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
 
     internal BufferEntry(uint bufferId) {
         this.bufferId   = bufferId;
         requestedRanges = new List<BufferRange>();
-        bufferSegments  = new Dictionary<SegmentKey, SegmentState>();
+        bufferSegments  = new SegmentMap();
     }
 }
 

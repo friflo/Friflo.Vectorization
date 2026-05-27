@@ -39,6 +39,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
     private             bool                    createNewPass;
+    private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
@@ -54,6 +55,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
+        clearSegmentMaps.Add(segments);
         createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
@@ -63,6 +65,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
+        clearSegmentMaps.Add(segments);
         createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
@@ -131,6 +134,9 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         renderPassCount     = 0;
         lastBindGroup0_hash = 0;
         lastPipelineHandle  = null;
+        foreach (var segmentMap in clearSegmentMaps) {
+            segmentMap.Clear();
+        }
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
         }
