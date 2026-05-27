@@ -53,9 +53,9 @@ public abstract class GpuDevice : IDisposable
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
 
-    public abstract void                Flush(bool wait = true);    // TODO - remove parameter wait 
-//  public abstract void                Synchronize();              // planned
-    public abstract void                Download();
+    public abstract void            Flush(bool wait = true);    // TODO - remove parameter wait 
+//  public abstract void            Synchronize();              // planned
+    public abstract void            Download();
 }
 
 /// <summary>  Defines the execution strategy for compute operations. </summary>
