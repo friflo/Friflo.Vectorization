@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -23,6 +24,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             ComputePassEncoder*     currentPass;
     internal            bool                    enablePassBatching  = false;
     internal            int                     renderPassCount;
+    internal            ulong                   lastBindGroup0_hash;
     
     private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
@@ -125,7 +127,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
-        renderPassCount = 0;
+        renderPassCount     = 0;
+        lastBindGroup0_hash = 0;
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
         }

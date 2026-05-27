@@ -77,7 +77,11 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup0(WgpuBindGroup bindGroup, ulong hash)
     {
+        if (hash == recorder.lastBindGroup0_hash) {
+            return;
+        }
         wgpuComputePassEncoderSetBindGroup(handle, 0, bindGroup.handle, 0, null);
+        recorder.lastBindGroup0_hash = hash;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
