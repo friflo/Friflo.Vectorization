@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
@@ -27,11 +28,13 @@ internal static class WgpuUtils
         return actualByteCount;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static unsafe StringView FromPtrSpan (byte* str, ReadOnlySpan<byte> span)
     {
         return new StringView { data = (sbyte*)str, length = (nuint)span.Length };
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static unsafe StringView FromPtrLength (byte* str, int length)
     {
         return new StringView { data = (sbyte*)str, length = (nuint)length };

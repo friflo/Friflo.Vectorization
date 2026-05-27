@@ -82,10 +82,10 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         fixed (byte* labelPtr = passLabel)
         {
-            var label = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
-            currentEncoder = device.CreateEncoder(label);
-            var desc    = new ComputePassDescriptor { label = label };
-            currentPass = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
+            var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
+            currentEncoder  = device.CreateEncoder(label);
+            var desc        = new ComputePassDescriptor { label = label };
+            currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
             return new WgpuComputePass(this, currentPass, passLabel);
         }
     }
@@ -213,7 +213,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
     }
     
-    internal void ClosePass() {
+    private void ClosePass() {
         if (currentPass != null) {
             wgpuComputePassEncoderEnd(currentPass);
             wgpuComputePassEncoderRelease(currentPass);

@@ -200,6 +200,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     //     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
     // }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal WgpuEncoder CreateEncoder(in StringView label)
     {
         var desc = new CommandEncoderDescriptor { label = label };
