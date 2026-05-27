@@ -16,9 +16,11 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal struct SegmentState
 {
-    internal int  kernelId;     // last kernel ID
-    internal int  kernelSeq;    // last kernel seq
-    internal bool isWrite;      // true = Write, false = Read
+    internal        int     kernelId;     // last kernel ID
+    internal        int     kernelSeq;    // last kernel seq
+    internal        bool    isWrite;      // true = Write, false = Read
+    
+    public override string  ToString() => $"kernelId: {kernelId}  kernelSeq: {kernelSeq}";
 }
 
 internal readonly struct SegmentKey : IEquatable<SegmentKey>
