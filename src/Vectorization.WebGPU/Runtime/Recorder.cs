@@ -172,7 +172,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             return new WgpuBindGroup(handle);
         }
     }
-    
+#if DEBUG
     internal void Reset()     // TODO remove
     {
         for (int n = 0; n < createdBindGroupsCount; n++) {
@@ -191,6 +191,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         
         Dispose();
     }
+#endif
     
     public void Dispose()
     {

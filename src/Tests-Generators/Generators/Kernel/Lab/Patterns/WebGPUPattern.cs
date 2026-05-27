@@ -28,7 +28,7 @@ public static class WebGPUPattern
         var weight      = recorder.RequireRead     (weight_);
         var output      = recorder.RequireReadWrite(output_);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (WgpuComputePass pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
@@ -46,7 +46,7 @@ public static class WebGPUPattern
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
                 device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
-            pass.SetBindGroup(0, bufferGroup);
+            pass.SetBindGroup(0, bufferGroup); // TODO can skip SetBindGroup() if hash has not changed
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
                 bias = bias,
