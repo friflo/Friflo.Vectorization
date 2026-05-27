@@ -21,28 +21,14 @@ internal struct BindGroups
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe ref struct WgpuEncoder
+internal readonly unsafe struct WgpuEncoder
 {
-    private  readonly   CommandRecorder     recorder;
     internal readonly   CommandEncoder*     handle;
     
     public   override   string              ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuEncoder(CommandRecorder recorder, CommandEncoder* handle) {
-        this.recorder   = recorder;
-        this.handle     = handle;
-    }
-    
-    // --- ComputePass methods
-    internal WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
-    {
-        fixed (byte* labelPtr = passLabel)
-        {
-            var desc            = new ComputePassDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, passLabel) };
-            var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
-            recorder.currentPass    = passHandle;
-            return new WgpuComputePass(recorder, passHandle, passLabel);
-        }
+    internal WgpuEncoder(CommandEncoder* handle) {
+        this.handle = handle;
     }
 }
 
@@ -88,7 +74,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.createdBindGroupsCount = 0;
         recorder.ClosePass();
         
-        recorder.Finish(recorder.currentEncoder, label);
+        recorder.Finish(label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

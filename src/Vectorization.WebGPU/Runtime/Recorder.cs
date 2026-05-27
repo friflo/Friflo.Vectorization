@@ -19,8 +19,8 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder : IDisposable
 {
     private  readonly   WgpuDevice          device;
-    internal            CommandEncoder*     currentEncoder;
-    internal            ComputePassEncoder* currentPass;
+    private             WgpuEncoder         currentEncoder;
+    private             ComputePassEncoder* currentPass;
     internal            BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
     internal            int                 createdBindGroupsCount;
     private             CommandBuffer*      commandBuffer;
@@ -78,9 +78,13 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     // The recorder provides / owns the Encoder
     public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
-        var encoder     = device.CreateEncoder(this, passLabel); 
-        currentEncoder  = encoder.handle;
-        return encoder.BeginComputePass(passLabel); // TODO implement BeginComputePass right here
+        currentEncoder = device.CreateEncoder(passLabel);
+        fixed (byte* labelPtr = passLabel)
+        {
+            var desc    = new ComputePassDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, passLabel) };
+            currentPass = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
+            return new WgpuComputePass(this, currentPass, passLabel);
+        }
     }
     
     public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
@@ -110,7 +114,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
     } 
     
-    internal void Finish(CommandEncoder* encoder, ReadOnlySpan<byte> commandBufferLabel)
+    internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -121,13 +125,15 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
+        
+        CommandEncoder* encoderHandle = currentEncoder.handle;
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
-            commandBuffer  = wgpuCommandEncoderFinish(encoder, &descriptor);
+            commandBuffer  = wgpuCommandEncoderFinish(encoderHandle, &descriptor);
         }
-        if (currentEncoder != null) {
-            wgpuCommandEncoderRelease(currentEncoder);
-            currentEncoder = null;
+        if (encoderHandle != null) {
+            wgpuCommandEncoderRelease(encoderHandle);
+            currentEncoder = default;
         }
         if (device.errorHandler.errorType != ErrorType.NoError) {
             // device.ReturnTask(this);       // TASK_TAG
@@ -189,9 +195,9 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     public void Dispose()
     {
         ClosePass();
-        if (currentEncoder != null) {
-            wgpuCommandEncoderRelease(currentEncoder);
-            currentEncoder = null;
+        if (currentEncoder.handle != null) {
+            wgpuCommandEncoderRelease(currentEncoder.handle);
+            currentEncoder = default;
         }
     }
     
