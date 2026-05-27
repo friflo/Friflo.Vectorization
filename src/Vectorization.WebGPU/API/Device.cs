@@ -200,16 +200,11 @@ public sealed unsafe class WgpuDevice : GpuDevice
     //     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
     // }
 
-    internal WgpuEncoder CreateEncoder(ReadOnlySpan<byte> encoderLabel)
+    internal WgpuEncoder CreateEncoder(in StringView label)
     {
-        fixed (byte* labelPtr = encoderLabel)
-        {
-            var desc = new CommandEncoderDescriptor {
-                label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel)
-            };
-            var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
-            return new WgpuEncoder(encoder);
-        }
+        var desc = new CommandEncoderDescriptor { label = label };
+        var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
+        return new WgpuEncoder(encoder);
     }
 
     internal void WriteBuffer<T>(WgpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
