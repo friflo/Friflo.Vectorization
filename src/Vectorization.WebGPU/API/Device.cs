@@ -50,7 +50,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private readonly    ThreadLocal<CommandRecorder>    threadRecorders;
     public              CommandRecorder                 Recorder        => threadRecorders.Value!;
-    internal readonly   WgpuBuffer<byte>    globalUniformPool;
+    internal readonly   WgpuBuffer<byte>    globalUniformPool;                                      // remove each CommandRecorder must have its own
     private  readonly   WgpuQueue           queue;
     
     private  static     int                 effectSlotCount;
@@ -81,7 +81,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
         // Other managed objects MUST not be touched if disposing == false.
         if (disposing) {
             // case: only manual Dispose() call
-            globalUniformPool?.Dispose();
             // TODO dispose recorder, pendingTasks & GpuEffect
             
             if (DevicePtr != null) {
@@ -91,6 +90,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 }
                 // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
+            globalUniformPool?.Dispose();
             
             // dispose all CommandRecorder's
             if (threadRecorders.IsValueCreated) {
