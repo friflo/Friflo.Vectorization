@@ -73,12 +73,17 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
             (uint)workgroupCountZ
         );
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetBindGroup0(WgpuBindGroup bindGroup, ulong hash)
+    {
+        wgpuComputePassEncoderSetBindGroup(handle, 0, bindGroup.handle, 0, null);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBindGroup(int groupIndex, WgpuBindGroup bindGroup)
+    public void SetBindGroup1(WgpuBindGroup bindGroup)
     {
-        // 4th and 5th parameter are for dynamic offsets (0/null)
-        wgpuComputePassEncoderSetBindGroup(handle, (uint)groupIndex, bindGroup.handle, 0, null);
+        wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 0, null);
     }
 }
 

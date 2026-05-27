@@ -122,7 +122,7 @@ namespace Kernel.Generators
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "InverseSqrt_buffers"u8);
                 device.UpdateBufferCache(_InverseSqrt_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
-            pass.SetBindGroup(0, bufferGroup);
+            pass.SetBindGroup0(bufferGroup, buffers.hash);
             
             var uniforms = new _InverseSqrt_GPU_Uniforms {
                 count           = buffers.length,
@@ -131,7 +131,7 @@ namespace Kernel.Generators
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "InverseSqrt_uniforms"u8);
-            pass.SetBindGroup(1, uniformGroup);
+            pass.SetBindGroup1(uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }

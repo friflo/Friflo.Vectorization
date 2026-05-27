@@ -191,14 +191,14 @@ $$""""
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
                 device.UpdateBufferCache({{methodName_GPU}}_EffectSlot, bufferGroup, buffers.hash);
             }
-            pass.SetBindGroup(0, bufferGroup);
+            pass.SetBindGroup0(bufferGroup, buffers.hash);
             
             var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
-            pass.SetBindGroup(1, uniformGroup);
+            pass.SetBindGroup1(uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }{{setTaskOnOutputs}}

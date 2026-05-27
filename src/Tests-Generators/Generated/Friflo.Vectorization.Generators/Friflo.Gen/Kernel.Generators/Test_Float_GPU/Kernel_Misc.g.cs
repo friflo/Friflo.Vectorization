@@ -208,7 +208,7 @@ namespace Kernel.Generators
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Misc_buffers"u8);
                 device.UpdateBufferCache(_Kernel_Misc_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
-            pass.SetBindGroup(0, bufferGroup);
+            pass.SetBindGroup0(bufferGroup, buffers.hash);
             
             var uniforms = new _Kernel_Misc_GPU_Uniforms {
                 count           = buffers.length,
@@ -219,7 +219,7 @@ namespace Kernel.Generators
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
             var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Misc_uniforms"u8);
-            pass.SetBindGroup(1, uniformGroup);
+            pass.SetBindGroup1(uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }

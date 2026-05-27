@@ -46,7 +46,7 @@ public static class WebGPUPattern
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
                 device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
             }
-            pass.SetBindGroup(0, bufferGroup); // TODO can skip SetBindGroup() if hash has not changed
+            pass.SetBindGroup0(bufferGroup, buffers.hash);
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
                 bias = bias,
@@ -55,7 +55,7 @@ public static class WebGPUPattern
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
             var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
-            pass.SetBindGroup(1, uniformGroup);
+            pass.SetBindGroup1(uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
