@@ -22,6 +22,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             WgpuEncoder         currentEncoder;
     private             ComputePassEncoder* currentPass;
     internal            bool                enablePassBatching  = false;
+    internal            int                 renderPassCount;
     
     private  readonly   List<WgpuBindGroup> createdBindGroups   = [];   // TODO can use array
     private             CommandBuffer*      commandBuffer;
@@ -82,6 +83,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         if (enablePassBatching && !createNewPass) {
             return new WgpuComputePass(this, currentPass, passLabel);  
         }
+        renderPassCount++;
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
@@ -123,6 +125,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
+        renderPassCount = 0;
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
         }

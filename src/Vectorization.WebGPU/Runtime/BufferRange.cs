@@ -82,7 +82,9 @@ internal unsafe struct BufferData
     internal readonly   Buffer*             storageHandle;
     internal            Buffer*             stagingHandle;
     internal            List<BufferRange>   requestedRanges;
-    
+
+    public   override   string              ToString() => $"bufferId: {bufferId}  length: {length}  ranges: {requestedRanges?.Count.ToString() ?? "null"}";
+
     internal BufferData(int bufferId, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {
         this.bufferId       = bufferId;
         this.elementSize    = elementSize;

@@ -226,14 +226,16 @@ public sealed unsafe class WgpuDevice : GpuDevice
     [MethodImpl(MethodImplOptions.NoInlining)]
     public override void Flush(bool wait = true)
     {
-        // var tasks = pendingTasks;
-        var recorder    = Recorder;
-        int count       = recorder.commandBuffers.Count;
+        var recorder = Recorder;
+        if (recorder.enablePassBatching && recorder.renderPassCount > 0) {
+            recorder.Finish("BatchedCommands"u8);
+        }
+        int count = recorder.commandBuffers.Count;
         if (count == 0 && !wait) {
             return;
         }
         inFlightCommandBufferCount = 1;
-        /* // Is previous batch already send?
+        /* // Is previous batch already send?        
         
         while (Thread.VolatileRead(ref inFlightCommandBufferCount) > 0) {
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
