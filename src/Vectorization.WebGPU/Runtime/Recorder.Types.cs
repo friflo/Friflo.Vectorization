@@ -60,12 +60,18 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPipeline(WgpuComputePipeline pipeline) {
+    public void SetPipeline(WgpuComputePipeline pipeline)
+    {
+        if (recorder.lastPipelineHandle == pipeline.handle) {
+            return;
+        }
         wgpuComputePassEncoderSetPipeline(handle, pipeline.handle);
+        recorder.lastPipelineHandle = pipeline.handle;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ) {
+    public void DispatchWorkgroups(int workgroupCountX, int workgroupCountY, int workgroupCountZ)
+    {
         wgpuComputePassEncoderDispatchWorkgroups(
             handle, 
             (uint)workgroupCountX, 

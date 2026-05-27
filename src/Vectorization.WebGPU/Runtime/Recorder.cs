@@ -25,6 +25,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     internal            bool                    enablePassBatching  = false;
     internal            int                     renderPassCount;
     internal            ulong                   lastBindGroup0_hash;
+    internal            ComputePipeline*        lastPipelineHandle;
     
     private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
@@ -129,6 +130,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         renderPassCount     = 0;
         lastBindGroup0_hash = 0;
+        lastPipelineHandle  = null;
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
         }
