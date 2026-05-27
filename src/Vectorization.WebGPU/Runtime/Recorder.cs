@@ -16,13 +16,25 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
+public class WgpuPipelineContext : PipelineContext
+{
+    public   override   bool    EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
+    
+    private  readonly   CommandRecorder recorder;
+    
+    internal WgpuPipelineContext(CommandRecorder recorder) {
+        this.recorder = recorder;
+    }
+} 
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe partial class CommandRecorder : IDisposable
 {
     private  readonly   WgpuDevice              device;
+    internal readonly   WgpuPipelineContext     context;
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
-    internal            bool                    enablePassBatching  = false;
+    internal            bool                    enablePassBatching 	= false;
     internal            int                     renderPassCount;
     internal            ulong                   lastBindGroup0_hash;
     internal            ComputePipeline*        lastPipelineHandle;
@@ -78,6 +90,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
 
     internal CommandRecorder(WgpuDevice device) {
         this.device         = device;
+        context             = new WgpuPipelineContext(this);
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];

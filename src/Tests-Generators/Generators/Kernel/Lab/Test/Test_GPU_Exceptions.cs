@@ -117,6 +117,8 @@ public class Test_GPU_Exceptions : KernelBase
         var inputSlice   = gpuOutput.Slice(0, 10);
         var outputSlice1 = gpuOutput.Slice(0, 10);
         var outputSlice2 = gpuOutput.Slice(20,10);
+        
+        device.PipelineContext.EnablePassBatching = false;
 
         var e = Assert.Throws<WgpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error

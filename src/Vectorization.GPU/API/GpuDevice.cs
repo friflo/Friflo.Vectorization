@@ -8,6 +8,11 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+public class PipelineContext
+{
+    public virtual bool EnablePassBatching { get; set; } 
+} 
+
 public abstract class GpuDevice : IDisposable
 {
     public  readonly    string  Label;
@@ -39,16 +44,18 @@ public abstract class GpuDevice : IDisposable
 
     // --- abstract
     public abstract ComputeMode     DefaultComputeMode  { get; }
+    public abstract PipelineContext PipelineContext     { get; }
+
     public abstract bool            IsDisposed          { get; }
     public abstract void            Dispose();
     
     public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
-    
-    public abstract void            Flush(bool wait = true);    // TODO - remove parameter wait 
-//  public abstract void            Synchronize();              // planned
-    public abstract void            Download();
+
+    public abstract void                Flush(bool wait = true);    // TODO - remove parameter wait 
+//  public abstract void                Synchronize();              // planned
+    public abstract void                Download();
 }
 
 /// <summary>  Defines the execution strategy for compute operations. </summary>

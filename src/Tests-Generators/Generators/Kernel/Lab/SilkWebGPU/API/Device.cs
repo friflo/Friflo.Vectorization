@@ -42,6 +42,7 @@ public sealed unsafe class SilkDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
+    public   override   PipelineContext     PipelineContext     => null;
     public   override   bool                IsDisposed          => isDisposed;
     internal readonly   Webgpu              wgpu;
     private  readonly   Wgpu                wgpuEx;

@@ -41,7 +41,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
+    public   override   PipelineContext     PipelineContext     => Recorder.context;
     public   override   bool                IsDisposed          => isDisposed;
+    
     internal readonly   Instance*           instance;
     internal            Device*             DevicePtr   { get; } 
     internal            Queue*              QueuePtr    { get; }
@@ -220,7 +222,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             device.inFlightCommandBufferCount--;
         }
     }
-    
+
     private int inFlightCommandBufferCount;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
