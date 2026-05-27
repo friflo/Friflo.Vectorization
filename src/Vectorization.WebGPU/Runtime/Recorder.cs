@@ -21,24 +21,23 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private  readonly   WgpuDevice          device;
     private             WgpuEncoder         currentEncoder;
     private             ComputePassEncoder* currentPass;
-    internal            bool                enablePassBatching;
+    internal            bool                enablePassBatching  = false;
     
-    private             BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
-    private             int                 createdBindGroupsCount;
+    private  readonly   List<WgpuBindGroup> createdBindGroups   = [];   // TODO can use array
     private             CommandBuffer*      commandBuffer;
     
-    private             uint                uniformOffset;          // cursor in pool slice used as a ring buffer
-    private  readonly   byte[]              stagingBuffer;          // CPU-cache for uniform buffer
+    private             uint                uniformOffset;              // cursor in pool slice used as a ring buffer
+    private  readonly   byte[]              stagingBuffer;              // CPU-cache for uniform buffer
     private  readonly   int                 slotSize;
     private  readonly   Buffer*             globalUniformPool;
 
-    internal readonly   List<nint>          commandBuffers  = [];   // only used if enablePassBatching == false
+    internal readonly   List<nint>          commandBuffers      = [];   // only used if enablePassBatching == false
     private             int                 kernelSeq;
-    private             int                 kernelId        = -1;
+    private             int                 kernelId            = -1;
     private             bool                createNewPass;
     
 
-    public   override   string              ToString()      => $"newPass: {createNewPass}";
+    public   override   string              ToString()          => $"newPass: {createNewPass}";
 
     public void Init(int id) {
         createNewPass   = kernelId != id;
@@ -80,6 +79,9 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     // The recorder provides / owns the Encoder
     public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
+        if (enablePassBatching && !createNewPass) {
+            return new WgpuComputePass(this, currentPass, passLabel);  
+        }
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
@@ -121,10 +123,10 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
-        for (var n = 0; n < createdBindGroupsCount; n++) {
-            wgpuBindGroupRelease((BindGroup*)createdBindGroups[n]);
+        foreach (var group in createdBindGroups) {
+            wgpuBindGroupRelease(group.handle);
         }
-        createdBindGroupsCount = 0;
+        createdBindGroups.Clear();
         ClosePass();
         
         if (uniformOffset > 0) {
@@ -163,8 +165,9 @@ public sealed unsafe partial class CommandRecorder : IDisposable
                 entries     = &bindEntry
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            createdBindGroups[createdBindGroupsCount++] = (nint)handle;
-            return new WgpuBindGroup(handle);
+            var group = new WgpuBindGroup(handle); 
+            createdBindGroups.Add(group);
+            return group;
         }
     }
     
@@ -179,17 +182,18 @@ public sealed unsafe partial class CommandRecorder : IDisposable
                 entries     = nativeEntryPtr
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            createdBindGroups[createdBindGroupsCount++] = (nint)handle;
-            return new WgpuBindGroup(handle);
+            var group = new WgpuBindGroup(handle); 
+            createdBindGroups.Add(group);
+            return group;
         }
     }
 #if DEBUG
     internal void Reset()     // TODO remove
     {
-        for (int n = 0; n < createdBindGroupsCount; n++) {
-            wgpuBindGroupRelease((BindGroup*)createdBindGroups[n]);
+        foreach (var group in createdBindGroups) {
+            wgpuBindGroupRelease(group.handle);
         }
-        createdBindGroupsCount = 0;
+        createdBindGroups.Clear();
         
         var bufferHandler = commandBuffer;
         if (bufferHandler != null) {
