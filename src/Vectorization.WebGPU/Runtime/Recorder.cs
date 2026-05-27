@@ -18,27 +18,27 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe partial class CommandRecorder : IDisposable
 {
-    private  readonly   WgpuDevice          device;
-    private             WgpuEncoder         currentEncoder;
-    private             ComputePassEncoder* currentPass;
-    internal            bool                enablePassBatching  = false;
-    internal            int                 renderPassCount;
+    private  readonly   WgpuDevice              device;
+    private             WgpuEncoder             currentEncoder;
+    private             ComputePassEncoder*     currentPass;
+    internal            bool                    enablePassBatching  = false;
+    internal            int                     renderPassCount;
     
-    private  readonly   List<WgpuBindGroup> createdBindGroups   = [];   // TODO can use array
-    private             CommandBuffer*      commandBuffer;
+    private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
+    private             WgpuCommandBuffer       commandBuffer;
     
-    private             uint                uniformOffset;              // cursor in pool slice used as a ring buffer
-    private  readonly   byte[]              stagingBuffer;              // CPU-cache for uniform buffer
-    private  readonly   int                 slotSize;
-    private  readonly   Buffer*             globalUniformPool;
+    private             uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
+    private  readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
+    private  readonly   int                     slotSize;
+    private  readonly   Buffer*                 globalUniformPool;
 
-    internal readonly   List<nint>          commandBuffers      = [];   // only used if enablePassBatching == false
-    private             int                 kernelSeq;
-    private             int                 kernelId            = -1;
-    private             bool                createNewPass;
+    internal readonly   List<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1 if enablePassBatching == true
+    private             int                     kernelSeq;
+    private             int                     kernelId            = -1;
+    private             bool                    createNewPass;
     
 
-    public   override   string              ToString()          => $"newPass: {createNewPass}";
+    public   override   string                  ToString()          => $"newPass: {createNewPass}";
 
     public void Init(int id) {
         createNewPass   = kernelId != id;
@@ -145,7 +145,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         var encoderHandle = currentEncoder.handle;
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
-            commandBuffer  = wgpuCommandEncoderFinish(encoderHandle, &descriptor);
+            var cbHandle   = wgpuCommandEncoderFinish(encoderHandle, &descriptor);
+            commandBuffer  = new WgpuCommandBuffer(cbHandle); 
         }
         if (encoderHandle != null) {
             wgpuCommandEncoderRelease(encoderHandle);
@@ -155,7 +156,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
-        commandBuffers.Add((nint)commandBuffer);
+        commandBuffers.Add(commandBuffer);
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
@@ -198,12 +199,12 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         createdBindGroups.Clear();
         
-        var bufferHandler = commandBuffer;
+        var bufferHandler = commandBuffer.handle;
         if (bufferHandler != null) {
             // Note: In case wgpuCommandEncoderFinish() detected a validation error
             //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
             wgpuCommandBufferRelease(bufferHandler);
-            commandBuffer = null;
+            commandBuffer = default;
         }
         uniformOffset = 0; // reset local uniform cursor
         

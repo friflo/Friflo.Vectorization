@@ -245,7 +245,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
             // Submit command buffers to queue
             var commandBuffers = stackalloc CommandBuffer*[count];
             for (int n = 0; n < count; n++) {
-                commandBuffers[n] = (CommandBuffer*)recorder.commandBuffers[n];
+                commandBuffers[n] = recorder.commandBuffers[n].handle;
             }
             wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);
             

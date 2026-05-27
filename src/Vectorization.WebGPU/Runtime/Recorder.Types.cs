@@ -26,6 +26,18 @@ internal readonly unsafe struct WgpuEncoder
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+internal readonly unsafe struct WgpuCommandBuffer
+{
+    internal readonly   CommandBuffer*      handle;
+    
+    public   override   string              ToString() => handle != null ? "Created" : "null";
+    
+    internal WgpuCommandBuffer(CommandBuffer* handle) {
+        this.handle = handle;
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct WgpuComputePass : IDisposable
 {
     private readonly    CommandRecorder     recorder;
