@@ -28,9 +28,7 @@ public static class WebGPUPattern
         var weight      = recorder.RequireRead     (weight_);
         var output      = recorder.RequireReadWrite(output_);
 
-        // Recording (task provides Encoder)
-        var encoder = recorder.GetEncoder("ShadowMethod"u8);
-        using (var pass = encoder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect(ShadowMethod_GPU_EffectSlot); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
@@ -59,12 +57,9 @@ public static class WebGPUPattern
             var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "ShadowMethod_uniforms"u8);
             pass.SetBindGroup(1, uniformGroup);
             
-            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);       // Execute ComputePass
-            pass.End();                                                     // finish Pass (required by WebGPU State-Machine)
+            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
         recorder.TrackWrite(output_);
-        
-        recorder.Finish(encoder, "ShadowMethod"u8);     // extract CommandBuffer from Encoder
 
         device.WaitInDebug();
     }

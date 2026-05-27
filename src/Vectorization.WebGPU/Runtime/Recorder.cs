@@ -19,7 +19,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder : IDisposable
 {
     private  readonly   WgpuDevice          device;
-    private             CommandEncoder*     currentEncoder;
+    internal            CommandEncoder*     currentEncoder;
     internal            ComputePassEncoder* currentPass;
     internal            BindGroups          createdBindGroups;      // 4 slots cover the standard WebGPU maxBindGroups limit
     internal            int                 createdBindGroupsCount;
@@ -76,11 +76,11 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     }
     
     // The recorder provides / owns the Encoder
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuEncoder GetEncoder(ReadOnlySpan<byte> encoderLabel) {
-        var encoder     = device.CreateEncoder(this, encoderLabel); 
+    public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
+    {
+        var encoder     = device.CreateEncoder(this, passLabel); 
         currentEncoder  = encoder.handle;
-        return encoder;
+        return encoder.BeginComputePass(passLabel); // TODO implement BeginComputePass right here
     }
     
     public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
@@ -110,7 +110,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
     } 
     
-    public void Finish(WgpuEncoder encoder, ReadOnlySpan<byte> commandBufferLabel)
+    internal void Finish(CommandEncoder* encoder, ReadOnlySpan<byte> commandBufferLabel)
     {
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
@@ -123,7 +123,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
-            commandBuffer  = wgpuCommandEncoderFinish(encoder.handle, &descriptor);
+            commandBuffer  = wgpuCommandEncoderFinish(encoder, &descriptor);
         }
         if (currentEncoder != null) {
             wgpuCommandEncoderRelease(currentEncoder);

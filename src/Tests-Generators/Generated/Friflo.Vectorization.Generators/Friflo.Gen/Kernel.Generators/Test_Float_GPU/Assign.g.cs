@@ -117,9 +117,7 @@ namespace Kernel.Generators
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);
 
-        // Recording - recorder provides Encoder
-        var encoder = recorder.GetEncoder("Assign"u8);
-        using (var pass = encoder.BeginComputePass("Assign"u8))
+        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect(_Assign_GPU_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
@@ -149,11 +147,8 @@ namespace Kernel.Generators
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
-            pass.End();
         }
         recorder.TrackWrite(position_);
-
-        recorder.Finish(encoder, "Assign"u8);
 
         // device.WaitInDebug();
     }

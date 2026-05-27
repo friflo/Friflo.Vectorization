@@ -23,9 +23,10 @@ internal struct BindGroups
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct WgpuEncoder
 {
-    private  readonly   CommandRecorder recorder;
-    internal readonly   CommandEncoder* handle;
-    public   override   string          ToString() => handle != null ? "Created" : "null";
+    private  readonly   CommandRecorder     recorder;
+    internal readonly   CommandEncoder*     handle;
+    
+    public   override   string              ToString() => handle != null ? "Created" : "null";
     
     internal WgpuEncoder(CommandRecorder recorder, CommandEncoder* handle) {
         this.recorder   = recorder;
@@ -33,27 +34,31 @@ public readonly unsafe ref struct WgpuEncoder
     }
     
     // --- ComputePass methods
-    public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
+    internal WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
         fixed (byte* labelPtr = passLabel)
         {
             var desc            = new ComputePassDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, passLabel) };
             var passHandle      = wgpuCommandEncoderBeginComputePass(handle, &desc);
             recorder.currentPass    = passHandle;
-            return new WgpuComputePass(recorder, passHandle);
+            return new WgpuComputePass(recorder, passHandle, passLabel);
         }
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe ref struct WgpuComputePass : IDisposable {
+public readonly unsafe ref struct WgpuComputePass : IDisposable
+{
     private readonly    CommandRecorder     recorder;
     private readonly    ComputePassEncoder* handle;
+    private readonly    ReadOnlySpan<byte>  label;
+    
     public  override    string              ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuComputePass(CommandRecorder recorder, ComputePassEncoder* handle) {
+    internal WgpuComputePass(CommandRecorder recorder, ComputePassEncoder* handle, ReadOnlySpan<byte> label) {
         this.recorder   = recorder;
-        this.handle = handle;
+        this.handle     = handle;
+        this.label      = label;
     }
     
     public void Dispose() {
@@ -76,12 +81,14 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void End() {
+    private void End() {
         for (int n = 0; n < recorder.createdBindGroupsCount; n++) {
             wgpuBindGroupRelease((BindGroup*)recorder.createdBindGroups[n]);
         }
         recorder.createdBindGroupsCount = 0;
         recorder.ClosePass();
+        
+        recorder.Finish(recorder.currentEncoder, label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

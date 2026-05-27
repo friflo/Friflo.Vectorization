@@ -176,9 +176,7 @@ $$""""
         recorder.Init({{methodName_GPU}}_EffectSlot);
 {{bufferInit}}
 
-        // Recording - recorder provides Encoder
-        var encoder = recorder.GetEncoder("{{methodName}}"u8);
-        using (var pass = encoder.BeginComputePass("{{methodName}}"u8))
+        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
             ref var effect = ref device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
@@ -203,10 +201,7 @@ $$""""
             pass.SetBindGroup(1, uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
-            pass.End();
         }{{setTaskOnOutputs}}
-
-        recorder.Finish(encoder, "{{methodName}}"u8);
 
         // device.WaitInDebug();
     }
