@@ -22,6 +22,7 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
     
+    internal            PipelineStats       pipelineStats;
     internal            PipelineRecord[]    records;
     internal            int                 recordCount;
     

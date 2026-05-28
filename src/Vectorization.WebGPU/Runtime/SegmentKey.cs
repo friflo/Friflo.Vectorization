@@ -73,6 +73,7 @@ public sealed partial class CommandRecorder
                         ||   state.isWrite;                 // RAW - Read-After-Write
             if (hasConflict && enableDiagnostics) {
                 AddRecord(PipelineRecordType.PassSplitRAW, kernel, 0, 0, param);
+                pipelineStats.Hazards++;
             }
         }
         state.kernelSeq = seq;
@@ -96,6 +97,7 @@ public sealed partial class CommandRecorder
                         || !state.isWrite;                  // WAR - Write-After-Read
             if (hasConflict && enableDiagnostics) {
                 AddRecord(PipelineRecordType.PassSplitWAR, kernel, 0, 0, param);
+                pipelineStats.Hazards++;
             }
         }
         state.kernelSeq = seq;

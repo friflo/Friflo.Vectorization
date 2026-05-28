@@ -17,7 +17,16 @@ public enum PipelineRecordType : byte
     KernelSubmit,
     BatchSubmit,
     PassSplitRAW,
-    PassSplitWAR,
+    PassSplitWAR
+}
+
+public struct PipelineStats
+{
+    public  int     Calls;
+    public  int     Passes;
+    public  int     Hazards;
+
+    public override string ToString() => $"calls: {Calls}  passes: {Passes}  hazards: {Hazards}";
 }
 
 public struct PipelineRecord
@@ -58,10 +67,12 @@ public class PipelineContext
 {
     public    virtual   bool                            EnablePassBatching { get; set; }
     public    virtual   bool                            EnableDiagnostics  { get; set; }
+    public              PipelineStats                   Stats           => GetStats();
     public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
     public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
     public    virtual   void                            ClearRecords()  { }
     
+    protected virtual   PipelineStats                   GetStats()      => default;
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
 
     public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Records: {Records.Length}";

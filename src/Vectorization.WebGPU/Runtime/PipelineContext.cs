@@ -24,8 +24,9 @@ public class WgpuPipelineContext : PipelineContext
         }
     }
     
-    public    override  void                            ClearRecords()  {  recorder.recordCount = 0; }
+    public    override  void                            ClearRecords()  {  recorder.recordCount = 0; recorder.pipelineStats = default; }
 
+    protected override  PipelineStats                   GetStats()      => recorder.pipelineStats;
     protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => recorder.records.AsSpan(0, recorder.recordCount);
     
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]

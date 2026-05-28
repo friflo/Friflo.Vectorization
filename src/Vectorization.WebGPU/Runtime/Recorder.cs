@@ -50,6 +50,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         createNewPass   = kernelId != id;
         kernelId        = id;
         kernelSeq++;
+        pipelineStats.Calls++;
     }
     
     [StackTraceHidden]
@@ -94,6 +95,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             return new WgpuComputePass(this, currentPass, passLabel);
         }
         renderPassCount++;
+        pipelineStats.Passes++;
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);

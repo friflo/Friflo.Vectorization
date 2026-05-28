@@ -35,6 +35,7 @@ public class Test_GPU_Hazards : KernelBase
             device.Download();
             Assert.AreEqual(3,              context.Records.Length);
             Assert.AreEqual("ShadowMethod", context.Records[0].KernelName);
+            Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
             Assert.AreEqual("""
                             --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 3) ---
                             // Lock-free GPU kernels with deferred, hazard-driven pass batching
@@ -50,7 +51,7 @@ public class Test_GPU_Hazards : KernelBase
             GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
  
             device.Download();
-            
+            Assert.AreEqual("calls: 2  passes: 2  hazards: 0", context.Stats.ToString());
             Assert.AreEqual("""
                             --- PIPELINE TRACE (Batching: False  Diagnostics: True  Records: 5) ---
                             'ShadowMethod'  calls: 1  passes: 1
@@ -80,6 +81,7 @@ public class Test_GPU_Hazards : KernelBase
         GpuPattern.ShadowMethod(weight.In,  output.In, 42,  input.InOut);
         
         device.Download();
+        Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.AreEqual("""
                         --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 6) ---
                         // Lock-free GPU kernels with deferred, hazard-driven pass batching
