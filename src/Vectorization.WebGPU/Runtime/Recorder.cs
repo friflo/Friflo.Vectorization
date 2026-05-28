@@ -39,7 +39,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     internal readonly   List<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1 if enablePassBatching == true
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
-    private             bool                    createNewPass;
+    internal            bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     internal            bool                    enableDiagnostics;
     
@@ -99,6 +99,10 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
             if (currentEncoder.handle == null) {
                 currentEncoder  = device.CreateEncoder(label);
+            }
+            if (currentPass != null) {
+                wgpuComputePassEncoderEnd(currentPass);
+                // wgpuComputePassEncoderRelease(currentPass);
             }
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);

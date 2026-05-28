@@ -62,7 +62,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetPipeline(WgpuComputePipeline pipeline)
     {
-        if (recorder.lastPipelineHandle == pipeline.handle) {
+        if (!recorder.createNewPass && recorder.lastPipelineHandle == pipeline.handle) {
             return;
         }
         wgpuComputePassEncoderSetPipeline(handle, pipeline.handle);

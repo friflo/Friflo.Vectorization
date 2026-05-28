@@ -62,4 +62,31 @@ public class Test_GPU_Hazards : KernelBase
         }
         Console.WriteLine(HandleDiff.GetState());
     }
+    
+    [Test]
+    public void Test_GPU_Hazard_RAW() // Read-After-Write
+    {
+        using var device = Device;
+
+        using var weight   = device.CreateBuffer<float>(100, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer<float>(100, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer<float>(100, "output", BufferProfile.InOut);
+        
+        var context = device.PipelineContext; 
+        context.EnableDiagnostics  = true;
+        context.EnablePassBatching = true;
+        
+        GpuPattern.ShadowMethod(weight.In,  input.In, 42,   output.InOut);
+        GpuPattern.ShadowMethod(weight.In,  output.In, 42,  input.InOut);
+        
+        device.Download();
+        Assert.AreEqual("""
+                        --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 4) ---
+                        // Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        'ShadowMethod'  calls: 1  passes: 1
+                        'ShadowMethod'  calls: 1  passes: 1
+                        [KernelSubmit]  'ShadowMethod'
+                        [BatchSubmit]
+                        """, context.RecordLog);
+    }
 }
