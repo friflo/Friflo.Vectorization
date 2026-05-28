@@ -56,7 +56,7 @@ public sealed unsafe partial class CommandRecorder
         device.Flush();
         
         if (enableDiagnostics) {
-            AddRecord(new PipelineRecord { type = PipelineRecordType.BatchSubmit });
+            AddRecord(PipelineRecordType.BatchSubmit);
         }        
         foreach (var range in requestedRanges) {
             bufferEntries[range.bufferId].requestedRanges.Add(range);
@@ -147,13 +147,17 @@ public sealed unsafe partial class CommandRecorder
     }
     
     // --- PipelineRecord trace
-    private void AddRecord(in PipelineRecord record)
+    private void AddRecord(PipelineRecordType recordType, int kernel = 0, int calls = 0, int passes = 0)
     {
         var localRecords = records;
         if (recordCount >= localRecords.Length) {
             localRecords = ResizeRecords();
         }
-        localRecords[recordCount++] = record;
+        ref var record = ref localRecords[recordCount++];
+        record.RecordType   = recordType;
+        record.KernelId     = kernel;
+        record.Calls        = calls;
+        record.Passes       = passes;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]

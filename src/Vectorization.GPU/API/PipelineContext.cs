@@ -20,7 +20,7 @@ public enum PipelineRecordType : byte
 
 public struct PipelineRecord
 {
-    public  PipelineRecordType  type;
+    public  PipelineRecordType  RecordType;
     public  string              KernelName => KernelRegistry.GetKernelName(KernelId);
     public  int                 KernelId;
     public  int                 Calls;
@@ -30,7 +30,7 @@ public struct PipelineRecord
     
     internal StringBuilder Append(StringBuilder sb)
     {
-        switch (type) {
+        switch (RecordType) {
             case PipelineRecordType.Kernel:
                 sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
                 break;
