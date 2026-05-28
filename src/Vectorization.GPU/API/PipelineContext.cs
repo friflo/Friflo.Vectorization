@@ -3,20 +3,46 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+
+public enum PipelineRecordType : byte
+{
+    Kernel,
+    KernelSubmit,
+    BatchSubmit
+}
+
 public struct PipelineRecord
 {
-    public string   KernelName => KernelRegistry.GetKernelName(KernelId);
-    public int      KernelId;
-    public int      Calls;
-    public int      Passes;
+    public  PipelineRecordType  type;
+    public  string              KernelName => KernelRegistry.GetKernelName(KernelId);
+    public  int                 KernelId;
+    public  int                 Calls;
+    public  int                 Passes;
 
-    public override string ToString() => $"'{KernelName}'  calls: {Calls}  passes: {Passes}";
+    public override string      ToString() => Append(new StringBuilder()).ToString();
+    
+    internal StringBuilder Append(StringBuilder sb)
+    {
+        switch (type) {
+            case PipelineRecordType.Kernel:
+                sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
+                break;
+            case PipelineRecordType.KernelSubmit:
+                sb.Append($"[KernelSubmit]  '{KernelName}'");
+                break;
+            case PipelineRecordType.BatchSubmit:
+                sb.Append($"[BatchSubmit]");
+                break;
+        }
+        return sb;
+    } 
 }
 
 public class PipelineContext
@@ -24,7 +50,20 @@ public class PipelineContext
     public    virtual   bool                            EnablePassBatching { get; set; }
     public    virtual   bool                            EnableDiagnostics  { get; set; }
     public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
+    public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
+    
+    private StringBuilder AppendRecordLog(StringBuilder sb)
+    {
+        sb.AppendLine($"--- PIPELINE TRACE (Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}) ---");
+        
+        foreach (var record in Records)
+        {
+            record.Append(sb);
+            sb.Append('\n');
+        }
+        return sb;
+    }
 }
 
 public static class KernelRegistry

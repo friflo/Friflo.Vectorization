@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -49,6 +50,9 @@ public sealed unsafe partial class CommandRecorder
     
     internal void Download()
     {
+        if (enableDiagnostics) {
+            records.Add(new PipelineRecord { type = PipelineRecordType.BatchSubmit });
+        }
         device.Flush();
         
         foreach (var range in requestedRanges) {

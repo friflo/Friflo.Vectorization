@@ -52,7 +52,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         kernelId        = id;
         kernelSeq++;
         if (enableDiagnostics) {
-            records.Add(new PipelineRecord { KernelId = kernelId, Calls = 1, Passes = 1 });
+            records.Add(new PipelineRecord { type =  PipelineRecordType.Kernel, KernelId = kernelId, Calls = 1, Passes = 1 });
         }
     }
     
@@ -146,7 +146,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         clearSegmentMaps.Clear();
         if (enableDiagnostics) {
-            records.Clear();
+            records.Add(new PipelineRecord { type = PipelineRecordType.KernelSubmit, KernelId = kernelId });
         }
         
         foreach (var group in createdBindGroups) {
