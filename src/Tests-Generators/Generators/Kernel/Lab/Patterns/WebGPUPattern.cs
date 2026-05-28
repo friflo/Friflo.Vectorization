@@ -49,8 +49,11 @@ public static class WebGPUPattern
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
             var uniforms = new ShadowMethod_GPU_Uniforms {
-                bias = bias,
-                count = buffers.length
+                count       = buffers.length,
+                weight_off  = weight_.Offset,
+                input_off   = input_ .Offset,
+                output_off  = output_.Offset,
+                bias        = bias
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
