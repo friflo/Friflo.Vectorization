@@ -22,9 +22,14 @@ public enum PipelineRecordType : byte
 
 public struct PipelineStats
 {
-    public  int     Calls;
-    public  int     Passes;
-    public  int     Hazards;
+    /// <summary>Total number of dispatched GPU kernels; higher means more workload processed.</summary>
+    public int Calls;
+
+    /// <summary>Total hardware passes generated; target 1 to ensure everything runs in a single batch.</summary>
+    public int Passes;
+
+    /// <summary>Total pipeline stalls detected; hunt this down to 0 for maximum performance.</summary>
+    public int Hazards;
 
     public override string ToString() => $"calls: {Calls}  passes: {Passes}  hazards: {Hazards}";
 }
