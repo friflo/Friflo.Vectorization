@@ -65,6 +65,16 @@ public static class WebGPUPattern
         device.WaitInDebug();
     }
     
+    [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL uses std140/std430 Layout
+    private struct ShadowMethod_GPU_Uniforms
+    {
+        [FieldOffset( 0)]    public int      count;
+        [FieldOffset( 4)]    public float    bias;
+        [FieldOffset( 8)]    public int      weight_off;
+        [FieldOffset(12)]    public int      input_off;
+        [FieldOffset(16)]    public int      output_off;
+    }
+    
     private static readonly int ShadowMethod_GPU_EffectSlot         = KernelRegistry.NewKernelId("ShadowMethod");
     private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
     private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
@@ -96,8 +106,11 @@ public static class WebGPUPattern
     private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() =>
 """
 struct ShadowMethod_Uniforms {
-    bias    : f32,
-    count   : u32
+    count       : u32,
+    bias        : f32,
+    weight_off  : u32,
+    input_off   : u32,
+    output_off  : u32
 };
 
 @group(0) @binding(0) var<storage, read>        weight_arr:     array<f32>;
@@ -112,20 +125,13 @@ fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
     if (index >= uniforms.count) {
         return;
     }
-    let weight = weight_arr[index];
-    let input  = input_arr[index];
-    // shader body generated from Blueprint method body
-    output_arr[index] = (input * weight) + uniforms.bias;
+    let weight = weight_arr[uniforms.weight_off + index];
+    let input  = input_arr [uniforms.input_off  + index];
+    
+    let output = (weight * input) + uniforms.bias;
+
+    output_arr[uniforms.output_off + index] = output;
 }
 """u8;
-    
-    // struct for uniforms
-    [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
-    private struct ShadowMethod_GPU_Uniforms
-    {
-        [FieldOffset(0)]    public float    bias;
-        [FieldOffset(4)]    public int      count;
-    //  public float uniform2;
-    //  public int   iteration;
-    }
+
 }
