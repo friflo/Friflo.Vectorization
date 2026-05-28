@@ -17,7 +17,7 @@ public struct PipelineRecord
     public int      Calls;
     public int      Passes;
 
-    public override string ToString() => $"{KernelName}  calls: {Calls}  passes: {Passes}";
+    public override string ToString() => $"'{KernelName}'  calls: {Calls}  passes: {Passes}";
 }
 
 public class PipelineContext

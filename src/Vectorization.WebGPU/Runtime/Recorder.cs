@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -18,8 +19,10 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public class WgpuPipelineContext : PipelineContext
 {
-    public   override   bool    EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
+    public    override  bool                            EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
+    protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => CollectionsMarshal.AsSpan(recorder.records);
     
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private  readonly   CommandRecorder recorder;
     
     internal WgpuPipelineContext(CommandRecorder recorder) {
@@ -52,6 +55,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             int                     kernelId            = -1;
     private             bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
+    internal readonly   List<PipelineRecord>    records             = new (10);
     
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
@@ -60,6 +64,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         createNewPass   = kernelId != id;
         kernelId        = id;
         kernelSeq++;
+        records.Add(new PipelineRecord { KernelId = kernelId, Calls = 1, Passes = 1 });
     }
     
     [StackTraceHidden]
@@ -151,6 +156,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             segmentMap.Clear();
         }
         clearSegmentMaps.Clear();
+        records.Clear();
         
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
