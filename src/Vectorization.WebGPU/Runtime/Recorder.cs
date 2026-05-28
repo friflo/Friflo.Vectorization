@@ -42,7 +42,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     internal            bool                    enableDiagnostics;
-    internal            List<PipelineRecord>    records;
+    internal            PipelineRecord[]        records;
+    internal            int                     recordCount;
     
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
@@ -51,9 +52,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         createNewPass   = kernelId != id;
         kernelId        = id;
         kernelSeq++;
-        if (enableDiagnostics) {
-            records.Add(new PipelineRecord { type =  PipelineRecordType.Kernel, KernelId = kernelId, Calls = 1, Passes = 1 });
-        }
     }
     
     [StackTraceHidden]
@@ -92,7 +90,11 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
         if (enablePassBatching && !createNewPass) {
-            return new WgpuComputePass(this, currentPass, passLabel);  
+            if (enableDiagnostics) {
+                ref var record = ref records[recordCount - 1];
+                record.Calls++;
+            }
+            return new WgpuComputePass(this, currentPass, passLabel);
         }
         renderPassCount++;
         fixed (byte* labelPtr = passLabel)
@@ -103,6 +105,9 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             }
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
+            if (enableDiagnostics) {
+                AddRecord(new PipelineRecord { type =  PipelineRecordType.Kernel, KernelId = kernelId, Calls = 1, Passes = 1 });
+            }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
     }
@@ -132,7 +137,17 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private void ThrowUniformSlotOverflow() {
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
-    } 
+    }
+    
+    private void AddRecord(in PipelineRecord record)
+    {
+        if (recordCount >= records.Length) {
+            var newRecords = new PipelineRecord[records.Length * 2];
+            Array.Copy(records, 0, newRecords, 0, records.Length);
+            records = newRecords;
+        }
+        records[recordCount++] = record;
+    }
     
     /// Called only if <see cref="enablePassBatching"/> == false
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -146,7 +161,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         clearSegmentMaps.Clear();
         if (enableDiagnostics) {
-            records.Add(new PipelineRecord { type = PipelineRecordType.KernelSubmit, KernelId = kernelId });
+            AddRecord(new PipelineRecord { type = PipelineRecordType.KernelSubmit, KernelId = kernelId });
         }
         
         foreach (var group in createdBindGroups) {

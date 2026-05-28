@@ -156,7 +156,12 @@ public class Test_GPU_Exceptions : KernelBase
                 Console.WriteLine(HandleDiff.GetState());
             }
             device.Download();
-            Assert.AreEqual(7, context.Records.Length);
+            Assert.AreEqual("""
+                            --- PIPELINE TRACE (Batching: True  Diagnostics: True) ---
+                            'ShadowMethod'  calls: 5  passes: 1
+                            [BatchSubmit]
+                            [KernelSubmit]  'ShadowMethod'
+                            """, context.RecordLog);
         }
         Console.WriteLine(HandleDiff.GetState());
     }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable InconsistentNaming
@@ -19,12 +18,13 @@ public class WgpuPipelineContext : PipelineContext
     {
         get => recorder.enableDiagnostics;
         set {
-            recorder.records ??= [];
+            recorder.records ??= new PipelineRecord[10];
+            recorder.recordCount = 0;
             recorder.enableDiagnostics = value;
         }
     }
 
-    protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => CollectionsMarshal.AsSpan(recorder.records);
+    protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => recorder.records.AsSpan(0, recorder.recordCount);
     
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private  readonly   CommandRecorder recorder;

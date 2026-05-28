@@ -51,7 +51,7 @@ public sealed unsafe partial class CommandRecorder
     internal void Download()
     {
         if (enableDiagnostics) {
-            records.Add(new PipelineRecord { type = PipelineRecordType.BatchSubmit });
+            AddRecord(new PipelineRecord { type = PipelineRecordType.BatchSubmit });
         }
         device.Flush();
         

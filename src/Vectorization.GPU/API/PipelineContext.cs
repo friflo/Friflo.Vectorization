@@ -52,15 +52,17 @@ public class PipelineContext
     public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
     public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
+
+    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}";
     
+
     private StringBuilder AppendRecordLog(StringBuilder sb)
     {
-        sb.AppendLine($"--- PIPELINE TRACE (Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}) ---");
+        sb.Append($"--- PIPELINE TRACE ({this}) ---");
         
-        foreach (var record in Records)
-        {
-            record.Append(sb);
+        foreach (var record in Records) {
             sb.Append('\n');
+            record.Append(sb);
         }
         return sb;
     }
