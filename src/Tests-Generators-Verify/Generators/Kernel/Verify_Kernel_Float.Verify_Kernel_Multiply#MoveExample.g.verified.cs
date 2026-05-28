@@ -119,14 +119,14 @@ namespace VerifyVectorize
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_MoveExample_GPU_EffectSlot);
+        recorder.Init(_MoveExample_GPU_KernelId);
 
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_MoveExample_GPU_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_MoveExample_GPU_KernelId); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = ref _MoveExample_GPU_CreateEffect(device);
             }
@@ -139,7 +139,7 @@ namespace VerifyVectorize
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, velocity);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
-                device.UpdateBufferCache(_MoveExample_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
@@ -170,7 +170,7 @@ namespace VerifyVectorize
         [FieldOffset(12)]    public float      deltaTime;
     }
     
-    private static readonly int _MoveExample_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private static readonly int _MoveExample_GPU_KernelId           = WgpuDevice.NewKernelId("MoveExample");
     private const ulong         _MoveExample_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _MoveExample_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
@@ -195,7 +195,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
-        return ref device.CreateEffect(_MoveExample_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_MoveExample_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>

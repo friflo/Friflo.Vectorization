@@ -173,12 +173,12 @@ $$""""
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init({{methodName_GPU}}_EffectSlot);
+        recorder.Init({{methodName_GPU}}_KernelId);
 {{bufferInit}}
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect({{methodName_GPU}}_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = ref {{methodName_GPU}}_CreateEffect(device);
             }
@@ -189,7 +189,7 @@ $$""""
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
-                device.UpdateBufferCache({{methodName_GPU}}_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache({{methodName_GPU}}_KernelId, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
@@ -211,7 +211,7 @@ $$""""
     {{{structFields}}
     }
     
-    private static readonly int {{methodName_GPU}}_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private static readonly int {{methodName_GPU}}_KernelId           = WgpuDevice.NewKernelId("{{methodName}}");
     private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 0x{{bindingHash:x}};
     private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 0x{{uniformHash:x}};
 
@@ -234,7 +234,7 @@ $$""""
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return ref device.CreateEffect({{methodName_GPU}}_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect({{methodName_GPU}}_KernelId, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

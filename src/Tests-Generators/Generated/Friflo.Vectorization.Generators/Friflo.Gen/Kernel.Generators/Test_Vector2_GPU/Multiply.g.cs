@@ -112,14 +112,14 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Multiply_GPU_EffectSlot);
+        recorder.Init(_Multiply_GPU_KernelId);
 
         var position    = recorder.RequireReadWrite(position_);
         var velocity    = recorder.RequireRead     (velocity_);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Multiply_GPU_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Multiply_GPU_KernelId); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = ref _Multiply_GPU_CreateEffect(device);
             }
@@ -132,7 +132,7 @@ namespace Kernel.Generators
                 entries[0] = WgpuBindGroup.From(0, position);
                 entries[1] = WgpuBindGroup.From(1, velocity);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Multiply_buffers"u8);
-                device.UpdateBufferCache(_Multiply_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(_Multiply_GPU_KernelId, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
@@ -161,7 +161,7 @@ namespace Kernel.Generators
         [FieldOffset( 8)]    public int        velocity_off;
     }
     
-    private static readonly int _Multiply_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private static readonly int _Multiply_GPU_KernelId           = WgpuDevice.NewKernelId("Multiply");
     private const ulong         _Multiply_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Multiply_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
@@ -186,7 +186,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Multiply_GPU_Shader(), "Multiply"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Multiply"u8);
         
-        return ref device.CreateEffect(_Multiply_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Multiply_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>

@@ -117,13 +117,13 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Trigonometry2_GPU_EffectSlot);
+        recorder.Init(_Kernel_Trigonometry2_GPU_KernelId);
 
         var position    = recorder.RequireReadWrite(position_);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Kernel_Trigonometry2_GPU_EffectSlot); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Kernel_Trigonometry2_GPU_KernelId); // simple GpuEffect[] array lookup
             if (!effect.IsCreated) {
                 effect = ref _Kernel_Trigonometry2_GPU_CreateEffect(device);
             }
@@ -135,7 +135,7 @@ namespace Kernel.Generators
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
                 entries[0] = WgpuBindGroup.From(0, position);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Trigonometry2_buffers"u8);
-                device.UpdateBufferCache(_Kernel_Trigonometry2_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(_Kernel_Trigonometry2_GPU_KernelId, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
@@ -162,7 +162,7 @@ namespace Kernel.Generators
         [FieldOffset( 4)]    public int        position_off;
     }
     
-    private static readonly int _Kernel_Trigonometry2_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private static readonly int _Kernel_Trigonometry2_GPU_KernelId           = WgpuDevice.NewKernelId("Kernel_Trigonometry2");
     private const ulong         _Kernel_Trigonometry2_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
     private const ulong         _Kernel_Trigonometry2_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
@@ -186,7 +186,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Trigonometry2_GPU_Shader(), "Kernel_Trigonometry2"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Trigonometry2"u8);
         
-        return ref device.CreateEffect(_Kernel_Trigonometry2_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Kernel_Trigonometry2_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Trigonometry2_GPU_Shader() =>

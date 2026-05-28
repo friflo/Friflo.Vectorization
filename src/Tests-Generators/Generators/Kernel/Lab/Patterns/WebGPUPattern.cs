@@ -65,7 +65,7 @@ public static class WebGPUPattern
         device.WaitInDebug();
     }
     
-    private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewEffectSlot();
+    private static readonly int ShadowMethod_GPU_EffectSlot         = WgpuDevice.NewKernelId("ShadowMethod");
     private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
     private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
 
