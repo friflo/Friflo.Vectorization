@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
 
 // ReSharper disable ArrangeRedundantParentheses
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -58,7 +58,7 @@ public sealed partial class CommandRecorder
 {
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    private static  bool AddRead(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private bool AddRead(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
@@ -69,8 +69,11 @@ public sealed partial class CommandRecorder
                     throw ThrowConflictingUsages(param);
                 }
             }
-            hasConflict =   (state.kernelId != kernelId) // pipeline changed
-                        ||   state.isWrite;
+            hasConflict =   (state.kernelId != kernelId)    // pipeline changed
+                        ||   state.isWrite;                 // RAW - Read-After-Write
+            if (hasConflict && enableDiagnostics) {
+                AddRecord(PipelineRecordType.PassSplitRAW);
+            }
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;
@@ -80,7 +83,7 @@ public sealed partial class CommandRecorder
 
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    private static bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
@@ -89,8 +92,11 @@ public sealed partial class CommandRecorder
             if (state.kernelSeq == kernelSeq) {
                 throw ThrowConflictingUsages(param);
             }
-            hasConflict =  (state.kernelId != kernelId) // pipeline changed
-                        || !state.isWrite;
+            hasConflict =  (state.kernelId != kernelId)     // pipeline changed
+                        || !state.isWrite;                  // WAR - Write-After-Read
+            if (hasConflict && enableDiagnostics) {
+                AddRecord(PipelineRecordType.PassSplitWAR);
+            }
         }
         state.kernelSeq = kernelSeq;
         state.kernelId  = kernelId;

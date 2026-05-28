@@ -24,8 +24,8 @@ public static class WebGPUPattern
         var recorder    = device.Recorder;
         recorder.Init(ShadowMethod_GPU_EffectSlot);
         
-        var input       = recorder.RequireRead     (input_);
         var weight      = recorder.RequireRead     (weight_);
+        var input       = recorder.RequireRead     (input_);
         var output      = recorder.RequireReadWrite(output_);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))

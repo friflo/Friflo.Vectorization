@@ -81,9 +81,11 @@ public class Test_GPU_Hazards : KernelBase
         
         device.Download();
         Assert.AreEqual("""
-                        --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 4) ---
+                        --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 6) ---
                         // Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 1  passes: 1
+                        [Pass Split - RAW]
+                        [Pass Split - WAR]
                         'ShadowMethod'  calls: 1  passes: 1
                         [KernelSubmit]  'ShadowMethod'
                         [BatchSubmit]

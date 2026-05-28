@@ -15,7 +15,9 @@ public enum PipelineRecordType : byte
 {
     Kernel,
     KernelSubmit,
-    BatchSubmit
+    BatchSubmit,
+    PassSplitRAW,
+    PassSplitWAR,
 }
 
 public struct PipelineRecord
@@ -39,6 +41,12 @@ public struct PipelineRecord
                 break;
             case PipelineRecordType.BatchSubmit:
                 sb.Append($"[BatchSubmit]");
+                break;
+            case PipelineRecordType.PassSplitRAW:
+                sb.Append($"[Pass Split - RAW]");
+                break;
+            case PipelineRecordType.PassSplitWAR:
+                sb.Append($"[Pass Split - WAR]");
                 break;
         }
         return sb;
