@@ -162,7 +162,7 @@ namespace Kernel.Generators
         [FieldOffset( 4)]    public int        position_off;
     }
     
-    private static readonly int _Kernel_Trigonometry2_GPU_KernelId           = WgpuDevice.NewKernelId("Kernel_Trigonometry2");
+    private static readonly int _Kernel_Trigonometry2_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_Trigonometry2");
     private const ulong         _Kernel_Trigonometry2_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
     private const ulong         _Kernel_Trigonometry2_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

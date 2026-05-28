@@ -170,7 +170,7 @@ namespace VerifyVectorize
         [FieldOffset(12)]    public float      deltaTime;
     }
     
-    private static readonly int _MoveExample_GPU_KernelId           = WgpuDevice.NewKernelId("MoveExample");
+    private static readonly int _MoveExample_GPU_KernelId           = KernelRegistry.NewKernelId("MoveExample");
     private const ulong         _MoveExample_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _MoveExample_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

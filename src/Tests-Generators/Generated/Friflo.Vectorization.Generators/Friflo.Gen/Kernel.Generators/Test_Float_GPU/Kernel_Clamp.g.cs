@@ -169,7 +169,7 @@ namespace Kernel.Generators
         [FieldOffset(12)]    public float      max;
     }
     
-    private static readonly int _Kernel_Clamp_GPU_KernelId           = WgpuDevice.NewKernelId("Kernel_Clamp");
+    private static readonly int _Kernel_Clamp_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_Clamp");
     private const ulong         _Kernel_Clamp_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Kernel_Clamp_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

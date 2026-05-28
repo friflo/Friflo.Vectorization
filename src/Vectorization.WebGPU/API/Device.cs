@@ -135,22 +135,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
         isDisposed = true;
     }
  
-    // --- Kernel id / name
-    private static readonly List<string> kernelNames = [null];
-    
-    internal static string  GetKernelName(int slot) => kernelNames[slot];
-    
-    // Is called only once per kernel method. It stores the kernel id in a static readonly int
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static int NewKernelId(string kernelName)
-    {
-        var names = kernelNames;
-        lock (names) {
-            names.Add(kernelName);
-            return names.Count - 1;
-        }
-    }
-
     // --- effectSlots
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref WgpuEffect GetEffect(int slot) {

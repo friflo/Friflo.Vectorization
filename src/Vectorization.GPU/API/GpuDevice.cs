@@ -8,11 +8,6 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public class PipelineContext
-{
-    public virtual bool EnablePassBatching { get; set; } 
-} 
-
 public abstract class GpuDevice : IDisposable
 {
     public  readonly    string  Label;

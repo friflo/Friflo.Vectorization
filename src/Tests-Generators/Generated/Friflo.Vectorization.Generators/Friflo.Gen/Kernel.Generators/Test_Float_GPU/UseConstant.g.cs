@@ -148,7 +148,7 @@ namespace Kernel.Generators
         [FieldOffset( 4)]    public int        position_off;
     }
     
-    private static readonly int _UseConstant_GPU_KernelId           = WgpuDevice.NewKernelId("UseConstant");
+    private static readonly int _UseConstant_GPU_KernelId           = KernelRegistry.NewKernelId("UseConstant");
     private const ulong         _UseConstant_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
     private const ulong         _UseConstant_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

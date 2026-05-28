@@ -161,7 +161,7 @@ namespace Kernel.Generators
         [FieldOffset( 8)]    public int        velocity_off;
     }
     
-    private static readonly int _Multiply_GPU_KernelId           = WgpuDevice.NewKernelId("Multiply");
+    private static readonly int _Multiply_GPU_KernelId           = KernelRegistry.NewKernelId("Multiply");
     private const ulong         _Multiply_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Multiply_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

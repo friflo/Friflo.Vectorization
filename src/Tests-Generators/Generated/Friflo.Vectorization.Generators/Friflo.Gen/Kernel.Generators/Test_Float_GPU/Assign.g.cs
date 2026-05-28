@@ -161,7 +161,7 @@ namespace Kernel.Generators
         [FieldOffset( 8)]    public int        velocity_off;
     }
     
-    private static readonly int _Assign_GPU_KernelId           = WgpuDevice.NewKernelId("Assign");
+    private static readonly int _Assign_GPU_KernelId           = KernelRegistry.NewKernelId("Assign");
     private const ulong         _Assign_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Assign_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

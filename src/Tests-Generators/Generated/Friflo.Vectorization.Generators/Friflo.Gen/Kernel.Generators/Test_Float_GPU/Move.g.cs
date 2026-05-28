@@ -169,7 +169,7 @@ namespace Kernel.Generators
         [FieldOffset(12)]    public float      deltaTime;
     }
     
-    private static readonly int _Move_GPU_KernelId           = WgpuDevice.NewKernelId("Move");
+    private static readonly int _Move_GPU_KernelId           = KernelRegistry.NewKernelId("Move");
     private const ulong         _Move_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Move_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 
