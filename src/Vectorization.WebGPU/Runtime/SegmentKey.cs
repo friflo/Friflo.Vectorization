@@ -50,10 +50,15 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
     // optional operator for fast comparison in code
     public static bool operator ==(SegmentKey left, SegmentKey right) => left.Equals(right);
     public static bool operator !=(SegmentKey left, SegmentKey right) => !left.Equals(right);
-    
+}
+
+
+
+public sealed partial class CommandRecorder
+{
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    internal static bool AddRead(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private static  bool AddRead(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
@@ -72,10 +77,10 @@ internal readonly struct SegmentKey : IEquatable<SegmentKey>
         state.isWrite   = false;
         return hasConflict;
     }
-    
+
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    internal static bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private static bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);

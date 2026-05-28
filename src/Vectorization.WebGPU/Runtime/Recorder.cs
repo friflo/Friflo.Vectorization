@@ -57,7 +57,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
-        createNewPass  |= SegmentKey.AddRead(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
+        createNewPass  |= AddRead(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
@@ -66,7 +66,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
-        createNewPass  |= SegmentKey.AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
+        createNewPass  |= AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
