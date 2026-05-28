@@ -42,8 +42,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private             bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     internal            bool                    enableDiagnostics;
-    internal            PipelineRecord[]        records;
-    internal            int                     recordCount;
     
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
@@ -136,16 +134,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
     private void ThrowUniformSlotOverflow() {
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
-    }
-    
-    private void AddRecord(in PipelineRecord record)
-    {
-        if (recordCount >= records.Length) {
-            var newRecords = new PipelineRecord[records.Length * 2];
-            Array.Copy(records, 0, newRecords, 0, records.Length);
-            records = newRecords;
-        }
-        records[recordCount++] = record;
     }
     
     /// Called only if <see cref="enablePassBatching"/> == false

@@ -22,6 +22,9 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
     
+    internal            PipelineRecord[]    records;
+    internal            int                 recordCount;
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
     {
@@ -141,5 +144,24 @@ public sealed unsafe partial class CommandRecorder
         if (userdata1== null) return;
         var remainingMaps = (int*)userdata1;
         Interlocked.Decrement(ref *remainingMaps);
+    }
+    
+    // --- PipelineRecord trace
+    private void AddRecord(in PipelineRecord record)
+    {
+        var localRecords = records;
+        if (recordCount >= localRecords.Length) {
+            localRecords = ResizeRecords();
+        }
+        localRecords[recordCount++] = record;
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private PipelineRecord[] ResizeRecords()
+    {
+        var localRecords = records;
+        var newRecords = new PipelineRecord[localRecords.Length * 2];
+        Array.Copy(localRecords, 0, newRecords, 0, localRecords.Length);
+        return records = newRecords;
     }
 }
