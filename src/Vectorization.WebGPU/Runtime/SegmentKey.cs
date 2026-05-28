@@ -58,48 +58,48 @@ public sealed partial class CommandRecorder
 {
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    private bool AddRead(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private bool AddRead(SegmentMap segmentMap, int offset, int length, int kernel, int seq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
         bool hasConflict = false;
         if (exists) {
-            if (state.kernelSeq == kernelSeq) {
+            if (state.kernelSeq == seq) {
                 if (state.isWrite) {
                     throw ThrowConflictingUsages(param);
                 }
             }
-            hasConflict =   (state.kernelId != kernelId)    // pipeline changed
+            hasConflict =   (state.kernelId != kernel)      // pipeline changed
                         ||   state.isWrite;                 // RAW - Read-After-Write
             if (hasConflict && enableDiagnostics) {
-                AddRecord(PipelineRecordType.PassSplitRAW);
+                AddRecord(PipelineRecordType.PassSplitRAW, kernel, 0, 0, param);
             }
         }
-        state.kernelSeq = kernelSeq;
-        state.kernelId  = kernelId;
+        state.kernelSeq = seq;
+        state.kernelId  = kernel;
         state.isWrite   = false;
         return hasConflict;
     }
 
     // Important: segmentMap MUST be cleared at wgpuQueueSubmit()
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
-    private bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernelId, int kernelSeq, string param)
+    private bool AddReadWrite(SegmentMap segmentMap, int offset, int length, int kernel, int seq, string param)
     {
         var key = new SegmentKey(offset, length);
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(segmentMap, key, out bool exists);
         bool hasConflict = false;
         if (exists) {
-            if (state.kernelSeq == kernelSeq) {
+            if (state.kernelSeq == seq) {
                 throw ThrowConflictingUsages(param);
             }
-            hasConflict =  (state.kernelId != kernelId)     // pipeline changed
+            hasConflict =  (state.kernelId != kernel)       // pipeline changed
                         || !state.isWrite;                  // WAR - Write-After-Read
             if (hasConflict && enableDiagnostics) {
-                AddRecord(PipelineRecordType.PassSplitWAR);
+                AddRecord(PipelineRecordType.PassSplitWAR, kernel, 0, 0, param);
             }
         }
-        state.kernelSeq = kernelSeq;
-        state.kernelId  = kernelId;
+        state.kernelSeq = seq;
+        state.kernelId  = kernel;
         state.isWrite   = true;
         return hasConflict;
     }

@@ -148,7 +148,7 @@ public sealed unsafe partial class CommandRecorder
     
     // --- PipelineRecord trace
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddRecord(PipelineRecordType recordType, int kernel = 0, int calls = 0, int passes = 0)
+    private void AddRecord(PipelineRecordType recordType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
     {
         var localRecords = records;
         if (recordCount >= localRecords.Length) {
@@ -159,6 +159,7 @@ public sealed unsafe partial class CommandRecorder
         record.KernelId     = kernel;
         record.Calls        = calls;
         record.Passes       = passes;
+        record.Resource     = resource;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]

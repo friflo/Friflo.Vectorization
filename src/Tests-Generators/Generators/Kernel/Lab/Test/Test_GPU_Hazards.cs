@@ -84,8 +84,8 @@ public class Test_GPU_Hazards : KernelBase
                         --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 6) ---
                         // Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 1  passes: 1
-                        [Pass Split - RAW]
-                        [Pass Split - WAR]
+                        [Pass Split - RAW]  Resource: 'output'
+                        [Pass Split - WAR]  Resource: 'input'
                         'ShadowMethod'  calls: 1  passes: 1
                         [KernelSubmit]  'ShadowMethod'
                         [BatchSubmit]

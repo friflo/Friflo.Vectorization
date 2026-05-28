@@ -27,6 +27,7 @@ public struct PipelineRecord
     public  int                 KernelId;
     public  int                 Calls;
     public  int                 Passes;
+    public  string              Resource;
 
     public override string      ToString() => Append(new StringBuilder()).ToString();
     
@@ -43,10 +44,10 @@ public struct PipelineRecord
                 sb.Append($"[BatchSubmit]");
                 break;
             case PipelineRecordType.PassSplitRAW:
-                sb.Append($"[Pass Split - RAW]");
+                sb.Append($"[Pass Split - RAW]  Resource: '{Resource}'");
                 break;
             case PipelineRecordType.PassSplitWAR:
-                sb.Append($"[Pass Split - WAR]");
+                sb.Append($"[Pass Split - WAR]  Resource: '{Resource}'");
                 break;
         }
         return sb;
