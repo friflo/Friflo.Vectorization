@@ -21,28 +21,30 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
     
-    private ref BufferEntry GetBufferEntry(uint bufferId)
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private SegmentMap GetBufferSegments(uint bufferId)
     {
         var entries = bufferEntries;
-        if (bufferId < entries.Length) {
-            ref var entry = ref entries[bufferId];
-            if (entry.bufferSegments == null) {
-                entry = new BufferEntry(bufferId);
-            }
-            return ref entry;
+        if (bufferId >= entries.Length) {
+            entries = ResizeBufferEntries(bufferId);
         }
-        return ref ResizeBufferEntries(bufferId);
+        ref var entry   = ref entries[bufferId];
+        var segments    = entry.bufferSegments;
+        if (segments == null) {
+            entry       = new BufferEntry(bufferId);
+            segments    = entry.bufferSegments;
+        }
+        clearSegmentMaps.Add(segments);
+        return segments;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private ref BufferEntry ResizeBufferEntries(uint bufferId)
+    private BufferEntry[] ResizeBufferEntries(uint bufferId)
     {
         var newEntries  = new BufferEntry[bufferId + 1];
         var entries     = bufferEntries;
         Array.Copy(entries, newEntries, entries.Length);
-        bufferEntries  = newEntries;
-        newEntries[bufferId] = new BufferEntry(bufferId);
-        return ref newEntries[bufferId];
+        return bufferEntries = newEntries;
     }
     
     internal void Download()

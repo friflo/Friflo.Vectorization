@@ -66,9 +66,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
-        var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
-        clearSegmentMaps.Add(segments);
-        createNewPass  |= SegmentKey.AddRead(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, kernelSeq, gpuBuffer.Label);
+        var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
+        createNewPass  |= SegmentKey.AddRead(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
@@ -76,9 +75,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
-        var segments    = GetBufferEntry(gpuBuffer.DeviceBufferId).bufferSegments;
-        clearSegmentMaps.Add(segments);
-        createNewPass  |= SegmentKey.AddReadWrite(segments, new SegmentKey(buffer.Offset, buffer.Length), kernelId, kernelSeq, gpuBuffer.Label);
+        var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
+        createNewPass  |= SegmentKey.AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
         return gpuBuffer;
     }
     
