@@ -160,8 +160,8 @@ public class Test_GPU_Exceptions : KernelBase
             Assert.AreEqual("""
                             --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 3) ---
                             'ShadowMethod'  calls: 5  passes: 1
-                            [BatchSubmit]
                             [KernelSubmit]  'ShadowMethod'
+                            [BatchSubmit]
                             """, context.RecordLog);
         }
         Console.WriteLine(HandleDiff.GetState());
