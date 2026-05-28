@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -22,7 +21,8 @@ public struct PipelineRecord
 
 public class PipelineContext
 {
-    public    virtual   bool                            EnablePassBatching { get; set; } 
+    public    virtual   bool                            EnablePassBatching { get; set; }
+    public    virtual   bool                            EnableDiagnostics  { get; set; }
     public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
 }

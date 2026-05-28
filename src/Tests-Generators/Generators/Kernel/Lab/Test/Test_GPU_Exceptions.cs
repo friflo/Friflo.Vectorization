@@ -147,10 +147,15 @@ public class Test_GPU_Exceptions : KernelBase
             using var gpuInput    = device.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
             using var gpuOutput   = device.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
             
+            var context = device.PipelineContext; 
+            context.EnableDiagnostics  = true;
+            context.EnablePassBatching = true;
+            
             for (int n = 0; n < 5; ++n) {
                 GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
                 Console.WriteLine(HandleDiff.GetState());
             }
+            Assert.AreEqual(5, context.Records.Length);
             device.Download();
         }
         Console.WriteLine(HandleDiff.GetState());
