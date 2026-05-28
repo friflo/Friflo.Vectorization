@@ -147,6 +147,7 @@ public sealed unsafe partial class CommandRecorder
     }
     
     // --- PipelineRecord trace
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void AddRecord(PipelineRecordType recordType, int kernel = 0, int calls = 0, int passes = 0)
     {
         var localRecords = records;
