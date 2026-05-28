@@ -61,7 +61,9 @@ public class PipelineContext
     private StringBuilder AppendRecordLog(StringBuilder sb)
     {
         sb.Append($"--- PIPELINE TRACE ({this}) ---");
-        
+        if (EnablePassBatching) {
+            sb.Append("\n// Lock-free GPU kernels with deferred, hazard-driven pass batching");
+        }
         foreach (var record in Records) {
             sb.Append('\n');
             record.Append(sb);

@@ -160,6 +160,7 @@ public class Test_GPU_Exceptions : KernelBase
             Assert.AreEqual("ShadowMethod", context.Records[0].KernelName);
             Assert.AreEqual("""
                             --- PIPELINE TRACE (Batching: True  Diagnostics: True  Records: 3) ---
+                            // Lock-free GPU kernels with deferred, hazard-driven pass batching
                             'ShadowMethod'  calls: 5  passes: 1
                             [KernelSubmit]  'ShadowMethod'
                             [BatchSubmit]
