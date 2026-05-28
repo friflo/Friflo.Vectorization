@@ -164,6 +164,23 @@ public class Test_GPU_Exceptions : KernelBase
                             [KernelSubmit]  'ShadowMethod'
                             [BatchSubmit]
                             """, context.RecordLog);
+            
+            context.EnablePassBatching = false;
+            context.ClearRecords();
+
+            GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+            GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+ 
+            device.Download();
+            
+            Assert.AreEqual("""
+                            --- PIPELINE TRACE (Batching: False  Diagnostics: True  Records: 5) ---
+                            'ShadowMethod'  calls: 1  passes: 1
+                            [KernelSubmit]  'ShadowMethod'
+                            'ShadowMethod'  calls: 1  passes: 1
+                            [KernelSubmit]  'ShadowMethod'
+                            [BatchSubmit]
+                            """, context.RecordLog);
         }
         Console.WriteLine(HandleDiff.GetState());
     }

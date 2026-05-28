@@ -51,6 +51,8 @@ public class PipelineContext
     public    virtual   bool                            EnableDiagnostics  { get; set; }
     public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
     public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
+    public    virtual   void                            ClearRecords()  { }
+    
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
 
     public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Records: {Records.Length}";

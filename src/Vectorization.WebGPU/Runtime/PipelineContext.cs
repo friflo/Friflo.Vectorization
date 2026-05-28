@@ -23,6 +23,8 @@ public class WgpuPipelineContext : PipelineContext
             recorder.enableDiagnostics = value;
         }
     }
+    
+    public    override  void                            ClearRecords()  {  recorder.recordCount = 0; }
 
     protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => recorder.records.AsSpan(0, recorder.recordCount);
     
