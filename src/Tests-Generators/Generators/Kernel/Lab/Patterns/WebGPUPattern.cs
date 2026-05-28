@@ -79,8 +79,8 @@ public static class WebGPUPattern
     }
     
     private static readonly int ShadowMethod_GPU_EffectSlot         = KernelRegistry.NewKernelId("ShadowMethod");
-    private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique hash key calculated by Generator
-    private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42; // unique hash key calculated by Generator
+    private const ulong         ShadowMethod_GPU_BufferLayoutKey    = 1337; // unique key set by Generator
+    private const ulong         ShadowMethod_GPU_UniformLayoutKey   = 42;   // unique key set by Generator
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect ShadowMethod_GPU_CreateEffect(WgpuDevice device)
@@ -88,15 +88,15 @@ public static class WebGPUPattern
         var bufferLayout = device.GetBindGroupLayout(ShadowMethod_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0); // @group(0) @binding(0) var<storage, read>       weight
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // @group(0) @binding(1) var<storage, read>       input
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2); // @group(0) @binding(2) var<storage, read_write> output
+            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);   // var<storage, read>       weight_arr:     array<f32>;
+            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1);   // var<storage, read>       input_arr:      array<f32>;
+            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2);   // var<storage, read_write> output_arr:     array<f32>;
             bufferLayout = device.CreateBindGroupLayout(buffers, ShadowMethod_GPU_BufferLayoutKey, "ShadowMethod_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(ShadowMethod_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform(0); // @group(1)
+            uniform[0] = WgpuLayoutEntry.Uniform(0);            // var<uniform>              uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShadowMethod_GPU_UniformLayoutKey, "ShadowMethod_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(ShadowMethod_GPU_Shader(), "ShadowMethod"u8);
