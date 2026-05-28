@@ -91,8 +91,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         if (enablePassBatching && !createNewPass) {
             if (enableDiagnostics) {
-                ref var record = ref records[recordCount - 1];
-                record.Calls++;
+                records[recordCount - 1].Calls++;
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
