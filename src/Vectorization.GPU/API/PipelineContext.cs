@@ -53,7 +53,7 @@ public class PipelineContext
     public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
     protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
 
-    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}";
+    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Records: {Records.Length}";
     
 
     private StringBuilder AppendRecordLog(StringBuilder sb)
