@@ -130,4 +130,31 @@ public class Test_GPU_Pass : KernelBase
         context.ClearKernelMetrics();
         Assert.AreEqual("--- KERNEL METRIC ---", context.KernelMetricLog);
     }
+    
+    [Test]
+    public void Test_GPU_Hazard_Pass_Fusion_of_Views()
+    {
+        using var device = Device;
+
+        using var weight   = device.CreateBuffer<float>(100, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer<float>(100, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer<float>(100, "output", BufferProfile.InOut);
+        
+        var context = device.PipelineContext; 
+        context.EnableTraces  = true;
+        context.EnablePassBatching = true;
+        
+        GpuPattern.ShadowMethod(weight.AsReadOnly(0, 10),  input.AsReadOnly(0, 10),   42,  output.Slice(0, 10));
+        GpuPattern.ShadowMethod(weight.AsReadOnly(0, 10),  output.AsReadOnly(10, 10), 42,  input.Slice(10, 10));
+        
+        device.Download();
+        Assert.AreEqual("calls: 2  passes: 1  hazards: 0", context.Stats.ToString());
+        Assert.AreEqual("""
+                        --- PIPELINE TRACE (Batching: True  Traces: True  Count: 3) ---
+                        --- Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        'ShadowMethod'  calls: 2  passes: 1
+                        [Kernel_Submit]  'ShadowMethod'
+                        [Batch_Submit]
+                        """, context.TraceLog);
+    }
 }
