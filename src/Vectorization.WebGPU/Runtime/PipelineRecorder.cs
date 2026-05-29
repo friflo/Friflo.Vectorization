@@ -19,7 +19,7 @@ public sealed partial class CommandRecorder
     private             PipelineTrace[]     traces;
     private             int                 traceCount;
     private             KernelMetric[]      kernelMetrics       = [default];
-    private             int                 kernelMetricCount    = 0;
+    private             int                 kernelMetricCount;
     
     
     protected override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
