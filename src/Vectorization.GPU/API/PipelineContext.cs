@@ -11,7 +11,7 @@ using System.Text;
 namespace Friflo.Vectorization.GPU;
 
 
-public enum PipelineRecordType : byte
+public enum PipelineTraceType : byte
 {
     Kernel,
     KernelSubmit,
@@ -34,9 +34,9 @@ public struct PipelineStats
     public override string ToString() => $"calls: {Calls}  passes: {Passes}  hazards: {Hazards}";
 }
 
-public struct PipelineRecord
+public struct PipelineTrace
 {
-    public  PipelineRecordType  RecordType;
+    public  PipelineTraceType   TraceType;
     public  string              KernelName => KernelRegistry.GetKernelName(KernelId);
     public  int                 KernelId;
     public  int                 Calls;
@@ -47,20 +47,20 @@ public struct PipelineRecord
     
     internal StringBuilder Append(StringBuilder sb)
     {
-        switch (RecordType) {
-            case PipelineRecordType.Kernel:
+        switch (TraceType) {
+            case PipelineTraceType.Kernel:
                 sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
                 break;
-            case PipelineRecordType.KernelSubmit:
+            case PipelineTraceType.KernelSubmit:
                 sb.Append($"[KernelSubmit]  '{KernelName}'");
                 break;
-            case PipelineRecordType.BatchSubmit:
+            case PipelineTraceType.BatchSubmit:
                 sb.Append($"[BatchSubmit]");
                 break;
-            case PipelineRecordType.PassSplitRAW:
+            case PipelineTraceType.PassSplitRAW:
                 sb.Append($"[Pass Split - RAW]  Resource: '{Resource}'");
                 break;
-            case PipelineRecordType.PassSplitWAR:
+            case PipelineTraceType.PassSplitWAR:
                 sb.Append($"[Pass Split - WAR]  Resource: '{Resource}'");
                 break;
         }
@@ -73,25 +73,25 @@ public class PipelineContext
     public    virtual   bool                            EnablePassBatching { get; set; }
     public    virtual   bool                            EnableDiagnostics  { get; set; }
     public              PipelineStats                   Stats           => GetStats();
-    public              ReadOnlySpan<PipelineRecord>    Records         => GetRecords();
-    public              string                          RecordLog       => AppendRecordLog(new StringBuilder()).ToString();
-    public    virtual   void                            ClearRecords()  { }
+    public              ReadOnlySpan<PipelineTrace>     Traces          => GetTraces();
+    public              string                          TraceLog        => AppendTraceLog(new StringBuilder()).ToString();
+    public    virtual   void                            ClearTraces()   { }
     
     protected virtual   PipelineStats                   GetStats()      => default;
-    protected virtual   ReadOnlySpan<PipelineRecord>    GetRecords()    => default;
+    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()    => default;
 
-    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Records: {Records.Length}";
+    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Traces: {Traces.Length}";
     
 
-    private StringBuilder AppendRecordLog(StringBuilder sb)
+    private StringBuilder AppendTraceLog(StringBuilder sb)
     {
         sb.Append($"--- PIPELINE TRACE ({this}) ---");
         if (EnablePassBatching) {
             sb.Append("\n// Lock-free GPU kernels with deferred, hazard-driven pass batching");
         }
-        foreach (var record in Records) {
+        foreach (var trace in Traces) {
             sb.Append('\n');
-            record.Append(sb);
+            trace.Append(sb);
         }
         return sb;
     }

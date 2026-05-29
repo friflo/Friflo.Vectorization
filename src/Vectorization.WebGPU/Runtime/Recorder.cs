@@ -90,7 +90,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     {
         if (enablePassBatching && !createNewPass) {
             if (enableDiagnostics) {
-                records[recordCount - 1].Calls++;
+                traces[traceCount - 1].Calls++;
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
@@ -109,7 +109,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
             if (enableDiagnostics) {
-                AddRecord(PipelineRecordType.Kernel, kernelId, 1, 1);
+                AddTrace(PipelineTraceType.Kernel, kernelId, 1, 1);
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
@@ -154,7 +154,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         clearSegmentMaps.Clear();
         if (enableDiagnostics) {
-            AddRecord(PipelineRecordType.KernelSubmit, kernelId);
+            AddTrace(PipelineTraceType.KernelSubmit, kernelId);
         }
         
         foreach (var group in createdBindGroups) {

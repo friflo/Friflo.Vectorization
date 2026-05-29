@@ -72,7 +72,7 @@ public sealed partial class CommandRecorder
             hasConflict =   (state.kernelId != kernel)      // pipeline changed
                         ||   state.isWrite;                 // RAW - Read-After-Write
             if (hasConflict && enableDiagnostics) {
-                AddRecord(PipelineRecordType.PassSplitRAW, kernel, 0, 0, param);
+                AddTrace(PipelineTraceType.PassSplitRAW, kernel, 0, 0, param);
                 pipelineStats.Hazards++;
             }
         }
@@ -96,7 +96,7 @@ public sealed partial class CommandRecorder
             hasConflict =  (state.kernelId != kernel)       // pipeline changed
                         || !state.isWrite;                  // WAR - Write-After-Read
             if (hasConflict && enableDiagnostics) {
-                AddRecord(PipelineRecordType.PassSplitWAR, kernel, 0, 0, param);
+                AddTrace(PipelineTraceType.PassSplitWAR, kernel, 0, 0, param);
                 pipelineStats.Hazards++;
             }
         }

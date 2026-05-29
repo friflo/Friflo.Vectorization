@@ -23,8 +23,8 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferData>    activeBuffers   = [];
     
     internal            PipelineStats       pipelineStats;
-    internal            PipelineRecord[]    records;
-    internal            int                 recordCount;
+    internal            PipelineTrace[]     traces;
+    internal            int                 traceCount;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
@@ -57,7 +57,7 @@ public sealed unsafe partial class CommandRecorder
         device.Flush();
         
         if (enableDiagnostics) {
-            AddRecord(PipelineRecordType.BatchSubmit);
+            AddTrace(PipelineTraceType.BatchSubmit);
         }        
         foreach (var range in requestedRanges) {
             bufferEntries[range.bufferId].requestedRanges.Add(range);
@@ -149,26 +149,26 @@ public sealed unsafe partial class CommandRecorder
     
     // --- PipelineRecord trace
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddRecord(PipelineRecordType recordType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
+    private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
     {
-        var localRecords = records;
-        if (recordCount >= localRecords.Length) {
-            localRecords = ResizeRecords();
+        var localTraces = traces;
+        if (traceCount >= localTraces.Length) {
+            localTraces = ResizeTraces();
         }
-        ref var record = ref localRecords[recordCount++];
-        record.RecordType   = recordType;
-        record.KernelId     = kernel;
-        record.Calls        = calls;
-        record.Passes       = passes;
-        record.Resource     = resource;
+        ref var trace = ref localTraces[traceCount++];
+        trace.TraceType = traceType;
+        trace.KernelId  = kernel;
+        trace.Calls     = calls;
+        trace.Passes    = passes;
+        trace.Resource  = resource;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private PipelineRecord[] ResizeRecords()
+    private PipelineTrace[] ResizeTraces()
     {
-        var localRecords = records;
-        var newRecords = new PipelineRecord[localRecords.Length * 2];
-        Array.Copy(localRecords, 0, newRecords, 0, localRecords.Length);
-        return records = newRecords;
+        var localTraces = traces;
+        var newTraces  = new PipelineTrace[localTraces.Length * 2];
+        Array.Copy(localTraces, 0, newTraces, 0, localTraces.Length);
+        return traces = newTraces;
     }
 }

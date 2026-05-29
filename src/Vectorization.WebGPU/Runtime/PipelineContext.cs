@@ -18,16 +18,16 @@ public class WgpuPipelineContext : PipelineContext
     {
         get => recorder.enableDiagnostics;
         set {
-            recorder.records ??= new PipelineRecord[10];
-            recorder.recordCount = 0;
+            recorder.traces ??= new PipelineTrace[10];
+            recorder.traceCount = 0;
             recorder.enableDiagnostics = value;
         }
     }
     
-    public    override  void                            ClearRecords()  {  recorder.recordCount = 0; recorder.pipelineStats = default; }
+    public    override  void                            ClearTraces()  {  recorder.traceCount = 0; recorder.pipelineStats = default; }
 
     protected override  PipelineStats                   GetStats()      => recorder.pipelineStats;
-    protected override  ReadOnlySpan<PipelineRecord>    GetRecords()    => recorder.records.AsSpan(0, recorder.recordCount);
+    protected override  ReadOnlySpan<PipelineTrace>     GetTraces()     => recorder.traces.AsSpan(0, recorder.traceCount);
     
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private  readonly   CommandRecorder recorder;
