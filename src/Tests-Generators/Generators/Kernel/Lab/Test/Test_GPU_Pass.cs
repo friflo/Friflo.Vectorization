@@ -37,7 +37,7 @@ public class Test_GPU_Pass : KernelBase
         Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.AreEqual("""
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 3) ---
-                        // Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        --- Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 5  passes: 1
                         [Kernel_Submit]  'ShadowMethod'
                         [Batch_Submit]
@@ -81,7 +81,7 @@ public class Test_GPU_Pass : KernelBase
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.AreEqual("""
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 6) ---
-                        // Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        --- Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 1  passes: 1
                         [Pass_Split - RAW]  Resource: 'output'
                         [Pass_Split - WAR]  Resource: 'input'

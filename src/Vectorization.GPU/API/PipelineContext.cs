@@ -87,7 +87,7 @@ public class PipelineContext
     {
         sb.Append($"--- PIPELINE TRACE ({this}) ---");
         if (EnablePassBatching) {
-            sb.Append("\n// Lock-free GPU kernels with deferred, hazard-driven pass batching");
+            sb.Append("\n--- Lock-free GPU kernels with deferred, hazard-driven pass batching");
         }
         foreach (var trace in Traces) {
             sb.Append('\n');
