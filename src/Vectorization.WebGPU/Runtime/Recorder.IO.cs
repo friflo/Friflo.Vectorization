@@ -23,6 +23,7 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferData>    activeBuffers   = [];
     
     internal            PipelineStats       pipelineStats;
+    internal            bool                enableTraces;
     internal            PipelineTrace[]     traces;
     internal            int                 traceCount;
     
@@ -56,7 +57,7 @@ public sealed unsafe partial class CommandRecorder
     {
         device.Flush();
         
-        if (enableDiagnostics) {
+        if (enableTraces) {
             AddTrace(PipelineTraceType.BatchSubmit);
         }        
         foreach (var range in requestedRanges) {

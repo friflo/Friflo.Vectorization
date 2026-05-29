@@ -16,15 +16,16 @@ public class WgpuPipelineContext : PipelineContext
     public    override  bool EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
     public    override  bool EnableTraces
     {
-        get => recorder.enableDiagnostics;
+        get => recorder.enableTraces;
         set {
-            recorder.traces ??= new PipelineTrace[10];
-            recorder.traceCount = 0;
-            recorder.enableDiagnostics = value;
+            recorder.traces       ??= new PipelineTrace[10];
+            recorder.traceCount     = 0;
+            recorder.pipelineStats  = default;
+            recorder.enableTraces   = value;
         }
     }
     
-    public    override  void                            ClearTraces()  {  recorder.traceCount = 0; recorder.pipelineStats = default; }
+    public    override  void                            ClearTraces()   { recorder.traceCount = 0; recorder.pipelineStats = default; }
 
     protected override  PipelineStats                   GetStats()      => recorder.pipelineStats;
     protected override  ReadOnlySpan<PipelineTrace>     GetTraces()     => recorder.traces.AsSpan(0, recorder.traceCount);
