@@ -1,5 +1,4 @@
-﻿using System;
-using Friflo.Vectorization.GPU;
+﻿using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
