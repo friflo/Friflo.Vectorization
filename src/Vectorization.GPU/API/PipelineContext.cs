@@ -46,28 +46,30 @@ public struct PipelineTrace
     public  int                 Passes;
     public  string              Resource;
 
-    public override string      ToString() => Append(new StringBuilder()).ToString();
+    public override string      ToString() => Append(new StringBuilder(), 23).ToString();
     
-    internal StringBuilder Append(StringBuilder sb)
+    internal StringBuilder Append(StringBuilder sb, int indent)
     {
         switch (TraceType) {
             case PipelineTraceType.Kernel:
-                sb.Append($"{KernelName}()  calls: {Calls}  passes: {Passes}");
+                var name    = KernelName;
+                var len     = Math.Max(0, indent - name.Length);
+                sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}   passes: {Passes,2}");
                 break;
             case PipelineTraceType.Kernel_Submit:
-                sb.Append($"[Kernel_Submit]  {KernelName}()");
+                sb.Append($"> Kernel_Submit");
                 break;
             case PipelineTraceType.Batch_Submit:
-                sb.Append($"[Batch_Submit]");
+                sb.Append($"> Batch_Submit");
                 break;
             case PipelineTraceType.Pass_Split_RAW:
-                sb.Append($"  [Pass_Split - RAW]  Resource: '{Resource}'");
+                sb.Append($"  ! RAW on '{Resource}'");
                 break;
             case PipelineTraceType.Pass_Split_WAR:
-                sb.Append($"  [Pass_Split - WAR]  Resource: '{Resource}'");
+                sb.Append($"  ! WAR on '{Resource}'");
                 break;
             case PipelineTraceType.Pass_Split_WAW:
-                sb.Append($"  [Pass_Split - WAW]  Resource: '{Resource}'");
+                sb.Append($"  ! WAW on '{Resource}'");
                 break;
         }
         return sb;
@@ -122,7 +124,7 @@ public readonly ref struct PipelineContext
         }
         foreach (var trace in Traces) {
             sb.Append('\n');
-            trace.Append(sb);
+            trace.Append(sb, 29);
         }
         return sb;
     }
@@ -134,7 +136,9 @@ public readonly ref struct PipelineContext
             if (metric.Calls == 0) {
                 continue;   
             }
-            sb.Append($"\n{metric.KernelName}()  calls: {metric.Calls}  passes: {metric.Passes}");
+            var name    = metric.KernelName;
+            var len     = Math.Max(0, 29 - name.Length);
+            sb.Append($"\n{metric.KernelName}()").Append(' ',len).Append($" calls: {metric.Calls}  passes: {metric.Passes}");
         }
         return sb;
     }
