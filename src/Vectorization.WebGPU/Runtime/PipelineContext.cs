@@ -14,7 +14,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public class WgpuPipelineContext : PipelineContext
 {
     public    override  bool EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
-    public    override  bool EnableDiagnostics
+    public    override  bool EnableTraces
     {
         get => recorder.enableDiagnostics;
         set {

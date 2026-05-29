@@ -70,17 +70,17 @@ public struct PipelineTrace
 
 public class PipelineContext
 {
-    public    virtual   bool                            EnablePassBatching { get; set; }
-    public    virtual   bool                            EnableDiagnostics  { get; set; }
+    public    virtual   bool                            EnablePassBatching  { get; set; }
+    public    virtual   bool                            EnableTraces        { get; set; }
     public              PipelineStats                   Stats           => GetStats();
     public              ReadOnlySpan<PipelineTrace>     Traces          => GetTraces();
     public              string                          TraceLog        => AppendTraceLog(new StringBuilder()).ToString();
     public    virtual   void                            ClearTraces()   { }
     
     protected virtual   PipelineStats                   GetStats()      => default;
-    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()    => default;
+    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()     => default;
 
-    public    override  string ToString() => $"Batching: {EnablePassBatching}  Diagnostics: {EnableDiagnostics}  Traces: {Traces.Length}";
+    public    override  string ToString() => $"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Traces: {Traces.Length}";
     
 
     private StringBuilder AppendTraceLog(StringBuilder sb)
