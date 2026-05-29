@@ -39,30 +39,30 @@ public class Test_GPU_Exceptions : KernelBase
             var gpuOutput2   = device1.CreateBuffer(output, "gpuOutput2", BufferProfile.InOut);
             gpuOutput2.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
             using var gpuOutput2 = device2.CreateBuffer(input, "gpuOutput2", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
             using var gpuOutputSmall = device1.CreateBuffer(new float[63], "gpuOutput1", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutputSmall.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutputSmall.InOut);
             });
             StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
         } {
             using var gpuWeight2 = device2.CreateBuffer(weight, "gpuWeight2", BufferProfile.StaticIn); 
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(gpuWeight2.In, input, 42, output);
+                Pattern.MultiplyAddKernel(gpuWeight2.In, input, 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         }  {
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(weight, gpuInput.In, 42, output);
+                Pattern.MultiplyAddKernel(weight, gpuInput.In, 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         } {
@@ -70,21 +70,21 @@ public class Test_GPU_Exceptions : KernelBase
             using var adapter   = instance.CreateAdapter(GpuBackendType.Scalar);
             using var device    = adapter.CreateDevice("Scalar");
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(weight, input, 42, output, ComputeMode.GPU);
+                Pattern.MultiplyAddKernel(weight, input, 42, output, ComputeMode.GPU);
             });
             StringAssert.StartsWith("The Ghost Orchestra: ", e!.Message!);
         }
-        GpuPattern.MultiplyAddKernel(weight, input, 42, output); // using only spans
-        GpuPattern.MultiplyAddKernel(weight, input, 42, output); // using only spans
+        Pattern.MultiplyAddKernel(weight, input, 42, output); // using only spans
+        Pattern.MultiplyAddKernel(weight, input, 42, output); // using only spans
         
         using var gpuOutput3   = device1.CreateBuffer(output, "gpuOutput3", BufferProfile.InOut);
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
-        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
+        Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
         {
             using var gpuOutput1 = device1.CreateBuffer(input, "gpuOutput1", BufferProfile.StaticIn);
             device1.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
-                GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
             });
             StringAssert.StartsWith("Archaeological Error:", e!.Message!);
         }
@@ -100,7 +100,7 @@ public class Test_GPU_Exceptions : KernelBase
         using var gpuOutput = device.CreateBuffer<float>(64, "gpuOutput", BufferProfile.InOut);
 
         var e = Assert.Throws<InvalidOperationException>(() => {
-            GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
+            Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
         })!;
         StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
     }
@@ -123,7 +123,7 @@ public class Test_GPU_Exceptions : KernelBase
 
         var e = Assert.Throws<WgpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error
-            GpuPattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);
+            Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);
         })!;
         StringAssert.Contains("gpuOutput",          e.Message);
         StringAssert.Contains("conflicting usages", e.Message);

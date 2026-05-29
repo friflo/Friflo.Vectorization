@@ -10,7 +10,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
 
-public static class WebGPUPattern
+public static class WgpuPattern
 {
     [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
     internal static void MultiplyAdd_GPU(

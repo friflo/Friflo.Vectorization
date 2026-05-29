@@ -10,7 +10,7 @@ using Friflo.Vectorization.Intrinsics;
 
 namespace Kernel.Lab;
 
-public  static class GpuPattern
+public  static class Pattern
 {
     // [Vectorize]
     public static void MultiplyAdd(
@@ -36,7 +36,7 @@ public  static class GpuPattern
 
         if (buffers.ComputeGPU) {
             switch (KernelFixture.TestBackend) {
-                case TestBackend.WebGPU:    WebGPUPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);   return;
+                case TestBackend.WebGPU:    WgpuPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);   return;
                 case TestBackend.Silk:      SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
             }
         }

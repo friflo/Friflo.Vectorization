@@ -30,7 +30,7 @@ public partial class Test_GPU_Pass : KernelBase
         _ = context.KernelMetrics;
         
         for (int n = 0; n < 5; ++n) {
-            GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+            Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         }
         device.Download();
         
@@ -50,7 +50,7 @@ public partial class Test_GPU_Pass : KernelBase
         context.ClearTraces();
         
         for (int n = 0; n < 5; ++n) {
-            GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+            Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         }
         device.Download();
         
@@ -66,8 +66,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces        = true;
         context.ClearTraces();
 
-        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
-        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
 
         device.Download();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 0", context.Stats.ToString());
@@ -94,8 +94,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces  = true;
         context.EnablePassBatching = true;
         
-        GpuPattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
-        GpuPattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
+        Pattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
+        Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
         device.Download();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
@@ -114,8 +114,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces  = false;
         context.ClearTraces();
         
-        GpuPattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
-        GpuPattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
+        Pattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
+        Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
         device.Download();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
@@ -150,13 +150,13 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces  = true;
         context.EnablePassBatching = true;
         
-        GpuPattern.MultiplyAddKernel(weight.In, input.In, 42, output.InOut);
+        Pattern.MultiplyAddKernel(weight.In, input.In, 42, output.InOut);
         
         // read interference: Split Pass (RAW)
         AssignKernel(output.InOut, input.In);
         
         // second write in output: forces WAW Split to previous write
-        GpuPattern.MultiplyAddKernel(weight.In, input.In, 23, output.InOut);
+        Pattern.MultiplyAddKernel(weight.In, input.In, 23, output.InOut);
         
         device.Download();
         
@@ -194,8 +194,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces  = true;
         context.EnablePassBatching = true;
         
-        GpuPattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  input.AsReadOnly(0, 10),   42,  output.Slice(0, 10));
-        GpuPattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  output.AsReadOnly(10, 10), 42,  input.Slice(10, 10));
+        Pattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  input.AsReadOnly(0, 10),   42,  output.Slice(0, 10));
+        Pattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  output.AsReadOnly(10, 10), 42,  input.Slice(10, 10));
         
         device.Download();
         Assert.AreEqual("calls: 2  passes: 1  hazards: 0", context.Stats.ToString());
