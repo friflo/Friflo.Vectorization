@@ -80,7 +80,7 @@ public class PipelineContext
     protected virtual   PipelineStats                   GetStats()      => default;
     protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()     => default;
 
-    public    override  string ToString() => $"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Traces: {Traces.Length}";
+    public    override  string ToString() => $"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Count: {Traces.Length}";
     
 
     private StringBuilder AppendTraceLog(StringBuilder sb)
