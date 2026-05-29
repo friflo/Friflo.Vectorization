@@ -103,6 +103,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         renderPassCount++;
         pipelineStats.Passes++;
+        kernelMetrics[kernelId].Passes++;
+        
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);

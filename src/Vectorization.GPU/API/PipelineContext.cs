@@ -73,8 +73,9 @@ public struct KernelMetric
     public  string  KernelName => KernelRegistry.GetKernelName(KernelId);
     public  int     KernelId;
     public  int     Calls;
+    public  int     Passes;
     
-    public override  string ToString() => $"'{KernelName}'  calls: {Calls}";
+    public override  string ToString() => $"'{KernelName}'  calls: {Calls}  passes: {Passes}";
 }
 
 public class PipelineContext
@@ -115,7 +116,7 @@ public class PipelineContext
             if (metric.Calls == 0) {
                 continue;   
             }
-            sb.Append($"\n'{metric.KernelName}'  calls: {metric.Calls}");
+            sb.Append($"\n'{metric.KernelName}'  calls: {metric.Calls}  passes: {metric.Passes}");
         }
         return sb;
     }
