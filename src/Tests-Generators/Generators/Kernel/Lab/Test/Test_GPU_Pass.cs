@@ -1,11 +1,12 @@
-﻿using Friflo.Vectorization.GPU;
+﻿using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
 
 
-public class Test_GPU_Pass : KernelBase
+public partial class Test_GPU_Pass : KernelBase
 {
     [Test]
     public void Test_GPU_Pass_Batching()
@@ -129,6 +130,48 @@ public class Test_GPU_Pass : KernelBase
                         """, context.KernelMetricLog);
         context.ClearKernelMetrics();
         Assert.AreEqual("--- KERNEL METRIC ---", context.KernelMetricLog);
+    }
+    
+    [Kernel] [OmitHash]
+    private static void Assign([Span] ref float output, [Span] float input) {
+        output = input;
+    }
+    
+    // [Test]
+    public void Test_GPU_Hazard_WAW_Split()
+    {
+        using var device = Device;
+
+        using var weight   = device.CreateBuffer<float>(100, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer<float>(100, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer<float>(100, "output", BufferProfile.InOut);
+        
+        var context = device.PipelineContext; 
+        context.EnableTraces  = true;
+        context.EnablePassBatching = true;
+        
+        GpuPattern.ShadowMethod(weight.In, input.In, 42, output.InOut);
+        
+        // read interference: Split Pass (RAW)
+        AssignKernel(output.InOut, input.In);
+        
+        // second write in output: forces WAW Split to previous write
+        GpuPattern.ShadowMethod(weight.In, input.In, 23, output.InOut);
+        
+        device.Download();
+        
+        Assert.AreEqual("calls: 3  passes: 3  hazards: 2", context.Stats.ToString());
+        Assert.AreEqual("""
+                        --- PIPELINE TRACE (Batching: True  Traces: True  Count: 8) ---
+                        --- Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        'ShadowMethod'  calls: 1  passes: 1
+                        [Pass_Split - RAW]  Resource: 'output'
+                        'AnotherMethod'  calls: 1  passes: 1
+                        [Pass_Split - WAW]  Resource: 'output'
+                        'ShadowMethod'  calls: 1  passes: 1
+                        [Kernel_Submit]  'ShadowMethod'
+                        [Batch_Submit]
+                        """, context.TraceLog);
     }
     
     [Test]
