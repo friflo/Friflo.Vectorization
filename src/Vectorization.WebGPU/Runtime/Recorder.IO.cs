@@ -22,6 +22,7 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
     
+    // --- PipelineContext
     internal            PipelineStats       pipelineStats;
     internal            bool                enableTraces;
     internal            PipelineTrace[]     traces;
@@ -148,7 +149,7 @@ public sealed unsafe partial class CommandRecorder
         Interlocked.Decrement(ref *remainingMaps);
     }
     
-    // --- PipelineRecord trace
+    // --- PipelineTrace
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
     {

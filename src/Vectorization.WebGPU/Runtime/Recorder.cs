@@ -36,7 +36,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
 
-    internal readonly   List<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1 if enablePassBatching == true
+    internal readonly   List<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1  if enablePassBatching == true
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
     internal            bool                    createNewPass;
@@ -141,7 +141,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
     }
     
-    /// Called only if <see cref="enablePassBatching"/> == false
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
