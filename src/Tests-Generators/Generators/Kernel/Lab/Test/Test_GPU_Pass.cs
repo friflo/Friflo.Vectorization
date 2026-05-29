@@ -89,5 +89,18 @@ public class Test_GPU_Pass : KernelBase
                         [Kernel_Submit]  'ShadowMethod'
                         [Batch_Submit]
                         """, context.TraceLog);
+        
+        context.EnableTraces  = false;
+        context.ClearTraces();
+        
+        GpuPattern.ShadowMethod(weight.In,  input.In, 42,   output.InOut);
+        GpuPattern.ShadowMethod(weight.In,  output.In, 42,  input.InOut);
+        
+        device.Download();
+        Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
+        Assert.AreEqual("""
+                        --- PIPELINE TRACE (Batching: True  Traces: False  Count: 0) ---
+                        --- Lock-free GPU kernels with deferred, hazard-driven pass batching
+                        """, context.TraceLog);
     }
 }

@@ -144,16 +144,18 @@ public sealed unsafe partial class CommandRecorder : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
     {
-        renderPassCount     = 0;
-        lastBindGroup0_hash = 0;
-        lastPipelineHandle  = null;
+        if (enableTraces) {
+            AddTrace(PipelineTraceType.Kernel_Submit, kernelId);
+        }
+        renderPassCount     =  0;
+        lastBindGroup0_hash =  0;
+        lastPipelineHandle  =  null;
+        kernelSeq           =  0;
+        kernelId            = -1;
         foreach (var segmentMap in clearSegmentMaps) {
             segmentMap.Clear();
         }
         clearSegmentMaps.Clear();
-        if (enableTraces) {
-            AddTrace(PipelineTraceType.Kernel_Submit, kernelId);
-        }
         
         foreach (var group in createdBindGroups) {
             wgpuBindGroupRelease(group.handle);
@@ -220,26 +222,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
             return group;
         }
     }
-#if DEBUG
-    internal void Reset()     // TODO remove
-    {
-        foreach (var group in createdBindGroups) {
-            wgpuBindGroupRelease(group.handle);
-        }
-        createdBindGroups.Clear();
-        
-        var bufferHandler = commandBuffer.handle;
-        if (bufferHandler != null) {
-            // Note: In case wgpuCommandEncoderFinish() detected a validation error
-            //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
-            wgpuCommandBufferRelease(bufferHandler);
-            commandBuffer = default;
-        }
-        uniformOffset = 0; // reset local uniform cursor
-        
-        Dispose();
-    }
-#endif
     
     public void Dispose()
     {
@@ -250,7 +232,8 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
     }
     
-    private void ClosePass() {
+    private void ClosePass()
+    {
         if (currentPass != null) {
             wgpuComputePassEncoderEnd(currentPass);
             wgpuComputePassEncoderRelease(currentPass);
