@@ -2,8 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -82,28 +84,39 @@ public struct KernelMetric
     public override  string ToString() => $"'{KernelName}'  calls: {Calls}  passes: {Passes}";
 }
 
-public class PipelineContext
+public readonly ref struct PipelineContext
 {
-    public    virtual   bool                            EnablePassBatching  { get; set; }
-    public    virtual   bool                            EnableTraces        { get; set; }
-    public              PipelineStats                   Stats           => GetStats();
-    public              ReadOnlySpan<PipelineTrace>     Traces          => GetTraces();
-    public              ReadOnlySpan<KernelMetric>      KernelMetrics   => GetKernelMetrics();
-    public              string                          TraceLog        => AppendTraceLog (new StringBuilder()).ToString();
-    public              string                          KernelMetricLog => AppendMetricLog(new StringBuilder()).ToString();
-    public    virtual   void                            ClearTraces()           { }
-    public    virtual   void                            ClearKernelMetrics()    { }
+    public  bool                        EnablePassBatching  { get => recorder.EnablePassBatching; set => recorder.EnablePassBatching = value; } 
+    public  bool                        EnableTraces        { get => recorder.EnableTraces;       set => recorder.EnableTraces = value; }
+    public  PipelineStats               Stats               => recorder.GetStats();
+    public  ReadOnlySpan<PipelineTrace> Traces              => recorder.GetTraces();
+    public  ReadOnlySpan<KernelMetric>  KernelMetrics       => recorder.GetKernelMetrics();
+    public  string                      TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
+    public  string                      KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
+    public  void                        ClearTraces()       => recorder.ClearTraces();
+    public  void                        ClearKernelMetrics()=> recorder.ClearKernelMetrics();
     
-    protected virtual   PipelineStats                   GetStats()          => default;
-    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()         => default;
-    protected virtual   ReadOnlySpan<KernelMetric>      GetKernelMetrics()  => default;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly PipelineRecorder recorder; 
 
-    public    override  string ToString() => $"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Count: {Traces.Length}";
+    public  override string             ToString()          => AppendToString(new StringBuilder()).ToString();
     
+    public PipelineContext(PipelineRecorder recorder) {
+        this.recorder = recorder;
+    }
+    
+    private StringBuilder AppendToString(StringBuilder sb)
+    {
+        sb.Append($"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Count: {Traces.Length}");
+        return sb;
+    }
 
     private StringBuilder AppendTraceLog(StringBuilder sb)
     {
-        sb.Append($"--- PIPELINE TRACE ({this}) ---");
+        sb.Append("--- PIPELINE TRACE (");
+        AppendToString(sb);
+        sb.Append(") ---");
+            
         if (EnablePassBatching) {
             sb.Append("\n--- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching");
         }

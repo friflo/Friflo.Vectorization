@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
@@ -17,10 +18,9 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe partial class CommandRecorder : IDisposable
+public sealed unsafe partial class CommandRecorder : PipelineRecorder, IDisposable
 {
     private  readonly   WgpuDevice              device;
-    internal readonly   WgpuPipelineContext     context;
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            bool                    enablePassBatching 	= false;
@@ -86,7 +86,6 @@ public sealed unsafe partial class CommandRecorder : IDisposable
 
     internal CommandRecorder(WgpuDevice device) {
         this.device         = device;
-        context             = new WgpuPipelineContext(this);
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];

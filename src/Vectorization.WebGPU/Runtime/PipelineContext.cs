@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable InconsistentNaming
@@ -11,30 +10,30 @@ using Friflo.Vectorization.GPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
-public class WgpuPipelineContext : PipelineContext
+public sealed partial class CommandRecorder
 {
-    public    override  bool EnablePassBatching { get => recorder.enablePassBatching; set => recorder.enablePassBatching = value; }
-    public    override  bool EnableTraces
+    protected override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
+    protected override  bool EnableTraces
     {
-        get => recorder.enableTraces;
+        get => enableTraces;
         set {
-            recorder.traces       ??= new PipelineTrace[10];
-            recorder.traceCount     = 0;
-            recorder.pipelineStats  = default;
-            recorder.enableTraces   = value;
+            traces       ??= new PipelineTrace[10];
+            traceCount     = 0;
+            pipelineStats  = default;
+            enableTraces   = value;
         }
     }
     
-    public override void ClearTraces()
+    protected override void ClearTraces()
     {
-        recorder.traceCount     = 0;
-        recorder.pipelineStats  = default;
+        traceCount     = 0;
+        pipelineStats  = default;
     }
     
-    public override void ClearKernelMetrics()
+    protected override void ClearKernelMetrics()
     {
-        var metrics = recorder.kernelMetrics;
-        var count   = recorder.kernelMetricCount;
+        var metrics = kernelMetrics;
+        var count   = kernelMetricCount;
         for (int n = 1; n <= count; n++) {
             ref var metric = ref metrics[n];
             metric.Calls    = 0;
@@ -42,14 +41,7 @@ public class WgpuPipelineContext : PipelineContext
         }
     }
 
-    protected override  PipelineStats               GetStats()          => recorder.pipelineStats;
-    protected override  ReadOnlySpan<PipelineTrace> GetTraces()         => recorder.traces.AsSpan(0, recorder.traceCount);
-    protected override  ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => recorder.kernelMetrics.AsSpan(1, recorder.kernelMetricCount);
-    
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private  readonly   CommandRecorder recorder;
-    
-    internal WgpuPipelineContext(CommandRecorder recorder) {
-        this.recorder = recorder;
-    }
+    protected override  PipelineStats               GetStats()          => pipelineStats;
+    protected override  ReadOnlySpan<PipelineTrace> GetTraces()         => traces.AsSpan(0, traceCount);
+    protected override  ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => kernelMetrics.AsSpan(1, kernelMetricCount);
 } 

@@ -141,7 +141,8 @@ public class TestCompute : KernelBase
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
-        device.PipelineContext.EnablePassBatching = false; // uniform bind group is always released (destroyed)
+        var context = device.PipelineContext;
+        context.EnablePassBatching = false; // uniform bind group is always released (destroyed)
         
         GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);

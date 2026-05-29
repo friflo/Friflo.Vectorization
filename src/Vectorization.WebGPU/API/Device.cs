@@ -41,7 +41,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
-    public   override   PipelineContext     PipelineContext     => Recorder.context;
+    public   override   PipelineContext     PipelineContext     => new PipelineContext(Recorder);
     public   override   bool                IsDisposed          => isDisposed;
     
     internal readonly   Instance*           instance;

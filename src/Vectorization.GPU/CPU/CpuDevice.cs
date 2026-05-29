@@ -3,6 +3,7 @@
 
 using System.Threading;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable once CheckNamespace
@@ -11,21 +12,22 @@ namespace Friflo.Vectorization.CPU;
 
 internal sealed class CpuDevice : GpuDevice
 {
-    private             bool            isDisposed;
-    internal readonly   CpuAdapter      adapter;
-    private  readonly   ComputeMode     defaultComputeMode;
-    public   override   ComputeMode     DefaultComputeMode  => defaultComputeMode;
-    public   override   bool            IsDisposed          => isDisposed;
-    public   override   PipelineContext PipelineContext     => Context;
+    private             bool                isDisposed;
+    internal readonly   CpuAdapter          adapter;
+    private  readonly   ComputeMode         defaultComputeMode;
+    private  readonly   PipelineRecorder    recorder            =  new ();
+    public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
+    public   override   bool                IsDisposed          => isDisposed;
+    public   override   PipelineContext     PipelineContext     => new PipelineContext(Context);
     
-    private readonly    ThreadLocal<PipelineContext>    threadContexts;
-    private             PipelineContext                 Context        => threadContexts.Value!;
+    private readonly    ThreadLocal<PipelineRecorder>   threadContexts;
+    private             PipelineRecorder                Context        => threadContexts.Value!;
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
         defaultComputeMode = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ComputeMode.Scalar : ComputeMode.SIMD;
-        threadContexts = new ThreadLocal<PipelineContext>(
-            valueFactory: () => new PipelineContext(),
+        threadContexts = new ThreadLocal<PipelineRecorder>(
+            valueFactory: () => new PipelineRecorder(),
             trackAllValues: true
         );
     }
