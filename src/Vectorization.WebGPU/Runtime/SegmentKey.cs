@@ -73,7 +73,7 @@ public sealed partial class CommandRecorder
                         ||   state.isWrite;                 // RAW - Read-After-Write
             if (hasConflict) {
                 if (enableTraces) {
-                    AddTrace(PipelineTraceType.PassSplitRAW, kernel, 0, 0, param);
+                    AddTrace(PipelineTraceType.Pass_Split_RAW, kernel, 0, 0, param);
                 }
                 pipelineStats.Hazards++;
             }
@@ -99,7 +99,7 @@ public sealed partial class CommandRecorder
                         || !state.isWrite;                  // WAR - Write-After-Read
             if (hasConflict) {
                 if (enableTraces) {
-                    AddTrace(PipelineTraceType.PassSplitWAR, kernel, 0, 0, param);
+                    AddTrace(PipelineTraceType.Pass_Split_WAR, kernel, 0, 0, param);
                 }
                 pipelineStats.Hazards++;
             }

@@ -152,7 +152,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
         }
         clearSegmentMaps.Clear();
         if (enableTraces) {
-            AddTrace(PipelineTraceType.KernelSubmit, kernelId);
+            AddTrace(PipelineTraceType.Kernel_Submit, kernelId);
         }
         
         foreach (var group in createdBindGroups) {

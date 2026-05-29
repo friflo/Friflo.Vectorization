@@ -14,10 +14,10 @@ namespace Friflo.Vectorization.GPU;
 public enum PipelineTraceType : byte
 {
     Kernel,
-    KernelSubmit,
-    BatchSubmit,
-    PassSplitRAW,
-    PassSplitWAR
+    Kernel_Submit,
+    Batch_Submit,
+    Pass_Split_RAW,
+    Pass_Split_WAR
 }
 
 public struct PipelineStats
@@ -51,16 +51,16 @@ public struct PipelineTrace
             case PipelineTraceType.Kernel:
                 sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
                 break;
-            case PipelineTraceType.KernelSubmit:
+            case PipelineTraceType.Kernel_Submit:
                 sb.Append($"[Kernel_Submit]  '{KernelName}'");
                 break;
-            case PipelineTraceType.BatchSubmit:
+            case PipelineTraceType.Batch_Submit:
                 sb.Append($"[Batch_Submit]");
                 break;
-            case PipelineTraceType.PassSplitRAW:
+            case PipelineTraceType.Pass_Split_RAW:
                 sb.Append($"[Pass_Split - RAW]  Resource: '{Resource}'");
                 break;
-            case PipelineTraceType.PassSplitWAR:
+            case PipelineTraceType.Pass_Split_WAR:
                 sb.Append($"[Pass_Split - WAR]  Resource: '{Resource}'");
                 break;
         }

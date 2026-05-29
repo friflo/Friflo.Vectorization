@@ -59,7 +59,7 @@ public sealed unsafe partial class CommandRecorder
         device.Flush();
         
         if (enableTraces) {
-            AddTrace(PipelineTraceType.BatchSubmit);
+            AddTrace(PipelineTraceType.Batch_Submit);
         }        
         foreach (var range in requestedRanges) {
             bufferEntries[range.bufferId].requestedRanges.Add(range);
