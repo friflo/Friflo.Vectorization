@@ -110,7 +110,7 @@ public class PipelineContext
     
     private StringBuilder AppendMetricLog(StringBuilder sb)
     {
-        sb.Append($"--- KERNEL-METRICS ---");
+        sb.Append($"--- KERNEL METRIC ---");
         foreach (var metric in KernelMetrics) {
             if (metric.Calls == 0) {
                 continue;   
