@@ -20,7 +20,7 @@ public class TestCompute : KernelBase
         
         UseSpan(weight);
         
-        GpuPattern.ShadowMethod(weight, input, 42, output, ComputeMode.SIMD);
+        GpuPattern.MultiplyAddKernel(weight, input, 42, output, ComputeMode.SIMD);
         // result1 - no Wait() on result1. Nothing will happen - user is surprised :)
         
     //  UseSpan(weight); // compiler error
@@ -29,7 +29,7 @@ public class TestCompute : KernelBase
         var gpuWeight = device.CreateBuffer<float>(100, "weight",   BufferProfile.StaticIn);
         var gpuInput  = device.CreateBuffer<float>(100, "input",    BufferProfile.StaticIn);
         var output2   = device.CreateBuffer<float>(100, "output2",  BufferProfile.StaticIn);
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
         
         device.Download();
     }
@@ -45,7 +45,7 @@ public class TestCompute : KernelBase
         // Fire Layer 1 to 50
 
         foreach (var layer in layers) {
-            GpuPattern.ShadowMethod(layer.weight.In, layer.input.In, 42, layer.output.InOut);
+            GpuPattern.MultiplyAddKernel(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
         // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
         device.Download();
@@ -79,7 +79,7 @@ public class TestCompute : KernelBase
         using var gpuWeight   = device.CreateBuffer<float>(64,  "weight",   BufferProfile.StaticIn);
         using var gpuInput    = device.CreateBuffer<float>(64,  "input",    BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer<float>(64,  "output",   BufferProfile.InOut);
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
     }
     
     [Test]
@@ -100,16 +100,16 @@ public class TestCompute : KernelBase
         using var gpuOutput   = device.CreateBuffer(output, "output", BufferProfile.InOut);
         
         // var start1 = Mem.GetAllocatedBytes();                        // TODO should add allocation check for first call
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         // Mem.AssertNoAlloc(start1);
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
 
         var start3 = Mem.GetAllocatedBytes();
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Mem.AssertNoAlloc(start3);
 
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
@@ -144,19 +144,19 @@ public class TestCompute : KernelBase
         var context = device.PipelineContext;
         context.EnablePassBatching = false; // uniform bind group is always released (destroyed)
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(1, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 43, gpuOutput2.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 43, gpuOutput2.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 44, gpuOutput.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 44, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
         
-        GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 45, gpuOutput3.InOut);
+        GpuPattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 45, gpuOutput3.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         

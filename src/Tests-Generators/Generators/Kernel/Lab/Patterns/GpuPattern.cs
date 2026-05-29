@@ -22,7 +22,7 @@ public  static class GpuPattern
         output = weight * input + bias;
     }
     // generated shadow Method
-    public static void ShadowMethod(
+    public static void MultiplyAddKernel(
       InBuffer<float>   weight,
       InBuffer<float>   input,
         float           bias,
@@ -36,7 +36,7 @@ public  static class GpuPattern
 
         if (buffers.ComputeGPU) {
             switch (KernelFixture.TestBackend) {
-                case TestBackend.WebGPU:    WebGPUPattern.ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
+                case TestBackend.WebGPU:    WebGPUPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);   return;
                 case TestBackend.Silk:      SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
             }
         }
