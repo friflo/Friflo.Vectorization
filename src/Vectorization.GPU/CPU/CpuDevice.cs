@@ -15,7 +15,6 @@ internal sealed class CpuDevice : GpuDevice
     private             bool                isDisposed;
     internal readonly   CpuAdapter          adapter;
     private  readonly   ComputeMode         defaultComputeMode;
-    private  readonly   PipelineRecorder    recorder            =  new ();
     public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
     public   override   bool                IsDisposed          => isDisposed;
     public   override   PipelineContext     PipelineContext     => new PipelineContext(Context);
