@@ -52,10 +52,10 @@ public struct PipelineTrace
     {
         switch (TraceType) {
             case PipelineTraceType.Kernel:
-                sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
+                sb.Append($"{KernelName}()  calls: {Calls}  passes: {Passes}");
                 break;
             case PipelineTraceType.Kernel_Submit:
-                sb.Append($"[Kernel_Submit]  '{KernelName}'");
+                sb.Append($"[Kernel_Submit]  {KernelName}()");
                 break;
             case PipelineTraceType.Batch_Submit:
                 sb.Append($"[Batch_Submit]");
@@ -81,7 +81,7 @@ public struct KernelMetric
     public  int     Calls;
     public  int     Passes;
     
-    public override  string ToString() => $"'{KernelName}'  calls: {Calls}  passes: {Passes}";
+    public override  string ToString() => $"{KernelName}()  calls: {Calls}  passes: {Passes}";
 }
 
 public readonly ref struct PipelineContext
@@ -134,7 +134,7 @@ public readonly ref struct PipelineContext
             if (metric.Calls == 0) {
                 continue;   
             }
-            sb.Append($"\n'{metric.KernelName}'  calls: {metric.Calls}  passes: {metric.Passes}");
+            sb.Append($"\n{metric.KernelName}()  calls: {metric.Calls}  passes: {metric.Passes}");
         }
         return sb;
     }
