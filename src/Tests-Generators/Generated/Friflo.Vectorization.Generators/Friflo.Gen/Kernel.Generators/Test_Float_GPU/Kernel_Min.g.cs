@@ -161,7 +161,7 @@ namespace Kernel.Generators
         [FieldOffset( 8)]    public int        velocity_off;
     }
     
-    private static readonly int _Kernel_Min_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_Min");
+    private static readonly int _Kernel_Min_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_MinKernel");
     private const ulong         _Kernel_Min_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Kernel_Min_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

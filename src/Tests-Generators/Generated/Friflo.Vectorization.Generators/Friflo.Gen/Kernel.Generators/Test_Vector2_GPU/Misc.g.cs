@@ -214,7 +214,7 @@ namespace Kernel.Generators
         [FieldOffset(16)]    public int        velocity_off;
     }
     
-    private static readonly int _Misc_GPU_KernelId           = KernelRegistry.NewKernelId("Misc");
+    private static readonly int _Misc_GPU_KernelId           = KernelRegistry.NewKernelId("MiscKernel");
     private const ulong         _Misc_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Misc_GPU_UniformLayoutKey   = 0xeab624e96837ef37;
 

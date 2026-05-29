@@ -161,7 +161,7 @@ namespace Kernel.Lab
         [FieldOffset( 8)]    public int        input_off;
     }
     
-    private static readonly int _Assign_GPU_KernelId           = KernelRegistry.NewKernelId("Assign");
+    private static readonly int _Assign_GPU_KernelId           = KernelRegistry.NewKernelId("AssignKernel");
     private const ulong         _Assign_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
     private const ulong         _Assign_GPU_UniformLayoutKey   = 0xeab614e96837d407;
 

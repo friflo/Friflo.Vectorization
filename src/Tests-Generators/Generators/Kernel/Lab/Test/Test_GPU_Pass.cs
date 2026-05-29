@@ -167,13 +167,18 @@ public partial class Test_GPU_Pass : KernelBase
                         'ShadowMethod'  calls: 1  passes: 1
                         [Pass_Split - WAW]  Resource: 'output'
                         [Pass_Split - RAW]  Resource: 'input'
-                        'Assign'  calls: 1  passes: 1
+                        'AssignKernel'  calls: 1  passes: 1
                         [Pass_Split - RAW]  Resource: 'input'
                         [Pass_Split - WAW]  Resource: 'output'
                         'ShadowMethod'  calls: 1  passes: 1
                         [Kernel_Submit]  'ShadowMethod'
                         [Batch_Submit]
                         """, context.TraceLog);
+        Assert.AreEqual("""
+                        --- KERNEL METRIC ---
+                        'ShadowMethod'  calls: 2  passes: 2
+                        'AssignKernel'  calls: 1  passes: 1
+                        """, context.KernelMetricLog);
     }
     
     [Test]

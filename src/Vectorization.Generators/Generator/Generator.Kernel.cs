@@ -211,7 +211,7 @@ $$""""
     {{{structFields}}
     }
     
-    private static readonly int {{methodName_GPU}}_KernelId           = KernelRegistry.NewKernelId("{{methodName}}");
+    private static readonly int {{methodName_GPU}}_KernelId           = KernelRegistry.NewKernelId("{{methodName}}Kernel");
     private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 0x{{bindingHash:x}};
     private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 0x{{uniformHash:x}};
 
