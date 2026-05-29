@@ -103,8 +103,8 @@ public partial class Test_GPU_Pass : KernelBase
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 6) ---
                         --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
                         MultiplyAddKernel()  calls: 1  passes: 1
-                        [Pass_Split - RAW]  Resource: 'output'
-                        [Pass_Split - WAR]  Resource: 'input'
+                          [Pass_Split - RAW]  Resource: 'output'
+                          [Pass_Split - WAR]  Resource: 'input'
                         MultiplyAddKernel()  calls: 1  passes: 1
                         [Kernel_Submit]  MultiplyAddKernel()
                         [Batch_Submit]
@@ -165,11 +165,11 @@ public partial class Test_GPU_Pass : KernelBase
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 9) ---
                         --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
                         MultiplyAddKernel()  calls: 1  passes: 1
-                        [Pass_Split - WAW]  Resource: 'output'
-                        [Pass_Split - RAW]  Resource: 'input'
+                          [Pass_Split - WAW]  Resource: 'output'
+                          [Pass_Split - RAW]  Resource: 'input'
                         AssignKernel()  calls: 1  passes: 1
-                        [Pass_Split - RAW]  Resource: 'input'
-                        [Pass_Split - WAW]  Resource: 'output'
+                          [Pass_Split - RAW]  Resource: 'input'
+                          [Pass_Split - WAW]  Resource: 'output'
                         MultiplyAddKernel()  calls: 1  passes: 1
                         [Kernel_Submit]  MultiplyAddKernel()
                         [Batch_Submit]
