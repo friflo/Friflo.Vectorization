@@ -108,7 +108,7 @@ public static class WebGPUPattern
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
     private static ReadOnlySpan<byte> ShadowMethod_GPU_Shader() =>
 """
-struct ShadowMethod_Uniforms {
+struct ShadowMethod_GPU_Uniforms {
     count       : u32,
     bias        : f32,
     weight_off  : u32,
@@ -120,7 +120,7 @@ struct ShadowMethod_Uniforms {
 @group(0) @binding(1) var<storage, read>        input_arr:      array<f32>;
 @group(0) @binding(2) var<storage, read_write>  output_arr:     array<f32>;
 
-@group(1) @binding(0) var<uniform>              uniforms:   	ShadowMethod_Uniforms;
+@group(1) @binding(0) var<uniform>              uniforms:   	ShadowMethod_GPU_Uniforms;
 
 @compute @workgroup_size(64)
 fn ShadowMethod(@builtin(global_invocation_id) global_id: vec3<u32>) {
