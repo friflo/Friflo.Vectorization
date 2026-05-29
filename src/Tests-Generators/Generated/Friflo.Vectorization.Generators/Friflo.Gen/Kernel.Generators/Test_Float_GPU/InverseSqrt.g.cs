@@ -95,7 +95,7 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit] // Lock-free GPU kernel with deferred, hazard-driven pass batching
+    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
     private static void _InverseSqrt_GPU(
         in GpuBuffers      buffers,
         in Buffer  <float> position_)

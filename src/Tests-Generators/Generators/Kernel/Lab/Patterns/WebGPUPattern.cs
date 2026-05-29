@@ -12,7 +12,7 @@ namespace Kernel.Lab;
 
 public static class WebGPUPattern
 {
-    [SkipLocalsInit] // Lock-free GPU kernel with deferred, hazard-driven pass batching
+    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
     internal static void ShadowMethod_GPU(
         in GpuBuffers       buffers,
         in InBuffer<float>  weight_,

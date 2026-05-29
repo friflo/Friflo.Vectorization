@@ -110,7 +110,7 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit] // Lock-free GPU kernel with deferred, hazard-driven pass batching
+    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
     private static void _Kernel_Trigonometry2_GPU(
         in GpuBuffers      buffers,
         in Buffer  <float> position_)

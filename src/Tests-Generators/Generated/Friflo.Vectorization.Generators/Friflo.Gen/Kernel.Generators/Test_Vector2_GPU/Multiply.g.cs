@@ -104,7 +104,7 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit] // Lock-free GPU kernel with deferred, hazard-driven pass batching
+    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
     private static void _Multiply_GPU(
         in GpuBuffers      buffers,
         in Buffer  <Vector2> position_,
