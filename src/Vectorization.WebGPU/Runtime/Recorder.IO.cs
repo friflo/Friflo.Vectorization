@@ -21,14 +21,7 @@ public sealed unsafe partial class CommandRecorder
     private readonly    List<BufferRange>   requestedRanges = [];
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
-    
-    // --- PipelineContext
-    internal            PipelineStats       pipelineStats;
-    internal            bool                enableTraces;
-    internal            PipelineTrace[]     traces;
-    internal            int                 traceCount;
-    internal            KernelMetric[]      kernelMetrics       = [default];
-    internal            int                 kernelMetricCount    = 0;
+
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
@@ -149,45 +142,5 @@ public sealed unsafe partial class CommandRecorder
         if (userdata1== null) return;
         var remainingMaps = (int*)userdata1;
         Interlocked.Decrement(ref *remainingMaps);
-    }
-    
-    /// --- <see cref="PipelineTrace"/>
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
-    {
-        var localTraces = traces;
-        if (traceCount >= localTraces.Length) {
-            localTraces = ResizeTraces();
-        }
-        ref var trace = ref localTraces[traceCount++];
-        trace.TraceType = traceType;
-        trace.KernelId  = kernel;
-        trace.Calls     = calls;
-        trace.Passes    = passes;
-        trace.Resource  = resource;
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private PipelineTrace[] ResizeTraces()
-    {
-        var localTraces = traces;
-        var newTraces  = new PipelineTrace[localTraces.Length * 2];
-        Array.Copy(localTraces, 0, newTraces, 0, localTraces.Length);
-        return traces = newTraces;
-    }
-    
-    /// --- <see cref="KernelMetric"/>
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private void ResizeAndIncrementMetric(int kernel)
-    {
-        var metrics     = kernelMetrics;
-        var newMetrics  = new KernelMetric[Math.Max(metrics.Length * 2, kernel + 1)];
-        Array.Copy(metrics, 0, newMetrics, 0, metrics.Length);
-        for (int id = metrics.Length; id < newMetrics.Length; id++) {
-            newMetrics[id].KernelId = id;
-        }
-        newMetrics[kernel].Calls++;
-        kernelMetrics       = newMetrics;
-        kernelMetricCount   = Math.Max(kernelMetricCount, kernel);
     }
 }
