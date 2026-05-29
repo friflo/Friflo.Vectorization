@@ -39,8 +39,8 @@ public class Test_GPU_Pass : KernelBase
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 3) ---
                         // Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 5  passes: 1
-                        [KernelSubmit]  'ShadowMethod'
-                        [BatchSubmit]
+                        [Kernel_Submit]  'ShadowMethod'
+                        [Batch_Submit]
                         """, context.TraceLog);
         
         context.EnablePassBatching = false;
@@ -54,10 +54,10 @@ public class Test_GPU_Pass : KernelBase
         Assert.AreEqual("""
                         --- PIPELINE TRACE (Batching: False  Traces: True  Count: 5) ---
                         'ShadowMethod'  calls: 1  passes: 1
-                        [KernelSubmit]  'ShadowMethod'
+                        [Kernel_Submit]  'ShadowMethod'
                         'ShadowMethod'  calls: 1  passes: 1
-                        [KernelSubmit]  'ShadowMethod'
-                        [BatchSubmit]
+                        [Kernel_Submit]  'ShadowMethod'
+                        [Batch_Submit]
                         """, context.TraceLog);
     }
     
@@ -83,11 +83,11 @@ public class Test_GPU_Pass : KernelBase
                         --- PIPELINE TRACE (Batching: True  Traces: True  Count: 6) ---
                         // Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 1  passes: 1
-                        [Pass Split - RAW]  Resource: 'output'
-                        [Pass Split - WAR]  Resource: 'input'
+                        [Pass_Split - RAW]  Resource: 'output'
+                        [Pass_Split - WAR]  Resource: 'input'
                         'ShadowMethod'  calls: 1  passes: 1
-                        [KernelSubmit]  'ShadowMethod'
-                        [BatchSubmit]
+                        [Kernel_Submit]  'ShadowMethod'
+                        [Batch_Submit]
                         """, context.TraceLog);
     }
 }

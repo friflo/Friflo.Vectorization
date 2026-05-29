@@ -52,16 +52,16 @@ public struct PipelineTrace
                 sb.Append($"'{KernelName}'  calls: {Calls}  passes: {Passes}");
                 break;
             case PipelineTraceType.KernelSubmit:
-                sb.Append($"[KernelSubmit]  '{KernelName}'");
+                sb.Append($"[Kernel_Submit]  '{KernelName}'");
                 break;
             case PipelineTraceType.BatchSubmit:
-                sb.Append($"[BatchSubmit]");
+                sb.Append($"[Batch_Submit]");
                 break;
             case PipelineTraceType.PassSplitRAW:
-                sb.Append($"[Pass Split - RAW]  Resource: '{Resource}'");
+                sb.Append($"[Pass_Split - RAW]  Resource: '{Resource}'");
                 break;
             case PipelineTraceType.PassSplitWAR:
-                sb.Append($"[Pass Split - WAR]  Resource: '{Resource}'");
+                sb.Append($"[Pass_Split - WAR]  Resource: '{Resource}'");
                 break;
         }
         return sb;
