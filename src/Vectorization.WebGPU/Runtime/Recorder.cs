@@ -45,11 +45,19 @@ public sealed unsafe partial class CommandRecorder : IDisposable
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
 
-    public void Init(int id) {
+    public void Init(int id)
+    {
         createNewPass   = kernelId != id;
         kernelId        = id;
         kernelSeq++;
         pipelineStats.Calls++;
+        
+        var metrics = kernelMetrics;
+        if (id < metrics.Length) {
+            metrics[id].Calls++;
+        } else {
+            ResizeAndIncrementMetric(id);
+        }
     }
     
     [StackTraceHidden]

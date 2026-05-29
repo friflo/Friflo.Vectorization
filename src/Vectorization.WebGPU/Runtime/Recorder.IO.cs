@@ -27,6 +27,8 @@ public sealed unsafe partial class CommandRecorder
     internal            bool                enableTraces;
     internal            PipelineTrace[]     traces;
     internal            int                 traceCount;
+    internal            KernelMetric[]      kernelMetrics       = [default];
+    internal            int                 kernelMetricCount    = 0;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
@@ -149,7 +151,7 @@ public sealed unsafe partial class CommandRecorder
         Interlocked.Decrement(ref *remainingMaps);
     }
     
-    // --- PipelineTrace
+    /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
     {
@@ -172,5 +174,20 @@ public sealed unsafe partial class CommandRecorder
         var newTraces  = new PipelineTrace[localTraces.Length * 2];
         Array.Copy(localTraces, 0, newTraces, 0, localTraces.Length);
         return traces = newTraces;
+    }
+    
+    /// --- <see cref="KernelMetric"/>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void ResizeAndIncrementMetric(int kernel)
+    {
+        var metrics     = kernelMetrics;
+        var newMetrics  = new KernelMetric[Math.Max(metrics.Length * 2, kernel + 1)];
+        Array.Copy(metrics, 0, newMetrics, 0, metrics.Length);
+        for (int id = metrics.Length; id < newMetrics.Length; id++) {
+            newMetrics[id].KernelId = id;
+        }
+        newMetrics[kernel].Calls++;
+        kernelMetrics       = newMetrics;
+        kernelMetricCount   = Math.Max(kernelMetricCount, kernel);
     }
 }

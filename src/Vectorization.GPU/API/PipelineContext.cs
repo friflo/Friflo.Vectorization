@@ -68,17 +68,28 @@ public struct PipelineTrace
     } 
 }
 
+public struct KernelMetric
+{
+    public  string  KernelName => KernelRegistry.GetKernelName(KernelId);
+    public  int     KernelId;
+    public  int     Calls;
+    
+    public override  string ToString() => $"'{KernelName}'  Calls: {Calls}";
+}
+
 public class PipelineContext
 {
     public    virtual   bool                            EnablePassBatching  { get; set; }
     public    virtual   bool                            EnableTraces        { get; set; }
     public              PipelineStats                   Stats           => GetStats();
     public              ReadOnlySpan<PipelineTrace>     Traces          => GetTraces();
+    public              ReadOnlySpan<KernelMetric>      KernelMetrics   => GetKernelMetrics();
     public              string                          TraceLog        => AppendTraceLog(new StringBuilder()).ToString();
     public    virtual   void                            ClearTraces()   { }
     
-    protected virtual   PipelineStats                   GetStats()      => default;
-    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()     => default;
+    protected virtual   PipelineStats                   GetStats()          => default;
+    protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()         => default;
+    protected virtual   ReadOnlySpan<KernelMetric>      GetKernelMetrics()  => default;
 
     public    override  string ToString() => $"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Count: {Traces.Length}";
     
@@ -103,7 +114,7 @@ public static class KernelRegistry
     private static readonly object      mutex = new();
     private static          int         nextId;
     
-    internal static string GetKernelName(int slot) => kernelNames[slot];
+    internal static         string      GetKernelName(int slot) => kernelNames[slot];
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static int NewKernelId(string kernelName)

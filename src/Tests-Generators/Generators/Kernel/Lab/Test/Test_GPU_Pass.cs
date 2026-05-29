@@ -26,6 +26,7 @@ public class Test_GPU_Pass : KernelBase
         var context = device.PipelineContext; 
         context.EnableTraces        = true;
         context.EnablePassBatching  = true;
+        _ = context.KernelMetrics;
         
         for (int n = 0; n < 5; ++n) {
             GpuPattern.ShadowMethod(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
