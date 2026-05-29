@@ -47,7 +47,7 @@ public sealed unsafe partial class CommandRecorder : IDisposable
 
     public void Init(int id)
     {
-        createNewPass   = kernelId != id;
+        createNewPass   = kernelSeq == 0; // kernelId != id;
         kernelId        = id;
         kernelSeq++;
         pipelineStats.Calls++;

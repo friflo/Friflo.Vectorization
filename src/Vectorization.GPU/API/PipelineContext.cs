@@ -17,7 +17,8 @@ public enum PipelineTraceType : byte
     Kernel_Submit,
     Batch_Submit,
     Pass_Split_RAW,
-    Pass_Split_WAR
+    Pass_Split_WAR,
+    Pass_Split_WAW,
 }
 
 public struct PipelineStats
@@ -62,6 +63,9 @@ public struct PipelineTrace
                 break;
             case PipelineTraceType.Pass_Split_WAR:
                 sb.Append($"[Pass_Split - WAR]  Resource: '{Resource}'");
+                break;
+            case PipelineTraceType.Pass_Split_WAW:
+                sb.Append($"[Pass_Split - WAW]  Resource: '{Resource}'");
                 break;
         }
         return sb;

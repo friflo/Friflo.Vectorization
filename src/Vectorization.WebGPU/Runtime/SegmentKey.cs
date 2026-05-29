@@ -99,7 +99,7 @@ public sealed partial class CommandRecorder
                         || !state.isWrite;                  // WAR - Write-After-Read
             if (hasConflict) {
                 if (enableTraces) {
-                    AddTrace(PipelineTraceType.Pass_Split_WAR, kernel, 0, 0, param);
+                    AddTrace(state.isWrite ? PipelineTraceType.Pass_Split_WAW : PipelineTraceType.Pass_Split_WAR, kernel, 0, 0, param);
                 }
                 pipelineStats.Hazards++;
             }

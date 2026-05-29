@@ -137,7 +137,7 @@ public partial class Test_GPU_Pass : KernelBase
         output = input;
     }
     
-    // [Test]
+    [Test]
     public void Test_GPU_Hazard_WAW_Split()
     {
         using var device = Device;
@@ -160,13 +160,15 @@ public partial class Test_GPU_Pass : KernelBase
         
         device.Download();
         
-        Assert.AreEqual("calls: 3  passes: 3  hazards: 2", context.Stats.ToString());
+        Assert.AreEqual("calls: 3  passes: 3  hazards: 4", context.Stats.ToString());
         Assert.AreEqual("""
-                        --- PIPELINE TRACE (Batching: True  Traces: True  Count: 8) ---
+                        --- PIPELINE TRACE (Batching: True  Traces: True  Count: 9) ---
                         --- Lock-free GPU kernels with deferred, hazard-driven pass batching
                         'ShadowMethod'  calls: 1  passes: 1
-                        [Pass_Split - RAW]  Resource: 'output'
-                        'AnotherMethod'  calls: 1  passes: 1
+                        [Pass_Split - WAW]  Resource: 'output'
+                        [Pass_Split - RAW]  Resource: 'input'
+                        'Assign'  calls: 1  passes: 1
+                        [Pass_Split - RAW]  Resource: 'input'
                         [Pass_Split - WAW]  Resource: 'output'
                         'ShadowMethod'  calls: 1  passes: 1
                         [Kernel_Submit]  'ShadowMethod'
