@@ -122,5 +122,10 @@ public class Test_GPU_Pass : KernelBase
                         --- PIPELINE TRACE (Batching: True  Traces: False  Count: 0) ---
                         --- Lock-free GPU kernels with deferred, hazard-driven pass batching
                         """, context.TraceLog);
+        
+        Assert.AreEqual("""
+                        --- KERNEL-METRICS ---
+                        'ShadowMethod'  calls: 4
+                        """, context.KernelMetricLog);
     }
 }

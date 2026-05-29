@@ -74,7 +74,7 @@ public struct KernelMetric
     public  int     KernelId;
     public  int     Calls;
     
-    public override  string ToString() => $"'{KernelName}'  Calls: {Calls}";
+    public override  string ToString() => $"'{KernelName}'  calls: {Calls}";
 }
 
 public class PipelineContext
@@ -84,7 +84,8 @@ public class PipelineContext
     public              PipelineStats                   Stats           => GetStats();
     public              ReadOnlySpan<PipelineTrace>     Traces          => GetTraces();
     public              ReadOnlySpan<KernelMetric>      KernelMetrics   => GetKernelMetrics();
-    public              string                          TraceLog        => AppendTraceLog(new StringBuilder()).ToString();
+    public              string                          TraceLog        => AppendTraceLog (new StringBuilder()).ToString();
+    public              string                          KernelMetricLog => AppendMetricLog(new StringBuilder()).ToString();
     public    virtual   void                            ClearTraces()   { }
     
     protected virtual   PipelineStats                   GetStats()          => default;
@@ -103,6 +104,18 @@ public class PipelineContext
         foreach (var trace in Traces) {
             sb.Append('\n');
             trace.Append(sb);
+        }
+        return sb;
+    }
+    
+    private StringBuilder AppendMetricLog(StringBuilder sb)
+    {
+        sb.Append($"--- KERNEL-METRICS ---");
+        foreach (var metric in KernelMetrics) {
+            if (metric.Calls == 0) {
+                continue;   
+            }
+            sb.Append($"\n'{metric.KernelName}'  calls: {metric.Calls}");
         }
         return sb;
     }
