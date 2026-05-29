@@ -87,7 +87,8 @@ public class PipelineContext
     public              ReadOnlySpan<KernelMetric>      KernelMetrics   => GetKernelMetrics();
     public              string                          TraceLog        => AppendTraceLog (new StringBuilder()).ToString();
     public              string                          KernelMetricLog => AppendMetricLog(new StringBuilder()).ToString();
-    public    virtual   void                            ClearTraces()   { }
+    public    virtual   void                            ClearTraces()           { }
+    public    virtual   void                            ClearKernelMetrics()    { }
     
     protected virtual   PipelineStats                   GetStats()          => default;
     protected virtual   ReadOnlySpan<PipelineTrace>     GetTraces()         => default;

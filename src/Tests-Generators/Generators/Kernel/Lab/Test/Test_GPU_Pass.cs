@@ -127,5 +127,7 @@ public class Test_GPU_Pass : KernelBase
                         --- KERNEL METRIC ---
                         'ShadowMethod'  calls: 4  passes: 4
                         """, context.KernelMetricLog);
+        context.ClearKernelMetrics();
+        Assert.AreEqual("--- KERNEL METRIC ---", context.KernelMetricLog);
     }
 }

@@ -25,7 +25,22 @@ public class WgpuPipelineContext : PipelineContext
         }
     }
     
-    public    override  void                        ClearTraces()   { recorder.traceCount = 0; recorder.pipelineStats = default; }
+    public override void ClearTraces()
+    {
+        recorder.traceCount     = 0;
+        recorder.pipelineStats  = default;
+    }
+    
+    public override void ClearKernelMetrics()
+    {
+        var metrics = recorder.kernelMetrics;
+        var count   = recorder.kernelMetricCount;
+        for (int n = 1; n <= count; n++) {
+            ref var metric = ref metrics[n];
+            metric.Calls    = 0;
+            metric.Passes   = 0;
+        }
+    }
 
     protected override  PipelineStats               GetStats()          => recorder.pipelineStats;
     protected override  ReadOnlySpan<PipelineTrace> GetTraces()         => recorder.traces.AsSpan(0, recorder.traceCount);
