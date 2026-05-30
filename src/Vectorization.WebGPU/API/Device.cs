@@ -73,17 +73,17 @@ public sealed unsafe class WgpuDevice : GpuDevice
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WgpuDevice _device = device;
 
-        public  string                      Label               => _device.Label;
-        public  bool                        DebugMode           { get => _device.DebugMode;             set => _device.DebugMode            = value; }
-        public  bool                        IsDisposed          => _device.isDisposed;
+        public  string          Label               => _device.Label;
+        public  bool            DebugMode           { get => _device.DebugMode;             set => _device.DebugMode            = value; }
+        public  bool            IsDisposed          => _device.isDisposed;
         
         // --- PipelineContext
-        public  bool                        EnablePassBatching  { get => _device.EnablePassBatching;    set => _device.EnablePassBatching   = value; }
-        public  bool                        EnableTraces        { get => _device.EnableTraces;          set => _device.EnableTraces         = value; }
+        public  bool            EnablePassBatching  { get => _device.EnablePassBatching;    set => _device.EnablePassBatching   = value; }
+        public  bool            EnableTraces        { get => _device.EnableTraces;          set => _device.EnableTraces         = value; }
         
-        public  PipelineStats               Stats               => _device.Stats;
-        public  ReadOnlySpan<PipelineTrace> Traces              => _device.Traces;
-        public  ReadOnlySpan<KernelMetric>  KernelMetrics       => _device.KernelMetrics;
+        public  PipelineStats   Stats               => _device.Stats;
+        public  PipelineTrace[] Traces              => _device.Traces.ToArray();
+        public  KernelMetric[]  KernelMetrics       => _device.KernelMetrics.ToArray();
 
         // [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         // public WgpuDevice   RawView                 => _device;
