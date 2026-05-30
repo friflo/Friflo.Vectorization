@@ -18,7 +18,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed unsafe partial class CommandRecorder : PipelineRecorder, IDisposable
+public sealed unsafe partial class CommandRecorder : PipelineContext, IDisposable
 {
     private  readonly   WgpuDevice              device;
     private             WgpuEncoder             currentEncoder;

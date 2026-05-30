@@ -17,16 +17,15 @@ internal sealed class CpuDevice : GpuDevice
     private  readonly   ComputeMode         defaultComputeMode;
     public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
     public   override   bool                IsDisposed          => isDisposed;
-    public   override   PipelineContext     PipelineContext     => new PipelineContext(Context);
     
-    private readonly    ThreadLocal<PipelineRecorder>   threadContexts;
-    private             PipelineRecorder                Context        => threadContexts.Value!;
+    private readonly    ThreadLocal<PipelineContext>    threadContexts;
+    protected override  PipelineContext                 Context        => threadContexts.Value!;
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
         defaultComputeMode = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ComputeMode.Scalar : ComputeMode.SIMD;
-        threadContexts = new ThreadLocal<PipelineRecorder>(
-            valueFactory: () => new PipelineRecorder(),
+        threadContexts = new ThreadLocal<PipelineContext>(
+            valueFactory: () => new PipelineContext(),
             trackAllValues: true
         );
     }

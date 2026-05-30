@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using Kernel.SilkWebGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;
@@ -42,7 +43,6 @@ public sealed unsafe class SilkDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
-    public   override   PipelineContext     PipelineContext     => new PipelineContext(null);
     public   override   bool                IsDisposed          => isDisposed;
     internal readonly   Webgpu              wgpu;
     private  readonly   Wgpu                wgpuEx;
@@ -63,6 +63,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     private static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
+    protected override  PipelineContext     Context { get; } = new ();
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);

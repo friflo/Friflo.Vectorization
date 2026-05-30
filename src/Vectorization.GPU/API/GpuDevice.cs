@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -38,8 +39,22 @@ public abstract class GpuDevice : IDisposable
     }
 
     // --- abstract
-    public abstract ComputeMode     DefaultComputeMode  { get; }
-    public abstract PipelineContext PipelineContext     { get; }
+    public abstract ComputeMode         DefaultComputeMode  { get; }
+    
+    protected abstract PipelineContext  Context             { get; }
+    
+    public  bool                        EnablePassBatching  { get => Context.EnablePassBatching;  set => Context.EnablePassBatching = value; }
+    public  bool                        EnableTraces        { get => Context.EnableTraces;        set => Context.EnableTraces = value; }
+    
+    public  PipelineStats               Stats               => Context.GetStats();
+    public  ReadOnlySpan<PipelineTrace> Traces              => Context.GetTraces();
+    public  ReadOnlySpan<KernelMetric>  KernelMetrics       => Context.GetKernelMetrics();
+    public  string                      TraceLog            => Context.TraceLog;
+    public  string                      KernelMetricLog     => Context.KernelMetricLog;
+    
+    public  void                        ClearTraces()       => Context.ClearTraces();
+    public  void                        ClearKernelMetrics()=> Context.ClearKernelMetrics();
+    
 
     public abstract bool            IsDisposed          { get; }
     public abstract void            Dispose();

@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -41,7 +42,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
-    public   override   PipelineContext     PipelineContext     => new PipelineContext(Recorder);
     public   override   bool                IsDisposed          => isDisposed;
     
     internal readonly   Instance*           instance;
@@ -51,6 +51,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private             GCHandle            errorHandle;
     
     private readonly    ThreadLocal<CommandRecorder>    threadRecorders;
+    protected override  PipelineContext                 Context         => threadRecorders.Value!;
     public              CommandRecorder                 Recorder        => threadRecorders.Value!;
     internal readonly   WgpuBuffer<byte>    globalUniformPool;                                      // remove each CommandRecorder must have its own
     private  readonly   WgpuQueue           queue;

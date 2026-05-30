@@ -2,10 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -95,65 +93,6 @@ public struct KernelMetric
     public  int     Passes;
     
     public override  string ToString() => $"{KernelName}()  calls: {Calls}  passes: {Passes}";
-}
-
-public readonly ref struct PipelineContext
-{
-    public  bool                        EnablePassBatching  { get => recorder.EnablePassBatching; set => recorder.EnablePassBatching = value; } 
-    public  bool                        EnableTraces        { get => recorder.EnableTraces;       set => recorder.EnableTraces = value; }
-    public  PipelineStats               Stats               => recorder.GetStats();
-    public  ReadOnlySpan<PipelineTrace> Traces              => recorder.GetTraces();
-    public  ReadOnlySpan<KernelMetric>  KernelMetrics       => recorder.GetKernelMetrics();
-    public  string                      TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
-    public  string                      KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
-    public  void                        ClearTraces()       => recorder.ClearTraces();
-    public  void                        ClearKernelMetrics()=> recorder.ClearKernelMetrics();
-    
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly PipelineRecorder recorder; 
-
-    public  override string             ToString()          => AppendToString(new StringBuilder()).ToString();
-    
-    public PipelineContext(PipelineRecorder recorder) {
-        this.recorder = recorder;
-    }
-    
-    private StringBuilder AppendToString(StringBuilder sb)
-    {
-        var stats = Stats;
-        sb.Append($"batching: {EnablePassBatching}  calls: {stats.Calls}   passes: {stats.Passes}  hazards: {stats.Hazards}");
-        return sb;
-    }
-
-    private StringBuilder AppendTraceLog(StringBuilder sb)
-    {
-        sb.Append("--- PIPELINE TRACE (");
-        AppendToString(sb);
-        sb.Append(") ---");
-            
-        if (EnablePassBatching) {
-            sb.Append("\n--- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching");
-        }
-        foreach (var trace in Traces) {
-            sb.Append('\n');
-            trace.Append(sb, 29);
-        }
-        return sb;
-    }
-    
-    private StringBuilder AppendMetricLog(StringBuilder sb)
-    {
-        sb.Append($"--- KERNEL METRIC ---");
-        foreach (var metric in KernelMetrics) {
-            if (metric.Calls == 0) {
-                continue;   
-            }
-            var name    = metric.KernelName;
-            var len     = Math.Max(0, 29 - name.Length);
-            sb.Append($"\n{metric.KernelName}()").Append(' ',len).Append($" calls: {metric.Calls}  passes: {metric.Passes}");
-        }
-        return sb;
-    }
 }
 
 public static class KernelRegistry
