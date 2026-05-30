@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -50,8 +49,8 @@ public static class Test_GPU_Internal
         recorder.Init(123);
         
         // Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
-        var buffer1_    = recorder.RequireRead     (buffer1);
-        var buffer2_    = recorder.RequireRead     (buffer2);
-        var buffer3_    = recorder.RequireReadWrite(buffer3);
+        _ = recorder.RequireRead     (buffer1);
+        _ = recorder.RequireRead     (buffer2);
+        _ = recorder.RequireReadWrite(buffer3);
     }
 }
