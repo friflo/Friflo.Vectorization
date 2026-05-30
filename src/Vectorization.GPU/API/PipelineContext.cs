@@ -74,13 +74,13 @@ public struct PipelineTrace
                 sb.Append($"> Batch_Submit");
                 break;
             case PipelineTraceType.Pass_Split_RAW:
-                sb.Append($"  | RAW on '{Resource}'");
+                sb.Append($"  | RAW '{Resource}'");
                 break;
             case PipelineTraceType.Pass_Split_WAR:
-                sb.Append($"  | WAR on '{Resource}'");
+                sb.Append($"  | WAR '{Resource}'");
                 break;
             case PipelineTraceType.Pass_Split_WAW:
-                sb.Append($"  | WAW on '{Resource}'");
+                sb.Append($"  | WAW '{Resource}'");
                 break;
         }
         return sb;
