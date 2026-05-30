@@ -47,6 +47,7 @@ public sealed unsafe partial class CommandRecorder : PipelineRecorder, IDisposab
 
     public void Init(int id)
     {
+        traceNewKernel  = kernelId != id;
         createNewPass   = kernelSeq == 0; // kernelId != id;
         kernelId        = id;
         kernelSeq++;
@@ -96,7 +97,11 @@ public sealed unsafe partial class CommandRecorder : PipelineRecorder, IDisposab
     {
         if (enablePassBatching && !createNewPass) {
             if (enableTraces) {
-                traces[traceCount - 1].Calls++;
+                if (traceNewKernel) {
+                    AddTrace(PipelineTraceType.Kernel, kernelId, 1);
+                } else {
+                    traces[traceCount - 1].Calls++;
+                }
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
@@ -117,7 +122,7 @@ public sealed unsafe partial class CommandRecorder : PipelineRecorder, IDisposab
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
             if (enableTraces) {
-                AddTrace(PipelineTraceType.Kernel, kernelId, 1, 1);
+                AddTrace(PipelineTraceType.Kernel, kernelId, 1);
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }

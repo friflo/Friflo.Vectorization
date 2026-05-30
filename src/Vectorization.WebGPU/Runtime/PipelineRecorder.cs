@@ -18,6 +18,7 @@ public sealed partial class CommandRecorder
     private             bool                enableTraces;
     private             PipelineTrace[]     traces;
     private             int                 traceCount;
+    private             bool                traceNewKernel;
     private             KernelMetric[]      kernelMetrics       = [default];
     private             int                 kernelMetricCount;
     
@@ -58,7 +59,7 @@ public sealed partial class CommandRecorder
     
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, int passes = 0, string resource = null)
+    private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, string resource = null)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
@@ -68,7 +69,10 @@ public sealed partial class CommandRecorder
         trace.TraceType = traceType;
         trace.KernelId  = kernel;
         trace.Calls     = calls;
-        trace.Passes    = passes;
+        trace.SubType  = traceType switch {
+            PipelineTraceType.Kernel    => createNewPass ? (kernelSeq == 1 ? TraceSubType.NewPass : TraceSubType.PassSplit) : TraceSubType.None,             
+            _                           => TraceSubType.None
+        };
         trace.Resource  = resource;
     }
     

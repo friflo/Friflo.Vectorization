@@ -23,6 +23,13 @@ public enum PipelineTraceType : byte
     Pass_Split_WAW,
 }
 
+public enum TraceSubType : byte
+{
+    None,
+    NewPass,
+    PassSplit,
+}
+
 public struct PipelineStats
 {
     /// <summary>Total number of dispatched GPU kernels; higher means more workload processed.</summary>
@@ -43,7 +50,7 @@ public struct PipelineTrace
     public  string              KernelName => KernelRegistry.GetKernelName(KernelId);
     public  int                 KernelId;
     public  int                 Calls;
-    public  int                 Passes;
+    public  TraceSubType        SubType;
     public  string              Resource;
 
     public override string      ToString() => Append(new StringBuilder(), 23).ToString();
@@ -54,7 +61,11 @@ public struct PipelineTrace
             case PipelineTraceType.Kernel:
                 var name    = KernelName;
                 var len     = Math.Max(0, indent - name.Length);
-                sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}   passes: {Passes,2}");
+                sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}");
+                switch (SubType) {
+                    case TraceSubType.NewPass:   sb.Append("   new_pass");   break;
+                    case TraceSubType.PassSplit: sb.Append("   pass_split"); break;
+                }
                 break;
             case PipelineTraceType.Kernel_Submit:
                 sb.Append($"> Kernel_Submit");
