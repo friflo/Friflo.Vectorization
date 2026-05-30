@@ -14,9 +14,6 @@ public class PipelineContext
     protected internal virtual  bool                        EnablePassBatching  { get; set; }
     protected internal virtual  bool                        EnableTraces        { get; set; }
     
-    private                     PipelineStats               Stats               => GetStats();
-    private                     ReadOnlySpan<PipelineTrace> Traces              => GetTraces();
-    private                     ReadOnlySpan<KernelMetric>  KernelMetrics       => GetKernelMetrics();
     internal                    string                      TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
     internal                    string                      KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
     
@@ -27,11 +24,11 @@ public class PipelineContext
     protected internal virtual  ReadOnlySpan<PipelineTrace> GetTraces()         => default;
     protected internal virtual  ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => default;
     
-    public    override  string                      ToString()          => AppendToString(new StringBuilder()).ToString();
+    public             override string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     
     private StringBuilder AppendToString(StringBuilder sb)
     {
-        var stats = Stats;
+        var stats = GetStats();
         sb.Append($"batching: {EnablePassBatching}  calls: {stats.Calls}   passes: {stats.Passes}  hazards: {stats.Hazards}");
         return sb;
     }
@@ -45,7 +42,7 @@ public class PipelineContext
         if (EnablePassBatching) {
             sb.Append("\n--- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching");
         }
-        foreach (var trace in Traces) {
+        foreach (var trace in GetTraces()) {
             sb.Append('\n');
             trace.Append(sb, 29);
         }
@@ -55,7 +52,7 @@ public class PipelineContext
     private StringBuilder AppendMetricLog(StringBuilder sb)
     {
         sb.Append($"--- KERNEL METRIC ---");
-        foreach (var metric in KernelMetrics) {
+        foreach (var metric in GetKernelMetrics()) {
             if (metric.Calls == 0) {
                 continue;   
             }
