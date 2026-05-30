@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -12,6 +13,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable PropertyCanBeMadeInitOnly.Local
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
@@ -38,6 +40,8 @@ namespace Friflo.Vectorization.WebGPU;
 // Developer Ergonomics
 //  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
 //  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
+
+[DebuggerTypeProxy(typeof(WgpuDeviceDebugView))]
 public sealed unsafe class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
@@ -63,6 +67,27 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
     private  readonly   BindGroupLayoutMap  layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
+    
+    private sealed class WgpuDeviceDebugView(WgpuDevice device)
+    {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly WgpuDevice _device = device;
+
+        public  string                      Label               => _device.Label;
+        public  bool                        DebugMode           { get => _device.DebugMode;             set => _device.DebugMode            = value; }
+        public  bool                        IsDisposed          => _device.isDisposed;
+        
+        // --- PipelineContext
+        public  bool                        EnablePassBatching  { get => _device.EnablePassBatching;    set => _device.EnablePassBatching   = value; }
+        public  bool                        EnableTraces        { get => _device.EnableTraces;          set => _device.EnableTraces         = value; }
+        
+        public  PipelineStats               Stats               => _device.Stats;
+        public  ReadOnlySpan<PipelineTrace> Traces              => _device.Traces;
+        public  ReadOnlySpan<KernelMetric>  KernelMetrics       => _device.KernelMetrics;
+
+        // [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
+        // public WgpuDevice   RawView                 => _device;
+    }
 
 
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.

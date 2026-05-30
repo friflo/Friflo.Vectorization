@@ -43,6 +43,7 @@ public abstract class GpuDevice : IDisposable
     
     protected abstract PipelineContext  Context             { get; }
     
+    // --- PipelineContext
     public  bool                        EnablePassBatching  { get => Context.EnablePassBatching;  set => Context.EnablePassBatching = value; }
     public  bool                        EnableTraces        { get => Context.EnableTraces;        set => Context.EnableTraces = value; }
     
