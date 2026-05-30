@@ -60,8 +60,7 @@ public sealed unsafe class WgpuDevice : GpuDevice
     private             GCHandle            deviceHandle;
     private  readonly   void*               deviceHandlePtr;
     
-    private  static     int                 layoutCacheCount;
-    private             CachedGroupLayout[] layoutCache     = new CachedGroupLayout[64];
+    private  readonly   BindGroupLayoutMap  layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
 
 
@@ -113,10 +112,8 @@ public sealed unsafe class WgpuDevice : GpuDevice
                 if (effect.pipeline.handle != null) wgpuComputePipelineRelease(effect.pipeline.handle);
             }
         }
-        var cache = layoutCache;
-        for (int n = 0; n < cache.Length; n++) {
-            if (cache[n].layout.IsCreated) wgpuBindGroupLayoutRelease(cache[n].layout.handle);
-            cache[n] = default;
+        foreach (var layout in layoutCache.Values) {
+            wgpuBindGroupLayoutRelease(layout.handle);
         }
         // Important: Queue* must not be released. It shares the same lifetime as Device*.
         //  if (QueuePtr != null) {
@@ -494,14 +491,10 @@ public sealed unsafe class WgpuDevice : GpuDevice
     
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public WgpuBindGroupLayout GetBindGroupLayout(ulong hashKey) {
-        var cache = layoutCache;
-        for (int n =  0; n < layoutCacheCount; n++) {
-            if (hashKey == cache[n].hashKey) {
-                return cache[n].layout;
-            }
-        }
-        return default;
+    public WgpuBindGroupLayout GetBindGroupLayout(ulong hashKey)
+    {
+        layoutCache.TryGetValue(hashKey, out WgpuBindGroupLayout layout);
+        return layout;
     }
 
     public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
@@ -531,15 +524,9 @@ public sealed unsafe class WgpuDevice : GpuDevice
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
             
-            // Add new GpuBindGroupLayout to layoutSlots
-            var cache = layoutCache;
-            if (layoutCacheCount >= cache.Length) {
-                var newCache = new CachedGroupLayout[layoutCacheCount];
-                Array.Copy(cache, newCache, cache.Length);
-                cache = layoutCache = newCache;
-            }
+            // Add new GpuBindGroupLayout to cache
             var layout = new WgpuBindGroupLayout(handle);
-            cache[layoutCacheCount++] = new CachedGroupLayout { hashKey = hashKey, layout = layout };
+            layoutCache.Add(hashKey, layout);
             return layout;
         }
     }

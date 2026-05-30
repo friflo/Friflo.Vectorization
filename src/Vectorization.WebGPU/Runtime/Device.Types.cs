@@ -88,14 +88,6 @@ public struct WgpuBufferCache
     }
 }
 
-internal struct CachedGroupLayout
-{
-    internal ulong              	hashKey;
-    internal WgpuBindGroupLayout 	layout;
-
-    public override string      	ToString() => layout.ToString();
-}
-
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuComputePipeline
