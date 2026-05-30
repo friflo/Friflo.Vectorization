@@ -11,7 +11,7 @@ using System.Text;
 namespace Friflo.Vectorization.GPU;
 
 
-public enum PipelineTraceType : byte
+public enum TraceType : byte
 {
     Kernel,
     Kernel_Submit,
@@ -44,19 +44,19 @@ public struct PipelineStats
 
 public struct PipelineTrace
 {
-    public  PipelineTraceType   TraceType;
-    public  string              KernelName => KernelRegistry.GetKernelName(KernelId);
-    public  int                 KernelId;
-    public  int                 Calls;
-    public  TraceSubType        SubType;
-    public  string              Resource;
+    public  TraceType       TraceType;
+    public  string          KernelName => KernelRegistry.GetKernelName(KernelId);
+    public  int             KernelId;
+    public  int             Calls;
+    public  TraceSubType    SubType;
+    public  string          Resource;
 
-    public override string      ToString() => Append(new StringBuilder(), 23).ToString();
+    public override string  ToString() => Append(new StringBuilder(), 23).ToString();
     
-    internal StringBuilder Append(StringBuilder sb, int indent)
+    internal StringBuilder  Append(StringBuilder sb, int indent)
     {
         switch (TraceType) {
-            case PipelineTraceType.Kernel:
+            case TraceType.Kernel:
                 var name    = KernelName;
                 var len     = Math.Max(0, indent - name.Length);
                 sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}");
@@ -65,19 +65,19 @@ public struct PipelineTrace
                     case TraceSubType.PassSplit: sb.Append("   pass_split"); break;
                 }
                 break;
-            case PipelineTraceType.Kernel_Submit:
+            case TraceType.Kernel_Submit:
                 sb.Append($"> Kernel_Submit");
                 break;
-            case PipelineTraceType.Batch_Submit:
+            case TraceType.Batch_Submit:
                 sb.Append($"> Batch_Submit");
                 break;
-            case PipelineTraceType.Pass_Split_RAW:
+            case TraceType.Pass_Split_RAW:
                 sb.Append($"  | RAW '{Resource}'");
                 break;
-            case PipelineTraceType.Pass_Split_WAR:
+            case TraceType.Pass_Split_WAR:
                 sb.Append($"  | WAR '{Resource}'");
                 break;
-            case PipelineTraceType.Pass_Split_WAW:
+            case TraceType.Pass_Split_WAW:
                 sb.Append($"  | WAW '{Resource}'");
                 break;
         }

@@ -59,7 +59,7 @@ public sealed partial class CommandRecorder
     
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(PipelineTraceType traceType, int kernel = 0, string resource = null)
+    private void AddTrace(TraceType traceType, int kernel = 0, string resource = null)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
@@ -74,7 +74,7 @@ public sealed partial class CommandRecorder
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddKernelTrace(PipelineTraceType traceType, int kernel)
+    private void AddKernelTrace(TraceType traceType, int kernel)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
