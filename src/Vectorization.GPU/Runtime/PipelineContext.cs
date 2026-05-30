@@ -52,7 +52,9 @@ public class PipelineContext
     private StringBuilder AppendMetricLog(StringBuilder sb)
     {
         sb.Append($"--- KERNEL METRIC ---");
-        foreach (var metric in GetKernelMetrics()) {
+        var array = GetKernelMetrics().ToArray();
+        Array.Sort(array);
+        foreach (var metric in array) {
             if (metric.Calls == 0) {
                 continue;   
             }

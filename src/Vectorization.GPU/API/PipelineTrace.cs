@@ -85,7 +85,7 @@ public struct PipelineTrace
     } 
 }
 
-public struct KernelMetric
+public struct KernelMetric : IComparable<KernelMetric>
 {
     public  string  KernelName => KernelRegistry.GetKernelName(KernelId);
     public  int     KernelId;
@@ -93,6 +93,10 @@ public struct KernelMetric
     public  int     Passes;
     
     public override  string ToString() => $"{KernelName}()  calls: {Calls}  passes: {Passes}";
+    
+    public int CompareTo(KernelMetric other) {
+        return string.Compare(KernelName, other.KernelName, StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 public static class KernelRegistry
