@@ -16,9 +16,9 @@ public enum TraceType : byte
     Kernel,
     Kernel_Submit,
     Batch_Submit,
-    Pass_Split_RAW,
-    Pass_Split_WAR,
-    Pass_Split_WAW,
+    Hazard_RAW,
+    Hazard_WAR,
+    Hazard_WAW,
 }
 
 public enum TraceSubType : byte
@@ -71,13 +71,13 @@ public struct PipelineTrace
             case TraceType.Batch_Submit:
                 sb.Append($"> Batch_Submit");
                 break;
-            case TraceType.Pass_Split_RAW:
+            case TraceType.Hazard_RAW:
                 sb.Append($"  | RAW '{Resource}'");
                 break;
-            case TraceType.Pass_Split_WAR:
+            case TraceType.Hazard_WAR:
                 sb.Append($"  | WAR '{Resource}'");
                 break;
-            case TraceType.Pass_Split_WAW:
+            case TraceType.Hazard_WAW:
                 sb.Append($"  | WAW '{Resource}'");
                 break;
         }
