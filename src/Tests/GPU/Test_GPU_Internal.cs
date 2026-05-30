@@ -25,7 +25,7 @@ public static class Test_GPU_Internal
         using var buffer2 = device.CreateBuffer<float>(10, "buffer2", BufferProfile.StaticIn);
         using var buffer3 = device.CreateBuffer<float>(10, "buffer3", BufferProfile.StaticIn);
         
-        const int repeat = 10;  //  1_000_000
+        const int repeat = 10;  //  10_000_000
         
         var stopWatch = Stopwatch.StartNew();
         for (int n = 0; n < repeat; n++) {
@@ -49,6 +49,7 @@ public static class Test_GPU_Internal
         var recorder    = device.Recorder;
         recorder.Init(123);
         
+        // Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
         var buffer1_    = recorder.RequireRead     (buffer1);
         var buffer2_    = recorder.RequireRead     (buffer2);
         var buffer3_    = recorder.RequireReadWrite(buffer3);
