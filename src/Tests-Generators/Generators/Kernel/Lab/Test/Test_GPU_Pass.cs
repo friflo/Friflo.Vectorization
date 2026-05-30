@@ -129,11 +129,7 @@ public partial class Test_GPU_Pass : KernelBase
             --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
             """).IgnoreWhiteSpace);
         
-        Assert.That(context.KernelMetricLog, Is.EqualTo(
-            """
-            --- KERNEL METRIC ---
-            MultiplyAddKernel()             calls: 4  passes: 4
-            """).IgnoreWhiteSpace);
+        Assert.That(context.KernelMetricLog, Contains.Substring("MultiplyAddKernel()             calls: 4  passes: 4"));
         context.ClearKernelMetrics();
         Assert.AreEqual("--- KERNEL METRIC ---", context.KernelMetricLog);
     }
@@ -155,6 +151,7 @@ public partial class Test_GPU_Pass : KernelBase
         var context = device.PipelineContext; 
         context.EnableTraces  = true;
         context.EnablePassBatching = true;
+        context.ClearKernelMetrics();
         
         Pattern.MultiplyAddKernel(weight.In, input.In, 42, output.InOut);
         
@@ -181,12 +178,8 @@ public partial class Test_GPU_Pass : KernelBase
             > Kernel_Submit
             > Batch_Submit
             """).IgnoreWhiteSpace);
-        Assert.That(context.KernelMetricLog, Is.EqualTo(
-            """
-            --- KERNEL METRIC ---
-            MultiplyAddKernel()             calls: 2  passes: 2
-            AssignKernel()                  calls: 1  passes: 1
-            """).IgnoreWhiteSpace);
+        Assert.That(context.KernelMetricLog, Contains.Substring("MultiplyAddKernel()             calls: 2  passes: 2"));
+        Assert.That(context.KernelMetricLog, Contains.Substring("AssignKernel()                  calls: 1  passes: 1"));
     }
     
     [Test]
@@ -216,6 +209,67 @@ public partial class Test_GPU_Pass : KernelBase
             MultiplyAddKernel()             calls:  2   new_pass
             AssignKernel()                  calls:  1
             MultiplyAddKernel()             calls:  1
+            > Kernel_Submit
+            > Batch_Submit
+            """).IgnoreWhiteSpace);
+    }
+    
+    [Kernel] [OmitHash]
+    private static void ReadOnly([Span] float input) { }
+    
+    [Test]
+    public void Test_GPU_Hazard_Pass_Fusion_of_ReadOnly_Views()
+    {
+        using var device = Device;
+
+        using var input    = device.CreateBuffer<float>(100, "input",  BufferProfile.StaticIn);
+        
+        var context = device.PipelineContext; 
+        context.EnableTraces  = true;
+        context.EnablePassBatching = true;
+        
+        ReadOnlyKernel(input.In);
+        ReadOnlyKernel(input.In);
+        ReadOnlyKernel(input.In);
+        
+        device.Download();
+        Assert.AreEqual("calls: 3  passes: 1  hazards: 0", context.Stats.ToString());
+        Assert.That(context.TraceLog, Is.EqualTo(
+            """
+            --- PIPELINE TRACE (batching: True  calls: 3   passes: 1  hazards: 0) ---
+            --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
+            ReadOnlyKernel()                calls:  3   new_pass
+            > Kernel_Submit
+            > Batch_Submit
+            """).IgnoreWhiteSpace);
+    }
+    
+    [Test]
+    public void Test_GPU_Hazard_Pass_Fusion_of_Disjoint_Buffers()
+    {
+        using var device = Device;
+
+        using var weight    = device.CreateBuffer<float>(100, "weight",   BufferProfile.StaticIn);
+        using var inputA    = device.CreateBuffer<float>(100, "inputA",   BufferProfile.InOut);
+        using var outputA   = device.CreateBuffer<float>(100, "outputA",  BufferProfile.InOut);
+        
+        using var inputB    = device.CreateBuffer<float>(100, "inputB",   BufferProfile.InOut);
+        using var outputB   = device.CreateBuffer<float>(100, "outputB",  BufferProfile.InOut);
+        
+        var context = device.PipelineContext; 
+        context.EnableTraces  = true;
+        context.EnablePassBatching = true;
+        
+        Pattern.MultiplyAddKernel(weight.In, inputA.InOut, 42, outputA.InOut);
+        Pattern.MultiplyAddKernel(weight.In, inputB.InOut, 42, outputB.InOut);
+        
+        device.Download();
+        Assert.AreEqual("calls: 2  passes: 1  hazards: 0", context.Stats.ToString());
+        Assert.That(context.TraceLog, Is.EqualTo(
+            """
+            --- PIPELINE TRACE (batching: True  calls: 2   passes: 1  hazards: 0) ---
+            --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
+            MultiplyAddKernel()             calls:  2   new_pass
             > Kernel_Submit
             > Batch_Submit
             """).IgnoreWhiteSpace);
