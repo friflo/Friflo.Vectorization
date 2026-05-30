@@ -152,10 +152,7 @@ public partial class Test_GPU_Pass : KernelBase
         
         Pattern.MultiplyAddKernel(weight.In, input.In, 42, output.InOut);
         
-        // read interference: Split Pass (RAW)
         AssignKernel(output.InOut, input.In);
-        
-        // second write in output: forces WAW Split to previous write
         Pattern.MultiplyAddKernel(weight.In, input.In, 23, output.InOut);
         
         device.Download();
