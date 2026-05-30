@@ -13,7 +13,7 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        var weight  = new float[64]; // no alignment
+        var weight  = new float[64];
         var input   = new float[64];
         var output  = new float[64];
         for (int n = 0; n < 64; ++n) {
