@@ -59,7 +59,7 @@ public sealed partial class CommandRecorder
     
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(PipelineTraceType traceType, int kernel = 0, int calls = 0, string resource = null)
+    private void AddTrace(PipelineTraceType traceType, int kernel = 0, string resource = null)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
@@ -68,12 +68,24 @@ public sealed partial class CommandRecorder
         ref var trace = ref localTraces[traceCount++];
         trace.TraceType = traceType;
         trace.KernelId  = kernel;
-        trace.Calls     = calls;
-        trace.SubType  = traceType switch {
-            PipelineTraceType.Kernel    => createNewPass ? (kernelSeq == 1 ? TraceSubType.NewPass : TraceSubType.PassSplit) : TraceSubType.None,             
-            _                           => TraceSubType.None
-        };
+        trace.Calls     = 0;
+        trace.SubType   = TraceSubType.None;
         trace.Resource  = resource;
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void AddKernelTrace(PipelineTraceType traceType, int kernel)
+    {
+        var localTraces = traces;
+        if (traceCount >= localTraces.Length) {
+            localTraces = ResizeTraces();
+        }
+        ref var trace = ref localTraces[traceCount++];
+        trace.TraceType = traceType;
+        trace.KernelId  = kernel;
+        trace.Calls     = 1;
+        trace.SubType   = createNewPass ? (kernelSeq == 1 ? TraceSubType.NewPass : TraceSubType.PassSplit) : TraceSubType.None;
+        trace.Resource  = null;
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
