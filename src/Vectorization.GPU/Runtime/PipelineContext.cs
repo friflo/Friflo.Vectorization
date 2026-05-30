@@ -36,7 +36,7 @@ public class PipelineContext
         return sb;
     }
 
-    internal StringBuilder AppendTraceLog(StringBuilder sb)
+    private StringBuilder AppendTraceLog(StringBuilder sb)
     {
         sb.Append("--- PIPELINE TRACE (");
         AppendToString(sb);
@@ -52,7 +52,7 @@ public class PipelineContext
         return sb;
     }
     
-    internal StringBuilder AppendMetricLog(StringBuilder sb)
+    private StringBuilder AppendMetricLog(StringBuilder sb)
     {
         sb.Append($"--- KERNEL METRIC ---");
         foreach (var metric in KernelMetrics) {

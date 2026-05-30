@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
@@ -11,9 +12,9 @@ using Friflo.Vectorization.GPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
+/// --- <see cref="PipelineContext"/> ---
 public sealed partial class CommandRecorder
 {
-    // --- PipelineRecorder
     private             PipelineStats       pipelineStats;
     private             bool                enableTraces;
     private             PipelineTrace[]     traces;
@@ -21,7 +22,6 @@ public sealed partial class CommandRecorder
     private             bool                traceNewKernel;
     private             KernelMetric[]      kernelMetrics       = [default];
     private             int                 kernelMetricCount;
-    
     
     protected override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
     protected override  bool EnableTraces
