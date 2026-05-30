@@ -120,7 +120,8 @@ public readonly ref struct PipelineContext
     
     private StringBuilder AppendToString(StringBuilder sb)
     {
-        sb.Append($"Batching: {EnablePassBatching}  Traces: {EnableTraces}  Count: {Traces.Length}");
+        var stats = Stats;
+        sb.Append($"batching: {EnablePassBatching}  calls: {stats.Calls}   passes: {stats.Passes}  hazards: {stats.Hazards}");
         return sb;
     }
 
