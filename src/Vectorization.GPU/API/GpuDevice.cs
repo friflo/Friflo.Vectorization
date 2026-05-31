@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -38,7 +39,7 @@ public abstract partial class GpuDevice : IDisposable
         return CreateBuffer(data, label, BufferProfile.InOut, type);
     }
     
-    public PipelineContext          BeginContext() => BeginContextInternal();
+    public PipelineContext          BeginContext([CallerFilePath] string file = "", [CallerLineNumber] int line = 0) => BeginContextInternal(file, line);
     
 
     // --- abstract

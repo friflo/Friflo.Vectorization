@@ -16,7 +16,7 @@ public class Test_GPU_Context : KernelBase
     {
         using var device    = Device;
         using var context   = device.BeginContext();
-        
+
         {
             var e = Assert.Throws<InvalidOperationException>(() => {
                 device.BeginContext();

@@ -30,23 +30,20 @@ public abstract partial class GpuDevice
     }
     
     [StackTraceHidden]
-    private PipelineContext BeginContextInternal()
+    private PipelineContext BeginContextInternal(string file, int line)
     {
         var existingContext = threadContexts.Value;
         if (existingContext != null) {
-
-            var stackTrace = existingContext.allocationStackTrace ?? "Unknown allocation point";
             throw new InvalidOperationException(
-                $"[Context Conflict] A PipelineContext is already active on this thread. Active context was opened at:\n{stackTrace}");
+                $"[Context Conflict] A PipelineContext is already active on this thread. Was opened at: {existingContext.callerFile}:{existingContext.callerLine}");
         }
         var newRecorder = pool.Fetch(this);
 
         int currentThreadId = Environment.CurrentManagedThreadId;
         newRecorder.Initialize(currentThreadId);
 
-        if (DebugMode) {
-            newRecorder.allocationStackTrace = Environment.StackTrace;
-        }
+        newRecorder.callerFile = file;
+        newRecorder.callerLine = line;
         threadContexts.Value = newRecorder;
 
         return newRecorder;

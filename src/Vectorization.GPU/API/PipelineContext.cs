@@ -31,7 +31,8 @@ public class PipelineContext : IDisposable
 {
     private readonly    GpuDevice   device; 
     internal            int         ownerThreadId;
-    internal            string      allocationStackTrace;
+    internal            string      callerFile;
+    internal            int         callerLine;
     
     public virtual  PassBatching                    PassBatching        { get; set; }
     public virtual  bool                            EnableTraces        { get; set; }
@@ -124,7 +125,8 @@ public class PipelineContext : IDisposable
     {
         ownerThreadId = -1;
         if (device.DebugMode) {
-            allocationStackTrace = null;
+            callerFile = null;
+            callerLine = 0;
         }
         // TODO rest internal resources / offsets
     }
