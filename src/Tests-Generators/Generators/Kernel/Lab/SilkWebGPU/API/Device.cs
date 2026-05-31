@@ -75,7 +75,18 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     private class SilkContext : PipelineContext
     {
-        protected internal SilkContext(GpuDevice device) : base(device) { }
+        private readonly SilkDevice device;
+        protected internal SilkContext(SilkDevice device) : base(device) {
+            this.device= device;
+        }
+
+        public override void Download()
+        {
+            foreach (var buffer in device.requestedBuffers) {
+                buffer.Download();
+            }
+            device.requestedBuffers.Clear();
+        }
     }
     
 
@@ -339,15 +350,6 @@ public sealed unsafe class SilkDevice : GpuDevice
         requestedBuffers.Add((ISilkBuffer)buffer.GpuBuffer);
     }
     
-    // not efficient but enables use of the same Download() API
-    public override void Download()
-    {
-        foreach (var buffer in requestedBuffers) {
-            buffer.Download();
-        }
-        requestedBuffers.Clear();
-    }
-        
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));

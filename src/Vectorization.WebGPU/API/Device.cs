@@ -407,11 +407,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return gpuBuffer;
     }
     
-    public override void Download() {
-        var recorder = Recorder;
-        recorder.Download();
-    }
-    
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {

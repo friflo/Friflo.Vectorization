@@ -34,7 +34,7 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
         
-        device.Download();
+        context.Download();
     }
     
     public class ModelLayer {
@@ -52,7 +52,7 @@ public class TestCompute : KernelBase
             Pattern.MultiplyAddKernel(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
         // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
-        device.Download();
+        context.Download();
     }
     
 
@@ -73,7 +73,7 @@ public class TestCompute : KernelBase
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
         var b = ComputeLayer2(a.InOut, ComputeMode.GPU);
         
-        device.Download();
+        // device.Download();
     }
     
     // Force one time allocations caused by JIT
@@ -120,7 +120,7 @@ public class TestCompute : KernelBase
         
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
-        device.Download();
+        context.Download();
         
         Assert.AreEqual(42, output[0]);
     }
@@ -170,7 +170,7 @@ public class TestCompute : KernelBase
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
         
-        device.Download();
+        context.Download();
         
         Assert.AreEqual(44, output[0]);
     }

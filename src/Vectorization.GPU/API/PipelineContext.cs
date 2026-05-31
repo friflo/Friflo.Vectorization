@@ -29,6 +29,10 @@ public class PipelineContext : IDisposable
     public virtual  void                            ClearTraces()       { }
     public virtual  void                            ClearKernelMetrics(){ }
     
+    public virtual  void                            Download()          { }
+    public virtual  void                            Flush()             { }
+    public virtual  void                            Synchronize()       { }
+    
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;

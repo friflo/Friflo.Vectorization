@@ -48,8 +48,6 @@ internal sealed class CpuDevice : GpuDevice
 
     public override void Flush(bool wait = true) { }
 
-    public override void Download() { }
-    
     protected internal override PipelineContext NewPipelineContext()
     {
         return new PipelineContext(this);

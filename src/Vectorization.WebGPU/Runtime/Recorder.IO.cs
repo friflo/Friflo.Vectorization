@@ -49,8 +49,10 @@ public sealed unsafe partial class CommandRecorder
         return bufferEntries = newEntries;
     }
     
-    internal void Download()
+    public override void Download()
     {
+        ValidateThreadSafety();
+        
         device.Flush();
         
         if (enableTraces) {
