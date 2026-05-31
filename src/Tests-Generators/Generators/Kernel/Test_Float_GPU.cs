@@ -30,15 +30,14 @@ public partial class Test_Float_GPU : KernelBase
     {
         for (int n = 0; n < 128; n++) {
             scalar1[n] = buffer1[n] = n;
-            scalar2[n] = buffer2[n] = n + 100;
         }
-        using var gpuBuffer1   = Device.CreateBuffer(buffer1, "position", BufferProfile.InOut);
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, "velocity", BufferProfile.StaticIn);
+        using var position   = Device.CreateBuffer(buffer1, "position", BufferProfile.InOut);
+        using var velocity   = Device.CreateBuffer(128, 2f, "velocity", BufferProfile.StaticIn);
 
         using var context = Device.BeginContext();
         
-        MultiplyVector(scalar1,    		 scalar2, false);
-        MultiplyKernel(gpuBuffer1.InOut, gpuBuffer2.In);
+        MultiplyVector(scalar1,    	   velocity.In.Span, false);
+        MultiplyKernel(position.InOut, velocity.In);
         
         context.Download();
         

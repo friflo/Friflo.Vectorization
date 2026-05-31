@@ -314,7 +314,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return buffer;
     }
     
-    private Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)
+    private Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)  // TODO remove
     {
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
@@ -387,10 +387,10 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
         var sizeInBytes     = (uint)(length * Unsafe.SizeOf<T>());
-        var buffer          = CreateBuffer(sizeInBytes, wgpuUsage, bufferLabel);
-        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
         var array           = new T[length];
         Array.Fill(array, value);
+        var buffer          = CreateBufferWithData(array, wgpuUsage, bufferLabel);
+        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
         var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferMap.Count, stagingHandle, array, bufferLabel);
         bufferMap.Add(gpuBuffer);
         return gpuBuffer;
