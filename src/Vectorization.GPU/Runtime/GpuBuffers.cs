@@ -76,7 +76,11 @@ public struct GpuBuffers
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {
-            return buffers;
+            var context = bufferDevice.Context;
+            if (context != null &&                                                  // TODO throw exception in ValidateError()
+                context.ownerThreadId == Environment.CurrentManagedThreadId) {      // TODO throw exception in ValidateError()
+                return buffers;
+            }
         }
         buffers.ValidateError(gpuBuffer, length, paramName);
         return default;

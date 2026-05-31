@@ -25,7 +25,7 @@ public abstract partial class GpuDevice
     [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
     protected static void ValidateThreadSafety(PipelineContext context)
     {
-        if (context.OwnerThreadId != Environment.CurrentManagedThreadId) {
+        if (context.ownerThreadId != Environment.CurrentManagedThreadId) {
             context.ThrowInvalidThread();
         }
     }
@@ -37,7 +37,7 @@ public abstract partial class GpuDevice
         if (existingContext != null)
         {
             if (DebugMode) {
-                string stackTrace = existingContext.AllocationStackTrace ?? "Unknown allocation point";
+                string stackTrace = existingContext.allocationStackTrace ?? "Unknown allocation point";
                 throw new InvalidOperationException(
                     $"[Engine Error] PipelineContext-Leak detected! EndContext() was not called on this thread.\n" +
                     $"PipelineContext was opened at:\n{stackTrace}");
@@ -53,7 +53,7 @@ public abstract partial class GpuDevice
         newRecorder.Initialize(currentThreadId);
 
         if (DebugMode) {
-            newRecorder.AllocationStackTrace = Environment.StackTrace;
+            newRecorder.allocationStackTrace = Environment.StackTrace;
         }
         threadContexts.Value = newRecorder;
 

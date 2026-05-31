@@ -93,20 +93,20 @@ public class PipelineContext : IDisposable
     
     // --------------------------------------- threading ---------------------------------------
     
-    internal            int                 OwnerThreadId        { get; set; }
-    internal            string              AllocationStackTrace { get; set; }
+    internal    int     ownerThreadId;
+    internal    string  allocationStackTrace;
 
 
     internal void Initialize(int threadId)
     {
-        OwnerThreadId = threadId;
+        ownerThreadId = threadId;
     }
 
     internal void Reset()
     {
-        OwnerThreadId = -1;
+        ownerThreadId = -1;
         if (device.DebugMode) {
-            AllocationStackTrace = null;
+            allocationStackTrace = null;
         }
         // TODO rest internal resources / offsets
     }
@@ -115,7 +115,7 @@ public class PipelineContext : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
     protected void ValidateThreadSafety()
     {
-        if (OwnerThreadId != Environment.CurrentManagedThreadId) {
+        if (ownerThreadId != Environment.CurrentManagedThreadId) {
             ThrowInvalidThread();
         }
     }
@@ -126,6 +126,6 @@ public class PipelineContext : IDisposable
         var name = Thread.CurrentThread.Name ?? "unknown thread";
         throw new InvalidOperationException(
                 $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name})" +
-                $"but PipelineContext belongs to thread {OwnerThreadId}!");
+                $"but PipelineContext belongs to thread {ownerThreadId}!");
     }
 }
