@@ -34,7 +34,9 @@ public class Test_GPU_Context : KernelBase
         var thread = new Thread((obj) => {
             var context = (PipelineContext)obj!;
             AssertThreadException(() => _ = context.PassBatching);
+            AssertThreadException(() =>     context.PassBatching = PassBatching.HazardDriven);
             AssertThreadException(() => _ = context.EnableTraces);
+            AssertThreadException(() =>     context.EnableTraces = true);
             AssertThreadException(() => _ = context.TraceLog);
             AssertThreadException(() => _ = context.KernelMetricLog);
             AssertThreadException(() => _ = context.Stats);

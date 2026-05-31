@@ -64,11 +64,11 @@ public class PipelineContext : IDisposable
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly PipelineContext context = context;
 
-        public  PassBatching    EnablePassBatching  => context.PassBatching;
-        public  bool            EnableTraces        => context.EnableTraces;
-        public  PipelineStats   Stats               => context.Stats;
-        public  PipelineTrace[] Traces              => context.Traces.ToArray();
-        public  KernelMetric[]  KernelMetrics       => context.KernelMetrics.ToArray();
+        public  PassBatching    PassBatching    { get => context.PassBatching;  set =>  context.PassBatching = value;  }
+        public  bool            EnableTraces    { get => context.EnableTraces;  set =>  context.EnableTraces = value;  }
+        public  PipelineStats   Stats           => context.Stats;
+        public  PipelineTrace[] Traces          => context.Traces.ToArray();
+        public  KernelMetric[]  KernelMetrics   => context.KernelMetrics.ToArray();
     }
     
     protected internal PipelineContext(GpuDevice device) {
