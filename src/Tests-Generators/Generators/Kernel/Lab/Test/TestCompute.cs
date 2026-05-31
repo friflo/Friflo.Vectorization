@@ -26,9 +26,9 @@ public class TestCompute : KernelBase
     //  UseSpan(weight); // compiler error
         
         using var device    = Adapter.CreateDevice("ExampleCompute");
-        var gpuWeight = device.CreateBuffer<float>(100, "weight",   BufferProfile.StaticIn);
-        var gpuInput  = device.CreateBuffer<float>(100, "input",    BufferProfile.StaticIn);
-        var output2   = device.CreateBuffer<float>(100, "output2",  BufferProfile.StaticIn);
+        var gpuWeight = device.CreateBuffer<float>(100, 0, "weight",   BufferProfile.StaticIn);
+        var gpuInput  = device.CreateBuffer<float>(100, 0, "input",    BufferProfile.StaticIn);
+        var output2   = device.CreateBuffer<float>(100, 0, "output2",  BufferProfile.StaticIn);
         
         using var context = device.BeginContext();
         
@@ -81,9 +81,9 @@ public class TestCompute : KernelBase
     {
         using var device    = Adapter.CreateDevice("WarmUpDevice");
         using var context = device.BeginContext();
-        using var gpuWeight   = device.CreateBuffer<float>(64,  "weight",   BufferProfile.StaticIn);
-        using var gpuInput    = device.CreateBuffer<float>(64,  "input",    BufferProfile.StaticIn);
-        using var gpuOutput   = device.CreateBuffer<float>(64,  "output",   BufferProfile.InOut);
+        using var gpuWeight   = device.CreateBuffer<float>(64, 0,  "weight",   BufferProfile.StaticIn);
+        using var gpuInput    = device.CreateBuffer<float>(64, 0,  "input",    BufferProfile.StaticIn);
+        using var gpuOutput   = device.CreateBuffer<float>(64, 0,  "output",   BufferProfile.InOut);
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
     }
     

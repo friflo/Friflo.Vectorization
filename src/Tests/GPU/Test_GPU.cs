@@ -20,9 +20,9 @@ public static partial class Test_GPU
         using var adapter     = instance.RequestAdapter(default, null);
         using var device      = adapter.CreateDevice("test");
         
-        using var buffer1 = device.CreateBuffer<float>(10, "buffer1", BufferProfile.StaticIn);
-        using var buffer2 = device.CreateBuffer<float>(10, "buffer2", BufferProfile.StaticIn);
-        using var buffer3 = device.CreateBuffer<float>(10, "buffer3", BufferProfile.StaticIn);
+        using var buffer1 = device.CreateBuffer<float>(10, 0, "buffer1", BufferProfile.StaticIn);
+        using var buffer2 = device.CreateBuffer<float>(10, 0, "buffer2", BufferProfile.StaticIn);
+        using var buffer3 = device.CreateBuffer<float>(10, 0, "buffer3", BufferProfile.StaticIn);
         
         using var context = device.BeginContext();
         const int repeat = 10;  //  10_000_000

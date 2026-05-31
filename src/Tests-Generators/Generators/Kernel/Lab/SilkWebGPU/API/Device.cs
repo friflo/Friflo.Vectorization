@@ -223,7 +223,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
+        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
         taskPool            = new SilkTask[maxTasks];
         availableTasks      = new Stack<SilkTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {
@@ -428,12 +428,13 @@ public sealed unsafe class SilkDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage   = GetBufferUsage(profile, type);
         var sizeInBytes = length * Unsafe.SizeOf<T>();
         var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
         var array       = new T[length];
+        Array.Fill(array, value);
         return new SilkBuffer<T>(this, buffer, array, bufferLabel);
     }
     

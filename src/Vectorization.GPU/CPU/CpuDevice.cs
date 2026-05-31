@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable ConvertToAutoProperty
@@ -33,10 +34,11 @@ internal sealed class CpuDevice : GpuDevice
         return new GpuLimits();
     }
 
-    public override GpuBuffer<T> CreateBuffer<T>(int length, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         adapter.bufferCount++;
         var array = new T[length];
+        Array.Fill(array, value);
         return new CpuBuffer<T>(this, array, bufferLabel);
     }
 

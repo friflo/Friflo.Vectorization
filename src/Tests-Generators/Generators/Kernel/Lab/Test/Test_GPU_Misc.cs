@@ -10,8 +10,8 @@ public class Test_GPU_Misc : KernelBase
     [Test]
     public void Test_GPU_Misc_Buffer_ToString()
     {
-        using var staticIn  = Device.CreateBuffer<float>(64, "StaticIn", BufferProfile.StaticIn);
-        using var inOut     = Device.CreateBuffer<float>(64, "InOut",    BufferProfile.InOut);
+        using var staticIn  = Device.CreateBuffer<float>(64, 0, "StaticIn", BufferProfile.StaticIn);
+        using var inOut     = Device.CreateBuffer<float>(64, 0, "InOut",    BufferProfile.InOut);
         
         var inOutView  = inOut.Slice(10,10);
         var staticView = staticIn.AsReadOnly(10,10);
@@ -29,7 +29,7 @@ public class Test_GPU_Misc : KernelBase
     [Test]
     public void Test_GPU_Adapter()
     {
-        using var gpuWeight   = Device.CreateBuffer<float>(100, "test-buffer", BufferProfile.StaticIn);
+        using var gpuWeight   = Device.CreateBuffer<float>(100, 0, "test-buffer", BufferProfile.StaticIn);
         Assert.AreEqual("test-buffer",  gpuWeight.Label);
         Assert.AreEqual(100,            gpuWeight.Length);
         

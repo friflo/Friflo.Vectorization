@@ -172,7 +172,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
+        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
     }
     
     // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
@@ -383,13 +383,14 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
         var sizeInBytes     = (uint)(length * Unsafe.SizeOf<T>());
         var buffer          = CreateBuffer(sizeInBytes, wgpuUsage, bufferLabel);
         var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
         var array           = new T[length];
+        Array.Fill(array, value);
         var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferMap.Count, stagingHandle, array, bufferLabel);
         bufferMap.Add(gpuBuffer);
         return gpuBuffer;
