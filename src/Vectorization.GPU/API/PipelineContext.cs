@@ -12,6 +12,20 @@ using System.Threading;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
+
+/// <summary>Defines how native GPU compute/render passes are batched and managed.</summary>
+public enum PassBatching
+{
+    /// <summary>No optimization; forces a new native pass for every single kernel call.</summary>
+    None,
+
+    /// <summary>Automatic optimization; defers and merges passes based on data hazards on-the-fly.</summary>
+    HazardDriven,
+
+    /// <summary>Manual control; passes are managed explicitly by calling <see cref="PipelineContext.NewPass"/>.</summary>
+    Manual
+}
+
 [DebuggerTypeProxy(typeof(PipelineContextDebugView))]
 public class PipelineContext : IDisposable
 {
@@ -30,6 +44,8 @@ public class PipelineContext : IDisposable
     
     public virtual  void                            ClearTraces()       { }
     public virtual  void                            ClearKernelMetrics(){ }
+    
+    public virtual  void                            NewPass()           { }
     
     public virtual  void                            Download()          { }
     public virtual  void                            Flush()             { }
