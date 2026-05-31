@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable once CheckNamespace

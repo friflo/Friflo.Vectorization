@@ -53,7 +53,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     }
     
     public void Dispose() {
-        if (recorder.enablePassBatching) {
+        if (recorder.enablePassBatching == PassBatching.HazardDriven) {
             return;
         }
         recorder.Finish(label);

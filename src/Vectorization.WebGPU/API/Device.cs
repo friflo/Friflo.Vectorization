@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -208,7 +207,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     public override void Flush(bool wait = true)
     {
         var recorder = Recorder;
-        if (recorder.enablePassBatching && recorder.renderPassCount > 0) {
+        if (recorder.PassBatching == PassBatching.HazardDriven && recorder.renderPassCount > 0) {
             recorder.Finish("BatchedCommands"u8);
         }
         int count = recorder.commandBuffers.Count;

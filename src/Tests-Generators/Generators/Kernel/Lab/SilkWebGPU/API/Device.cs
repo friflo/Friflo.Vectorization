@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 using Kernel.SilkWebGPU.Runtime;
 using Silk.NET.WebGPU;
 using Silk.NET.WebGPU.Extensions.WGPU;

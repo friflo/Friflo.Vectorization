@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable once CheckNamespace

@@ -2,12 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
@@ -26,10 +22,18 @@ public sealed partial class CommandRecorder
     private             KernelMetric[]      kernelMetrics       = [default];
     private             int                 kernelMetricCount;
     
+    public override  PassBatching PassBatching
+    {
+        get {
+            ValidateThreadSafety();
+            return enablePassBatching;
+        }
+        set {
+            ValidateThreadSafety();
+            enablePassBatching = value;
+        }
+    }
 
-
-
-    public override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
     public override  bool EnableTraces
     {
         get {

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Friflo.Vectorization.GPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming

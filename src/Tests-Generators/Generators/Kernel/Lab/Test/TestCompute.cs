@@ -149,7 +149,7 @@ public class TestCompute : KernelBase
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
         using var context = device.BeginContext();
-        context.EnablePassBatching = false; // uniform bind group is always released (destroyed)
+        context.PassBatching = PassBatching.None; // uniform bind group is always released (destroyed)
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);

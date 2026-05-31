@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
@@ -23,7 +22,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   WgpuDevice              device;
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
-    internal            bool                    enablePassBatching 	= false;
+    internal            PassBatching            enablePassBatching 	= PassBatching.None;
     internal            int                     renderPassCount;
     internal            ulong                   lastBindGroup0_hash;
     internal            ComputePipeline*        lastPipelineHandle;
@@ -95,7 +94,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     // The recorder provides / owns the Encoder
     public WgpuComputePass BeginComputePass(ReadOnlySpan<byte> passLabel)
     {
-        if (enablePassBatching && !createNewPass) {
+        if (enablePassBatching == PassBatching.HazardDriven && !createNewPass) {
             if (enableTraces) {
                 if (traceNewKernel) {
                     AddKernelTrace(TraceType.Kernel, kernelId);

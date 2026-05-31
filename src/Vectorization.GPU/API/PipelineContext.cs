@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.Vectorization.GPU;
 
 
 /// <summary>Defines how native GPU compute/render passes are batched and managed.</summary>
@@ -33,7 +33,7 @@ public class PipelineContext : IDisposable
     internal            int         ownerThreadId;
     internal            string      allocationStackTrace;
     
-    public virtual  bool                            EnablePassBatching  { get; set; }
+    public virtual  PassBatching                    PassBatching        { get; set; }
     public virtual  bool                            EnableTraces        { get; set; }
     
     public          string                          TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
@@ -63,7 +63,7 @@ public class PipelineContext : IDisposable
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly PipelineContext context = context;
 
-        public  bool            EnablePassBatching  => context.EnablePassBatching;
+        public  PassBatching    EnablePassBatching  => context.PassBatching;
         public  bool            EnableTraces        => context.EnableTraces;
         public  PipelineStats   Stats               => context.Stats;
         public  PipelineTrace[] Traces              => context.Traces.ToArray();
@@ -77,7 +77,7 @@ public class PipelineContext : IDisposable
     private StringBuilder AppendToString(StringBuilder sb)
     {
         var stats = GetStats();
-        sb.Append($"batching: {EnablePassBatching}  calls: {stats.Calls}   passes: {stats.Passes}  hazards: {stats.Hazards}");
+        sb.Append($"batching: {PassBatching}  calls: {stats.Calls}   passes: {stats.Passes}  hazards: {stats.Hazards}");
         return sb;
     }
 
@@ -87,7 +87,7 @@ public class PipelineContext : IDisposable
         AppendToString(sb);
         sb.Append(") ---");
             
-        if (EnablePassBatching) {
+        if (PassBatching == PassBatching.HazardDriven) {
             sb.Append("\n--- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching");
         }
         foreach (var trace in GetTraces()) {
