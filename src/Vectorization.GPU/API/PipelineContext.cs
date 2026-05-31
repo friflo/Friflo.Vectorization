@@ -143,7 +143,6 @@ public class PipelineContext : IDisposable
     {
         var name = Thread.CurrentThread.Name ?? "unknown thread";
         throw new InvalidOperationException(
-                $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name})" +
-                $"but PipelineContext belongs to thread {ownerThreadId}!");
+        $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name}) but PipelineContext belongs to thread {ownerThreadId}!");
     }
 }

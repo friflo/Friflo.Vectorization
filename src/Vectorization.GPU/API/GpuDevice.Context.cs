@@ -33,19 +33,12 @@ public abstract partial class GpuDevice
     private PipelineContext BeginContextInternal()
     {
         var existingContext = threadContexts.Value;
-        if (existingContext != null)
-        {
-            if (DebugMode) {
-                string stackTrace = existingContext.allocationStackTrace ?? "Unknown allocation point";
-                throw new InvalidOperationException(
-                    $"[Engine Error] PipelineContext-Leak detected! EndContext() was not called on this thread.\n" +
-                    $"PipelineContext was opened at:\n{stackTrace}");
-            }
-            existingContext.Reset();
-            pool.Return(existingContext);
-            threadContexts.Value = null;
-        }
+        if (existingContext != null) {
 
+            var stackTrace = existingContext.allocationStackTrace ?? "Unknown allocation point";
+            throw new InvalidOperationException(
+                $"[Context Conflict] A PipelineContext is already active on this thread. Active context was opened at:\n{stackTrace}");
+        }
         var newRecorder = pool.Fetch(this);
 
         int currentThreadId = Environment.CurrentManagedThreadId;
