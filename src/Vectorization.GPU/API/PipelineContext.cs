@@ -12,6 +12,7 @@ using System.Threading;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
+[DebuggerTypeProxy(typeof(PipelineContextDebugView))]
 public class PipelineContext : IDisposable
 {
     private readonly GpuDevice                      device; 
@@ -34,6 +35,18 @@ public class PipelineContext : IDisposable
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     public  virtual     void                        Dispose()           { }
+    
+    private sealed class PipelineContextDebugView(PipelineContext context)
+    {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly PipelineContext context = context;
+
+        public  bool            EnablePassBatching  => context.EnablePassBatching;
+        public  bool            EnableTraces        => context.EnableTraces;
+        public  PipelineStats   Stats               => context.Stats;
+        public  PipelineTrace[] Traces              => context.Traces.ToArray();
+        public  KernelMetric[]  KernelMetrics       => context.KernelMetrics.ToArray();
+    }
     
     protected internal PipelineContext(GpuDevice device) {
         this.device = device;
