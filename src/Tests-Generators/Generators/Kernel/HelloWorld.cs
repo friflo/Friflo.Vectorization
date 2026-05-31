@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
@@ -25,12 +26,19 @@ public partial class HelloWorld : KernelBase
         using var adapter     = instance.RequestAdapter(default, null);
         using var device      = adapter.CreateDevice("test");
         
-        using var a = device.CreateBuffer<float>(1024, "a", BufferProfile.StaticIn);
-        using var b = device.CreateBuffer<float>(1024, "b", BufferProfile.StaticIn);
-        using var c = device.CreateBuffer<float>(1024, "c", BufferProfile.InOut);
+        var dataA = new float[1024];    Array.Fill(dataA, 1f);
+        var dataB = new float[1024];    Array.Fill(dataB, 2f);
+       
+        using var a = device.CreateBuffer<float>(dataA, "a", BufferProfile.StaticIn);
+        using var b = device.CreateBuffer<float>(dataB, "b", BufferProfile.StaticIn);
+        using var c = device.CreateBuffer<float>(1024,  "c", BufferProfile.InOut);
         
         using var context = device.BeginContext();
 
         AddKernel(a.In, b.In, c.InOut);
+        
+        context.Download();
+        
+        Console.WriteLine($"✓ SUCCESS: Element 0 is {c.InOut.Span[0]} (Expected: 3.0)");
     }
 }
