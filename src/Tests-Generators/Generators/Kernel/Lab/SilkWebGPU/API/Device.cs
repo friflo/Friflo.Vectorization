@@ -66,13 +66,18 @@ public sealed unsafe class SilkDevice : GpuDevice
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
     
     private             PipelineContext     context;
-    public  override    PipelineContext     Context => context;
-    public override PipelineContext BeginContext()
+   
+    protected override PipelineContext NewPipelineContext()
     {
         if (context != null) throw new InvalidOperationException();
-        return context = new PipelineContext();
+        return context = new SilkContext(this);
     }
-
+    
+    private class SilkContext : PipelineContext
+    {
+        protected internal SilkContext(GpuDevice device) : base(device) { }
+    }
+    
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);
@@ -80,7 +85,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
         Dispose(true);
-        GC.SuppressFinalize(this); // prevent execution of finalizer WHEN Dispose() is called manually
+        base.Dispose();  // calls GC.SuppressFinalize(this); to prevent execution of finalizer WHEN Dispose() is called manually
     }
     
     // A finalizer can be call from any thread.

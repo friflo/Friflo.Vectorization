@@ -9,11 +9,12 @@ using Friflo.Vectorization.GPU.Runtime;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public abstract class GpuDevice : IDisposable
+public abstract partial class GpuDevice : IDisposable
 {
-    public  readonly    string  Label;
-    public  readonly    int     SlotSize;
-    public              bool    DebugMode   { get; set; } 
+    public  readonly    string          Label;
+    public  readonly    int             SlotSize;
+    public              bool            DebugMode   { get; set; }
+    public              PipelineContext Context     => threadContexts.Value;
     
     public  override    string  ToString() => Label + (IsDisposed ? ": Disposed" : ": Alive");
 
@@ -37,16 +38,20 @@ public abstract class GpuDevice : IDisposable
     public IScopedGpuBuffer<T>   CreateScopedBuffer<T>      (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
         return CreateBuffer(data, label, BufferProfile.InOut, type);
     }
+    
+    public PipelineContext          BeginContext() => BeginContextInternal();
+    
 
     // --- abstract
     public abstract ComputeMode     DefaultComputeMode  { get; }
     
-    public abstract PipelineContext Context             { get; }
-    public abstract PipelineContext BeginContext();
-    
     public abstract bool            IsDisposed          { get; }
-    public abstract void            Dispose();
-    
+    public virtual  void            Dispose() {
+        pool.Dispose();
+        threadContexts.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,   string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;

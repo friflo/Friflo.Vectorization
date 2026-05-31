@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 
@@ -10,15 +9,14 @@ using Friflo.Vectorization.GPU.Runtime;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.CPU;
 
-internal sealed partial class CpuDevice : GpuDevice
+internal sealed class CpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     internal readonly   CpuAdapter          adapter;
     private  readonly   ComputeMode         defaultComputeMode;
+
     public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
     public   override   bool                IsDisposed          => isDisposed;
-    
-
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
@@ -29,7 +27,7 @@ internal sealed partial class CpuDevice : GpuDevice
         if (!isDisposed) adapter.deviceCount--;
         isDisposed = true;
         
-        threadRecorders.Dispose();
+        base.Dispose();  // calls GC.SuppressFinalize(this); to prevent execution of finalizer WHEN Dispose() is called manually
     }
 
     public override GpuLimits GetDeviceLimits() {
@@ -52,7 +50,8 @@ internal sealed partial class CpuDevice : GpuDevice
 
     public override void Download() { }
     
-    
-    
-
+    protected internal override PipelineContext NewPipelineContext()
+    {
+        return new PipelineContext(this);
+    }
 }

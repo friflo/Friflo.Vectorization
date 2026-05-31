@@ -3,14 +3,19 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU.Runtime;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
 public class PipelineContext : IDisposable
 {
+    private readonly GpuDevice                      device; 
+    
     public virtual  bool                            EnablePassBatching  { get; set; }
     public virtual  bool                            EnableTraces        { get; set; }
     
@@ -29,6 +34,10 @@ public class PipelineContext : IDisposable
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     public  virtual     void                        Dispose()           { }
+    
+    protected internal PipelineContext(GpuDevice device) {
+        this.device = device;
+    }
 
     private StringBuilder AppendToString(StringBuilder sb)
     {
@@ -67,5 +76,43 @@ public class PipelineContext : IDisposable
             sb.Append($"\n{metric.KernelName}()").Append(' ',len).Append($" calls: {metric.Calls}  passes: {metric.Passes}");
         }
         return sb;
+    }
+    
+    // --------------------------------------- threading ---------------------------------------
+    
+    internal            int                 OwnerThreadId        { get; set; }
+    internal            string              AllocationStackTrace { get; set; }
+
+
+    internal void Initialize(int threadId)
+    {
+        OwnerThreadId = threadId;
+    }
+
+    internal void Reset()
+    {
+        OwnerThreadId = -1;
+        if (device.DebugMode) {
+            AllocationStackTrace = null;
+        }
+        // TODO rest internal resources / offsets
+    }
+    
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
+    protected void ValidateThreadSafety()
+    {
+        if (OwnerThreadId != Environment.CurrentManagedThreadId) {
+            ThrowInvalidThread();
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
+    internal void ThrowInvalidThread()
+    {
+        var name = Thread.CurrentThread.Name ?? "unknown thread";
+        throw new InvalidOperationException(
+                $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name})" +
+                $"but PipelineContext belongs to thread {OwnerThreadId}!");
     }
 }

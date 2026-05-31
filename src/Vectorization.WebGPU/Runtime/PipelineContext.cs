@@ -26,41 +26,7 @@ public sealed partial class CommandRecorder
     private             KernelMetric[]      kernelMetrics       = [default];
     private             int                 kernelMetricCount;
     
-    // --- threading
-    private             int                 OwnerThreadId        { get; set; }
-    internal            string              AllocationStackTrace { get; set; }
 
-
-    internal void Initialize(int threadId)
-    {
-        OwnerThreadId = threadId;
-    }
-
-    internal void Reset()
-    {
-        OwnerThreadId = -1;
-        if (device.DebugMode) {
-            AllocationStackTrace = null;
-        }
-        // TODO rest internal resources / offsets
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
-    internal void ValidateThreadSafety()
-    {
-        if (OwnerThreadId != Environment.CurrentManagedThreadId) {
-            ThrowInvalidThread();
-        }
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
-    private void ThrowInvalidThread()
-    {
-        var name = Thread.CurrentThread.Name ?? "unknown thread";
-        throw new InvalidOperationException(
-                $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name})" +
-                $"but PipelineContext belongs to thread {OwnerThreadId}!");
-    }
 
 
     public override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }

@@ -83,9 +83,9 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     {
         requestedRanges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
     }
-    
 
-    internal CommandRecorder(WgpuDevice device) {
+    internal CommandRecorder(WgpuDevice device) : base(device) 
+    {
         this.device         = device;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
