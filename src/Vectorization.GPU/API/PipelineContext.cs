@@ -15,7 +15,9 @@ namespace Friflo.Vectorization.GPU.Runtime;
 [DebuggerTypeProxy(typeof(PipelineContextDebugView))]
 public class PipelineContext : IDisposable
 {
-    private readonly GpuDevice                      device; 
+    private readonly    GpuDevice   device; 
+    internal            int         ownerThreadId;
+    internal            string      allocationStackTrace;
     
     public virtual  bool                            EnablePassBatching  { get; set; }
     public virtual  bool                            EnableTraces        { get; set; }
@@ -96,10 +98,6 @@ public class PipelineContext : IDisposable
     }
     
     // --------------------------------------- threading ---------------------------------------
-    
-    internal    int     ownerThreadId;
-    internal    string  allocationStackTrace;
-
 
     internal void Initialize(int threadId)
     {
