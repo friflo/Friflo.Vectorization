@@ -3,6 +3,7 @@
 
 using System;
 using Friflo.Vectorization;
+using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -22,6 +23,8 @@ public partial class HelloWorld : KernelBase
     [Test]
     public static void Test_GPU_HelloWorld()
     {
+        // using var instance    = CpuInstance.CreateInstance();
+        // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
         using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         using var adapter     = instance.RequestAdapter(default, null);
         using var device      = adapter.CreateDevice("test");

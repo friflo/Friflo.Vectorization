@@ -15,6 +15,12 @@ public sealed class CpuInstance : GpuInstance
     
     public override bool IsDisposed => isDisposed;
     
+    private CpuInstance() { }
+    
+    public static CpuInstance CreateInstance() {
+        return new CpuInstance();
+    }
+    
     public CpuAdapter CreateAdapter(GpuBackendType backendType) {
         var info = backendType switch {
             GpuBackendType.SIMD     => CpuAdapterInfo.Simd,

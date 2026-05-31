@@ -36,7 +36,7 @@ public sealed class KernelFixture
     }
     
     private static void SetupCPU (GpuBackendType backendType) {
-        var instance    = new CpuInstance();
+        var instance    = CpuInstance.CreateInstance();
         Adapter     = instance.CreateAdapter(backendType);
         Instance    = instance;
     }

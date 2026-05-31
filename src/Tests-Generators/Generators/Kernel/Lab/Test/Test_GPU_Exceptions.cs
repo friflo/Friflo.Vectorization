@@ -68,7 +68,7 @@ public class Test_GPU_Exceptions : KernelBase
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         } {
-            using var instance  = new CpuInstance();
+            using var instance  = CpuInstance.CreateInstance();
             using var adapter   = instance.CreateAdapter(GpuBackendType.Scalar);
             using var device    = adapter.CreateDevice("Scalar");
             var e = Assert.Throws<InvalidOperationException>(() => {
