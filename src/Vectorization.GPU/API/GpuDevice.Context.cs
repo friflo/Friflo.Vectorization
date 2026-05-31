@@ -50,38 +50,35 @@ public abstract partial class GpuDevice
     }
 }
 
-
+/// ConcurrentStack is lock-free. Spin-Wait's on failed operations, but does not lock
 internal class ContextPool : IDisposable
 {
-    private readonly    ConcurrentBag<PipelineContext>  storage     = [];
-    private readonly    List<PipelineContext>           allCreated  = [];
+    private readonly ConcurrentStack<PipelineContext> storage       = [];
+    private readonly ConcurrentStack<PipelineContext> allCreated    = [];
 
     internal PipelineContext Fetch(GpuDevice device)
     {
-        if (storage.TryTake(out var context)) {
+        if (storage.TryPop(out var context)) {
             return context;
         }
+        
         var newContext = device.NewPipelineContext();
-        lock (allCreated) {
-            allCreated.Add(newContext);
-        }
+        allCreated.Push(newContext); // CAS-Operation (Compare-And-Swap), extreme fast
         return newContext; 
     }
 
     internal void Return(PipelineContext context)
     {
-        storage.Add(context);
+        storage.Push(context);
     }
 
     public void Dispose()
     {
-        lock (allCreated) {
-            foreach (var context in allCreated) {
-                context.Dispose(); 
-            }
-            allCreated.Clear();
+        while (allCreated.TryPop(out var context)) {
+            context.Dispose();
         }
-        while (storage.TryTake(out _));
+        allCreated.Clear();
+        storage.Clear();
     }
 }
 
