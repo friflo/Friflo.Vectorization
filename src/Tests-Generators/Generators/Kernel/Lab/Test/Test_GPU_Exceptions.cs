@@ -31,6 +31,8 @@ public class Test_GPU_Exceptions : KernelBase
         using var gpuInput    = device1.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
         using var gpuOutput   = device1.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
         
+        using var context = device1.BeginContext();
+        
         StringAssert.StartsWith("gpuWeight(", gpuWeight.ToString());
         StringAssert.EndsWith  ("): Alive",   gpuWeight.ToString());
         Assert.IsFalse(gpuWeight.IsDisposed);
@@ -98,6 +100,7 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var gpuWeight = device.CreateBuffer<float>(64, "gpuWeight", BufferProfile.StaticIn);
         using var gpuOutput = device.CreateBuffer<float>(64, "gpuOutput", BufferProfile.InOut);
+        using var context = device.BeginContext();
 
         var e = Assert.Throws<InvalidOperationException>(() => {
             Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut);
@@ -118,7 +121,8 @@ public class Test_GPU_Exceptions : KernelBase
         var outputSlice1 = gpuOutput.Slice(0, 10);
         var outputSlice2 = gpuOutput.Slice(20,10);
         
-        device.EnablePassBatching = false;
+        var context = device.BeginContext();
+        context.EnablePassBatching = false;
 
         var e = Assert.Throws<WgpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error

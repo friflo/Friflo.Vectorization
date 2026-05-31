@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -21,28 +20,8 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-//      Feature Set / Properties
-//      -------------------------
-// Core Architecture & Philosophy
-//  - Zero-Allocation Steady State:     no managed allocation during main execution loop
-//  - Mechanical Sympathy Design:       Focus on CPU cache efficiency.
-//  - Stateless Execution Flow:         High-level logic is decoupled from resource management
-// Deferred Batch Execution
-//  - Atomic Batch Dispatching:         Instead of immediate, chatty execution, all GPU operations are recorded into command buffer and submitted in a single, coherent batch
-//  - Command Buffer Orchestration:     Leverages pre-allocated buffers to sequence complex compute chains, ensuring that the GPU never stalls waiting for the next instruction.
-// GPU & Compute Capabilities
-//  - Cross-Backend Compatibility:      unified API for Vulkan, DirectX 12, and Metal
-//  - Hybrid Compute Support:           Seamlessly switch between Hardware Acceleration (GPU), AVX/SIMD or Scalar
-// Resource & Thread Management     
-//  - Thread-Safe Command Dispatch      Designed for multithreaded environments
-//  - Low-Overhead Resource Pooling     Efficient "Rent/Return" patterns for Tasks and Buffers to maintain a fixed memory footprint
-//  - Type-Safe Buffer Abstraction      GpuBuffer<T> system bridges the gap between managed C# types and raw GPU memory.
-// Developer Ergonomics
-//  - Lean Codebase                     less than 40 KB minimizing instruction cache misses
-//  - Compile-Time Safety               Heavy use of generics and constraints to catch errors at compile time / IDE
-
 [DebuggerTypeProxy(typeof(WgpuDeviceDebugView))]
-public sealed unsafe class WgpuDevice : GpuDevice
+public sealed unsafe partial class WgpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
@@ -54,9 +33,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
     internal readonly   WgpuErrorHandler    errorHandler;
     private             GCHandle            errorHandle;
     
-    private readonly    ThreadLocal<CommandRecorder>    threadRecorders;
-    protected override  PipelineContext                 Context         => threadRecorders.Value!;
-    public              CommandRecorder                 Recorder        => threadRecorders.Value!;
     internal readonly   WgpuBuffer<byte>    globalUniformPool;                                      // remove each CommandRecorder must have its own
     private  readonly   WgpuQueue           queue;
     
@@ -73,20 +49,13 @@ public sealed unsafe class WgpuDevice : GpuDevice
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly WgpuDevice _device = device;
 
-        public  string          Label               => _device.Label;
-        public  bool            DebugMode           { get => _device.DebugMode;             set => _device.DebugMode            = value; }
-        public  bool            IsDisposed          => _device.isDisposed;
-        
-        // --- PipelineContext
-        public  bool            EnablePassBatching  { get => _device.EnablePassBatching;    set => _device.EnablePassBatching   = value; }
-        public  bool            EnableTraces        { get => _device.EnableTraces;          set => _device.EnableTraces         = value; }
-        
-        public  PipelineStats   Stats               => _device.Stats;
-        public  PipelineTrace[] Traces              => _device.Traces.ToArray();
-        public  KernelMetric[]  KernelMetrics       => _device.KernelMetrics.ToArray();
+        public  string          Label       => _device.Label;
+        public  bool            DebugMode   { get => _device.DebugMode;             set => _device.DebugMode            = value; }
+        public  bool            IsDisposed  => _device.isDisposed;
+        public  PipelineContext Context     => _device.Context;
 
         // [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
-        // public WgpuDevice   RawView                 => _device;
+        // public WgpuDevice   RawView      => _device;
     }
 
 
@@ -112,19 +81,14 @@ public sealed unsafe class WgpuDevice : GpuDevice
             
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
-                    Flush(wait: true); // flush all pending GPU operations
-                    wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
+                    pool.Dispose();
+                    if (Context != null) { Flush(wait: true); }                 // TODO remove
+                    wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);  // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
                 // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
             globalUniformPool?.Dispose();
             
-            // dispose all CommandRecorder's
-            if (threadRecorders.IsValueCreated) {
-                foreach (var recorder in threadRecorders.Values) {  // trackAllValues is true, wo we can iterate
-                    recorder?.Dispose();
-                }
-            }
             threadRecorders.Dispose();
         }
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
@@ -211,10 +175,6 @@ public sealed unsafe class WgpuDevice : GpuDevice
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
-        threadRecorders = new ThreadLocal<CommandRecorder>(
-            valueFactory: () => new CommandRecorder(this),
-            trackAllValues: true
-        );
     }
     
     // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>

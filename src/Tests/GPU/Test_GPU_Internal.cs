@@ -24,6 +24,7 @@ public static class Test_GPU_Internal
         using var buffer2 = device.CreateBuffer<float>(10, "buffer2", BufferProfile.StaticIn);
         using var buffer3 = device.CreateBuffer<float>(10, "buffer3", BufferProfile.StaticIn);
         
+        using var context = device.BeginContext();
         const int repeat = 10;  //  10_000_000
         
         var stopWatch = Stopwatch.StartNew();

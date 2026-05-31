@@ -2,7 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 
@@ -23,26 +26,69 @@ public sealed partial class CommandRecorder
     private             KernelMetric[]      kernelMetrics       = [default];
     private             int                 kernelMetricCount;
     
-    protected override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
-    protected override  bool EnableTraces
+    // --- threading
+    private             int                 OwnerThreadId        { get; set; }
+    internal            string              AllocationStackTrace { get; set; }
+
+
+    internal void Initialize(int threadId)
     {
-        get => enableTraces;
+        OwnerThreadId = threadId;
+    }
+
+    internal void Reset()
+    {
+        OwnerThreadId = -1;
+        if (device.DebugMode) {
+            AllocationStackTrace = null;
+        }
+        // TODO rest internal resources / offsets
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
+    internal void ValidateThreadSafety()
+    {
+        if (OwnerThreadId != Environment.CurrentManagedThreadId) {
+            ThrowInvalidThread();
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
+    private void ThrowInvalidThread()
+    {
+        var name = Thread.CurrentThread.Name ?? "unknown thread";
+        throw new InvalidOperationException(
+                $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name})" +
+                $"but PipelineContext belongs to thread {OwnerThreadId}!");
+    }
+
+
+    public override  bool EnablePassBatching { get => enablePassBatching; set => enablePassBatching = value; }
+    public override  bool EnableTraces
+    {
+        get {
+            ValidateThreadSafety();
+            return enableTraces;
+        }
         set {
+            ValidateThreadSafety();
             traces       ??= new PipelineTrace[10];
             traceCount     = 0;
             pipelineStats  = default;
             enableTraces   = value;
         }
     }
-    
-    protected override void ClearTraces()
+
+    public override void ClearTraces()
     {
+        ValidateThreadSafety();
         traceCount     = 0;
         pipelineStats  = default;
     }
     
-    protected override void ClearKernelMetrics()
+    public override void ClearKernelMetrics()
     {
+        ValidateThreadSafety();
         var metrics = kernelMetrics;
         var count   = kernelMetricCount;
         for (int n = 1; n <= count; n++) {
@@ -52,11 +98,22 @@ public sealed partial class CommandRecorder
         }
     }
 
-    protected override  PipelineStats               GetStats()          => pipelineStats;
-    protected override  ReadOnlySpan<PipelineTrace> GetTraces()         => traces.AsSpan(0, traceCount);
-    protected override  ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => kernelMetrics.AsSpan(1, kernelMetricCount);
-    
-    
+    protected override  PipelineStats GetStats() {
+        ValidateThreadSafety();
+        return pipelineStats;
+    }
+
+    protected override  ReadOnlySpan<PipelineTrace> GetTraces() {
+        ValidateThreadSafety();
+        return traces.AsSpan(0, traceCount);
+    }
+
+    protected override  ReadOnlySpan<KernelMetric>  GetKernelMetrics() {
+        ValidateThreadSafety();
+        return kernelMetrics.AsSpan(1, kernelMetricCount);
+    }
+
+
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void AddTrace(TraceType traceType, int kernel = 0, string resource = null)

@@ -14,6 +14,7 @@ using Silk.NET.WebGPU.Extensions.WGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 using Webgpu = Silk.NET.WebGPU.WebGPU;
 
+// ReSharper disable ConvertToAutoProperty
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
@@ -63,7 +64,15 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     private static      int                 layoutCacheCount;
     private             CachedGroupLayout[] layoutCache  = new CachedGroupLayout[64];
-    protected override  PipelineContext     Context { get; } = new ();
+    
+    private             PipelineContext     context;
+    public  override    PipelineContext     Context => context;
+    public override PipelineContext BeginContext()
+    {
+        if (context != null) throw new InvalidOperationException();
+        return context = new PipelineContext();
+    }
+
 
     // --- pointers to callback methods
     private static  readonly    PfnQueueWorkDoneCallback    WorkDoneCallback = PfnQueueWorkDoneCallback.From(HandleTasksFinished);

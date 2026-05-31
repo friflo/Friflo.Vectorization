@@ -9,23 +9,27 @@ using System.Text;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class PipelineContext
+public class PipelineContext : IDisposable
 {
-    protected internal virtual  bool                        EnablePassBatching  { get; set; }
-    protected internal virtual  bool                        EnableTraces        { get; set; }
+    public virtual  bool                            EnablePassBatching  { get; set; }
+    public virtual  bool                            EnableTraces        { get; set; }
     
-    internal                    string                      TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
-    internal                    string                      KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
+    public          string                          TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
+    public          string                          KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
+    public          PipelineStats                   Stats               => GetStats();
+    public          ReadOnlySpan<PipelineTrace>     Traces              => GetTraces();
+    public          ReadOnlySpan<KernelMetric>      KernelMetrics       => GetKernelMetrics();
     
-    protected internal virtual  void                        ClearTraces()       { }
-    protected internal virtual  void                        ClearKernelMetrics(){ }
+    public virtual  void                            ClearTraces()       { }
+    public virtual  void                            ClearKernelMetrics(){ }
     
-    protected internal virtual  PipelineStats               GetStats()          => default;
-    protected internal virtual  ReadOnlySpan<PipelineTrace> GetTraces()         => default;
-    protected internal virtual  ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => default;
+    protected virtual  PipelineStats                GetStats()          => default;
+    protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
+    protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
     
-    public             override string                      ToString()          => AppendToString(new StringBuilder()).ToString();
-    
+    public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
+    public  virtual     void                        Dispose()           { }
+
     private StringBuilder AppendToString(StringBuilder sb)
     {
         var stats = GetStats();

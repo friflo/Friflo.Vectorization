@@ -21,7 +21,7 @@ public static class WgpuPattern
         in Buffer<float>    output_)
     {
         var device      = (WgpuDevice)buffers.device;
-        var recorder    = device.Recorder;
+        var recorder    = device.Recorder; 			// Recorder == thread context
         recorder.Init(MultiplyAdd_GPU_EffectSlot);
         
         var weight      = recorder.RequireRead     (weight_);

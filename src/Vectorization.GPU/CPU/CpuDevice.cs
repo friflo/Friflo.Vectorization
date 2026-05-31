@@ -10,7 +10,7 @@ using Friflo.Vectorization.GPU.Runtime;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace Friflo.Vectorization.CPU;
 
-internal sealed class CpuDevice : GpuDevice
+internal sealed partial class CpuDevice : GpuDevice
 {
     private             bool                isDisposed;
     internal readonly   CpuAdapter          adapter;
@@ -18,23 +18,18 @@ internal sealed class CpuDevice : GpuDevice
     public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
     public   override   bool                IsDisposed          => isDisposed;
     
-    private readonly    ThreadLocal<PipelineContext>    threadContexts;
-    protected override  PipelineContext                 Context        => threadContexts.Value!;
+
         
     internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
         this.adapter = adapter;
         defaultComputeMode = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ComputeMode.Scalar : ComputeMode.SIMD;
-        threadContexts = new ThreadLocal<PipelineContext>(
-            valueFactory: () => new PipelineContext(),
-            trackAllValues: true
-        );
     }
 
     public override void Dispose() {
         if (!isDisposed) adapter.deviceCount--;
         isDisposed = true;
         
-        threadContexts.Dispose();
+        threadRecorders.Dispose();
     }
 
     public override GpuLimits GetDeviceLimits() {
@@ -56,5 +51,8 @@ internal sealed class CpuDevice : GpuDevice
     public override void Flush(bool wait = true) { }
 
     public override void Download() { }
+    
+    
+    
 
 }

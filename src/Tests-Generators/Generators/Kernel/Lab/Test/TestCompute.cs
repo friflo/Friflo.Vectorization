@@ -29,6 +29,9 @@ public class TestCompute : KernelBase
         var gpuWeight = device.CreateBuffer<float>(100, "weight",   BufferProfile.StaticIn);
         var gpuInput  = device.CreateBuffer<float>(100, "input",    BufferProfile.StaticIn);
         var output2   = device.CreateBuffer<float>(100, "output2",  BufferProfile.StaticIn);
+        
+        using var context = device.BeginContext();
+        
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
         
         device.Download();
@@ -43,6 +46,7 @@ public class TestCompute : KernelBase
     public static void RunInference(ModelLayer[] layers, GpuDevice device)
     {
         // Fire Layer 1 to 50
+        using var context = device.BeginContext();
 
         foreach (var layer in layers) {
             Pattern.MultiplyAddKernel(layer.weight.In, layer.input.In, 42, layer.output.InOut);
@@ -76,6 +80,7 @@ public class TestCompute : KernelBase
     private void WarmUpDevice()
     {
         using var device    = Adapter.CreateDevice("WarmUpDevice");
+        using var context = device.BeginContext();
         using var gpuWeight   = device.CreateBuffer<float>(64,  "weight",   BufferProfile.StaticIn);
         using var gpuInput    = device.CreateBuffer<float>(64,  "input",    BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer<float>(64,  "output",   BufferProfile.InOut);
@@ -98,6 +103,8 @@ public class TestCompute : KernelBase
         using var gpuWeight   = device.CreateBuffer(weight, "weight", BufferProfile.StaticIn);
         using var gpuInput    = device.CreateBuffer(input,  "input",  BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer(output, "output", BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
         
         // var start1 = Mem.GetAllocatedBytes();                        // TODO should add allocation check for first call
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
@@ -141,7 +148,8 @@ public class TestCompute : KernelBase
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
         
-        device.EnablePassBatching = false; // uniform bind group is always released (destroyed)
+        var context = device.BeginContext();
+        context.EnablePassBatching = false; // uniform bind group is always released (destroyed)
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
