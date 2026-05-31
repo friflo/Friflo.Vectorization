@@ -11,10 +11,10 @@ using NUnit.Framework;
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
-public static class Test_GPU_Internal
+public static partial class Test_GPU
 {
     [Test]
-    public static void Test_GPU_Internal_DetectHazard()
+    public static void Test_GPU_DetectHazard()
     {
         using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         using var adapter     = instance.RequestAdapter(default, null);
