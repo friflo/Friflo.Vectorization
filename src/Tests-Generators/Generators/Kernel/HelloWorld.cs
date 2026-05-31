@@ -29,9 +29,9 @@ public partial class HelloWorld : KernelBase
         using var adapter     = instance.RequestAdapter(default, null);
         using var device      = adapter.CreateDevice("test");
         
-        using var a = device.CreateBuffer<float>(1024, 1, "a", BufferProfile.StaticIn);
-        using var b = device.CreateBuffer<float>(1024, 2, "b", BufferProfile.StaticIn);
-        using var c = device.CreateBuffer<float>(1024, 0, "c", BufferProfile.InOut);
+        using var a = device.CreateBuffer(1024, 1f, "a", BufferProfile.StaticIn);
+        using var b = device.CreateBuffer(1024, 2f, "b", BufferProfile.StaticIn);
+        using var c = device.CreateBuffer(1024, 0f, "c", BufferProfile.InOut);
         
         using var context = device.BeginContext();
 
