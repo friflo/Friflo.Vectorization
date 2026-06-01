@@ -71,10 +71,13 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
 
     private void Dispose(bool disposing)
     {
-        if (isDisposed) return;  // guarantees this block is executed only once
-
+        if (isDisposed) {
+            return; // guarantees this block is executed only once
+        }
+        
         // Other managed objects MUST not be touched if disposing == false.
-        if (disposing) {
+        if (disposing)
+        {
             // case: only manual Dispose() call
             // TODO dispose recorder, pendingTasks & GpuEffect
             

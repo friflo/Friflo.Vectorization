@@ -44,10 +44,15 @@ public class Test_GPU_Context : KernelBase
         using var device    = Device;
         
         Assert.IsNull(device.Context);
+        
         var context = device.BeginContext();
+        
+        Assert.IsFalse(context.IsDisposed);
         Assert.AreSame(context, device.Context);
 
         context.Dispose();
+        
+        Assert.IsTrue(context.IsDisposed);
         Assert.IsNull(device.Context);
         
         var e = Assert.Throws<ObjectDisposedException>(() => {
@@ -96,5 +101,22 @@ public class Test_GPU_Context : KernelBase
     {
         var e = Assert.Throws<InvalidOperationException>(code);
         StringAssert.StartsWith("[Thread Context Violation] method executes on thread:", e!.Message);
+    }
+    
+    [Test]
+    public void Test_GPU_Context_Context_Leak()
+    {
+        var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        var context = device.BeginContext(); // context leak
+        
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            device.Dispose();
+        });
+        StringAssert.StartsWith("[Resource Leak Detected] GpuDevice.Dispose() failed because active PipelineContexts were not closed!\n  -> Left Context open on Thread:", e!.Message);
+        StringAssert.Contains("Test_GPU_Context.cs:110", e!.Message);
+        
+        // cleanup as intended - otherwise leak detection will fail the test
+        context.Dispose();      
+        device.Dispose(); 
     }
 }

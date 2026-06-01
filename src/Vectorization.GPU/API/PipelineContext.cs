@@ -57,8 +57,23 @@ public class PipelineContext : IDisposable
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
-    public  virtual     void                        Dispose()           => Reset();
     
+    public          bool                            IsDisposed          => ownerThreadId == -1;
+    
+    // Unmanaged resources are already released at this point.
+    // see  class CommandRecorder : PipelineContext  { Dispose() { ... base.Dispose() } }
+    public virtual void Dispose()
+    {
+        if (IsDisposed) {
+            return;
+        }
+        ownerThreadId   = -1;
+        callerFile      = null;
+        callerLine      = 0;
+        
+        device.EndContext(this); // the only place calling EndContext()
+    }
+
     private sealed class PipelineContextDebugView(PipelineContext context)
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -122,18 +137,7 @@ public class PipelineContext : IDisposable
         callerFile      = file;
         callerLine      = line;
     }
-
-    internal void Reset()
-    {
-        ownerThreadId   = -1;
-        callerFile      = null;
-        callerLine      = 0;
-        
-        device.EndContext(this);
-        
-        // TODO rest internal resources / offsets
-    }
-    
+   
     [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
     protected void ValidateThreadSafety()

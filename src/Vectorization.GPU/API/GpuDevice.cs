@@ -46,12 +46,7 @@ public abstract partial class GpuDevice : IDisposable
     public abstract ComputeMode     DefaultComputeMode  { get; }
     
     public abstract bool            IsDisposed          { get; }
-    public virtual  void            Dispose() {
-        pool.Dispose();
-        threadContexts.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
+    
     public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, T value, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,            string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;

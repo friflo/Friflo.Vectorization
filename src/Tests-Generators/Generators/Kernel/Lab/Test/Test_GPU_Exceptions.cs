@@ -82,14 +82,23 @@ public class Test_GPU_Exceptions : KernelBase
         using var gpuOutput3   = device1.CreateBuffer(output, "gpuOutput3", BufferProfile.InOut);
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
-        {
-            using var gpuOutput1 = device1.CreateBuffer(input, "gpuOutput1", BufferProfile.StaticIn);
-            device1.Dispose();
-            var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
-            });
-            StringAssert.StartsWith("Archaeological Error:", e!.Message!);
-        }
+        
+        context.Download();
+    }
+    
+    [Test]
+    public void Test_GPU_Exceptions_Device_Disposed()
+    {
+        var device   = Adapter.CreateDevice("device");
+        using var gpuWeight   = device.CreateBuffer(10, 1f, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuInput    = device.CreateBuffer(10, 2f, "gpuInput",  BufferProfile.StaticIn);
+        using var gpuOutput   = device.CreateBuffer(10, 3f, "gpuOutput", BufferProfile.InOut);
+        device.Dispose();
+        
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        });
+        StringAssert.StartsWith("Archaeological Error:", e!.Message!);
     }
     
     [Test]

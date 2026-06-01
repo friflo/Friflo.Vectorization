@@ -24,7 +24,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var gpuInput    = device.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
@@ -94,7 +94,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
         using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
@@ -152,7 +152,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
         using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         context.ClearKernelMetrics();
@@ -196,7 +196,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
         using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
@@ -229,7 +229,7 @@ public partial class Test_GPU_Pass : KernelBase
 
         using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.StaticIn);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
@@ -261,7 +261,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var inputB    = device.CreateBuffer<float>(100, 0, "inputB",   BufferProfile.InOut);
         using var outputB   = device.CreateBuffer<float>(100, 0, "outputB",  BufferProfile.InOut);
         
-        var context = device.BeginContext();
+        using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         

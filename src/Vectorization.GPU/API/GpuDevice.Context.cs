@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+// ReSharper disable UseNullPropagation
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -15,7 +17,7 @@ namespace Friflo.Vectorization.GPU;
 public abstract partial class GpuDevice
 {
     private  readonly   ContextPool                     pool            = new ();
-    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: false);
+    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
 
     
     protected internal abstract PipelineContext NewPipelineContext();
@@ -46,45 +48,75 @@ public abstract partial class GpuDevice
         return newRecorder;
     }
     
+    /// <summary> Is only called by <see cref="PipelineContext.Dispose"/> </summary>
     internal void EndContext(PipelineContext context)
     {
-        if (IsDisposed) {
-            return;
-        }
-        threadContexts.Value = null;
+        threadContexts.Value = null;    // clear thread storage first
+
         pool.Return(context);
+    }
+    
+    public virtual void Dispose()
+    {
+        if (IsDisposed) {
+             return;
+        }
+        
+        List<string> leaks = null;
+
+        // Scan the ThreadLocal storage for any forgotten/unclosed contexts
+        foreach (var context in threadContexts.Values) 
+        {
+            // If a context is still attached to a thread and IsDisposed is false, the developer forgot to close it via the 'using' block.
+            if (context != null && !context.IsDisposed) {
+                leaks ??= new List<string>();
+                leaks.Add($"  -> Left Context open on Thread: {context.ownerThreadId} ! Opened at: {context.callerFile}:{context.callerLine}");
+                
+                // CRITICAL: We intentionally DO NOT call context.Dispose() here.
+                // If the developer leaked resources, we can not silently fix it here. native wgpu resource cannot be released from different thread.
+                // We let it crash so it gets fixed in the user code immediately.
+            }
+        }
+
+        // Hard crash if resource leaks were detected
+        if (leaks != null)
+        {
+            var errorLog = "[Resource Leak Detected] GpuDevice.Dispose() failed because active PipelineContexts were not closed!\n" + 
+                              string.Join("\n", leaks) + "\nFix this by wrapping your contexts in a 'using' block.";
+            throw new InvalidOperationException(errorLog);
+        }
+        threadContexts.Dispose();
+        pool.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 
 /// ConcurrentStack is lock-free. Spin-Wait's on failed operations, but does not lock
 internal class ContextPool : IDisposable
 {
-    private readonly ConcurrentStack<PipelineContext> storage       = [];
-    private readonly ConcurrentStack<PipelineContext> allCreated    = [];
+    private readonly ConcurrentStack<PipelineContext> pooled = []; 
 
     internal PipelineContext Fetch(GpuDevice device)
     {
-        if (storage.TryPop(out var context)) {
+        if (pooled.TryPop(out var context)) {
             return context;
         }
-        
-        var newContext = device.NewPipelineContext();
-        allCreated.Push(newContext); // CAS-Operation (Compare-And-Swap), extreme fast
-        return newContext; 
+        return device.NewPipelineContext();
     }
 
     internal void Return(PipelineContext context)
     {
-        storage.Push(context);
+        pooled.Push(context);
     }
 
     public void Dispose()
     {
-        while (allCreated.TryPop(out var context)) {
-            context.Dispose();
-        }
-        allCreated.Clear();
-        storage.Clear();
+        pooled.Clear();
+        
+        // alternative approach, if unmanaged resource need to be reused
+        // while (pooled.TryPop(out var context)) {
+        //     // context.ReleaseUnmanaged(); 
+        // }
     }
 }
 
