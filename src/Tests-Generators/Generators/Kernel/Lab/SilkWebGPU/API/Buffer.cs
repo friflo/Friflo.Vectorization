@@ -60,7 +60,7 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T>, ISilkBuffer where T : u
     public void Download() // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
-        dev.Flush();
+        dev.Submit();
         
         // if (targetArray.Length < gpuBuffer.Length)
         //    throw new Exception("Target array is too small!");

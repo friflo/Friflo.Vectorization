@@ -53,7 +53,7 @@ public sealed unsafe partial class CommandRecorder
     {
         ValidateThreadSafety();
         
-        device.Flush();
+        device.Submit();
         
         if (enableTraces) {
             AddTrace(TraceType.Batch_Submit);

@@ -56,7 +56,7 @@ public abstract partial class GpuDevice : IDisposable
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, T value, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,            string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
 
-    public abstract void            Flush(bool wait = true);    // TODO - remove parameter wait  - move to PipelineContext
+    public abstract void            Submit();
 }
 
 /// <summary>  Defines the execution strategy for compute operations. </summary>

@@ -80,7 +80,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
-                    if (Context != null) { Flush(wait: true); }                 // TODO remove
+                    if (Context != null) { Submit(); }
                     base.Dispose();
                     
                     wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);  // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
@@ -204,14 +204,14 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private int inFlightCommandBufferCount;
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public override void Flush(bool wait = true)
+    public override void Submit()
     {
         var recorder = Recorder;
         if (recorder.PassBatching == PassBatching.HazardDriven && recorder.renderPassCount > 0) {
             recorder.Finish("BatchedCommands"u8);
         }
         int count = recorder.commandBuffers.Count;
-        if (count == 0 && !wait) {
+        if (count == 0) {
             return;
         }
         inFlightCommandBufferCount = 1;
@@ -244,14 +244,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             };
             future = wgpuQueueOnSubmittedWorkDone(queue.handle, callbackInfo);
         }
-        // If deterministic result is required, wait until the current batch finishes
-        if (wait) {
-            if  (future.id != 0 && inFlightCommandBufferCount > 0) {
-                var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
-                wgpuInstanceWaitAny(instance, 1, &waitInfo, uint.MaxValue);
-                wgpuInstanceProcessEvents(instance);
-                // wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
-            }
+        // wait until the current batch finishes
+        if  (future.id != 0 && inFlightCommandBufferCount > 0) {
+            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+            wgpuInstanceWaitAny(instance, 1, &waitInfo, uint.MaxValue);
+            wgpuInstanceProcessEvents(instance);
+            // wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);
         }
     }
     
@@ -265,7 +263,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (!DebugMode) {
             return;
         }
-        Flush();
+        Submit();
     }
 
     // TODO - remove - kept temporary for reference

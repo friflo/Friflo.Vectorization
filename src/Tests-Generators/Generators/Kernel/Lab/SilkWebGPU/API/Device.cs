@@ -115,7 +115,7 @@ public sealed unsafe class SilkDevice : GpuDevice
             
             if (DevicePtr != null) {
                 if (QueuePtr != null) {
-                    Flush(wait: true); // flush all pending GPU operations
+                    Submit(); // flush all pending GPU operations
                     wgpuEx.DevicePoll(DevicePtr, true, null); // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 }
                 wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device
@@ -277,16 +277,16 @@ public sealed unsafe class SilkDevice : GpuDevice
     {
         pendingTasks.Add(task);
         if (pendingTasks.Count >= 1024) { 
-            Flush(); // ensure list does not grow unlimited
+            Submit(); // ensure list does not grow unlimited
         }
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public override void Flush(bool wait = true)
+    public override void Submit()
     {
         var tasks = pendingTasks;
         int count = tasks.Count;
-        if (count == 0 && !wait) return;
+        if (count == 0) return;
         
         // Is previous batch already send?
         while (inFlightTasks.Count > 0) {
@@ -309,11 +309,9 @@ public sealed unsafe class SilkDevice : GpuDevice
             // Register callback for the new In-Flight batch
             wgpu.QueueOnSubmittedWorkDone(queue.handle, WorkDoneCallback, deviceHandlePtr);
         }
-        // If deterministic result is required, wait until the current batch finishes
-        if (wait) {
-            while (inFlightTasks.Count > 0) {
-                wgpuEx.DevicePoll(DevicePtr, true, null);
-            }
+        // wait until the current batch finishes
+        while (inFlightTasks.Count > 0) {
+            wgpuEx.DevicePoll(DevicePtr, true, null);
         }
     }
     
@@ -322,7 +320,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         if (!DebugMode) {
             return;
         }
-        Flush();
+        Submit();
     }
 
     // TODO - remove - kept temporary for reference
