@@ -39,7 +39,7 @@ public class Test_GPU_Context : KernelBase
     }
     
     [Test]
-    public void Test_GPU_Context_Dispose_Context_IsNull()
+    public void Test_GPU_Context_Dispose_Context_Null()
     {
         using var device    = Device;
         
@@ -49,10 +49,20 @@ public class Test_GPU_Context : KernelBase
 
         context.Dispose();
         Assert.IsNull(device.Context);
+        
+        var e = Assert.Throws<ObjectDisposedException>(() => {
+            _ = context.Stats;
+        });
+        Assert.AreEqual(nameof(PipelineContext), e!.ObjectName);
+        Assert.That(e!.Message, Is.EqualTo(
+            """
+            PipelineContext already disposed - Was used on device: GpuTestBase
+            Object name: 'PipelineContext'.
+            """).IgnoreWhiteSpace);
     }
     
     [Test]
-    public void Test_GPU_Context_Exceptions()
+    public void Test_GPU_Context_Thread_Exceptions()
     {
         using var device            = Device;
         using var pipelineContext   = device.BeginContext();

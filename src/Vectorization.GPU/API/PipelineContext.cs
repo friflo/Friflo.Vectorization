@@ -146,8 +146,11 @@ public class PipelineContext : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
     internal void ThrowInvalidThread()
     {
+        if (ownerThreadId == -1) {
+            throw new ObjectDisposedException(nameof(PipelineContext), $"PipelineContext already disposed - Was used on device: {device.Label}");
+        }
         var name = Thread.CurrentThread.Name ?? "unknown thread";
         throw new InvalidOperationException(
-        $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name}) but PipelineContext belongs to thread {ownerThreadId}!");
+            $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} ({name}) but PipelineContext belongs to thread {ownerThreadId}!");
     }
 }
