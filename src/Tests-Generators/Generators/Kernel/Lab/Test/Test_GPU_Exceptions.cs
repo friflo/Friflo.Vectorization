@@ -99,6 +99,10 @@ public class Test_GPU_Exceptions : KernelBase
             Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         });
         StringAssert.StartsWith("Archaeological Error:", e!.Message!);
+        
+        // Ensue multi Dispose() is fine
+        device.Dispose();
+        device.Dispose();
     }
     
     [Test]
