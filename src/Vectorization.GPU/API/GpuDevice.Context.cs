@@ -14,8 +14,8 @@ namespace Friflo.Vectorization.GPU;
 
 public abstract partial class GpuDevice
 {
-    private readonly    ContextPool                     pool            = new ();
-    private readonly    ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: false);
+    private  readonly   ContextPool                     pool            = new ();
+    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: false);
 
     
     protected internal abstract PipelineContext NewPipelineContext();
@@ -39,13 +39,20 @@ public abstract partial class GpuDevice
         var newRecorder = pool.Fetch(this);
 
         int currentThreadId = Environment.CurrentManagedThreadId;
-        newRecorder.Initialize(currentThreadId);
+        newRecorder.Initialize(currentThreadId, file, line);
 
-        newRecorder.callerFile = file;
-        newRecorder.callerLine = line;
         threadContexts.Value = newRecorder;
 
         return newRecorder;
+    }
+    
+    internal void EndContext(PipelineContext context)
+    {
+        if (IsDisposed) {
+            return;
+        }
+        threadContexts.Value = null;
+        pool.Return(context);
     }
 }
 

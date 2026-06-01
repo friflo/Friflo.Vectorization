@@ -57,7 +57,7 @@ public class PipelineContext : IDisposable
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
-    public  virtual     void                        Dispose()           { }
+    public  virtual     void                        Dispose()           => Reset();
     
     private sealed class PipelineContextDebugView(PipelineContext context)
     {
@@ -116,18 +116,21 @@ public class PipelineContext : IDisposable
     
     // --------------------------------------- threading ---------------------------------------
 
-    internal void Initialize(int threadId)
+    internal void Initialize(int threadId, string file, int line)
     {
-        ownerThreadId = threadId;
+        ownerThreadId   = threadId;
+        callerFile      = file;
+        callerLine      = line;
     }
 
     internal void Reset()
     {
-        ownerThreadId = -1;
-        if (device.DebugMode) {
-            callerFile = null;
-            callerLine = 0;
-        }
+        ownerThreadId   = -1;
+        callerFile      = null;
+        callerLine      = 0;
+        
+        device.EndContext(this);
+        
         // TODO rest internal resources / offsets
     }
     

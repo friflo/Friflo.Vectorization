@@ -17,12 +17,23 @@ public class Test_GPU_Context : KernelBase
         using var device    = Device;
         using var context   = device.BeginContext();
 
-        {
-            var e = Assert.Throws<InvalidOperationException>(() => {
-                device.BeginContext();
-            });
-            StringAssert.StartsWith("[Context Conflict] A PipelineContext is already active on this thread.", e!.Message);
-        }
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            device.BeginContext();
+        });
+        StringAssert.StartsWith("[Context Conflict] A PipelineContext is already active on this thread.", e!.Message);
+    }
+    
+    [Test]
+    public void Test_GPU_Context_Dispose_Context_IsNull()
+    {
+        using var device    = Device;
+        
+        Assert.IsNull(device.Context);
+        var context = device.BeginContext();
+        Assert.AreSame(context, device.Context);
+
+        context.Dispose();
+        Assert.IsNull(device.Context);
     }
     
     [Test]

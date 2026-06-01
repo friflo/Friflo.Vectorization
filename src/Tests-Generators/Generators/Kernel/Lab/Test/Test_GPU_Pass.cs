@@ -24,9 +24,7 @@ public partial class Test_GPU_Pass : KernelBase
         using var gpuInput    = device.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
         
-        Assert.IsNull(device.Context);
         var context = device.BeginContext();
-        Assert.AreSame(context, device.Context);
         
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;

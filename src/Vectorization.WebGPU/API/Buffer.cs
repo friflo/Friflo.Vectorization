@@ -67,7 +67,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     private void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {
         var dev = device;
-        dev.Flush();
+        // dev.Flush();  irrelevant code
         
         if (targetArray.Length < gpuBuffer.Length)
             throw new Exception("Target array is too small!");

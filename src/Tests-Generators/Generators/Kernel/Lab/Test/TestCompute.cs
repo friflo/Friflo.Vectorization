@@ -80,11 +80,15 @@ public class TestCompute : KernelBase
     private void WarmUpDevice()
     {
         using var device    = Adapter.CreateDevice("WarmUpDevice");
-        using var context = device.BeginContext();
         using var gpuWeight   = device.CreateBuffer<float>(64, 0,  "weight",   BufferProfile.StaticIn);
         using var gpuInput    = device.CreateBuffer<float>(64, 0,  "input",    BufferProfile.StaticIn);
         using var gpuOutput   = device.CreateBuffer<float>(64, 0,  "output",   BufferProfile.InOut);
+
+        using var context = device.BeginContext();
+        
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+        
+        context.Download(); 						// TODO add test when Download() is not called
     }
     
     [Test]
