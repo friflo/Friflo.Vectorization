@@ -21,6 +21,7 @@ public class Test_GPU_Context : KernelBase
             device.BeginContext();
         });
         StringAssert.StartsWith("[Context Conflict] A PipelineContext is already active on this thread.", e!.Message);
+        StringAssert.Contains("Test_GPU_Context.cs:18", e!.Message);
     }
     
     [Test]
