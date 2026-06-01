@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -213,8 +214,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (recorder.PassBatching == PassBatching.HazardDriven && recorder.renderPassCount > 0) {
             recorder.Finish("BatchedCommands"u8);
         }
-        var recorderBuffer = recorder.commandBuffers;
-        int count = recorderBuffer.Count;
+        SubmitCommandBuffers(recorder.commandBufferQueue);
+    }
+    
+    private void SubmitCommandBuffers(CommandBufferQueue commandBuffers)
+    {
+        int count = commandBuffers.Count;
         if (count == 0) {
             return;
         }
@@ -224,35 +229,33 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         while (Thread.VolatileRead(ref inFlightCommandBufferCount) > 0) {
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         } */
-        var future = new Future();
-        if (count > 0) {
-            // Submit command buffers to queue
-            var commandBuffers = stackalloc CommandBuffer*[count];
-            int index = 0;
-            
-            // dequeues recorderBuffer. When loop finishes recorderBuffer queue is empty
-            while (index < count && recorderBuffer.TryDequeue(out var buffer)) {
-                commandBuffers[index++] = buffer.handle;
-            }
-
-            if (index > 0) {
-                wgpuQueueSubmit(queue.handle, (uint)index, commandBuffers);    
-            }
-            
-            for (int n = 0; n < index; n++) {
-                // Note: In case wgpuCommandEncoderFinish() detected a validation error
-                //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
-                wgpuCommandBufferRelease(commandBuffers[n]);
-            }
-            
-            // Register callback for the new In-Flight batch
-            var callbackInfo = new QueueWorkDoneCallbackInfo {
-                mode        = CallbackMode.AllowProcessEvents,
-                callback    = &QueueOnSubmittedWorkDone_callback,
-                userdata1   = deviceHandlePtr
-            };
-            future = wgpuQueueOnSubmittedWorkDone(queue.handle, callbackInfo);
+        var nativeBuffers = stackalloc CommandBuffer*[count];
+        int index = 0;
+        
+        // dequeues recorderBuffer. When loop finishes recorderBuffer queue is empty
+        while (index < count && commandBuffers.TryDequeue(out var buffer)) {
+            nativeBuffers[index++] = buffer.handle;
         }
+
+        // Submit command buffers to queue
+        if (index > 0) {
+            wgpuQueueSubmit(queue.handle, (uint)index, nativeBuffers);    
+        }
+        
+        for (int n = 0; n < index; n++) {
+            // Note: In case wgpuCommandEncoderFinish() detected a validation error
+            //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
+            wgpuCommandBufferRelease(nativeBuffers[n]);
+        }
+        
+        // Register callback for the new In-Flight batch
+        var callbackInfo = new QueueWorkDoneCallbackInfo {
+            mode        = CallbackMode.AllowProcessEvents,
+            callback    = &QueueOnSubmittedWorkDone_callback,
+            userdata1   = deviceHandlePtr
+        };
+        var future = wgpuQueueOnSubmittedWorkDone(queue.handle, callbackInfo);
+
         // wait until the current batch finishes
         if  (future.id != 0 && inFlightCommandBufferCount > 0) {
             var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
