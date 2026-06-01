@@ -210,7 +210,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (recorder.PassBatching == PassBatching.HazardDriven && recorder.renderPassCount > 0) {
             recorder.Finish("BatchedCommands"u8);
         }
-        int count = recorder.commandBuffers.Count;
+        var recorderBuffer = recorder.commandBuffers;
+        int count = recorderBuffer.Count;
         if (count == 0) {
             return;
         }
@@ -224,13 +225,18 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (count > 0) {
             // Submit command buffers to queue
             var commandBuffers = stackalloc CommandBuffer*[count];
-            for (int n = 0; n < count; n++) {
-                commandBuffers[n] = recorder.commandBuffers[n].handle;
-            }
-            wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);
+            int index = 0;
             
-            recorder.commandBuffers.Clear();
-            for (int n = 0; n < count; n++) {
+            // dequeues recorderBuffer. When loop finishes recorderBuffer queue is empty
+            while (index < count && recorderBuffer.TryDequeue(out var buffer)) {
+                commandBuffers[index++] = buffer.handle;
+            }
+
+            if (index > 0) {
+                wgpuQueueSubmit(queue.handle, (uint)index, commandBuffers);    
+            }
+            
+            for (int n = 0; n < index; n++) {
                 // Note: In case wgpuCommandEncoderFinish() detected a validation error
                 //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
                 wgpuCommandBufferRelease(commandBuffers[n]);

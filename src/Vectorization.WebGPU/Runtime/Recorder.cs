@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -35,7 +36,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
 
-    internal readonly   List<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1  if enablePassBatching == true
+    internal readonly   ConcurrentQueue<WgpuCommandBuffer> commandBuffers      = [];   // Count = 0 or 1  if enablePassBatching == true
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
     internal            bool                    createNewPass;
@@ -200,7 +201,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
-        commandBuffers.Add(commandBuffer);
+        commandBuffers.Enqueue(commandBuffer);
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
