@@ -35,7 +35,7 @@ public class Test_GPU_Context : KernelBase
         var e = Assert.Throws<InvalidOperationException>(() => {
             Pattern.MultiplyAddKernel(weight.In, input.In, 123, output.InOut);
         });
-        Assert.AreEqual("Missing Device Context: 'GpuTestBase'. Call device.BeginContext() before calling a kernel method.", e!.Message);
+        Assert.AreEqual("Missing Device Context: 'GpuTestBase'. Call:  using var context = device.BeginContext();  before calling kernel method.", e!.Message);
     }
     
     [Test]

@@ -25,7 +25,7 @@ public sealed partial class WgpuDevice
     }
     
     private InvalidOperationException MissingContextException() {
-        return new InvalidOperationException($"Missing Device Context: '{Label}'. Call device.BeginContext() before calling a kernel method.");
+        return new InvalidOperationException($"Missing Device Context: '{Label}'. Call:  using var context = device.BeginContext();  before calling kernel method.");
     }
 
     protected override PipelineContext NewPipelineContext() => new CommandRecorder(this);
