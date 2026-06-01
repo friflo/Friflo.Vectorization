@@ -25,6 +25,20 @@ public class Test_GPU_Context : KernelBase
     }
     
     [Test]
+    public void Test_GPU_Context_Missing_Device_Exception()
+    {
+        using var device = Device;
+        using var weight   = device.CreateBuffer(10, 1f, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(10, 2f, "input",  BufferProfile.StaticIn);
+        using var output   = device.CreateBuffer(10, 3f, "output", BufferProfile.InOut);
+        
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            Pattern.MultiplyAddKernel(weight.In, input.In, 123, output.InOut);
+        });
+        Assert.AreEqual("Missing Device Context: 'GpuTestBase'. Call device.BeginContext() before calling a kernel method.", e!.Message);
+    }
+    
+    [Test]
     public void Test_GPU_Context_Dispose_Context_IsNull()
     {
         using var device    = Device;
