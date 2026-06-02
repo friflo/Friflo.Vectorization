@@ -48,7 +48,7 @@ public class PipelineContext : IDisposable
     
     public virtual  void                            NewPass()           { }
     
-    public virtual  void                            Download()          { }
+    public virtual  void                            ReadBuffers()       { }
     public virtual  void                            Flush()             { }
     public virtual  void                            Synchronize()       { }
     

@@ -55,7 +55,6 @@ public sealed unsafe class SilkBuffer<T> : GpuBuffer<T>, ISilkBuffer where T : u
         handle      = buffer;
     }
     
-    // public override void Download(GpuBuffer<T> gpuBuffer, T[] targetArray) { } // obsolete
     
     public void Download() // TODO  optimize DeviceCreateBuffer und DeviceCreateCommandEncoder are heavy operations
     {

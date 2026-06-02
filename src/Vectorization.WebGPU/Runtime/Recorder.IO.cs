@@ -48,7 +48,7 @@ public sealed unsafe partial class CommandRecorder
         return bufferEntries = newEntries;
     }
     
-    public override void Download()
+    public override void ReadBuffers()
     {
         ValidateThreadSafety();
         

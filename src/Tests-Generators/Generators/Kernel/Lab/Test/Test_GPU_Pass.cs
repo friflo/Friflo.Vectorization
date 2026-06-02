@@ -33,7 +33,7 @@ public partial class Test_GPU_Pass : KernelBase
         for (int n = 0; n < 5; ++n) {
             Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         }
-        context.Download();
+        context.ReadBuffers();
         
         Assert.AreEqual(2,              context.Traces.Length);
         Assert.AreEqual("MultiplyAddKernel", context.Traces[0].KernelName);
@@ -53,7 +53,7 @@ public partial class Test_GPU_Pass : KernelBase
         for (int n = 0; n < 5; ++n) {
             Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         }
-        context.Download();
+        context.ReadBuffers();
         
         Assert.AreEqual(0, context.Traces.Length);
         Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
@@ -71,7 +71,7 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
 
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -98,7 +98,7 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
         Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -118,7 +118,7 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
         Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -158,7 +158,7 @@ public partial class Test_GPU_Pass : KernelBase
         AssignKernel(output.InOut, input.In);
         Pattern.MultiplyAddKernel(weight.In, input.In, 23, output.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         
         Assert.AreEqual("calls: 3  passes: 3  hazards: 4", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
@@ -200,7 +200,7 @@ public partial class Test_GPU_Pass : KernelBase
         AssignKernel(output.Slice(20,10), input.AsReadOnly(20, 10));
         Pattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  output.AsReadOnly(30, 10), 42,  input.Slice(30, 10));
         
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 4  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -231,7 +231,7 @@ public partial class Test_GPU_Pass : KernelBase
         ReadOnlyKernel(input.In);
         ReadOnlyKernel(input.In);
         
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 3  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -261,7 +261,7 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.In, inputA.InOut, 42, outputA.InOut);
         Pattern.MultiplyAddKernel(weight.In, inputB.InOut, 42, outputB.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         Assert.AreEqual("calls: 2  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """

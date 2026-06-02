@@ -88,7 +88,7 @@ public class Test_GPU_Context : KernelBase
             AssertThreadException(() => context.ClearTraces());
             AssertThreadException(() => context.ClearKernelMetrics());
         //  AssertThreadException(() => context.NewPass());
-            AssertThreadException(() => context.Download());
+            AssertThreadException(() => context.ReadBuffers());
         //  AssertThreadException(() => context.Flush());
         //  AssertThreadException(() => context.Synchronize());
             

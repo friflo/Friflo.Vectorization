@@ -83,7 +83,7 @@ public class Test_GPU_Exceptions : KernelBase
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput3.InOut, 42, gpuOutput.InOut);
         
-        context.Download();
+        context.ReadBuffers();
     }
     
     [Test]

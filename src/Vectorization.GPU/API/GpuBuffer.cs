@@ -87,7 +87,7 @@ public abstract class GpuBuffer<T> :
     /// </item>
     /// <item> <b>Explicit Sync:</b><br/>
     ///   Modifications to this memory are only reflected on the GPU after calling <c>Upload()</c>.
-    ///   GPU updates are only visible in this memory after calling <c>Download()</c>.
+    ///   GPU updates are only visible in this memory after calling <see cref="PipelineContext.ReadBuffers"/>.
     /// </item>
     /// </list>
     /// </remarks>
@@ -118,7 +118,7 @@ public abstract class GpuBuffer<T> :
     }
 
     public BufferReader<T>  GetReader() {
-        // this.Download();
+        // this.ReadBuffers();
         return new BufferReader<T>(this, hostMemory.Span);
     }
 }

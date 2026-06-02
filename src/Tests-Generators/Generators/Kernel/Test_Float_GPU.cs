@@ -39,7 +39,7 @@ public partial class Test_Float_GPU : KernelBase
         MultiplyVector(scalar1,    	   velocity.In.Span, false);
         MultiplyKernel(position.InOut, velocity.In);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
@@ -68,7 +68,7 @@ public partial class Test_Float_GPU : KernelBase
         AssignVector(scalar1,          scalar2, false);
         AssignKernel(gpuBuffer1.InOut, gpuBuffer2.In);
 
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
@@ -100,7 +100,7 @@ public partial class Test_Float_GPU : KernelBase
         // Device.Wait(gpuDst);
         // gpuDst.Download(gpuDst, buffer1);
 
-        context.Download();
+        context.ReadBuffers();
         
         
         for (int n = 0; n < 10; n++) {
@@ -129,7 +129,7 @@ public partial class Test_Float_GPU : KernelBase
         MoveVector(scalar1,          scalar2,       42, false);
         MoveKernel(gpuBuffer1.InOut, gpuBuffer2.In, 42);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
@@ -156,7 +156,7 @@ public partial class Test_Float_GPU : KernelBase
         UseConstantVector(scalar1, false);
         UseConstantKernel(gpuBuffer1.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
@@ -183,7 +183,7 @@ public partial class Test_Float_GPU : KernelBase
         InverseSqrtVector(scalar1, false);
         InverseSqrtKernel(gpuBuffer1.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
@@ -224,7 +224,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_TrigonometryVector(scalar1,    	    scalar2,       1.1f, false);
         Kernel_TrigonometryKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-2f));
@@ -256,7 +256,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_Trigonometry2Vector(scalar1, false);
         Kernel_Trigonometry2Kernel(gpuBuffer1.InOut);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(0.01).Percent);
@@ -297,7 +297,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_MiscVector(scalar1,          scalar2,       1.1f, false);
         Kernel_MiscKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
@@ -327,7 +327,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_MinVector(scalar1,          scalar2, false);
         Kernel_MinKernel(gpuBuffer1.InOut, gpuBuffer2.In);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
@@ -357,7 +357,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_MaxVector(scalar1,          scalar2, false);
         Kernel_MaxKernel(gpuBuffer1.InOut, gpuBuffer2.In);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
@@ -387,7 +387,7 @@ public partial class Test_Float_GPU : KernelBase
         Kernel_ClampVector(scalar1,          scalar2,       200, false);
         Kernel_ClampKernel(gpuBuffer1.InOut, gpuBuffer2.In, 200);
         
-        context.Download();
+        context.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             Assert.That(scalar1[n], Is.EqualTo(buffer1[n]).Within(1e-5f));
