@@ -20,8 +20,9 @@ public readonly struct GpuQueue
 
     private readonly PipelineContext context;
     
-    public void     ReadBuffers()   => context.ReadBuffers();
-    public void     Submit()        { }                     // TODO
+    public void     ReadBuffers()                       => context.ReadBuffers();
+    public void     Submit()                            { }                     // TODO
+    public void     TransferTo(GpuQueue targetQueue)    { }                     // TODO
     
     internal GpuQueue(PipelineContext context) {
         this.context = context;

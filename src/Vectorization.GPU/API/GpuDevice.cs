@@ -13,6 +13,7 @@ public abstract partial class GpuDevice : IDisposable
 {
     public  readonly    string          Label;
     public  readonly    int             SlotSize;
+    public  readonly    GpuQueue        Queue;                      // todo    
     public              bool            DebugMode   { get; set; }
     public              PipelineContext Context     => threadContexts.Value;
     
