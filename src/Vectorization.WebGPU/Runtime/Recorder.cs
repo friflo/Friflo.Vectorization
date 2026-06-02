@@ -159,9 +159,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishPass()
     {
-        /* if (enableTraces) {
-            AddTrace(TraceType.Kernel_Submit, kernelId);
-        } */
         renderPassCount     =  0;
         lastBindGroup0_hash =  0;
         lastPipelineHandle  =  null;
