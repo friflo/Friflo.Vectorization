@@ -86,7 +86,7 @@ public sealed partial class CommandRecorder
 
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(TraceType traceType, int kernel = 0, string resource = null)
+    private void AddTrace(TraceType traceType, int kernel = 0, int calls = 0, string resource = null)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
@@ -95,7 +95,7 @@ public sealed partial class CommandRecorder
         ref var trace = ref localTraces[traceCount++];
         trace.TraceType = traceType;
         trace.KernelId  = kernel;
-        trace.Calls     = 0;
+        trace.Calls     = calls;
         trace.SubType   = TraceSubType.None;
         trace.Resource  = resource;
     }

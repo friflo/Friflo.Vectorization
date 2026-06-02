@@ -109,14 +109,13 @@ public sealed unsafe partial class CommandRecorder
         } else {
             FinishEncoder("BatchedCommands"u8);
         }
-        
+        if (enableTraces) {
+            AddTrace(TraceType.Submit, 0, commandList.buffers.Count);
+        }
         device.SubmitCommandList(commandList);
         
         commandList = device.commandListPool.Fetch();
         
-        if (enableTraces) {
-            AddTrace(TraceType.Batch_Submit);
-        }
 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
         Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);

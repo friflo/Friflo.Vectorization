@@ -14,8 +14,8 @@ namespace Friflo.Vectorization.GPU;
 public enum TraceType : byte
 {
     Kernel,
-    Kernel_Submit,
-    Batch_Submit,
+    // Kernel_Submit,
+    Submit,
     Hazard_RAW,
     Hazard_WAR,
     Hazard_WAW,
@@ -65,11 +65,11 @@ public struct PipelineTrace
                     case TraceSubType.PassSplit: sb.Append("   pass_split"); break;
                 }
                 break;
-            case TraceType.Kernel_Submit:
+            /* case TraceType.Kernel_Submit:
                 sb.Append($"> Kernel_Submit");
-                break;
-            case TraceType.Batch_Submit:
-                sb.Append($"> Batch_Submit");
+                break; */
+            case TraceType.Submit:
+                sb.Append($"> Submit                        commands: {Calls}");
                 break;
             case TraceType.Hazard_RAW:
                 sb.Append($"  | RAW '{Resource}'");
