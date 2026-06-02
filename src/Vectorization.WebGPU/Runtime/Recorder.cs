@@ -35,7 +35,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
 
-    private             CommandList             commandList;
+    internal            CommandList             commandList;
 
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;

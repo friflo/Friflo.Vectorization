@@ -9,6 +9,7 @@ using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
@@ -56,19 +57,30 @@ public sealed unsafe partial class CommandRecorder
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
             FinishPass();
         }
-        
-        var encoder         = currentEncoder.handle;
+        WgpuIO.SubmitReadBuffers(this, device, currentEncoder.handle, bufferEntries, activeBufferList, tempRanges);
+    }
+}
+
+internal static class WgpuIO
+{ 
+    internal static unsafe void SubmitReadBuffers(
+        CommandRecorder     recorder,       // TODO  remove
+        WgpuDevice          device,
+        CommandEncoder*     encoder,
+        BufferEntry[]       entries,
+        List<BufferData>    activeBuffers,
+        List<BufferRange>   tempRanges)
+    {
         var createEncoder  = encoder == null;
         if (createEncoder) {
             encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         }
         
+        var commandList = recorder.commandList;
         // process commandList.ranges before submitting commandList
-        var entries = bufferEntries;
         foreach (var range in commandList.ranges) {
             entries[range.bufferId].requestedRanges.Add(range);
         }
-        var activeBuffers = activeBufferList;
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
@@ -109,14 +121,14 @@ public sealed unsafe partial class CommandRecorder
             var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
             commandList.commands.Add(new WgpuCommandBuffer(copyBufferCommands));
         } else {
-            FinishEncoder("BatchedCommands"u8);
+            recorder.FinishEncoder("BatchedCommands"u8);
         }
-        if (enableTraces) {
-            AddTrace(TraceType.Submit, 0, commandList.commands.Count);
+        if (recorder.enableTraces) {
+            recorder.AddTrace(TraceType.Submit, 0, commandList.commands.Count);
         }
         device.SubmitCommandList(commandList);
         
-        commandList = device.commandListPool.Fetch();
+        recorder.commandList = device.commandListPool.Fetch();
         
 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
@@ -155,7 +167,7 @@ public sealed unsafe partial class CommandRecorder
     }
     
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+    private static unsafe void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
         if (userdata1== null) return;
         var remainingMaps = (int*)userdata1;
         Interlocked.Decrement(ref *remainingMaps);

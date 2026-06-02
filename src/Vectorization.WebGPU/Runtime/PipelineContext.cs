@@ -15,7 +15,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed partial class CommandRecorder
 {
     private             PipelineStats       pipelineStats;
-    private             bool                enableTraces;
+    internal            bool                enableTraces;
     private             PipelineTrace[]     traces;
     private             int                 traceCount;
     private             bool                traceNewKernel;
@@ -95,7 +95,7 @@ public sealed partial class CommandRecorder
 
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddTrace(TraceType traceType, int kernel = 0, int calls = 0, string resource = null)
+    internal void AddTrace(TraceType traceType, int kernel = 0, int calls = 0, string resource = null)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
