@@ -111,8 +111,8 @@ public class Test_GPU_Exceptions : KernelBase
         using var device    = Adapter.CreateDevice("device");
         if (device.DefaultComputeMode != ComputeMode.GPU) return;
         
-        using var gpuWeight = device.CreateBuffer<float>(64, 0, "gpuWeight", BufferProfile.StaticIn);
-        using var gpuOutput = device.CreateBuffer<float>(64, 0, "gpuOutput", BufferProfile.InOut);
+        using var gpuWeight = device.CreateBuffer(64, 1f, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuOutput = device.CreateBuffer(64, 2f, "gpuOutput", BufferProfile.InOut);
         using var context = device.BeginContext();
 
         var e = Assert.Throws<InvalidOperationException>(() => {
@@ -127,8 +127,8 @@ public class Test_GPU_Exceptions : KernelBase
         using var device    = Adapter.CreateDevice("device");
         if (device.DefaultComputeMode != ComputeMode.GPU) return;
         
-        using var gpuWeight = device.CreateBuffer<float>(64, 0, "gpuWeight", BufferProfile.StaticIn);
-        using var gpuOutput = device.CreateBuffer<float>(64, 0, "gpuOutput", BufferProfile.InOut);
+        using var gpuWeight = device.CreateBuffer(64, 1f, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuOutput = device.CreateBuffer(64, 2f, "gpuOutput", BufferProfile.InOut);
         
         var inputSlice   = gpuOutput.Slice(0, 10);
         var outputSlice1 = gpuOutput.Slice(0, 10);
