@@ -105,7 +105,6 @@ public sealed unsafe partial class CommandRecorder
         device.SubmitCommandList(commandList);
         
         commandList = device.commandListPool.Fetch();
-        wgpuCommandBufferRelease(sendCommandBuffer);
         
         if (enableTraces) {
             AddTrace(TraceType.Batch_Submit);
