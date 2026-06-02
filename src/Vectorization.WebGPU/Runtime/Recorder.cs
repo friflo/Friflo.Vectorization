@@ -35,8 +35,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
 
-    private             Queue<WgpuCommandBuffer>commandBuffers  = [];   // Count = 0 or 1  if enablePassBatching == true
-    private  readonly   CommandQueue            commandQueue    = [];
+    private             CommandList             commandList;
+
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
     internal            bool                    createNewPass;
@@ -90,6 +90,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];
+        commandList         = device.commandListPool.Fetch();
     }
     
     // The recorder provides / owns the Encoder
@@ -201,7 +202,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
-        commandBuffers.Enqueue(commandBuffer);
+        commandList.buffers.Enqueue(commandBuffer);
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)

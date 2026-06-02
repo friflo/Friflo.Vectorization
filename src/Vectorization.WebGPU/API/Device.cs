@@ -42,6 +42,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     private  readonly   BindGroupLayoutMap  layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
+    internal readonly   CommandListPool     commandListPool = new ();
     
     private sealed class WgpuDeviceDebugView(WgpuDevice device)
     {
@@ -210,7 +211,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     internal void SubmitCommandList(CommandList commandList)
     {
-        var commandBuffers  = commandList.commandBuffers;
+        var commandBuffers  = commandList.buffers;
         int count           = commandBuffers.Count;
         if (count == 0) {
             return;
@@ -224,17 +225,15 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var nativeBuffers = stackalloc CommandBuffer*[count];
         int index = 0;
         
-        // dequeues commandBuffers. When loop finishes recorderBuffer queue is empty
-        while (index < count && commandBuffers.TryDequeue(out var buffer)) {
+        foreach (var buffer in commandBuffers) {
             nativeBuffers[index++] = buffer.handle;
         }
+        commandListPool.Return(commandList);
 
         // Submit command buffers to queue
-        if (index > 0) {
-            wgpuQueueSubmit(queue.handle, (uint)index, nativeBuffers);    
-        }
+        wgpuQueueSubmit(queue.handle, (uint)count, nativeBuffers);
         
-        for (int n = 0; n < index; n++) {
+        for (int n = 0; n < count; n++) {
             // Note: In case wgpuCommandEncoderFinish() detected a validation error
             //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
             wgpuCommandBufferRelease(nativeBuffers[n]);
