@@ -82,6 +82,15 @@ public sealed partial class CommandRecorder
         ValidateThreadSafety();
         return kernelMetrics.AsSpan(1, kernelMetricCount);
     }
+    
+    protected override QueueStats GetQueueStats() {
+        ValidateThreadSafety();
+        var list = commandList;
+        return new QueueStats {
+            Commands    = list.commands.Count,
+            Ranges      = list.ranges.Count
+        };
+    }
 
 
     /// --- <see cref="PipelineTrace"/>
@@ -138,4 +147,4 @@ public sealed partial class CommandRecorder
         kernelMetrics       = newMetrics;
         kernelMetricCount   = Math.Max(kernelMetricCount, kernel);
     }
-} 
+}

@@ -57,6 +57,7 @@ public class PipelineContext : IDisposable
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
+    protected internal virtual  QueueStats          GetQueueStats()     => default;
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     

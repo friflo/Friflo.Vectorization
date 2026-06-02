@@ -71,7 +71,13 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
 
+        Assert.AreEqual(2, context.Queue.Stats.Commands);
+        Assert.AreEqual(2, context.Queue.Stats.Ranges);
+
         context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(0, context.Queue.Stats.Commands);
+        Assert.AreEqual(0, context.Queue.Stats.Ranges);
         Assert.AreEqual("calls: 2  passes: 2  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """

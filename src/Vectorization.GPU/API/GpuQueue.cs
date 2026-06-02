@@ -5,8 +5,17 @@
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+
+public struct QueueStats
+{
+    public int  Commands;
+    public int  Ranges;
+}
+
 public readonly struct GpuQueue
 {
+    public  QueueStats   Stats => context.GetQueueStats();
+    
     private readonly PipelineContext context;
     
     public void ReadBuffers() => context.ReadBuffers();
