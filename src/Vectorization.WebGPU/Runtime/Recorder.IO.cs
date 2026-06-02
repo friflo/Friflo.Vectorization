@@ -60,16 +60,8 @@ public sealed unsafe partial class CommandRecorder
         foreach (var range in commandList.ranges) {
             bufferEntries[range.bufferId].requestedRanges.Add(range);
         }
-
-        device.SubmitCommandList(commandList);
         
-        commandList = device.commandListPool.Fetch();
-        
-        if (enableTraces) {
-            AddTrace(TraceType.Batch_Submit);
-        }        
-        
-        var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
+        var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);                   // TODO use currentEncoder - don't create new one
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
@@ -104,12 +96,20 @@ public sealed unsafe partial class CommandRecorder
             }
         }
 
-        // finish commands and send to GPU queue
+        // finish commands
         var sendCommandBuffer = wgpuCommandEncoderFinish(encoder, null);
-        wgpuQueueSubmit(device.QueuePtr, 1, &sendCommandBuffer);
-        
-        wgpuCommandBufferRelease(sendCommandBuffer);
         wgpuCommandEncoderRelease(encoder);
+
+        commandList.buffers.Enqueue(new WgpuCommandBuffer(sendCommandBuffer));
+        
+        device.SubmitCommandList(commandList);
+        
+        commandList = device.commandListPool.Fetch();
+        wgpuCommandBufferRelease(sendCommandBuffer);
+        
+        if (enableTraces) {
+            AddTrace(TraceType.Batch_Submit);
+        }
 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
         Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
