@@ -87,6 +87,7 @@ public class PipelineContext : IDisposable
         public  PipelineStats   Stats           => context.Stats;
         public  PipelineTrace[] Traces          => context.Traces.ToArray();
         public  KernelMetric[]  KernelMetrics   => context.KernelMetrics.ToArray();
+        public  GpuQueue        Queue           => context.Queue;
     }
     
     protected internal PipelineContext(GpuDevice device) {

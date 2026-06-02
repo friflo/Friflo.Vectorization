@@ -14,8 +14,10 @@ public struct QueueStats
 
 public readonly struct GpuQueue
 {
-    public  QueueStats   Stats => context.GetQueueStats();
+    public          QueueStats  Stats => context.GetQueueStats();
     
+    public override string      ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
+
     private readonly PipelineContext context;
     
     public void ReadBuffers() => context.ReadBuffers();
