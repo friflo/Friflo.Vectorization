@@ -12,7 +12,9 @@ internal struct CommandList
 {
     internal readonly   List<WgpuCommandBuffer> buffers;
     internal readonly   List<BufferRange>       ranges; // contains all requested ranges for buffers
-    
+
+    public   override   string                  ToString() => $"buffers: {buffers.Count}  ranges: {ranges.Count}";
+
     public CommandList() {
         buffers = new List<WgpuCommandBuffer>();
         ranges  = new List<BufferRange>();
