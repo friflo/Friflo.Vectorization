@@ -10,8 +10,8 @@ public class Test_GPU_Misc : KernelBase
     [Test]
     public void Test_GPU_Misc_Buffer_ToString()
     {
-        using var staticIn  = Device.CreateBuffer<float>(64, 0, "StaticIn", BufferProfile.StaticIn);
-        using var inOut     = Device.CreateBuffer<float>(64, 0, "InOut",    BufferProfile.InOut);
+        using var staticIn  = Device.CreateBuffer(64, 1f, "StaticIn", BufferProfile.StaticIn);
+        using var inOut     = Device.CreateBuffer(64, 2f, "InOut",    BufferProfile.InOut);
         
         var inOutView  = inOut.Slice(10,10);
         var staticView = staticIn.AsReadOnly(10,10);
