@@ -36,6 +36,7 @@ internal class CommandListPool
     internal void Return(CommandList list)
     {
         list.buffers.Clear();
+        list.ranges.Clear();
         
         pooled.Push(list);
     }
