@@ -24,6 +24,9 @@ public readonly struct GpuQueue
     public void     Submit()                            { }                     // TODO
     public void     TransferTo(GpuQueue targetQueue)    { }                     // TODO
     
+//  public void     Synchronize()                       { }  ???
+
+    
     internal GpuQueue(PipelineContext context) {
         this.context = context;
     }

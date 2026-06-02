@@ -52,7 +52,6 @@ public class PipelineContext : IDisposable
     public virtual  void                            NewPass()           { }
     
     protected internal virtual  void                ReadBuffers()       { }
-    public    virtual  void                         Synchronize()       { }
     
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
