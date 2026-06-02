@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
@@ -33,6 +34,8 @@ public class PipelineContext : IDisposable
     internal            int         ownerThreadId;
     internal            string      callerFile;
     internal            int         callerLine;
+    public              GpuQueue    Queue;
+    
     
     public virtual  PassBatching                    PassBatching        { get; set; }
     public virtual  bool                            EnableTraces        { get; set; }
@@ -48,9 +51,8 @@ public class PipelineContext : IDisposable
     
     public virtual  void                            NewPass()           { }
     
-    public virtual  void                            ReadBuffers()       { }
-    public virtual  void                            Flush()             { }
-    public virtual  void                            Synchronize()       { }
+    protected internal virtual  void                ReadBuffers()       { }
+    public    virtual  void                         Synchronize()       { }
     
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
@@ -88,6 +90,7 @@ public class PipelineContext : IDisposable
     
     protected internal PipelineContext(GpuDevice device) {
         this.device = device;
+        Queue = new GpuQueue(this);
     }
 
     private StringBuilder AppendToString(StringBuilder sb)

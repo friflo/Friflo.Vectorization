@@ -79,7 +79,7 @@ public sealed unsafe class SilkDevice : GpuDevice
             this.device= device;
         }
 
-        public override void ReadBuffers()
+        protected override void ReadBuffers()
         {
             foreach (var buffer in device.requestedBuffers) {
                 buffer.Download();

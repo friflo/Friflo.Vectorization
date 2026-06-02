@@ -34,7 +34,7 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, output2.InOut, ComputeMode.SIMD);
         
-        context.ReadBuffers();
+        context.Queue.ReadBuffers();
     }
     
     public class ModelLayer {
@@ -52,7 +52,7 @@ public class TestCompute : KernelBase
             Pattern.MultiplyAddKernel(layer.weight.In, layer.input.In, 42, layer.output.InOut);
         }
         // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
-        context.ReadBuffers();
+        context.Queue.ReadBuffers();
     }
     
 
@@ -88,7 +88,7 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         
-        context.ReadBuffers(); 						// TODO add test when ReadBuffers() is not called
+        context.Queue.ReadBuffers(); 						// TODO add test when ReadBuffers() is not called
     }
     
     [Test]
@@ -124,7 +124,7 @@ public class TestCompute : KernelBase
         
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
-        context.ReadBuffers();
+        context.Queue.ReadBuffers();
         
         Assert.AreEqual(42, output[0]);
     }
@@ -174,7 +174,7 @@ public class TestCompute : KernelBase
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
         
-        context.ReadBuffers();
+        context.Queue.ReadBuffers();
         
         Assert.AreEqual(44, output[0]);
     }

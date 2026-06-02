@@ -37,7 +37,7 @@ public partial class HelloWorld
 
         AddKernel(a.In, b.In, c.InOut);
         
-        context.ReadBuffers();
+        context.Queue.ReadBuffers();
         
         Console.WriteLine($"✓ SUCCESS: Element 0 is {c.InOut.Span[0]} (Expected: 3.0)");
     }
