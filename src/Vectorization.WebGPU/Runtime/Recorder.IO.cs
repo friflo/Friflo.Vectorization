@@ -74,18 +74,18 @@ internal static class WgpuIO
             encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         }
         var commandList     = recorder?.commandList     ?? device.commandList;
-        var entries         = recorder?.bufferEntries   ?? device.bufferEntries;
+        var bufferEntries   = recorder?.bufferEntries   ?? device.bufferEntries;
         var tempRanges      = recorder?.tempRanges      ?? device.tempRanges;
         var activeBuffers   = recorder?.activeBuffers   ?? device.activeBuffers;
         
         // process commandList.ranges before submitting commandList
         foreach (var range in commandList.ranges) {
-            entries[range.bufferId].requestedRanges.Add(range);
+            bufferEntries[range.bufferId].requestedRanges.Add(range);
         }
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
-        foreach (var bufferEntry in entries)
+        foreach (var bufferEntry in bufferEntries)
         {
             var ranges = bufferEntry.requestedRanges;
             if (ranges == null || ranges.Count == 0) {
