@@ -9,6 +9,7 @@ using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable once CheckNamespace
@@ -17,9 +18,9 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe partial class CommandRecorder
 {
-    private             BufferEntry[]       bufferEntries   = [];
-    private readonly    List<BufferRange>   tempRanges      = [];
-    private readonly    List<BufferData>    activeBuffers   = [];
+    private             BufferEntry[]       bufferEntries       = [];
+    private readonly    List<BufferRange>   tempRanges          = [];
+    private readonly    List<BufferData>    activeBufferList    = [];
 
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -63,14 +64,15 @@ public sealed unsafe partial class CommandRecorder
         }
         
         // process commandList.ranges before submitting commandList
+        var entries = bufferEntries;
         foreach (var range in commandList.ranges) {
-            bufferEntries[range.bufferId].requestedRanges.Add(range);
+            entries[range.bufferId].requestedRanges.Add(range);
         }
-        
+        var activeBuffers = activeBufferList;
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
-        foreach (var bufferEntry in bufferEntries)
+        foreach (var bufferEntry in entries)
         {
             var ranges = bufferEntry.requestedRanges;
             if (ranges == null || ranges.Count == 0) {
