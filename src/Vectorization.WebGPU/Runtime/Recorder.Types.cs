@@ -56,7 +56,8 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         if (recorder.enablePassBatching == PassBatching.HazardDriven) {
             return;
         }
-        recorder.Finish(label);
+        recorder.FinishPass();
+        recorder.FinishEncoder(label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

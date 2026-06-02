@@ -53,7 +53,13 @@ public sealed unsafe partial class CommandRecorder
         ValidateThreadSafety();
         
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
-            Finish("BatchedCommands"u8);
+            FinishPass();
+        }
+        
+        var encoder         = currentEncoder.handle;
+        var createEncoder  = encoder == null;
+        if (createEncoder) {
+            encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         }
         
         // process commandList.ranges before submitting commandList
@@ -61,7 +67,6 @@ public sealed unsafe partial class CommandRecorder
             bufferEntries[range.bufferId].requestedRanges.Add(range);
         }
         
-        var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);                   // TODO use currentEncoder - don't create new one
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
@@ -96,11 +101,14 @@ public sealed unsafe partial class CommandRecorder
             }
         }
 
-        // finish commands
-        var sendCommandBuffer = wgpuCommandEncoderFinish(encoder, null);
-        wgpuCommandEncoderRelease(encoder);
-
-        commandList.buffers.Add(new WgpuCommandBuffer(sendCommandBuffer));
+        // ------------- append copyBufferCommands and submit ------------- 
+        
+        if (createEncoder) {
+            var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
+            commandList.buffers.Add(new WgpuCommandBuffer(copyBufferCommands));
+        } else {
+            FinishEncoder("BatchedCommands"u8);
+        }
         
         device.SubmitCommandList(commandList);
         

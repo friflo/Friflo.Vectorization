@@ -157,7 +157,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal void Finish(ReadOnlySpan<byte> commandBufferLabel)
+    internal void FinishPass()
     {
         if (enableTraces) {
             AddTrace(TraceType.Kernel_Submit, kernelId);
@@ -183,6 +183,11 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
                 device.WriteBuffer(device.globalUniformPool, 0, pData, uniformOffset);
             }
         }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    internal void FinishEncoder(ReadOnlySpan<byte> commandBufferLabel)
+    {
         // TODO  Ultimate performance upgrade
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
