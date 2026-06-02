@@ -100,7 +100,7 @@ public sealed unsafe partial class CommandRecorder
         var sendCommandBuffer = wgpuCommandEncoderFinish(encoder, null);
         wgpuCommandEncoderRelease(encoder);
 
-        commandList.buffers.Enqueue(new WgpuCommandBuffer(sendCommandBuffer));
+        commandList.buffers.Add(new WgpuCommandBuffer(sendCommandBuffer));
         
         device.SubmitCommandList(commandList);
         

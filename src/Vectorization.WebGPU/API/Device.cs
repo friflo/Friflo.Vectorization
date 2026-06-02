@@ -223,10 +223,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         } */
         var nativeBuffers = stackalloc CommandBuffer*[count];
-        int index = 0;
         
-        foreach (var buffer in commandBuffers) {
-            nativeBuffers[index++] = buffer.handle;
+        for (int n = 0; n < count; n++) {
+            nativeBuffers[n] = commandBuffers[n].handle;
         }
         commandListPool.Return(commandList);
 

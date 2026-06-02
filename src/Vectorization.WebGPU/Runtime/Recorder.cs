@@ -202,7 +202,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
-        commandList.buffers.Enqueue(commandBuffer);
+        commandList.buffers.Add(commandBuffer);
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)

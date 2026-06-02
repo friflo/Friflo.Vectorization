@@ -10,11 +10,11 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal struct CommandList
 {
-    internal readonly   Queue<WgpuCommandBuffer>    buffers;
-    internal readonly   List<BufferRange>           ranges; // contains all requested ranges for buffers
+    internal readonly   List<WgpuCommandBuffer> buffers;
+    internal readonly   List<BufferRange>       ranges; // contains all requested ranges for buffers
     
     public CommandList() {
-        buffers = new Queue<WgpuCommandBuffer>();
+        buffers = new List<WgpuCommandBuffer>();
         ranges  = new List<BufferRange>();
     }
 }
