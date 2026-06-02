@@ -208,9 +208,10 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     {
     }
     
-    internal void SubmitCommandQueue(CommandQueue commandQueue)
+    internal void SubmitCommandList(CommandList commandList)
     {
-        int count = commandQueue.Count;
+        var commandBuffers  = commandList.commandBuffers;
+        int count           = commandBuffers.Count;
         if (count == 0) {
             return;
         }
@@ -223,8 +224,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var nativeBuffers = stackalloc CommandBuffer*[count];
         int index = 0;
         
-        // dequeues commandQueue. When loop finishes recorderBuffer queue is empty
-        while (index < count && commandQueue.TryDequeue(out var buffer)) {
+        // dequeues commandBuffers. When loop finishes recorderBuffer queue is empty
+        while (index < count && commandBuffers.TryDequeue(out var buffer)) {
             nativeBuffers[index++] = buffer.handle;
         }
 
