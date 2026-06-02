@@ -105,12 +105,12 @@ public sealed unsafe partial class CommandRecorder
         
         if (createEncoder) {
             var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
-            commandList.buffers.Add(new WgpuCommandBuffer(copyBufferCommands));
+            commandList.commands.Add(new WgpuCommandBuffer(copyBufferCommands));
         } else {
             FinishEncoder("BatchedCommands"u8);
         }
         if (enableTraces) {
-            AddTrace(TraceType.Submit, 0, commandList.buffers.Count);
+            AddTrace(TraceType.Submit, 0, commandList.commands.Count);
         }
         device.SubmitCommandList(commandList);
         

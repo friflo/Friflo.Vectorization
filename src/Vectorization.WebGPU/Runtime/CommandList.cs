@@ -11,14 +11,14 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 internal struct CommandList
 {
-    internal readonly   List<WgpuCommandBuffer> buffers;
+    internal readonly   List<WgpuCommandBuffer> commands;
     internal readonly   List<BufferRange>       ranges; // contains all requested ranges for buffers
 
-    public   override   string                  ToString() => $"buffers: {buffers.Count}  ranges: {ranges.Count}";
+    public   override   string                  ToString() => $"commands: {commands.Count}  ranges: {ranges.Count}";
 
     public CommandList() {
-        buffers = new List<WgpuCommandBuffer>();
-        ranges  = new List<BufferRange>();
+        commands    = new List<WgpuCommandBuffer>();
+        ranges      = new List<BufferRange>();
     }
 }
 
@@ -39,7 +39,7 @@ internal class CommandListPool
 
     internal void Return(CommandList list)
     {
-        list.buffers.Clear();
+        list.commands.Clear();
         list.ranges.Clear();
         
         pooled.Push(list);
@@ -59,7 +59,7 @@ internal class CommandListPoolTLS
     internal CommandList Fetch() {
         var list = localSlot.Value;
 
-        if (list.buffers != null) {
+        if (list.commands != null) {
             localSlot.Value = default;
             return list;
         }
@@ -71,10 +71,10 @@ internal class CommandListPoolTLS
 
     internal void Return(CommandList list)
     {
-        list.buffers.Clear();
+        list.commands.Clear();
         list.ranges.Clear();
 
-        if (localSlot.Value.buffers == null) {
+        if (localSlot.Value.commands == null) {
             localSlot.Value = list;
         } else {
             globalPool.Push(list);

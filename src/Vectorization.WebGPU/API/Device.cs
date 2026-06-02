@@ -211,8 +211,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     internal void SubmitCommandList(CommandList commandList)
     {
-        var commandBuffers  = commandList.buffers;
-        int count           = commandBuffers.Count;
+        var commands    = commandList.commands;
+        int count       = commands.Count;
         if (count == 0) {
             return;
         }
@@ -222,20 +222,20 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         while (Thread.VolatileRead(ref inFlightCommandBufferCount) > 0) {
             wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null); // forces "work done" callback
         } */
-        var nativeBuffers = stackalloc CommandBuffer*[count];
+        var commandBuffers = stackalloc CommandBuffer*[count];
         
         for (int n = 0; n < count; n++) {
-            nativeBuffers[n] = commandBuffers[n].handle;
+            commandBuffers[n] = commands[n].handle;
         }
         commandListPool.Return(commandList);
 
         // Submit command buffers to queue
-        wgpuQueueSubmit(queue.handle, (uint)count, nativeBuffers);
+        wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);
         
         for (int n = 0; n < count; n++) {
             // Note: In case wgpuCommandEncoderFinish() detected a validation error
             //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
-            wgpuCommandBufferRelease(nativeBuffers[n]);
+            wgpuCommandBufferRelease(commandBuffers[n]);
         }
         
         // Register callback for the new In-Flight batch
