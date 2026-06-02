@@ -53,7 +53,10 @@ public sealed unsafe partial class CommandRecorder
     {
         ValidateThreadSafety();
         
-        device.Submit();
+        if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
+            Finish("BatchedCommands"u8);
+        }
+        device.SubmitCommandQueue(commandQueue);
         
         if (enableTraces) {
             AddTrace(TraceType.Batch_Submit);

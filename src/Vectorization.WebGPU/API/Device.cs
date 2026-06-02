@@ -81,13 +81,10 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             // case: only manual Dispose() call
             // TODO dispose recorder, pendingTasks & GpuEffect
             
+            base.Dispose();
+            
             if (DevicePtr != null) {
-                if (QueuePtr != null) {
-                    if (Context != null) { Submit(); }
-                    base.Dispose();
-                    
-                    wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);  // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
-                }
+                wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);  // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
             globalUniformPool?.Dispose();
@@ -209,16 +206,11 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     [MethodImpl(MethodImplOptions.NoInlining)]
     public override void Submit()
     {
-        var recorder = Recorder;
-        if (recorder.PassBatching == PassBatching.HazardDriven && recorder.renderPassCount > 0) {
-            recorder.Finish("BatchedCommands"u8);
-        }
-        SubmitCommandBuffers(recorder.commandBufferQueue);
     }
     
-    private void SubmitCommandBuffers(CommandBufferQueue commandBuffers)
+    internal void SubmitCommandQueue(CommandQueue commandQueue)
     {
-        int count = commandBuffers.Count;
+        int count = commandQueue.Count;
         if (count == 0) {
             return;
         }
@@ -231,8 +223,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var nativeBuffers = stackalloc CommandBuffer*[count];
         int index = 0;
         
-        // dequeues recorderBuffer. When loop finishes recorderBuffer queue is empty
-        while (index < count && commandBuffers.TryDequeue(out var buffer)) {
+        // dequeues commandQueue. When loop finishes recorderBuffer queue is empty
+        while (index < count && commandQueue.TryDequeue(out var buffer)) {
             nativeBuffers[index++] = buffer.handle;
         }
 

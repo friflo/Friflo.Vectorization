@@ -3,4 +3,4 @@
 
 global using SegmentMap         = System.Collections.Generic.Dictionary<Friflo.Vectorization.WebGPU.Runtime.SegmentKey, Friflo.Vectorization.WebGPU.Runtime.SegmentState>;
 global using BindGroupLayoutMap = System.Collections.Generic.Dictionary<ulong, Friflo.Vectorization.WebGPU.Runtime.WgpuBindGroupLayout>;
-global using CommandBufferQueue = System.Collections.Concurrent.ConcurrentQueue<Friflo.Vectorization.WebGPU.Runtime.WgpuCommandBuffer>;
+global using CommandQueue 		= System.Collections.Concurrent.ConcurrentQueue<Friflo.Vectorization.WebGPU.Runtime.WgpuCommandBuffer>;

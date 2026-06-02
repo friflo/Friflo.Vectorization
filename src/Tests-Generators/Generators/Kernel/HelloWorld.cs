@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace Kernel.Generators;
 
 
-public partial class HelloWorld : KernelBase
+public partial class HelloWorld
 {
     [Kernel] [OmitHash]
     private static void Add([Span] float a, [Span] float b, [Span] ref float c) {
