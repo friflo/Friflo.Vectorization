@@ -18,7 +18,6 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder
 {
     private             BufferEntry[]       bufferEntries   = [];
-    private readonly    List<BufferRange>   requestedRanges = [];
     private readonly    List<BufferRange>   tempRanges      = [];
     private readonly    List<BufferData>    activeBuffers   = [];
 
@@ -56,6 +55,11 @@ public sealed unsafe partial class CommandRecorder
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
             Finish("BatchedCommands"u8);
         }
+        
+        // process commandList.ranges before submitting commandList
+        foreach (var range in commandList.ranges) {
+            bufferEntries[range.bufferId].requestedRanges.Add(range);
+        }
 
         device.SubmitCommandList(commandList);
         
@@ -64,9 +68,6 @@ public sealed unsafe partial class CommandRecorder
         if (enableTraces) {
             AddTrace(TraceType.Batch_Submit);
         }        
-        foreach (var range in requestedRanges) {
-            bufferEntries[range.bufferId].requestedRanges.Add(range);
-        }
         
         var encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         activeBuffers.Clear();
