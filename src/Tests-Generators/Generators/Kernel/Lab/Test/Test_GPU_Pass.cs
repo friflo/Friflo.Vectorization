@@ -13,16 +13,9 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        var weight  = new float[64];
-        var input   = new float[64];
-        var output  = new float[64];
-        for (int n = 0; n < 64; ++n) {
-            weight[n] = n;
-            input[n]  = n + 1000;
-        }
-        using var gpuWeight   = device.CreateBuffer(weight, "gpuWeight", BufferProfile.StaticIn);
-        using var gpuInput    = device.CreateBuffer(input,  "gpuInput",  BufferProfile.StaticIn);
-        using var gpuOutput   = device.CreateBuffer(output, "gpuOutput", BufferProfile.InOut);
+        using var gpuWeight   = device.CreateBuffer(64, 1f, "gpuWeight", BufferProfile.StaticIn);
+        using var gpuInput    = device.CreateBuffer(64, 2f, "gpuInput",  BufferProfile.StaticIn);
+        using var gpuOutput   = device.CreateBuffer(64, 3f, "gpuOutput", BufferProfile.InOut);
         
         using var context = device.BeginContext();
         
@@ -93,9 +86,9 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        using var weight   = device.CreateBuffer<float>(100, 0, "weight", BufferProfile.StaticIn);
-        using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
-        using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
+        using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(100, 2f, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer(100, 3f, "output", BufferProfile.InOut);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
@@ -150,9 +143,9 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        using var weight   = device.CreateBuffer<float>(100, 0, "weight", BufferProfile.StaticIn);
-        using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
-        using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
+        using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(100, 2f, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer(100, 3f, "output", BufferProfile.InOut);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
@@ -193,9 +186,9 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        using var weight   = device.CreateBuffer<float>(100, 0, "weight", BufferProfile.StaticIn);
-        using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.InOut);
-        using var output   = device.CreateBuffer<float>(100, 0, "output", BufferProfile.InOut);
+        using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(100, 2f, "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer(100, 3f, "output", BufferProfile.InOut);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
@@ -227,7 +220,7 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        using var input    = device.CreateBuffer<float>(100, 0, "input",  BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(100, 1f, "input",  BufferProfile.StaticIn);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
@@ -253,12 +246,12 @@ public partial class Test_GPU_Pass : KernelBase
     {
         using var device = Device;
 
-        using var weight    = device.CreateBuffer<float>(100, 0, "weight",   BufferProfile.StaticIn);
-        using var inputA    = device.CreateBuffer<float>(100, 0, "inputA",   BufferProfile.InOut);
-        using var outputA   = device.CreateBuffer<float>(100, 0, "outputA",  BufferProfile.InOut);
+        using var weight    = device.CreateBuffer(100, 1f, "weight",   BufferProfile.StaticIn);
+        using var inputA    = device.CreateBuffer(100, 2f, "inputA",   BufferProfile.InOut);
+        using var outputA   = device.CreateBuffer(100, 3f, "outputA",  BufferProfile.InOut);
         
-        using var inputB    = device.CreateBuffer<float>(100, 0, "inputB",   BufferProfile.InOut);
-        using var outputB   = device.CreateBuffer<float>(100, 0, "outputB",  BufferProfile.InOut);
+        using var inputB    = device.CreateBuffer(100, 4f, "inputB",   BufferProfile.InOut);
+        using var outputB   = device.CreateBuffer(100, 5f, "outputB",  BufferProfile.InOut);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
