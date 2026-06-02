@@ -9,6 +9,7 @@ using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable InconsistentNaming
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -19,9 +20,9 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe partial class CommandRecorder
 {
-    private             BufferEntry[]       bufferEntries       = [];
-    private readonly    List<BufferRange>   tempRanges          = [];
-    private readonly    List<BufferData>    activeBufferList    = [];
+    internal            BufferEntry[]       bufferEntries   = [];
+    internal readonly   List<BufferRange>   tempRanges      = [];
+    internal readonly   List<BufferData>    activeBuffers   = [];
 
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -57,26 +58,26 @@ public sealed unsafe partial class CommandRecorder
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
             FinishPass();
         }
-        WgpuIO.SubmitReadBuffers(this, device, currentEncoder.handle, bufferEntries, activeBufferList, tempRanges);
+        WgpuIO.SubmitReadBuffers(this, device, currentEncoder.handle);
     }
 }
 
 internal static class WgpuIO
 { 
     internal static unsafe void SubmitReadBuffers(
-        CommandRecorder     recorder,       // TODO  remove
+        CommandRecorder     recorder,
         WgpuDevice          device,
-        CommandEncoder*     encoder,
-        BufferEntry[]       entries,
-        List<BufferData>    activeBuffers,
-        List<BufferRange>   tempRanges)
+        CommandEncoder*     encoder)
     {
         var createEncoder  = encoder == null;
         if (createEncoder) {
             encoder = wgpuDeviceCreateCommandEncoder(device.DevicePtr, null);
         }
+        var commandList     = recorder?.commandList     ?? device.commandList;
+        var entries         = recorder?.bufferEntries   ?? device.bufferEntries;
+        var tempRanges      = recorder?.tempRanges      ?? device.tempRanges;
+        var activeBuffers   = recorder?.activeBuffers   ?? device.activeBuffers;
         
-        var commandList = recorder.commandList;
         // process commandList.ranges before submitting commandList
         foreach (var range in commandList.ranges) {
             entries[range.bufferId].requestedRanges.Add(range);
@@ -121,16 +122,19 @@ internal static class WgpuIO
             var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
             commandList.commands.Add(new WgpuCommandBuffer(copyBufferCommands));
         } else {
-            recorder.FinishEncoder("BatchedCommands"u8);
+            recorder!.FinishEncoder("BatchedCommands"u8);
         }
-        if (recorder.enableTraces) {
-            recorder.AddTrace(TraceType.Submit, 0, commandList.commands.Count);
+        if (recorder != null) {
+            if (recorder.enableTraces) {
+                recorder.AddTrace(TraceType.Submit, 0, commandList.commands.Count);
+            }
+            recorder.commandList = device.commandListPool.Fetch();
+        } else {
+            device.commandList   = device.commandListPool.Fetch();
         }
         device.SubmitCommandList(commandList);
         
-        recorder.commandList = device.commandListPool.Fetch();
         
-
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
         Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         

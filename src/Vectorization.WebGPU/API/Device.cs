@@ -44,6 +44,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
     internal readonly   CommandListPool     commandListPool = new ();
     
+    /// --- fields used by <see cref="WgpuIO.SubmitReadBuffers"/>
+    internal            CommandList         commandList;
+    internal            BufferEntry[]       bufferEntries   = [];
+    internal readonly   List<BufferRange>   tempRanges      = [];
+    internal readonly   List<BufferData>    activeBuffers   = [];
+    
     private sealed class WgpuDeviceDebugView(WgpuDevice device)
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
