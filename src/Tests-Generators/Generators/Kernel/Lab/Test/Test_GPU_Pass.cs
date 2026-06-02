@@ -1,4 +1,6 @@
-﻿using Friflo.Vectorization;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 
@@ -28,6 +30,7 @@ public partial class Test_GPU_Pass : KernelBase
         }
         context.Queue.ReadBuffers();
         
+        AssertResult(gpuOutput.InOut, 44f);
         Assert.AreEqual(2,              context.Traces.Length);
         Assert.AreEqual("MultiplyAddKernel", context.Traces[0].KernelName);
         Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
@@ -48,6 +51,7 @@ public partial class Test_GPU_Pass : KernelBase
         }
         context.Queue.ReadBuffers();
         
+        AssertResult(gpuOutput.InOut, 44f);
         Assert.AreEqual(0, context.Traces.Length);
         Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
@@ -69,6 +73,7 @@ public partial class Test_GPU_Pass : KernelBase
 
         context.Queue.ReadBuffers();
         
+        AssertResult(gpuOutput.InOut, 44f);
         Assert.AreEqual(0, context.Queue.Stats.Commands);
         Assert.AreEqual(0, context.Queue.Stats.Ranges);
         Assert.AreEqual("calls: 2  passes: 2  hazards: 0", context.Stats.ToString());
@@ -94,10 +99,12 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        Pattern.MultiplyAddKernel(weight.In,  input.In, 42,   output.InOut);
+        Pattern.MultiplyAddKernel(weight.In,  input.In,  42,  output.InOut);
         Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
         context.Queue.ReadBuffers();
+        
+        AssertResult(input.InOut, 86f);
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -118,6 +125,8 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.In,  output.In, 42,  input.InOut);
         
         context.Queue.ReadBuffers();
+        
+        AssertResult(input.InOut, 170f);
         Assert.AreEqual("calls: 2  passes: 2  hazards: 2", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -159,6 +168,7 @@ public partial class Test_GPU_Pass : KernelBase
         
         context.Queue.ReadBuffers();
         
+        AssertResult(output.InOut, 25f);
         Assert.AreEqual("calls: 3  passes: 3  hazards: 4", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -200,6 +210,8 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.AsReadOnly(0, 10),  output.AsReadOnly(30, 10), 42,  input.Slice(30, 10));
         
         context.Queue.ReadBuffers();
+        
+        AssertResult(input.Slice(30, 10), 45f);
         Assert.AreEqual("calls: 4  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -231,6 +243,7 @@ public partial class Test_GPU_Pass : KernelBase
         ReadOnlyKernel(input.In);
         
         context.Queue.ReadBuffers();
+        
         Assert.AreEqual("calls: 3  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -261,6 +274,8 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(weight.In, inputB.InOut, 42, outputB.InOut);
         
         context.Queue.ReadBuffers();
+        
+        AssertResult(outputB.InOut, 46f);
         Assert.AreEqual("calls: 2  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -269,5 +284,15 @@ public partial class Test_GPU_Pass : KernelBase
             MultiplyAddKernel()             calls:  2   new_pass
             > Submit                        commands: 1
             """).IgnoreWhiteSpace);
+    }
+    
+    [StackTraceHidden]
+    private static void AssertResult<T>(InBuffer<T> buffer, T expect) where T : unmanaged
+    {
+        foreach (var value in buffer.Span) {
+            if (!EqualityComparer<T>.Default.Equals(expect, value)) {
+                Assert.Fail($"expect: {expect}  was:  {value}");
+            }
+        }
     }
 }
