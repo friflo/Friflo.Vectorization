@@ -9,11 +9,11 @@ using System.Runtime.CompilerServices;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
-public abstract partial class GpuDevice : IDisposable
+public abstract partial class GpuDevice : CommandStream, IDisposable
 {
     public  readonly    string          Label;
     public  readonly    int             SlotSize;
-    public  readonly    GpuQueue        Queue;                      // todo    
+    public  readonly    GpuQueue        Queue;
     public              bool            DebugMode   { get; set; }
     public              PipelineContext Context     => threadContexts.Value;
     
@@ -22,6 +22,7 @@ public abstract partial class GpuDevice : IDisposable
     protected GpuDevice(string label, int slotSize) {
         Label       = label;
         SlotSize    = slotSize;
+        Queue       = new GpuQueue(this);
     }
     
     public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>    (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {

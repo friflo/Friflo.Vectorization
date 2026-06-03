@@ -67,6 +67,34 @@ public sealed unsafe partial class CommandRecorder
         
         WgpuIO.SubmitReadBuffers(this, device, currentEncoder.handle);
     }
+    
+    private static CommandListQueue GetCommandListQueue(CommandStream commandStream)
+    {
+         return commandStream switch {
+            WgpuDevice      targetDevice    => targetDevice.commandListQueue,
+            CommandRecorder recorder        => recorder.commandListQueue,
+            _                               => throw new InvalidOperationException()
+        };
+    }
+    
+    protected override void TransferTo(GpuQueue target)
+    {
+        ValidateThreadSafety();
+        
+        var queue = commandListQueue;
+        
+        queue.Enqueue(commandList); // add commands currently in flight
+        
+        if (queue.IsEmpty) {
+            return;
+        }
+        var targetQueue = GetCommandListQueue(target.CommandStream);
+
+        // queue is empty after iteration
+        while (queue.TryDequeue(out var list)) {
+            targetQueue.Enqueue(list);
+        }
+    }
 }
 
 internal static class WgpuIO
@@ -102,7 +130,7 @@ internal static class WgpuIO
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
-        foreach (var bufferEntry in bufferEntries)
+        foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
             var ranges = bufferEntry.requestedRanges;
             if (ranges == null || ranges.Count == 0) {
@@ -149,6 +177,7 @@ internal static class WgpuIO
         } else {
             // todo handle device
         }
+        
         device.SubmitCommands(submitCommands);
 
         

@@ -28,7 +28,7 @@ public enum PassBatching
 }
 
 [DebuggerTypeProxy(typeof(PipelineContextDebugView))]
-public class PipelineContext : IDisposable
+public class PipelineContext : CommandStream, IDisposable
 {
     private readonly    GpuDevice   device; 
     internal            int         ownerThreadId;
@@ -51,12 +51,9 @@ public class PipelineContext : IDisposable
     
     public virtual  void                            NewPass()           { }
     
-    protected internal virtual  void                ReadBuffers()       { }
-    
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
-    protected internal virtual  QueueStats          GetQueueStats()     => default;
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     

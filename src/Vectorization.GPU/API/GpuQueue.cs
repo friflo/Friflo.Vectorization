@@ -12,22 +12,30 @@ public struct QueueStats
     public int  Ranges;
 }
 
+public abstract class CommandStream
+{
+    protected internal virtual  void        ReadBuffers()                       { }
+    protected internal virtual  QueueStats  GetQueueStats()                     => default;
+    protected internal virtual  void        TransferTo(GpuQueue targetQueue)    { }
+}
+
+
 public readonly struct GpuQueue
 {
-    public          QueueStats  Stats => context.GetQueueStats();
+    public readonly CommandStream   CommandStream;
+    public          QueueStats      Stats => CommandStream.GetQueueStats();
     
     public override string      ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
 
-    private readonly PipelineContext context;
     
-    public void     ReadBuffers()                       => context.ReadBuffers();
+    public void     ReadBuffers()                       => CommandStream.ReadBuffers();
     public void     Submit()                            { }                     // TODO
-    public void     TransferTo(GpuQueue targetQueue)    { }                     // TODO
+    public void     TransferTo(GpuQueue targetQueue)    => CommandStream.TransferTo(targetQueue);
     
 //  public void     Synchronize()                       { }  ???
 
     
-    internal GpuQueue(PipelineContext context) {
-        this.context = context;
+    internal GpuQueue(CommandStream commandStream) {
+        CommandStream = commandStream;
     }
 }
