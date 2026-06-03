@@ -122,7 +122,9 @@ internal readonly struct SubmitIO
         
         // process commandList.ranges before submitting commandList
         submitCommands.Clear();
-        foreach (var commandList in commandListQueue)
+        
+        // iterate and clear commandListQueue
+        while(commandListQueue.TryDequeue(out var commandList))
         {
             foreach (var range in commandList.ranges) {
                 bufferEntries[range.bufferId].requestedRanges.Add(range);
@@ -130,7 +132,6 @@ internal readonly struct SubmitIO
             submitCommands.AddRange(commandList.commands);
             device.commandListPool.Return(commandList); // clears: ranges & commands
         }
-        commandListQueue.Clear();
         
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
@@ -200,7 +201,7 @@ internal readonly struct SubmitIO
             var callbackInfo = new BufferMapCallbackInfo {
                 mode        = CallbackMode.AllowProcessEvents,
                 callback    = &BufferMap_callback,
-                userdata1   = &remainingMaps
+                userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
             };
             wgpuBufferMapAsync(buffer.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
         }
