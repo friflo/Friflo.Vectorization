@@ -46,7 +46,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     /// --- fields used by <see cref="WgpuIO.SubmitReadBuffers"/>
     internal            CommandList         commandList;
-    internal            BufferEntry[]       bufferEntries   = [];
+    internal            BufferEntry[]       bufferEntries   = [];   // ranges & segments per GpuBuffer
     internal readonly   List<BufferRange>   tempRanges      = [];
     internal readonly   List<BufferData>    activeBuffers   = [];
     
@@ -216,10 +216,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     {
     }
     
-    internal void SubmitCommandList(CommandList commandList)
+    internal void SubmitCommands(List<WgpuCommandBuffer> commands)
     {
-        var commands    = commandList.commands;
-        int count       = commands.Count;
+        int count = commands.Count;
         if (count == 0) {
             return;
         }
@@ -234,7 +233,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         for (int n = 0; n < count; n++) {
             commandBuffers[n] = commands[n].handle;
         }
-        commandListPool.Return(commandList);
 
         // Submit command buffers to queue
         wgpuQueueSubmit(queue.handle, (uint)count, commandBuffers);

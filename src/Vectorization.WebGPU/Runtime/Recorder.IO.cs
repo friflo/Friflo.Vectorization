@@ -20,7 +20,9 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe partial class CommandRecorder
 {
-    internal            BufferEntry[]       bufferEntries   = [];
+    /// --- fields used by <see cref="WgpuIO.SubmitReadBuffers"/>
+    internal            CommandList         commandList;
+    internal            BufferEntry[]       bufferEntries   = []; // ranges & segments per GpuBuffer
     internal readonly   List<BufferRange>   tempRanges      = [];
     internal readonly   List<BufferData>    activeBuffers   = [];
 
@@ -93,8 +95,7 @@ internal static class WgpuIO
             }
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
             //            They are owned by the recorder and must only be accessed in the recorder thread.
-            var buffer              = bufferMap[(int)bufferEntry.bufferId].GetBufferData();
-            buffer.requestedRanges  = ranges;
+            var buffer = bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(buffer);
 
             var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
@@ -132,8 +133,10 @@ internal static class WgpuIO
         } else {
             device.commandList   = device.commandListPool.Fetch();
         }
-        device.SubmitCommandList(commandList);
+        device.SubmitCommands(commandList.commands);
         
+        device.commandListPool.Return(commandList);
+
         
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
         Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
@@ -161,11 +164,12 @@ internal static class WgpuIO
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
             
-            var wgpuBuffer = bufferMap[buffer.bufferId];
-            wgpuBuffer.ExecuteCpuCopy(pMapped, buffer.requestedRanges);     // copy staging memory to host memory
+            var wgpuBuffer  = bufferMap    [buffer.bufferId];
+            var ranges      = bufferEntries[buffer.bufferId].requestedRanges;
+            wgpuBuffer.ExecuteCpuCopy(pMapped, ranges);         // copy staging memory to host memory
             
-            wgpuBufferUnmap(buffer.stagingHandle);                          // unmap so CPU is able to access
-            buffer.requestedRanges.Clear();
+            wgpuBufferUnmap(buffer.stagingHandle);              // unmap so CPU is able to access
+            ranges.Clear();
         }
         activeBuffers.Clear();
     }

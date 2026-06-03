@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
@@ -66,7 +67,7 @@ internal readonly struct BufferEntry
     internal readonly   List<BufferRange>   requestedRanges;
     internal readonly   SegmentMap          bufferSegments;
 
-    public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ";
+    public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ranges: {requestedRanges.Count}";
 
     internal BufferEntry(uint bufferId) {
         this.bufferId   = bufferId;
@@ -82,9 +83,8 @@ internal unsafe struct BufferData
     internal readonly   int                 length;
     internal readonly   Buffer*             storageHandle;
     internal            Buffer*             stagingHandle;
-    internal            List<BufferRange>   requestedRanges;
 
-    public   override   string              ToString() => $"bufferId: {bufferId}  length: {length}  ranges: {requestedRanges?.Count.ToString() ?? "null"}";
+    public   override   string              ToString() => $"bufferId: {bufferId}  length: {length}";
 
     internal BufferData(int bufferId, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {
         this.bufferId       = bufferId;
