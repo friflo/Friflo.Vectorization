@@ -30,6 +30,10 @@ public partial class Test_GPU_Pass : KernelBase
         }
         context.Queue.ReadBuffers();
         
+        var queueStats = context.Queue.Stats;
+        Assert.AreEqual(0, queueStats.Commands);
+        Assert.AreEqual(0, queueStats.Ranges);
+        
         AssertResult(gpuOutput.InOut, 44f);
         Assert.AreEqual(2,              context.Traces.Length);
         Assert.AreEqual("MultiplyAddKernel", context.Traces[0].KernelName);

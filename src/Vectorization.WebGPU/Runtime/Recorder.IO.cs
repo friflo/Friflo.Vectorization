@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe partial class CommandRecorder
 {
-    internal readonly   CommandList         commandList;
+    internal            CommandList         commandList;
     
     /// --- thread local fields used by <see cref="SubmitIO.SubmitReadBuffers"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
@@ -61,6 +61,7 @@ public sealed unsafe partial class CommandRecorder
             FinishPass();
         }
         commandListQueue.Enqueue(commandList);
+        commandList = device.commandListPool.Fetch();
         
         submitIO.SubmitReadBuffers(this, device, currentEncoder.handle);
     }
@@ -83,8 +84,10 @@ public sealed unsafe partial class CommandRecorder
             FinishEncoder("FlushTo"u8);
         }
         var queue = commandListQueue;
-        if (commandList.commands.Count > 0) {        
-            queue.Enqueue(commandList); // add commands currently in flight
+        var localCommandList = commandList;
+        if (localCommandList.commands.Count > 0) {        
+            queue.Enqueue(localCommandList); // add commands currently in flight
+            commandList = device.commandListPool.Fetch();
         }
         if (queue.IsEmpty) {
             return;

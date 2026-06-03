@@ -51,6 +51,10 @@ public partial class Test_GPU_Queue : KernelBase
         
         context.FlushQueueTo(device.Queue);
         
+        var queueStats = context.Queue.Stats;
+        Assert.AreEqual(0, queueStats.Commands);
+        Assert.AreEqual(0, queueStats.Ranges);
+        
         device.Queue.ReadBuffers();
         
         Assert.AreEqual(sourceArr, targetArr);
