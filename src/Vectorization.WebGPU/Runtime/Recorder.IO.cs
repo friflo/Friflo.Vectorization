@@ -87,6 +87,7 @@ internal static class WgpuIO
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
+        // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
         foreach (var bufferEntry in bufferEntries)
         {
             var ranges = bufferEntry.requestedRanges;
@@ -117,8 +118,7 @@ internal static class WgpuIO
             }
         }
 
-        // ------------- append copyBufferCommands and submit ------------- 
-        
+        // --------------------- append copyBufferCommands and submit ---------------------
         if (createEncoder) {
             var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
             commandList.commands.Add(new WgpuCommandBuffer(copyBufferCommands));
@@ -138,6 +138,7 @@ internal static class WgpuIO
         device.commandListPool.Return(commandList);
 
         
+        // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
         Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         
@@ -158,7 +159,8 @@ internal static class WgpuIO
             // wgpuDeviceTick(NativePtr);
             wgpuInstanceProcessEvents(device.instance);
         }
-        // direct CPU -> CPU transfer staging memory -> host memory
+        
+        // --------------------- direct CPU -> CPU transfer staging memory -> host memory --------------------- 
         foreach (ref var buffer in activeBuffersSpan)
         {
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
