@@ -416,6 +416,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     // --- CommandStream
     protected override void ReadBuffers()
     {
+        if (commandListQueue.IsEmpty) {
+            return;
+        }
         var entries = bufferEntries;
         var count   = bufferMap.Count;
 

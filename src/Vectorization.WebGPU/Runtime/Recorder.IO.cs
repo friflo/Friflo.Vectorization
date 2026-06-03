@@ -81,10 +81,14 @@ public sealed unsafe partial class CommandRecorder
     {
         ValidateThreadSafety();
         
+        if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
+            FinishPass();
+            FinishEncoder("FlushTo"u8);
+        }
         var queue = commandListQueue;
-        
-        queue.Enqueue(commandList); // add commands currently in flight
-        
+        if (commandList.commands.Count > 0) {        
+            queue.Enqueue(commandList); // add commands currently in flight
+        }
         if (queue.IsEmpty) {
             return;
         }
