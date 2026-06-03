@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
@@ -410,8 +411,20 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     }
     
     // --- CommandStream
+    [StackTraceHidden]
+    internal void ValidateThreadSafety()
+    {
+        if (threadId == Environment.CurrentManagedThreadId) {
+            return;
+        }
+        throw new InvalidOperationException(
+            $"[Thread Context Violation] method executes on thread: {Environment.CurrentManagedThreadId} but GpuDevice belongs to thread {threadId}!");
+    }
+    
     protected override void ReadBuffers()
     {
+        ValidateThreadSafety();
+        
         if (commandListQueue.IsEmpty) {
             return;
         }
