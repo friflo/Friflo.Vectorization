@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading;
-using Friflo.Vectorization;
+﻿using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable InconsistentNaming
@@ -18,7 +15,7 @@ public partial class Test_GPU_Queue : KernelBase
         output = input;
     }
     
-    // [Test]
+    [Test]
     public void Test_GPU_Queue_TransferTo()
     {
         var sourceArr = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };

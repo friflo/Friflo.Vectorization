@@ -175,7 +175,8 @@ internal static class WgpuIO
                 recorder.AddTrace(TraceType.Submit, 0, submitCommands.Count);
             }
         } else {
-            // todo handle device
+            var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
+            submitCommands.Add(new WgpuCommandBuffer(copyBufferCommands));
         }
         
         device.SubmitCommands(submitCommands);
