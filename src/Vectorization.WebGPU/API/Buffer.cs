@@ -19,8 +19,8 @@ namespace Friflo.Vectorization.WebGPU;
 
 
 internal unsafe interface IWgpuBuffer {
-    internal    BufferData  GetBufferData();
-    internal    void        ExecuteCpuCopy(void* pMapped, List<BufferRange> bufferRanges);
+    internal    ref BufferData  GetBufferData();
+    internal    void            ExecuteCpuCopy(void* pMapped, List<BufferRange> bufferRanges);
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -62,7 +62,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     }
     
     // --- IWgpuBuffer
-    BufferData IWgpuBuffer.GetBufferData() => data;
+    ref BufferData IWgpuBuffer.GetBufferData() => ref data;
     
     void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> requestedRanges)
     {
