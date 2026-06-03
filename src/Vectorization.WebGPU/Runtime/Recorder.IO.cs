@@ -197,7 +197,7 @@ internal readonly struct SubmitIO
         {
             uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
             
-            // simply map the whole memory instead of the smaller ranges
+            // simply map the whole memory instead of the smaller ranges    // TODO use optimized Ranges to map only required ranges 
             var callbackInfo = new BufferMapCallbackInfo {
                 mode        = CallbackMode.AllowProcessEvents,
                 callback    = &BufferMap_callback,
