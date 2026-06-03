@@ -14,9 +14,9 @@ public struct QueueStats
 
 public abstract class CommandStream
 {
-    protected internal virtual  void        ReadBuffers()                       { }
-    protected internal virtual  QueueStats  GetQueueStats()                     => default;
-    protected internal virtual  void        TransferTo(GpuQueue targetQueue)    { }
+    protected internal virtual  void        ReadBuffers()                   { }
+    protected internal virtual  QueueStats  GetQueueStats()                 => default;
+    protected internal virtual  void        FlushTo(GpuQueue targetQueue)   { }
 }
 
 
@@ -28,9 +28,9 @@ public readonly struct GpuQueue
     public override string      ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
 
     
-    public void     ReadBuffers()                       => CommandStream.ReadBuffers();
-    public void     Submit()                            { }                     // TODO
-    public void     TransferTo(GpuQueue targetQueue)    => CommandStream.TransferTo(targetQueue);
+    public void     ReadBuffers()                   => CommandStream.ReadBuffers();
+    public void     Submit()                        { }                     // TODO
+    public void     FlushTo(GpuQueue targetQueue)   => CommandStream.FlushTo(targetQueue);
     
 //  public void     Synchronize()                       { }  ???
 

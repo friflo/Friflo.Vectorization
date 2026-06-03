@@ -16,7 +16,7 @@ public partial class Test_GPU_Queue : KernelBase
     }
     
     [Test]
-    public void Test_GPU_Queue_TransferTo()
+    public void Test_GPU_Queue_FlushTo()
     {
         var sourceArr = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         var targetArr = new float[10];
@@ -28,7 +28,7 @@ public partial class Test_GPU_Queue : KernelBase
         
         AssignKernel(target.InOut, source.In);
         
-        context.Queue.TransferTo(device.Queue);
+        context.Queue.FlushTo(device.Queue);
         
         device.Queue.ReadBuffers();
         
