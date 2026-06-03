@@ -44,12 +44,10 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
     internal readonly   CommandListPool     commandListPool = new ();
     
-    /// --- thread local fields used by <see cref="WgpuIO.SubmitReadBuffers"/>
+    /// --- thread local fields used by <see cref="SubmitIO.SubmitReadBuffers"/>
     internal readonly   CommandListQueue        commandListQueue    = [];
     internal            BufferEntry[]           bufferEntries       = [];   // ranges & segments per GpuBuffer
-    internal readonly   List<BufferRange>       tempRanges          = [];
-    internal readonly   List<BufferData>        activeBuffers       = [];
-    internal readonly   List<WgpuCommandBuffer> submitCommands      = [];
+    private  readonly   SubmitIO                submitIO            = new ();
     
     private sealed class WgpuDeviceDebugView(WgpuDevice device)
     {
@@ -433,7 +431,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             entries[n].Clear();
         }
         
-        WgpuIO.SubmitReadBuffers(null, this, null);
+        submitIO.SubmitReadBuffers(null, this, null);
     }
     
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

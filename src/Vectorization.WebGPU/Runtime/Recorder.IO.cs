@@ -20,15 +20,12 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe partial class CommandRecorder
 {
-    internal readonly   CommandList             commandList;
+    internal readonly   CommandList         commandList;
     
-    /// --- thread local fields used by <see cref="WgpuIO.SubmitReadBuffers"/>
-    internal readonly   CommandListQueue        commandListQueue    = [];
-    internal            BufferEntry[]           bufferEntries       = []; // ranges & segments per GpuBuffer
-    internal readonly   List<BufferRange>       tempRanges          = [];
-    internal readonly   List<BufferData>        activeBuffers       = [];
-    internal readonly   List<WgpuCommandBuffer> submitCommands      = [];
-
+    /// --- thread local fields used by <see cref="SubmitIO.SubmitReadBuffers"/>
+    internal readonly   CommandListQueue    commandListQueue    = [];
+    internal            BufferEntry[]       bufferEntries       = []; // ranges & segments per GpuBuffer
+    private  readonly   SubmitIO            submitIO            = new ();
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
@@ -65,7 +62,7 @@ public sealed unsafe partial class CommandRecorder
         }
         commandListQueue.Enqueue(commandList);
         
-        WgpuIO.SubmitReadBuffers(this, device, currentEncoder.handle);
+        submitIO.SubmitReadBuffers(this, device, currentEncoder.handle);
     }
     
     private static CommandListQueue GetCommandListQueue(CommandStream commandStream)
@@ -101,9 +98,15 @@ public sealed unsafe partial class CommandRecorder
     }
 }
 
-internal static class WgpuIO
-{ 
-    internal static unsafe void SubmitReadBuffers(
+internal readonly struct SubmitIO
+{
+    private readonly    List<BufferRange>       tempRanges          = [];
+    private readonly    List<BufferData>        tempActiveBuffers   = [];
+    private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
+    
+    public SubmitIO() {}
+    
+    internal unsafe void SubmitReadBuffers(
         CommandRecorder     recorder,
         WgpuDevice          device,
         CommandEncoder*     encoder)
@@ -114,9 +117,8 @@ internal static class WgpuIO
         }
         var commandListQueue    = recorder?.commandListQueue    ?? device.commandListQueue;
         var bufferEntries       = recorder?.bufferEntries       ?? device.bufferEntries;
-        var tempRanges          = recorder?.tempRanges          ?? device.tempRanges;
-        var activeBuffers       = recorder?.activeBuffers       ?? device.activeBuffers;
-        var submitCommands      = recorder?.submitCommands      ?? device.submitCommands;
+        var activeBuffers       = tempActiveBuffers;
+        var submitCommands      = tempSubmitCommands;
         
         // process commandList.ranges before submitting commandList
         submitCommands.Clear();
