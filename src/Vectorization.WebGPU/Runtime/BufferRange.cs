@@ -76,13 +76,13 @@ internal readonly struct BufferEntry
     }
 }
 
-internal unsafe struct BufferData
+internal readonly unsafe struct BufferData
 {
     internal readonly   int                 bufferId;
     internal readonly   int                 elementSize;
     internal readonly   int                 length;
     internal readonly   Buffer*             storageHandle;
-    internal            Buffer*             stagingHandle;
+    internal readonly   Buffer*             stagingHandle;
 
     public   override   string              ToString() => $"bufferId: {bufferId}  length: {length}";
 

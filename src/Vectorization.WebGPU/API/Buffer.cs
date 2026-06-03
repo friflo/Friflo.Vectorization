@@ -50,7 +50,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         wgpuBufferRelease(data.stagingHandle);
         handle = null;
         device = null;
-        data.stagingHandle = null;
     }
 
     internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int bufferId, Buffer* statingHandle, Memory<T> hostMemory, string bufferLabel)
