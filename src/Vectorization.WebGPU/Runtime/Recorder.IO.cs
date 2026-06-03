@@ -74,7 +74,7 @@ public sealed unsafe partial class CommandRecorder
         };
     }
     
-    protected override void FlushTo(GpuQueue target)
+    public override void FlushQueueTo(GpuQueue target)
     {
         ValidateThreadSafety();
         

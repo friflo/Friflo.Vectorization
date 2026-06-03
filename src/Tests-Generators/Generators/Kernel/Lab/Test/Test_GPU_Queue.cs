@@ -28,7 +28,7 @@ public partial class Test_GPU_Queue : KernelBase
         
         AssignKernel(target.InOut, source.In);
         
-        context.Queue.FlushTo(device.Queue);
+        context.FlushQueueTo(device.Queue);
         
         device.Queue.ReadBuffers();
         
@@ -49,7 +49,7 @@ public partial class Test_GPU_Queue : KernelBase
         
         AssignKernel(target.InOut, source.In);
         
-        context.Queue.FlushTo(device.Queue);
+        context.FlushQueueTo(device.Queue);
         
         device.Queue.ReadBuffers();
         
@@ -62,7 +62,7 @@ public partial class Test_GPU_Queue : KernelBase
         using var device = Device;
         using var context = device.BeginContext();
         
-        context.Queue.FlushTo(device.Queue);
+        context.FlushQueueTo(device.Queue);
         
         device.Queue.ReadBuffers();
     }

@@ -51,6 +51,8 @@ public class PipelineContext : CommandStream, IDisposable
     
     public virtual  void                            NewPass()           { }
     
+    public virtual  void                            FlushQueueTo(GpuQueue targetQueue)   { }
+    
     protected virtual  PipelineStats                GetStats()          => default;
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
