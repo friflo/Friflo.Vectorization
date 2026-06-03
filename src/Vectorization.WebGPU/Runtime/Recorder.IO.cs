@@ -110,7 +110,7 @@ internal static class WgpuIO
             }
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
             //            They are owned by the recorder and must only be accessed in the recorder thread.
-            ref var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
+            ref readonly var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(buffer);
 
             var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
