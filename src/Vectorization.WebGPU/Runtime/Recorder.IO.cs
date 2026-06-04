@@ -53,19 +53,18 @@ public sealed unsafe partial class CommandRecorder
         return bufferEntries = newEntries;
     }
     
-    private static CommandListQueue GetCommandListQueue(CommandStream commandStream)
-    {
-         return commandStream switch {
-            WgpuDevice      targetDevice    => targetDevice.commandListQueue,
-            CommandRecorder recorder        => recorder.commandListQueue,
-            _                               => throw new InvalidOperationException()
-        };
+    public override  void FlushQueueTo(PipelineContext targetContext) {
+        ValidateThreadSafety();
+        FlushQueueTo(((CommandRecorder)targetContext).commandListQueue);
     }
     
-    public override void FlushQueueTo(GpuQueue target)
-    {
+    public override  void FlushQueueTo(GpuDevice targetDevice) {
         ValidateThreadSafety();
-        
+        FlushQueueTo(((WgpuDevice)targetDevice).commandListQueue);
+    }
+    
+    private void FlushQueueTo(CommandListQueue targetQueue)
+    {
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
             FinishPass();
             FinishEncoder("FlushTo"u8); // creates CommandBuffer and adds it to commandList.commands
@@ -79,7 +78,6 @@ public sealed unsafe partial class CommandRecorder
         if (queue.IsEmpty) {
             return;
         }
-        var targetQueue = GetCommandListQueue(target.CommandStream);
 
         // queue is empty after iteration
         while (queue.TryDequeue(out var list)) {
