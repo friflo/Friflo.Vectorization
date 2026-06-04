@@ -16,6 +16,29 @@ public partial class Test_GPU_Queue : KernelBase
     }
     
     [Test]
+    public void Test_GPU_Queue_ReadBuffers()
+    {
+        var sourceArr = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        var targetArr = new float[10];
+        using var device = Device;
+        using var source   = device.CreateBuffer(sourceArr, "source", BufferProfile.StaticIn);
+        using var target   = device.CreateBuffer(targetArr, "target", BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        context.PassBatching = PassBatching.None;
+        
+        AssignKernel(target.InOut, source.In);
+        
+        context.PassBatching = PassBatching.HazardDriven;
+        
+        AssignKernel(target.InOut, source.In);
+        
+        context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(sourceArr, targetArr);
+    }
+    
+    [Test]
     public void Test_GPU_Queue_FlushTo()
     {
         var sourceArr = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
