@@ -14,12 +14,16 @@ using var b = device.CreateBuffer(1024, 2f, "b", BufferProfile.StaticIn);
 using var c = device.CreateBuffer(1024, 0f, "c", BufferProfile.InOut);
 
 using var context = device.BeginContext();
+context.PassBatching = PassBatching.HazardDriven;
 
-for (int n = 1; n < 1_000_000; n++) {
-    if (n % 5000 == 0) { Console.WriteLine($"iteration: {n}"); }
+for (int n = 1; n <= 1_000_000; n++) {
+    if (n % 10_000 == 0) { Console.WriteLine($"iteration: {n}"); }
     
     HelloWorld.AddKernel(a.In, b.In, c.InOut);
-    context.Queue.ReadBuffers();
+    if (n  % 100 == 0) {
+        context.Queue.ReadBuffers();
+    }
+    // if (n == 1_000_000) { n = 0; }
 }
 
 Console.WriteLine($"✓ SUCCESS: c[0] = {c.InOut.Span[0]} (Expected: 3.0)");
