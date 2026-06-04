@@ -27,11 +27,12 @@ internal struct CommandList
 /// Check alternative for multi threading <see cref="CommandListPoolTLS"/>
 internal class CommandListPool
 {
-    private readonly ConcurrentStack<CommandList> pooled = []; 
+    // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
+    private readonly ConcurrentQueue<CommandList> pooled = [];
 
     internal CommandList Fetch()
     {
-        if (pooled.TryPop(out var list)) {
+        if (pooled.TryDequeue(out var list)) {
             return list;
         }
         return new CommandList();
@@ -42,7 +43,8 @@ internal class CommandListPool
         list.commands.Clear();
         list.ranges.Clear();
         
-        pooled.Push(list);
+        pooled.Enqueue(list);
+        // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 
     }
 }
 
