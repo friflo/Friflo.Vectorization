@@ -27,6 +27,24 @@ internal readonly struct BufferIdRange : IComparable<BufferIdRange>
         this.start      = start;
         this.length     = length;
     }
+}
+
+internal readonly struct BufferRange : IComparable<BufferRange>
+{
+    internal readonly   int     start;
+    internal readonly   int     length;
+
+    public   override   string  ToString() => $"[{start}..{start + length}]";
+
+    public int CompareTo(BufferRange other) => start.CompareTo(other.start);
+
+    internal BufferRange(int start, int length)
+    {
+        this.start      = start;
+        this.length     = length;
+    }
+    
+    public int CompareTo(BufferIdRange other) => start.CompareTo(other.start);
     
     internal static List<BufferIdRange> GetOptimizedRanges(List<BufferIdRange> requestedRanges, List<BufferIdRange> optimizedRanges)
     {

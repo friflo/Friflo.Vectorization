@@ -159,7 +159,7 @@ internal readonly struct SubmitIO
             ref readonly var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(buffer);
 
-            var  optimizedRanges = BufferIdRange.GetOptimizedRanges(idRanges, tempIdRanges);
+            var  optimizedRanges = BufferRange.GetOptimizedRanges(idRanges, tempIdRanges);
             uint elementSize     = (uint)buffer.elementSize;
             foreach (var range in optimizedRanges)
             {
