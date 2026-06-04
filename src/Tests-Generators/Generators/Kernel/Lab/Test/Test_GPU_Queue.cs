@@ -3,6 +3,7 @@ using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 using Tests.Utils;
 
+// ReSharper disable ConvertToUsingDeclaration
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
@@ -104,33 +105,39 @@ public partial class Test_GPU_Queue : KernelBase
         using var source   = device.CreateBuffer(sourceArr, "source", BufferProfile.StaticIn);
         using var target   = device.CreateBuffer(targetArr, "target", BufferProfile.InOut);
         
-        using var context = device.BeginContext();
-        
         // --- force one time allocations
-        context.PassBatching = PassBatching.None;
-        AssignKernel(target.InOut, source.In);
-        context.PassBatching = PassBatching.HazardDriven;
-        AssignKernel(target.InOut, source.In);
-        
-        context.Queue.ReadBuffers();
-        Assert.AreEqual(sourceArr, targetArr);
-        
-        // --- no allocation expected
+        using (var context = device.BeginContext())
         {
-            var start = Mem.GetAllocatedBytes();
             context.PassBatching = PassBatching.None;
             AssignKernel(target.InOut, source.In);
-            Mem.AssertNoAlloc(start);
-        } {
-            var start = Mem.GetAllocatedBytes();
             context.PassBatching = PassBatching.HazardDriven;
             AssignKernel(target.InOut, source.In);
-            Mem.AssertNoAlloc(start);
-        } {
-            var start = Mem.GetAllocatedBytes();
+            
             context.Queue.ReadBuffers();
-            Mem.AssertNoAlloc(start); 
-            // Mem.AssertAlloc(start, 40);  // when using ConcurrentStack<CommandList>.Push() - allocates Node: 40 bytes 
+            Assert.AreEqual(sourceArr, targetArr);
+        }
+        
+        // --- no allocation expected
+        var startAll = Mem.GetAllocatedBytes();
+        using (var context = device.BeginContext())
+        {
+            {
+                var start = Mem.GetAllocatedBytes();
+                context.PassBatching = PassBatching.None;
+                AssignKernel(target.InOut, source.In);
+                Mem.AssertNoAlloc(start);
+            } {
+                var start = Mem.GetAllocatedBytes();
+                context.PassBatching = PassBatching.HazardDriven;
+                AssignKernel(target.InOut, source.In);
+                Mem.AssertNoAlloc(start);
+            } {
+                var start = Mem.GetAllocatedBytes();
+                context.Queue.ReadBuffers();
+                Mem.AssertNoAlloc(start); 
+                // Mem.AssertAlloc(start, 40);  // when using ConcurrentStack<CommandList>.Push() - allocates Node: 40 bytes 
+            }
+            Mem.AssertNoAlloc(startAll);
         }
         Assert.AreEqual(sourceArr, targetArr);
     }

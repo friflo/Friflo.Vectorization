@@ -94,11 +94,12 @@ public abstract partial class GpuDevice
 /// ConcurrentStack is lock-free. Spin-Wait's on failed operations, but does not lock
 internal class ContextPool : IDisposable
 {
-    private readonly ConcurrentStack<PipelineContext> pooled = []; 
+    // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
+    private readonly ConcurrentQueue<PipelineContext> pooled = []; 
 
     internal PipelineContext Fetch(GpuDevice device)
     {
-        if (pooled.TryPop(out var context)) {
+        if (pooled.TryDequeue(out var context)) {
             return context;
         }
         return device.NewPipelineContext();
@@ -106,7 +107,8 @@ internal class ContextPool : IDisposable
 
     internal void Return(PipelineContext context)
     {
-        pooled.Push(context);
+        pooled.Enqueue(context);
+        // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 
     }
 
     public void Dispose()
