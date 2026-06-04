@@ -102,7 +102,7 @@ public sealed unsafe partial class CommandRecorder
 
 internal readonly struct SubmitIO
 {
-    private readonly    List<BufferIdRange>     tempIdRanges        = [];
+    private readonly    List<BufferRange>       tempRanges          = [];
     private readonly    List<BufferData>        tempActiveBuffers   = [];
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
     private readonly    List<CommandList>       tempCommandLists    = [];
@@ -133,12 +133,12 @@ internal readonly struct SubmitIO
         {
             foreach (var range in commandList.idRanges) {
                 ref var entry = ref bufferEntries[range.bufferId];
-                var idRanges = entry.requestedIdRanges;
-                if (idRanges == null) {
+                var ranges = entry.requestedRanges;
+                if (ranges == null) {
                     entry   = new BufferEntry(range.bufferId);
-                    idRanges  = entry.requestedIdRanges;
+                    ranges  = entry.requestedRanges;
                 }
-                idRanges.Add(range);
+                ranges.Add(new BufferRange(range.start, range.length));
             }
             submitCommands.AddRange(commandList.commands);
             commandLists.Add(commandList);
@@ -150,8 +150,8 @@ internal readonly struct SubmitIO
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
         foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
-            var idRanges = bufferEntry.requestedIdRanges;
-            if (idRanges == null || idRanges.Count == 0) {
+            var ranges = bufferEntry.requestedRanges;
+            if (ranges == null || ranges.Count == 0) {
                 continue;
             }
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
@@ -159,7 +159,7 @@ internal readonly struct SubmitIO
             ref readonly var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(buffer);
 
-            var  optimizedRanges = BufferRange.GetOptimizedRanges(idRanges, tempIdRanges);
+            var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
             uint elementSize     = (uint)buffer.elementSize;
             foreach (var range in optimizedRanges)
             {
@@ -230,7 +230,7 @@ internal readonly struct SubmitIO
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
             
             var wgpuBuffer  = bufferMap    [buffer.bufferId];
-            var idRanges    = bufferEntries[buffer.bufferId].requestedIdRanges;
+            var idRanges    = bufferEntries[buffer.bufferId].requestedRanges;
             wgpuBuffer.ExecuteCpuCopy(pMapped, idRanges);         // copy staging memory to host memory
             
             wgpuBufferUnmap(buffer.stagingHandle);              // unmap so CPU is able to access

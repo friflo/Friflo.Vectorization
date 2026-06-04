@@ -40,13 +40,13 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 
     internal BufferRange(int start, int length)
     {
-        this.start      = start;
-        this.length     = length;
+        this.start  = start;
+        this.length = length;
     }
     
     public int CompareTo(BufferIdRange other) => start.CompareTo(other.start);
     
-    internal static List<BufferIdRange> GetOptimizedRanges(List<BufferIdRange> requestedRanges, List<BufferIdRange> optimizedRanges)
+    internal static List<BufferRange> GetOptimizedRanges(List<BufferRange> requestedRanges, List<BufferRange> optimizedRanges)
     {
         optimizedRanges.Clear();
         
@@ -68,7 +68,7 @@ internal readonly struct BufferRange : IComparable<BufferRange>
                 int nextEnd     = next.start + next.length;
                 int newEnd      = Math.Max(currentEnd, nextEnd);
                 
-                current = new BufferIdRange(current.bufferId, current.start, newEnd - current.start);
+                current = new BufferRange(current.start, newEnd - current.start);
             } else {
                 optimizedRanges.Add(current);
                 current = next;
@@ -82,23 +82,23 @@ internal readonly struct BufferRange : IComparable<BufferRange>
 internal readonly struct BufferEntry
 {
     internal readonly   uint                bufferId;
-    internal readonly   List<BufferIdRange> requestedIdRanges;
+    internal readonly   List<BufferRange>   requestedRanges;
     internal readonly   SegmentMap          bufferSegments;
 
-    public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ranges: {requestedIdRanges.Count}";
+    public override string ToString() => bufferSegments == null ? null : $"bufferId: {bufferId}  segments: {bufferSegments.Count}  ranges: {requestedRanges.Count}";
 
     internal BufferEntry(uint bufferId) {
         this.bufferId       = bufferId;
-        requestedIdRanges   = new List<BufferIdRange>();
+        requestedRanges     = new List<BufferRange>();
         bufferSegments      = new SegmentMap();
     }
     
     internal void Clear()
     {
-        if (requestedIdRanges == null) {
+        if (requestedRanges == null) {
             return;
         }
-        requestedIdRanges.Clear();
+        requestedRanges.Clear();
         bufferSegments.Clear();
     }
 }

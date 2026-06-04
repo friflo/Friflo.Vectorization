@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 internal unsafe interface IWgpuBuffer {
     internal    ref readonly BufferData GetBufferData();
-    internal    void                    ExecuteCpuCopy(void* pMapped, List<BufferIdRange> bufferIdRanges);
+    internal    void                    ExecuteCpuCopy(void* pMapped, List<BufferRange> bufferRanges);
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -64,14 +64,14 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     // --- IWgpuBuffer
     ref readonly BufferData IWgpuBuffer.GetBufferData() => ref data;
     
-    void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferIdRange> bufferIdRanges)
+    void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> bufferRanges)
     {
         ReadOnlySpan<T>     gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
         Span<T>             hostTargetSpan  = hostMemory.Span;
-        Span<BufferIdRange> idRanges          = CollectionsMarshal.AsSpan(bufferIdRanges);
+        Span<BufferRange>   ranges          = CollectionsMarshal.AsSpan(bufferRanges);
 
         // iterate unoptimized requested ranges
-        foreach (var idRange in idRanges)
+        foreach (var idRange in ranges)
         {
             int start   = idRange.start;
             int length  = idRange.length;
