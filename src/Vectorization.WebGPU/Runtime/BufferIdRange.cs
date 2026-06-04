@@ -121,3 +121,14 @@ internal readonly unsafe struct BufferData
         this.stagingHandle  = stagingHandle;
     }
 }
+
+internal readonly struct ActiveBuffer
+{
+    internal readonly   BufferData  data;
+
+    public   override   string      ToString() => data.ToString();
+
+    internal ActiveBuffer(in BufferData data) {
+        this.data       = data;
+    }
+}

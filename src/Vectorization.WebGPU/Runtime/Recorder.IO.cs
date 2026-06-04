@@ -103,7 +103,7 @@ public sealed unsafe partial class CommandRecorder
 internal readonly struct SubmitIO
 {
     private readonly    List<BufferRange>       tempRanges          = [];
-    private readonly    List<BufferData>        tempActiveBuffers   = [];
+    private readonly    List<ActiveBuffer>      tempActiveBuffers   = [];
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
     private readonly    List<CommandList>       tempCommandLists    = [];
     
@@ -156,11 +156,11 @@ internal readonly struct SubmitIO
             }
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
             //            They are owned by the recorder and must only be accessed in the recorder thread.
-            ref readonly var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
-            activeBuffers.Add(buffer);
+            ref readonly var bufferData = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
+            activeBuffers.Add(new ActiveBuffer(bufferData));
 
             var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
-            uint elementSize     = (uint)buffer.elementSize;
+            uint elementSize     = (uint)bufferData.elementSize;
             foreach (var range in optimizedRanges)
             {
                 uint byteOffset = (uint)range.start  * elementSize;
@@ -168,8 +168,8 @@ internal readonly struct SubmitIO
 
                 // GPU internal copy from fast compute memory in persistent stating buffer
                 wgpuCommandEncoderCopyBufferToBuffer(
-                    encoder,    buffer.storageHandle,   // source: GPU Storage [Storage]
-                    byteOffset, buffer.stagingHandle,   // target: persistant Readback [MapRead]
+                    encoder,    bufferData.storageHandle,   // source: GPU Storage [Storage]
+                    byteOffset, bufferData.stagingHandle,   // target: persistant Readback [MapRead]
                     byteOffset, byteSize
                 );
             }
@@ -203,11 +203,12 @@ internal readonly struct SubmitIO
         
         // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
-        Span<BufferData> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
+        Span<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         
-        foreach (ref var buffer in activeBuffersSpan)
+        foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
-            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
+            ref readonly var bufferData = ref activeBuffer.data;
+            uint totalBufferSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
             
             // simply map the whole memory instead of the smaller ranges    // TODO use optimized Ranges to map only required ranges 
             var callbackInfo = new BufferMapCallbackInfo {
@@ -215,7 +216,7 @@ internal readonly struct SubmitIO
                 callback    = &BufferMap_callback,
                 userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
             };
-            wgpuBufferMapAsync(buffer.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
+            wgpuBufferMapAsync(bufferData.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
         }
         // the only single CPU-Stall: wait until all buffers are mapped
         while (Thread.VolatileRead(ref remainingMaps) > 0) {
@@ -224,16 +225,17 @@ internal readonly struct SubmitIO
         }
         
         // --------------------- direct CPU -> CPU transfer staging memory -> host memory --------------------- 
-        foreach (ref var buffer in activeBuffersSpan)
+        foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
-            uint totalBufferSizeInBytes = (uint)(buffer.length * buffer.elementSize);
-            void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
+            ref readonly var bufferData = ref activeBuffer.data;
+            uint totalBufferSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
+            void* pMapped = wgpuBufferGetMappedRange(bufferData.stagingHandle, 0, totalBufferSizeInBytes);
             
-            var wgpuBuffer  = bufferMap    [buffer.bufferId];
-            var idRanges    = bufferEntries[buffer.bufferId].requestedRanges;
+            var wgpuBuffer  = bufferMap    [bufferData.bufferId];
+            var idRanges    = bufferEntries[bufferData.bufferId].requestedRanges;
             wgpuBuffer.ExecuteCpuCopy(pMapped, idRanges);         // copy staging memory to host memory
             
-            wgpuBufferUnmap(buffer.stagingHandle);              // unmap so CPU is able to access
+            wgpuBufferUnmap(bufferData.stagingHandle);              // unmap so CPU is able to access
             idRanges.Clear();
         }
         activeBuffers.Clear();
