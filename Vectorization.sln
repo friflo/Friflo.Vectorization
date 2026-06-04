@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.GPU", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.WebGPU", "src\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj", "{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Console", "src\Tests-Console\Tests-Console.csproj", "{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
