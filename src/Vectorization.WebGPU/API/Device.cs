@@ -284,7 +284,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         while (!completed) {
             // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
             // Poll(wait: true);
-            wgpuInstanceProcessEvents(instance);
+            wgpuInstanceProcessEvents(instance);  // not relevant
         }
     }
         

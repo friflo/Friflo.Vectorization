@@ -143,11 +143,11 @@ public class TestCompute : KernelBase
         var output2 = new float[65];
         var output3 = new float[65];
         for (int n = 0; n < 64; ++n) { weight[n] = n; input[n]  = n + 1000; }
-        using var gpuWeight   = device.CreateBuffer(weight,  "weight",  BufferProfile.StaticIn);
+        using var gpuWeight   = device.CreateBuffer(weight,        "weight",  BufferProfile.StaticIn);
         using var gpuInput    = device.CreateReadOnlyBuffer(input, "input");
-        using var gpuOutput   = device.CreateBuffer(output,  "output",  BufferProfile.InOut);
-        using var gpuOutput2  = device.CreateBuffer(output2, "output2", BufferProfile.InOut);
-        using var gpuOutput3  = device.CreateBuffer(output3, "output3", BufferProfile.InOut);
+        using var gpuOutput   = device.CreateBuffer(output,        "output",  BufferProfile.InOut);
+        using var gpuOutput2  = device.CreateBuffer(output2,       "output2", BufferProfile.InOut);
+        using var gpuOutput3  = device.CreateBuffer(output3,       "output3", BufferProfile.InOut);
         
         Assert.AreEqual(0, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(0, HandleDiff.BindGroups.Diff);
@@ -176,7 +176,7 @@ public class TestCompute : KernelBase
         
         context.Queue.ReadBuffers();
         
-        Assert.AreEqual(44, output[0]);
+        Assert.AreEqual(45, output[0]);
     }
     
 }

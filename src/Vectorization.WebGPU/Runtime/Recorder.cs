@@ -183,6 +183,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishEncoder(ReadOnlySpan<byte> commandBufferLabel)
     {
+        uniformOffset       =  0;
+        
         // TODO  Ultimate performance upgrade
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.

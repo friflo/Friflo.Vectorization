@@ -151,7 +151,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
     
     internal static void PumpEvents(Instance* instance)
     {
-        wgpuInstanceProcessEvents(instance);
+        wgpuInstanceProcessEvents(instance);   // not relevant
 
         // This check is required when running on Linux using only Software GPU
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {

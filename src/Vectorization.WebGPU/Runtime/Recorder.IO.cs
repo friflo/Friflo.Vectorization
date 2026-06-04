@@ -182,6 +182,7 @@ internal readonly struct SubmitIO
         if (recorder != null) {
             if (createEncoder) {
                 var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
+                wgpuCommandEncoderRelease(encoder);
                 submitCommands.Add(new WgpuCommandBuffer(copyBufferCommands));
             } else {
                 recorder.FinishEncoder("BatchedCommands"u8);    // creates CommandBuffer and adds it to 
@@ -193,6 +194,7 @@ internal readonly struct SubmitIO
             }
         } else {
             var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
+            wgpuCommandEncoderRelease(encoder);
             submitCommands.Add(new WgpuCommandBuffer(copyBufferCommands));
         }
         // At this point no read / write access to CommandList's -> safe to return to pool 

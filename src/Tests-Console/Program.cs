@@ -15,8 +15,8 @@ using var c = device.CreateBuffer(1024, 0f, "c", BufferProfile.InOut);
 
 using var context = device.BeginContext();
 
-for (int n = 0; n < 1_000; n++) {
-    if (n % 1000 == 0) { Console.WriteLine($"iteration: {n}"); }
+for (int n = 1; n < 1_000_000; n++) {
+    if (n % 5000 == 0) { Console.WriteLine($"iteration: {n}"); }
     
     HelloWorld.AddKernel(a.In, b.In, c.InOut);
     context.Queue.ReadBuffers();
