@@ -91,7 +91,7 @@ public abstract partial class GpuDevice
     }
 }
 
-/// ConcurrentStack is lock-free. Spin-Wait's on failed operations, but does not lock
+/// ConcurrentQueue is lock-free. Spin-Wait's on failed operations, but does not lock
 internal class ContextPool : IDisposable
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>

@@ -23,7 +23,7 @@ internal struct CommandList
 }
 
 
-/// ConcurrentStack is lock-free. Spin-Wait's on failed operations, but does not lock. <br/>
+/// ConcurrentQueue is lock-free. Spin-Wait's on failed operations, but does not lock. <br/>
 /// Check alternative for multi threading <see cref="CommandListPoolTLS"/>
 internal class CommandListPool
 {
@@ -50,13 +50,14 @@ internal class CommandListPool
 
 /// <summary>
 /// A zero-allocation, lock-free <see cref="CommandList"/> pool combining Thread-Local Storage (TLS) for ultra-fast, 
-/// cache-hot local thread access (95% hot path) with a <see cref="ConcurrentStack{T}"/> fallback for cross-thread recycling.
+/// cache-hot local thread access (95% hot path) with a <see cref="ConcurrentQueue{T}"/> fallback for cross-thread recycling.
 /// Eliminates boxing, avoids atomic inter-core CPU stalls (Interlocked), and preserves list capacities to prevent runtime heap allocations.
 /// </summary>
 internal class CommandListPoolTLS
 {
+    // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
+    private readonly    ConcurrentQueue<CommandList>    globalPool = [];
     private readonly    ThreadLocal<CommandList>        localSlot = new(() => default);
-    private readonly    ConcurrentStack<CommandList>    globalPool = [];
 
     internal CommandList Fetch() {
         var list = localSlot.Value;
@@ -65,7 +66,7 @@ internal class CommandListPoolTLS
             localSlot.Value = default;
             return list;
         }
-        if (globalPool.TryPop(out list)) {
+        if (globalPool.TryDequeue(out list)) {
             return list;
         }
         return new CommandList();
@@ -79,7 +80,8 @@ internal class CommandListPoolTLS
         if (localSlot.Value.commands == null) {
             localSlot.Value = list;
         } else {
-            globalPool.Push(list);
+            globalPool.Enqueue(list);
+            // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 
         }
     }
 }
