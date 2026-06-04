@@ -124,11 +124,13 @@ internal readonly unsafe struct BufferData
 
 internal readonly struct ActiveBuffer
 {
-    internal readonly   BufferData  data;
+    internal readonly   BufferData          data;
+    internal readonly   List<BufferRange>   ranges;
 
     public   override   string      ToString() => data.ToString();
 
-    internal ActiveBuffer(in BufferData data) {
-        this.data       = data;
+    internal ActiveBuffer(in BufferData data, List<BufferRange> ranges) {
+        this.data   = data;
+        this.ranges = ranges;
     }
 }

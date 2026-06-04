@@ -102,7 +102,7 @@ public sealed unsafe partial class CommandRecorder
 
 internal readonly struct SubmitIO
 {
-    private readonly    List<BufferRange>       tempRanges          = [];
+    private readonly    List<List<BufferRange>> tempCompactRanges   = [];
     private readonly    List<ActiveBuffer>      tempActiveBuffers   = [];
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
     private readonly    List<CommandList>       tempCommandLists    = [];
@@ -148,20 +148,27 @@ internal readonly struct SubmitIO
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
+        var compactRangeIndex = 0;
         foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
             var ranges = bufferEntry.requestedRanges;
             if (ranges == null || ranges.Count == 0) {
                 continue;
             }
+            List<BufferRange> compactRanges;
+            if (compactRangeIndex++ < tempCompactRanges.Count) {
+                compactRanges = tempCompactRanges[compactRangeIndex - 1];
+            } else {
+                tempCompactRanges.Add(compactRanges = new List<BufferRange>());
+            }
+            compactRanges = BufferRange.GetOptimizedRanges(ranges, compactRanges);
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
             //            They are owned by the recorder and must only be accessed in the recorder thread.
             ref readonly var bufferData = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
-            activeBuffers.Add(new ActiveBuffer(bufferData));
+            activeBuffers.Add(new ActiveBuffer(bufferData, compactRanges));
 
-            var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
             uint elementSize     = (uint)bufferData.elementSize;
-            foreach (var range in optimizedRanges)
+            foreach (var range in compactRanges)
             {
                 uint byteOffset = (uint)range.start  * elementSize;
                 uint byteSize   = (uint)range.length * elementSize;
