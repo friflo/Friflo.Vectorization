@@ -77,6 +77,9 @@ internal readonly struct BufferEntry
     
     internal void Clear()
     {
+        if (requestedRanges == null) {
+            return;
+        }
         requestedRanges.Clear();
         bufferSegments.Clear();
     }

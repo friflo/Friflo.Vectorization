@@ -132,7 +132,13 @@ internal readonly struct SubmitIO
         while(commandListQueue.TryDequeue(out var commandList))
         {
             foreach (var range in commandList.ranges) {
-                bufferEntries[range.bufferId].requestedRanges.Add(range);
+                ref var entry = ref bufferEntries[range.bufferId];
+                var ranges = entry.requestedRanges;
+                if (ranges == null) {
+                    entry   = new BufferEntry(range.bufferId);
+                    ranges  = entry.requestedRanges;
+                }
+                ranges.Add(range);
             }
             submitCommands.AddRange(commandList.commands);
             commandLists.Add(commandList);

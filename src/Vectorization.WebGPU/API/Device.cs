@@ -432,9 +432,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
 
         if (entries.Length < count) {
             var newEntries = new  BufferEntry[Math.Max(2 * entries.Length, count)];
-            for (int n = entries.Length; n < count; n++) {
-                newEntries[n] = new BufferEntry((uint)n);
-            }
+            Array.Copy(entries, 0, newEntries, 0, entries.Length);
             entries = bufferEntries = newEntries;
         }
         for (int n = 0; n < count; n++) {
