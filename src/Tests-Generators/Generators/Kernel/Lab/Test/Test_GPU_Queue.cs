@@ -137,8 +137,8 @@ public partial class Test_GPU_Queue : KernelBase
                 Mem.AssertNoAlloc(start); 
                 // Mem.AssertAlloc(start, 40);  // when using ConcurrentStack<CommandList>.Push() - allocates Node: 40 bytes 
             }
-            Mem.AssertNoAlloc(startAll);
         }
+        Mem.AssertNoAlloc(startAll);
         Assert.AreEqual(sourceArr, targetArr);
     }
 }
