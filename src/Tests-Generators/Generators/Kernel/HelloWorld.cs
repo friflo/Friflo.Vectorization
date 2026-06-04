@@ -39,6 +39,6 @@ public partial class HelloWorld
         
         context.Queue.ReadBuffers();
         
-        Console.WriteLine($"✓ SUCCESS: Element 0 is {c.InOut.Span[0]} (Expected: 3.0)");
+        Console.WriteLine($"✓ SUCCESS: c[0] = {c.InOut.Span[0]} (Expected: 3.0)");
     }
 }
