@@ -79,7 +79,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
     {
-        commandList.ranges.Add(new BufferRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
+        commandList.idRanges.Add(new BufferIdRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
     }
 
     internal CommandRecorder(WgpuDevice device) : base(device) 

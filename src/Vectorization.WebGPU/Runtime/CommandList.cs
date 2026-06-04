@@ -12,13 +12,13 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 internal struct CommandList
 {
     internal readonly   List<WgpuCommandBuffer> commands;
-    internal readonly   List<BufferRange>       ranges; // contains all requested ranges for buffers
+    internal readonly   List<BufferIdRange>     idRanges; // contains all requested ranges for buffers
 
-    public   override   string                  ToString() => $"commands: {commands.Count}  ranges: {ranges.Count}";
+    public   override   string                  ToString() => $"commands: {commands.Count}  ranges: {idRanges.Count}";
 
     public CommandList() {
         commands    = new List<WgpuCommandBuffer>();
-        ranges      = new List<BufferRange>();
+        idRanges    = new List<BufferIdRange>();
     }
 }
 
@@ -43,7 +43,7 @@ internal class CommandListPool
     internal void Return(CommandList list)
     {
         list.commands.Clear();
-        list.ranges.Clear();
+        list.idRanges.Clear();
         
         pooled.Enqueue(list);
         // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 
@@ -77,7 +77,7 @@ internal class CommandListPoolTLS
     internal void Return(CommandList list)
     {
         list.commands.Clear();
-        list.ranges.Clear();
+        list.idRanges.Clear();
 
         if (localSlot.Value.commands == null) {
             localSlot.Value = list;

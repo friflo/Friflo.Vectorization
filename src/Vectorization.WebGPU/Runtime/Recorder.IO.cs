@@ -102,7 +102,7 @@ public sealed unsafe partial class CommandRecorder
 
 internal readonly struct SubmitIO
 {
-    private readonly    List<BufferRange>       tempRanges          = [];
+    private readonly    List<BufferIdRange>     tempIdRanges        = [];
     private readonly    List<BufferData>        tempActiveBuffers   = [];
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
     private readonly    List<CommandList>       tempCommandLists    = [];
@@ -131,14 +131,14 @@ internal readonly struct SubmitIO
         // iterate and clear commandListQueue
         while(commandListQueue.TryDequeue(out var commandList))
         {
-            foreach (var range in commandList.ranges) {
+            foreach (var range in commandList.idRanges) {
                 ref var entry = ref bufferEntries[range.bufferId];
-                var ranges = entry.requestedRanges;
-                if (ranges == null) {
+                var idRanges = entry.requestedIdRanges;
+                if (idRanges == null) {
                     entry   = new BufferEntry(range.bufferId);
-                    ranges  = entry.requestedRanges;
+                    idRanges  = entry.requestedIdRanges;
                 }
-                ranges.Add(range);
+                idRanges.Add(range);
             }
             submitCommands.AddRange(commandList.commands);
             commandLists.Add(commandList);
@@ -150,8 +150,8 @@ internal readonly struct SubmitIO
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
         foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
-            var ranges = bufferEntry.requestedRanges;
-            if (ranges == null || ranges.Count == 0) {
+            var idRanges = bufferEntry.requestedIdRanges;
+            if (idRanges == null || idRanges.Count == 0) {
                 continue;
             }
             // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
@@ -159,7 +159,7 @@ internal readonly struct SubmitIO
             ref readonly var buffer = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(buffer);
 
-            var  optimizedRanges = BufferRange.GetOptimizedRanges(ranges, tempRanges);
+            var  optimizedRanges = BufferIdRange.GetOptimizedRanges(idRanges, tempIdRanges);
             uint elementSize     = (uint)buffer.elementSize;
             foreach (var range in optimizedRanges)
             {
@@ -168,12 +168,9 @@ internal readonly struct SubmitIO
 
                 // GPU internal copy from fast compute memory in persistent stating buffer
                 wgpuCommandEncoderCopyBufferToBuffer(
-                    encoder,
-                    buffer.storageHandle,   // source: GPU Storage [Storage]
-                    byteOffset,
-                    buffer.stagingHandle,   // target: persistant Readback [MapRead]
-                    byteOffset,
-                    byteSize
+                    encoder,    buffer.storageHandle,   // source: GPU Storage [Storage]
+                    byteOffset, buffer.stagingHandle,   // target: persistant Readback [MapRead]
+                    byteOffset, byteSize
                 );
             }
         }
@@ -233,11 +230,11 @@ internal readonly struct SubmitIO
             void* pMapped = wgpuBufferGetMappedRange(buffer.stagingHandle, 0, totalBufferSizeInBytes);
             
             var wgpuBuffer  = bufferMap    [buffer.bufferId];
-            var ranges      = bufferEntries[buffer.bufferId].requestedRanges;
-            wgpuBuffer.ExecuteCpuCopy(pMapped, ranges);         // copy staging memory to host memory
+            var idRanges    = bufferEntries[buffer.bufferId].requestedIdRanges;
+            wgpuBuffer.ExecuteCpuCopy(pMapped, idRanges);         // copy staging memory to host memory
             
             wgpuBufferUnmap(buffer.stagingHandle);              // unmap so CPU is able to access
-            ranges.Clear();
+            idRanges.Clear();
         }
         activeBuffers.Clear();
     }

@@ -88,7 +88,7 @@ public sealed partial class CommandRecorder
         var list = commandList;
         return new QueueStats {
             Commands    = list.commands.Count,
-            Ranges      = list.ranges.Count
+            Ranges      = list.idRanges.Count
         };
     }
 
