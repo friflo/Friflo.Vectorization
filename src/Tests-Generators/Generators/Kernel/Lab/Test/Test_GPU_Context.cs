@@ -25,6 +25,23 @@ public class Test_GPU_Context : KernelBase
     }
     
     [Test]
+    public void Test_GPU_Context_Context_Leak()
+    {
+        var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        var context = device.BeginContext(); // context leak
+        
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            device.Dispose();
+        });
+        StringAssert.StartsWith("[Resource Leak Detected] GpuDevice.Dispose() failed because active PipelineContexts were not closed!\n  -> Left Context open on Thread:", e!.Message);
+        StringAssert.Contains("Test_GPU_Context.cs:31", e!.Message);
+        
+        // cleanup as intended - otherwise leak detection will fail the test
+        context.Dispose();      
+        device.Dispose(); 
+    }
+    
+    [Test]
     public void Test_GPU_Context_Missing_Device_Exception()
     {
         using var device = Device;
@@ -84,6 +101,7 @@ public class Test_GPU_Context : KernelBase
             AssertThreadException(() => _ = context.Traces);
             AssertThreadException(() => _ = context.EnableTraces);
             AssertThreadException(() => _ = context.KernelMetrics);
+            AssertThreadException(() => _ = context.Queue.Stats);
             
             AssertThreadException(() => context.ClearTraces());
             AssertThreadException(() => context.ClearKernelMetrics());
@@ -101,22 +119,5 @@ public class Test_GPU_Context : KernelBase
     {
         var e = Assert.Throws<InvalidOperationException>(code);
         StringAssert.StartsWith("[Thread Context Violation] method executes on thread:", e!.Message);
-    }
-    
-    [Test]
-    public void Test_GPU_Context_Context_Leak()
-    {
-        var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
-        var context = device.BeginContext(); // context leak
-        
-        var e = Assert.Throws<InvalidOperationException>(() => {
-            device.Dispose();
-        });
-        StringAssert.StartsWith("[Resource Leak Detected] GpuDevice.Dispose() failed because active PipelineContexts were not closed!\n  -> Left Context open on Thread:", e!.Message);
-        StringAssert.Contains("Test_GPU_Context.cs:110", e!.Message);
-        
-        // cleanup as intended - otherwise leak detection will fail the test
-        context.Dispose();      
-        device.Dispose(); 
     }
 }
