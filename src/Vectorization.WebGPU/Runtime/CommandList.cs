@@ -30,6 +30,8 @@ internal class CommandListPool
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
     private readonly ConcurrentQueue<CommandList> pooled = [];
 
+    public  override    string  ToString() => $"pooled: {pooled.Count}";
+
     internal CommandList Fetch()
     {
         if (pooled.TryDequeue(out var list)) {

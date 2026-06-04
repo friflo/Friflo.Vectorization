@@ -95,7 +95,10 @@ public abstract partial class GpuDevice
 internal class ContextPool : IDisposable
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
-    private readonly ConcurrentQueue<PipelineContext> pooled = []; 
+    private readonly ConcurrentQueue<PipelineContext> pooled = [];
+    
+    public  override    string  ToString() => $"pooled: {pooled.Count}";
+
 
     internal PipelineContext Fetch(GpuDevice device)
     {
