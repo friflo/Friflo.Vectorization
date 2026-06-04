@@ -102,10 +102,10 @@ public sealed unsafe partial class CommandRecorder
 
 internal readonly struct SubmitIO
 {
-    private readonly    List<List<BufferRange>> tempCompactRanges   = [];
-    private readonly    List<ActiveBuffer>      tempActiveBuffers   = [];
-    private readonly    List<WgpuCommandBuffer> tempSubmitCommands  = [];
-    private readonly    List<CommandList>       tempCommandLists    = [];
+    private readonly    List<List<BufferRange>> tempCompactRangesList   = [];
+    private readonly    List<ActiveBuffer>      tempActiveBuffers       = [];
+    private readonly    List<WgpuCommandBuffer> tempSubmitCommands      = [];
+    private readonly    List<CommandList>       tempCommandLists        = [];
     
     public SubmitIO() {}
     
@@ -123,6 +123,7 @@ internal readonly struct SubmitIO
         var activeBuffers       = tempActiveBuffers;
         var submitCommands      = tempSubmitCommands;
         var commandLists        = tempCommandLists;
+        var compactRangesList   = tempCompactRangesList;
         
         // process commandList.ranges before submitting commandList
         submitCommands.Clear();
@@ -148,7 +149,8 @@ internal readonly struct SubmitIO
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
-        var compactRangeIndex = 0;
+        var compactRangesIndex = 0;
+        
         foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
             var ranges = bufferEntry.requestedRanges;
@@ -156,14 +158,14 @@ internal readonly struct SubmitIO
                 continue;
             }
             List<BufferRange> compactRanges;
-            if (compactRangeIndex++ < tempCompactRanges.Count) {
-                compactRanges = tempCompactRanges[compactRangeIndex - 1];
+            if (compactRangesIndex++ < compactRangesList.Count) {
+                compactRanges = compactRangesList[compactRangesIndex - 1];
             } else {
-                tempCompactRanges.Add(compactRanges = new List<BufferRange>());
+                compactRangesList.Add(compactRanges = new List<BufferRange>());
             }
-            compactRanges = BufferRange.GetOptimizedRanges(ranges, compactRanges);
-            // Important: buffer must be a copy. requestedRanges is assigned with bufferEntries[].requestedRanges.
-            //            They are owned by the recorder and must only be accessed in the recorder thread.
+            BufferRange.GetOptimizedRanges(ranges, compactRanges);
+            ranges.Clear();
+            
             ref readonly var bufferData = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(new ActiveBuffer(bufferData, compactRanges));
 
@@ -215,16 +217,17 @@ internal readonly struct SubmitIO
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
             ref readonly var bufferData = ref activeBuffer.data;
-            uint totalBufferSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
+            uint totalSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
             
-            // simply map the whole memory instead of the smaller ranges    // TODO use optimized Ranges to map only required ranges 
+            // simply map the whole memory instead of the smaller ranges 
             var callbackInfo = new BufferMapCallbackInfo {
                 mode        = CallbackMode.AllowProcessEvents,
                 callback    = &BufferMap_callback,
                 userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
             };
-            wgpuBufferMapAsync(bufferData.stagingHandle, (ulong)MapMode.Read, 0, totalBufferSizeInBytes, callbackInfo);
+            wgpuBufferMapAsync(bufferData.stagingHandle, (ulong)MapMode.Read, 0, totalSizeInBytes, callbackInfo);
         }
+        
         // the only single CPU-Stall: wait until all buffers are mapped
         while (Thread.VolatileRead(ref remainingMaps) > 0) {
             // wgpuDeviceTick(NativePtr);
@@ -235,15 +238,14 @@ internal readonly struct SubmitIO
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
             ref readonly var bufferData = ref activeBuffer.data;
-            uint totalBufferSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
-            void* pMapped = wgpuBufferGetMappedRange(bufferData.stagingHandle, 0, totalBufferSizeInBytes);
+            uint totalSizeInBytes   = (uint)(bufferData.length * bufferData.elementSize);
+            void* pMapped           = wgpuBufferGetMappedRange(bufferData.stagingHandle, 0, totalSizeInBytes);
+
+            var wgpuBuffer          = bufferMap[bufferData.bufferId];
             
-            var wgpuBuffer  = bufferMap    [bufferData.bufferId];
-            var idRanges    = bufferEntries[bufferData.bufferId].requestedRanges;
-            wgpuBuffer.ExecuteCpuCopy(pMapped, idRanges);         // copy staging memory to host memory
+            wgpuBuffer.ExecuteCpuCopy(pMapped, activeBuffer.compactRanges);  // copy staging memory to host memory
             
-            wgpuBufferUnmap(bufferData.stagingHandle);              // unmap so CPU is able to access
-            idRanges.Clear();
+            wgpuBufferUnmap(bufferData.stagingHandle);  // unmap so CPU is able to access
         }
         activeBuffers.Clear();
     }

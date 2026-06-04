@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -44,28 +44,27 @@ internal readonly struct BufferRange : IComparable<BufferRange>
         this.length = length;
     }
     
-    public int CompareTo(BufferIdRange other) => start.CompareTo(other.start);
-    
-    internal static List<BufferRange> GetOptimizedRanges(List<BufferRange> requestedRanges, List<BufferRange> optimizedRanges)
+    internal static void GetOptimizedRanges(List<BufferRange> requestedRanges, List<BufferRange> optimizedRanges)
     {
         optimizedRanges.Clear();
         
-        if (requestedRanges.Count == 0) return optimizedRanges;
         if (requestedRanges.Count == 1) {
             optimizedRanges.Add(requestedRanges[0]);
-            return optimizedRanges;
+            return;
         }
         var span = CollectionsMarshal.AsSpan(requestedRanges);
         span.Sort(); // sort by Offset (start) index
 
-        var current = requestedRanges[0];
+        var current = span[0];
 
-        for (int i = 1; i < requestedRanges.Count; i++) {
-            var next = requestedRanges[i];
+        for (int i = 1; i < span.Length; i++)
+        {
+            var next = span[i];
             // do ranges overlap (e.g. [0,10] und [10,20])
-            if (next.start <= current.start + current.length) {
+            if (next.start <= current.start + current.length)
+            {
                 int currentEnd  = current.start + current.length;
-                int nextEnd     = next.start + next.length;
+                int nextEnd     = next.start    + next.length;
                 int newEnd      = Math.Max(currentEnd, nextEnd);
                 
                 current = new BufferRange(current.start, newEnd - current.start);
@@ -75,7 +74,6 @@ internal readonly struct BufferRange : IComparable<BufferRange>
             }
         }
         optimizedRanges.Add(current);
-        return optimizedRanges;
     }
 }
 
@@ -125,12 +123,12 @@ internal readonly unsafe struct BufferData
 internal readonly struct ActiveBuffer
 {
     internal readonly   BufferData          data;
-    internal readonly   List<BufferRange>   ranges;
+    internal readonly   List<BufferRange>   compactRanges;
 
     public   override   string      ToString() => data.ToString();
 
-    internal ActiveBuffer(in BufferData data, List<BufferRange> ranges) {
-        this.data   = data;
-        this.ranges = ranges;
+    internal ActiveBuffer(in BufferData data, List<BufferRange> compactRanges) {
+        this.data           = data;
+        this.compactRanges  = compactRanges;
     }
 }
