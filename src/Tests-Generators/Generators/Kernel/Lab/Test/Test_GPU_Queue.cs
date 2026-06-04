@@ -1,6 +1,7 @@
 ﻿using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
+using Tests.Utils;
 
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable InconsistentNaming
@@ -94,5 +95,43 @@ public partial class Test_GPU_Queue : KernelBase
         device.Queue.ReadBuffers();
     }
     
-
+    [Test]
+    public void Test_GPU_Queue_Zero_Alloc()
+    {
+        var sourceArr = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        var targetArr = new float[10];
+        using var device = Device;
+        using var source   = device.CreateBuffer(sourceArr, "source", BufferProfile.StaticIn);
+        using var target   = device.CreateBuffer(targetArr, "target", BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        
+        // --- force one time allocations
+        context.PassBatching = PassBatching.None;
+        AssignKernel(target.InOut, source.In);
+        context.PassBatching = PassBatching.HazardDriven;
+        AssignKernel(target.InOut, source.In);
+        
+        context.Queue.ReadBuffers();
+        Assert.AreEqual(sourceArr, targetArr);
+        
+        // --- no allocation expected
+        {
+            var start = Mem.GetAllocatedBytes();
+            context.PassBatching = PassBatching.None;
+            AssignKernel(target.InOut, source.In);
+            Mem.AssertNoAlloc(start);
+        } {
+            var start = Mem.GetAllocatedBytes();
+            context.PassBatching = PassBatching.HazardDriven;
+            AssignKernel(target.InOut, source.In);
+            Mem.AssertNoAlloc(start);
+        } {
+            var start = Mem.GetAllocatedBytes();
+            context.Queue.ReadBuffers();
+            Mem.AssertAlloc(start, 40);         // 40 bytes -> ConcurrentStack<CommandList>.Push()
+            // Mem.AssertNoAlloc(start); 
+        }
+        Assert.AreEqual(sourceArr, targetArr);
+    }
 }
