@@ -54,9 +54,8 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
     public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(int length, T value, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
     public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,            string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
-
-    public abstract void            Submit();
 }
+
 
 /// <summary>  Defines the execution strategy for compute operations. </summary>
 /// <remarks>

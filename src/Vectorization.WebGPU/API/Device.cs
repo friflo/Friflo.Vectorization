@@ -210,10 +210,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
 
     private int inFlightCommandBufferCount;
     
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public override void Submit()
-    {
-    }
     
     internal void SubmitCommands(List<WgpuCommandBuffer> commands)
     {
@@ -267,7 +263,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (!DebugMode) {
             return;
         }
-        Submit();
+        // Submit();
     }
 
     // TODO - remove - kept temporary for reference

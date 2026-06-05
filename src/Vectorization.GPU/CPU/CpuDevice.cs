@@ -47,8 +47,6 @@ internal sealed class CpuDevice : GpuDevice
         return new CpuBuffer<T>(this, data, bufferLabel);
     }
 
-    public override void Submit() { }
-
     protected internal override PipelineContext NewPipelineContext()
     {
         return new PipelineContext(this);

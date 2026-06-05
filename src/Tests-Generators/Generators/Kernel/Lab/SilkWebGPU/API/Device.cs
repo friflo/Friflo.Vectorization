@@ -282,7 +282,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public override void Submit()
+    internal void Submit()
     {
         var tasks = pendingTasks;
         int count = tasks.Count;

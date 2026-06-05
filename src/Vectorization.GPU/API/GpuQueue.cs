@@ -14,26 +14,26 @@ public struct QueueStats
 
 public abstract class CommandStream
 {
-    protected internal virtual  void        ReadBuffers()                   { }
-    protected internal virtual  QueueStats  GetQueueStats()                 => default;
+    protected internal virtual  void        ReadBuffers()   { }
+    protected internal virtual  QueueStats  GetQueueStats() => default;
 }
 
 
 public readonly struct GpuQueue
 {
-    public readonly CommandStream   CommandStream;
-    public          QueueStats      Stats => CommandStream.GetQueueStats();
+    private readonly    CommandStream   commandStream;
+    public              QueueStats      Stats       => commandStream.GetQueueStats();
     
-    public override string      ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
+    public override     string          ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
 
     
-    public void     ReadBuffers()                   => CommandStream.ReadBuffers();
-    public void     Submit()                        { }                     // TODO
+    public void     ReadBuffers()   => commandStream.ReadBuffers();
+    public void     Submit()        { }                     // TODO
     
-//  public void     Synchronize()                       { }  ???
+//  public void     Synchronize()   { }  ???
 
     
     internal GpuQueue(CommandStream commandStream) {
-        CommandStream = commandStream;
+        this.commandStream = commandStream;
     }
 }
