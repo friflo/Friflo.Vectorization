@@ -90,15 +90,6 @@ internal readonly struct BufferEntry
         requestedRanges     = new List<BufferRange>();
         bufferSegments      = new SegmentMap();
     }
-    
-    internal void Clear()
-    {
-        if (requestedRanges == null) {
-            return;
-        }
-        requestedRanges.Clear();
-        bufferSegments.Clear();
-    }
 }
 
 internal readonly unsafe struct BufferData

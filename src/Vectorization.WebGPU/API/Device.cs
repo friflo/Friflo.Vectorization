@@ -427,18 +427,18 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (commandListQueue.IsEmpty) {
             return;
         }
-        var entries = bufferEntries;
         var count   = bufferMap.Count;
-
+        var entries = bufferEntries;
+        
         if (entries.Length < count) {
             var newEntries = new  BufferEntry[Math.Max(2 * entries.Length, count)];
             Array.Copy(entries, 0, newEntries, 0, entries.Length);
-            entries = bufferEntries = newEntries;
+            bufferEntries = newEntries;
         }
-        for (int n = 0; n < count; n++) {
-            entries[n].Clear();
-        }
-        
+        /* for (int n = 0; n < count; n++) {
+            var ranges = entries[n].requestedRanges;
+            if (ranges != null && ranges.Count > 0) throw new InvalidOperationException("expect ranges is empty");
+        } */
         submitIO.SubmitReadBuffers(null, this, null);
     }
     
