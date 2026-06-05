@@ -237,7 +237,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         for (int n = 0; n < count; n++) {
             // Note: In case wgpuCommandEncoderFinish() detected a validation error
             //       releasing the handle will not decrement GpuHandleDiff.CommandBuffers
-            wgpuCommandBufferRelease(commands[n].handle);
+            wgpuCommandBufferRelease(commandSpan[n].handle);
         }
         
         // Register callback for the new In-Flight batch
