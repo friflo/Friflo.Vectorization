@@ -45,9 +45,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   CommandListPool     commandListPool = new ();
     
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
-    internal readonly   CommandListQueue        commandListQueue    = [];
-    internal            BufferEntry[]           bufferEntries       = [];   // ranges & segments per GpuBuffer
-    private  readonly   WgpuIO                  wgpuIO              = new ();
+    internal readonly   CommandListQueue    commandListQueue    = [];
+    internal            BufferEntry[]       bufferEntries       = [];   // ranges & segments per GpuBuffer
+    private  readonly   WgpuIO              wgpuIO              = new ();
     
     private sealed class WgpuDeviceDebugView(WgpuDevice device)
     {
