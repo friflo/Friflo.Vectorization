@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization;
@@ -7,6 +8,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.Intrinsics;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable PartialTypeWithSinglePart
 namespace Kernel.Lab;
@@ -44,6 +46,38 @@ public static partial class Pattern
             }
         }
         MultiplyAddVector_gen(weight.Span, input.Span, bias, output.Span, buffers.ComputeSIMD);
+    }
+    
+    public static void MultiplyAddKernel_Scalar(
+      InBuffer<float>   weight,
+      InBuffer<float>   input,
+        float           bias,
+        Buffer<float>   output,
+        ComputeMode     computeMode = ComputeMode.Device)
+    {
+        var buffers =
+        GpuBuffers.Create(weight, nameof(weight), computeMode);
+        buffers.Validate (input,  nameof(input));
+        buffers.Validate (output, nameof(output));
+
+        if (buffers.ComputeGPU) {
+            WgpuPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);
+            return;
+        }
+        _MultiplyAddVector_scalar(weight.Span, input.Span, bias, output.Span);
+    }
+    
+    private static void _MultiplyAddVector_scalar(ReadOnlySpan<float> weight, ReadOnlySpan<float> input, float bias, Span<float> output)
+    {
+        int length = weight.Length;
+        
+        ref float weightRef = ref MemoryMarshal.GetReference(weight);
+        ref float inputRef  = ref MemoryMarshal.GetReference(input);
+        ref float outputRef = ref MemoryMarshal.GetReference(output);
+
+        for (int i = 0; i < length; i++) {
+            MultiplyAdd(Unsafe.Add(ref weightRef, i), Unsafe.Add(ref inputRef, i), bias, ref Unsafe.Add(ref outputRef, i));
+        }
     }
     
     // generated AVX method
