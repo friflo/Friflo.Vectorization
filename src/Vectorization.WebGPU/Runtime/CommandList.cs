@@ -9,7 +9,7 @@ using System.Threading;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
-internal struct CommandList
+internal readonly struct CommandList
 {
     internal readonly   List<WgpuCommandBuffer> commands;
     internal readonly   List<BufferIdRange>     idRanges; // contains all requested ranges for buffers
@@ -53,7 +53,7 @@ internal class CommandListPool
 /// <summary>
 /// A zero-allocation, lock-free <see cref="CommandList"/> pool combining Thread-Local Storage (TLS) for ultra-fast, 
 /// cache-hot local thread access (95% hot path) with a <see cref="ConcurrentQueue{T}"/> fallback for cross-thread recycling.
-/// Eliminates boxing, avoids atomic inter-core CPU stalls (Interlocked), and preserves list capacities to prevent runtime heap allocations.
+/// Eliminates boxing, avoids atomic intercore CPU stalls (Interlocked), and preserves list capacities to prevent runtime heap allocations.
 /// </summary>
 internal class CommandListPoolTLS
 {
