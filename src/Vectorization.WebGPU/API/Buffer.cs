@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -27,8 +26,8 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
 {
     internal            Buffer*     handle { get; private set; }
     private             WgpuDevice  device { get; set; }
-    private  readonly   uint        SizeInBytes;    
     private  readonly   BufferData  data;
+    
     // --- GpuBuffer
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
@@ -56,7 +55,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         : base(hostMemory, bufferLabel, (nint)buffer, bufferId)
     {
         this.device     = device;
-        SizeInBytes     = (uint)(Length * Unsafe.SizeOf<T>());
         handle          = buffer;
         data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
     }
