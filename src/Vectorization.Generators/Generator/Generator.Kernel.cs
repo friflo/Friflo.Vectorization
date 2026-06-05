@@ -167,7 +167,8 @@ public sealed partial class Gen
         var shadowMethodSource =
 $$""""
 
-    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
+    // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
+    [SkipLocalsInit]
     private {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName_GPU}}(
         in GpuBuffers      buffers,{{signature}})
     {

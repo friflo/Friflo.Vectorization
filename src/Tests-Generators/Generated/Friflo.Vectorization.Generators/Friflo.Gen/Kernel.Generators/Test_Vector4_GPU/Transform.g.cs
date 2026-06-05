@@ -108,7 +108,8 @@ namespace Kernel.Generators
             return i;
         }
 
-    [SkipLocalsInit]  // Lock-free GPU kernel with deferred, on-the-fly hazard-driven pass batching
+    // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
+    [SkipLocalsInit]
     private static void _Transform_GPU(
         in GpuBuffers      buffers,
         in Buffer  <Vector4> position_,
