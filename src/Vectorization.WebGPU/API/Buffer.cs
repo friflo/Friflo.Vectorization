@@ -64,9 +64,9 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     
     void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> compactRanges)
     {
-        ReadOnlySpan<T>     gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
-        Span<T>             hostTargetSpan  = hostMemory.Span;
-        Span<BufferRange>   ranges          = CollectionsMarshal.AsSpan(compactRanges);
+        ReadOnlySpan<T>             gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
+        Span<T>                     hostTargetSpan  = hostMemory.Span;
+        ReadOnlySpan<BufferRange>   ranges          = CollectionsMarshal.AsSpan(compactRanges);
 
         foreach (var range in ranges)
         {
