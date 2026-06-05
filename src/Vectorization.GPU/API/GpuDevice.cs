@@ -71,7 +71,7 @@ public enum ComputeMode
     
     /// <summary>
     /// Executes operations using scalar CPU instructions. <br/>
-    /// This mode enables simple debugging of your <c>[Kernel]</c> blueprint method.
+    /// This mode enables simple debugging of your <c>[Kernel]</c> blueprint methods.
     /// </summary>
     /// 
     Scalar  = 1,

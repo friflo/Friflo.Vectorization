@@ -21,7 +21,7 @@ public partial class Test_Vector4_GPU : KernelBase
     private readonly Vector4[]    buffer2 = new Vector4[128];
 
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Multiply([Span] ref Vector4 position, [Span] Vector4 velocity) {
         position *= velocity;
     }
@@ -49,7 +49,7 @@ public partial class Test_Vector4_GPU : KernelBase
     }
 
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Arithmetic([Span] ref Vector4 position, [Span] Vector4 velocity) {
         var add = position + velocity;
         var sub = position - velocity;
@@ -84,7 +84,7 @@ public partial class Test_Vector4_GPU : KernelBase
     }
 
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Misc([Span] ref Vector4 position, [Span] Vector4 velocity, Vector4 max) {
         var abs     = Vector4.Abs(velocity);
         var trunc   = Vector4.Truncate(velocity);
@@ -124,7 +124,7 @@ public partial class Test_Vector4_GPU : KernelBase
     }
     /*
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Advanced([Span] ref Vector4 position, [Span] Vector4 velocity) {
         var     cross       = Vector4.Cross(position, velocity);
         var     normalize   = Vector4.Normalize(velocity);
@@ -163,7 +163,7 @@ public partial class Test_Vector4_GPU : KernelBase
     } */
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Transform([Span] ref Vector4 position, Matrix4x4 matrix) {
         position = Vector4.Transform(position, matrix);
     }

@@ -43,7 +43,7 @@ namespace VerifyVectorize;
 
 public partial class MyExample
 {
-    [Kernel]  [OmitHash]
+    [Kernel, Vectorize]  [OmitHash]
     void MoveExample([Span] ref Vector2 position, [Span] Vector2 velocity, float deltaTime) {
         position += velocity * deltaTime;
     }

@@ -150,7 +150,7 @@ public partial class Test_GPU_Pass : KernelBase
         Assert.AreEqual("--- KERNEL METRIC ---", context.KernelMetricLog);
     }
     
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Assign([Span] ref float output, [Span] float input) {
         output = input;
     }
@@ -236,7 +236,7 @@ public partial class Test_GPU_Pass : KernelBase
             """).IgnoreWhiteSpace);
     }
     
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void ReadOnly([Span] float input) { }
     
     [Test]

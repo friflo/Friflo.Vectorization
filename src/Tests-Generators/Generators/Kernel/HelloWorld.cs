@@ -15,7 +15,7 @@ namespace Kernel.Generators;
 
 public partial class HelloWorld
 {
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Add([Span] float a, [Span] float b, [Span] ref float c) {
         c = a + b;
     }

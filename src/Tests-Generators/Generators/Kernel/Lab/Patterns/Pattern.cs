@@ -13,7 +13,7 @@ namespace Kernel.Lab;
 
 public static partial class Pattern
 {
-    // [Kernel]
+    // [Kernel, Vectorize]
     private static void MultiplyAdd(
         [Span]      float weight,
         [Span]      float input,

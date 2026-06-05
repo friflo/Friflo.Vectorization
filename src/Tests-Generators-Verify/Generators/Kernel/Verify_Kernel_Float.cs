@@ -43,7 +43,7 @@ namespace VerifyVectorize;
 
 public partial class MyExample
 {
-    [Kernel]  [OmitHash]
+    [Kernel, Vectorize]  [OmitHash]
     void MoveExample([Span] ref float position, [Span] float velocity, float deltaTime) {
         position += velocity * deltaTime;
     }
@@ -65,7 +65,7 @@ namespace VerifyVectorize;
 
 public partial class MyExample
 {
-    [Kernel]  [OmitHash]
+    [Kernel, Vectorize]  [OmitHash]
     void MoveExample([Span] ref float position, float deltaTime) {
         var local = deltaTime;
         position = local;
@@ -89,7 +89,7 @@ namespace VerifyVectorize;
 
 public partial class Kernel_Sign_Example
 {
-    [Kernel]  [OmitHash]
+    [Kernel, Vectorize]  [OmitHash]
     void Kernel_Sign([Span] ref float position, float value) {
         var sign = MathF.Sign(value);
         position = sign;

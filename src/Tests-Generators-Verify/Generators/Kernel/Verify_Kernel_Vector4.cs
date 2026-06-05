@@ -42,7 +42,7 @@ namespace VerifyVectorize;
 
 public partial class MyExample
 {
-    [Kernel]  [OmitHash]
+    [Kernel, Vectorize]  [OmitHash]
     void AssignScalar([Span] ref Vector4 position, [Span] Vector4 velocity) {
         float   dist = Vector4.Distance(position, velocity);
         float   sum  = dist;

@@ -31,7 +31,7 @@ Console.WriteLine($"✓ SUCCESS: c[0] = {c.InOut.Span[0]} (Expected: 3.0)");
 
 public static partial class HelloWorld
 {
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Add([Span] float a, [Span] float b, [Span] ref float c) {
         c = a + b;
     }

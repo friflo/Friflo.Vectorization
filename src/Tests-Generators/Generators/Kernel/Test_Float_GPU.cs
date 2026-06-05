@@ -20,7 +20,7 @@ public partial class Test_Float_GPU : KernelBase
     private readonly float[]    buffer2 = new float[128];
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Multiply([Span] ref float position, [Span] float velocity) {
         position *= velocity;
     }
@@ -47,7 +47,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Assign([Span] ref float position, [Span] float velocity) {
         position = velocity;
     }
@@ -76,7 +76,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Add([Span] ref float dst, [Span] float src) {
         dst += src;
     }
@@ -109,7 +109,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Move([Span] ref float position, [Span] float velocity, float deltaTime) {
         position += velocity * deltaTime;
     }
@@ -137,7 +137,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void UseConstant([Span] ref float position) {
         position += MathF.PI;
     }
@@ -164,7 +164,7 @@ public partial class Test_Float_GPU : KernelBase
     }
 
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void InverseSqrt([Span] ref float position) {
         position = 5 / MathF.Sqrt(position);
     }
@@ -191,7 +191,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Trigonometry([Span]ref float position, [Span] float velocity, float value)
     {
         var fraction= velocity - MathF.Truncate(velocity);
@@ -233,7 +233,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Trigonometry2([Span]ref float position)
     {
         var sinh     = MathF.Sinh(position);
@@ -265,7 +265,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Misc([Span]ref float position, [Span] float velocity, float value)
     {
         var abs     = MathF.Abs(velocity);
@@ -306,7 +306,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Min([Span]ref float position, [Span] float velocity)
     {
         position = MathF.Min(position, velocity);
@@ -336,7 +336,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Max([Span]ref float position, [Span] float velocity)
     {
         position = MathF.Max(position, velocity);
@@ -366,7 +366,7 @@ public partial class Test_Float_GPU : KernelBase
     }
     
     // ----------------------------------------------
-    [Kernel] [OmitHash]
+    [Kernel, Vectorize] [OmitHash]
     private static void Kernel_Clamp([Span]ref float position, [Span] float min, float max)
     {
         position = Math.Clamp(position, min, max);
