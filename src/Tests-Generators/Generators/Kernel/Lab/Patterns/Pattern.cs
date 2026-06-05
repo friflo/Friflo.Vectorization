@@ -6,14 +6,15 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.Intrinsics;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable PartialTypeWithSinglePart
 namespace Kernel.Lab;
 
-public  static class Pattern
+public static partial class Pattern
 {
-    // [Vectorize]
-    public static void MultiplyAdd(
+    // [Kernel]
+    private static void MultiplyAdd(
         [Span]      float weight,
         [Span]      float input,
                     float bias,
@@ -21,7 +22,9 @@ public  static class Pattern
     {
         output = weight * input + bias;
     }
-    // generated shadow Method
+    
+    
+    // Generated *Kernel method
     public static void MultiplyAddKernel(
       InBuffer<float>   weight,
       InBuffer<float>   input,
