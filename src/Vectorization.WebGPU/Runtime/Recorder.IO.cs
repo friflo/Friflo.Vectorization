@@ -22,10 +22,10 @@ public sealed unsafe partial class CommandRecorder
 {
     internal            CommandList         commandList;
     
-    /// --- thread local fields used by <see cref="SubmitIO.SubmitReadBuffers"/>
+    /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
     internal            BufferEntry[]       bufferEntries       = []; // ranges & segments per GpuBuffer
-    private  readonly   SubmitIO            submitIO            = new ();
+    private  readonly   WgpuIO              wgpuIO              = new ();
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private SegmentMap GetBufferSegments(uint bufferId)
@@ -94,25 +94,23 @@ public sealed unsafe partial class CommandRecorder
         }
         commandListQueue.Enqueue(commandList);
         
-        submitIO.SubmitReadBuffers(this, device, currentEncoder.handle);
+        wgpuIO.Submit(this, device, currentEncoder.handle);
+        wgpuIO.ReadBuffers(device);
         
         commandList = device.commandListPool.Fetch(); // commandList is Return()'ed. Fetch a new one
     }
 }
 
-internal readonly struct SubmitIO
+internal readonly struct WgpuIO
 {
     private readonly    List<List<BufferRange>> tempCompactRangesList   = [];
     private readonly    List<ActiveBuffer>      tempActiveBuffers       = [];
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands      = [];
     private readonly    List<CommandList>       tempCommandLists        = [];
     
-    public SubmitIO() {}
+    public WgpuIO() { }
     
-    internal unsafe void SubmitReadBuffers(
-        CommandRecorder     recorder,
-        WgpuDevice          device,
-        CommandEncoder*     encoder)
+    internal unsafe void Submit(CommandRecorder recorder, WgpuDevice device, CommandEncoder* encoder)
     {
         var createEncoder  = encoder == null;
         if (createEncoder) {
@@ -208,7 +206,13 @@ internal readonly struct SubmitIO
         commandLists.Clear();
         
         device.SubmitCommands(submitCommands);
-
+    }
+    
+        
+    internal unsafe void ReadBuffers(WgpuDevice device)
+    {
+        ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
+        var activeBuffers = tempActiveBuffers;
         
         // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
