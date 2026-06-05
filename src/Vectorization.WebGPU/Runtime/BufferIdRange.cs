@@ -116,7 +116,7 @@ internal readonly struct ActiveBuffer
     internal readonly   BufferData          data;
     internal readonly   List<BufferRange>   compactRanges;
 
-    public   override   string      ToString() => data.ToString();
+    public   override   string              ToString() => $"bufferId: {data.bufferId}  ranges: {compactRanges.Count}";
 
     internal ActiveBuffer(in BufferData data, List<BufferRange> compactRanges) {
         this.data           = data;
