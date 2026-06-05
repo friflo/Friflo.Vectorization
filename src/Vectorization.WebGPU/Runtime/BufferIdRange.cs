@@ -11,15 +11,13 @@ using System.Runtime.InteropServices;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 
-internal readonly struct BufferIdRange : IComparable<BufferIdRange>
+internal readonly struct BufferIdRange
 {
     internal readonly   uint    bufferId;
     internal readonly   int     start;
     internal readonly   int     length;
 
     public   override   string  ToString() => $"bufferId: {bufferId}  [{start}..{start + length}]";
-
-    public int CompareTo(BufferIdRange other) => start.CompareTo(other.start);
 
     internal BufferIdRange(uint bufferId, int start, int length)
     {
@@ -29,14 +27,12 @@ internal readonly struct BufferIdRange : IComparable<BufferIdRange>
     }
 }
 
-internal readonly struct BufferRange : IComparable<BufferRange>
+internal readonly struct BufferRange
 {
     internal readonly   int     start;
     internal readonly   int     length;
 
     public   override   string  ToString() => $"[{start}..{start + length}]";
-
-    public int CompareTo(BufferRange other) => start.CompareTo(other.start);
 
     internal BufferRange(int start, int length)
     {
@@ -53,7 +49,7 @@ internal readonly struct BufferRange : IComparable<BufferRange>
             return;
         }
         var span = CollectionsMarshal.AsSpan(requestedRanges);
-        span.Sort(); // sort by Offset (start) index
+        span.Sort((a, b) => a.start.CompareTo(b.start)); // sort by Offset (start) index
 
         var current = span[0];
 
