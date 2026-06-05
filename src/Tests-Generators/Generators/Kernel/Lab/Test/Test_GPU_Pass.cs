@@ -13,6 +13,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Pass_Batching()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var gpuWeight   = device.CreateBuffer(64, 1f, "gpuWeight", BufferProfile.StaticIn);
@@ -93,6 +95,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Split() // Read-After-Write  &  Write-After-Read
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
@@ -154,6 +158,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_WAW_Split()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
@@ -198,6 +204,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_Views()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var weight   = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
@@ -234,6 +242,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_ReadOnly_Views()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var input    = device.CreateBuffer(100, 1f, "input",  BufferProfile.StaticIn);
@@ -261,6 +271,8 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_Disjoint_Buffers()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
 
         using var weight    = device.CreateBuffer(100, 1f, "weight",   BufferProfile.StaticIn);

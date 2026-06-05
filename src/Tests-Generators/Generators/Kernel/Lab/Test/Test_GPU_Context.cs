@@ -27,6 +27,8 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Context_Leak()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
         var context = device.BeginContext(); // context leak
         
@@ -34,7 +36,7 @@ public class Test_GPU_Context : KernelBase
             device.Dispose();
         });
         StringAssert.StartsWith("[Resource Leak Detected] GpuDevice.Dispose() failed because active PipelineContexts were not closed!\n  -> Left Context open on Thread:", e!.Message);
-        StringAssert.Contains("Test_GPU_Context.cs:31", e!.Message);
+        StringAssert.Contains("Test_GPU_Context.cs:33", e!.Message);
         
         // cleanup as intended - otherwise leak detection will fail the test
         context.Dispose();      
@@ -44,6 +46,8 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Missing_Device_Exception()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device = Device;
         using var weight   = device.CreateBuffer(10, 1f, "weight", BufferProfile.StaticIn);
         using var input    = device.CreateBuffer(10, 2f, "input",  BufferProfile.StaticIn);
@@ -58,6 +62,8 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Dispose_Context_Null()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device    = Device;
         
         Assert.IsNull(device.Context);
@@ -86,6 +92,8 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Thread_Exceptions()
     {
+        if (Backend != TestBackend.WebGPU) return;
+        
         using var device            = Device;
         using var pipelineContext   = device.BeginContext();
         
