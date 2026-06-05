@@ -95,9 +95,9 @@ public sealed unsafe partial class CommandRecorder
         commandListQueue.Enqueue(commandList);
         
         wgpuIO.Submit(this, device, currentEncoder.handle);
-        wgpuIO.ReadBuffers(device);
-        
         commandList = device.commandListPool.Fetch(); // commandList is Return()'ed. Fetch a new one
+        
+        wgpuIO.ReadBuffers(device);
     }
 }
 
