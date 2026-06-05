@@ -166,9 +166,16 @@ internal readonly struct WgpuIO
             
             ref readonly var bufferData = ref bufferMap[(int)bufferEntry.bufferId].GetBufferData();
             activeBuffers.Add(new ActiveBuffer(bufferData, compactRanges));
-
-            uint elementSize     = (uint)bufferData.elementSize;
-            foreach (var range in compactRanges)
+        }
+        
+        // Encode GPU copy commands. New loop ensures all requestedRanges are cleared in previous loop.
+        ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
+        foreach (ref readonly var activeBuffer in activeBuffersSpan)
+        {
+            ref readonly var bufferData = ref activeBuffer.data;
+            uint elementSize            = (uint)bufferData.elementSize;
+            
+            foreach (var range in activeBuffer.compactRanges)
             {
                 uint byteOffset = (uint)range.start  * elementSize;
                 uint byteSize   = (uint)range.length * elementSize;
@@ -216,7 +223,7 @@ internal readonly struct WgpuIO
         
         // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
         int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
-        Span<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
+        ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
