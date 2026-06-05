@@ -22,7 +22,7 @@ public static class WgpuPattern
     {
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder; 			// Recorder == thread context
-        recorder.Init(MultiplyAdd_GPU_EffectSlot);
+        recorder.Init(MultiplyAdd_GPU_KernelId);
         
         var weight      = recorder.RequireRead     (weight_);
         var input       = recorder.RequireRead     (input_);
@@ -30,7 +30,7 @@ public static class WgpuPattern
 
         using (var pass = recorder.BeginComputePass("MultiplyAdd"u8))
         {
-            ref var effect = ref device.GetEffect(MultiplyAdd_GPU_EffectSlot); // Each device has its own GpuEffect[] array
+            ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
                 effect = ref MultiplyAdd_GPU_CreateEffect(device);
             }
@@ -44,7 +44,7 @@ public static class WgpuPattern
                 entries[1] = WgpuBindGroup.From  (1, input);
                 entries[2] = WgpuBindGroup.From  (2, output);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
-                device.UpdateBufferCache(MultiplyAdd_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
             }
             pass.SetBindGroup0(bufferGroup, buffers.hash);
             
@@ -78,9 +78,9 @@ public static class WgpuPattern
         [FieldOffset(16)]    public int      output_off;
     }
     
-    private static readonly int MultiplyAdd_GPU_EffectSlot         = KernelRegistry.NewKernelId("MultiplyAddKernel");
-    private const ulong         MultiplyAdd_GPU_BufferLayoutKey    = 1337; // unique key set by Generator
-    private const ulong         MultiplyAdd_GPU_UniformLayoutKey   = 42;   // unique key set by Generator
+    private static readonly int MultiplyAdd_GPU_KernelId            = KernelRegistry.NewKernelId("MultiplyAddKernel");
+    private const ulong         MultiplyAdd_GPU_BufferLayoutKey     = 1337; // unique key set by Generator
+    private const ulong         MultiplyAdd_GPU_UniformLayoutKey    = 42;   // unique key set by Generator
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect MultiplyAdd_GPU_CreateEffect(WgpuDevice device)
@@ -102,7 +102,7 @@ public static class WgpuPattern
         var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
-        return ref device.CreateEffect(MultiplyAdd_GPU_EffectSlot, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(MultiplyAdd_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
