@@ -97,9 +97,9 @@ public partial class Test_Float_GPU : KernelBase
         AddVector(scalar2.AsSpan(0, 10), scalar1.AsSpan   (0, 10));
         AddKernel(gpuDst.Slice  (0, 10), gpuSrc.AsReadOnly(0, 10));
 
-        for (int n = 10; n < 40; n+= 10) {
-            AddVector(scalar2.AsSpan(n, 10), scalar1.AsSpan   (n, 10));
-            AddKernel(gpuDst.Slice  (n, 10), gpuSrc.AsReadOnly(n, 10));
+        for (int n = 50; n >= 10; n-= 10) {
+            AddVector(scalar2.AsSpan(n, 9), scalar1.AsSpan   (n, 9));
+            AddKernel(gpuDst.Slice  (n, 9), gpuSrc.AsReadOnly(n, 9));
         }
         
         context.Queue.ReadBuffers();

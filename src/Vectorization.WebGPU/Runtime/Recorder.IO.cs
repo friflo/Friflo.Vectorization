@@ -92,10 +92,10 @@ public sealed unsafe partial class CommandRecorder
 
         commandListQueue.Enqueue(commandList);
         
-        wgpuIO.Submit(this, device, currentEncoder.handle);
+        var readSize = wgpuIO.Submit(this, device, currentEncoder.handle);
         commandList = device.commandListPool.Fetch(); // commandList is Return()'ed. Fetch a new one
         
-        wgpuIO.ReadBuffers(device);
+        wgpuIO.ReadBuffers(device, readSize);
     }
 }
 
@@ -108,7 +108,7 @@ internal readonly struct WgpuIO
     
     public WgpuIO() { }
     
-    internal unsafe void Submit(CommandRecorder recorder, WgpuDevice device, CommandEncoder* encoder)
+    internal unsafe uint Submit(CommandRecorder recorder, WgpuDevice device, CommandEncoder* encoder)
     {
         var createEncoder  = encoder == null;
         if (createEncoder) {
@@ -146,7 +146,7 @@ internal readonly struct WgpuIO
 
         // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
         var compactRangesIndex = 0;
-        
+
         foreach (var bufferEntry in bufferEntries)                              // TODO iterate only until device.bufferMap.Count
         {
             var ranges = bufferEntry.requestedRanges;
@@ -166,6 +166,7 @@ internal readonly struct WgpuIO
             activeBuffers.Add(new ActiveBuffer(bufferData, compactRanges));
         }
         
+        uint writePos = 0;
         // Encode GPU copy commands. New loop ensures all requestedRanges are cleared in previous loop.
         ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
@@ -180,10 +181,12 @@ internal readonly struct WgpuIO
 
                 // GPU internal copy from fast compute memory in persistent stating buffer
                 wgpuCommandEncoderCopyBufferToBuffer(
-                    encoder,    bufferData.storageHandle,   // source: GPU Storage [Storage]
-                    byteOffset, bufferData.stagingHandle,   // target: persistant Readback [MapRead]
-                    byteOffset, byteSize
+                    encoder,
+                    bufferData.storageHandle,        byteOffset,    // source: GPU Storage [Storage]
+                    device.stagingReadBuffer.handle, writePos,       // target: persistant Readback [MapRead]
+                    byteSize
                 );
+                writePos += byteSize;
             }
         }
 
@@ -211,31 +214,28 @@ internal readonly struct WgpuIO
         commandLists.Clear();
         
         device.SubmitCommands(submitCommands);
+        
+        return writePos;
     }
     
         
-    internal unsafe void ReadBuffers(WgpuDevice device)
+    internal unsafe void ReadBuffers(WgpuDevice device, uint readSize)
     {
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
         var activeBuffers = tempActiveBuffers;
         
         // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
-        int remainingMaps = activeBuffers.Count; // decremented to 0 if all wgpuBufferMapAsync are finished
+        int remainingMaps = 1;
         ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
-        
-        foreach (ref readonly var activeBuffer in activeBuffersSpan)
-        {
-            ref readonly var bufferData = ref activeBuffer.data;
-            uint totalSizeInBytes = (uint)(bufferData.length * bufferData.elementSize);
             
-            // simply map the whole memory instead of the smaller ranges 
-            var callbackInfo = new BufferMapCallbackInfo {
-                mode        = CallbackMode.AllowProcessEvents,
-                callback    = &BufferMap_callback,
-                userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
-            };
-            wgpuBufferMapAsync(bufferData.stagingHandle, (ulong)MapMode.Read, 0, totalSizeInBytes, callbackInfo);
-        }
+        // simply map the whole memory instead of the smaller ranges 
+        var callbackInfo = new BufferMapCallbackInfo {
+            mode        = CallbackMode.AllowProcessEvents,
+            callback    = &BufferMap_callback,
+            userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
+        };
+        wgpuBufferMapAsync(device.stagingReadBuffer.handle, (ulong)MapMode.Read, 0, readSize, callbackInfo);
+
         
         // the only single CPU-Stall: wait until all buffers are mapped
         while (Thread.VolatileRead(ref remainingMaps) > 0) {
@@ -243,19 +243,19 @@ internal readonly struct WgpuIO
             wgpuInstanceProcessEvents(device.instance);
         }
         
-        // --------------------- direct CPU -> CPU transfer staging memory -> host memory --------------------- 
+        // --------------------- direct CPU -> CPU transfer staging memory -> host memory ---------------------
+        var pMapped = (byte*)wgpuBufferGetMappedRange(device.stagingReadBuffer.handle, 0, readSize);
+        int readPos = 0;
+
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
             ref readonly var bufferData = ref activeBuffer.data;
-            uint totalSizeInBytes   = (uint)(bufferData.length * bufferData.elementSize);
-            void* pMapped           = wgpuBufferGetMappedRange(bufferData.stagingHandle, 0, totalSizeInBytes);
-
-            var wgpuBuffer          = bufferMap[bufferData.bufferId];
+            var wgpuBuffer              = bufferMap[bufferData.bufferId];
             
-            wgpuBuffer.ExecuteCpuCopy(pMapped, activeBuffer.compactRanges);  // copy staging memory to host memory
-            
-            wgpuBufferUnmap(bufferData.stagingHandle);  // unmap so CPU is able to access
+            readPos += wgpuBuffer.ExecuteCpuCopy(pMapped + readPos, activeBuffer.compactRanges);  // copy staging memory to host memory
         }
+        wgpuBufferUnmap(device.stagingReadBuffer.handle);  // unmap so CPU is able to access
+        
         activeBuffers.Clear();
     }
     

@@ -43,7 +43,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private  readonly   BindGroupLayoutMap  layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
     internal readonly   CommandListPool     commandListPool = new ();
-    
+    internal readonly   StagingBuffer       stagingReadBuffer;
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
     internal            BufferEntry[]       bufferEntries       = [];   // ranges & segments per GpuBuffer
@@ -114,6 +114,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         //  if (QueuePtr != null) {
         //      wgpu.QueueRelease(QueuePtr); will cause segtfault/panic when calling wgpu.QueueSubmit()
         //  }
+        wgpuBufferRelease(stagingReadBuffer.handle);
         if (DevicePtr != null) {
             wgpuDeviceRelease(DevicePtr);
         }
@@ -180,6 +181,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
+        stagingReadBuffer   = CreateStagingBuffer(16 * 1024 * 1024, "staging_buffer");
     }
     
     // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>
@@ -331,7 +333,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return buffer;
     }
     
-    private Buffer* CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
+    internal StagingBuffer CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
     {
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
@@ -347,7 +349,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         if (buffer == null) {
             throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
         }
-        return buffer;
+        return new StagingBuffer(buffer, (int)size);
     }
     
     private static BufferUsage GetBufferUsage(BufferProfile profile, BufferType type)
@@ -388,8 +390,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var array           = new T[length];
         Array.Fill(array, value);
         var buffer          = CreateBufferWithData(array, wgpuUsage, bufferLabel);
-        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
-        var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferMap.Count, stagingHandle, array, bufferLabel);
+        var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferMap.Count, array, bufferLabel);
         bufferMap.Add(gpuBuffer);
         return gpuBuffer;
     }
@@ -399,8 +400,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var wgpuUsage       = GetBufferUsage(profile, type);
         var sizeInBytes     = (uint)(data.Length * Unsafe.SizeOf<T>());
         var handle          = CreateBufferWithData(data, wgpuUsage, bufferLabel);
-        var stagingHandle   = CreateStagingBuffer(sizeInBytes, bufferLabel);
-        var gpuBuffer       = new WgpuBuffer<T>(this, handle, bufferMap.Count, stagingHandle, data, bufferLabel);
+        var gpuBuffer       = new WgpuBuffer<T>(this, handle, bufferMap.Count, data, bufferLabel);
         bufferMap.Add(gpuBuffer);
         return gpuBuffer;
     }
@@ -435,8 +435,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             var ranges = entries[n].requestedRanges;
             if (ranges != null && ranges.Count > 0) throw new InvalidOperationException("expect ranges is empty");
         } */
-        wgpuIO.Submit(null, this, null);
-        wgpuIO.ReadBuffers(this);
+        var readSize = wgpuIO.Submit(null, this, null);
+        wgpuIO.ReadBuffers(this, readSize);
     }
     
     // ----------------------------- section "pure" methods used to create WebGPU structs ----------------------------- 

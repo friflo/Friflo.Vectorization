@@ -19,7 +19,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 internal unsafe interface IWgpuBuffer {
     internal    ref readonly BufferData GetBufferData();
-    internal    void                    ExecuteCpuCopy(void* pMapped, List<BufferRange> compactRanges);
+    internal    int          ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges);
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -46,38 +46,40 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     {
         if (handle == null) return;
         wgpuBufferRelease(handle);
-        wgpuBufferRelease(data.stagingHandle);
         handle = null;
         device = null;
     }
 
-    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int bufferId, Buffer* statingHandle, Memory<T> hostMemory, string bufferLabel)
+    internal WgpuBuffer(WgpuDevice device, Buffer* buffer, int bufferId, Memory<T> hostMemory, string bufferLabel)
         : base(hostMemory, bufferLabel, (nint)buffer, bufferId)
     {
         this.device     = device;
         handle          = buffer;
-        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), Length, buffer, statingHandle);
+        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), buffer);
     }
     
     // --- IWgpuBuffer
     ref readonly BufferData IWgpuBuffer.GetBufferData() => ref data;
     
-    void IWgpuBuffer.ExecuteCpuCopy(void* pMapped, List<BufferRange> compactRanges)
+    int IWgpuBuffer.ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges)
     {
-        ReadOnlySpan<T>             gpuSourceSpan   = new ReadOnlySpan<T>(pMapped, Length);
         Span<T>                     hostTargetSpan  = hostMemory.Span;
         ReadOnlySpan<BufferRange>   ranges          = CollectionsMarshal.AsSpan(compactRanges);
+        var readPos = 0;
 
         foreach (var range in ranges)
         {
             int start   = range.start;
             int length  = range.length;
+            
+            ReadOnlySpan<T>  gpuSourceSpan  = new ReadOnlySpan<T>(pMapped + readPos, length);
+            Span<T>          targetSlice    = hostTargetSpan.Slice(start,            length);
 
-            ReadOnlySpan<T>  sourceSlice = gpuSourceSpan.Slice (start, length);
-            Span<T>          targetSlice = hostTargetSpan.Slice(start, length);
-
-            sourceSlice.CopyTo(targetSlice);
+            gpuSourceSpan.CopyTo(targetSlice);
+            
+            readPos       += length * sizeof(T);
         }
+        return readPos;
     }
 }
 

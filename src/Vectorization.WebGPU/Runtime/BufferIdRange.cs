@@ -92,18 +92,14 @@ internal readonly unsafe struct BufferData
 {
     internal readonly   int     bufferId;
     internal readonly   int     elementSize;
-    internal readonly   int     length;
     internal readonly   Buffer* storageHandle;
-    internal readonly   Buffer* stagingHandle;
 
-    public   override   string  ToString() => $"bufferId: {bufferId}  length: {length}";
+    public   override   string  ToString() => $"bufferId: {bufferId}";
 
-    internal BufferData(int bufferId, int elementSize, int length, Buffer* storageHandle, Buffer* stagingHandle) {
+    internal BufferData(int bufferId, int elementSize, Buffer* storageHandle) {
         this.bufferId       = bufferId;
         this.elementSize    = elementSize;
-        this.length         = length;
         this.storageHandle  = storageHandle;
-        this.stagingHandle  = stagingHandle;
     }
 }
 

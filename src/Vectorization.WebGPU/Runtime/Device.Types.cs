@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  WgpuDevice
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
@@ -108,5 +110,39 @@ public readonly unsafe struct WgpuShaderModule
     
     internal WgpuShaderModule(ShaderModule* handle) {
         this.handle = handle;
+    }
+}
+
+
+internal unsafe struct StagingBuffer
+{
+    internal readonly   Buffer* handle;
+    internal readonly   int     size;
+    
+    internal StagingBuffer(Buffer* handle, int size) {
+        this.handle = handle;
+        this.size   = size;
+    }
+}
+
+internal class StagingPool
+{
+    // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
+    private readonly ConcurrentQueue<StagingBuffer> pooled = [];
+
+    public  override    string  ToString() => $"pooled: {pooled.Count}";
+
+    internal  unsafe StagingBuffer Fetch(WgpuDevice device)
+    {
+        if (pooled.TryDequeue(out var list)) {
+            return list;
+        }
+        return device.CreateStagingBuffer(16 * 1024 * 1024, "staging_buffer");
+    }
+
+    internal void Return(StagingBuffer list)
+    {
+        pooled.Enqueue(list);
+        // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 
     }
 }
