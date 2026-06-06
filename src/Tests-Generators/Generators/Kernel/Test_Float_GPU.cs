@@ -101,7 +101,9 @@ public partial class Test_Float_GPU : KernelBase
         
         
         for (int n = 0; n < 10; n++) {
-            Assert.That(view1.Span[n], Is.EqualTo(30 + 2 * n));
+            var expect = 30 + 2 * n;
+            Assert.That(view1.Span[n],   Is.EqualTo(expect)); // a Span<> inside buffer1
+            Assert.That(buffer1[n + 10], Is.EqualTo(expect));
         }
     }
     
