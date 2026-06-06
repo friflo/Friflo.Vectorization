@@ -53,17 +53,17 @@ public sealed unsafe partial class CommandRecorder
         return bufferEntries = newEntries;
     }
     
-    public override  void FlushQueueTo(PipelineContext targetContext) {
+    public override  void FlushTo(PipelineContext targetContext) {
         ValidateThreadSafety();
-        FlushQueueTo(((CommandRecorder)targetContext).commandListQueue);
+        FlushTo(((CommandRecorder)targetContext).commandListQueue);
     }
     
-    public override  void FlushQueueTo(GpuDevice targetDevice) {
+    public override  void FlushTo(GpuDevice targetDevice) {
         ValidateThreadSafety();
-        FlushQueueTo(((WgpuDevice)targetDevice).commandListQueue);
+        FlushTo(((WgpuDevice)targetDevice).commandListQueue);
     }
     
-    private void FlushQueueTo(CommandListQueue targetQueue)
+    private void FlushTo(CommandListQueue targetQueue)
     {
         if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
             FinishPass();
