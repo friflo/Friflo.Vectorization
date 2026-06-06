@@ -97,9 +97,6 @@ public partial class Test_Float_GPU : KernelBase
 
         AddKernel(view1, view2);
         
-        // Device.Wait(gpuDst);
-        // gpuDst.Download(gpuDst, buffer1);
-
         context.Queue.ReadBuffers();
         
         

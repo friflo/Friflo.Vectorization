@@ -143,14 +143,14 @@ public partial class Test_Vector4_GPU : KernelBase
             array2[n] = buffer2[n] = new Vector4(n * 0.1f + 100, n * 0.1f + 100, n * 0.1f + 100, n * 0.1f + 100);
         }
         using var gpuBuffer1   = Device.CreateBuffer(buffer1, GpuBufferUsage.Storage | GpuBufferUsage.CopySrc, "position");
-        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");        
+        using var gpuBuffer2   = Device.CreateBuffer(buffer2, GpuBufferUsage.Storage, "velocity");
+        
+        using var context = Device.BeginContext();
 
         AdvancedVector(array1,     array2, false);
         AdvancedKernel(gpuBuffer1, gpuBuffer2);
-        
-        Device.Wait(gpuBuffer1);
-        
-        gpuBuffer1.Download(gpuBuffer1, buffer1);
+                
+        context.Queue.ReadBuffers();
         
         for (int n = 0; n < 128; n++) {
             var a = array1[n];
