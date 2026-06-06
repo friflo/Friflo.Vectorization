@@ -85,25 +85,27 @@ public partial class Test_Float_GPU : KernelBase
     public void Test_Kernel_Buffers()
     {
         for (int n = 0; n < 128; n++) {
-            buffer1[n] = n;
-            buffer2[n] = n;
+            scalar1[n] = buffer1[n] = n;
+            scalar2[n] = buffer2[n] = 0;
         }
-        using var gpuDst   = Device.CreateBuffer(buffer1, "dst", BufferProfile.InOut);
-        using var gpuSrc   = Device.CreateBuffer(buffer2, "src", BufferProfile.InOut);
-        BufferView<float>   view1 = gpuDst.Slice     (10, 10);
-        ReadOnlyView<float> view2 = gpuSrc.AsReadOnly(20, 10);
+        using var gpuSrc   = Device.CreateBuffer(buffer1, "src", BufferProfile.StaticIn);
+        using var gpuDst   = Device.CreateBuffer(buffer2, "dst", BufferProfile.InOut);
         
         using var context = Device.BeginContext();
+        context.PassBatching = PassBatching.None;
+        
+        AddVector(scalar2.AsSpan(0, 10), scalar1.AsSpan   (0, 10));
+        AddKernel(gpuDst.Slice  (0, 10), gpuSrc.AsReadOnly(0, 10));
 
-        AddKernel(view1, view2);
+        for (int n = 10; n < 40; n+= 10) {
+            AddVector(scalar2.AsSpan(n, 10), scalar1.AsSpan   (n, 10));
+            AddKernel(gpuDst.Slice  (n, 10), gpuSrc.AsReadOnly(n, 10));
+        }
         
         context.Queue.ReadBuffers();
         
-        
-        for (int n = 0; n < 10; n++) {
-            var expect = 30 + 2 * n;
-            Assert.That(view1.Span[n],   Is.EqualTo(expect)); // a Span<> inside buffer1
-            Assert.That(buffer1[n + 10], Is.EqualTo(expect));
+        for (int n = 0; n < 128; n++) {
+            Assert.That(buffer2[n], Is.EqualTo(scalar2[n]));
         }
     }
     

@@ -136,10 +136,11 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var context = device.BeginContext();
         context.PassBatching = PassBatching.None;
+        Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);
 
         var e = Assert.Throws<WgpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error
-            Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);
+            context.Queue.ReadBuffers();
         })!;
         StringAssert.Contains("gpuOutput",          e.Message);
         StringAssert.Contains("conflicting usages", e.Message);

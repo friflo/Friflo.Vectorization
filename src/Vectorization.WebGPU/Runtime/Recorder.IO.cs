@@ -65,10 +65,9 @@ public sealed unsafe partial class CommandRecorder
     
     private void FlushTo(CommandListQueue targetQueue)
     {
-        if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
-            FinishPass();
-            FinishEncoder("FlushTo"u8); // creates CommandBuffer and adds it to commandList.commands
-        }
+        FinishPass();
+        FinishEncoder("FlushTo"u8); // creates CommandBuffer and adds it to commandList.commands
+
         var queue               = commandListQueue;
         var localCommandList    = commandList;
         if (localCommandList.commands.Count > 0) {        
@@ -88,10 +87,9 @@ public sealed unsafe partial class CommandRecorder
     protected override void ReadBuffers()
     {
         ValidateThreadSafety();
-        
-        if (PassBatching == PassBatching.HazardDriven && renderPassCount > 0) {
-            FinishPass();
-        }
+
+        FinishPass();
+
         commandListQueue.Enqueue(commandList);
         
         wgpuIO.Submit(this, device, currentEncoder.handle);

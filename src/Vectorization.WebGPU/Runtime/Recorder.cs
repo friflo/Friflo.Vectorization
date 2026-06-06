@@ -157,6 +157,9 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishPass()
     {
+        if (currentPass== null) {
+            return;
+        }
         renderPassCount     =  0;
         lastBindGroup0_hash =  0;
         lastPipelineHandle  =  null;
@@ -183,6 +186,10 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishEncoder(ReadOnlySpan<byte> commandBufferLabel)
     {
+        var encoderHandle = currentEncoder.handle;
+        if (encoderHandle == null) {
+            return;
+        }
         uniformOffset       =  0;
         
         // TODO  Ultimate performance upgrade
@@ -190,16 +197,15 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         // This eliminates the WriteBuffer() call entirely because AsUniformEntry<> will than write directly in GPU memory.
         // This requires WGPU Buffer Map/Unmap Lifecycle Management
         
-        var encoderHandle = currentEncoder.handle;
         fixed (byte* labelPtr = commandBufferLabel) {
             var descriptor = new CommandBufferDescriptor { label = WgpuUtils.FromPtrSpan(labelPtr, commandBufferLabel) };
             var cbHandle   = wgpuCommandEncoderFinish(encoderHandle, &descriptor);
             commandBuffer  = new WgpuCommandBuffer(cbHandle); 
         }
-        if (encoderHandle != null) {
-            wgpuCommandEncoderRelease(encoderHandle);
-            currentEncoder = default;
-        }
+        wgpuCommandEncoderRelease(encoderHandle);
+        
+        currentEncoder = default;
+
         if (device.errorHandler.errorType != ErrorType.NoError) {
             // device.ReturnTask(this);       // TASK_TAG
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...

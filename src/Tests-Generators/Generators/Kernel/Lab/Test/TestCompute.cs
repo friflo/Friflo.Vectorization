@@ -165,18 +165,15 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 44, gpuOutput.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, HandleDiff.BindGroups.Diff); // cache hit: gpuOutput
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 45, gpuOutput3.InOut);
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        // device.Wait(gpuOutput);
-        // gpuOutput.Download(gpuOutput, output);
-        
         context.Queue.ReadBuffers();
         
-        Assert.AreEqual(45, output[0]);
+        Assert.AreEqual(44, output[0]);
     }
     
 }

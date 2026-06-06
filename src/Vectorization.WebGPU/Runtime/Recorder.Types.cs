@@ -57,7 +57,6 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
             return;
         }
         recorder.FinishPass();
-        recorder.FinishEncoder(label);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

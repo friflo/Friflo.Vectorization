@@ -74,7 +74,7 @@ public partial class Test_GPU_Pass : KernelBase
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
         Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
 
-        Assert.AreEqual(2, context.Queue.Stats.Commands);
+        Assert.AreEqual(0, context.Queue.Stats.Commands);
         Assert.AreEqual(2, context.Queue.Stats.Ranges);
 
         context.Queue.ReadBuffers();
@@ -88,7 +88,7 @@ public partial class Test_GPU_Pass : KernelBase
             --- PIPELINE TRACE (batching: None  calls: 2   passes: 2  hazards: 0) ---
             MultiplyAddKernel()             calls:  1   new_pass
             MultiplyAddKernel()             calls:  1   new_pass
-            > Submit                        commands: 3
+            > Submit                        commands: 1
             """).IgnoreWhiteSpace);
     }
     
