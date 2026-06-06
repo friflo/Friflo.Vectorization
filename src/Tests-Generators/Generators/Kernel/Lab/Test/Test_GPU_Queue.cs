@@ -72,7 +72,10 @@ public partial class Test_GPU_Queue : KernelBase
         using var context = device.BeginContext();
         context.PassBatching = PassBatching.HazardDriven;
         
-        AssignKernel(target.InOut, source.In);
+        AssignKernel(target.Slice(2, 1), source.AsReadOnly(2, 1));
+        AssignKernel(target.Slice(6, 1), source.AsReadOnly(6, 1));
+        AssignKernel(target.Slice(0, 1), source.AsReadOnly(0, 1));
+        AssignKernel(target.Slice(9, 1), source.AsReadOnly(9, 1));
         
         context.FlushTo(device);
         
@@ -82,7 +85,7 @@ public partial class Test_GPU_Queue : KernelBase
         
         device.Queue.ReadBuffers();
         
-        Assert.AreEqual(sourceArr, targetArr);
+        Assert.AreEqual(new float[] { 1, 0, 3, 0, 0,  0, 7, 0, 0, 10 }, targetArr);
     }
     
     [Test]
