@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;

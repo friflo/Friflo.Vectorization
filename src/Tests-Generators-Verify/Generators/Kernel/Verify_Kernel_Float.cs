@@ -98,5 +98,29 @@ public partial class Kernel_Sign_Example
 """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Kernel_KernelOnly()
+    {
+        var code =
+"""
+using System;
+using System.Numerics;
+using Friflo.Vectorization;
+using Friflo.Vectorization.GPU;
+
+namespace VerifyVectorize;
+
+public partial class Kernel_Sign_Example
+{
+    [Kernel]  [OmitHash]
+    void KernelOnly([Span] ref float position, float value) {
+        var sign = MathF.Sign(value);
+        position = sign;
+    }
+}
+""";
+        await Verify(code);
+    }    
 
 }

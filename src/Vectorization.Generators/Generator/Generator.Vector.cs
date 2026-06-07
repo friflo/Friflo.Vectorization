@@ -71,6 +71,18 @@ public sealed partial class Gen
             """";
             return shadowMethodSource;
         }
-        return "";
+        var source =
+        $$""""
+
+                /// <summary>Vector method generated for: <see cref="{{methodName}}"/>.</summary>
+                public {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName}}Vector({{methodSignature}})
+                {
+                    int count = {{query.VectorTypes[0].Name}}.Length;
+                    for (int n = 0; n < count; n++) {
+                        {{methodName}}({{lambdaParameters}});
+                    }
+                }
+        """";
+        return source;
     }
 }

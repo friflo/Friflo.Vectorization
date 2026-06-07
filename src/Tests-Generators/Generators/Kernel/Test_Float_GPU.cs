@@ -395,4 +395,31 @@ public partial class Test_Float_GPU : KernelBase
             Assert.That(scalar1[n], Is.Not.NaN & Is.Not.EqualTo(float.PositiveInfinity) & Is.Not.EqualTo(float.NegativeInfinity));
         }
     }
+    
+    // ----------------------------------------------
+    [Kernel] [OmitHash]
+    private static void KernelOnly([Span] ref float position, [Span] float velocity) {
+        position *= velocity;
+    }
+        
+    [Test]
+    public void Test_Kernel_KernelOnly()
+    {
+        for (int n = 0; n < 128; n++) {
+            scalar1[n] = buffer1[n] = n;
+        }
+        using var position   = Device.CreateBuffer(buffer1, "position", BufferProfile.InOut);
+        using var velocity   = Device.CreateBuffer(128, 2f, "velocity", BufferProfile.StaticIn);
+
+        using var context = Device.BeginContext();
+        
+        KernelOnlyVector(scalar1,    	   velocity.In.Span, false);
+        KernelOnlyKernel(position.InOut, velocity.In);
+        
+        context.Queue.ReadBuffers();
+        
+        for (int n = 0; n < 128; n++) {
+            Assert.That(scalar1[n], Is.EqualTo(buffer1[n]));
+        }
+    }
 }
