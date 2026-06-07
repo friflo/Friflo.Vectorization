@@ -247,7 +247,7 @@ namespace Kernel.Generators
     private static readonly int _Advanced_GPU_KernelId           =  KernelRegistry.NewKernelId("AdvancedKernel");
     private const  ulong        _Advanced_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Advanced_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Advanced_GPU_WgslHash           => 0x87a58578da6b98e6;
+    private static ulong        _Advanced_GPU_WgslHash           => 0x4b19981c982cc65c;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Advanced_GPU_CreateEffect(WgpuDevice device)

@@ -138,7 +138,7 @@ namespace Kernel.Lab
     private static readonly int _ReadOnly_GPU_KernelId           =  KernelRegistry.NewKernelId("ReadOnlyKernel");
     private const  ulong        _ReadOnly_GPU_BufferLayoutKey    =  0x8328407b4eb6921;
     private const  ulong        _ReadOnly_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _ReadOnly_GPU_WgslHash           => 0x3114374990688962;
+    private static ulong        _ReadOnly_GPU_WgslHash           => 0x113e8790c6a48dd7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _ReadOnly_GPU_CreateEffect(WgpuDevice device)

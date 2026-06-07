@@ -182,7 +182,7 @@ namespace Kernel.Generators
     private static readonly int _Add_GPU_KernelId           =  KernelRegistry.NewKernelId("AddKernel");
     private const  ulong        _Add_GPU_BufferLayoutKey    =  0x27db7b47f1cfca6b;
     private const  ulong        _Add_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Add_GPU_WgslHash           => 0x9ca78e35bb32aa48;
+    private static ulong        _Add_GPU_WgslHash           => 0xc8ebe1134bf1f4b6;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Add_GPU_CreateEffect(WgpuDevice device)

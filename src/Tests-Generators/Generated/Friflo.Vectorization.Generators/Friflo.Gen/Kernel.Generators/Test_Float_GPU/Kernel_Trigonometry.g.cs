@@ -247,7 +247,7 @@ namespace Kernel.Generators
     private static readonly int _Kernel_Trigonometry_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_TrigonometryKernel");
     private const  ulong        _Kernel_Trigonometry_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Kernel_Trigonometry_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Kernel_Trigonometry_GPU_WgslHash           => 0xdb0904a10790142b;
+    private static ulong        _Kernel_Trigonometry_GPU_WgslHash           => 0x9c5b1e847d218990;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Trigonometry_GPU_CreateEffect(WgpuDevice device)

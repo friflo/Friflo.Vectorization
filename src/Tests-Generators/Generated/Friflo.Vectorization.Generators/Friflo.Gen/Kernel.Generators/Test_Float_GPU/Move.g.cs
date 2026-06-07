@@ -173,7 +173,7 @@ namespace Kernel.Generators
     private static readonly int _Move_GPU_KernelId           =  KernelRegistry.NewKernelId("MoveKernel");
     private const  ulong        _Move_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Move_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Move_GPU_WgslHash           => 0x30a30dd2c66eb428;
+    private static ulong        _Move_GPU_WgslHash           => 0x420dc7e7885d85b1;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Move_GPU_CreateEffect(WgpuDevice device)

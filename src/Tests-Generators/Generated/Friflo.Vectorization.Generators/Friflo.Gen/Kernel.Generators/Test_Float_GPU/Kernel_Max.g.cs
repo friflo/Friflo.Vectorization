@@ -165,7 +165,7 @@ namespace Kernel.Generators
     private static readonly int _Kernel_Max_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_MaxKernel");
     private const  ulong        _Kernel_Max_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Kernel_Max_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Kernel_Max_GPU_WgslHash           => 0x28e0f3c628e61f95;
+    private static ulong        _Kernel_Max_GPU_WgslHash           => 0x13ef0c5fc4cda50b;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Max_GPU_CreateEffect(WgpuDevice device)

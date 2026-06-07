@@ -167,7 +167,7 @@ namespace Kernel.Generators
     private static readonly int _Transform_GPU_KernelId           =  KernelRegistry.NewKernelId("TransformKernel");
     private const  ulong        _Transform_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
     private const  ulong        _Transform_GPU_UniformLayoutKey   =  0xeab5d4e968376747;
-    private static ulong        _Transform_GPU_WgslHash           => 0x94b03e2fa6002470;
+    private static ulong        _Transform_GPU_WgslHash           => 0xa183d027f6f1f1cf;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Transform_GPU_CreateEffect(WgpuDevice device)

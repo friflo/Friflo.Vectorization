@@ -165,7 +165,7 @@ namespace Kernel.Generators
     private static readonly int _Multiply_GPU_KernelId           =  KernelRegistry.NewKernelId("MultiplyKernel");
     private const  ulong        _Multiply_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Multiply_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Multiply_GPU_WgslHash           => 0x174b0b2b6ae285ca;
+    private static ulong        _Multiply_GPU_WgslHash           => 0x105e0466893e512f;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Multiply_GPU_CreateEffect(WgpuDevice device)

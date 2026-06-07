@@ -173,7 +173,7 @@ namespace Kernel.Generators
     private static readonly int _Kernel_Clamp_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_ClampKernel");
     private const  ulong        _Kernel_Clamp_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Kernel_Clamp_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Kernel_Clamp_GPU_WgslHash           => 0xdcb050c93fd1eede;
+    private static ulong        _Kernel_Clamp_GPU_WgslHash           => 0x11179e0e7ee88085;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Clamp_GPU_CreateEffect(WgpuDevice device)

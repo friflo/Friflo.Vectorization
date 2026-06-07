@@ -151,7 +151,7 @@ namespace Kernel.Generators
     private static readonly int _InverseSqrt_GPU_KernelId           =  KernelRegistry.NewKernelId("InverseSqrtKernel");
     private const  ulong        _InverseSqrt_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
     private const  ulong        _InverseSqrt_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _InverseSqrt_GPU_WgslHash           => 0x10ff8de9d8dbd0e0;
+    private static ulong        _InverseSqrt_GPU_WgslHash           => 0x8a5dd36b7de2dde4;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _InverseSqrt_GPU_CreateEffect(WgpuDevice device)

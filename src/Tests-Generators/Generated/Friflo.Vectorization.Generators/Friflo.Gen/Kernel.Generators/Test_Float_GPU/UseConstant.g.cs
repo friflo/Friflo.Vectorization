@@ -152,7 +152,7 @@ namespace Kernel.Generators
     private static readonly int _UseConstant_GPU_KernelId           =  KernelRegistry.NewKernelId("UseConstantKernel");
     private const  ulong        _UseConstant_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
     private const  ulong        _UseConstant_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _UseConstant_GPU_WgslHash           => 0x2c127e25c891c30e;
+    private static ulong        _UseConstant_GPU_WgslHash           => 0x0bf1ba748423ff91;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _UseConstant_GPU_CreateEffect(WgpuDevice device)

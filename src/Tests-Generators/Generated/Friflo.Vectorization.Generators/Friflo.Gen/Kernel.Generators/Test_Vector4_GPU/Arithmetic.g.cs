@@ -207,7 +207,7 @@ namespace Kernel.Generators
     private static readonly int _Arithmetic_GPU_KernelId           =  KernelRegistry.NewKernelId("ArithmeticKernel");
     private const  ulong        _Arithmetic_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
     private const  ulong        _Arithmetic_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Arithmetic_GPU_WgslHash           => 0x699825d85c966fc7;
+    private static ulong        _Arithmetic_GPU_WgslHash           => 0xbf185be78181f548;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Arithmetic_GPU_CreateEffect(WgpuDevice device)
