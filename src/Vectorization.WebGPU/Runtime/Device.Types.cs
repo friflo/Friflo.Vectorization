@@ -18,11 +18,13 @@ public unsafe struct WgpuEffect
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
     public              WgpuBufferCache     bufferCache;
+    internal            ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal WgpuEffect (WgpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
+    internal WgpuEffect (ulong wgslHash, WgpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
+        this.wgslHash       = wgslHash;
         this.pipeline       = pipeline;
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = uniformLayout;

@@ -110,7 +110,7 @@ namespace Kernel.Generators
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_UseConstant_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _UseConstant_GPU_CreateEffect(device);
             }
@@ -149,9 +149,10 @@ namespace Kernel.Generators
         [FieldOffset( 4)]    public int        position_off;
     }
     
-    private static readonly int _UseConstant_GPU_KernelId           = KernelRegistry.NewKernelId("UseConstantKernel");
-    private const ulong         _UseConstant_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
-    private const ulong         _UseConstant_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private static readonly int _UseConstant_GPU_KernelId           =  KernelRegistry.NewKernelId("UseConstantKernel");
+    private const  ulong        _UseConstant_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
+    private const  ulong        _UseConstant_GPU_UniformLayoutKey   =  0xeab614e96837d407;
+    private static ulong        _UseConstant_GPU_WgslHash           => 0x2c127e25c891c30e;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _UseConstant_GPU_CreateEffect(WgpuDevice device)
@@ -173,7 +174,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_UseConstant_GPU_Shader(), "UseConstant"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "UseConstant"u8);
         
-        return ref device.CreateEffect(_UseConstant_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _UseConstant_GPU_Shader() =>

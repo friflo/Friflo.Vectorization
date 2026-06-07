@@ -162,6 +162,7 @@ public sealed partial class Gen
         var methodName          = query.BlueprintMethod.Name;
         var methodName_GPU      = $"_{methodName}_GPU{hash}";
         var wgslHelperMethods   = WgslHelper.GenerateWgslHelperMethods(query);
+        var wgslHash            = GeneratorUtils.GetMd5Hash(query.wgslBody).Substring(16).ToLowerInvariant();
         
         // ----------------- generate method
         var shadowMethodSource =
@@ -179,7 +180,7 @@ $$""""
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref {{methodName_GPU}}_CreateEffect(device);
             }
@@ -212,9 +213,10 @@ $$""""
     {{{structFields}}
     }
     
-    private static readonly int {{methodName_GPU}}_KernelId           = KernelRegistry.NewKernelId("{{methodName}}Kernel");
-    private const ulong         {{methodName_GPU}}_BufferLayoutKey    = 0x{{bindingHash:x}};
-    private const ulong         {{methodName_GPU}}_UniformLayoutKey   = 0x{{uniformHash:x}};
+    private static readonly int {{methodName_GPU}}_KernelId           =  KernelRegistry.NewKernelId("{{methodName}}Kernel");
+    private const  ulong        {{methodName_GPU}}_BufferLayoutKey    =  0x{{bindingHash:x}};
+    private const  ulong        {{methodName_GPU}}_UniformLayoutKey   =  0x{{uniformHash:x}};
+    private static ulong        {{methodName_GPU}}_WgslHash           => 0x{{wgslHash}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
@@ -235,7 +237,7 @@ $$""""
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return ref device.CreateEffect({{methodName_GPU}}_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

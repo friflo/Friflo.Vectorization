@@ -31,7 +31,7 @@ public static class WgpuPattern
 
         using (var pass = recorder.BeginComputePass("MultiplyAdd"u8))
         {
-            ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId); // Each device has its own GpuEffect[] array
+            ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
             if (!effect.IsCreated) {
                 effect = ref MultiplyAdd_GPU_CreateEffect(device);
             }
@@ -79,9 +79,10 @@ public static class WgpuPattern
         [FieldOffset(16)]    public int      output_off;
     }
     
-    private static readonly int MultiplyAdd_GPU_KernelId            = KernelRegistry.NewKernelId("MultiplyAddKernel");
-    private const ulong         MultiplyAdd_GPU_BufferLayoutKey     = 1337; // unique key set by Generator
-    private const ulong         MultiplyAdd_GPU_UniformLayoutKey    = 42;   // unique key set by Generator
+    private static readonly int MultiplyAdd_GPU_KernelId            =  KernelRegistry.NewKernelId("MultiplyAddKernel");
+    private const ulong         MultiplyAdd_GPU_BufferLayoutKey     =  0x1337;  // unique key set by Generator
+    private const ulong         MultiplyAdd_GPU_UniformLayoutKey    =  0x42;    // unique key set by Generator
+    private static ulong        MultiplyAdd_GPU_WgslHash            => 0x777;   // support Hot-Relead
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect MultiplyAdd_GPU_CreateEffect(WgpuDevice device)
@@ -103,7 +104,7 @@ public static class WgpuPattern
         var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
-        return ref device.CreateEffect(MultiplyAdd_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)

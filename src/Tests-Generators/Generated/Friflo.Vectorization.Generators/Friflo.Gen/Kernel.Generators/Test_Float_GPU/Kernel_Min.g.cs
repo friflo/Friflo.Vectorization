@@ -120,7 +120,7 @@ namespace Kernel.Generators
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Kernel_Min_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _Kernel_Min_GPU_CreateEffect(device);
             }
@@ -162,9 +162,10 @@ namespace Kernel.Generators
         [FieldOffset( 8)]    public int        velocity_off;
     }
     
-    private static readonly int _Kernel_Min_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_MinKernel");
-    private const ulong         _Kernel_Min_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
-    private const ulong         _Kernel_Min_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private static readonly int _Kernel_Min_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_MinKernel");
+    private const  ulong        _Kernel_Min_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
+    private const  ulong        _Kernel_Min_GPU_UniformLayoutKey   =  0xeab614e96837d407;
+    private static ulong        _Kernel_Min_GPU_WgslHash           => 0x2db15c62b1dd8e6a;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Min_GPU_CreateEffect(WgpuDevice device)
@@ -187,7 +188,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Min_GPU_Shader(), "Kernel_Min"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Min"u8);
         
-        return ref device.CreateEffect(_Kernel_Min_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Min_GPU_Shader() =>

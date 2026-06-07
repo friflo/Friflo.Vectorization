@@ -130,10 +130,14 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
  
     // --- effectSlots
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref WgpuEffect GetEffect(int slot) {
+    public ref WgpuEffect GetEffect(int slot, ulong wgslHash)
+    {
         var slots = effectSlots;
         if (slot < slots.Length) {
-            return ref slots[slot];
+            ref var effect = ref slots[slot];
+            if (effect.wgslHash == wgslHash) {
+                return ref effect;
+            }
         }
         return ref MissingEffect;
     }
@@ -141,10 +145,11 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private static WgpuEffect MissingEffect;
     
     public ref WgpuEffect CreateEffect(
-        int                 slot,
-        WgpuComputePipeline  pipeline,
-        WgpuBindGroupLayout bufferLayout,
-        WgpuBindGroupLayout uniformLayout)
+        int                     slot,
+        ulong                   wgslHash,
+        WgpuComputePipeline     pipeline,
+        WgpuBindGroupLayout     bufferLayout,
+        WgpuBindGroupLayout     uniformLayout)
     {
         var slots = effectSlots;
         if (slot >= slots.Length) {
@@ -152,7 +157,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
-        slots[slot] = new WgpuEffect(pipeline, bufferLayout, uniformLayout);
+        slots[slot] = new WgpuEffect(wgslHash, pipeline, bufferLayout, uniformLayout);
         return ref slots[slot];
     }
     

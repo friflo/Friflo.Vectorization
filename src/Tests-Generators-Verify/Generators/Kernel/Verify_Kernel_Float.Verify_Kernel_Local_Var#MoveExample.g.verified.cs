@@ -119,7 +119,7 @@ namespace VerifyVectorize
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_MoveExample_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _MoveExample_GPU_CreateEffect(device);
             }
@@ -160,9 +160,10 @@ namespace VerifyVectorize
         [FieldOffset( 8)]    public float      deltaTime;
     }
     
-    private static readonly int _MoveExample_GPU_KernelId           = KernelRegistry.NewKernelId("MoveExampleKernel");
-    private const ulong         _MoveExample_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
-    private const ulong         _MoveExample_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private static readonly int _MoveExample_GPU_KernelId           =  KernelRegistry.NewKernelId("MoveExampleKernel");
+    private const  ulong        _MoveExample_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
+    private const  ulong        _MoveExample_GPU_UniformLayoutKey   =  0xeab614e96837d407;
+    private static ulong        _MoveExample_GPU_WgslHash           => 0xc117f005a9eb5718;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
@@ -184,7 +185,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
-        return ref device.CreateEffect(_MoveExample_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>

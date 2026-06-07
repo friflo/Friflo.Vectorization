@@ -119,7 +119,7 @@ namespace VerifyVectorize
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Kernel_Sign_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _Kernel_Sign_GPU_CreateEffect(device);
             }
@@ -160,9 +160,10 @@ namespace VerifyVectorize
         [FieldOffset( 8)]    public float      value;
     }
     
-    private static readonly int _Kernel_Sign_GPU_KernelId           = KernelRegistry.NewKernelId("Kernel_SignKernel");
-    private const ulong         _Kernel_Sign_GPU_BufferLayoutKey    = 0x8328507b4eb6ad4;
-    private const ulong         _Kernel_Sign_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private static readonly int _Kernel_Sign_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_SignKernel");
+    private const  ulong        _Kernel_Sign_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
+    private const  ulong        _Kernel_Sign_GPU_UniformLayoutKey   =  0xeab614e96837d407;
+    private static ulong        _Kernel_Sign_GPU_WgslHash           => 0xea9f346dc956a190;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Sign_GPU_CreateEffect(WgpuDevice device)
@@ -184,7 +185,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_Kernel_Sign_GPU_Shader(), "Kernel_Sign"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
         
-        return ref device.CreateEffect(_Kernel_Sign_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Sign_GPU_Shader() =>

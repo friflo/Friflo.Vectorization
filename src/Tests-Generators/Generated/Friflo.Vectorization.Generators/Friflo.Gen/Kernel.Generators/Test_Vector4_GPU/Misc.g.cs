@@ -171,7 +171,7 @@ namespace Kernel.Generators
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Misc_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _Misc_GPU_CreateEffect(device);
             }
@@ -215,9 +215,10 @@ namespace Kernel.Generators
         [FieldOffset(24)]    public int        velocity_off;
     }
     
-    private static readonly int _Misc_GPU_KernelId           = KernelRegistry.NewKernelId("MiscKernel");
-    private const ulong         _Misc_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
-    private const ulong         _Misc_GPU_UniformLayoutKey   = 0xeab624e96837ef37;
+    private static readonly int _Misc_GPU_KernelId           =  KernelRegistry.NewKernelId("MiscKernel");
+    private const  ulong        _Misc_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
+    private const  ulong        _Misc_GPU_UniformLayoutKey   =  0xeab624e96837ef37;
+    private static ulong        _Misc_GPU_WgslHash           => 0x341dfb96812fb8f8;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Misc_GPU_CreateEffect(WgpuDevice device)
@@ -240,7 +241,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Misc_GPU_Shader(), "Misc"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Misc"u8);
         
-        return ref device.CreateEffect(_Misc_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>

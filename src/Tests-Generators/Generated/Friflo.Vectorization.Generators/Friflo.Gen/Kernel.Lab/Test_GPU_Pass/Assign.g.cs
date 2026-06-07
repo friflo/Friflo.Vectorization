@@ -120,7 +120,7 @@ namespace Kernel.Lab
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
-            ref var effect = ref device.GetEffect(_Assign_GPU_KernelId); // simple GpuEffect[] array lookup
+            ref var effect = ref device.GetEffect(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
             if (!effect.IsCreated) {
                 effect = ref _Assign_GPU_CreateEffect(device);
             }
@@ -162,9 +162,10 @@ namespace Kernel.Lab
         [FieldOffset( 8)]    public int        input_off;
     }
     
-    private static readonly int _Assign_GPU_KernelId           = KernelRegistry.NewKernelId("AssignKernel");
-    private const ulong         _Assign_GPU_BufferLayoutKey    = 0x332c677f8f18f451;
-    private const ulong         _Assign_GPU_UniformLayoutKey   = 0xeab614e96837d407;
+    private static readonly int _Assign_GPU_KernelId           =  KernelRegistry.NewKernelId("AssignKernel");
+    private const  ulong        _Assign_GPU_BufferLayoutKey    =  0x332c677f8f18f451;
+    private const  ulong        _Assign_GPU_UniformLayoutKey   =  0xeab614e96837d407;
+    private static ulong        _Assign_GPU_WgslHash           => 0xe7af2da10b8997d3;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Assign_GPU_CreateEffect(WgpuDevice device)
@@ -187,7 +188,7 @@ namespace Kernel.Lab
         var shaderModule    = device.CreateShaderModule(_Assign_GPU_Shader(), "Assign"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Assign"u8);
         
-        return ref device.CreateEffect(_Assign_GPU_KernelId, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Assign_GPU_KernelId, _Assign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Assign_GPU_Shader() =>
