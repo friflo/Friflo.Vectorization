@@ -43,28 +43,34 @@ public sealed partial class Gen
         }
         lambdaParameters.Length -= 2;
         methodSignature.Length -= 2;
-        if (vectorized) {
-            methodSignature.Append(", bool vectorized = true");
-        }
+        methodSignature.Append(", bool vectorized = true");
         var blueprintMethod = query.BlueprintMethod;
         var methodName      = blueprintMethod.Name;
-        var avxMethod       = query.CustomMethod ?? $"_{methodName}_Avx{query.Hash}";
         
-        var shadowMethodSource = $@"
-        /// <summary>Vector method generated for: <see cref=""{methodName}""/>.</summary>
-        public {(blueprintMethod.IsStatic ? "static " : "")}void {methodName}Vector({methodSignature})
-        {{
-            int count = {query.VectorTypes[0].Name}.Length;
-            int n = 0;
-            if (vectorized) {{
-                if (Avx.IsSupported) {{
-                    n = {avxMethod}({avxParameters});
-                }}
-            }}
-            for (; n < count; n++) {{
-                {methodName}({lambdaParameters});
-            }}
-        }}";
-        return shadowMethodSource;
+        if (vectorized)
+        {
+            var avxMethod       = query.CustomMethod ?? $"_{methodName}_Avx{query.Hash}";
+            
+            var shadowMethodSource =
+            $$""""
+
+                    /// <summary>Vector method generated for: <see cref="{{methodName}}"/>.</summary>
+                    public {{(blueprintMethod.IsStatic ? "static " : "")}}void {{methodName}}Vector({{methodSignature}})
+                    {
+                        int count = {{query.VectorTypes[0].Name}}.Length;
+                        int n = 0;
+                        if (vectorized) {
+                            if (Avx.IsSupported) {
+                                n = {{avxMethod}}({{avxParameters}});
+                            }
+                        }
+                        for (; n < count; n++) {
+                            {{methodName}}({{lambdaParameters}});
+                        }
+                    }
+            """";
+            return shadowMethodSource;
+        }
+        return "";
     }
 }
