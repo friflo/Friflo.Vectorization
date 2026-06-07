@@ -10,6 +10,6 @@ public static class ModuleInitializer
         // into a set of verified .cs files.
         VerifySourceGenerators.Initialize();
         
-        VerifierSettings.ScrubLinesWithReplace(line => line.Replace("\r\n", "\n"));
+        // VerifierSettings.ScrubLinesWithReplace(line => line.Replace("\r\n", "\n"));
     }
 }

@@ -162,7 +162,7 @@ public sealed partial class Gen
         var methodName          = query.BlueprintMethod.Name;
         var methodName_GPU      = $"_{methodName}_GPU{hash}";
         var wgslHelperMethods   = WgslHelper.GenerateWgslHelperMethods(query);
-        var wgslHash            = GeneratorUtils.GetMd5Hash(query.wgslBody).Substring(16).ToLowerInvariant();
+        var wgslHash            = GeneratorUtils.GetMd5Hash(query.wgslBody.Replace("\r\n", "\n")).Substring(16).ToLowerInvariant();
         
         // ----------------- generate method
         var shadowMethodSource =

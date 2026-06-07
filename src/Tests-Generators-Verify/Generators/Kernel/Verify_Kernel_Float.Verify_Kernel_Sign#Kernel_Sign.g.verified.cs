@@ -163,7 +163,7 @@ namespace VerifyVectorize
     private static readonly int _Kernel_Sign_GPU_KernelId           =  KernelRegistry.NewKernelId("Kernel_SignKernel");
     private const  ulong        _Kernel_Sign_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
     private const  ulong        _Kernel_Sign_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _Kernel_Sign_GPU_WgslHash           => 0xea9f346dc956a190;
+    private static ulong        _Kernel_Sign_GPU_WgslHash           => 0xa85ee513a18c92aa;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _Kernel_Sign_GPU_CreateEffect(WgpuDevice device)

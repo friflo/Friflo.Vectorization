@@ -163,7 +163,7 @@ namespace VerifyVectorize
     private static readonly int _MoveExample_GPU_KernelId           =  KernelRegistry.NewKernelId("MoveExampleKernel");
     private const  ulong        _MoveExample_GPU_BufferLayoutKey    =  0x8328507b4eb6ad4;
     private const  ulong        _MoveExample_GPU_UniformLayoutKey   =  0xeab614e96837d407;
-    private static ulong        _MoveExample_GPU_WgslHash           => 0xc117f005a9eb5718;
+    private static ulong        _MoveExample_GPU_WgslHash           => 0xfa4d8aff78d1af3f;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
