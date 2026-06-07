@@ -28,7 +28,7 @@ internal static class BufferUtils
         return isBuffer ? $"GpuBuffer<{typeName}> '{label}'  Length: {length}" : $"{spanType}<{typeName}>  Length: {length}";
     }
     
-    // --- BufferView<>, ReadOnlyView<>
+    // --- InOutView<>, InView<>
     internal static string ViewToString<T>(string structName, GpuBuffer<T> gpuBuffer, int offset, int length) where T : unmanaged
     {
         var type     = typeof(T);

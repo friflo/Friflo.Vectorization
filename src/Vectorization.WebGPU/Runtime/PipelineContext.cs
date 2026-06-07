@@ -92,7 +92,7 @@ public sealed partial class CommandRecorder
         };
     }
     
-    protected override void StageRead<T>(in BufferView<T> view) {
+    protected override void StageRead<T>(in InOutView<T> view) {
         commandList.idRanges.Add(new BufferIdRange(view.GpuBuffer.DeviceBufferId, view.Offset, view.Length));
     }
 

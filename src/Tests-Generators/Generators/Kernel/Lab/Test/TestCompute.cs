@@ -32,7 +32,7 @@ public class TestCompute : KernelBase
         
         using var context = device.BeginContext();
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, output2.InOut.StageRead(), ComputeMode.SIMD);
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, output2.InOut().StageRead(), ComputeMode.SIMD);
         
         context.Queue.ReadBuffers();
     }
@@ -49,7 +49,7 @@ public class TestCompute : KernelBase
         using var context = device.BeginContext();
 
         foreach (var layer in layers) {
-            Pattern.MultiplyAddKernel(layer.weight.In, layer.input.In, 42, layer.output.InOut.StageRead());
+            Pattern.MultiplyAddKernel(layer.weight.In(), layer.input.In(), 42, layer.output.InOut().StageRead());
         }
         // Wait only on lastTask. Very efficient. SilkTask works intern with DevicePoll()
         context.Queue.ReadBuffers();
@@ -69,9 +69,9 @@ public class TestCompute : KernelBase
     {
         using var device    = Adapter.CreateDevice("DependencyFlow");
         var weight = InitWeights(device);
-        var a = ComputeLayer1(weight.InOut.StageRead(), input, ComputeMode.GPU);
+        var a = ComputeLayer1(weight.InOut().StageRead(), input, ComputeMode.GPU);
     //  firstValue = a[0];                              // TODO indexer must device.Wait(this) - than returns firstValue
-        var b = ComputeLayer2(a.InOut.StageRead(), ComputeMode.GPU);
+        var b = ComputeLayer2(a.InOut().StageRead(), ComputeMode.GPU);
         
         // device.Download();
     }
@@ -86,7 +86,7 @@ public class TestCompute : KernelBase
 
         using var context = device.BeginContext();
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
         
         context.Queue.ReadBuffers(); 						// TODO add test when ReadBuffers() is not called
     }
@@ -111,16 +111,16 @@ public class TestCompute : KernelBase
         using var context = device.BeginContext();
         
         // var start1 = Mem.GetAllocatedBytes();                        // TODO should add allocation check for first call
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
         // Mem.AssertNoAlloc(start1);
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
 
         var start3 = Mem.GetAllocatedBytes();
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
         Mem.AssertNoAlloc(start3);
 
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
         
         // device.Wait(gpuOutput);
         // gpuOutput.Download(gpuOutput, output);
@@ -155,19 +155,19 @@ public class TestCompute : KernelBase
         using var context = device.BeginContext();
         context.PassBatching = PassBatching.None; // uniform bind group is always released (destroyed)
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(1, HandleDiff.BindGroups.Diff);
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 43, gpuOutput2.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 43, gpuOutput2.InOut().StageRead());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 44, gpuOutput.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 44, gpuOutput.InOut().StageRead());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 45, gpuOutput3.InOut.StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 45, gpuOutput3.InOut().StageRead());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
         Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         

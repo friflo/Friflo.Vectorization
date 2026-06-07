@@ -35,10 +35,10 @@ public partial class HelloWorld
         
         using var context = device.BeginContext();
 
-        AddKernel(a.In, b.In, c.InOut.StageRead());
+        AddKernel(a.In(), b.In(), c.InOut().StageRead());
         
         context.Queue.ReadBuffers();
         
-        Console.WriteLine($"✓ SUCCESS: c[0] = {c.InOut.Span[0]} (Expected: 3.0)");
+        Console.WriteLine($"✓ SUCCESS: c[0] = {c.InOut().Span[0]} (Expected: 3.0)");
     }
 }

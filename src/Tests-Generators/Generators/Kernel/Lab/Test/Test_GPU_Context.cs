@@ -54,7 +54,7 @@ public class Test_GPU_Context : KernelBase
         using var output   = device.CreateBuffer(10, 3f, "output", BufferProfile.InOut);
         
         var e = Assert.Throws<InvalidOperationException>(() => {
-            Pattern.MultiplyAddKernel(weight.In, input.In, 123, output.InOut);
+            Pattern.MultiplyAddKernel(weight.In(), input.In(), 123, output.InOut());
         });
         Assert.AreEqual("Missing Device Context: 'GpuTestBase'. Call:  using var context = device.BeginContext();  before calling kernel method.", e!.Message);
     }

@@ -11,7 +11,7 @@ namespace Friflo.Vectorization.GPU;
 /// <summary>
 /// Provides a read-write window into a sub-region of a <see cref="GpuBuffer{T}"/>.
 /// </summary>
-public readonly struct BufferView<T> where T : unmanaged
+public readonly struct InOutView<T> where T : unmanaged
 {
     public   readonly   GpuBuffer<T>    GpuBuffer;
     public   readonly   int             Offset;
@@ -23,16 +23,16 @@ public readonly struct BufferView<T> where T : unmanaged
     /// </summary>
     public              Span<T>         Span        =>  GpuBuffer.hostMemory.Span.Slice(Offset, Length);
 
-    public   override   string          ToString()  => BufferUtils.ViewToString("BufferView", GpuBuffer, Offset, Length);
+    public   override   string          ToString()  => BufferUtils.ViewToString("InOutView", GpuBuffer, Offset, Length);
 
-    internal BufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
+    internal InOutView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
         this.GpuBuffer  = gpuBuffer;
         Offset          = offset;
         Length          = length;
     }
     
-    public BufferView<T> StageRead() {
+    public InOutView<T> StageRead() {
         GpuBuffer.Device.Context.StageRead(this);
         return this;
     }
@@ -41,7 +41,7 @@ public readonly struct BufferView<T> where T : unmanaged
 /// <summary>
 /// Provides a read-only window into a sub-region of a <see cref="GpuBuffer{T}"/>.
 /// </summary>
-public readonly struct ReadOnlyView<T> where T : unmanaged
+public readonly struct InView<T> where T : unmanaged
 {
     internal readonly   GpuBuffer<T>    gpuBuffer;
     public   readonly   int             Offset;
@@ -53,9 +53,9 @@ public readonly struct ReadOnlyView<T> where T : unmanaged
     /// </summary>
     public              ReadOnlySpan<T> Span        =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
     
-    public   override   string          ToString()  => BufferUtils.ViewToString("ReadOnlyView", gpuBuffer, Offset, Length);
+    public   override   string          ToString()  => BufferUtils.ViewToString("InView", gpuBuffer, Offset, Length);
 
-    internal ReadOnlyView(GpuBuffer<T> gpuBuffer, int offset, int length)
+    internal InView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
         this.gpuBuffer  = gpuBuffer;
         Offset          = offset;

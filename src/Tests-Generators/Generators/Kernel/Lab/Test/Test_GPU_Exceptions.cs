@@ -41,30 +41,30 @@ public class Test_GPU_Exceptions : KernelBase
             var gpuOutput2   = device1.CreateBuffer(output, "gpuOutput2", BufferProfile.InOut);
             gpuOutput2.Dispose();
             var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput2.InOut());
             });
             StringAssert.StartsWith("Existential Void:", e!.Message!);
         } {
             using var gpuOutput2 = device2.CreateBuffer(input, "gpuOutput2", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput2.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput2.InOut());
             });
             StringAssert.StartsWith("Diplomatic Incident:", e!.Message!);
         } {
             using var gpuOutputSmall = device1.CreateBuffer(new float[63], "gpuOutput1", BufferProfile.StaticIn);
             var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutputSmall.InOut);
+                Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutputSmall.InOut());
             });
             StringAssert.StartsWith("Totalitarian Sizing:", e!.Message!);
         } {
             using var gpuWeight2 = device2.CreateBuffer(weight, "gpuWeight2", BufferProfile.StaticIn); 
             var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(gpuWeight2.In, input, 42, output);
+                Pattern.MultiplyAddKernel(gpuWeight2.In(), input, 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         }  {
             var e = Assert.Throws<InvalidOperationException>(() => {
-                Pattern.MultiplyAddKernel(weight, gpuInput.In, 42, output);
+                Pattern.MultiplyAddKernel(weight, gpuInput.In(), 42, output);
             });
             StringAssert.StartsWith("Identity Crisis:", e!.Message!);
         } {
@@ -81,7 +81,7 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var gpuOutput3   = device1.CreateBuffer(output, "gpuOutput3", BufferProfile.InOut);
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
-        Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput3.InOut.StageRead(), 42, gpuOutput.InOut);
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput3.InOut().StageRead(), 42, gpuOutput.InOut());
         
         context.Queue.ReadBuffers();
     }
@@ -96,7 +96,7 @@ public class Test_GPU_Exceptions : KernelBase
         device.Dispose();
         
         var e = Assert.Throws<InvalidOperationException>(() => {
-            Pattern.MultiplyAddKernel(gpuWeight.In, gpuInput.In, 42, gpuOutput.InOut);
+            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut());
         });
         StringAssert.StartsWith("Archaeological Error:", e!.Message!);
         
@@ -116,7 +116,7 @@ public class Test_GPU_Exceptions : KernelBase
         using var context = device.BeginContext();
 
         var e = Assert.Throws<InvalidOperationException>(() => {
-            Pattern.MultiplyAddKernel(gpuWeight.In, gpuOutput.In, 42, gpuOutput.InOut.StageRead());
+            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput.In(), 42, gpuOutput.InOut().StageRead());
         })!;
         StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
     }
@@ -132,9 +132,9 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var context = device.BeginContext();
         
-        var inputSlice   = gpuOutput.Slice(0, 10).StageRead();
-        var outputSlice1 = gpuOutput.Slice(0, 10).StageRead();
-        var outputSlice2 = gpuOutput.Slice(20,10).StageRead();
+        var inputSlice   = gpuOutput.InOut(0, 10).StageRead();
+        var outputSlice1 = gpuOutput.InOut(0, 10).StageRead();
+        var outputSlice2 = gpuOutput.InOut(20,10).StageRead();
         
         context.PassBatching = PassBatching.None;
         Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);

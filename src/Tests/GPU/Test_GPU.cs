@@ -29,7 +29,7 @@ public static partial class Test_GPU
         
         var stopWatch = Stopwatch.StartNew();
         for (int n = 0; n < repeat; n++) {
-            TestKernel(buffer1.In, buffer2.In, buffer3.InOut.StageRead());
+            TestKernel(buffer1.In(), buffer2.In(), buffer3.InOut().StageRead());
         }
         Console.WriteLine($"DetectHazard - repeat: {repeat}   time: {stopWatch.ElapsedMilliseconds} ms");
     }

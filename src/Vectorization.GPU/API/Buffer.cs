@@ -11,7 +11,7 @@ namespace Friflo.Vectorization.GPU;
 /// <summary> Specify a read-write buffer for a Kernel method as input/output parameter </summary>
 /// <remarks>
 /// Generic types that can be converted into an input/output parameter are:<br/>
-/// <see cref="BufferView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
+/// <see cref="InOutView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
 /// </remarks>
 public readonly ref struct Buffer<T> where T : unmanaged
 {
@@ -32,7 +32,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
         Length      = memory.Length;
     }
     
-    private Buffer(BufferView<T> view) {
+    private Buffer(InOutView<T> view) {
         GpuBuffer   = view.GpuBuffer;
         Span        = view.Span;
         Offset      = view.Offset;
@@ -44,7 +44,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
     public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
     public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
     // --- GPU buffers
-    public static implicit operator Buffer<T>(BufferView<T> view)       => new(view);
+    public static implicit operator Buffer<T>(InOutView<T> view)       => new(view);
     
     // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer);      intentionally not available
 }
@@ -52,7 +52,7 @@ public readonly ref struct Buffer<T> where T : unmanaged
 /// <summary> Specify a read-only buffer for a Kernel method as input parameter </summary>
 /// <remarks>
 /// Generic types that can be converted into an input parameter are:<br/>
-/// <see cref="ReadOnlyView{T}"/>, <see cref="BufferView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
+/// <see cref="InView{T}"/>, <see cref="InOutView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
 /// </remarks>
 public readonly ref struct InBuffer<T> where T : unmanaged
 {
@@ -73,14 +73,14 @@ public readonly ref struct InBuffer<T> where T : unmanaged
         Length      = memory.Length;
     }
     
-    private InBuffer(ReadOnlyView<T> view) {
+    private InBuffer(InView<T> view) {
         GpuBuffer   = view.gpuBuffer;
         Span        = view.Span;
         Offset      = view.Offset;
         Length      = view.Length;
     }
     
-    private InBuffer(BufferView<T> view) {
+    private InBuffer(InOutView<T> view) {
         GpuBuffer   = view.GpuBuffer;
         Span        = view.Span;
         Offset      = view.Offset;
@@ -92,8 +92,8 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
     // --- GPU buffers
-    public static implicit operator InBuffer<T>(ReadOnlyView<T>   view)       => new(view);
-    public static implicit operator InBuffer<T>(BufferView<T>     view)       => new(view); // read/write buffer also allowed
+    public static implicit operator InBuffer<T>(InView<T>   view)       => new(view);
+    public static implicit operator InBuffer<T>(InOutView<T>     view)       => new(view); // read/write buffer also allowed
     
     // public static implicit operator InBuffer<T>      (GpuBuffer<T> gpuBuffer);   intentionally not available
     // public static implicit operator ReadOnlyBuffer<T>(T[] array));               intentionally not available

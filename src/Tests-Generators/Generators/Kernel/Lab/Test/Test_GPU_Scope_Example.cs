@@ -8,7 +8,7 @@ public static class Test_GPU_Scope_Example
 {
     private static void ReadOnlyAccess(IReadOnlyGpuBuffer<float> gpuBuffer)
     {
-        var view = gpuBuffer.In; // buffer data view is immutable
+        var view = gpuBuffer.In(); // buffer data view is immutable
     } 
     
     

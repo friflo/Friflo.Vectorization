@@ -24,15 +24,15 @@ var stopwatch   = Stopwatch.StartNew();
 var iterations  = 1_000_000;
 
 for (int n = 1; n <= 1000_000; n++) {
-    if (n % 10_000 == 0) { Console.WriteLine($"iteration: {n}  c[0] = {c.InOut.Span[0]}"); }
+    if (n % 10_000 == 0) { Console.WriteLine($"iteration: {n}  c[0] = {c.InOut().Span[0]}"); }
     
-    HelloWorld.AddKernel(a.In, b.In, c.InOut.StageRead());
+    HelloWorld.AddKernel(a.In(), b.In(), c.InOut().StageRead());
     
     if (n  % 100 == 0) { context.Queue.ReadBuffers(); }
     if (n == 1_000_000) { n = 0; }
 }
 
-Console.WriteLine($"mode: {device.DefaultComputeMode}  iterations: {iterations}  time: {stopwatch.ElapsedMilliseconds} ms.  c[0] = {c.InOut.Span[0]} (Expected: 3.0)");
+Console.WriteLine($"mode: {device.DefaultComputeMode}  iterations: {iterations}  time: {stopwatch.ElapsedMilliseconds} ms.  c[0] = {c.InOut().Span[0]} (Expected: 3.0)");
 
 public static partial class HelloWorld
 {

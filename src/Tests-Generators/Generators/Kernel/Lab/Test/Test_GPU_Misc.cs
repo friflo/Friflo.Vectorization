@@ -13,11 +13,11 @@ public class Test_GPU_Misc : KernelBase
         using var staticIn  = Device.CreateBuffer(64, 1f, "StaticIn", BufferProfile.StaticIn);
         using var inOut     = Device.CreateBuffer(64, 2f, "InOut",    BufferProfile.InOut);
         
-        var inOutView  = inOut.Slice(10,10);
-        var staticView = staticIn.AsReadOnly(10,10);
+        var inOutView  = inOut.InOut(10,10);
+        var staticView = staticIn.In(10,10);
         
-        Assert.AreEqual("BufferView<float> 'InOut' [10..20]",       inOutView.ToString());
-        Assert.AreEqual("ReadOnlyView<float> 'StaticIn' [10..20]",  staticView.ToString());
+        Assert.AreEqual("InOutView<float> 'InOut' [10..20]",       inOutView.ToString());
+        Assert.AreEqual("InView<float> 'StaticIn' [10..20]",  staticView.ToString());
         
         Buffer  <float> inOutBuffer  = inOutView;
         InBuffer<float> staticBuffer = staticView;
