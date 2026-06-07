@@ -146,7 +146,6 @@ namespace VerifyVectorize
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-        recorder.TrackWrite(position_);
 
         // device.WaitInDebug();
     }

@@ -164,7 +164,6 @@ namespace Kernel.Generators
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-        recorder.TrackWrite(c_);
 
         // device.WaitInDebug();
     }

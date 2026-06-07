@@ -102,7 +102,7 @@ public sealed partial class Gen
         var bindings            = new StringBuilder();
         var bindingHash         = BindingStartHash;
         int bufferCount = 0;
-        var setTaskOnOutputs    = new StringBuilder();
+        // var setTaskOnOutputs    = new StringBuilder();
 
         foreach (var vectorType in vectorTypes)
         {
@@ -117,9 +117,9 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        var {paramName,-11} = recorder.{requireType}({paramName}_);");
-            if (isOutput) {
+            /* if (isOutput) {
                 setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
-            }
+            } */
             bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
@@ -203,7 +203,7 @@ $$""""
             pass.SetBindGroup1(uniformGroup);
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
-        }{{setTaskOnOutputs}}
+        }
 
         // device.WaitInDebug();
     }

@@ -64,7 +64,6 @@ public static class WgpuPattern
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-        recorder.TrackWrite(output_);
 
         device.WaitInDebug();
     }
