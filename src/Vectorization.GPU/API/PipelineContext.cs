@@ -58,6 +58,8 @@ public class PipelineContext : CommandStream, IDisposable
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
     
+    protected internal virtual  void                StageRead<T>(in BufferView<T> view) where T : unmanaged { }
+    
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     
     public          bool                            IsDisposed          => ownerThreadId == -1;

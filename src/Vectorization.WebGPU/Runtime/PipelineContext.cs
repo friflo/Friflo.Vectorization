@@ -91,6 +91,10 @@ public sealed partial class CommandRecorder
             Ranges      = list.idRanges.Count
         };
     }
+    
+    protected override void StageRead<T>(in BufferView<T> view) {
+        commandList.idRanges.Add(new BufferIdRange(view.GpuBuffer.DeviceBufferId, view.Offset, view.Length));
+    }
 
 
     /// --- <see cref="PipelineTrace"/>

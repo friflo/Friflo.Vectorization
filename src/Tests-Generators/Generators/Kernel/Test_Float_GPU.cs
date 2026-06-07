@@ -36,8 +36,8 @@ public partial class Test_Float_GPU : KernelBase
 
         using var context = Device.BeginContext();
         
-        MultiplyVector(scalar1,    	   velocity.In.Span, false);
-        MultiplyKernel(position.InOut, velocity.In);
+        MultiplyVector(scalar1,    	               velocity.In.Span, false);
+        MultiplyKernel(position.InOut.StageRead(), velocity.In);
         
         context.Queue.ReadBuffers();
         
@@ -66,7 +66,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         AssignVector(scalar1,          scalar2, false);
-        AssignKernel(gpuBuffer1.InOut, gpuBuffer2.In);
+        AssignKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In);
 
         context.Queue.ReadBuffers();
         
@@ -95,11 +95,11 @@ public partial class Test_Float_GPU : KernelBase
         context.PassBatching = PassBatching.None;
         
         AddVector(scalar2.AsSpan(0, 10), scalar1.AsSpan   (0, 10));
-        AddKernel(gpuDst.Slice  (0, 10), gpuSrc.AsReadOnly(0, 10));
+        AddKernel(gpuDst.Slice  (0, 10).StageRead(), gpuSrc.AsReadOnly(0, 10));
 
         for (int n = 50; n >= 10; n-= 10) {
             AddVector(scalar2.AsSpan(n, 9), scalar1.AsSpan   (n, 9));
-            AddKernel(gpuDst.Slice  (n, 9), gpuSrc.AsReadOnly(n, 9));
+            AddKernel(gpuDst.Slice  (n, 9).StageRead(), gpuSrc.AsReadOnly(n, 9));
         }
         
         context.Queue.ReadBuffers();
@@ -128,7 +128,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         MoveVector(scalar1,          scalar2,       42, false);
-        MoveKernel(gpuBuffer1.InOut, gpuBuffer2.In, 42);
+        MoveKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In, 42);
         
         context.Queue.ReadBuffers();
         
@@ -155,7 +155,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         UseConstantVector(scalar1, false);
-        UseConstantKernel(gpuBuffer1.InOut);
+        UseConstantKernel(gpuBuffer1.InOut.StageRead());
         
         context.Queue.ReadBuffers();
         
@@ -182,7 +182,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         InverseSqrtVector(scalar1, false);
-        InverseSqrtKernel(gpuBuffer1.InOut);
+        InverseSqrtKernel(gpuBuffer1.InOut.StageRead());
         
         context.Queue.ReadBuffers();
         
@@ -223,7 +223,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_TrigonometryVector(scalar1,    	    scalar2,       1.1f, false);
-        Kernel_TrigonometryKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
+        Kernel_TrigonometryKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In, 1.1f);
         
         context.Queue.ReadBuffers();
         
@@ -255,7 +255,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_Trigonometry2Vector(scalar1, false);
-        Kernel_Trigonometry2Kernel(gpuBuffer1.InOut);
+        Kernel_Trigonometry2Kernel(gpuBuffer1.InOut.StageRead());
         
         context.Queue.ReadBuffers();
         
@@ -296,7 +296,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_MiscVector(scalar1,          scalar2,       1.1f, false);
-        Kernel_MiscKernel(gpuBuffer1.InOut, gpuBuffer2.In, 1.1f);
+        Kernel_MiscKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In, 1.1f);
         
         context.Queue.ReadBuffers();
         
@@ -326,7 +326,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_MinVector(scalar1,          scalar2, false);
-        Kernel_MinKernel(gpuBuffer1.InOut, gpuBuffer2.In);
+        Kernel_MinKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In);
         
         context.Queue.ReadBuffers();
         
@@ -356,7 +356,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_MaxVector(scalar1,          scalar2, false);
-        Kernel_MaxKernel(gpuBuffer1.InOut, gpuBuffer2.In);
+        Kernel_MaxKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In);
         
         context.Queue.ReadBuffers();
         
@@ -386,7 +386,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
 
         Kernel_ClampVector(scalar1,          scalar2,       200, false);
-        Kernel_ClampKernel(gpuBuffer1.InOut, gpuBuffer2.In, 200);
+        Kernel_ClampKernel(gpuBuffer1.InOut.StageRead(), gpuBuffer2.In, 200);
         
         context.Queue.ReadBuffers();
         
@@ -414,7 +414,7 @@ public partial class Test_Float_GPU : KernelBase
         using var context = Device.BeginContext();
         
         KernelOnlyVector(scalar1,    	   velocity.In.Span, false);
-        KernelOnlyKernel(position.InOut, velocity.In);
+        KernelOnlyKernel(position.InOut.StageRead(), velocity.In);
         
         context.Queue.ReadBuffers();
         

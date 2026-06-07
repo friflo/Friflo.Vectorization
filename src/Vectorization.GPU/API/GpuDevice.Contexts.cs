@@ -17,7 +17,7 @@ namespace Friflo.Vectorization.GPU;
 public abstract partial class GpuDevice
 {
     private  readonly   ContextPool                     pool            = new ();
-    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
+    internal readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
 
     
     protected internal abstract PipelineContext NewPipelineContext();

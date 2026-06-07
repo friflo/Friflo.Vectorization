@@ -13,7 +13,7 @@ namespace Friflo.Vectorization.GPU;
 /// </summary>
 public readonly struct BufferView<T> where T : unmanaged
 {
-    internal readonly   GpuBuffer<T>    gpuBuffer;
+    public   readonly   GpuBuffer<T>    GpuBuffer;
     public   readonly   int             Offset;
     public   readonly   int             Length;
     
@@ -21,15 +21,20 @@ public readonly struct BufferView<T> where T : unmanaged
     /// Gets a <see cref="Span{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// Modifications to this span directly update the host memory, which needs synchronization with the GPU.
     /// </summary>
-    public              Span<T>         Span        =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    public              Span<T>         Span        =>  GpuBuffer.hostMemory.Span.Slice(Offset, Length);
 
-    public   override   string          ToString()  => BufferUtils.ViewToString("BufferView", gpuBuffer, Offset, Length);
+    public   override   string          ToString()  => BufferUtils.ViewToString("BufferView", GpuBuffer, Offset, Length);
 
     internal BufferView(GpuBuffer<T> gpuBuffer, int offset, int length)
     {
-        this.gpuBuffer  = gpuBuffer;
+        this.GpuBuffer  = gpuBuffer;
         Offset          = offset;
         Length          = length;
+    }
+    
+    public BufferView<T> StageRead() {
+        GpuBuffer.Device.Context.StageRead(this);
+        return this;
     }
 }
 
