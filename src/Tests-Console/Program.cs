@@ -26,7 +26,7 @@ var iterations  = 1_000_000;
 for (int n = 1; n <= 1000_000; n++) {
     if (n % 10_000 == 0) { Console.WriteLine($"iteration: {n}  c[0] = {c.InOut.Span[0]}"); }
     
-    HelloWorld.AddKernel(a.In, b.In, c.InOut);
+    HelloWorld.AddKernel(a.In, b.In, c.InOut.StageRead());
     
     if (n  % 100 == 0) { context.Queue.ReadBuffers(); }
     if (n == 1_000_000) { n = 0; }
