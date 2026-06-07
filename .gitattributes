@@ -1,1 +1,3 @@
 *.cs text eol=lf
+*.verify.cs text eol=lf
+*.txt text eol=lf

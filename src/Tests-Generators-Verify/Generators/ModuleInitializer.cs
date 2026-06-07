@@ -9,5 +9,7 @@ public static class ModuleInitializer
         // This enables the magic that turns a GeneratorDriver 
         // into a set of verified .cs files.
         VerifySourceGenerators.Initialize();
+        
+        VerifierSettings.ScrubLinesWithReplace(line => line.Replace("\r\n", "\n"));
     }
 }
