@@ -183,7 +183,7 @@ internal readonly struct WgpuIO
                 wgpuCommandEncoderCopyBufferToBuffer(
                     encoder,
                     bufferData.storageHandle,        byteOffset,    // source: GPU Storage [Storage]
-                    device.stagingReadBuffer.handle, writePos,       // target: persistant Readback [MapRead]
+                    device.stagingReadBuffer.handle, writePos,      // target: persistant Readback [MapRead]
                     byteSize
                 );
                 writePos += byteSize;
@@ -222,7 +222,8 @@ internal readonly struct WgpuIO
     internal unsafe void ReadBuffers(WgpuDevice device, uint readSize)
     {
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
-        var activeBuffers = tempActiveBuffers;
+        var activeBuffers   = tempActiveBuffers;
+        var stagingBuffer   = device.stagingReadBuffer.handle;
         
         // --------------------- map all GpuBuffer's that are read from GPU --------------------- 
         int remainingMaps = 1;
@@ -234,7 +235,7 @@ internal readonly struct WgpuIO
             callback    = &BufferMap_callback,
             userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
         };
-        wgpuBufferMapAsync(device.stagingReadBuffer.handle, (ulong)MapMode.Read, 0, readSize, callbackInfo);
+        wgpuBufferMapAsync(stagingBuffer, (ulong)MapMode.Read, 0, readSize, callbackInfo);
 
         
         // the only single CPU-Stall: wait until all buffers are mapped
@@ -244,7 +245,7 @@ internal readonly struct WgpuIO
         }
         
         // --------------------- direct CPU -> CPU transfer staging memory -> host memory ---------------------
-        var pMapped = (byte*)wgpuBufferGetMappedRange(device.stagingReadBuffer.handle, 0, readSize);
+        var start   = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
         int readPos = 0;
 
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
@@ -252,9 +253,9 @@ internal readonly struct WgpuIO
             ref readonly var bufferData = ref activeBuffer.data;
             var wgpuBuffer              = bufferMap[bufferData.bufferId];
             
-            readPos += wgpuBuffer.ExecuteCpuCopy(pMapped + readPos, activeBuffer.compactRanges);  // copy staging memory to host memory
+            readPos += wgpuBuffer.ExecuteCpuCopy(start + readPos, activeBuffer.compactRanges);  // copy staging memory to host memory
         }
-        wgpuBufferUnmap(device.stagingReadBuffer.handle);  // unmap so CPU is able to access
+        wgpuBufferUnmap(stagingBuffer);  // unmap so CPU is able to access
         
         activeBuffers.Clear();
     }
