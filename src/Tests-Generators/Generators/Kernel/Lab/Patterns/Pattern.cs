@@ -48,7 +48,7 @@ public static partial class Pattern
         MultiplyAddVector_gen(weight.Span, input.Span, bias, output.Span, buffers.ComputeSIMD);
     }
     
-    public static void MultiplyAddKernel_Scalar(
+    public static void MultiplyAddKernel_no_Vectorize (
       InBuffer<float>   weight,
       InBuffer<float>   input,
         float           bias,
