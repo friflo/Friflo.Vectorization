@@ -14,7 +14,6 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
     public    readonly  string          Label;
     public    readonly  int             SlotSize;
     public    readonly  GpuQueue        Queue;
-    public              bool            DebugMode   { get; set; }
     protected readonly  int             threadId;
     public              PipelineContext Context     => threadContexts.Value;
     

@@ -55,7 +55,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         private readonly WgpuDevice _device = device;
 
         public  string          Label       => _device.Label;
-        public  bool            DebugMode   { get => _device.DebugMode;             set => _device.DebugMode            = value; }
         public  bool            IsDisposed  => _device.isDisposed;
         public  PipelineContext Context     => _device.Context;
         public  GpuQueue        Queue       => _device.Queue;
