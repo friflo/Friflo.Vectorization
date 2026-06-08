@@ -53,6 +53,10 @@ public sealed unsafe partial class CommandRecorder
         return bufferEntries = newEntries;
     }
     
+    protected override void QueueRead<T>(in InOutView<T> view) {
+        commandList.idRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
+    }
+
     public override  void FlushTo(PipelineContext targetContext) {
         ValidateThreadSafety();
         FlushTo(((CommandRecorder)targetContext).commandListQueue);
@@ -99,7 +103,7 @@ public sealed unsafe partial class CommandRecorder
     }
 }
 
-internal readonly struct WgpuIO
+internal readonly partial struct WgpuIO
 {
     private readonly    List<List<BufferRange>> tempCompactRangesList   = [];
     private readonly    List<ActiveBuffer>      tempActiveBuffers       = [];

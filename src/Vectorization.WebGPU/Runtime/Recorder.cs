@@ -45,6 +45,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
 
     public void Init(int id)
     {
+        WriteBufferRanges();
+
         traceNewKernel  = kernelId != id;
         createNewPass   = kernelSeq == 0; // kernelId != id;
         kernelId        = id;
@@ -87,6 +89,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];
         commandList         = device.commandListPool.Fetch();
+        stagingWrite        = device.CreateStagingBuffer(16 * 1024 * 1024, "stagingWrite");
     }
     
     // The recorder provides / owns the Encoder
@@ -251,6 +254,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             wgpuCommandEncoderRelease(currentEncoder.handle);
             currentEncoder = default;
         }
+        wgpuBufferRelease(stagingWrite.handle);
         base.Dispose();
     }
     

@@ -92,19 +92,6 @@ public sealed partial class CommandRecorder
         };
     }
     
-    protected override void QueueRead<T>(in InOutView<T> view) {
-        commandList.idRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
-    }
-    
-    protected override void QueueWrite<T>(in InOutView<T> view) {
-        // commandList.idRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
-    }
-
-    protected override void QueueWrite<T>(in InView<T> view) {
-        // commandList.idRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
-    }
-
-
     /// --- <see cref="PipelineTrace"/>
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void AddTrace(TraceType traceType, int kernel = 0, int calls = 0, string resource = null)
