@@ -307,23 +307,25 @@ public partial class Test_GPU_Pass : KernelBase
     {
         if (Backend != TestBackend.WGPU) return;
         
-        using var device = Device;
-
-        
-        using var input    = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
-        using var output   = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
+        using var device    = Device;
+        using var input     = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
+        using var output    = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
         
         using var context = device.BeginContext();
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        var inputView = input.In(0, 10).Write();
-        inputView.Span[0] = 42;
-        inputView.Span[9] = 43;
+        var outputView  = output.InOut(0, 10).Read();
+        var inputView   = input.In(0, 10).Write();
+        inputView.Span[0] = 40;
+        inputView.Span[9] = 49;
         
-        AssignKernel(output.InOut(0, 10), inputView);
+        AssignKernel(outputView, inputView);
         
         context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(40, outputView.Span[0]);
+        Assert.AreEqual(49, outputView.Span[9]);
     }
     
     [StackTraceHidden]

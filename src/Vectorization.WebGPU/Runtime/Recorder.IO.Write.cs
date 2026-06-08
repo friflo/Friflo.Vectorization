@@ -8,8 +8,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
-// ReSharper disable SuggestVarOrType_BuiltInTypes
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -19,7 +19,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed partial class CommandRecorder
 {
-    private             StagingWriteBuffer  stagingWriteBuffer;
+    internal            StagingWriteBuffer  stagingWriteBuffer;
     private readonly    List<BufferIdRange> writeIdRanges   = [];
     private             WriteEntry[]        writeEntries    = [];
     
@@ -45,7 +45,6 @@ public sealed partial class CommandRecorder
             Array.Copy(entries, 0, newEntries, 0, entries.Length);
             entries = writeEntries = newEntries;
         }
-        
         foreach (var idRange in idRanges) {
             ref var entry = ref entries[idRange.bufferId];
             var ranges = entry.requestedRanges;
@@ -58,13 +57,13 @@ public sealed partial class CommandRecorder
         
         ClosePass();
         
-        wgpuIO.WriteBuffers(device, stagingWriteBuffer, writeEntries, currentEncoder.handle);
+        wgpuIO.WriteBuffers(device, this, writeEntries, currentEncoder.handle);
     }
 }
 
 internal readonly partial struct WgpuIO {
     
-    internal unsafe void WriteBuffers(WgpuDevice device, StagingWriteBuffer stagingWrite, WriteEntry[] writeEntries, CommandEncoder* encoder)
+    internal unsafe void WriteBuffers(WgpuDevice device, CommandRecorder recorder, WriteEntry[] writeEntries, CommandEncoder* encoder)
     {
         var activeBuffers       = tempActiveBuffers;
         var compactRangesList   = tempCompactRangesList;
@@ -98,7 +97,36 @@ internal readonly partial struct WgpuIO {
                 writeSize += (uint)(range.length * bufferData.elementSize);
             }
         }
+        
+        ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
+        var stagingWrite = recorder.stagingWriteBuffer;
+        uint writePos   = 0;
+        
+        foreach (ref readonly var activeBuffer in activeBuffersSpan)
+        {
+            ref readonly var bufferData = ref activeBuffer.data;
+            uint elementSize            = (uint)bufferData.elementSize;
+            
+            foreach (var range in activeBuffer.compactRanges)
+            {
+                uint byteOffset = (uint)range.start  * elementSize;
+                uint byteSize   = (uint)range.length * elementSize;
+                
+                // Note: CopyBufferToBuffer can be recorded before writing staging buffer to GPU storage
+                //       But when calling Submit() the staging buffer must be written to GPU storage
+                wgpuCommandEncoderCopyBufferToBuffer(
+                    encoder,
+                    stagingWrite.handle,        writePos,      // source: staging ring buffer
+                    bufferData.storageHandle,   byteOffset,    // target: GPU Storage [Storage]
+                    byteSize
+                );
+                writePos += byteSize;
+            }
+        }
+        
+        // -------------- map / wait / copy / unmap --------------
         int remainingMaps = 1;
+        
         var callbackInfo = new BufferMapCallbackInfo {
             mode        = CallbackMode.AllowProcessEvents,
             callback    = &WriteBuffers_Map_callback,
@@ -110,32 +138,13 @@ internal readonly partial struct WgpuIO {
             wgpuInstanceProcessEvents(device.instance);
         }
         
-        ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
-        
-        var pMapped     = (byte*)wgpuBufferGetMappedRange(stagingWrite.handle, 0, writeSize);
-        uint writePos   = 0;
+        var pMapped = (byte*)wgpuBufferGetMappedRange(stagingWrite.handle, 0, writeSize);
+        writePos    = 0;
         
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
-            ref readonly var bufferData = ref activeBuffer.data;
-            uint elementSize            = (uint)bufferData.elementSize;
-            var wgpuBuffer              = bufferMap[bufferData.bufferId];
-            
+            var wgpuBuffer = bufferMap[activeBuffer.data.bufferId];
             wgpuBuffer.CopyRangesToStagingBuffer(pMapped + writePos, activeBuffer.compactRanges);
-            
-            foreach (var range in activeBuffer.compactRanges)
-            {
-                uint byteOffset = (uint)range.start  * elementSize;
-                uint byteSize   = (uint)range.length * elementSize;
-                
-                wgpuCommandEncoderCopyBufferToBuffer(
-                    encoder,
-                    stagingWrite.handle,        writePos,      // source: staging ring buffer
-                    bufferData.storageHandle,   byteOffset,    // target: GPU Storage [Storage]
-                    byteSize
-                );
-                writePos += byteSize;
-            }
         }
         wgpuBufferUnmap(stagingWrite.handle);
     }

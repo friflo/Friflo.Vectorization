@@ -99,7 +99,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
 
             sourceSlice.CopyTo(targetSpan);
             
-            writePos       += length * sizeof(T);
+            writePos += length * sizeof(T);
         }
     }
 }
