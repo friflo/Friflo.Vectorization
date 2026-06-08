@@ -41,6 +41,11 @@ public readonly struct InOutView<T> where T : unmanaged
         Buffer.Device.Context.QueueRead(this);
         return this;
     }
+    
+    public InOutView<T> Write() {
+        Buffer.Device.Context.QueueWrite(this);
+        return this;
+    }
 }
 
 /// <summary>
@@ -65,5 +70,10 @@ public readonly struct InView<T> where T : unmanaged
         Buffer  = buffer;
         Offset  = offset;
         Length  = length;
+    }
+    
+    public InView<T> Write() {
+        Buffer.Device.Context.QueueWrite(this);
+        return this;
     }
 }
