@@ -116,12 +116,23 @@ public readonly unsafe struct WgpuShaderModule
 }
 
 
-internal unsafe struct StagingBuffer
+internal readonly unsafe struct StagingReadBuffer
 {
     internal readonly   Buffer* handle;
     internal readonly   int     size;
     
-    internal StagingBuffer(Buffer* handle, int size) {
+    internal StagingReadBuffer(Buffer* handle, int size) {
+        this.handle = handle;
+        this.size   = size;
+    }
+}
+
+internal readonly unsafe struct StagingWriteBuffer
+{
+    internal readonly   Buffer* handle;
+    internal readonly   int     size;
+    
+    internal StagingWriteBuffer(Buffer* handle, int size) {
         this.handle = handle;
         this.size   = size;
     }
@@ -130,11 +141,11 @@ internal unsafe struct StagingBuffer
 internal class StagingPool
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
-    private readonly ConcurrentQueue<StagingBuffer> pooled = [];
+    private readonly ConcurrentQueue<StagingReadBuffer> pooled = [];
 
     public  override    string  ToString() => $"pooled: {pooled.Count}";
 
-    internal  unsafe StagingBuffer Fetch(WgpuDevice device)
+    internal  unsafe StagingReadBuffer Fetch(WgpuDevice device)
     {
         if (pooled.TryDequeue(out var list)) {
             return list;
@@ -142,7 +153,7 @@ internal class StagingPool
         return device.CreateStagingBuffer(16 * 1024 * 1024, "staging_buffer");
     }
 
-    internal void Return(StagingBuffer list)
+    internal void Return(StagingReadBuffer list)
     {
         pooled.Enqueue(list);
         // ConcurrentStack<CommandList>.Push() allocates Node -> 40 bytes 

@@ -43,7 +43,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private  readonly   BindGroupLayoutMap  layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
     internal readonly   CommandListPool     commandListPool = new ();
-    internal readonly   StagingBuffer       stagingReadBuffer;
+    internal readonly   StagingReadBuffer   stagingReadBuffer;
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
     internal            BufferEntry[]       bufferEntries       = [];   // ranges & segments per GpuBuffer
@@ -329,7 +329,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return buffer;
     }
     
-    internal StagingBuffer CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
+    internal StagingReadBuffer CreateStagingBuffer(uint size, ReadOnlySpan<char> bufferLabel)
     {
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
@@ -338,14 +338,33 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var desc = new BufferDescriptor {
             label           = WgpuUtils.FromPtrLength(labelBuffer, len),
             size            = size,
-            usage           = (ulong)(BufferUsage.CopyDst | BufferUsage.MapRead), // CopyDst | MapRead => staging buffer
+            usage           = (ulong)(BufferUsage.CopyDst | BufferUsage.MapRead), // read GPU buffer into staging buffer
             mappedAtCreation = WgpuUtils.FromBool(false)
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         if (buffer == null) {
             throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
         }
-        return new StagingBuffer(buffer, (int)size);
+        return new StagingReadBuffer(buffer, (int)size);
+    }
+    
+    internal StagingWriteBuffer CreateStagingWriteBuffer(uint size, ReadOnlySpan<char> bufferLabel)
+    {
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
+        
+        var desc = new BufferDescriptor {
+            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
+            size            = size,
+            usage           = (ulong)(BufferUsage.CopySrc | BufferUsage.MapWrite), // write staging buffer to GPU buffer
+            mappedAtCreation = WgpuUtils.FromBool(false)
+        };
+        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
+        if (buffer == null) {
+            throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
+        }
+        return new StagingWriteBuffer(buffer, (int)size);
     }
     
     private static BufferUsage GetBufferUsage(BufferProfile profile, BufferType type)

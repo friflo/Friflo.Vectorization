@@ -18,7 +18,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed partial class CommandRecorder
 {
-    private readonly    StagingBuffer       stagingWrite;
+    private readonly    StagingWriteBuffer  stagingWriteBuffer;
     private readonly    List<BufferIdRange> writeIdRanges       = [];
     private             WriteEntry[]        writeEntries         = [];
     
@@ -50,13 +50,13 @@ public sealed partial class CommandRecorder
             ranges.Add(new BufferRange(idRange.start, idRange.length));
         }
         
-        wgpuIO.WriteBuffers(device, stagingWrite, writeEntries, currentEncoder.handle);
+        wgpuIO.WriteBuffers(device, stagingWriteBuffer, writeEntries, currentEncoder.handle);
     }
 }
 
 internal readonly partial struct WgpuIO {
     
-    internal unsafe void WriteBuffers(WgpuDevice device, StagingBuffer stagingWrite, WriteEntry[] writeEntries, CommandEncoder* encoder)
+    internal unsafe void WriteBuffers(WgpuDevice device, StagingWriteBuffer stagingWrite, WriteEntry[] writeEntries, CommandEncoder* encoder)
     {
         var activeBuffers       = tempActiveBuffers;
         var compactRangesList   = tempCompactRangesList;
