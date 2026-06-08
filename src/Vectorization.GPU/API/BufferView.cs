@@ -13,7 +13,7 @@ namespace Friflo.Vectorization.GPU;
 /// </summary>
 public readonly struct InOutView<T> where T : unmanaged
 {
-    public   readonly   GpuBuffer<T>    GpuBuffer;
+    public   readonly   GpuBuffer<T>    Buffer;
     public   readonly   int             Offset;
     public   readonly   int             Length;
     
@@ -21,19 +21,19 @@ public readonly struct InOutView<T> where T : unmanaged
     /// Gets a <see cref="Span{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// Modifications to this span directly update the host memory, which needs synchronization with the GPU.
     /// </summary>
-    public              Span<T>         Span        =>  GpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    public              Span<T>         Span        =>  Buffer.hostMemory.Span.Slice(Offset, Length);
 
-    public   override   string          ToString()  => BufferUtils.ViewToString("InOutView", GpuBuffer, Offset, Length);
+    public   override   string          ToString()  => BufferUtils.ViewToString("InOutView", Buffer, Offset, Length);
 
-    internal InOutView(GpuBuffer<T> gpuBuffer, int offset, int length)
+    internal InOutView(GpuBuffer<T> buffer, int offset, int length)
     {
-        this.GpuBuffer  = gpuBuffer;
-        Offset          = offset;
-        Length          = length;
+        Buffer  = buffer;
+        Offset  = offset;
+        Length  = length;
     }
     
     public InOutView<T> StageRead() {
-        GpuBuffer.Device.Context.StageRead(this);
+        Buffer.Device.Context.StageRead(this);
         return this;
     }
 }
@@ -43,22 +43,22 @@ public readonly struct InOutView<T> where T : unmanaged
 /// </summary>
 public readonly struct InView<T> where T : unmanaged
 {
-    internal readonly   GpuBuffer<T>    gpuBuffer;
-    public   readonly   int             Offset;
-    public   readonly   int             Length;
+    public  readonly    GpuBuffer<T>    Buffer;
+    public  readonly    int             Offset;
+    public  readonly    int             Length;
     
     /// <summary>
     /// Gets a <see cref="ReadOnlySpan{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// This view provides restricted, read-only access to the mapped host memory.
     /// </summary>
-    public              ReadOnlySpan<T> Span        =>  gpuBuffer.hostMemory.Span.Slice(Offset, Length);
+    public              ReadOnlySpan<T> Span        =>  Buffer.hostMemory.Span.Slice(Offset, Length);
     
-    public   override   string          ToString()  => BufferUtils.ViewToString("InView", gpuBuffer, Offset, Length);
+    public   override   string          ToString()  => BufferUtils.ViewToString("InView", Buffer, Offset, Length);
 
-    internal InView(GpuBuffer<T> gpuBuffer, int offset, int length)
+    internal InView(GpuBuffer<T> buffer, int offset, int length)
     {
-        this.gpuBuffer  = gpuBuffer;
-        Offset          = offset;
-        Length          = length;
+        Buffer  = buffer;
+        Offset  = offset;
+        Length  = length;
     }
 }
