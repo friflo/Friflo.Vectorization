@@ -118,12 +118,12 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Move_GPU_KernelId);
+        recorder.Init(_Move_GPU_KernelId, "Move"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (velocity);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("Move"u8))
         {
             ref var effect = ref device.GetEffect(_Move_GPU_KernelId, _Move_GPU_WgslHash);
             if (!effect.IsCreated) {

@@ -192,12 +192,12 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Trigonometry_GPU_KernelId);
+        recorder.Init(_Kernel_Trigonometry_GPU_KernelId, "Kernel_Trigonometry"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (velocity);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("Kernel_Trigonometry"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Trigonometry_GPU_KernelId, _Kernel_Trigonometry_GPU_WgslHash);
             if (!effect.IsCreated) {

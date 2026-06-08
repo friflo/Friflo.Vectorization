@@ -43,8 +43,14 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
 
-    public void Init(int id)
+    public void Init(int id, ReadOnlySpan<byte> encoderLabel)
     {
+        if (currentEncoder.handle == null) {
+            fixed (byte* labelPtr = encoderLabel) {
+                var label       = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
+                currentEncoder  = device.CreateEncoder(label);
+            }
+        }
         WriteBufferRanges();
 
         traceNewKernel  = kernelId != id;
@@ -108,22 +114,18 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         renderPassCount++;
         pipelineStats.Passes++;
         kernelMetrics[kernelId].Passes++;
-        
+
+        if (currentPass != null) {
+            wgpuComputePassEncoderEnd(currentPass);
+        }
+        if (enableTraces) {
+            AddKernelTrace(TraceType.Kernel, kernelId);
+        }
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
-            if (currentEncoder.handle == null) {
-                currentEncoder  = device.CreateEncoder(label);
-            }
-            if (currentPass != null) {
-                wgpuComputePassEncoderEnd(currentPass);
-                // wgpuComputePassEncoderRelease(currentPass);
-            }
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
-            if (enableTraces) {
-                AddKernelTrace(TraceType.Kernel, kernelId);
-            }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
     }

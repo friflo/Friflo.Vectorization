@@ -112,12 +112,12 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Assign_GPU_KernelId);
+        recorder.Init(_Assign_GPU_KernelId, "Assign"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (velocity);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("Assign"u8))
         {
             ref var effect = ref device.GetEffect(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
             if (!effect.IsCreated) {

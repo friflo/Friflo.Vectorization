@@ -102,11 +102,11 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_InverseSqrt_GPU_KernelId);
+        recorder.Init(_InverseSqrt_GPU_KernelId, "InverseSqrt"u8);
 
         recorder.RequireReadWrite(position);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("InverseSqrt"u8))
         {
             ref var effect = ref device.GetEffect(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash);
             if (!effect.IsCreated) {

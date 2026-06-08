@@ -118,12 +118,12 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Clamp_GPU_KernelId);
+        recorder.Init(_Kernel_Clamp_GPU_KernelId, "Kernel_Clamp"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (min);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("Kernel_Clamp"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash);
             if (!effect.IsCreated) {

@@ -178,10 +178,10 @@ $$""""
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init({{methodName_GPU}}_KernelId);
+        recorder.Init({{methodName_GPU}}_KernelId, "{{methodName}}"u8);
 {{bufferInit}}
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("{{methodName}}"u8))
         {
             ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
             if (!effect.IsCreated) {

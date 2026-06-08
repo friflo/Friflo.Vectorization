@@ -90,11 +90,11 @@ namespace Kernel.Lab
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_ReadOnly_GPU_KernelId);
+        recorder.Init(_ReadOnly_GPU_KernelId, "ReadOnly"u8);
 
         recorder.RequireRead     (input);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("ReadOnly"u8))
         {
             ref var effect = ref device.GetEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
             if (!effect.IsCreated) {

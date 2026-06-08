@@ -23,7 +23,7 @@ public static class WgpuPattern
     {
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder; 			// Recorder == thread context
-        recorder.Init(MultiplyAdd_GPU_KernelId);
+        recorder.Init(MultiplyAdd_GPU_KernelId, "MultiplyAdd"u8);
         
         recorder.RequireRead     (weight);
         recorder.RequireRead     (input);

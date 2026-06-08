@@ -112,11 +112,11 @@ namespace VerifyVectorize
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Sign_GPU_KernelId);
+        recorder.Init(_Kernel_Sign_GPU_KernelId, "Kernel_Sign"u8);
 
         recorder.RequireReadWrite(position);
 
-        using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
+        using (var pass = recorder.BeginComputePass("Kernel_Sign"u8))
         {
             ref var effect = ref device.GetEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
             if (!effect.IsCreated) {

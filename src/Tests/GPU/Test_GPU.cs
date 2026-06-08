@@ -47,7 +47,7 @@ public static partial class Test_GPU
         
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder;
-        recorder.Init(123);
+        recorder.Init(123, "testEncoder"u8);
         
         // Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
         recorder.RequireRead     (buffer1);
