@@ -302,6 +302,30 @@ public partial class Test_GPU_Pass : KernelBase
             """).IgnoreWhiteSpace);
     }
     
+    // [Test]
+    public void Test_GPU_Pass_View_Write()
+    {
+        if (Backend != TestBackend.WGPU) return;
+        
+        using var device = Device;
+
+        
+        using var input    = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
+        using var output   = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        context.EnableTraces    = true;
+        context.PassBatching    = PassBatching.HazardDriven;
+        
+        var inputView = input.In(0, 10).Write();
+        inputView.Span[0] = 42;
+        inputView.Span[9] = 42;
+        
+        AssignKernel(output.InOut(0, 10), inputView);
+        
+        context.Queue.ReadBuffers();
+    }
+    
     [StackTraceHidden]
     private static void AssertResult<T>(InBuffer<T> buffer, T expect) where T : unmanaged
     {

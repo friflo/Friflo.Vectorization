@@ -61,7 +61,7 @@ public readonly struct InView<T> where T : unmanaged
     /// Gets a <see cref="ReadOnlySpan{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
     /// This view provides restricted, read-only access to the mapped host memory.
     /// </summary>
-    public              ReadOnlySpan<T> Span        =>  Buffer.hostMemory.Span.Slice(Offset, Length);
+    public              Span<T>         Span        =>  Buffer.hostMemory.Span.Slice(Offset, Length);
     
     public   override   string          ToString()  => BufferUtils.ViewToString("InView", Buffer, Offset, Length);
 
