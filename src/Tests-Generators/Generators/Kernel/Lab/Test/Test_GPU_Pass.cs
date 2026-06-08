@@ -302,7 +302,7 @@ public partial class Test_GPU_Pass : KernelBase
             """).IgnoreWhiteSpace);
     }
     
-    // [Test]
+    [Test]
     public void Test_GPU_Pass_View_Write()
     {
         if (Backend != TestBackend.WGPU) return;

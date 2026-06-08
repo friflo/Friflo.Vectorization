@@ -130,8 +130,8 @@ internal readonly partial struct WgpuIO {
                 
                 wgpuCommandEncoderCopyBufferToBuffer(
                     encoder,
-                    device.stagingReadBuffer.handle, writePos,      // source: staging ring buffer
-                    bufferData.storageHandle,        byteOffset,    // target: GPU Storage [Storage]
+                    stagingWrite.handle,        writePos,      // source: staging ring buffer
+                    bufferData.storageHandle,   byteOffset,    // target: GPU Storage [Storage]
                     byteSize
                 );
                 writePos += byteSize;
