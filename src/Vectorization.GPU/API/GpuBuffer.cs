@@ -77,20 +77,7 @@ public abstract class GpuBuffer<T> :
         this.hostMemory = hostMemory;
     }
 
-    /// <summary> Gets the raw CPU-side backing memory for this buffer. </summary>
-    /// <remarks>
-    /// <b>Synchronization Notice:</b> This memory is not automatically synchronized with the GPU.
-    /// <list type="bullet">
-    /// <item> <b>Concurrency:</b><br/>
-    ///   CPU and GPU must not access this memory simultaneously to avoid data races.
-    ///   Ensure the GPU has finished all pending work before modifying this memory.
-    /// </item>
-    /// <item> <b>Explicit Sync:</b><br/>
-    ///   Modifications to this memory are only reflected on the GPU after calling <c>Upload()</c>.
-    ///   GPU updates are only visible in this memory after calling <see cref="PipelineContext.ReadBuffers"/>.
-    /// </item>
-    /// </list>
-    /// </remarks>
+    /// <summary> Creates a read-write view of the entire buffer. </summary>
     public InOutView<T>     InOut() => new(this, 0, Length);
 
     /// <summary> Gets a read-only view of the entire buffer. </summary>
