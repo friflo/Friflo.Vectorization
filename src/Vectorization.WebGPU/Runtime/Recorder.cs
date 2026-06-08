@@ -254,7 +254,10 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             wgpuCommandEncoderRelease(currentEncoder.handle);
             currentEncoder = default;
         }
-        wgpuBufferRelease(stagingWriteBuffer.handle);
+        if (stagingWriteBuffer.handle != null) {
+            wgpuBufferRelease(stagingWriteBuffer.handle);
+            stagingWriteBuffer = default;
+        }
         base.Dispose();
     }
     

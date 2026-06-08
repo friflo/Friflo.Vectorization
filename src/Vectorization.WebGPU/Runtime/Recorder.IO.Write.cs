@@ -18,7 +18,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed partial class CommandRecorder
 {
-    private readonly    StagingWriteBuffer  stagingWriteBuffer;
+    private             StagingWriteBuffer  stagingWriteBuffer;
     private readonly    List<BufferIdRange> writeIdRanges       = [];
     private             WriteEntry[]        writeEntries         = [];
     
