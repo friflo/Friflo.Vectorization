@@ -136,8 +136,6 @@ namespace Kernel.Generators
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-
-        // device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430

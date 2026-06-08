@@ -315,14 +315,6 @@ public sealed unsafe class SilkDevice : GpuDevice
         }
     }
     
-    public void WaitInDebug()
-    {
-        if (!DebugMode) {
-            return;
-        }
-        Submit();
-    }
-
     // TODO - remove - kept temporary for reference
     private void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
     {

@@ -64,8 +64,6 @@ public static class WgpuPattern
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-
-        device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL uses std140/std430 Layout

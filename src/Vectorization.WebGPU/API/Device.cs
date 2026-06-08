@@ -265,14 +265,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         HandleTasksFinished(status, userdata1);
     }
     
-    public void WaitInDebug()
-    {
-        if (!DebugMode) {
-            return;
-        }
-        // Submit();
-    }
-
     // TODO - remove - kept temporary for reference
     private void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
     {

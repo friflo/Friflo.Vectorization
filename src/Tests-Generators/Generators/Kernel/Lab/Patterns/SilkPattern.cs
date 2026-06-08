@@ -69,7 +69,6 @@ public static class SilkPattern
         device.Enqueue(task);                      // queues CommandBuffer only. No Submit().
         device.TrackWrite(output_);
 
-        device.WaitInDebug();
         return gpuOutput;
     }
     

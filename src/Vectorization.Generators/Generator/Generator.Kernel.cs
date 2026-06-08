@@ -204,8 +204,6 @@ $$""""
             
             pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
         }
-
-        // device.WaitInDebug();
     }
     
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
