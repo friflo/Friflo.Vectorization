@@ -116,10 +116,8 @@ internal readonly struct WgpuIO
         }
         var commandListQueue    = recorder?.commandListQueue    ?? device.commandListQueue;
         var bufferEntries       = recorder?.bufferEntries       ?? device.bufferEntries;
-        var activeBuffers       = tempActiveBuffers;
         var submitCommands      = tempSubmitCommands;
         var commandLists        = tempCommandLists;
-        var compactRangesList   = tempCompactRangesList;
         
         // process commandList.ranges before submitting commandList
         submitCommands.Clear();
@@ -141,6 +139,41 @@ internal readonly struct WgpuIO
             commandLists.Add(commandList);
         }
         
+        var writePos = CopyBuffers(device, bufferEntries, encoder);
+
+        // --------------------- append copyBufferCommands and submit ---------------------
+        if (createEncoder) {
+            var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
+            wgpuCommandEncoderRelease(encoder);
+            submitCommands.Add(new WgpuCommandBuffer(copyBufferCommands));
+        }
+        if (recorder != null) {
+            if (!createEncoder) {
+                recorder.FinishEncoder("BatchedCommands"u8);    // creates CommandBuffer and adds it to 
+                var commands = recorder.commandList.commands;   // recorder.commandList.commands
+                submitCommands.Add(commands[^1]);
+            }
+            if (recorder.enableTraces) {
+                recorder.AddTrace(TraceType.Submit, 0, submitCommands.Count);
+            }
+        }
+        
+        // At this point no read / write access to CommandList's -> safe to return to pool 
+        foreach (var commandList in commandLists) {
+            device.commandListPool.Return(commandList); // clears: ranges & commands
+        }
+        commandLists.Clear();
+        
+        device.SubmitCommands(submitCommands);
+        
+        return writePos;
+    }
+    
+    private unsafe uint CopyBuffers(WgpuDevice device, BufferEntry[] bufferEntries, CommandEncoder* encoder)
+    {
+        var activeBuffers       = tempActiveBuffers;
+        var compactRangesList   = tempCompactRangesList;
+
         activeBuffers.Clear();
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
 
@@ -189,32 +222,6 @@ internal readonly struct WgpuIO
                 writePos += byteSize;
             }
         }
-
-        // --------------------- append copyBufferCommands and submit ---------------------
-        if (createEncoder) {
-            var copyBufferCommands = wgpuCommandEncoderFinish(encoder, null);
-            wgpuCommandEncoderRelease(encoder);
-            submitCommands.Add(new WgpuCommandBuffer(copyBufferCommands));
-        }
-        if (recorder != null) {
-            if (!createEncoder) {
-                recorder.FinishEncoder("BatchedCommands"u8);    // creates CommandBuffer and adds it to 
-                var commands = recorder.commandList.commands;   // recorder.commandList.commands
-                submitCommands.Add(commands[^1]);
-            }
-            if (recorder.enableTraces) {
-                recorder.AddTrace(TraceType.Submit, 0, submitCommands.Count);
-            }
-        }
-        
-        // At this point no read / write access to CommandList's -> safe to return to pool 
-        foreach (var commandList in commandLists) {
-            device.commandListPool.Return(commandList); // clears: ranges & commands
-        }
-        commandLists.Clear();
-        
-        device.SubmitCommands(submitCommands);
-        
         return writePos;
     }
     
