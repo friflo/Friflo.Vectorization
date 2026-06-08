@@ -185,7 +185,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
         globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
-        stagingReadBuffer   = CreateStagingBuffer(16 * 1024 * 1024, "staging_buffer");
+        stagingReadBuffer   = CreateStagingBuffer(16 * 1024 * 1024, "staging_read_buffer");
     }
     
     // <summary> <see cref="wgpuDevicePoll"/> should not be used anymore. Use <see cref="wgpuInstanceProcessEvents"/> instead. </summary>

@@ -319,7 +319,7 @@ public partial class Test_GPU_Pass : KernelBase
         
         var inputView = input.In(0, 10).Write();
         inputView.Span[0] = 42;
-        inputView.Span[9] = 42;
+        inputView.Span[9] = 43;
         
         AssignKernel(output.InOut(0, 10), inputView);
         

@@ -95,7 +95,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];
         commandList         = device.commandListPool.Fetch();
-        stagingWriteBuffer  = device.CreateStagingWriteBuffer(16 * 1024 * 1024, "stagingWrite");
+        stagingWriteBuffer  = device.CreateStagingWriteBuffer(16 * 1024 * 1024, "stagingWriteBuffer");
     }
     
     // The recorder provides / owns the Encoder

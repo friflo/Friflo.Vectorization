@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -97,6 +98,17 @@ internal readonly partial struct WgpuIO {
                 writeSize += (uint)(range.length * bufferData.elementSize);
             }
         }
+        int remainingMaps = 1;
+        var callbackInfo = new BufferMapCallbackInfo {
+            mode        = CallbackMode.AllowProcessEvents,
+            callback    = &WriteBuffers_Map_callback,
+            userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
+        };
+        wgpuBufferMapAsync(stagingWrite.handle, (ulong)MapMode.Write, 0, writeSize, callbackInfo);
+        
+        while (Thread.VolatileRead(ref remainingMaps) > 0) {
+            wgpuInstanceProcessEvents(device.instance);
+        }
         
         ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
         
@@ -126,6 +138,13 @@ internal readonly partial struct WgpuIO {
             }
         }
         wgpuBufferUnmap(stagingWrite.handle);
+    }
+    
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static unsafe void WriteBuffers_Map_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
+        if (userdata1== null) return;
+        var remainingMaps = (int*)userdata1;
+        Interlocked.Decrement(ref *remainingMaps);
     }
 }
 
