@@ -31,7 +31,7 @@ public static partial class Pattern
       InBuffer<float>   weight,
       InBuffer<float>   input,
         float           bias,
-        Buffer<float>   output,
+        InOutBuffer<float>   output,
         ComputeMode     computeMode = ComputeMode.Device)
     {
         var buffers =
@@ -52,7 +52,7 @@ public static partial class Pattern
       InBuffer<float>   weight,
       InBuffer<float>   input,
         float           bias,
-        Buffer<float>   output,
+        InOutBuffer<float>   output,
         ComputeMode     computeMode = ComputeMode.Device)
     {
         var buffers =

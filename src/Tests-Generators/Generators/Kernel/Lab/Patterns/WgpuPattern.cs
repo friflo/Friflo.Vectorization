@@ -19,7 +19,7 @@ public static class WgpuPattern
         in InBuffer<float>  weight_,
         in InBuffer<float>  input_,
         in float            bias,
-        in Buffer<float>    output_)
+        in InOutBuffer<float>    output_)
     {
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder; 			// Recorder == thread context

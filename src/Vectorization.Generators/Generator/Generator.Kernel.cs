@@ -34,8 +34,8 @@ public sealed partial class Gen
             var name        = vectorType.Name;
             var type        = vectorType.FullQualifiedName;
             if (vectorType.IsSpan) {
-                var bufferType  = vectorType.RefKind == RefKind.Ref ? "  Buffer" : "InBuffer";
-                signature.Append($"\n          {bufferType}<{type}> {name},");
+                var bufferType  = vectorType.RefKind == RefKind.Ref ? "InOutBuffer" : "InBuffer";
+                signature.Append($"\n            {bufferType}<{type}> {name},");
                 if (n == 0) {
                     validate.Append($"            var buffers =\n");
                     validate.Append($"            GpuBuffers.Create({name}, nameof({name}), mode);\n");
@@ -113,7 +113,7 @@ public sealed partial class Gen
             var type                = vectorType.FullQualifiedName;
             var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
-            var paramType           = vectorType.RefKind == RefKind.Ref ? "in Buffer  " : "in InBuffer";
+            var paramType           = vectorType.RefKind == RefKind.Ref ? "in InOutBuffer" : "in InBuffer   ";
             signature.Append($"\n        {paramType}<{type}> {paramName}_,");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        var {paramName,-11} = recorder.{requireType}({paramName}_);");

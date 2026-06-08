@@ -69,7 +69,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [StackTraceHidden]
-    public GpuBuffer<T> RequireReadWrite<T>(in Buffer<T> buffer) where T : unmanaged
+    public GpuBuffer<T> RequireReadWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.GpuBuffer;
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);

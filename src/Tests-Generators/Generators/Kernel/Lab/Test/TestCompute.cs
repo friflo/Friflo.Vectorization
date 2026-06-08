@@ -57,15 +57,15 @@ public class TestCompute : KernelBase
     
 
     // --- compact examples of some generated shadow method stubs
-    public static GpuBuffer<float> ComputeLayer1(Buffer<byte> weight, Buffer<float> input, ComputeMode compute) { return null; }
-    public static GpuBuffer<float> ComputeLayer2(Buffer<float> input, ComputeMode compute) { return null; }
+    public static GpuBuffer<float> ComputeLayer1(InOutBuffer<byte> weight, InOutBuffer<float> input, ComputeMode compute) { return null; }
+    public static GpuBuffer<float> ComputeLayer2(InOutBuffer<float> input, ComputeMode compute) { return null; }
     
     public static GpuBuffer<byte> InitWeights(GpuDevice device) {
         return null;
     }
     
 
-    public void DependencyFlow(Buffer<float> input)
+    public void DependencyFlow(InOutBuffer<float> input)
     {
         using var device    = Adapter.CreateDevice("DependencyFlow");
         var weight = InitWeights(device);

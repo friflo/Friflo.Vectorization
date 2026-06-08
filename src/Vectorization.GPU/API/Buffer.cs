@@ -13,7 +13,7 @@ namespace Friflo.Vectorization.GPU;
 /// Generic types that can be converted into an input/output parameter are:<br/>
 /// <see cref="InOutView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
 /// </remarks>
-public readonly ref struct Buffer<T> where T : unmanaged
+public readonly ref struct InOutBuffer<T> where T : unmanaged
 {
     public  readonly    Span<T>         Span;
     public  readonly    GpuBuffer<T>    GpuBuffer;
@@ -22,17 +22,17 @@ public readonly ref struct Buffer<T> where T : unmanaged
     
     public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "Span", Length);
     
-    private Buffer(Span<T> span) {
+    private InOutBuffer(Span<T> span) {
         Span        = span;
         Length      = span.Length;
     }
     
-    private Buffer(Memory<T> memory) {
+    private InOutBuffer(Memory<T> memory) {
         Span        = memory.Span;
         Length      = memory.Length;
     }
     
-    private Buffer(InOutView<T> view) {
+    private InOutBuffer(InOutView<T> view) {
         GpuBuffer   = view.Buffer;
         Span        = view.Span;
         Offset      = view.Offset;
@@ -40,11 +40,11 @@ public readonly ref struct Buffer<T> where T : unmanaged
     }
     
     // --- CPU buffers
-    public static implicit operator Buffer<T>(T[]           array)      => new(array);
-    public static implicit operator Buffer<T>(Span<T>       span)       => new(span);
-    public static implicit operator Buffer<T>(Memory<T>     memory)     => new(memory);
+    public static implicit operator InOutBuffer<T>(T[]           array)      => new(array);
+    public static implicit operator InOutBuffer<T>(Span<T>       span)       => new(span);
+    public static implicit operator InOutBuffer<T>(Memory<T>     memory)     => new(memory);
     // --- GPU buffers
-    public static implicit operator Buffer<T>(InOutView<T> view)       => new(view);
+    public static implicit operator InOutBuffer<T>(InOutView<T>  view)       => new(view);
     
     // public static implicit operator Buffer<T>(GpuBuffer<T>  gpuBuffer);      intentionally not available
 }
@@ -92,8 +92,8 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     public static implicit operator InBuffer<T>(ReadOnlySpan<T>   span)       => new(span);
     public static implicit operator InBuffer<T>(ReadOnlyMemory<T> memory)     => new(memory);
     // --- GPU buffers
-    public static implicit operator InBuffer<T>(InView<T>   view)       => new(view);
-    public static implicit operator InBuffer<T>(InOutView<T>     view)       => new(view); // read/write buffer also allowed
+    public static implicit operator InBuffer<T>(InView<T>         view)       => new(view);
+    public static implicit operator InBuffer<T>(InOutView<T>      view)       => new(view); // read/write buffer also allowed
     
     // public static implicit operator InBuffer<T>      (GpuBuffer<T> gpuBuffer);   intentionally not available
     // public static implicit operator ReadOnlyBuffer<T>(T[] array));               intentionally not available

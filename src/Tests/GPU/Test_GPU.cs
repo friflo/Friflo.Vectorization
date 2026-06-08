@@ -37,7 +37,7 @@ public static partial class Test_GPU
     private static void TestKernel(
       InBuffer<float>   buffer1,
       InBuffer<float>   buffer2,
-        Buffer<float>   buffer3,
+        InOutBuffer<float>   buffer3,
         ComputeMode     computeMode = ComputeMode.Device)
     {
         var buffers =

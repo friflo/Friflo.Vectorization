@@ -342,7 +342,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     private readonly List<ISilkBuffer> requestedBuffers = [];
     
-    public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
+    public void TrackWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
     {
         requestedBuffers.Add((ISilkBuffer)buffer.GpuBuffer);
     }
