@@ -67,56 +67,65 @@ public sealed partial class Gen
         
         if (query.Spans.Length == 0)
         {
-            shadowMethodSource = $@"
-        /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
-        /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
-        public {(blueprintMethod.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
-        {{
-            var _query = _{methodName}_GetQuery{hash}(_store);
-            foreach (var entity in _query.Entities)
-            {{
-                {methodName}({lambdaParameters});
-            }}
-            return _query;
-        }}";
+            shadowMethodSource =   
+            $$"""
+            
+                    /// <summary>Query method generated for: <see cref="{{methodName}}"/>.</summary>
+                    /// <returns>The executed <see cref="ArchetypeQuery"/> for debugging purposes</returns>
+                    public {{(blueprintMethod.IsStatic ? "static " : "")}}ArchetypeQuery {{methodName}}Query({{methodSignature}})
+                    {
+                        var _query = _{{methodName}}_GetQuery{{hash}}(_store);
+                        foreach (var entity in _query.Entities)
+                        {
+                            {{methodName}}({{lambdaParameters}});
+                        }
+                        return _query;
+                    }
+            """;
         } else {
-            shadowMethodSource = $@"
-        /// <summary>Query method generated for: <see cref=""{methodName}""/>.</summary>
-        /// <returns>The executed <see cref=""ArchetypeQuery""/> for debugging purposes</returns>
-        public {(blueprintMethod.IsStatic ? "static " : "")}ArchetypeQuery {methodName}Query({methodSignature})
-        {{
-            var _query = _{methodName}_GetQuery{hash}(_store);
-            foreach (var chunk in _query.Chunks)
-            {{
-                var _entities = chunk.Entities;
-{chunkVariables}
-                int n = 0;{vectorizeBlock}
-                for (; n < _entities.Length; n++) {{
-{getterAoS}                    {methodName}({lambdaParameters});
-{setterAoS}                }}
-            }}
-            return _query;
-        }}";
+            shadowMethodSource =
+            $$"""
+            
+                    /// <summary>Query method generated for: <see cref="{{methodName}}"/>.</summary>
+                    /// <returns>The executed <see cref="ArchetypeQuery"/> for debugging purposes</returns>
+                    public {{(blueprintMethod.IsStatic ? "static " : "")}}ArchetypeQuery {{methodName}}Query({{methodSignature}})
+                    {
+                        var _query = _{{methodName}}_GetQuery{{hash}}(_store);
+                        foreach (var chunk in _query.Chunks)
+                        {
+                            var _entities = chunk.Entities;
+            {{chunkVariables}}
+                            int n = 0;{{vectorizeBlock}}
+                            for (; n < _entities.Length; n++) {
+            {{getterAoS}}                    {{methodName}}({{lambdaParameters}});
+            {{setterAoS}}                }
+                        }
+                        return _query;
+                    }
+            """;
         }
         
-        privateSource = $@"
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private static readonly int _{methodName}_Slot{hash} = EntityStore.UserDataNewSlot();
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        private static ArchetypeQuery{componentArgs}
-            _{methodName}_GetQuery{hash}(EntityStore _store)
-        {{
-            var _query = (ArchetypeQuery{componentArgs})
-                EntityStore.UserDataGet(_store, _{methodName}_Slot{hash});
-            if (_query != null) {{
-                return _query;
-            }}
-            _query = _store.Query{componentArgs}();
-{attributeCode}
-            EntityStore.UserDataSet(_store, _{methodName}_Slot{hash}, _query);
-            return _query;
-        }}";
+        privateSource =
+        $$"""
+        
+                [EditorBrowsable(EditorBrowsableState.Never)]
+                private static readonly int _{{methodName}}_Slot{{hash}} = EntityStore.UserDataNewSlot();
+        
+                [EditorBrowsable(EditorBrowsableState.Never)]
+                private static ArchetypeQuery{{componentArgs}}
+                    _{{methodName}}_GetQuery{{hash}}(EntityStore _store)
+                {
+                    var _query = (ArchetypeQuery{{componentArgs}})
+                        EntityStore.UserDataGet(_store, _{{methodName}}_Slot{{hash}});
+                    if (_query != null) {
+                        return _query;
+                    }
+                    _query = _store.Query{{componentArgs}}();
+        {{attributeCode}}
+                    EntityStore.UserDataSet(_store, _{{methodName}}_Slot{{hash}}, _query);
+                    return _query;
+                }
+        """;
     }
     
     private static StringBuilder EmitQueryMethodSignature(Query query, bool vectorized)

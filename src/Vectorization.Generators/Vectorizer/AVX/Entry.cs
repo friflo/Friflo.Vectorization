@@ -146,12 +146,15 @@ public sealed partial class AvxVectorizer : IVectorizer
             sb.Append(vectorType.Name);
         }
         var avxMethod = query.CustomMethod ?? $"_{query.BlueprintMethod.Name}_Avx{query.Hash}";
-        var source = $@"
-                if (!vectorized) goto EntityLoop;
-                if (Avx.IsSupported) {{
-                    n = {avxMethod}(_entities.Length{sb});
-                }}
-            EntityLoop:";
+        var source =
+        $$"""
+        
+                        if (!vectorized) goto EntityLoop;
+                        if (Avx.IsSupported) {
+                            n = {{avxMethod}}(_entities.Length{{sb}});
+                        }
+                    EntityLoop:
+        """;
         return source;
     }
     
@@ -278,30 +281,39 @@ public sealed partial class AvxVectorizer : IVectorizer
         };
         var guards = EmitLengthGuards(query);
         bool isQuery = query.VectorMode == VectorMode.Query;
-        var source = $@"
-        {strategyComment}
-        [SkipLocalsInit]
-        private static unsafe int _{query.BlueprintMethod.Name}_Avx{query.Hash}(int count{signature})
-        {{
-            {(isQuery ? $@"int paddedCount = (count + {elementStep - 1}) & ~{elementStep - 1};
-            int i = 0;
-" : $@"int i = 0;
-            count -= {elementStep};
-            if (i > count) {{
-                return 0;
-            }}
-")}{guards}
-{localBlock}{@fixed}            {{{pointerAssignment}
-
-                for (; {(isQuery ? "i < paddedCount" : "i <= count")}; i += {elementStep})
-                {{
-{vectorizeBody}
-
-{pointerIncrement}                }}
-            }}
-            return i;
-        }}
-";
+        var source =
+        $$"""
+        
+                {{strategyComment}}
+                [SkipLocalsInit]
+                private static unsafe int _{{query.BlueprintMethod.Name}}_Avx{{query.Hash}}(int count{{signature}})
+                {
+                    {{(isQuery ?
+                        $"""
+                         int paddedCount = (count + {elementStep - 1}) & ~{elementStep - 1};
+                                     int i = 0;
+        
+                         """ :
+                         $$"""
+                         int i = 0;
+                                     count -= {{elementStep}};
+                                     if (i > count) {
+                                         return 0;
+                                     }
+                         
+                         """)}}{{guards}}
+        {{localBlock}}{{@fixed}}            {{{pointerAssignment}}
+        
+                        for (; {{(isQuery ? "i < paddedCount" : "i <= count")}}; i += {{elementStep}})
+                        {
+        {{vectorizeBody}}
+        
+        {{pointerIncrement}}                }
+                    }
+                    return i;
+                }
+        
+        """;
         query.avxMethod = source;
     }
     
