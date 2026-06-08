@@ -13,7 +13,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Pass_Batching()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 
@@ -95,7 +95,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Split() // Read-After-Write  &  Write-After-Read
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 
@@ -158,7 +158,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_WAW_Split()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 
@@ -204,7 +204,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_Views()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 
@@ -242,7 +242,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_ReadOnly_Views()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 
@@ -271,7 +271,7 @@ public partial class Test_GPU_Pass : KernelBase
     [Test]
     public void Test_GPU_Hazard_Pass_Fusion_of_Disjoint_Buffers()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
 

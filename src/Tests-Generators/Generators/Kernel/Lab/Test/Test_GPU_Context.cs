@@ -27,7 +27,7 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Context_Leak()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
         var context = device.BeginContext(); // context leak
@@ -46,7 +46,7 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Missing_Device_Exception()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device = Device;
         using var weight   = device.CreateBuffer(10, 1f, "weight", BufferProfile.StaticIn);
@@ -62,7 +62,7 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Dispose_Context_Null()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device    = Device;
         
@@ -92,7 +92,7 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_Thread_Exceptions()
     {
-        if (Backend != TestBackend.WebGPU) return;
+        if (Backend != TestBackend.WGPU) return;
         
         using var device            = Device;
         using var pipelineContext   = device.BeginContext();

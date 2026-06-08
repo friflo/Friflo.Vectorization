@@ -41,8 +41,8 @@ public static partial class Pattern
 
         if (buffers.ComputeGPU) {
             switch (KernelFixture.TestBackend) {
-                case TestBackend.WebGPU:    WgpuPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);   return;
-                case TestBackend.Silk:      SilkPattern.  ShadowMethod_GPU(buffers, weight, input, bias, output);   return;
+                case TestBackend.WGPU:  WgpuPattern.MultiplyAdd_GPU(buffers, weight, input, bias, output);  return;
+                case TestBackend.Silk:  SilkPattern.ShadowMethod_GPU(buffers, weight, input, bias, output); return;
             }
         }
         MultiplyAddVector_gen(weight.Span, input.Span, bias, output.Span, buffers.ComputeSIMD);

@@ -12,14 +12,14 @@ namespace Kernel;
 public enum TestBackend {
     Scalar,
     SIMD,
-    WebGPU,
+    WGPU,
     Silk
 }
 
 [SetUpFixture]
 public sealed class KernelFixture
 {
-    public static readonly TestBackend TestBackend = TestBackend.WebGPU;  // WebGPU  Silk  Scalar  SIMD
+    public static readonly TestBackend TestBackend = TestBackend.WGPU;  // WGPU  Scalar  SIMD   (Silk)
     
     public static   GpuInstance Instance    { get; private set; }
     public static   GpuAdapter  Adapter     { get; private set; }
@@ -30,7 +30,7 @@ public sealed class KernelFixture
         switch (TestBackend) {
             case TestBackend.Scalar:    SetupCPU(GpuBackendType.Scalar);    break;
             case TestBackend.SIMD:      SetupCPU(GpuBackendType.SIMD);      break;
-            case TestBackend.WebGPU:    SetupWebGPU();                      break;
+            case TestBackend.WGPU:      SetupWebGPU();                      break;
             case TestBackend.Silk:      SetupSilk();                        break;
         }
     }
