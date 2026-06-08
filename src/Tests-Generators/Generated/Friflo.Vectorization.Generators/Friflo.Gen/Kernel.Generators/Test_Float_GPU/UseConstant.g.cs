@@ -99,13 +99,13 @@ namespace Kernel.Generators
     [SkipLocalsInit]
     private static void _UseConstant_GPU(
         in GpuBuffers      buffers,
-        in InOutBuffer<float> position_)
+        in InOutBuffer<float> position)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_UseConstant_GPU_KernelId);
 
-        var position    = recorder.RequireReadWrite(position_);
+        recorder.RequireReadWrite(position);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -119,7 +119,7 @@ namespace Kernel.Generators
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, position);
+                entries[0] = WgpuBindGroup.From(0, position.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "UseConstant_buffers"u8);
                 device.UpdateBufferCache(_UseConstant_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -127,7 +127,7 @@ namespace Kernel.Generators
             
             var uniforms = new _UseConstant_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.Offset,
+                position_off    = position.Offset,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

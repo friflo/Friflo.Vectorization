@@ -112,16 +112,16 @@ namespace Kernel.Generators
     [SkipLocalsInit]
     private static void _Kernel_Clamp_GPU(
         in GpuBuffers      buffers,
-        in InOutBuffer<float> position_,
-        in InBuffer   <float> min_,
+        in InOutBuffer<float> position,
+        in InBuffer   <float> min,
         in float           max)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_Kernel_Clamp_GPU_KernelId);
 
-        var position    = recorder.RequireReadWrite(position_);
-        var min         = recorder.RequireRead     (min_);
+        recorder.RequireReadWrite(position);
+        recorder.RequireRead     (min);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -135,8 +135,8 @@ namespace Kernel.Generators
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
-                entries[0] = WgpuBindGroup.From(0, position);
-                entries[1] = WgpuBindGroup.From(1, min);
+                entries[0] = WgpuBindGroup.From(0, position.Buffer);
+                entries[1] = WgpuBindGroup.From(1, min.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Clamp_buffers"u8);
                 device.UpdateBufferCache(_Kernel_Clamp_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -144,8 +144,8 @@ namespace Kernel.Generators
             
             var uniforms = new _Kernel_Clamp_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.Offset,
-                min_off         = min_.Offset,
+                position_off    = position.Offset,
+                min_off         = min.Offset,
                 max             = max,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);

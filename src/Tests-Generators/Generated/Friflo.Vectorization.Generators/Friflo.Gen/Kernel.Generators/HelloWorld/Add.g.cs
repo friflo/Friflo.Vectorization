@@ -119,17 +119,17 @@ namespace Kernel.Generators
     [SkipLocalsInit]
     private static void _Add_GPU(
         in GpuBuffers      buffers,
-        in InBuffer   <float> a_,
-        in InBuffer   <float> b_,
-        in InOutBuffer<float> c_)
+        in InBuffer   <float> a,
+        in InBuffer   <float> b,
+        in InOutBuffer<float> c)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_Add_GPU_KernelId);
 
-        var a           = recorder.RequireRead     (a_);
-        var b           = recorder.RequireRead     (b_);
-        var c           = recorder.RequireReadWrite(c_);
+        recorder.RequireRead     (a);
+        recorder.RequireRead     (b);
+        recorder.RequireReadWrite(c);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -143,9 +143,9 @@ namespace Kernel.Generators
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = WgpuBindGroup.From(0, a);
-                entries[1] = WgpuBindGroup.From(1, b);
-                entries[2] = WgpuBindGroup.From(2, c);
+                entries[0] = WgpuBindGroup.From(0, a.Buffer);
+                entries[1] = WgpuBindGroup.From(1, b.Buffer);
+                entries[2] = WgpuBindGroup.From(2, c.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
                 device.UpdateBufferCache(_Add_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -153,9 +153,9 @@ namespace Kernel.Generators
             
             var uniforms = new _Add_GPU_Uniforms {
                 count           = buffers.length,
-                a_off           = a_.Offset,
-                b_off           = b_.Offset,
-                c_off           = c_.Offset,
+                a_off           = a.Offset,
+                b_off           = b.Offset,
+                c_off           = c.Offset,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

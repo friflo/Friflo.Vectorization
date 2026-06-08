@@ -86,13 +86,13 @@ namespace Kernel.Lab
     [SkipLocalsInit]
     private static void _ReadOnly_GPU(
         in GpuBuffers      buffers,
-        in InBuffer   <float> input_)
+        in InBuffer   <float> input)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_ReadOnly_GPU_KernelId);
 
-        var input       = recorder.RequireRead     (input_);
+        recorder.RequireRead     (input);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -106,7 +106,7 @@ namespace Kernel.Lab
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, input);
+                entries[0] = WgpuBindGroup.From(0, input.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ReadOnly_buffers"u8);
                 device.UpdateBufferCache(_ReadOnly_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -114,7 +114,7 @@ namespace Kernel.Lab
             
             var uniforms = new _ReadOnly_GPU_Uniforms {
                 count           = buffers.length,
-                input_off       = input_.Offset,
+                input_off       = input.Offset,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

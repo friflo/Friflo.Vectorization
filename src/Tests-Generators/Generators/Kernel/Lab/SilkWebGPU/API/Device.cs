@@ -344,7 +344,7 @@ public sealed unsafe class SilkDevice : GpuDevice
     
     public void TrackWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
     {
-        requestedBuffers.Add((ISilkBuffer)buffer.GpuBuffer);
+        requestedBuffers.Add((ISilkBuffer)buffer.Buffer);
     }
     
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged

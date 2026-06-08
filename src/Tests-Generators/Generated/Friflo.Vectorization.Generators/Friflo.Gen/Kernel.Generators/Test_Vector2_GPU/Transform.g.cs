@@ -114,14 +114,14 @@ namespace Kernel.Generators
     [SkipLocalsInit]
     private static void _Transform_GPU(
         in GpuBuffers      buffers,
-        in InOutBuffer<Vector2> position_,
+        in InOutBuffer<Vector2> position,
         in Matrix4x4       matrix)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_Transform_GPU_KernelId);
 
-        var position    = recorder.RequireReadWrite(position_);
+        recorder.RequireReadWrite(position);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -135,7 +135,7 @@ namespace Kernel.Generators
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, position);
+                entries[0] = WgpuBindGroup.From(0, position.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Transform_buffers"u8);
                 device.UpdateBufferCache(_Transform_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -144,7 +144,7 @@ namespace Kernel.Generators
             var uniforms = new _Transform_GPU_Uniforms {
                 matrix          = matrix,
                 count           = buffers.length,
-                position_off    = position_.Offset,
+                position_off    = position.Offset,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.

@@ -107,14 +107,14 @@ namespace VerifyVectorize
     [SkipLocalsInit]
     private void _MoveExample_GPU(
         in GpuBuffers      buffers,
-        in InOutBuffer<float> position_,
+        in InOutBuffer<float> position,
         in float           deltaTime)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_MoveExample_GPU_KernelId);
 
-        var position    = recorder.RequireReadWrite(position_);
+        recorder.RequireReadWrite(position);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -128,7 +128,7 @@ namespace VerifyVectorize
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, position);
+                entries[0] = WgpuBindGroup.From(0, position.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
                 device.UpdateBufferCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -136,7 +136,7 @@ namespace VerifyVectorize
             
             var uniforms = new _MoveExample_GPU_Uniforms {
                 count           = buffers.length,
-                position_off    = position_.Offset,
+                position_off    = position.Offset,
                 deltaTime       = deltaTime,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);

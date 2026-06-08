@@ -114,13 +114,13 @@ public sealed partial class Gen
             var (wgslType, _, _)    = UniformField.WgslTypeFromType(type);
             bool isOutput           = query.dirtyVectorsSet.Contains(paramName);
             var paramType           = vectorType.RefKind == RefKind.Ref ? "in InOutBuffer" : "in InBuffer   ";
-            signature.Append($"\n        {paramType}<{type}> {paramName}_,");
+            signature.Append($"\n        {paramType}<{type}> {paramName},");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
-            bufferInit.Append($"\n        var {paramName,-11} = recorder.{requireType}({paramName}_);");
+            bufferInit.Append($"\n        recorder.{requireType}({paramName});");
             /* if (isOutput) {
                 setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
             } */
-            bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName});");
+            bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName}.Buffer);");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";

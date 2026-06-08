@@ -60,21 +60,19 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [StackTraceHidden]
-    public GpuBuffer<T> RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
+    public void RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
-        var gpuBuffer   = buffer.GpuBuffer;
+        var gpuBuffer   = buffer.Buffer;
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
         createNewPass  |= AddRead(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
-        return gpuBuffer;
     }
     
     [StackTraceHidden]
-    public GpuBuffer<T> RequireReadWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
+    public void RequireReadWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
     {
-        var gpuBuffer   = buffer.GpuBuffer;
+        var gpuBuffer   = buffer.Buffer;
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
         createNewPass  |= AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
-        return gpuBuffer;
     }
     
     /* public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged

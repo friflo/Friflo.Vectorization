@@ -110,7 +110,7 @@ public readonly unsafe struct WgpuBindGroup
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From<T>(int binding, in GpuBuffer<T> buffer) where T : unmanaged
+    public static BindGroupEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
     {
         return new BindGroupEntry {
             binding = (uint)binding,

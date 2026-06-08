@@ -16,27 +16,27 @@ namespace Friflo.Vectorization.GPU;
 public readonly ref struct InOutBuffer<T> where T : unmanaged
 {
     public  readonly    Span<T>         Span;
-    public  readonly    GpuBuffer<T>    GpuBuffer;
+    public  readonly    GpuBuffer<T>    Buffer;
     public  readonly    int             Length;
     public  readonly    int             Offset;
     
-    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "Span", Length);
+    public  override    string          ToString() => BufferUtils.BufferToString(Buffer, "Span", Length);
     
     private InOutBuffer(Span<T> span) {
-        Span        = span;
-        Length      = span.Length;
+        Span    = span;
+        Length  = span.Length;
     }
     
     private InOutBuffer(Memory<T> memory) {
-        Span        = memory.Span;
-        Length      = memory.Length;
+        Span    = memory.Span;
+        Length  = memory.Length;
     }
     
     private InOutBuffer(InOutView<T> view) {
-        GpuBuffer   = view.Buffer;
-        Span        = view.Span;
-        Offset      = view.Offset;
-        Length      = view.Length;
+        Buffer  = view.Buffer;
+        Span    = view.Span;
+        Offset  = view.Offset;
+        Length  = view.Length;
     }
     
     // --- CPU buffers
@@ -57,11 +57,11 @@ public readonly ref struct InOutBuffer<T> where T : unmanaged
 public readonly ref struct InBuffer<T> where T : unmanaged
 {
     public  readonly    ReadOnlySpan<T> Span;
-    public  readonly    GpuBuffer<T>    GpuBuffer;
+    public  readonly    GpuBuffer<T>    Buffer;
     public  readonly    int             Length;
     public  readonly    int             Offset;
 
-    public  override    string          ToString() => BufferUtils.BufferToString(GpuBuffer, "ReadOnlySpan", Length);
+    public  override    string          ToString() => BufferUtils.BufferToString(Buffer, "ReadOnlySpan", Length);
 
     private InBuffer(ReadOnlySpan<T> span) {
         Span        = span;
@@ -74,17 +74,17 @@ public readonly ref struct InBuffer<T> where T : unmanaged
     }
     
     private InBuffer(InView<T> view) {
-        GpuBuffer   = view.Buffer;
-        Span        = view.Span;
-        Offset      = view.Offset;
-        Length      = view.Length;
+        Buffer  = view.Buffer;
+        Span    = view.Span;
+        Offset  = view.Offset;
+        Length  = view.Length;
     }
     
     private InBuffer(InOutView<T> view) {
-        GpuBuffer   = view.Buffer;
-        Span        = view.Span;
-        Offset      = view.Offset;
-        Length      = view.Length;
+        Buffer  = view.Buffer;
+        Span    = view.Span;
+        Offset  = view.Offset;
+        Length  = view.Length;
     }
     
     

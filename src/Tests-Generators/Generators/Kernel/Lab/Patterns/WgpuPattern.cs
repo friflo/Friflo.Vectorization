@@ -15,19 +15,19 @@ public static class WgpuPattern
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
     [SkipLocalsInit]
     internal static void MultiplyAdd_GPU(
-        in GpuBuffers       buffers,
-        in InBuffer<float>  weight_,
-        in InBuffer<float>  input_,
-        in float            bias,
-        in InOutBuffer<float>    output_)
+        in GpuBuffers           buffers,
+        in InBuffer<float>      weight,
+        in InBuffer<float>      input,
+        in float                bias,
+        in InOutBuffer<float>   output)
     {
         var device      = (WgpuDevice)buffers.device;
         var recorder    = device.Recorder; 			// Recorder == thread context
         recorder.Init(MultiplyAdd_GPU_KernelId);
         
-        var weight      = recorder.RequireRead     (weight_);
-        var input       = recorder.RequireRead     (input_);
-        var output      = recorder.RequireReadWrite(output_);
+        recorder.RequireRead     (weight);
+        recorder.RequireRead     (input);
+        recorder.RequireReadWrite(output);
 
         using (var pass = recorder.BeginComputePass("MultiplyAdd"u8))
         {
@@ -41,9 +41,9 @@ public static class WgpuPattern
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = WgpuBindGroup.From  (0, weight);
-                entries[1] = WgpuBindGroup.From  (1, input);
-                entries[2] = WgpuBindGroup.From  (2, output);
+                entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
+                entries[1] = WgpuBindGroup.From  (1, input.Buffer);
+                entries[2] = WgpuBindGroup.From  (2, output.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
                 device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -51,9 +51,9 @@ public static class WgpuPattern
             
             var uniforms = new MultiplyAdd_GPU_Uniforms {
                 count       = buffers.length,
-                weight_off  = weight_.Offset,
-                input_off   = input_ .Offset,
-                output_off  = output_.Offset,
+                weight_off  = weight.Offset,
+                input_off   = input .Offset,
+                output_off  = output.Offset,
                 bias        = bias
             };
             var entry = recorder.AsUniformEntry(0, uniforms);

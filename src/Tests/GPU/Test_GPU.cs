@@ -50,8 +50,8 @@ public static partial class Test_GPU
         recorder.Init(123);
         
         // Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
-        _ = recorder.RequireRead     (buffer1);
-        _ = recorder.RequireRead     (buffer2);
-        _ = recorder.RequireReadWrite(buffer3);
+        recorder.RequireRead     (buffer1);
+        recorder.RequireRead     (buffer2);
+        recorder.RequireReadWrite(buffer3);
     }
 }

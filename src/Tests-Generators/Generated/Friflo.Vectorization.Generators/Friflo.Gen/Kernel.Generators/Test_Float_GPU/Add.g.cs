@@ -107,15 +107,15 @@ namespace Kernel.Generators
     [SkipLocalsInit]
     private static void _Add_GPU(
         in GpuBuffers      buffers,
-        in InOutBuffer<float> dst_,
-        in InBuffer   <float> src_)
+        in InOutBuffer<float> dst,
+        in InBuffer   <float> src)
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
         recorder.Init(_Add_GPU_KernelId);
 
-        var dst         = recorder.RequireReadWrite(dst_);
-        var src         = recorder.RequireRead     (src_);
+        recorder.RequireReadWrite(dst);
+        recorder.RequireRead     (src);
 
         using (var pass = recorder.BeginComputePass("ShadowMethod"u8))
         {
@@ -129,8 +129,8 @@ namespace Kernel.Generators
             var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
-                entries[0] = WgpuBindGroup.From(0, dst);
-                entries[1] = WgpuBindGroup.From(1, src);
+                entries[0] = WgpuBindGroup.From(0, dst.Buffer);
+                entries[1] = WgpuBindGroup.From(1, src.Buffer);
                 bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
                 device.UpdateBufferCache(_Add_GPU_KernelId, bufferGroup, buffers.hash);
             }
@@ -138,8 +138,8 @@ namespace Kernel.Generators
             
             var uniforms = new _Add_GPU_Uniforms {
                 count           = buffers.length,
-                dst_off         = dst_.Offset,
-                src_off         = src_.Offset,
+                dst_off         = dst.Offset,
+                src_off         = src.Offset,
             };
             var entry = recorder.AsUniformEntry(0, uniforms);
             // Creation of uniform bind group is cheap => no caching.
