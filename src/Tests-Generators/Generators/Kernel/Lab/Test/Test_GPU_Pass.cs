@@ -28,7 +28,7 @@ public partial class Test_GPU_Pass : KernelBase
         _ = context.KernelMetrics;
         
         for (int n = 0; n < 5; ++n) {
-            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
+            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().Read());
         }
         context.Queue.ReadBuffers();
         
@@ -53,7 +53,7 @@ public partial class Test_GPU_Pass : KernelBase
         context.ClearTraces();
         
         for (int n = 0; n < 5; ++n) {
-            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
+            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().Read());
         }
         context.Queue.ReadBuffers();
         
@@ -71,8 +71,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.ClearTraces();
 
-        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
-        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().StageRead());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().Read());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().Read());
 
         Assert.AreEqual(0, context.Queue.Stats.Commands);
         Assert.AreEqual(2, context.Queue.Stats.Ranges);
@@ -107,8 +107,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        Pattern.MultiplyAddKernel(weight.In(),  input.In(),  42,  output.InOut().StageRead());
-        Pattern.MultiplyAddKernel(weight.In(),  output.In(), 42,  input.InOut().StageRead());
+        Pattern.MultiplyAddKernel(weight.In(),  input.In(),  42,  output.InOut().Read());
+        Pattern.MultiplyAddKernel(weight.In(),  output.In(), 42,  input.InOut().Read());
         
         context.Queue.ReadBuffers();
         
@@ -129,8 +129,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces  = false;
         context.ClearTraces();
         
-        Pattern.MultiplyAddKernel(weight.In(),  input.In(), 42,   output.InOut().StageRead());
-        Pattern.MultiplyAddKernel(weight.In(),  output.In(), 42,  input.InOut().StageRead());
+        Pattern.MultiplyAddKernel(weight.In(),  input.In(), 42,   output.InOut().Read());
+        Pattern.MultiplyAddKernel(weight.In(),  output.In(), 42,  input.InOut().Read());
         
         context.Queue.ReadBuffers();
         
@@ -171,10 +171,10 @@ public partial class Test_GPU_Pass : KernelBase
         context.PassBatching    = PassBatching.HazardDriven;
         context.ClearKernelMetrics();
         
-        Pattern.MultiplyAddKernel(weight.In(), input.In(), 42, output.InOut().StageRead());
+        Pattern.MultiplyAddKernel(weight.In(), input.In(), 42, output.InOut().Read());
         
-        AssignKernel(output.InOut().StageRead(), input.In());
-        Pattern.MultiplyAddKernel(weight.In(), input.In(), 23, output.InOut().StageRead());
+        AssignKernel(output.InOut().Read(), input.In());
+        Pattern.MultiplyAddKernel(weight.In(), input.In(), 23, output.InOut().Read());
         
         context.Queue.ReadBuffers();
         
@@ -216,14 +216,14 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        Pattern.MultiplyAddKernel(weight.In(0, 10),  input.In(0, 10),   42,  output.InOut(0, 10).StageRead());
-        Pattern.MultiplyAddKernel(weight.In(0, 10),  output.In(10, 10), 42,  input.InOut(10, 10).StageRead());
-        AssignKernel(output.InOut(20,10).StageRead(), input.In(20, 10));
-        Pattern.MultiplyAddKernel(weight.In(0, 10),  output.In(30, 10), 42,  input.InOut(30, 10).StageRead());
+        Pattern.MultiplyAddKernel(weight.In(0, 10),  input.In(0, 10),   42,  output.InOut(0, 10).Read());
+        Pattern.MultiplyAddKernel(weight.In(0, 10),  output.In(10, 10), 42,  input.InOut(10, 10).Read());
+        AssignKernel(output.InOut(20,10).Read(), input.In(20, 10));
+        Pattern.MultiplyAddKernel(weight.In(0, 10),  output.In(30, 10), 42,  input.InOut(30, 10).Read());
         
         context.Queue.ReadBuffers();
         
-        AssertResult(input.InOut(30, 10).StageRead(), 45f);
+        AssertResult(input.InOut(30, 10).Read(), 45f);
         Assert.AreEqual("calls: 4  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """
@@ -286,8 +286,8 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        Pattern.MultiplyAddKernel(weight.In(), inputA.InOut().StageRead(), 42, outputA.InOut().StageRead());
-        Pattern.MultiplyAddKernel(weight.In(), inputB.InOut().StageRead(), 42, outputB.InOut().StageRead());
+        Pattern.MultiplyAddKernel(weight.In(), inputA.InOut().Read(), 42, outputA.InOut().Read());
+        Pattern.MultiplyAddKernel(weight.In(), inputB.InOut().Read(), 42, outputB.InOut().Read());
         
         context.Queue.ReadBuffers();
         

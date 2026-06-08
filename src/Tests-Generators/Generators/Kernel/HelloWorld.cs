@@ -35,7 +35,7 @@ public partial class HelloWorld
         
         using var context = device.BeginContext();
 
-        AddKernel(a.In(), b.In(), c.InOut().StageRead());
+        AddKernel(a.In(), b.In(), c.InOut().Read());
         
         context.Queue.ReadBuffers();
         

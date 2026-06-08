@@ -29,11 +29,11 @@ public partial class Test_GPU_Queue : KernelBase
         using var context = device.BeginContext();
         context.PassBatching = PassBatching.None;
         
-        AssignKernel(target.InOut().StageRead(), source.In());
+        AssignKernel(target.InOut().Read(), source.In());
         
         context.PassBatching = PassBatching.HazardDriven;
         
-        AssignKernel(target.InOut().StageRead(), source.In());
+        AssignKernel(target.InOut().Read(), source.In());
         
         context.Queue.ReadBuffers();
         
@@ -51,7 +51,7 @@ public partial class Test_GPU_Queue : KernelBase
         
         using var context = device.BeginContext();
         
-        AssignKernel(target.InOut().StageRead(), source.In());
+        AssignKernel(target.InOut().Read(), source.In());
         
         context.FlushTo(device);
         
@@ -72,10 +72,10 @@ public partial class Test_GPU_Queue : KernelBase
         using var context = device.BeginContext();
         context.PassBatching = PassBatching.HazardDriven;
         
-        AssignKernel(target.InOut(2, 1).StageRead(), source.In(2, 1));
-        AssignKernel(target.InOut(6, 1).StageRead(), source.In(6, 1));
-        AssignKernel(target.InOut(0, 1).StageRead(), source.In(0, 1));
-        AssignKernel(target.InOut(9, 1).StageRead(), source.In(9, 1));
+        AssignKernel(target.InOut(2, 1).Read(), source.In(2, 1));
+        AssignKernel(target.InOut(6, 1).Read(), source.In(6, 1));
+        AssignKernel(target.InOut(0, 1).Read(), source.In(0, 1));
+        AssignKernel(target.InOut(9, 1).Read(), source.In(9, 1));
         
         context.FlushTo(device);
         
@@ -112,9 +112,9 @@ public partial class Test_GPU_Queue : KernelBase
         using (var context = device.BeginContext())
         {
             context.PassBatching = PassBatching.None;
-            AssignKernel(target.InOut().StageRead(), source.In());
+            AssignKernel(target.InOut().Read(), source.In());
             context.PassBatching = PassBatching.HazardDriven;
-            AssignKernel(target.InOut().StageRead(), source.In());
+            AssignKernel(target.InOut().Read(), source.In());
             
             context.Queue.ReadBuffers();
             Assert.AreEqual(sourceArr, targetArr);
@@ -127,12 +127,12 @@ public partial class Test_GPU_Queue : KernelBase
             {
                 var start = Mem.GetAllocatedBytes();
                 context.PassBatching = PassBatching.None;
-                AssignKernel(target.InOut().StageRead(), source.In());
+                AssignKernel(target.InOut().Read(), source.In());
                 Mem.AssertNoAlloc(start);
             } {
                 var start = Mem.GetAllocatedBytes();
                 context.PassBatching = PassBatching.HazardDriven;
-                AssignKernel(target.InOut().StageRead(), source.In());
+                AssignKernel(target.InOut().Read(), source.In());
                 Mem.AssertNoAlloc(start);
             } {
                 var start = Mem.GetAllocatedBytes();

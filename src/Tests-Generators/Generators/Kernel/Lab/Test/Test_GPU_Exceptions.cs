@@ -81,7 +81,7 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var gpuOutput3   = device1.CreateBuffer(output, "gpuOutput3", BufferProfile.InOut);
          // gpuOutput3.InOut can also be used for InBuffer<float> parameter
-        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput3.InOut().StageRead(), 42, gpuOutput.InOut());
+        Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput3.InOut().Read(), 42, gpuOutput.InOut());
         
         context.Queue.ReadBuffers();
     }
@@ -116,7 +116,7 @@ public class Test_GPU_Exceptions : KernelBase
         using var context = device.BeginContext();
 
         var e = Assert.Throws<InvalidOperationException>(() => {
-            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput.In(), 42, gpuOutput.InOut().StageRead());
+            Pattern.MultiplyAddKernel(gpuWeight.In(), gpuOutput.In(), 42, gpuOutput.InOut().Read());
         })!;
         StringAssert.StartsWith("Schrödinger's Buffer:", e!.Message!);
     }
@@ -132,9 +132,9 @@ public class Test_GPU_Exceptions : KernelBase
         
         using var context = device.BeginContext();
         
-        var inputSlice   = gpuOutput.InOut(0, 10).StageRead();
-        var outputSlice1 = gpuOutput.InOut(0, 10).StageRead();
-        var outputSlice2 = gpuOutput.InOut(20,10).StageRead();
+        var inputSlice   = gpuOutput.InOut(0, 10).Read();
+        var outputSlice1 = gpuOutput.InOut(0, 10).Read();
+        var outputSlice2 = gpuOutput.InOut(20,10).Read();
         
         context.PassBatching = PassBatching.None;
         Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);

@@ -32,8 +32,13 @@ public readonly struct InOutView<T> where T : unmanaged
         Length  = length;
     }
     
-    public InOutView<T> StageRead() {
-        Buffer.Device.Context.StageRead(this);
+    /// <summary> Queues the buffer data for transfer from GPU to host memory. </summary>
+    /// <remarks>
+    /// Note: Data is not available until <see cref="PipelineContext.ReadBuffers"/> has been 
+    /// called and synchronization is complete. This call is non-blocking.
+    /// </remarks>
+    public InOutView<T> Read() {
+        Buffer.Device.Context.QueueRead(this);
         return this;
     }
 }

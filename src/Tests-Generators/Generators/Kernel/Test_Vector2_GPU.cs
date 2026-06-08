@@ -39,7 +39,7 @@ public partial class Test_Vector2_GPU : KernelBase
         using var context = Device.BeginContext();
 
         MultiplyVector(array1,           array2, false);
-        MultiplyKernel(gpuBuffer1.InOut().StageRead(), gpuBuffer2.In());
+        MultiplyKernel(gpuBuffer1.InOut().Read(), gpuBuffer2.In());
         
         context.Queue.ReadBuffers();
         
@@ -74,7 +74,7 @@ public partial class Test_Vector2_GPU : KernelBase
         using var context = Device.BeginContext();
 
         ArithmeticVector(array1,           array2, false);
-        ArithmeticKernel(gpuBuffer1.InOut().StageRead(), gpuBuffer2.In());
+        ArithmeticKernel(gpuBuffer1.InOut().Read(), gpuBuffer2.In());
         
         context.Queue.ReadBuffers();
         
@@ -109,7 +109,7 @@ public partial class Test_Vector2_GPU : KernelBase
         using var context = Device.BeginContext();
 
         MiscVector(array1,           array2,        new Vector2(5.5f, 6.6f), false);
-        MiscKernel(gpuBuffer1.InOut().StageRead(), gpuBuffer2.In(), new Vector2(5.5f, 6.6f));
+        MiscKernel(gpuBuffer1.InOut().Read(), gpuBuffer2.In(), new Vector2(5.5f, 6.6f));
         
         context.Queue.ReadBuffers();
         
@@ -146,7 +146,7 @@ public partial class Test_Vector2_GPU : KernelBase
         using var context = Device.BeginContext();
 
         AdvancedVector(array1,           array2, false);
-        AdvancedKernel(gpuBuffer1.InOut().StageRead(), gpuBuffer2.In());
+        AdvancedKernel(gpuBuffer1.InOut().Read(), gpuBuffer2.In());
         
         context.Queue.ReadBuffers();
         
@@ -184,7 +184,7 @@ public partial class Test_Vector2_GPU : KernelBase
         using var context = Device.BeginContext();
 
         TransformVector(array1,           matrix, false);
-        TransformKernel(gpuBuffer1.InOut().StageRead(), matrix);
+        TransformKernel(gpuBuffer1.InOut().Read(), matrix);
         
         context.Queue.ReadBuffers();
         
