@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -60,33 +61,39 @@ public sealed partial class CommandRecorder
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemory();
+
         
         fixed (byte* source = hostMemory)
         {
             if (writeRanges.Count == 1) {
-                WriteRange(writeRanges[0], bufferData.elementSize, source, bufferData.storageHandle);
+                WriteRange(writeRanges[0], bufferData, source);
             } else {
                 BufferRange.GetOptimizedRanges(writeRanges, tempWriteRanges);
-                WriteRangesCoalescing(tempWriteRanges, bufferData.elementSize, source, bufferData.storageHandle);
+                WriteRangesCoalescing(tempWriteRanges, bufferData, source);
             }
         }
         writeRanges.Clear();
     }
     
-    private unsafe void WriteRange(BufferRange range, int elementSize, byte* source, Buffer* buffer)
+    private unsafe void WriteRange(BufferRange range, in BufferData data, byte* source)
     {
-        var start   = range.start  * elementSize;
-        var length  = range.length * elementSize;
-        wgpuQueueWriteBuffer(device.QueuePtr, buffer, (ulong)start, source + start, (nuint)length);
+        var start   = range.start  * data.elementSize;
+        var length  = range.length * data.elementSize;
+        wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, (ulong)start, source + start, (nuint)length);
+        if (enableTraces) {
+            AddTrace(TraceType.View_Write, 0, 1, data.label);
+        }
     }
     
-    private unsafe void WriteRangesCoalescing(List<BufferRange> ranges, int elementSize, byte* source, Buffer* buffer)
+    private unsafe void WriteRangesCoalescing(List<BufferRange> ranges, in BufferData data, byte* source)
     {
         var queue       = device.QueuePtr;
+        var elementSize = data.elementSize;
 
         var firstRange  = ranges[0];
         var lastStart   = firstRange.start  * elementSize;
         var lastLength  = firstRange.length * elementSize;
+        int rangeWrites = 1;
 
         // --- optimization: Write-Coalescing
         for (int n = 1; n < ranges.Count; n++)
@@ -102,11 +109,15 @@ public sealed partial class CommandRecorder
                 lastLength = length;
                 continue;
             }
-            wgpuQueueWriteBuffer(queue, buffer, (ulong)lastStart, source + lastStart, (nuint)lastLength);
+            wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, source + lastStart, (nuint)lastLength);
             lastStart   = newStart;
             lastLength  = newLength;
+            rangeWrites++;
         }
-        wgpuQueueWriteBuffer(queue, buffer, (ulong)lastStart, source + lastStart, (nuint)lastLength);
+        wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, source + lastStart, (nuint)lastLength);
+        if (enableTraces) {
+            AddTrace(TraceType.View_Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
+        }
     }
 }
 

@@ -56,7 +56,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     {
         this.device     = device;
         handle          = buffer;
-        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), buffer);
+        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), buffer, bufferLabel);
     }
     
     // --- IWgpuBuffer

@@ -18,6 +18,7 @@ public enum TraceType : byte
     Hazard_RAW,
     Hazard_WAR,
     Hazard_WAW,
+    View_Write,
 }
 
 public enum TraceSubType : byte
@@ -25,6 +26,7 @@ public enum TraceSubType : byte
     None,
     NewPass,
     PassSplit,
+    Coalescing
 }
 
 public struct PipelineStats
@@ -55,7 +57,7 @@ public struct PipelineTrace
     internal StringBuilder  Append(StringBuilder sb, int indent)
     {
         switch (TraceType) {
-            case TraceType.Kernel:
+            case TraceType.Kernel: {
                 var name    = KernelName;
                 var len     = Math.Max(0, indent - name.Length);
                 sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}");
@@ -64,6 +66,7 @@ public struct PipelineTrace
                     case TraceSubType.PassSplit: sb.Append("   pass_split"); break;
                 }
                 break;
+            }
             case TraceType.Submit:
                 sb.Append($"> Submit                        commands: {Calls}");
                 break;
@@ -76,6 +79,14 @@ public struct PipelineTrace
             case TraceType.Hazard_WAW:
                 sb.Append($"  | WAW '{Resource}'");
                 break;
+            case TraceType.View_Write: {
+                var len = Math.Max(0, indent - Resource.Length - 12);
+                sb.Append($"> View.Write '{Resource}'").Append(' ', len).Append($"ranges: {Calls}");
+                if (SubType == TraceSubType.Coalescing) {
+                    sb.Append(" - coalescing");
+                }
+                break;
+            }
         }
         return sb;
     } 

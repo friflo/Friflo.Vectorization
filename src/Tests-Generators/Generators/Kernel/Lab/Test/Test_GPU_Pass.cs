@@ -349,6 +349,8 @@ public partial class Test_GPU_Pass : KernelBase
         using var output    = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
         
         using var context = device.BeginContext();
+        context.EnableTraces    = true;
+        context.PassBatching    = PassBatching.HazardDriven;
         
         var inputView1  = input.In(10, 1).Write();  inputView1.Span[0] = 40;
         var inputView2  = input.In(20, 1).Write();  inputView2.Span[0] = 41;
@@ -367,6 +369,15 @@ public partial class Test_GPU_Pass : KernelBase
         Assert.AreEqual(40, outputView1.Span[0]);
         Assert.AreEqual(41, outputView2.Span[0]);
         Assert.AreEqual(42, outputView3.Span[0]);
+        
+        Assert.That(context.TraceLog, Is.EqualTo(
+            """
+            --- PIPELINE TRACE (batching: HazardDriven  calls: 3   passes: 1  hazards: 0) ---
+            --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
+            > View.Write 'input'            ranges: 1 - coalescing
+            AssignKernel()                  calls:  3   new_pass
+            > Submit                        commands: 1
+            """).IgnoreWhiteSpace);
     }
     
     [StackTraceHidden]
