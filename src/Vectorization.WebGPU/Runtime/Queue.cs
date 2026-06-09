@@ -22,11 +22,6 @@ internal readonly unsafe struct WgpuQueue
         this.handle = handle;
     }
     
-    internal void WriteBuffer(Buffer* buffer, uint offsetInBytes, void* data, uint byteSize)
-    {
-        wgpuQueueWriteBuffer(device.QueuePtr, buffer, offsetInBytes, data, byteSize);
-    }
-    
     // TODO use this static method to avoid allocation by lambda
     private static void GlobalWorkDoneCallback(QueueWorkDoneStatus status, void* userData)
     {

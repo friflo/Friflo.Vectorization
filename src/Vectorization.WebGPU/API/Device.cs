@@ -200,10 +200,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var encoder = wgpuDeviceCreateCommandEncoder(DevicePtr, &desc);
         return new WgpuEncoder(encoder);
     }
-
-    internal void WriteBuffer<T>(WgpuBuffer<T> buffer, uint byteOffset, void* data, uint byteSize) where T : unmanaged {
-        queue.WriteBuffer(buffer.handle, byteOffset, data, byteSize);
-    }
     
     // -------------------------------- Task Dependency Tracking --------------------------------
     private static void HandleTasksFinished(QueueWorkDoneStatus status, void* userData)
@@ -265,7 +261,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     }
     
     // TODO - remove - kept temporary for reference
-    private void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
+    private void Wait()
     {
         // We register a callback for completion
         bool completed = false;
@@ -279,7 +275,14 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
-        uint    size            = (uint)(data.Length * sizeof(T));
+        fixed (void* pData = data) {
+            return CreateBufferWithData(pData, data.Length * sizeof(T), usage, bufferLabel);
+        }
+    }
+    
+    private Buffer* CreateBufferWithData(void* pData, int sizeInBytes, BufferUsage usage, string bufferLabel)
+    {
+        uint    size            = (uint)sizeInBytes;
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
@@ -293,9 +296,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
         void* pMapped = wgpuBufferGetMappedRange(buffer, 0, size);
-        fixed (void* pData = data) {
-            System.Buffer.MemoryCopy(pData, pMapped, size, size);
-        }
+
+        System.Buffer.MemoryCopy(pData, pMapped, size, size);
+
         wgpuBufferUnmap(buffer); // initiate copy data to GPU buffer. Returns immediately. Upload executes async.
         
         return buffer;

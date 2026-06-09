@@ -179,7 +179,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
-                device.WriteBuffer(device.globalUniformPool, 0, pData, uniformOffset);
+                wgpuQueueWriteBuffer(device.QueuePtr, device.globalUniformPool.handle, 0, pData, uniformOffset);
             }
         }
     }
