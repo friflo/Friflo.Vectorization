@@ -267,17 +267,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     // TODO - remove - kept temporary for reference
     private void Wait<T>(GpuBuffer<T> buffer) where T : unmanaged
     {
-        // if (task == null || task.IsCompleted) return;
-
         // We register a callback for completion
         bool completed = false;
         queue.OnSubmittedWorkDone(0, (QueueWorkDoneStatus status) => {
             completed = true;
         });
-
         while (!completed) {
-            // Poll() triggers the internal event loop of WebGPU. This enables calling the callback above (in the same thread)
-            // Poll(wait: true);
             wgpuInstanceProcessEvents(instance);  // not relevant
         }
     }
@@ -285,7 +280,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));
-        
         int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
@@ -298,34 +292,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         };
         var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
         
-        // Copy data into mapped memory
         void* pMapped = wgpuBufferGetMappedRange(buffer, 0, size);
-        fixed (void* pData = data)
-        {
+        fixed (void* pData = data) {
             System.Buffer.MemoryCopy(pData, pMapped, size, size);
         }
-        // Important: WebGPU has to unmap before GPU can use memory
-        wgpuBufferUnmap(buffer); // initiate copy data to an extern GPU. returns immediately. Upload executes async. 
+        wgpuBufferUnmap(buffer); // initiate copy data to GPU buffer. Returns immediately. Upload executes async.
         
-        return buffer;
-    }
-    
-    private Buffer* CreateBuffer(uint size, BufferUsage usage, ReadOnlySpan<char> bufferLabel)  // TODO remove
-    {
-        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
-        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
-        
-        var desc = new BufferDescriptor {
-            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
-            size            = size,
-            usage           = (ulong)usage,
-            mappedAtCreation = WgpuUtils.FromBool(false) // buffer is initially empty / unmapped
-        };
-        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
-        if (buffer == null) {
-            throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
-        }
         return buffer;
     }
     
@@ -382,7 +354,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
-        var sizeInBytes     = (uint)(length * Unsafe.SizeOf<T>());
         var array           = new T[length];
         Array.Fill(array, value);
         var buffer          = CreateBufferWithData(array, wgpuUsage, bufferLabel);
@@ -394,7 +365,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     public override GpuBuffer<T> CreateBuffer<T>(T[] data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
-        var sizeInBytes     = (uint)(data.Length * Unsafe.SizeOf<T>());
         var handle          = CreateBufferWithData(data, wgpuUsage, bufferLabel);
         var gpuBuffer       = new WgpuBuffer<T>(this, handle, bufferMap.Count, data, bufferLabel);
         bufferMap.Add(gpuBuffer);
