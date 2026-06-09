@@ -19,8 +19,8 @@ namespace Friflo.Vectorization.WebGPU;
 
 internal unsafe interface IWgpuBuffer {
     internal    ref readonly BufferData GetBufferData();
-    internal    int          ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges);
-    internal    int          CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges);
+    internal    int                 ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges);
+    internal    ReadOnlySpan<byte>  GetHostMemory();
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -83,7 +83,13 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         return readPos;
     }
     
-    int IWgpuBuffer.CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges)
+    ReadOnlySpan<byte> IWgpuBuffer.GetHostMemory()
+    {
+        return MemoryMarshal.Cast<T, byte>(hostMemory.Span);
+    }
+    
+    /*
+    int CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges)
     {
         ReadOnlySpan<T> hostSourceSpan  = hostMemory.Span;
         Span<byte>      targetSpan      = stagingWriteBuffer.targetBuffer.AsSpan();
@@ -92,6 +98,16 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         foreach (var range in compactRanges)
         {
             var byteSize    = range.length * data.elementSize;
+            if (byteSize > 64 * 1024)
+            {
+                // --- copy large ranges directly. Maybe higher limit
+                fixed (void* sourcePtr = hostSourceSpan) {
+                    var sourceOffset = range.start * data.elementSize;
+                    var bytesStart = (byte*)sourcePtr + range.start * data.elementSize;
+                    wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, bytesStart, sourcePtr, (nuint)byteSize);
+                }
+                continue;
+            }
             var nextPos     = writePos + byteSize;
             if (nextPos > targetSpan.Length) {
                 targetSpan = stagingWriteBuffer.ResizeStagingWriteBuffer(nextPos).AsSpan();
@@ -103,6 +119,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
             writePos = nextPos;
         }
         return writePos;
-    }
+    } */
 }
 

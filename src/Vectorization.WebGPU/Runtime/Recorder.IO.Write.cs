@@ -16,7 +16,6 @@ public sealed partial class CommandRecorder
 {
     // --- Write Buffer ranges 
     private  readonly   List<BufferRange>   tempWriteRanges     = [];
-    private  readonly   StagingWriteBuffer  stagingWriteBuffer  = new ();
     private             WriteEntry[]        writeEntries        = [];
     
     protected override void QueueWrite(uint bufferId, int offset, int length)
@@ -64,16 +63,22 @@ public sealed partial class CommandRecorder
         
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
+        var elementSize             = bufferData.elementSize;
 
-        var byteLength = wgpuBuffer.CopyRangesToStagingBuffer(stagingWriteBuffer, tempWriteRanges);
-        
-        fixed (void* source = stagingWriteBuffer.targetBuffer) {
-            wgpuQueueWriteBuffer(device.QueuePtr, bufferData.storageHandle, 0, source, (nuint)byteLength);
+        var hostMemory = wgpuBuffer.GetHostMemory();
+        fixed (byte* source = hostMemory)
+        {
+            foreach (var range in tempWriteRanges)
+            {
+                var start   = range.start  * elementSize;
+                var length  = range.length * elementSize;
+                wgpuQueueWriteBuffer(device.QueuePtr, bufferData.storageHandle, (ulong)start, source + start, (nuint)length);
+            }
         }
     }
 }
 
-internal class StagingWriteBuffer
+/* internal class StagingWriteBuffer
 {
     internal    byte[]  targetBuffer  = new byte [1 * 1024 * 1024];
     
@@ -85,7 +90,7 @@ internal class StagingWriteBuffer
         Array.Copy(buffer, 0, newBuffer, 0, buffer.Length);
         return targetBuffer = newBuffer;
     }
-}
+} */
 
 internal readonly struct WriteEntry
 {
