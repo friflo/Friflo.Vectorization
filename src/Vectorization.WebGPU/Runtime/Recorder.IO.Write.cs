@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -42,23 +41,31 @@ public sealed partial class CommandRecorder
         return writeEntries = newEntries;
     }
     
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private unsafe void WriteBufferRanges(uint bufferId)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteBufferRanges(uint bufferId)
     {
-        if (bufferId >= writeEntries.Length) {
+        var entries = writeEntries;
+        if (bufferId >= entries.Length) {
             return;
         }
-        var requestedRanges = writeEntries[bufferId].writeRanges;
-        
-        BufferRange.GetOptimizedRanges(requestedRanges, tempWriteRanges);
-        
-        requestedRanges.Clear();
-        
-        ref readonly var bufferData = ref device.bufferMap[(int)bufferId].GetBufferData();
+        var writeRanges = entries[bufferId].writeRanges;
+        if (writeRanges.Count == 0) {
+            return;
+        }
+        WriteBufferRanges(bufferId, writeRanges);
+    }
 
-        var wgpuBuffer  = device.bufferMap[(int)bufferId];
-        var byteLength  = wgpuBuffer.CopyRangesToStagingBuffer(stagingWriteBuffer, tempWriteRanges);
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private unsafe void WriteBufferRanges(uint bufferId, List<BufferRange> writeRanges)
+    {
+        BufferRange.GetOptimizedRanges(writeRanges, tempWriteRanges);
+        
+        writeRanges.Clear();
+        
+        var wgpuBuffer              = device.bufferMap[(int)bufferId];
+        ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
+
+        var byteLength = wgpuBuffer.CopyRangesToStagingBuffer(stagingWriteBuffer, tempWriteRanges);
         
         fixed (void* source = stagingWriteBuffer.targetBuffer) {
             wgpuQueueWriteBuffer(device.QueuePtr, bufferData.storageHandle, 0, source, (nuint)byteLength);
