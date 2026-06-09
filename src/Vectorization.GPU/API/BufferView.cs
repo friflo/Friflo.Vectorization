@@ -42,8 +42,20 @@ public readonly struct InOutView<T> where T : unmanaged
         return this;
     }
     
+    public InOutView<T> Read(PipelineContext context) {
+        context.ValidateThreadSafety();
+        context.QueueRead(Buffer.DeviceBufferId, Offset, Length);
+        return this;
+    }
+    
     public InOutView<T> Write() {
         Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
+        return this;
+    }
+    
+    public InOutView<T> Write(PipelineContext context) {
+        context.ValidateThreadSafety();
+        context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
 }
@@ -74,6 +86,12 @@ public readonly struct InView<T> where T : unmanaged
     
     public InView<T> Write() {
         Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
+        return this;
+    }
+    
+    public InView<T> Write(PipelineContext context) {
+        context.ValidateThreadSafety();
+        context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
 }

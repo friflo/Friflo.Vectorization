@@ -149,7 +149,7 @@ public class PipelineContext : CommandStream, IDisposable
    
     [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
-    protected void ValidateThreadSafety()
+    protected internal void ValidateThreadSafety()
     {
         if (ownerThreadId != Environment.CurrentManagedThreadId) {
             ThrowInvalidThread();
