@@ -348,25 +348,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return new StagingReadBuffer(buffer, (int)size);
     }
     
-    internal StagingWriteBuffer CreateStagingWriteBuffer(uint size, ReadOnlySpan<char> bufferLabel)
-    {
-        int     labelMaxCount   = WgpuUtils.GetMaxCount(bufferLabel);
-        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        var len = WgpuUtils.CopySpanToBuffer(bufferLabel, labelBuffer, labelMaxCount);
-        
-        var desc = new BufferDescriptor {
-            label           = WgpuUtils.FromPtrLength(labelBuffer, len),
-            size            = size,
-            usage           = (ulong)(BufferUsage.CopySrc | BufferUsage.MapWrite), // write staging buffer to GPU buffer
-            mappedAtCreation = WgpuUtils.FromBool(false)
-        };
-        var buffer = wgpuDeviceCreateBuffer(DevicePtr, &desc);
-        if (buffer == null) {
-            throw new Exception("GPU memory allocation failed! Insufficient VRAM or incorrect alignment");
-        }
-        return new StagingWriteBuffer(buffer, (int)size);
-    }
-    
     private static BufferUsage GetBufferUsage(BufferProfile profile, BufferType type)
     {
         var usage = profile switch {

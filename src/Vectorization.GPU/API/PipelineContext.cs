@@ -58,9 +58,10 @@ public class PipelineContext : CommandStream, IDisposable
     protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
     protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
     
-    protected internal virtual  void                QueueRead<T> (in InOutView<T> view) where T : unmanaged { }
-    protected internal virtual  void                QueueWrite<T>(in InOutView<T> view) where T : unmanaged { }
-    protected internal virtual  void                QueueWrite<T>(in InView<T>    view) where T : unmanaged { }
+    [CLSCompliant(false)]
+    protected internal virtual  void                QueueRead (uint bufferId, int offset, int length) { }
+    [CLSCompliant(false)]
+    protected internal virtual  void                QueueWrite(uint bufferId, int offset, int length) { }
     
     public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     

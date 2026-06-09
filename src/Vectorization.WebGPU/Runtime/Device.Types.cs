@@ -127,17 +127,6 @@ internal readonly unsafe struct StagingReadBuffer
     }
 }
 
-internal readonly unsafe struct StagingWriteBuffer
-{
-    internal readonly   Buffer* handle;
-    internal readonly   int     size;
-    
-    internal StagingWriteBuffer(Buffer* handle, int size) {
-        this.handle = handle;
-        this.size   = size;
-    }
-}
-
 internal class StagingPool
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>

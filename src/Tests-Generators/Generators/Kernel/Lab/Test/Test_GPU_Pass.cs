@@ -315,17 +315,28 @@ public partial class Test_GPU_Pass : KernelBase
         context.EnableTraces    = true;
         context.PassBatching    = PassBatching.HazardDriven;
         
-        var outputView  = output.InOut(0, 10).Read();
-        var inputView   = input.In(0, 10).Write();
+        var outputView  = output.InOut(0, 10);
+        var inputView   = input.In(0, 10);
         inputView.Span[0] = 40;
         inputView.Span[9] = 49;
         
-        AssignKernel(outputView, inputView);
+        AssignKernel(outputView.Read(), inputView.Write());
         
         context.Queue.ReadBuffers();
         
         Assert.AreEqual(40, outputView.Span[0]);
         Assert.AreEqual(49, outputView.Span[9]);
+
+        // --- update buffers again
+        inputView.Span[0] = 50;
+        inputView.Span[9] = 59;
+        
+        AssignKernel(outputView.Read(), inputView.Write());
+        
+        context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(50, outputView.Span[0]);
+        Assert.AreEqual(59, outputView.Span[9]);
     }
     
     [StackTraceHidden]

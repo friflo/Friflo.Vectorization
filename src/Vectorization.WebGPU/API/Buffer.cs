@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.WebGPU;
 internal unsafe interface IWgpuBuffer {
     internal    ref readonly BufferData GetBufferData();
     internal    int          ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges);
-    internal    void         CopyRangesToStagingBuffer(byte* pMapped, List<BufferRange> compactRanges);
+    internal    int          CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges);
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -83,24 +83,26 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         return readPos;
     }
     
-    void IWgpuBuffer.CopyRangesToStagingBuffer(byte* pMapped, List<BufferRange> compactRanges)
+    int IWgpuBuffer.CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges)
     {
-        Span<T>                     hostSourceSpan  = hostMemory.Span;
-        ReadOnlySpan<BufferRange>   ranges          = CollectionsMarshal.AsSpan(compactRanges);
-        var writePos = 0;
-
-        foreach (var range in ranges)
+        ReadOnlySpan<T> hostSourceSpan  = hostMemory.Span;
+        Span<byte>      targetSpan      = stagingWriteBuffer.targetBuffer.AsSpan();
+        int             writePos        = 0;
+        
+        foreach (var range in compactRanges)
         {
-            int start   = range.start;
-            int length  = range.length;
+            var byteSize    = range.length * data.elementSize;
+            var nextPos     = writePos + byteSize;
+            if (nextPos > targetSpan.Length) {
+                targetSpan = stagingWriteBuffer.ResizeStagingWriteBuffer(nextPos).AsSpan();
+            }
+            ReadOnlySpan<T> rangeSource = hostSourceSpan.Slice(range.start, range.length);
+            Span<T> rangeTarget         = MemoryMarshal.Cast<byte, T>(targetSpan.Slice(writePos, byteSize));
+            rangeSource.CopyTo(rangeTarget);
             
-            ReadOnlySpan<T> sourceSlice = hostSourceSpan.Slice(start,     length);
-            Span<T>         targetSpan  = new Span<T>(pMapped + writePos, length);
-
-            sourceSlice.CopyTo(targetSpan);
-            
-            writePos += length * sizeof(T);
+            writePos = nextPos;
         }
+        return writePos;
     }
 }
 

@@ -19,7 +19,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe partial class CommandRecorder : PipelineContext
 {
-    private  readonly   WgpuDevice              device;
+    internal readonly   WgpuDevice              device;
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.None;
@@ -51,8 +51,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
                 currentEncoder  = device.CreateEncoder(label);
             }
         }
-        WriteBufferRanges();
-
         traceNewKernel  = kernelId != id;
         createNewPass   = kernelSeq == 0; // kernelId != id;
         kernelId        = id;
@@ -71,6 +69,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     public void RequireRead<T>(in InBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.Buffer;
+        WriteBufferRanges(gpuBuffer.DeviceBufferId);
+        
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
         createNewPass  |= AddRead(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
     }
@@ -79,6 +79,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     public void RequireReadWrite<T>(in InOutBuffer<T> buffer) where T : unmanaged
     {
         var gpuBuffer   = buffer.Buffer;
+        WriteBufferRanges(gpuBuffer.DeviceBufferId);
+        
         var segments    = GetBufferSegments(gpuBuffer.DeviceBufferId);
         createNewPass  |= AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
     }
@@ -95,7 +97,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];
         commandList         = device.commandListPool.Fetch();
-        stagingWriteBuffer  = device.CreateStagingWriteBuffer(16 * 1024 * 1024, "stagingWriteBuffer");
     }
     
     // The recorder provides / owns the Encoder
@@ -255,10 +256,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         if (currentEncoder.handle != null) {
             wgpuCommandEncoderRelease(currentEncoder.handle);
             currentEncoder = default;
-        }
-        if (stagingWriteBuffer.handle != null) {
-            wgpuBufferRelease(stagingWriteBuffer.handle);
-            stagingWriteBuffer = default;
         }
         base.Dispose();
     }

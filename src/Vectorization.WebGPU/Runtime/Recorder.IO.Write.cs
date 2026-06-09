@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -15,157 +13,78 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
-
-
 public sealed partial class CommandRecorder
 {
-    internal            StagingWriteBuffer  stagingWriteBuffer;
-    private readonly    List<BufferIdRange> writeIdRanges   = [];
-    private             WriteEntry[]        writeEntries    = [];
+    // --- Write Buffer ranges 
+    private  readonly   List<BufferRange>   tempWriteRanges     = [];
+    private  readonly   StagingWriteBuffer  stagingWriteBuffer  = new ();
+    private             WriteEntry[]        writeEntries        = [];
     
+    protected override void QueueWrite(uint bufferId, int offset, int length)
+    {
+        var entries = writeEntries;
+        if (bufferId >= entries.Length) {
+            entries = ResizeWriteBuffer(bufferId);
+        }
+        entries[bufferId].writeRanges.Add(new BufferRange(offset, length));
+    }
     
-    protected override void QueueWrite<T>(in InOutView<T> view) {
-        writeIdRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private WriteEntry[] ResizeWriteBuffer(uint bufferId)
+    {
+        var entries = writeEntries;
+        var newEntries = new WriteEntry[Math.Max(2 * entries.Length, bufferId + 1)];
+        Array.Copy(entries, 0, newEntries, 0, entries.Length);
+        
+        for (int n = entries.Length; n < newEntries.Length; n++) {
+            newEntries[n] = new WriteEntry();
+        }
+        return writeEntries = newEntries;
     }
-
-    protected override void QueueWrite<T>(in InView<T> view) {
-        writeIdRanges.Add(new BufferIdRange(view.Buffer.DeviceBufferId, view.Offset, view.Length));
-    }
+    
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private unsafe void WriteBufferRanges()
+    private unsafe void WriteBufferRanges(uint bufferId)
     {
-        var idRanges = writeIdRanges;
-        if (idRanges.Count == 0) {
+        if (bufferId >= writeEntries.Length) {
             return;
         }
-        var entries = writeEntries;
-        if (entries.Length < device.bufferMap.Count) {
-            var newEntries = new WriteEntry[device.bufferMap.Count];
-            Array.Copy(entries, 0, newEntries, 0, entries.Length);
-            entries = writeEntries = newEntries;
-        }
-        foreach (var idRange in idRanges) {
-            ref var entry = ref entries[idRange.bufferId];
-            var ranges = entry.requestedRanges;
-            if (ranges == null) {
-                entry   = new WriteEntry(idRange.bufferId);
-                ranges  = entry.requestedRanges;
-            }
-            ranges.Add(new BufferRange(idRange.start, idRange.length));
-        }
+        var requestedRanges = writeEntries[bufferId].writeRanges;
         
-        ClosePass();
+        BufferRange.GetOptimizedRanges(requestedRanges, tempWriteRanges);
         
-        wgpuIO.WriteBuffers(device, this, writeEntries, currentEncoder.handle);
+        requestedRanges.Clear();
+        
+        ref readonly var bufferData = ref device.bufferMap[(int)bufferId].GetBufferData();
+
+        var wgpuBuffer  = device.bufferMap[(int)bufferId];
+        var byteLength  = wgpuBuffer.CopyRangesToStagingBuffer(stagingWriteBuffer, tempWriteRanges);
+        
+        fixed (void* source = stagingWriteBuffer.targetBuffer) {
+            wgpuQueueWriteBuffer(device.QueuePtr, bufferData.storageHandle, 0, source, (nuint)byteLength);
+        }
     }
 }
 
-internal readonly partial struct WgpuIO {
+internal class StagingWriteBuffer
+{
+    internal    byte[]  targetBuffer  = new byte [1 * 1024 * 1024];
     
-    internal unsafe void WriteBuffers(WgpuDevice device, CommandRecorder recorder, WriteEntry[] writeEntries, CommandEncoder* encoder)
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    internal byte[] ResizeStagingWriteBuffer(int size)
     {
-        var activeBuffers       = tempActiveBuffers;
-        var compactRangesList   = tempCompactRangesList;
-
-        activeBuffers.Clear();
-        ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
-
-        // ---------------- copy GPU Storage [Storage] -> persistant Readback [MapRead] ----------------
-        var compactRangesIndex = 0;
-        uint writeSize = 0;
-
-        foreach (var entry in writeEntries)                              // TODO iterate only until device.bufferMap.Count
-        {
-            var ranges = entry.requestedRanges;
-            if (ranges == null || ranges.Count == 0) {
-                continue;
-            }
-            List<BufferRange> compactRanges;
-            if (compactRangesIndex++ < compactRangesList.Count) {
-                compactRanges = compactRangesList[compactRangesIndex - 1];
-            } else {
-                compactRangesList.Add(compactRanges = new List<BufferRange>());
-            }
-            BufferRange.GetOptimizedRanges(ranges, compactRanges);
-            ranges.Clear();
-            
-            ref readonly var bufferData = ref bufferMap[(int)entry.bufferId].GetBufferData();
-            activeBuffers.Add(new ActiveBuffer(bufferData, compactRanges));
-
-            foreach (var range in compactRanges) {
-                writeSize += (uint)(range.length * bufferData.elementSize);
-            }
-        }
-        
-        ReadOnlySpan<ActiveBuffer> activeBuffersSpan = CollectionsMarshal.AsSpan(activeBuffers);
-        var stagingWrite = recorder.stagingWriteBuffer;
-        uint writePos   = 0;
-        
-        foreach (ref readonly var activeBuffer in activeBuffersSpan)
-        {
-            ref readonly var bufferData = ref activeBuffer.data;
-            uint elementSize            = (uint)bufferData.elementSize;
-            
-            foreach (var range in activeBuffer.compactRanges)
-            {
-                uint byteOffset = (uint)range.start  * elementSize;
-                uint byteSize   = (uint)range.length * elementSize;
-                
-                // Note: CopyBufferToBuffer can be recorded before writing staging buffer to GPU storage
-                //       But when calling Submit() the staging buffer must be written to GPU storage
-                wgpuCommandEncoderCopyBufferToBuffer(
-                    encoder,
-                    stagingWrite.handle,        writePos,      // source: staging ring buffer
-                    bufferData.storageHandle,   byteOffset,    // target: GPU Storage [Storage]
-                    byteSize
-                );
-                writePos += byteSize;
-            }
-        }
-        
-        // -------------- map / wait / copy / unmap --------------
-        int remainingMaps = 1;
-        
-        var callbackInfo = new BufferMapCallbackInfo {
-            mode        = CallbackMode.AllowProcessEvents,
-            callback    = &WriteBuffers_Map_callback,
-            userdata1   = &remainingMaps                                // TODO FIX ME - use instance variable
-        };
-        wgpuBufferMapAsync(stagingWrite.handle, (ulong)MapMode.Write, 0, writeSize, callbackInfo);
-        
-        while (Thread.VolatileRead(ref remainingMaps) > 0) {
-            wgpuInstanceProcessEvents(device.instance);
-        }
-        
-        var pMapped = (byte*)wgpuBufferGetMappedRange(stagingWrite.handle, 0, writeSize);
-        writePos    = 0;
-        
-        foreach (ref readonly var activeBuffer in activeBuffersSpan)
-        {
-            var wgpuBuffer = bufferMap[activeBuffer.data.bufferId];
-            wgpuBuffer.CopyRangesToStagingBuffer(pMapped + writePos, activeBuffer.compactRanges);
-        }
-        wgpuBufferUnmap(stagingWrite.handle);
-    }
-    
-    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static unsafe void WriteBuffers_Map_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
-        if (userdata1== null) return;
-        var remainingMaps = (int*)userdata1;
-        Interlocked.Decrement(ref *remainingMaps);
+        var buffer      = targetBuffer;
+        var newBuffer   = new byte[Math.Max(2 * buffer.Length, size)];
+        Array.Copy(buffer, 0, newBuffer, 0, buffer.Length);
+        return targetBuffer = newBuffer;
     }
 }
 
 internal readonly struct WriteEntry
 {
-    internal readonly   uint                bufferId;
-    internal readonly   List<BufferRange>   requestedRanges;
+    internal    readonly   List<BufferRange>   writeRanges = [];
 
-    public override string ToString() => requestedRanges == null ? null : $"bufferId: {bufferId}  ranges: {requestedRanges.Count}";
+    public override string ToString() => $"ranges: {writeRanges.Count}";
 
-    internal WriteEntry(uint bufferId) {
-        this.bufferId       = bufferId;
-        requestedRanges     = new List<BufferRange>();
-    }
+    public WriteEntry() { }
 }

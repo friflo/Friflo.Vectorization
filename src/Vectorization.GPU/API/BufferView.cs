@@ -38,12 +38,12 @@ public readonly struct InOutView<T> where T : unmanaged
     /// called and synchronization is complete. This call is non-blocking.
     /// </remarks>
     public InOutView<T> Read() {
-        Buffer.Device.Context.QueueRead(this);
+        Buffer.Device.Context.QueueRead(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
     
     public InOutView<T> Write() {
-        Buffer.Device.Context.QueueWrite(this);
+        Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
 }
@@ -73,7 +73,7 @@ public readonly struct InView<T> where T : unmanaged
     }
     
     public InView<T> Write() {
-        Buffer.Device.Context.QueueWrite(this);
+        Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
 }
