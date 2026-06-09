@@ -57,18 +57,17 @@ public sealed partial class CommandRecorder
     [MethodImpl(MethodImplOptions.NoInlining)]
     private unsafe void WriteBufferRanges(uint bufferId, List<BufferRange> writeRanges)
     {
-        var ranges                  = tempWriteRanges;
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemory();
         
         fixed (byte* source = hostMemory)
         {
-            if (ranges.Count == 1) {
-                WriteRange(ranges[0], bufferData.elementSize, source, bufferData.storageHandle);
+            if (writeRanges.Count == 1) {
+                WriteRange(writeRanges[0], bufferData.elementSize, source, bufferData.storageHandle);
             } else {
-                BufferRange.GetOptimizedRanges(writeRanges, ranges);
-                WriteRangesCoalescing(ranges, bufferData.elementSize, source, bufferData.storageHandle);
+                BufferRange.GetOptimizedRanges(writeRanges, tempWriteRanges);
+                WriteRangesCoalescing(tempWriteRanges, bufferData.elementSize, source, bufferData.storageHandle);
             }
         }
         writeRanges.Clear();
