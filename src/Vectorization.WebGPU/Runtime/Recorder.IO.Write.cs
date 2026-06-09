@@ -57,24 +57,57 @@ public sealed partial class CommandRecorder
     [MethodImpl(MethodImplOptions.NoInlining)]
     private unsafe void WriteBufferRanges(uint bufferId, List<BufferRange> writeRanges)
     {
-        BufferRange.GetOptimizedRanges(writeRanges, tempWriteRanges);
-        
-        writeRanges.Clear();
-        
+        var ranges                  = tempWriteRanges;
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
-        var elementSize             = bufferData.elementSize;
-
-        var hostMemory = wgpuBuffer.GetHostMemory();
+        var hostMemory              = wgpuBuffer.GetHostMemory();
+        
         fixed (byte* source = hostMemory)
         {
-            foreach (var range in tempWriteRanges)
-            {
-                var start   = range.start  * elementSize;
-                var length  = range.length * elementSize;
-                wgpuQueueWriteBuffer(device.QueuePtr, bufferData.storageHandle, (ulong)start, source + start, (nuint)length);
+            if (ranges.Count == 1) {
+                WriteRange(ranges[0], bufferData.elementSize, source, bufferData.storageHandle);
+            } else {
+                BufferRange.GetOptimizedRanges(writeRanges, ranges);
+                WriteRangesCoalescing(ranges, bufferData.elementSize, source, bufferData.storageHandle);
             }
         }
+        writeRanges.Clear();
+    }
+    
+    private unsafe void WriteRange(BufferRange range, int elementSize, byte* source, Buffer* buffer)
+    {
+        var start   = range.start  * elementSize;
+        var length  = range.length * elementSize;
+        wgpuQueueWriteBuffer(device.QueuePtr, buffer, (ulong)start, source + start, (nuint)length);
+    }
+    
+    private unsafe void WriteRangesCoalescing(List<BufferRange> ranges, int elementSize, byte* source, Buffer* buffer)
+    {
+        var queue       = device.QueuePtr;
+
+        var firstRange  = ranges[0];
+        var lastStart   = firstRange.start  * elementSize;
+        var lastLength  = firstRange.length * elementSize;
+
+        // --- optimization: Write-Coalescing
+        for (int n = 1; n < ranges.Count; n++)
+        {
+            var range       = ranges[n];
+            var newStart    = range.start  * elementSize;
+            var newLength   = range.length * elementSize;
+            //       lastStart              newStart            newStart + newLength
+            // ----- * -------------------- * --- newLength --- * ------------------------
+            //       * -------------- length ------------------ *
+            var length = newStart + newLength - lastStart;
+            if (length < 4 * 1024) {
+                lastLength = length;
+                continue;
+            }
+            wgpuQueueWriteBuffer(queue, buffer, (ulong)lastStart, source + lastStart, (nuint)lastLength);
+            lastStart   = newStart;
+            lastLength  = newLength;
+        }
+        wgpuQueueWriteBuffer(queue, buffer, (ulong)lastStart, source + lastStart, (nuint)lastLength);
     }
 }
 
