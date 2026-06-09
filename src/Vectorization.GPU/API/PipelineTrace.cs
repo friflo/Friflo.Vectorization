@@ -18,7 +18,7 @@ public enum TraceType : byte
     Hazard_RAW,
     Hazard_WAR,
     Hazard_WAW,
-    View_Write,
+    Write,
 }
 
 public enum TraceSubType : byte
@@ -79,9 +79,9 @@ public struct PipelineTrace
             case TraceType.Hazard_WAW:
                 sb.Append($"  | WAW '{Resource}'");
                 break;
-            case TraceType.View_Write: {
-                var len = Math.Max(0, indent - Resource.Length - 12);
-                sb.Append($"> View.Write '{Resource}'").Append(' ', len).Append($"ranges: {Calls}");
+            case TraceType.Write: {
+                var len = Math.Max(0, indent - Resource.Length - 7);
+                sb.Append($"> Write '{Resource}'").Append(' ', len).Append($"ranges: {Calls}");
                 if (SubType == TraceSubType.Coalescing) {
                     sb.Append(" - coalescing");
                 }

@@ -61,7 +61,6 @@ public sealed partial class CommandRecorder
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemory();
-
         
         fixed (byte* source = hostMemory)
         {
@@ -81,7 +80,7 @@ public sealed partial class CommandRecorder
         var length  = range.length * data.elementSize;
         wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, (ulong)start, source + start, (nuint)length);
         if (enableTraces) {
-            AddTrace(TraceType.View_Write, 0, 1, data.label);
+            AddTrace(TraceType.Write, 0, 1, data.label);
         }
     }
     
@@ -116,7 +115,7 @@ public sealed partial class CommandRecorder
         }
         wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, source + lastStart, (nuint)lastLength);
         if (enableTraces) {
-            AddTrace(TraceType.View_Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
+            AddTrace(TraceType.Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
         }
     }
 }

@@ -374,7 +374,7 @@ public partial class Test_GPU_Pass : KernelBase
             """
             --- PIPELINE TRACE (batching: HazardDriven  calls: 3   passes: 1  hazards: 0) ---
             --- Lock-free GPU kernels with deferred, on-the-fly hazard-driven pass batching
-            > View.Write 'input'            ranges: 1 - coalescing
+            > Write 'input'                 ranges: 1 - coalescing
             AssignKernel()                  calls:  3   new_pass
             > Submit                        commands: 1
             """).IgnoreWhiteSpace);
