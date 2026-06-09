@@ -104,7 +104,6 @@ namespace Kernel.Generators
         }
 
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
-    [SkipLocalsInit]
     private static void _Add_GPU(
         in GpuBuffers      buffers,
         in InOutBuffer<float> dst,

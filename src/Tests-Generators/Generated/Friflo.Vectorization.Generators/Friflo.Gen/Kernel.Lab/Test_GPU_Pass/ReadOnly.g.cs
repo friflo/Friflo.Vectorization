@@ -83,7 +83,6 @@ namespace Kernel.Lab
         }
 
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
-    [SkipLocalsInit]
     private static void _ReadOnly_GPU(
         in GpuBuffers      buffers,
         in InBuffer   <float> input)

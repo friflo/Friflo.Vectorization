@@ -186,7 +186,6 @@ namespace Kernel.Generators
         }
 
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
-    [SkipLocalsInit]
     private static void _Advanced_GPU(
         in GpuBuffers      buffers,
         in InOutBuffer<Vector2> position,

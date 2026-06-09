@@ -13,7 +13,6 @@ namespace Kernel.Lab;
 public static class WgpuPattern
 {
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
-    [SkipLocalsInit]
     internal static void MultiplyAdd_GPU(
         in GpuBuffers           buffers,
         in InBuffer<float>      weight,

@@ -41,7 +41,6 @@ namespace VerifyVectorize
     #region private members
 
     // Lock-free, zero-alloc GPU kernel with deferred, on-the-fly hazard-driven pass batching
-    [SkipLocalsInit]
     private void _KernelOnly_GPU(
         in GpuBuffers      buffers,
         in InOutBuffer<float> position,
