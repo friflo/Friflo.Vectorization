@@ -61,6 +61,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     
     // --- IWgpuBuffer
     ref readonly BufferData IWgpuBuffer.GetBufferData() => ref data;
+    ReadOnlySpan<byte>      IWgpuBuffer.GetHostMemory() => MemoryMarshal.Cast<T, byte>(hostMemory.Span);
     
     int IWgpuBuffer.ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges)
     {
@@ -82,43 +83,5 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         }
         return readPos;
     }
-    
-    ReadOnlySpan<byte> IWgpuBuffer.GetHostMemory()
-    {
-        return MemoryMarshal.Cast<T, byte>(hostMemory.Span);
-    }
-    
-    /*
-    int CopyRangesToStagingBuffer(StagingWriteBuffer stagingWriteBuffer, List<BufferRange> compactRanges)
-    {
-        ReadOnlySpan<T> hostSourceSpan  = hostMemory.Span;
-        Span<byte>      targetSpan      = stagingWriteBuffer.targetBuffer.AsSpan();
-        int             writePos        = 0;
-        
-        foreach (var range in compactRanges)
-        {
-            var byteSize    = range.length * data.elementSize;
-            if (byteSize > 64 * 1024)
-            {
-                // --- copy large ranges directly. Maybe higher limit
-                fixed (void* sourcePtr = hostSourceSpan) {
-                    var sourceOffset = range.start * data.elementSize;
-                    var bytesStart = (byte*)sourcePtr + range.start * data.elementSize;
-                    wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, bytesStart, sourcePtr, (nuint)byteSize);
-                }
-                continue;
-            }
-            var nextPos     = writePos + byteSize;
-            if (nextPos > targetSpan.Length) {
-                targetSpan = stagingWriteBuffer.ResizeStagingWriteBuffer(nextPos).AsSpan();
-            }
-            ReadOnlySpan<T> rangeSource = hostSourceSpan.Slice(range.start, range.length);
-            Span<T> rangeTarget         = MemoryMarshal.Cast<byte, T>(targetSpan.Slice(writePos, byteSize));
-            rangeSource.CopyTo(rangeTarget);
-            
-            writePos = nextPos;
-        }
-        return writePos;
-    } */
 }
 

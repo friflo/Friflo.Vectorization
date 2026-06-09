@@ -120,20 +120,6 @@ public sealed partial class CommandRecorder
     }
 }
 
-/* internal class StagingWriteBuffer
-{
-    internal    byte[]  targetBuffer  = new byte [1 * 1024 * 1024];
-    
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    internal byte[] ResizeStagingWriteBuffer(int size)
-    {
-        var buffer      = targetBuffer;
-        var newBuffer   = new byte[Math.Max(2 * buffer.Length, size)];
-        Array.Copy(buffer, 0, newBuffer, 0, buffer.Length);
-        return targetBuffer = newBuffer;
-    }
-} */
-
 internal readonly struct WriteEntry
 {
     internal    readonly   List<BufferRange>   writeRanges = [];

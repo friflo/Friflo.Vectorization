@@ -23,7 +23,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.None;
-    private             int                     renderPassCount;
     internal            ulong                   lastBindGroup0_hash;
     internal            ComputePipeline*        lastPipelineHandle;
     
@@ -112,7 +111,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             }
             return new WgpuComputePass(this, currentPass, passLabel);
         }
-        renderPassCount++;
         pipelineStats.Passes++;
         kernelMetrics[kernelId].Passes++;
 
@@ -164,7 +162,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         if (currentPass== null) {
             return;
         }
-        renderPassCount     =  0;
         lastBindGroup0_hash =  0;
         lastPipelineHandle  =  null;
         kernelSeq           =  0;
