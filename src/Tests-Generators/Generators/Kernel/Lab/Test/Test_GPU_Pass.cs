@@ -339,6 +339,36 @@ public partial class Test_GPU_Pass : KernelBase
         Assert.AreEqual(59, outputView.Span[9]);
     }
     
+    [Test]
+    public void Test_GPU_Pass_View_Write_coalescing()
+    {
+        if (Backend != TestBackend.WGPU) return;
+        
+        using var device    = Device;
+        using var input     = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
+        using var output    = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        
+        var inputView1  = input.In(10, 1).Write();  inputView1.Span[0] = 40;
+        var inputView2  = input.In(20, 1).Write();  inputView2.Span[0] = 41;
+        var inputView3  = input.In(30, 1).Write();  inputView3.Span[0] = 42;
+        
+        var outputView1 = output.InOut(50, 1).Read();
+        var outputView2 = output.InOut(51, 1).Read();
+        var outputView3 = output.InOut(52, 1).Read();
+        
+        AssignKernel(outputView1, inputView1);  // coalescing of all Write() calls with a single wgpuQueueWriteBuffer()
+        AssignKernel(outputView2, inputView2);
+        AssignKernel(outputView3, inputView3);
+        
+        context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(40, outputView1.Span[0]);
+        Assert.AreEqual(41, outputView2.Span[0]);
+        Assert.AreEqual(42, outputView3.Span[0]);
+    }
+    
     [StackTraceHidden]
     private static void AssertResult<T>(InBuffer<T> buffer, T expect) where T : unmanaged
     {
