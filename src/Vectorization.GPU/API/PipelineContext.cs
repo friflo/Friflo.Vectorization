@@ -141,11 +141,13 @@ public class PipelineContext : CommandStream, IDisposable
     
     // --------------------------------------- threading ---------------------------------------
 
-    internal void Initialize(int threadId, string file, int line)
+    protected internal virtual void Initialize(int threadId, string file, int line)
     {
         ownerThreadId   = threadId;
         callerFile      = file;
         callerLine      = line;
+        PassBatching    = PassBatching.HazardDriven;
+        EnableTraces    = false;
     }
    
     [EditorBrowsable(EditorBrowsableState.Never)]

@@ -90,6 +90,44 @@ public class Test_GPU_Context : KernelBase
     }
     
     [Test]
+    public void Test_GPU_Context_reuse_disposed_context()
+    {
+        using var device    = Device;
+        using var weight    = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
+        using var input     = device.CreateBuffer(100, 2f, "input",  BufferProfile.InOut);
+        using var output    = device.CreateBuffer(100, 3f, "output", BufferProfile.InOut);
+        
+        using (var context1 = device.BeginContext()) {
+            context1.PassBatching = PassBatching.None;
+            context1.EnableTraces = true;
+            
+            Pattern.MultiplyAddKernel(weight.In(),  input.In(),  42,  output.InOut().Read());
+            
+            context1.Queue.ReadBuffers();
+            
+            var stats = context1.Stats;
+            
+            Assert.AreEqual(1, stats.Calls);
+            Assert.AreEqual(1, stats.Passes);
+            Assert.AreEqual(2, context1.Traces.Length);
+            // Assert.AreEqual(1, context1.KernelMetrics.Length);   // TODO - check - should be device global
+        }
+        {
+            // -- context2 is now reusing context1 instance
+            using var context2 = device.BeginContext();
+            
+            Assert.AreEqual(PassBatching.HazardDriven, context2.PassBatching);
+            Assert.IsFalse(context2.EnableTraces);
+            
+            var stats = context2.Stats;
+            Assert.AreEqual(0, stats.Calls);
+            Assert.AreEqual(0, stats.Passes);
+            Assert.AreEqual(0, context2.Traces.Length);
+            // Assert.AreEqual(0, context2.KernelMetrics.Length);   // TODO - check - should be device global
+        }
+    }
+    
+    [Test]
     public void Test_GPU_Context_Thread_Exceptions()
     {
         if (Backend != TestBackend.WGPU) return;

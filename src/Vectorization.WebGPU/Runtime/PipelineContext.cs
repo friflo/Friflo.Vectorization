@@ -42,10 +42,12 @@ public sealed partial class CommandRecorder
         }
         set {
             ValidateThreadSafety();
-            traces       ??= new PipelineTrace[10];
-            traceCount     = 0;
-            pipelineStats  = default;
-            enableTraces   = value;
+            if (value) {
+                traces ??= new PipelineTrace[10];
+            }
+            traceCount          = 0;
+            pipelineStats       = default;
+            enableTraces        = value;
         }
     }
 
@@ -90,6 +92,11 @@ public sealed partial class CommandRecorder
             Commands    = list.commands.Count,
             Ranges      = list.idRanges.Count
         };
+    }
+    
+    protected override void Initialize(int threadId, string file, int line)
+    {
+        base.Initialize(threadId, file, line);
     }
     
     /// --- <see cref="PipelineTrace"/>
