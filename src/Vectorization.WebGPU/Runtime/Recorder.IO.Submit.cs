@@ -103,7 +103,7 @@ public sealed unsafe partial class CommandRecorder
     }
 }
 
-internal readonly partial struct WgpuIO
+internal readonly struct WgpuIO
 {
     // --- Read Buffer ranges
     private readonly    List<List<BufferRange>> tempCompactRangesList   = [];
@@ -257,15 +257,24 @@ internal readonly partial struct WgpuIO
         }
         
         // --------------------- direct CPU -> CPU transfer staging memory -> host memory ---------------------
-        var start   = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
+        var source  = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
         int readPos = 0;
 
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
             ref readonly var bufferData = ref activeBuffer.data;
+            var elementSize             = bufferData.elementSize;
             var wgpuBuffer              = bufferMap[bufferData.bufferId];
+            var targetSpan              = wgpuBuffer.GetHostMemorySpan();
             
-            readPos += wgpuBuffer.ExecuteCpuCopy(start + readPos, activeBuffer.compactRanges);  // copy staging memory to host memory
+            fixed (byte* target = targetSpan)
+            {
+                foreach (var range in activeBuffer.compactRanges) {
+                    int size   = range.length * elementSize;
+                    System.Buffer.MemoryCopy(source + readPos, target + range.start  * elementSize, size, size);
+                    readPos += size;
+                }
+            }
         }
         wgpuBufferUnmap(stagingBuffer);  // unmap so CPU is able to access
         

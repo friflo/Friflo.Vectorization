@@ -60,7 +60,7 @@ public sealed partial class CommandRecorder
     {
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
-        var hostMemory              = wgpuBuffer.GetHostMemory();
+        var hostMemory              = wgpuBuffer.GetHostMemorySpan();
         
         fixed (byte* source = hostMemory)
         {

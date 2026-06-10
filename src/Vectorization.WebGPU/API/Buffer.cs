@@ -2,25 +2,20 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
-// ReSharper disable SuggestVarOrType_BuiltInTypes
-// ReSharper disable SuggestVarOrType_Elsewhere
-// ReSharper disable InlineTemporaryVariable
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
 
-internal unsafe interface IWgpuBuffer {
-    internal    ref readonly BufferData GetBufferData();
-    internal    int                 ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges);
-    internal    ReadOnlySpan<byte>  GetHostMemory();
+internal interface IWgpuBuffer {
+    internal ref readonly BufferData    GetBufferData();
+    internal Span<byte>                 GetHostMemorySpan();
 }
 
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
@@ -32,6 +27,10 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     // --- GpuBuffer
     public    override  GpuDevice   Device      => device;
     public    override  bool        IsDisposed  => handle == null;
+    
+    // --- IWgpuBuffer
+    ref readonly BufferData IWgpuBuffer.GetBufferData()     => ref data;
+    Span<byte>              IWgpuBuffer.GetHostMemorySpan() => MemoryMarshal.Cast<T, byte>(hostMemory.Span);
     
     // Every class implementing IDispose must follow the same pattern. Set GpuInstance code sample.
     public override void Dispose() {
@@ -57,31 +56,6 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
         this.device     = device;
         handle          = buffer;
         data            = new BufferData(bufferId, Marshal.SizeOf<T>(), buffer, bufferLabel);
-    }
-    
-    // --- IWgpuBuffer
-    ref readonly BufferData IWgpuBuffer.GetBufferData() => ref data;
-    ReadOnlySpan<byte>      IWgpuBuffer.GetHostMemory() => MemoryMarshal.Cast<T, byte>(hostMemory.Span);
-    
-    int IWgpuBuffer.ExecuteCpuCopy(byte* pMapped, List<BufferRange> compactRanges)
-    {
-        Span<T>                     hostTargetSpan  = hostMemory.Span;
-        ReadOnlySpan<BufferRange>   ranges          = CollectionsMarshal.AsSpan(compactRanges);
-        var readPos = 0;
-
-        foreach (var range in ranges)
-        {
-            int start   = range.start;
-            int length  = range.length;
-            
-            ReadOnlySpan<T>  gpuSourceSpan  = new ReadOnlySpan<T>(pMapped + readPos, length);
-            Span<T>          targetSlice    = hostTargetSpan.Slice(start,            length);
-
-            gpuSourceSpan.CopyTo(targetSlice);
-            
-            readPos       += length * sizeof(T);
-        }
-        return readPos;
     }
 }
 
