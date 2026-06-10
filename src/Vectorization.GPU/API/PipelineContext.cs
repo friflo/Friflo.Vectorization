@@ -31,42 +31,42 @@ public enum PassBatching
 [DebuggerTypeProxy(typeof(PipelineContextDebugView))]
 public class PipelineContext : CommandStream, IDisposable
 {
-    private readonly    GpuDevice   device; 
-    internal            int         ownerThreadId;
-    internal            string      callerFile;
-    internal            int         callerLine;
-    public              GpuQueue    Queue;
+    public              GpuQueue        Queue;
+    private   readonly  GpuDevice       device; 
+    internal            int             ownerThreadId;
+    internal            string          callerFile;
+    internal            int             callerLine;
     
+    public              bool                        IsDisposed          => ownerThreadId == -1;
     
-    public virtual  PassBatching                    PassBatching        { get; set; }
-    public virtual  bool                            EnableTraces        { get; set; }
+    public    virtual   PassBatching                PassBatching        { get; set; }
+    public    virtual   bool                        EnableTraces        { get; set; }
     
-    public          string                          TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
-    public          string                          KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
-    public          PipelineStats                   Stats               => GetStats();
-    public          ReadOnlySpan<PipelineTrace>     Traces              => GetTraces();
-    public          ReadOnlySpan<KernelMetric>      KernelMetrics       => GetKernelMetrics();
+    public              string                      TraceLog            => AppendTraceLog (new StringBuilder()).ToString();
+    public              string                      KernelMetricLog     => AppendMetricLog(new StringBuilder()).ToString();
+    public              PipelineStats               Stats               => GetStats();
+    public              ReadOnlySpan<PipelineTrace> Traces              => GetTraces();
+    public              ReadOnlySpan<KernelMetric>  KernelMetrics       => GetKernelMetrics();
     
-    public virtual  void                            ClearTraces()       { }
-    public virtual  void                            ClearKernelMetrics(){ }
+    public    virtual   void                        ClearTraces()       { }
+    public    virtual   void                        ClearKernelMetrics(){ }
     
-    public virtual  void                            NewPass()           { }
+    public    virtual   void                        NewPass()           { }     // TODO
     
-    public virtual  void                            FlushTo(PipelineContext targetContext)   { }
-    public virtual  void                            FlushTo(GpuDevice       targetDevice)    { }
+    public    virtual   void                        FlushTo(PipelineContext targetContext)   { }
+    public    virtual   void                        FlushTo(GpuDevice       targetDevice)    { }
     
-    protected virtual  PipelineStats                GetStats()          => default;
-    protected virtual  ReadOnlySpan<PipelineTrace>  GetTraces()         => default;
-    protected virtual  ReadOnlySpan<KernelMetric>   GetKernelMetrics()  => default;
+    protected virtual   PipelineStats               GetStats()          => default;
+    protected virtual   ReadOnlySpan<PipelineTrace> GetTraces()         => default;
+    protected virtual   ReadOnlySpan<KernelMetric>  GetKernelMetrics()  => default;
     
     [CLSCompliant(false)]
     protected internal virtual  void                QueueRead (uint bufferId, int offset, int length) { }
     [CLSCompliant(false)]
     protected internal virtual  void                QueueWrite(uint bufferId, int offset, int length) { }
     
-    public  override    string                      ToString()          => AppendToString(new StringBuilder()).ToString();
+    public    override  string                      ToString()          => AppendToString(new StringBuilder()).ToString();
     
-    public          bool                            IsDisposed          => ownerThreadId == -1;
     
     // Unmanaged resources are already released at this point.
     // see  class CommandRecorder : PipelineContext  { Dispose() { ... base.Dispose() } }
