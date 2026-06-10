@@ -28,13 +28,13 @@ public sealed partial class Gen : IIncrementalGenerator
         RegisterStreamingTranspiler(context);
         // RegisterTranspiler_BadCommonApproach(context);
         
-        context.RegisterPostInitializationOutput(ctx => {
+        /* context.RegisterPostInitializationOutput(ctx => {
             GeneratorUtils.AddSource(ctx, "AvxVector2.g.cs");
             GeneratorUtils.AddSource(ctx, "AvxVector3.g.cs");
             GeneratorUtils.AddSource(ctx, "AvxVector4.g.cs");
             GeneratorUtils.AddSource(ctx, "MathUtils.g.cs");
             GeneratorUtils.AddSource(ctx, "VectorUtils.g.cs");
-        });
+        }); */
     }
     
     // In algorithmic context this code generator is a "Recursive Descent Streaming Transpiler"
@@ -52,6 +52,18 @@ public sealed partial class Gen : IIncrementalGenerator
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
         context.RegisterSourceOutput(vectorizeMethod, EmitResult);
+        
+        var hasVectorize = vectorizeMethod.Collect().Select((list, _) => !list.IsEmpty);
+        context.RegisterSourceOutput(hasVectorize, (spc, found) => {
+            if (!found) {
+                return;
+            }
+            GeneratorUtils.AddSource(spc, "AvxVector2.g.cs");
+            GeneratorUtils.AddSource(spc, "AvxVector3.g.cs");
+            GeneratorUtils.AddSource(spc, "AvxVector4.g.cs");
+            GeneratorUtils.AddSource(spc, "MathUtils.g.cs");
+            GeneratorUtils.AddSource(spc, "VectorUtils.g.cs");
+        });
         
         var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.GPU.KernelAttribute",

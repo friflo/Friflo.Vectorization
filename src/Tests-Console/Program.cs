@@ -36,7 +36,7 @@ Console.WriteLine($"mode: {device.DefaultComputeMode}  iterations: {iterations} 
 
 public static partial class HelloWorld
 {
-    [Kernel, Vectorize] [OmitHash]
+    [Kernel] [OmitHash]
     private static void Add([Span] float a, [Span] float b, [Span] ref float c) {
         c = a + b;
     }

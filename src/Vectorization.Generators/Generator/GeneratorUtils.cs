@@ -76,7 +76,19 @@ public static class GeneratorUtils
         }
     }
 
+    // Method was called in:
+    //      public void Initialize(IncrementalGeneratorInitializationContext context)
+    // within:
+    //          context.RegisterPostInitializationOutput(ctx => { GeneratorUtils.AddSource(ctx, "AvxVector2.g.cs"); ... }
     public static void AddSource(IncrementalGeneratorPostInitializationContext ctx, string fileName)
+    {
+        string originalCode = GetContent($"Friflo.Vectorization.Generators.Files.{fileName}");
+        var sourcePath = $"Friflo.Vectorization.Intrinsics/{fileName}";
+        string newCode = originalCode.Replace("Generators.Static", "Friflo.Vectorization.Intrinsics");
+        ctx.AddSource(sourcePath, newCode);
+    }
+    
+    public static void AddSource(SourceProductionContext ctx, string fileName)
     {
         string originalCode = GetContent($"Friflo.Vectorization.Generators.Files.{fileName}");
         var sourcePath = $"Friflo.Vectorization.Intrinsics/{fileName}";
