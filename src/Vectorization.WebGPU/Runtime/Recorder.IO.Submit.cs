@@ -257,8 +257,9 @@ internal readonly struct WgpuIO
         }
         
         // ------------------ copy WGPU driver CPU memory -> CPU host memory ------------------
-        var source  = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
-        int readPos = 0;
+        var source      = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
+        var sourceSpan  = new ReadOnlySpan<byte>(source, (int)readSize);
+        int readPos     = 0;
 
         foreach (ref readonly var activeBuffer in activeBuffersSpan)
         {
@@ -267,13 +268,12 @@ internal readonly struct WgpuIO
             var wgpuBuffer              = bufferMap[bufferData.bufferId];
             var targetSpan              = wgpuBuffer.GetHostMemorySpan();
             
-            fixed (byte* target = targetSpan)
-            {
-                foreach (var range in activeBuffer.compactRanges) {
-                    int size   = range.length * elementSize;
-                    System.Buffer.MemoryCopy(source + readPos, target + range.start  * elementSize, size, size);
-                    readPos += size;
-                }
+            foreach (var range in activeBuffer.compactRanges) {
+                int size        = range.length * elementSize;
+                var rangeTarget = targetSpan.Slice(range.start  * elementSize, size);
+                var rangeSource = sourceSpan.Slice(readPos,                    size);
+                rangeSource.CopyTo(rangeTarget);
+                readPos += size;
             }
         }
         wgpuBufferUnmap(stagingBuffer);  // unmap so WGPU driver is able to access again
