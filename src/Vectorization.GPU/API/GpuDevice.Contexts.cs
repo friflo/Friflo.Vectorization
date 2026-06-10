@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable UseNullPropagation
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -17,7 +18,7 @@ namespace Friflo.Vectorization.GPU;
 public abstract partial class GpuDevice
 {
     private  readonly   ContextPool                     pool            = new ();
-    internal readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
+    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
 
     
     protected internal abstract PipelineContext NewPipelineContext();

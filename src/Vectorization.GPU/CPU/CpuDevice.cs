@@ -4,6 +4,7 @@
 using System;
 using Friflo.Vectorization.GPU;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToAutoProperty
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter

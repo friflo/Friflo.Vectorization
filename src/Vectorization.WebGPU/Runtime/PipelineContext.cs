@@ -14,13 +14,13 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 /// --- <see cref="PipelineContext"/> ---
 public sealed partial class CommandRecorder
 {
-    private             PipelineStats       pipelineStats;
-    internal            bool                enableTraces;
-    private             PipelineTrace[]     traces;
-    private             int                 traceCount;
-    private             bool                traceNewKernel;
-    private             KernelMetric[]      kernelMetrics       = [default];
-    private             int                 kernelMetricCount;
+    private     PipelineStats   pipelineStats;
+    internal    bool            enableTraces;
+    private     PipelineTrace[] traces;
+    private     int             traceCount;
+    private     bool            traceNewKernel;
+    private     KernelMetric[]  kernelMetrics       = [default];
+    private     int             kernelMetricCount;
     
     public override  PassBatching PassBatching
     {
