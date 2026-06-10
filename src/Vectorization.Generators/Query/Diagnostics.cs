@@ -12,7 +12,7 @@ namespace Friflo.Vectorization.Generators;
 public sealed class Diagnostics
 {
     public required IMethodSymbol                   BlueprintMethod { get; init; }
-    public readonly List<DiagnosticData>            list = new();
+    public readonly List<DiagnosticData>            List = new();
 
     public void ReportDiagnosticSymbol(DiagnosticDescriptor descriptor, ISymbol? locationSymbol, params object?[]? messageArgs)
     {
@@ -47,6 +47,6 @@ public sealed class Diagnostics
                 EndColumn:      lineSpan.EndLinePosition.Character,
                 MessageArgs:    messageArgs
             );
-        list.Add(data);   
+        List.Add(data);   
     }
 }

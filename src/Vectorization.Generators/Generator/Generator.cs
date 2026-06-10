@@ -195,7 +195,7 @@ public sealed partial class Gen : IIncrementalGenerator
             EmitQuerySource(query, out vectorMethodSource, out privateSource);
         } else {
             if (hasVectorizeAttribute && !query.vectorized) {
-                return new EmissionResult("", "", query.Diagnostics.list);
+                return new EmissionResult("", "", query.Diagnostics.List);
             }
             vectorMethodSource = EmitVectorSource(query);
             if (hasKernelAttribute) {
@@ -220,7 +220,7 @@ public sealed partial class Gen : IIncrementalGenerator
 ";
         var fileName = CreateFileName(blueprintMethod, hash);
 
-        return new EmissionResult(fileName, source, query.Diagnostics.list);
+        return new EmissionResult(fileName, source, query.Diagnostics.List);
     }
     
     

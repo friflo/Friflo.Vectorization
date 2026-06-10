@@ -3,6 +3,8 @@
 
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable RedundantJumpStatement
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 

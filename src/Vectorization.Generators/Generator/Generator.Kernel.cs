@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
@@ -21,8 +20,6 @@ public sealed partial class Gen
     private static string EmitKernelSource(Query query)
     {
         var vectorTypes = query.VectorTypes;
-        var firstVector = vectorTypes.FirstOrDefault(v => v.IsSpan);
-        var outputType  = firstVector?.FullQualifiedName;
         var signature = new StringBuilder();
         var validate  = new StringBuilder();
         var gpuParams = new StringBuilder();
@@ -94,8 +91,6 @@ public sealed partial class Gen
     private static string EmitKernelPrivate(Query query)
     {
         var vectorTypes = query.VectorTypes;
-        var firstVector = vectorTypes.FirstOrDefault(v => v.IsSpan);
-        var outputType  = firstVector?.FullQualifiedName;
         
         // ----------------- buffers
         var signature           = new StringBuilder();

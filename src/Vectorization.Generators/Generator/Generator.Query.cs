@@ -7,6 +7,7 @@ using Friflo.Vectorization.Generators;
 using Friflo.Vectorization.Generators.AVX;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable once CheckNamespace
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 namespace Friflo;

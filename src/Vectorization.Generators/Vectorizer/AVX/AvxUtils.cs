@@ -3,6 +3,7 @@
 
 using System.Text;
 
+// ReSharper disable DuplicatedStatements
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.AVX;
 

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+// ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators.WGSL;
 

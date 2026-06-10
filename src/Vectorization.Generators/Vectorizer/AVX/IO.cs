@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Text;
 
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable MergeIntoPattern
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable once CheckNamespace
