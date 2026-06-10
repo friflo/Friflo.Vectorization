@@ -22,7 +22,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   WgpuDevice              device;
     private             WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
-    internal            PassBatching            enablePassBatching 	= PassBatching.None;
+    internal            PassBatching            enablePassBatching 	= PassBatching.HazardDriven;
     internal            ulong                   lastBindGroup0_hash;
     internal            ComputePipeline*        lastPipelineHandle;
     
