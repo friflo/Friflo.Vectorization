@@ -42,17 +42,32 @@ public readonly struct InOutView<T> where T : unmanaged
         return this;
     }
     
+    /// <summary> Queues the buffer data for transfer from GPU to host memory. </summary>
+    /// <remarks>
+    /// Note: Data is not available until <see cref="PipelineContext.ReadBuffers"/> has been 
+    /// called and synchronization is complete. This call is non-blocking.
+    /// </remarks>
     public InOutView<T> Read(PipelineContext context) {
         context.ValidateThreadSafety();
         context.QueueRead(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
     
+    /// <summary> Queues the buffer data for transfer from host memory to GPU. </summary>
+    /// <remarks>
+    /// Note: Data is not immediately available on the GPU. The transfer is queued and will be 
+    /// executed when the command buffer is submitted to the GPU queue. This call is non-blocking.
+    /// </remarks>
     public InOutView<T> Write() {
         Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
     
+    /// <summary> Queues the buffer data for transfer from host memory to GPU. </summary>
+    /// <remarks>
+    /// Note: Data is not immediately available on the GPU. The transfer is queued and will be 
+    /// executed when the command buffer is submitted to the GPU queue. This call is non-blocking.
+    /// </remarks>
     public InOutView<T> Write(PipelineContext context) {
         context.ValidateThreadSafety();
         context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
@@ -84,11 +99,21 @@ public readonly struct InView<T> where T : unmanaged
         Length  = length;
     }
     
+    /// <summary> Queues the buffer data for transfer from host memory to GPU. </summary>
+    /// <remarks>
+    /// Note: Data is not immediately available on the GPU. The transfer is queued and will be 
+    /// executed when the command buffer is submitted to the GPU queue. This call is non-blocking.
+    /// </remarks>
     public InView<T> Write() {
         Buffer.Device.Context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
         return this;
     }
     
+    /// <summary> Queues the buffer data for transfer from host memory to GPU. </summary>
+    /// <remarks>
+    /// Note: Data is not immediately available on the GPU. The transfer is queued and will be 
+    /// executed when the command buffer is submitted to the GPU queue. This call is non-blocking.
+    /// </remarks>
     public InView<T> Write(PipelineContext context) {
         context.ValidateThreadSafety();
         context.QueueWrite(Buffer.DeviceBufferId, Offset, Length);
