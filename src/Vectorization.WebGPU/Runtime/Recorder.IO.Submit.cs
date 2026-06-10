@@ -250,13 +250,13 @@ internal readonly struct WgpuIO
         wgpuBufferMapAsync(stagingBuffer, (ulong)MapMode.Read, 0, readSize, callbackInfo);
 
         
-        // the only single CPU-Stall: wait until all buffers are mapped
+        // the only single CPU-Stall: wait until stagingBuffer is mapped
         while (Thread.VolatileRead(ref remainingMaps) > 0) {
             // wgpuDeviceTick(NativePtr);
             wgpuInstanceProcessEvents(device.instance);
         }
         
-        // --------------------- direct CPU -> CPU transfer staging memory -> host memory ---------------------
+        // ------------------ copy WGPU driver CPU memory -> CPU host memory ------------------
         var source  = (byte*)wgpuBufferGetMappedRange(stagingBuffer, 0, readSize);
         int readPos = 0;
 
@@ -276,7 +276,7 @@ internal readonly struct WgpuIO
                 }
             }
         }
-        wgpuBufferUnmap(stagingBuffer);  // unmap so CPU is able to access
+        wgpuBufferUnmap(stagingBuffer);  // unmap so WGPU driver is able to access again
         
         activeBuffers.Clear();
     }
