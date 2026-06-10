@@ -5,10 +5,10 @@ using System.Runtime.Intrinsics.X86;
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.Intrinsics;
 
-public static class AvxVector2
+internal static class AvxVector2
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector256<float> TransformMatrixAoS(
+    internal static Vector256<float> TransformMatrixAoS(
         Vector256<float> v, 
         Vector256<float> rowX, Vector256<float> rowY, Vector256<float> rowT)
     {
@@ -30,7 +30,7 @@ public static class AvxVector2
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector256<float> TransformMatrixSoA(
+    internal static Vector256<float> TransformMatrixSoA(
         Vector256<float> vx, Vector256<float> vy,
         Vector256<float> mX, Vector256<float> mY, Vector256<float> mW)
     {
@@ -42,7 +42,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> X, Vector256<float> Y) Deinterleave(
+    internal static (Vector256<float> X, Vector256<float> Y) Deinterleave(
         Vector256<float> lower, 
         Vector256<float> upper)
     {
@@ -78,7 +78,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> V0, Vector256<float> V1) Interleave(Vector256<float> x, Vector256<float> y)
+    internal static (Vector256<float> V0, Vector256<float> V1) Interleave(Vector256<float> x, Vector256<float> y)
     {
         // 1. Interleave 32-bit floats
         // xyLo: [X0, Y0, X1, Y1 | X4, Y4, X5, Y5]
@@ -102,7 +102,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> x, Vector256<float> y) 
+    internal static (Vector256<float> x, Vector256<float> y) 
         Normalize(Vector256<float> vx, Vector256<float> vy)
     {
         // 1. Calculate squared magnitude: (x^2 + y^2)
@@ -135,7 +135,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy)
+    internal static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy)
     {
         // 1. Calculate lengthSq = x^2 + y^2
         // Start with x * x
@@ -150,7 +150,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Distance(
+    internal static Vector256<float> Distance(
         Vector256<float> ax, Vector256<float> ay,
         Vector256<float> bx, Vector256<float> by)
     {
@@ -172,7 +172,7 @@ public static class AvxVector2
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> DistanceSquared(
+    internal static Vector256<float> DistanceSquared(
         Vector256<float> ax, Vector256<float> ay,
         Vector256<float> bx, Vector256<float> by)
     {

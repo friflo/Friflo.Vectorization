@@ -5,11 +5,11 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Friflo.Vectorization.Intrinsics;
 
-public static class AvxVector3
+internal static class AvxVector3
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> TransformMatrixSoA(
+    internal static Vector256<float> TransformMatrixSoA(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz,
         Vector256<float> mX, Vector256<float> mY, Vector256<float> mZ, Vector256<float> mT)
     {
@@ -23,7 +23,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
+    internal  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
         Transform8Vector3SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, float* matrixPtr)
     {
         // For a Vector3 Position Transform, we assume input W = 1.0.
@@ -59,7 +59,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static   (Vector256<float>  X, Vector256<float>  Y, Vector256<float>  Z)
+    internal static   (Vector256<float>  X, Vector256<float>  Y, Vector256<float>  Z)
         Deinterleave(Vector256<float> v0, Vector256<float> v1, Vector256<float> v2)
     {
         // --- STEP 1: Lane-Level Alignment ---
@@ -110,7 +110,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2) Interleave(
+    internal static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2) Interleave(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz)
     {
         // 1. Initial Unpacks (Very fast, Port 5)
@@ -148,7 +148,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float>, Vector256<float>, Vector256<float>) Normalize(
+    internal static (Vector256<float>, Vector256<float>, Vector256<float>) Normalize(
         Vector256<float> vX,
         Vector256<float> vY, 
         Vector256<float> vZ)
@@ -185,7 +185,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy, Vector256<float> vz)
+    internal static Vector256<float> Length(Vector256<float> vx, Vector256<float> vy, Vector256<float> vz)
     {
         // 1. Calculate squared magnitude: x^2 + y^2 + z^2
         // We start with x*x
@@ -204,7 +204,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Distance(
+    internal static Vector256<float> Distance(
         Vector256<float> ax, Vector256<float> ay, Vector256<float> az,
         Vector256<float> bx, Vector256<float> by, Vector256<float> bz)
     {
@@ -229,7 +229,7 @@ public static class AvxVector3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> DistanceSquared(
+    internal static Vector256<float> DistanceSquared(
         Vector256<float> ax, Vector256<float> ay, Vector256<float> az,
         Vector256<float> bx, Vector256<float> by, Vector256<float> bz)
     {

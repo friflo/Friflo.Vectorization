@@ -6,11 +6,11 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Friflo.Vectorization.Intrinsics;
 
-public static class AvxVector4
+internal static class AvxVector4
 {
     [SkipLocalsInit]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector256<float> TransformMatrixAoS(
+    internal static Vector256<float> TransformMatrixAoS(
         Vector256<float> v, Vector256<float> c0, Vector256<float> c1, Vector256<float> c2, Vector256<float> c3)
     {
         // Shuffle/Broadcast components
@@ -24,7 +24,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
-    public static Vector256<float> TransformMatrixSoA(
+    internal static Vector256<float> TransformMatrixSoA(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw,
         Vector256<float> mX, Vector256<float> mY, Vector256<float> mZ, Vector256<float> mW)
     {
@@ -39,7 +39,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
+    internal  static unsafe (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) 
         Transform8Vector4SoA(Vector256<float> vX, Vector256<float> vY, Vector256<float> vZ, Vector256<float> vW, float* matrixPtr)
     {
         // --- Result X-Components ---
@@ -75,7 +75,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) Deinterleave(
+    internal static (Vector256<float> X, Vector256<float> Y, Vector256<float> Z, Vector256<float> W) Deinterleave(
         Vector256<float> v0, // [X0 Y0 Z0 W0 | X1 Y1 Z1 W1]
         Vector256<float> v1, // [X2 Y2 Z2 W2 | X3 Y3 Z3 W3]
         Vector256<float> v2, // [X4 Y4 Z4 W4 | X5 Y5 Z5 W5]
@@ -114,7 +114,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2, Vector256<float> V3) Interleave(
+    internal static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2, Vector256<float> V3) Interleave(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw)
     {
         // STEP 1: Interleave 32-bit floats (In-Lane)
@@ -147,7 +147,7 @@ public static class AvxVector4
     // ------------------------ alternative implementations 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2, Vector256<float> V3) Interleave_alternative(
+    internal static (Vector256<float> V0, Vector256<float> V1, Vector256<float> V2, Vector256<float> V3) Interleave_alternative(
         Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw)
     {
         // Step 1: Pre-shuffle the lanes so that Unpacks work correctly across the 256-bit register.
@@ -176,7 +176,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static (Vector256<float> x, Vector256<float> y, Vector256<float> z, Vector256<float> w) 
+    internal static (Vector256<float> x, Vector256<float> y, Vector256<float> z, Vector256<float> w) 
         Normalize(Vector256<float> vx, Vector256<float> vy, Vector256<float> vz, Vector256<float> vw)
     {
         // 1. Calculate squared magnitude: (x^2 + y^2 + z^2 + w^2)
@@ -211,7 +211,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Length(
+    internal static Vector256<float> Length(
         Vector256<float> vx, 
         Vector256<float> vy, 
         Vector256<float> vz, 
@@ -237,7 +237,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> Distance(
+    internal static Vector256<float> Distance(
         Vector256<float> ax, Vector256<float> ay, Vector256<float> az, Vector256<float> aw,
         Vector256<float> bx, Vector256<float> by, Vector256<float> bz, Vector256<float> bw)
     {
@@ -262,7 +262,7 @@ public static class AvxVector4
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [SkipLocalsInit]
-    public static Vector256<float> DistanceSquared(
+    internal static Vector256<float> DistanceSquared(
         Vector256<float> ax, Vector256<float> ay, Vector256<float> az, Vector256<float> aw,
         Vector256<float> bx, Vector256<float> by, Vector256<float> bz, Vector256<float> bw)
     {

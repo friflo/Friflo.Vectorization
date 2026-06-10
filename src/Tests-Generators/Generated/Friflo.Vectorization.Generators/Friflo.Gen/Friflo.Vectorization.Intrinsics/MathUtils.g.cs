@@ -8,7 +8,7 @@ using static System.MathF;
 
 namespace Friflo.Vectorization.Intrinsics;
 
-public static class MathUtils {
+internal static class MathUtils {
     // ------ Trigonometry
     [SkipLocalsInit]
     internal static Vector256<float> SinMathF(Vector256<float> x)
