@@ -99,7 +99,7 @@ public sealed partial class CommandRecorder
     {
         base.Initialize(threadId, file, line);
 
-        uniformBuffer ??= (WgpuBuffer<byte>)device.CreateBuffer<byte>(UniformBufferSize, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
+        uniformBuffer ??= (WgpuBuffer<byte>)device.CreateBuffer<byte>(uniformBufferSize, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
     }
     
     protected override unsafe void ReleaseResources()

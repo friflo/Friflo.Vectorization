@@ -17,15 +17,14 @@ public abstract class KernelBase
     public          GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Adapter.GenerateHandles());
     protected       int             ExpectedCommandBuffers;
 
-    protected virtual int MaxTasks => 64;
-    protected virtual int SlotSize => 64 * 1024;
+    protected virtual int UniformBufferSize => 64 * 1024;
     
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance            = this;
         StartHandles            = Adapter.GenerateHandles();
         ExpectedCommandBuffers  = 0;
-        Device                  = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        Device                  = Adapter.CreateDevice("GpuTestBase", UniformBufferSize);
     }
 
     [TearDown]

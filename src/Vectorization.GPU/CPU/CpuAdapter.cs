@@ -26,10 +26,10 @@ public sealed class CpuAdapter : GpuAdapter
         isDisposed = true;
     }
 
-    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 65536)
+    public override GpuDevice CreateDevice(string label, int uniformBufferSize = 65536)
     {
         deviceCount++;
-        return new CpuDevice(this, label, maxTasks);
+        return new CpuDevice(this, label, uniformBufferSize);
     }
 
     public override GpuHandleDiff GenerateHandles() {

@@ -19,7 +19,7 @@ internal sealed class CpuDevice : GpuDevice
     public   override   ComputeMode         DefaultComputeMode  => defaultComputeMode;
     public   override   bool                IsDisposed          => isDisposed;
         
-    internal CpuDevice(CpuAdapter adapter, string label, int slotSize) : base(label, slotSize) {
+    internal CpuDevice(CpuAdapter adapter, string label, int uniformBufferSize) : base(label, uniformBufferSize) {
         this.adapter = adapter;
         defaultComputeMode = adapter.GetAdapterInfo().BackendType == GpuBackendType.Scalar ? ComputeMode.Scalar : ComputeMode.SIMD;
     }

@@ -12,18 +12,18 @@ namespace Friflo.Vectorization.GPU;
 public abstract partial class GpuDevice : CommandStream, IDisposable
 {
     public    readonly  string          Label;
-    public    readonly  int             SlotSize;                           // TODO obsolete
+    public    readonly  int             UniformBufferSize;
     public    readonly  GpuQueue        Queue;
     protected readonly  int             threadId;
     public              PipelineContext Context     => threadContexts.Value;
     
     public  override    string  ToString() => Label + (IsDisposed ? ": Disposed" : ": Alive");
 
-    protected GpuDevice(string label, int slotSize) {
-        Label       = label;
-        SlotSize    = slotSize;
-        Queue       = new GpuQueue(this);
-        threadId    = Environment.CurrentManagedThreadId;
+    protected GpuDevice(string label, int uniformBufferSize) {
+        Label               = label;
+        UniformBufferSize   = uniformBufferSize;
+        Queue               = new GpuQueue(this);
+        threadId            = Environment.CurrentManagedThreadId;
     }
     
     public IReadOnlyGpuBuffer<T> CreateReadOnlyBuffer<T>    (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {

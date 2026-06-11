@@ -70,7 +70,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         *devicePtr = device;
     }
 
-    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int uniformBufferSize = 64 * 1024)
     {
 		Device* device = null;
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
@@ -112,7 +112,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         
         // wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new WgpuDevice(label, errorHandler, errorHandle, instance, device, queuePtr, maxTasks, slotSize);
+        return new WgpuDevice(label, errorHandler, errorHandle, instance, device, queuePtr, uniformBufferSize);
     }
     
     public override GpuLimits GetAdapterLimits()

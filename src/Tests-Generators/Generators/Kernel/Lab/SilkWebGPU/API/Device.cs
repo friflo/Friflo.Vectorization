@@ -212,8 +212,8 @@ public sealed unsafe class SilkDevice : GpuDevice
         Device*             devicePtr,
         Queue*              queuePtr,
         int                 maxTasks,
-        int                 slotSize)
-    : base(label, slotSize)
+        int                 uniformBufferSize)
+    : base(label, uniformBufferSize)
     {
         this.wgpu           = wgpu;    
         this.wgpuEx         = wgpuEx;
@@ -223,7 +223,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
+        globalUniformPool   = (SilkBuffer<byte>)CreateBuffer<byte>(maxTasks * uniformBufferSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
         taskPool            = new SilkTask[maxTasks];
         availableTasks      = new Stack<SilkTask>(maxTasks);
         for (int i = 0; i < maxTasks; i++) {

@@ -57,7 +57,7 @@ public sealed unsafe class SilkAdapter : GpuAdapter
         this.info       = info;
     }
 
-    public override GpuDevice CreateDevice(string label, int maxTasks = 64, int slotSize = 64 * 1024)
+    public override GpuDevice CreateDevice(string label, int uniformBufferSize = 64 * 1024)
     {
 		Device* device = null;
         var name = Marshal.StringToHGlobalAnsi(label);
@@ -82,7 +82,7 @@ public sealed unsafe class SilkAdapter : GpuAdapter
         
         wgpu.DeviceSetUncapturedErrorCallback(device, GlobalErrorCallback, null);
         
-        return new SilkDevice(wgpu, wgpuEx, label, device, queuePtr, maxTasks, slotSize);
+        return new SilkDevice(wgpu, wgpuEx, label, device, queuePtr, 16, uniformBufferSize);
     }
     
     public override GpuLimits GetAdapterLimits()

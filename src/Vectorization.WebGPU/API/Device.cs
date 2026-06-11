@@ -32,7 +32,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   WgpuErrorHandler    errorHandler;
     private             GCHandle            errorHandle;
     
-    internal readonly   WgpuBuffer<byte>    globalUniformPool;              // TODO remove now each CommandRecorder has its own
     private  readonly   WgpuQueue           queue;
     
     private  static     int                 effectSlotCount;
@@ -44,6 +43,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   List<IWgpuBuffer>   bufferMap       = [];
     internal readonly   CommandListPool     commandListPool = new ();
     internal readonly   StagingReadBuffer   stagingReadBuffer;
+
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
     internal            BufferEntry[]       bufferEntries       = [];   // ranges & segments per GpuBuffer
@@ -93,7 +93,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
                 wgpuDevicePoll(DevicePtr, WgpuUtils.FromBool(true), null);  // "Drain callbacks" ensure no WorkDoneCallback's are called by polling all pending callbacks
                 // wgpu.DeviceSetUncapturedErrorCallback(DevicePtr, callback: default, null); // release callback before device - not relevant in v29 anymore
             }
-            globalUniformPool?.Dispose();
         }
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
@@ -171,9 +170,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         Instance*           instance,
         Device*             devicePtr,
         Queue*              queuePtr,
-        int                 maxTasks,
-        int                 slotSize)
-    : base(label, slotSize)
+        int                 uniformBufferSize)
+    : base(label, uniformBufferSize)
     {
         this.errorHandler   = errorHandler;
         this.errorHandle    = errorHandle;
@@ -184,7 +182,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         
-        globalUniformPool   = (WgpuBuffer<byte>)CreateBuffer<byte>(maxTasks * slotSize, 0, "globalUniformPool", BufferProfile.StaticIn, BufferType.Uniform);
         stagingReadBuffer   = CreateStagingBuffer(16 * 1024 * 1024, "staging_read_buffer");
     }
     

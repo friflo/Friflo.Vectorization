@@ -33,11 +33,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
-    private  const      int                     UniformBufferSize   = 64 * 1024;  // TODO make configurable
-    
+    private  readonly   int                     uniformBufferSize;
     internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
-    private  readonly   int                     slotSize;
-    private  readonly   Buffer*                 globalUniformPool;
 
     private             int                     kernelSeq;
     private             int                     kernelId            = -1;
@@ -89,18 +86,12 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         createNewPass  |= AddReadWrite(segments, buffer.Offset, buffer.Length, kernelId, kernelSeq, gpuBuffer.Label);
     }
     
-    /* public void TrackWrite<T>(in Buffer<T> buffer) where T : unmanaged
-    {
-        commandList.idRanges.Add(new BufferIdRange(buffer.GpuBuffer.DeviceBufferId, buffer.Offset, buffer.Length));
-    } */
-
     internal CommandRecorder(WgpuDevice device) : base(device) 
     {
         this.device         = device;
-        slotSize            = device.SlotSize;
-        globalUniformPool   = device.globalUniformPool.handle;
+        uniformBufferSize   = device.UniformBufferSize;
         commandList         = device.commandListPool.Fetch();
-        stagingBuffer       = new byte[UniformBufferSize];
+        stagingBuffer       = new byte[uniformBufferSize];
     }
     
     // The recorder provides / owns the Encoder

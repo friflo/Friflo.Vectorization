@@ -45,11 +45,11 @@ public sealed unsafe class SilkTask : IDisposable
     internal SilkTask(SilkDevice device, int taskIndex) {
         this.device         = device;
         wgpu                = device.wgpu;
-        slotSize            = device.SlotSize;
+        slotSize            = device.UniformBufferSize;
         globalUniformPool   = device.globalUniformPool.handle;
         this.taskIndex      = taskIndex;
         uniformBase         = (uint)(taskIndex * slotSize);
-        stagingBuffer       = new byte[device.SlotSize];
+        stagingBuffer       = new byte[device.UniformBufferSize];
     }
     
     // The task provides / owns the Encoder

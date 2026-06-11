@@ -29,7 +29,7 @@ public class Test_GPU_Context : KernelBase
     {
         if (Backend != TestBackend.WGPU) return;
         
-        var device = Adapter.CreateDevice("GpuTestBase", MaxTasks, SlotSize);
+        var device = Adapter.CreateDevice("GpuTestBase", UniformBufferSize);
         var context = device.BeginContext(); // context leak
         
         var e = Assert.Throws<InvalidOperationException>(() => {
