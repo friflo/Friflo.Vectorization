@@ -115,11 +115,6 @@ namespace Kernel.Lab
                 count           = buffers.length,
                 input_off       = input.Offset,
         };
-        var entry = recorder.AsUniformEntry(0, uniforms);
-        // Creation of uniform bind group is cheap => no caching.
-        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "ReadOnly_uniforms"u8);
-        pass.SetBindGroup1(uniformGroup);
-        
         pass.SetUniform(ref effect, uniforms, "ReadOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -34,7 +33,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
-    internal const      int                     UniformBufferSize   = 64 * 1024;  // TODO make configurable
+    private  const      int                     UniformBufferSize   = 64 * 1024;  // TODO make configurable
     
     internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
     private  readonly   int                     slotSize;
@@ -135,34 +134,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
-    public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
-    {
-        return default;   // TODO UNI_REMOVE
-        uint size           = (uint)sizeof(T);
-        uint alignedOffset  = (uniformOffset + 255) & ~255u; // WebGPU requires Uniform offset must by 256 byte aligned
-        
-        if (alignedOffset + size > slotSize) {
-            ThrowUniformSlotOverflow();
-        }
-        // write directly to stagingBuffer
-        fixed (byte* pDest = &stagingBuffer[alignedOffset]) {
-            *(T*)pDest = value;
-        }
-        uniformOffset = alignedOffset + size;
-
-        return new BindGroupEntry {
-            binding = (uint)binding,
-            buffer  = globalUniformPool,
-            offset  = alignedOffset,
-            size    = size
-        };
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)][StackTraceHidden][DoesNotReturn]
-    private void ThrowUniformSlotOverflow() {
-        throw new IndexOutOfRangeException($"Uniform slot overflow. slotSize: {slotSize}.");
-    }
-    
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishPass()
     {
@@ -219,23 +190,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             device.errorHandler.ThrowException(); // e.g. ErrorType.Validation : Attempted to use Buffer with 'gpuOutput' label with conflicting usages. ...
         }
         commandList.commands.Add(commandBuffer);
-    }
-    
-    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
-    {
-        return default;    // TODO UNI_REMOVE
-        fixed(byte* labelPtr = groupLabel) {
-            var descriptor = new BindGroupDescriptor {
-                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
-                layout      = layout.handle,
-                entryCount  = 1,
-                entries     = &bindEntry
-            };
-            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            var group = new WgpuBindGroup(handle); 
-            createdBindGroups.Add(group);
-            return group;
-        }
     }
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)

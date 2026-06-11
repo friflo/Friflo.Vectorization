@@ -55,12 +55,6 @@ public static class WgpuPattern
             output_off  = output.Offset,
             bias        = bias
         };
-        var entry = recorder.AsUniformEntry(0, uniforms);
-        // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
-        // TODO: Use Dynamic Offsets to move CreateBindGroup out of the loop and use pass.SetBindGroup1Dynamic instead.
-        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
-        pass.SetBindGroup1(uniformGroup);
-        
         pass.SetUniform(ref effect, uniforms, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);

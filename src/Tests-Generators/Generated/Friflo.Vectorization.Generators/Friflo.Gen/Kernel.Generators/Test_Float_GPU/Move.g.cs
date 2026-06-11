@@ -147,11 +147,6 @@ namespace Kernel.Generators
                 velocity_off    = velocity.Offset,
                 deltaTime       = deltaTime,
         };
-        var entry = recorder.AsUniformEntry(0, uniforms);
-        // Creation of uniform bind group is cheap => no caching.
-        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Move_uniforms"u8);
-        pass.SetBindGroup1(uniformGroup);
-        
         pass.SetUniform(ref effect, uniforms, "Move_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);

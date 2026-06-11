@@ -91,13 +91,6 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.lastBindGroup0_hash = hash;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBindGroup1(WgpuBindGroup bindGroup)
-    {
-        return;  // TODO UNI_REMOVE
-        wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 0, null);
-    }
-    
     public void SetUniform<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);

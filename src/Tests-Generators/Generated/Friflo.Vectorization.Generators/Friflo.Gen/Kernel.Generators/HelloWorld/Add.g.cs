@@ -156,11 +156,6 @@ namespace Kernel.Generators
                 b_off           = b.Offset,
                 c_off           = c.Offset,
         };
-        var entry = recorder.AsUniformEntry(0, uniforms);
-        // Creation of uniform bind group is cheap => no caching.
-        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Add_uniforms"u8);
-        pass.SetBindGroup1(uniformGroup);
-        
         pass.SetUniform(ref effect, uniforms, "Add_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
