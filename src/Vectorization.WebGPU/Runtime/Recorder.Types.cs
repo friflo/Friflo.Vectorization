@@ -95,7 +95,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 0, null);
     }
     
-    public void SetUnformBindGroup(ref WgpuEffect effect, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    public void SetUniformBindGroup(ref WgpuEffect effect, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
     }
     
