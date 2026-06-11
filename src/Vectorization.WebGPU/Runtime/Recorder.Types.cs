@@ -97,20 +97,26 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 0, null);
     }
     
-    public void SetUniformBindGroup(ref WgpuEffect effect, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
+    public void SetUniform<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         return;
-        WgpuBindGroup bindGroup = recorder.uniformBindGroups[effect.kernelId];
+        var bindGroups = recorder.uniformBindGroups;
+        if (effect.kernelId >= bindGroups.Length) {
+            bindGroups = new WgpuBindGroup[bindGroups.Length * 2];
+        }
+        WgpuBindGroup bindGroup = bindGroups[effect.kernelId];
         if (bindGroup.handle == null) {
             bindGroup = recorder.CreateUniformBindGroup(ref effect, groupLabel);
         }
-        uint offset = recorder.uniformOffset;        
+        uint offset = recorder.uniformOffset;
         
+        fixed (byte* pStaging = recorder.stagingBuffer) {
+            *(T*)(pStaging + offset) = uniform;
+        }
         wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 1, &offset);
         
-        recorder.uniformOffset += 256;
+        recorder.uniformOffset += ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
     }
-    
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]

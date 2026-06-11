@@ -61,7 +61,7 @@ public static class WgpuPattern
         var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
         pass.SetBindGroup1(uniformGroup);
         
-        pass.SetUniformBindGroup(ref effect, entry, "MultiplyAdd_uniforms"u8);
+        pass.SetUniform(ref effect, uniforms, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

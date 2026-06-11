@@ -32,10 +32,11 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal            WgpuBindGroup[]         uniformBindGroups   = [];
     
     
-    internal            WgpuBuffer<byte>        uniformBuffer;
+    private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
+    internal const      uint                    UniformAlignment = 256;
     
-    private  readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
+    internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
 
@@ -99,9 +100,10 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         this.device         = device;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
-        stagingBuffer       = new byte[device.SlotSize];
+        const int uniformBufferSize = 256 * 1024;                           // TODO make configurable
+        stagingBuffer       = new byte[uniformBufferSize];
         commandList         = device.commandListPool.Fetch();
-        uniformBuffer       = (WgpuBuffer<byte>)device.CreateBuffer<byte>(256 * 1024, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
+        uniformBuffer       = (WgpuBuffer<byte>)device.CreateBuffer<byte>(uniformBufferSize, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
     }
     
     // The recorder provides / owns the Encoder
@@ -275,6 +277,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
     internal WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, ReadOnlySpan<byte> groupLabel)
     {
         var entry = new BindGroupEntry {

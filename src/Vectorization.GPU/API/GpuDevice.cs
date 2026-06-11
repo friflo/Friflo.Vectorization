@@ -12,7 +12,7 @@ namespace Friflo.Vectorization.GPU;
 public abstract partial class GpuDevice : CommandStream, IDisposable
 {
     public    readonly  string          Label;
-    public    readonly  int             SlotSize;
+    public    readonly  int             SlotSize;                           // TODO obsolete
     public    readonly  GpuQueue        Queue;
     protected readonly  int             threadId;
     public              PipelineContext Context     => threadContexts.Value;

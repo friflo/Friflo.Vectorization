@@ -80,7 +80,7 @@ namespace VerifyVectorize
         var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "KernelOnly_uniforms"u8);
         pass.SetBindGroup1(uniformGroup);
         
-        pass.SetUniformBindGroup(ref effect, entry, "MultiplyAdd_uniforms"u8);
+        pass.SetUniform(ref effect, uniforms, "KernelOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
