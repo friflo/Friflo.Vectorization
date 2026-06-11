@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -15,17 +16,29 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed partial class CommandRecorder
 {
-    // --- Write Buffer ranges 
+    // --- Write Buffer ranges
     private  readonly   List<BufferRange>   tempWriteRanges     = [];
+    private  readonly   List<BufferRange>   tempCompactRanges   = [];
     private             WriteEntry[]        writeEntries        = [];
     
+    [StackTraceHidden]
     protected override void QueueWrite(uint bufferId, int offset, int length)
     {
         var entries = writeEntries;
         if (bufferId >= entries.Length) {
             entries = ResizeWriteBuffer(bufferId);
         }
-        entries[bufferId].writeRanges.Add(new BufferRange(offset, length));
+        if (!entries[bufferId].writeRanges.Add(new BufferRange(offset, length))) {
+            ThrowWriteAlreadyQueued(bufferId, offset, length);
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden]
+    private void ThrowWriteAlreadyQueued(uint bufferId, int offset, int length)
+    {
+        var label = device.bufferMap[(int)bufferId].GetBufferData().label;
+        var msg = $"a Write() of buffer view '{label}'[{offset}..{offset + length}] is already queued. You must call Submit() before you can Write() the same view again.";
+        throw new InvalidOperationException(msg);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -56,22 +69,26 @@ public sealed partial class CommandRecorder
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private unsafe void WriteBufferRanges(uint bufferId, List<BufferRange> writeRanges)
+    private unsafe void WriteBufferRanges(uint bufferId, HashSet<BufferRange> writeRanges)
     {
+        var ranges = tempWriteRanges;
+        ranges.Clear();
+        ranges.AddRange(writeRanges);
+        writeRanges.Clear();
+        
         var wgpuBuffer              = device.bufferMap[(int)bufferId];
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemorySpan();
         
         fixed (byte* source = hostMemory)
         {
-            if (writeRanges.Count == 1) {
-                WriteRange(writeRanges[0], bufferData, source);
+            if (ranges.Count == 1) {
+                WriteRange(ranges[0], bufferData, source);
             } else {
-                BufferRange.GetOptimizedRanges(writeRanges, tempWriteRanges);
-                WriteRangesCoalescing(tempWriteRanges, bufferData, source);
+                BufferRange.GetOptimizedRanges(ranges, tempCompactRanges);
+                WriteRangesCoalescing(tempCompactRanges, bufferData, source);
             }
         }
-        writeRanges.Clear();
     }
     
     private unsafe void WriteRange(BufferRange range, in BufferData data, byte* source)
@@ -122,7 +139,7 @@ public sealed partial class CommandRecorder
 
 internal readonly struct WriteEntry
 {
-    internal    readonly   List<BufferRange>   writeRanges = [];
+    internal    readonly   HashSet<BufferRange>   writeRanges = [];
 
     public override string ToString() => $"ranges: {writeRanges.Count}";
 

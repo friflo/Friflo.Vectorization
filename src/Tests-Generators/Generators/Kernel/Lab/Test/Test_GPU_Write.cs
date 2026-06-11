@@ -1,10 +1,10 @@
-﻿using Friflo.Vectorization;
+﻿using System;
+using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
-
 
 public partial class Test_GPU_Write : KernelBase
 {
@@ -89,5 +89,55 @@ public partial class Test_GPU_Write : KernelBase
             AssignKernel()                  calls:  3   new_pass
             > Submit                        commands: 1
             """).IgnoreWhiteSpace);
+    }
+    
+    [Test]
+    public void Test_GPU_Write_view_late_Write()
+    {
+        if (Backend != TestBackend.WGPU) return;
+        
+        using var device    = Device;
+        using var input     = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
+        using var output    = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        
+        var outputView1  = output.InOut( 0, 1);
+        var inputView1   = input.In(0, 1);
+        inputView1.Span[0] = 40;
+        
+        AssignKernel(outputView1.Read(), inputView1.Write());   // Write() uses wgpuQueueWriteBuffer()
+        
+        var outputView2  = output.InOut(10, 1);
+        var inputView2   = input.In(20, 1);
+        inputView2.Span[0] = 50;
+        
+        AssignKernel(outputView2.Read(), inputView2.Write());
+        
+        context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(40, outputView1.Span[0]);
+        Assert.AreEqual(50, outputView2.Span[0]);
+    }
+    
+    [Test]
+    public void Test_GPU_Write_view_double_Write()
+    {
+        if (Backend != TestBackend.WGPU) return;
+        
+        using var device    = Device;
+        using var input     = device.CreateBuffer(100, 4f, "input",   BufferProfile.InOut);
+        using var output    = device.CreateBuffer(100, 5f, "output",  BufferProfile.InOut);
+        
+        using var context = device.BeginContext();
+        
+        var inputView = input.In(0, 1);
+        inputView.Span[0] = 40;
+        
+        inputView.Write();  // OK
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            inputView.Write();  // second Write()
+        });
+        Assert.AreEqual("a Write() of buffer view 'input'[0..1] is already queued. You must call Submit() before you can Write() the same view again.", e!.Message);
     }
 }

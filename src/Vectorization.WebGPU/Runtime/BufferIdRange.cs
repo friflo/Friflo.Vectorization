@@ -27,7 +27,7 @@ internal readonly struct BufferIdRange
     }
 }
 
-internal readonly struct BufferRange
+internal readonly struct BufferRange : IEquatable<BufferRange>
 {
     internal readonly   int     start;
     internal readonly   int     length;
@@ -39,6 +39,19 @@ internal readonly struct BufferRange
         this.start  = start;
         this.length = length;
     }
+    
+    public bool Equals(BufferRange other) {
+        return start == other.start && length == other.length;
+    }
+
+    public override bool Equals(object obj) {
+        return obj is BufferRange other && Equals(other);
+    }
+
+    public override int GetHashCode() {
+        return HashCode.Combine(start, length);
+    }
+    
     
     internal static void GetOptimizedRanges(List<BufferRange> requestedRanges, List<BufferRange> optimizedRanges)
     {
