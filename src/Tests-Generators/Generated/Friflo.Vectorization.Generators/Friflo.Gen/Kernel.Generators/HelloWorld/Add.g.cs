@@ -188,14 +188,14 @@ namespace Kernel.Generators
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0); // var<storage, read      >  a_arr: array<f32>;
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  b_arr: array<f32>;
             buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2); // var<storage, read_write>  c_arr: array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, _Add_GPU_BufferLayoutKey, "Add_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, false, _Add_GPU_BufferLayoutKey, "Add_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Add_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, _Add_GPU_UniformLayoutKey, "Add_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, true, _Add_GPU_UniformLayoutKey, "Add_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Add_GPU_Shader(), "Add"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Add"u8);

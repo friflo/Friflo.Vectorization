@@ -478,7 +478,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         return layout;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, bool dynamicOffset, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
@@ -488,8 +488,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
                 visibility      = (ulong)ShaderStage.Compute,
                 buffer          = new BufferBindingLayout {
                     type                = entries[i].Type,
-                    hasDynamicOffset    = WgpuUtils.FromBool(false),    // default
-                    minBindingSize      = 0                             // 0: no validation of minimum size
+                    hasDynamicOffset    = WgpuUtils.FromBool(false),    // true for uniform buffer
+                    minBindingSize      = 0                                     // 0: no validation of minimum size
                 }
             };
         }
