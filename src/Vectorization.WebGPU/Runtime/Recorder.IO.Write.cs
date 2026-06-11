@@ -80,12 +80,14 @@ public sealed partial class CommandRecorder
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemorySpan();
         
-        fixed (byte* source = hostMemory)
+        if (ranges.Count == 1)
         {
-            if (ranges.Count == 1) {
+            fixed (byte* source = hostMemory) {
                 WriteRange(ranges[0], bufferData, source);
-            } else {
-                BufferRange.GetOptimizedRanges(ranges, tempCompactRanges);
+            }
+        } else {
+            BufferRange.GetOptimizedRanges(ranges, tempCompactRanges);
+            fixed (byte* source = hostMemory) {
                 WriteRangesCoalescing(tempCompactRanges, bufferData, source);
             }
         }
