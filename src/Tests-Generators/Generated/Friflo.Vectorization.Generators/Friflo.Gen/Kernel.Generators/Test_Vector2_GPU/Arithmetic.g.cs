@@ -187,6 +187,8 @@ namespace Kernel.Generators
         var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Arithmetic_uniforms"u8);
         pass.SetBindGroup1(uniformGroup);
         
+        pass.SetUnformBindGroup(ref effect, entry, "MultiplyAdd_uniforms"u8);
+        
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
     

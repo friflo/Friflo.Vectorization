@@ -144,20 +144,20 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private static WgpuEffect MissingEffect;
     
     public ref WgpuEffect CreateEffect(
-        int                     slot,
+        int                     kernelId,
         ulong                   wgslHash,
         WgpuComputePipeline     pipeline,
         WgpuBindGroupLayout     bufferLayout,
         WgpuBindGroupLayout     uniformLayout)
     {
         var slots = effectSlots;
-        if (slot >= slots.Length) {
-            var newSlots = new WgpuEffect[Math.Max(2 * slots.Length, slot + 1)];
+        if (kernelId >= slots.Length) {
+            var newSlots = new WgpuEffect[Math.Max(2 * slots.Length, kernelId + 1)];
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
-        slots[slot] = new WgpuEffect(wgslHash, pipeline, bufferLayout, uniformLayout);
-        return ref slots[slot];
+        slots[kernelId] = new WgpuEffect(kernelId, wgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref slots[kernelId];
     }
     
     public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {

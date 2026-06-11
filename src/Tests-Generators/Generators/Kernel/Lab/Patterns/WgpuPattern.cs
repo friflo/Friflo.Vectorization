@@ -60,6 +60,8 @@ public static class WgpuPattern
         // TODO: Use Dynamic Offsets to move CreateBindGroup out of the loop and use pass.SetBindGroup1Dynamic instead.
         var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
         pass.SetBindGroup1(uniformGroup);
+        
+        pass.SetUnformBindGroup(ref effect, entry, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
