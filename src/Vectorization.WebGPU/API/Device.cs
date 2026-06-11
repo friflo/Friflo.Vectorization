@@ -32,7 +32,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     internal readonly   WgpuErrorHandler    errorHandler;
     private             GCHandle            errorHandle;
     
-    internal readonly   WgpuBuffer<byte>    globalUniformPool;                                      // remove each CommandRecorder must have its own
+    internal readonly   WgpuBuffer<byte>    globalUniformPool;              // TODO remove now each CommandRecorder has its own
     private  readonly   WgpuQueue           queue;
     
     private  static     int                 effectSlotCount;

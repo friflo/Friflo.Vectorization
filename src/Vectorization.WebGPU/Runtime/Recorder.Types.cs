@@ -9,6 +9,8 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  CommandRecorder
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -97,6 +99,16 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     
     public void SetUniformBindGroup(ref WgpuEffect effect, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
+        return;
+        WgpuBindGroup bindGroup = recorder.uniformBindGroups[effect.kernelId];
+        if (bindGroup.handle == null) {
+            bindGroup = recorder.CreateUniformBindGroup(ref effect, groupLabel);
+        }
+        uint offset = recorder.uniformOffset;        
+        
+        wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 1, &offset);
+        
+        recorder.uniformOffset += 256;
     }
     
 }

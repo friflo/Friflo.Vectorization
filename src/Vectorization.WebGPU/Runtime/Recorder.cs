@@ -29,7 +29,12 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
     
-    private             uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
+    internal            WgpuBindGroup[]         uniformBindGroups   = [];
+    
+    
+    internal            WgpuBuffer<byte>        uniformBuffer;
+    internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
+    
     private  readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
     private  readonly   int                     slotSize;
     private  readonly   Buffer*                 globalUniformPool;
@@ -96,6 +101,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         globalUniformPool   = device.globalUniformPool.handle;
         stagingBuffer       = new byte[device.SlotSize];
         commandList         = device.commandListPool.Fetch();
+        uniformBuffer       = (WgpuBuffer<byte>)device.CreateBuffer<byte>(256 * 1024, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
     }
     
     // The recorder provides / owns the Encoder
@@ -254,6 +260,9 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             wgpuCommandEncoderRelease(currentEncoder.handle);
             currentEncoder = default;
         }
+        uniformBuffer?.Dispose();
+        uniformBuffer = null;
+
         base.Dispose();
     }
     
@@ -265,4 +274,27 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             currentPass = null;
         }
     }
- }
+    
+    internal WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, ReadOnlySpan<byte> groupLabel)
+    {
+        var entry = new BindGroupEntry {
+            binding = 0,
+            buffer  = uniformBuffer.handle,
+            offset  = 0,
+            size    = (ulong)uniformBuffer.Length
+        };
+        fixed(byte* labelPtr = groupLabel) {
+            var desc = new BindGroupDescriptor {
+                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel),
+                layout      = effect.uniformLayout.handle,
+                entryCount  = 1,
+                entries     = &entry
+            };
+            var groupHandle = wgpuDeviceCreateBindGroup(device.DevicePtr, &desc);
+            var bindGroup   = new WgpuBindGroup(groupHandle);
+            
+            return uniformBindGroups[effect.kernelId] = bindGroup;
+        }
+    }
+}
+
