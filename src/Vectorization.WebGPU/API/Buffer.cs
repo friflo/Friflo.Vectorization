@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -55,7 +56,7 @@ public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : u
     {
         this.device     = device;
         handle          = buffer;
-        data            = new BufferData(bufferId, Marshal.SizeOf<T>(), buffer, bufferLabel);
+        data            = new BufferData(bufferId, Unsafe.SizeOf<T>(), buffer, bufferLabel);
     }
 }
 
