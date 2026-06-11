@@ -5,13 +5,11 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU.Runtime;
-using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.Vectorization.WebGPU.Runtime;
 
 
 internal interface IWgpuBuffer {
