@@ -69,7 +69,7 @@ public sealed partial class CommandRecorder
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private unsafe void WriteBufferRanges(uint bufferId, HashSet<BufferRange> writeRanges)
+    private void WriteBufferRanges(uint bufferId, HashSet<BufferRange> writeRanges)
     {
         var ranges = tempWriteRanges;
         ranges.Clear();
@@ -80,30 +80,27 @@ public sealed partial class CommandRecorder
         ref readonly var bufferData = ref wgpuBuffer.GetBufferData();
         var hostMemory              = wgpuBuffer.GetHostMemorySpan();
         
-        if (ranges.Count == 1)
-        {
-            fixed (byte* source = hostMemory) {
-                WriteRange(ranges[0], bufferData, source);
-            }
+        if (ranges.Count == 1) {
+            WriteRange(ranges[0], bufferData, hostMemory);
         } else {
             BufferRange.GetOptimizedRanges(ranges, tempCompactRanges);
-            fixed (byte* source = hostMemory) {
-                WriteRangesCoalescing(tempCompactRanges, bufferData, source);
-            }
+            WriteRangesCoalescing(tempCompactRanges, bufferData, hostMemory);
         }
     }
     
-    private unsafe void WriteRange(BufferRange range, in BufferData data, byte* source)
+    private unsafe void WriteRange(BufferRange range, in BufferData data, Span<byte> source)
     {
         var start   = range.start  * data.elementSize;
         var length  = range.length * data.elementSize;
-        wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, (ulong)start, source + start, (nuint)length);
+        fixed (byte* buffer = source) {
+            wgpuQueueWriteBuffer(device.QueuePtr, data.storageHandle, (ulong)start, buffer + start, (nuint)length);
+        }
         if (enableTraces) {
             AddTrace(TraceType.Write, 0, 1, data.label);
         }
     }
     
-    private unsafe void WriteRangesCoalescing(List<BufferRange> ranges, in BufferData data, byte* source)
+    private unsafe void WriteRangesCoalescing(List<BufferRange> ranges, in BufferData data, Span<byte> source)
     {
         var queue       = device.QueuePtr;
         var elementSize = data.elementSize;
@@ -113,28 +110,31 @@ public sealed partial class CommandRecorder
         var lastLength  = firstRange.length * elementSize;
         int rangeWrites = 1;
 
-        // --- optimization: Write-Coalescing
-        for (int n = 1; n < ranges.Count; n++)
+        fixed (byte* buffer = source)
         {
-            var range       = ranges[n];
-            var newStart    = range.start  * elementSize;
-            var newLength   = range.length * elementSize;
-            //       lastStart              newStart            newStart + newLength
-            // ----- * -------------------- * --- newLength --- * ------------------------
-            //       * -------------- length ------------------ *
-            var length = newStart + newLength - lastStart;
-            if (length < 4 * 1024) {
-                lastLength = length;
-                continue;
+            // --- optimization: Write-Coalescing
+            for (int n = 1; n < ranges.Count; n++)
+            {
+                var range       = ranges[n];
+                var newStart    = range.start  * elementSize;
+                var newLength   = range.length * elementSize;
+                //       lastStart              newStart            newStart + newLength
+                // ----- * -------------------- * --- newLength --- * ------------------------
+                //       * -------------- length ------------------ *
+                var length = newStart + newLength - lastStart;
+                if (length < 4 * 1024) {
+                    lastLength = length;
+                    continue;
+                }
+                wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, buffer + lastStart, (nuint)lastLength);
+                lastStart   = newStart;
+                lastLength  = newLength;
+                rangeWrites++;
             }
-            wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, source + lastStart, (nuint)lastLength);
-            lastStart   = newStart;
-            lastLength  = newLength;
-            rangeWrites++;
-        }
-        wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, source + lastStart, (nuint)lastLength);
-        if (enableTraces) {
-            AddTrace(TraceType.Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
+            wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, buffer + lastStart, (nuint)lastLength);
+            if (enableTraces) {
+                AddTrace(TraceType.Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
+            }
         }
     }
 }
