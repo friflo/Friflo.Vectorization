@@ -175,32 +175,31 @@ $$""""
         recorder.Init({{methodName_GPU}}_KernelId, "{{methodName}}"u8);
 {{bufferInit}}
 
-        using (var pass = recorder.BeginComputePass("{{methodName}}"u8))
-        {
-            ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
-            if (!effect.IsCreated) {
-                effect = ref {{methodName_GPU}}_CreateEffect(device);
-            }
-            pass.SetPipeline(effect.pipeline);
-            
-            // Creation of buffer bind group is expensive. Try get from cache with two entries.
-            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-            if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
-                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
-                device.UpdateBufferCache({{methodName_GPU}}_KernelId, bufferGroup, buffers.hash);
-            }
-            pass.SetBindGroup0(bufferGroup, buffers.hash);
-            
-            var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
-            };
-            var entry = recorder.AsUniformEntry(0, uniforms);
-            // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
-            pass.SetBindGroup1(uniformGroup);
-            
-            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+        using var pass = recorder.BeginComputePass("{{methodName}}"u8);
+        
+        ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
+        if (!effect.IsCreated) {
+            effect = ref {{methodName_GPU}}_CreateEffect(device);
         }
+        pass.SetPipeline(effect.pipeline);
+        
+        // Creation of buffer bind group is expensive. Try get from cache with two entries.
+        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        if (!bufferGroup.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
+            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
+            device.UpdateBufferCache({{methodName_GPU}}_KernelId, bufferGroup, buffers.hash);
+        }
+        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        
+        var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
+        };
+        var entry = recorder.AsUniformEntry(0, uniforms);
+        // Creation of uniform bind group is cheap => no caching.
+        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "{{methodName}}_uniforms"u8);
+        pass.SetBindGroup1(uniformGroup);
+        
+        pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
     
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430

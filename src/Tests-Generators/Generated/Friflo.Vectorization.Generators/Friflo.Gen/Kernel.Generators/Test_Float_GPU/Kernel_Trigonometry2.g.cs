@@ -120,35 +120,34 @@ namespace Kernel.Generators
 
         recorder.RequireReadWrite(position);
 
-        using (var pass = recorder.BeginComputePass("Kernel_Trigonometry2"u8))
-        {
-            ref var effect = ref device.GetEffect(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash);
-            if (!effect.IsCreated) {
-                effect = ref _Kernel_Trigonometry2_GPU_CreateEffect(device);
-            }
-            pass.SetPipeline(effect.pipeline);
-            
-            // Creation of buffer bind group is expensive. Try get from cache with two entries.
-            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-            if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
+        using var pass = recorder.BeginComputePass("Kernel_Trigonometry2"u8);
+        
+        ref var effect = ref device.GetEffect(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash);
+        if (!effect.IsCreated) {
+            effect = ref _Kernel_Trigonometry2_GPU_CreateEffect(device);
+        }
+        pass.SetPipeline(effect.pipeline);
+        
+        // Creation of buffer bind group is expensive. Try get from cache with two entries.
+        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        if (!bufferGroup.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
                 entries[0] = WgpuBindGroup.From(0, position.Buffer);
-                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Trigonometry2_buffers"u8);
-                device.UpdateBufferCache(_Kernel_Trigonometry2_GPU_KernelId, bufferGroup, buffers.hash);
-            }
-            pass.SetBindGroup0(bufferGroup, buffers.hash);
-            
-            var uniforms = new _Kernel_Trigonometry2_GPU_Uniforms {
+            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Trigonometry2_buffers"u8);
+            device.UpdateBufferCache(_Kernel_Trigonometry2_GPU_KernelId, bufferGroup, buffers.hash);
+        }
+        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        
+        var uniforms = new _Kernel_Trigonometry2_GPU_Uniforms {
                 count           = buffers.length,
                 position_off    = position.Offset,
-            };
-            var entry = recorder.AsUniformEntry(0, uniforms);
-            // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Trigonometry2_uniforms"u8);
-            pass.SetBindGroup1(uniformGroup);
-            
-            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
-        }
+        };
+        var entry = recorder.AsUniformEntry(0, uniforms);
+        // Creation of uniform bind group is cheap => no caching.
+        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Kernel_Trigonometry2_uniforms"u8);
+        pass.SetBindGroup1(uniformGroup);
+        
+        pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430

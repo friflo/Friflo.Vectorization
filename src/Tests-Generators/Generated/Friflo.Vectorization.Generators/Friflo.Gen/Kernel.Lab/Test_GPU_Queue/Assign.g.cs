@@ -116,37 +116,36 @@ namespace Kernel.Lab
         recorder.RequireReadWrite(output);
         recorder.RequireRead     (input);
 
-        using (var pass = recorder.BeginComputePass("Assign"u8))
-        {
-            ref var effect = ref device.GetEffect(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
-            if (!effect.IsCreated) {
-                effect = ref _Assign_GPU_CreateEffect(device);
-            }
-            pass.SetPipeline(effect.pipeline);
-            
-            // Creation of buffer bind group is expensive. Try get from cache with two entries.
-            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-            if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
+        using var pass = recorder.BeginComputePass("Assign"u8);
+        
+        ref var effect = ref device.GetEffect(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
+        if (!effect.IsCreated) {
+            effect = ref _Assign_GPU_CreateEffect(device);
+        }
+        pass.SetPipeline(effect.pipeline);
+        
+        // Creation of buffer bind group is expensive. Try get from cache with two entries.
+        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        if (!bufferGroup.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
                 entries[0] = WgpuBindGroup.From(0, output.Buffer);
                 entries[1] = WgpuBindGroup.From(1, input.Buffer);
-                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Assign_buffers"u8);
-                device.UpdateBufferCache(_Assign_GPU_KernelId, bufferGroup, buffers.hash);
-            }
-            pass.SetBindGroup0(bufferGroup, buffers.hash);
-            
-            var uniforms = new _Assign_GPU_Uniforms {
+            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Assign_buffers"u8);
+            device.UpdateBufferCache(_Assign_GPU_KernelId, bufferGroup, buffers.hash);
+        }
+        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        
+        var uniforms = new _Assign_GPU_Uniforms {
                 count           = buffers.length,
                 output_off      = output.Offset,
                 input_off       = input.Offset,
-            };
-            var entry = recorder.AsUniformEntry(0, uniforms);
-            // Creation of uniform bind group is cheap => no caching.
-            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Assign_uniforms"u8);
-            pass.SetBindGroup1(uniformGroup);
-            
-            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
-        }
+        };
+        var entry = recorder.AsUniformEntry(0, uniforms);
+        // Creation of uniform bind group is cheap => no caching.
+        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "Assign_uniforms"u8);
+        pass.SetBindGroup1(uniformGroup);
+        
+        pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430

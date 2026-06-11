@@ -28,41 +28,40 @@ public static class WgpuPattern
         recorder.RequireRead     (input);
         recorder.RequireReadWrite(output);
 
-        using (var pass = recorder.BeginComputePass("MultiplyAdd"u8))
-        {
-            ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
-            if (!effect.IsCreated) {
-                effect = ref MultiplyAdd_GPU_CreateEffect(device);
-            }
-            pass.SetPipeline(effect.pipeline);
-            
-            // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-            if (!bufferGroup.IsCreated) {
-                Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-                entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
-                entries[1] = WgpuBindGroup.From  (1, input.Buffer);
-                entries[2] = WgpuBindGroup.From  (2, output.Buffer);
-                bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
-                device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
-            }
-            pass.SetBindGroup0(bufferGroup, buffers.hash);
-            
-            var uniforms = new MultiplyAdd_GPU_Uniforms {
-                count       = buffers.length,
-                weight_off  = weight.Offset,
-                input_off   = input .Offset,
-                output_off  = output.Offset,
-                bias        = bias
-            };
-            var entry = recorder.AsUniformEntry(0, uniforms);
-            // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
-            // TODO: Use Dynamic Offsets to move CreateBindGroup out of the loop and use pass.SetBindGroup1Dynamic instead.
-            var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
-            pass.SetBindGroup1(uniformGroup);
-            
-            pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+        using var pass = recorder.BeginComputePass("MultiplyAdd"u8);
+        
+        ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        if (!effect.IsCreated) {
+            effect = ref MultiplyAdd_GPU_CreateEffect(device);
         }
+        pass.SetPipeline(effect.pipeline);
+            
+        // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
+        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        if (!bufferGroup.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
+            entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
+            entries[1] = WgpuBindGroup.From  (1, input.Buffer);
+            entries[2] = WgpuBindGroup.From  (2, output.Buffer);
+            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
+            device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
+        }
+        pass.SetBindGroup0(bufferGroup, buffers.hash);
+            
+        var uniforms = new MultiplyAdd_GPU_Uniforms {
+            count       = buffers.length,
+            weight_off  = weight.Offset,
+            input_off   = input .Offset,
+            output_off  = output.Offset,
+            bias        = bias
+        };
+        var entry = recorder.AsUniformEntry(0, uniforms);
+        // Creation of a uniform bind group is much cheaper than for a buffer in wgpu. So no caching.
+        // TODO: Use Dynamic Offsets to move CreateBindGroup out of the loop and use pass.SetBindGroup1Dynamic instead.
+        var uniformGroup = recorder.CreateBindGroup(effect.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
+        pass.SetBindGroup1(uniformGroup);
+            
+        pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL uses std140/std430 Layout
