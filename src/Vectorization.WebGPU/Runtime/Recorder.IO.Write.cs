@@ -132,9 +132,9 @@ public sealed partial class CommandRecorder
                 rangeWrites++;
             }
             wgpuQueueWriteBuffer(queue, data.storageHandle, (ulong)lastStart, buffer + lastStart, (nuint)lastLength);
-            if (enableTraces) {
-                AddTrace(TraceType.Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
-            }
+        }
+        if (enableTraces) {
+            AddTrace(TraceType.Write, 0, rangeWrites, data.label, TraceSubType.Coalescing);
         }
     }
 }
