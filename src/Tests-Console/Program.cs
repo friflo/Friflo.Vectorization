@@ -21,15 +21,16 @@ using var context = device.BeginContext();
 context.PassBatching = PassBatching.HazardDriven;
 
 var stopwatch   = Stopwatch.StartNew();
+var checkPoint 	= stopwatch.ElapsedMilliseconds;
 var iterations  = 1_000_000;
 
 for (int n = 1; n <= iterations; n++) {
-    if (n % 10_000 == 0) { Console.WriteLine($"iteration: {n}  c[0] = {c.InOut().Span[0]}"); }
+    if (n % 50_000 == 0) { Console.WriteLine($"iteration: {n}  c[0] = {c.InOut().Span[0]}"); }
     
     HelloWorld.AddKernel(a.In(), b.In(), c.InOut().Read());
     
-    if (n  % 100 == 0) { context.Queue.ReadBuffers(); }
-    if (n == iterations) { n = 0; }
+    if (n  % 200 == 0) { context.Queue.ReadBuffers(); }
+    if (n == iterations) { n = 0; Console.WriteLine($"----------------------- checkpoint: {stopwatch.ElapsedMilliseconds - checkPoint} ms"); checkPoint = stopwatch.ElapsedMilliseconds; }
 }
 
 Console.WriteLine($"mode: {device.DefaultComputeMode}  iterations: {iterations}  time: {stopwatch.ElapsedMilliseconds} ms.  c[0] = {c.InOut().Span[0]} (Expected: 3.0)");
