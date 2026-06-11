@@ -9,6 +9,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  CommandRecorder
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -16,9 +17,9 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct WgpuEncoder
 {
-    internal readonly   CommandEncoder*     handle;
+    internal readonly   CommandEncoder* handle;
     
-    public   override   string              ToString() => handle != null ? "Created" : "null";
+    public   override   string          ToString() => handle != null ? "Created" : "null";
     
     internal WgpuEncoder(CommandEncoder* handle) {
         this.handle = handle;
@@ -28,9 +29,9 @@ internal readonly unsafe struct WgpuEncoder
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct WgpuCommandBuffer
 {
-    internal readonly   CommandBuffer*      handle;
+    internal readonly   CommandBuffer*  handle;
     
-    public   override   string              ToString() => handle != null ? "Created" : "null";
+    public   override   string          ToString() => handle != null ? "Created" : "null";
     
     internal WgpuCommandBuffer(CommandBuffer* handle) {
         this.handle = handle;
@@ -42,14 +43,12 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
 {
     private readonly    CommandRecorder     recorder;
     private readonly    ComputePassEncoder* handle;
-    private readonly    ReadOnlySpan<byte>  label;
     
     public  override    string              ToString() => handle != null ? "Created" : "null";
     
-    internal WgpuComputePass(CommandRecorder recorder, ComputePassEncoder* handle, ReadOnlySpan<byte> label) {
+    internal WgpuComputePass(CommandRecorder recorder, ComputePassEncoder* handle) {
         this.recorder   = recorder;
         this.handle     = handle;
-        this.label      = label;
     }
     
     public void Dispose() {

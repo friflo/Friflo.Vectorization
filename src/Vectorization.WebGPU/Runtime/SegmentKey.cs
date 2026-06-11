@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ArrangeRedundantParentheses
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf

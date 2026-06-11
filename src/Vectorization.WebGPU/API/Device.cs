@@ -180,7 +180,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         this.instance       = instance;
         DevicePtr           = devicePtr;
         QueuePtr            = queuePtr;
-        queue               = new WgpuQueue(this, queuePtr);
+        queue               = new WgpuQueue(queuePtr);
         deviceHandle        = GCHandle.Alloc(this);
         deviceHandlePtr     = (void*)GCHandle.ToIntPtr(deviceHandle);
         

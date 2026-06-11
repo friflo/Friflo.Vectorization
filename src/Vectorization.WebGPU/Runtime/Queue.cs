@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -14,11 +15,9 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct WgpuQueue
 {
-    private  readonly   WgpuDevice   device;
-    internal readonly   Queue*      handle;
+    internal readonly   Queue*  handle;
     
-    internal WgpuQueue(WgpuDevice device, Queue* handle) {
-        this.device = device;
+    internal WgpuQueue(Queue* handle) {
         this.handle = handle;
     }
     

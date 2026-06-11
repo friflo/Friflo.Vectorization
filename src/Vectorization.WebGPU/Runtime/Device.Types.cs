@@ -18,7 +18,7 @@ public unsafe struct WgpuEffect
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
     public              WgpuBufferCache     bufferCache;
-    internal            ulong               wgslHash;
+    internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
@@ -134,7 +134,7 @@ internal class StagingPool
 
     public  override    string  ToString() => $"pooled: {pooled.Count}";
 
-    internal  unsafe StagingReadBuffer Fetch(WgpuDevice device)
+    internal  StagingReadBuffer Fetch(WgpuDevice device)
     {
         if (pooled.TryDequeue(out var list)) {
             return list;

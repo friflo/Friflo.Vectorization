@@ -109,7 +109,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
                     traces[traceCount - 1].Calls++;
                 }
             }
-            return new WgpuComputePass(this, currentPass, passLabel);
+            return new WgpuComputePass(this, currentPass);
         }
         pipelineStats.Passes++;
         kernelMetrics[kernelId].Passes++;
@@ -125,7 +125,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
-            return new WgpuComputePass(this, currentPass, passLabel);
+            return new WgpuComputePass(this, currentPass);
         }
     }
     
