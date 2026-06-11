@@ -488,7 +488,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
                 visibility      = (ulong)ShaderStage.Compute,
                 buffer          = new BufferBindingLayout {
                     type                = entries[i].Type,
-                    hasDynamicOffset    = WgpuUtils.FromBool(false),    // true for uniform buffer
+                    hasDynamicOffset    = WgpuUtils.FromBool(dynamicOffset),    // true for uniform buffer
                     minBindingSize      = 0                                     // 0: no validation of minimum size
                 }
             };

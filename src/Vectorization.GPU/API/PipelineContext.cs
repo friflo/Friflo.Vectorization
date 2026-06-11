@@ -149,6 +149,8 @@ public class PipelineContext : CommandStream, IDisposable
         PassBatching    = PassBatching.HazardDriven;
         EnableTraces    = false;
     }
+    
+    protected internal virtual void ReleaseResources() { }
    
     [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]

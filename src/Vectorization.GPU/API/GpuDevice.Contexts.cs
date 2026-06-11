@@ -60,7 +60,7 @@ public abstract partial class GpuDevice
     public virtual void Dispose()
     {
         if (IsDisposed) {
-             return;
+            return;
         }
         
         List<string> leaks = null;
@@ -117,12 +117,12 @@ internal class ContextPool : IDisposable
 
     public void Dispose()
     {
-        pooled.Clear();
+        // pooled.Clear();
         
         // alternative approach, if unmanaged resource need to be reused
-        // while (pooled.TryPop(out var context)) {
-        //     // context.ReleaseUnmanaged(); 
-        // }
+        while (pooled.TryDequeue(out var context)) {
+            context.ReleaseResources(); 
+        }
     }
 }
 

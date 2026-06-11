@@ -94,19 +94,23 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup1(WgpuBindGroup bindGroup)
     {
+        return;  // TODO UNI_REMOVE
         wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 0, null);
     }
     
     public void SetUniform<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
-        return;
-        var bindGroups = recorder.uniformBindGroups;
-        if (effect.kernelId >= bindGroups.Length) {
-            bindGroups = new WgpuBindGroup[bindGroups.Length * 2];
-        }
-        WgpuBindGroup bindGroup = bindGroups[effect.kernelId];
-        if (bindGroup.handle == null) {
-            bindGroup = recorder.CreateUniformBindGroup(ref effect, groupLabel);
+        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        var bindGroups      = recorder.uniformBindGroups;
+        WgpuBindGroup bindGroup;
+        
+        if (effect.kernelId < bindGroups.Length) {
+            bindGroup = bindGroups[effect.kernelId];
+            if (bindGroup.handle == null) {
+                bindGroup = recorder.CreateUniformBindGroup(ref effect, alignedSize, groupLabel);
+            }
+        } else {
+            bindGroup = recorder.CreateUniformBindGroup(ref effect, alignedSize, groupLabel);
         }
         uint offset = recorder.uniformOffset;
         
@@ -115,7 +119,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         }
         wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 1, &offset);
         
-        recorder.uniformOffset += ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        recorder.uniformOffset = offset + alignedSize;
     }
 }
 

@@ -157,19 +157,19 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 42, gpuOutput.InOut().Read());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(1, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
         
         Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 43, gpuOutput2.InOut().Read());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(3, HandleDiff.BindGroups.Diff);
         
         Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 44, gpuOutput.InOut().Read());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(3, HandleDiff.BindGroups.Diff);
         
         Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 45, gpuOutput3.InOut().Read());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(2, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(3, HandleDiff.BindGroups.Diff);
         
         context.Queue.ReadBuffers();
         

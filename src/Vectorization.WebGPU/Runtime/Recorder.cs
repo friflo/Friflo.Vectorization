@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
@@ -30,11 +31,10 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             WgpuCommandBuffer       commandBuffer;
     
     internal            WgpuBindGroup[]         uniformBindGroups   = [];
-    
-    
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
-    internal const      uint                    UniformAlignment = 256;
+    internal const      uint                    UniformAlignment    = 256;
+    internal const      int                     UniformBufferSize   = 64 * 1024;  // TODO make configurable
     
     internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
     private  readonly   int                     slotSize;
@@ -100,10 +100,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         this.device         = device;
         slotSize            = device.SlotSize;
         globalUniformPool   = device.globalUniformPool.handle;
-        const int uniformBufferSize = 256 * 1024;                           // TODO make configurable
-        stagingBuffer       = new byte[uniformBufferSize];
         commandList         = device.commandListPool.Fetch();
-        uniformBuffer       = (WgpuBuffer<byte>)device.CreateBuffer<byte>(uniformBufferSize, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
+        stagingBuffer       = new byte[UniformBufferSize];
     }
     
     // The recorder provides / owns the Encoder
@@ -139,6 +137,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     public BindGroupEntry AsUniformEntry<T>(int binding, T value) where T : unmanaged
     {
+        return default;   // TODO UNI_REMOVE
         uint size           = (uint)sizeof(T);
         uint alignedOffset  = (uniformOffset + 255) & ~255u; // WebGPU requires Uniform offset must by 256 byte aligned
         
@@ -187,7 +186,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         
         if (uniformOffset > 0) {
             fixed (byte* pData = stagingBuffer) {
-                wgpuQueueWriteBuffer(device.QueuePtr, device.globalUniformPool.handle, 0, pData, uniformOffset);
+                wgpuQueueWriteBuffer(device.QueuePtr, uniformBuffer.handle, 0, pData, uniformOffset);
             }
         }
     }
@@ -224,6 +223,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, BindGroupEntry bindEntry, ReadOnlySpan<byte> groupLabel)
     {
+        return default;    // TODO UNI_REMOVE
         fixed(byte* labelPtr = groupLabel) {
             var descriptor = new BindGroupDescriptor {
                 label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
@@ -262,9 +262,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             wgpuCommandEncoderRelease(currentEncoder.handle);
             currentEncoder = default;
         }
-        uniformBuffer?.Dispose();
-        uniformBuffer = null;
-
         base.Dispose();
     }
     
@@ -278,13 +275,13 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, ReadOnlySpan<byte> groupLabel)
+    internal WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
     {
         var entry = new BindGroupEntry {
             binding = 0,
             buffer  = uniformBuffer.handle,
             offset  = 0,
-            size    = (ulong)uniformBuffer.Length
+            size    = uniformSize
         };
         fixed(byte* labelPtr = groupLabel) {
             var desc = new BindGroupDescriptor {
@@ -296,7 +293,13 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             var groupHandle = wgpuDeviceCreateBindGroup(device.DevicePtr, &desc);
             var bindGroup   = new WgpuBindGroup(groupHandle);
             
-            return uniformBindGroups[effect.kernelId] = bindGroup;
+            var groups = uniformBindGroups;
+            if (effect.kernelId >= groups.Length) {
+                var newGroups = new WgpuBindGroup[Math.Max(groups.Length * 2, effect.kernelId + 1)];
+                Array.Copy(groups, 0, newGroups, 0, groups.Length);
+                groups = uniformBindGroups = newGroups;
+            }
+            return groups[effect.kernelId] = bindGroup;
         }
     }
 }
