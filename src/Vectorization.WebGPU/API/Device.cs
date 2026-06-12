@@ -365,10 +365,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             Array.Copy(entries, 0, newEntries, 0, entries.Length);
             bufferEntries = newEntries;
         }
-        /* for (int n = 0; n < count; n++) {
-            var ranges = entries[n].requestedRanges;
-            if (ranges != null && ranges.Count > 0) throw new InvalidOperationException("expect ranges is empty");
-        } */
         var readSize = wgpuIO.Submit(null, this, null);
         wgpuIO.ReadBuffers(this, readSize);
     }
