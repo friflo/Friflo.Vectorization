@@ -339,7 +339,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         requestedBuffers.Add((ISilkBuffer)buffer.Buffer);
     }
     
-    private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
+    private Buffer* CreateBufferWithData<T>(Memory<T> data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
         uint    size            = (uint)(data.Length * sizeof(T));
         
@@ -357,7 +357,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         
         // Copy data into mapped memory
         void* pMapped = wgpu.BufferGetMappedRange(buffer, 0, size);
-        fixed (void* pData = data)
+        fixed (void* pData = data.Span)
         {
             System.Buffer.MemoryCopy(pData, pMapped, size, size);
         }
@@ -418,17 +418,7 @@ public sealed unsafe class SilkDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
-    {
-        var wgpuUsage   = GetBufferUsage(profile, type);
-        var sizeInBytes = length * Unsafe.SizeOf<T>();
-        var buffer      = CreateBuffer((uint)sizeInBytes, wgpuUsage, bufferLabel);
-        var array       = new T[length];
-        Array.Fill(array, value);
-        return new SilkBuffer<T>(this, buffer, array, bufferLabel);
-    }
-    
-    public override GpuBuffer<T> CreateBuffer<T>(T[] data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(Memory<T> data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage   = GetBufferUsage(profile, type);
         var handle      = CreateBufferWithData(data, wgpuUsage, bufferLabel);

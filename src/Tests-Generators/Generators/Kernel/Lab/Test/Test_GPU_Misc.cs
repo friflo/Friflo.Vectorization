@@ -50,4 +50,25 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         _ = Device.GetDeviceLimits();
         
     }
+    
+    [Test]
+    public void Test_GPU_Memory()
+    {
+        var weightMem   = new Memory<float>([1, 1, 1, 1]);
+        var inputMem    = new Memory<float>([1, 2, 3, 4]);
+        var outputMem   = new Memory<float>([0, 0, 0, 0]);
+        
+        using var device    = Device;
+        using var weight   = device.CreateBuffer(weightMem, "weight", BufferProfile.StaticIn);
+        using var input    = device.CreateBuffer(inputMem,  "input",  BufferProfile.InOut);
+        using var output   = device.CreateBuffer(outputMem, "output", BufferProfile.InOut);
+
+        using var context = device.BeginContext();
+        
+        Pattern.MultiplyAddKernel(weight.In(), input.In(), 42, output.InOut().Read());
+        
+        context.Queue.ReadBuffers();
+        
+        Assert.AreEqual(new float[] { 43, 44, 45, 46 }, outputMem.ToArray());
+    }
 }

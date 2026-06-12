@@ -45,14 +45,23 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
     public PipelineContext          BeginContext([CallerFilePath] string file = "", [CallerLineNumber] int line = 0) => BeginContextInternal(file, line);
     
 
+    public GpuBuffer<T> CreateBuffer<T>(T[] data, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged {
+        return CreateBuffer(new Memory<T>(data), label, profile, type);
+    }
+
+    public GpuBuffer<T> CreateBuffer<T>(int length, T value, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged {
+        var array = new T[length];
+        Array.Fill(array, value);
+        return CreateBuffer(new Memory<T>(array), label, profile, type);
+    }
+    
     // --- abstract
     public abstract ComputeMode     DefaultComputeMode  { get; }
     
     public abstract bool            IsDisposed          { get; }
     
     public abstract GpuLimits       GetDeviceLimits();
-    public abstract GpuBuffer<T>    CreateBuffer<T>(int length, T value, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
-    public abstract GpuBuffer<T>    CreateBuffer<T>(T[] data,            string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
+    public abstract GpuBuffer<T>    CreateBuffer<T>(Memory<T> data, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
 }
 
 

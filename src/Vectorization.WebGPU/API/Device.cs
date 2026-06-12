@@ -234,9 +234,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         }
     }
         
-    private Buffer* CreateBufferWithData<T>(T[] data, BufferUsage usage, string bufferLabel) where T : unmanaged
+    private Buffer* CreateBufferWithData<T>(Memory<T> data, BufferUsage usage, string bufferLabel) where T : unmanaged
     {
-        fixed (void* pData = data) {
+        fixed (void* pData = data.Span) {
             return CreateBufferWithData(pData, data.Length * sizeof(T), usage, bufferLabel);
         }
     }
@@ -302,7 +302,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         };
         return usage | typeUsage;
     }
+
     
+    // --- GpuDevice
     public override GpuLimits GetDeviceLimits()
     {
         var limits = new Limits();
@@ -315,18 +317,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         };
     }
     
-    public override GpuBuffer<T> CreateBuffer<T>(int length, T value, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
-    {
-        var wgpuUsage       = GetBufferUsage(profile, type);
-        var array           = new T[length];
-        Array.Fill(array, value);
-        var buffer          = CreateBufferWithData(array, wgpuUsage, bufferLabel);
-        var gpuBuffer       = new WgpuBuffer<T>(this, buffer, bufferMap.Count, array, bufferLabel);
-        bufferMap.Add(gpuBuffer);
-        return gpuBuffer;
-    }
-    
-    public override GpuBuffer<T> CreateBuffer<T>(T[] data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
+    public override GpuBuffer<T> CreateBuffer<T>(Memory<T> data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage)
     {
         var wgpuUsage       = GetBufferUsage(profile, type);
         var handle          = CreateBufferWithData(data, wgpuUsage, bufferLabel);
@@ -334,8 +325,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         bufferMap.Add(gpuBuffer);
         return gpuBuffer;
     }
-    
-    // --- GpuDevice
+
     protected override PipelineContext NewPipelineContext() => new CommandRecorder(this);
     
     
