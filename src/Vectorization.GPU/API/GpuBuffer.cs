@@ -19,18 +19,18 @@ namespace Friflo.Vectorization.GPU;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class GpuBuffer : IDisposable
 {
-    public    readonly  string      Label;
-    public    readonly  int         Length;
-    public	  readonly  long        Id              = BufferUtils.NextId();
-    public	  abstract  GpuDevice   Device          { get; }
+    public  readonly    string      Label;
+    public  readonly    int         Length;
+    public	readonly    long        Id              = BufferUtils.NextId();
+    public	abstract    GpuDevice   Device          { get; }
     
     [EditorBrowsable(EditorBrowsableState.Never)] [CLSCompliant(false)]
-    public	  readonly  uint        DeviceBufferId;
+    public	readonly    uint        DeviceBufferId;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public	  readonly  nint        NativeHandle;
+    public  readonly    nint        NativeHandle;
     
-    public    override  string      ToString()      => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
+    public  override    string      ToString()      => $"{Label}({Id}): {(IsDisposed ? "Disposed" : "Alive")}";
     
     // --- abstract
     public  abstract    bool        IsDisposed { get; }
