@@ -127,16 +127,16 @@ namespace VerifyVectorize
         var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, position.Buffer);
+            entries[0] = WgpuBindGroup.From(0, position.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
             device.UpdateBufferCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _MoveExample_GPU_Uniforms {
-                count           = buffers.length,
-                position_off    = position.Offset,
-                deltaTime       = deltaTime,
+            count           = buffers.length,
+            position_off    = position.Offset,
+            deltaTime       = deltaTime,
         };
         pass.SetUniformBindGroup(1, ref effect, uniforms, "MoveExample_uniforms"u8);
         

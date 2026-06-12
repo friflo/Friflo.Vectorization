@@ -128,17 +128,17 @@ namespace Kernel.Lab
         var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
-                entries[0] = WgpuBindGroup.From(0, output.Buffer);
-                entries[1] = WgpuBindGroup.From(1, input.Buffer);
+            entries[0] = WgpuBindGroup.From(0, output.Buffer);
+            entries[1] = WgpuBindGroup.From(1, input.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Assign_buffers"u8);
             device.UpdateBufferCache(_Assign_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _Assign_GPU_Uniforms {
-                count           = buffers.length,
-                output_off      = output.Offset,
-                input_off       = input.Offset,
+            count           = buffers.length,
+            output_off      = output.Offset,
+            input_off       = input.Offset,
         };
         pass.SetUniformBindGroup(1, ref effect, uniforms, "Assign_uniforms"u8);
         

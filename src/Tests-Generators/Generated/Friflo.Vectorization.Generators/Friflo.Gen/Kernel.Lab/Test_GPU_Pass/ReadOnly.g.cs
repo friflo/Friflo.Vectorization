@@ -105,15 +105,15 @@ namespace Kernel.Lab
         var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-                entries[0] = WgpuBindGroup.From(0, input.Buffer);
+            entries[0] = WgpuBindGroup.From(0, input.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ReadOnly_buffers"u8);
             device.UpdateBufferCache(_ReadOnly_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _ReadOnly_GPU_Uniforms {
-                count           = buffers.length,
-                input_off       = input.Offset,
+            count           = buffers.length,
+            input_off       = input.Offset,
         };
         pass.SetUniformBindGroup(1, ref effect, uniforms, "ReadOnly_uniforms"u8);
         

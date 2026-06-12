@@ -210,17 +210,17 @@ namespace Kernel.Generators
         var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
-                entries[0] = WgpuBindGroup.From(0, position.Buffer);
-                entries[1] = WgpuBindGroup.From(1, velocity.Buffer);
+            entries[0] = WgpuBindGroup.From(0, position.Buffer);
+            entries[1] = WgpuBindGroup.From(1, velocity.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Advanced_buffers"u8);
             device.UpdateBufferCache(_Advanced_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _Advanced_GPU_Uniforms {
-                count           = buffers.length,
-                position_off    = position.Offset,
-                velocity_off    = velocity.Offset,
+            count           = buffers.length,
+            position_off    = position.Offset,
+            velocity_off    = velocity.Offset,
         };
         pass.SetUniformBindGroup(1, ref effect, uniforms, "Advanced_uniforms"u8);
         

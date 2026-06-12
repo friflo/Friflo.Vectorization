@@ -118,7 +118,7 @@ public sealed partial class Gen
             /* if (isOutput) {
                 setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
             } */
-            bufferBindEntries.Append($"\n                entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName}.Buffer);");
+            bufferBindEntries.Append($"\n            entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName}.Buffer);");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
@@ -143,7 +143,7 @@ public sealed partial class Gen
             if (field.fieldType == UniformFieldType.Parameter) {
                 signature.Append($"\n        in {field.type,-15} {field.name},");
             }
-            uniformAssignments.Append($"\n                {field.name,-15} = {field.value},");
+            uniformAssignments.Append($"\n            {field.name,-15} = {field.value},");
             structFields.Append($"\n        [FieldOffset({field.offset,2})]    public {field.type,-10} {field.name};");
             wgslFields.Append($"\n        {field.name,-15} : ").AppendFormat("{0,-15}", $"{field.wgslType},").Append($"// offset: {field.offset,2} size: {field.size,2}");
         }
