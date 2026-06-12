@@ -52,8 +52,8 @@ public abstract class GpuBuffer : IDisposable
 
 public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 {
-    public InView<T> In();
-    public InView<T>  In(int start, int length);
+    public InView<T>    In();
+    public InView<T>    In(int start, int length);
 }
 
 
@@ -63,8 +63,8 @@ public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 /// It provides methods returning <see cref="InOutView{T}"/> and <see cref="InView{T}"/> to for safe host memory access. 
 /// </summary>
 public abstract class GpuBuffer<T> :
-    GpuBuffer,                          // enables non-generic access to fields like: Length, Device, ... 
-    IReadOnlyGpuBuffer<T>               // enables read only access to immutable buffer data
+    GpuBuffer,              // enables non-generic access to fields like: Length, Device, ... 
+    IReadOnlyGpuBuffer<T>   // enables read only access to immutable buffer data
         where T : unmanaged
 {
     /// <summary> The CPU-accessible host memory used as a staging area for GPU synchronization. </summary>
@@ -77,21 +77,21 @@ public abstract class GpuBuffer<T> :
     }
 
     /// <summary> Creates a read-write view of the entire buffer. </summary>
-    public InOutView<T>     InOut() => new(this, 0, Length);
-
-    /// <summary> Gets a read-only view of the entire buffer. </summary>
-    public InView<T>        In() => new(this, 0, Length);
+    public InOutView<T> InOut() => new(this, 0, Length);
 
     /// <summary> Creates a read-write view of a sub-region within this buffer. </summary>
-    public InOutView<T>     InOut     (int start, int length)
+    public InOutView<T> InOut(int start, int length)
     {
         if (start >= 0 && length >= 0 && start + length <= Length)
             return new InOutView<T>(this, start, length);
         throw OutOfRangeException(start, length);
     }
+    
+    /// <summary> Gets a read-only view of the entire buffer. </summary>
+    public InView<T>    In() => new(this, 0, Length);
 
     /// <summary> Creates a read-only view of a sub-region within this buffer. </summary>
-    public InView<T>        In      (int start, int length)
+    public InView<T>    In(int start, int length)
     {
         if (start >= 0 && length >= 0 && start + length <= Length)
             return new InView<T>(this, start, length);
