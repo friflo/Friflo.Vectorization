@@ -99,11 +99,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     {
         if (enablePassBatching == PassBatching.HazardDriven && !createNewPass) {
             if (enableTraces) {
-                if (traceNewKernel) {
-                    AddKernelTrace(TraceType.Kernel, kernelId);
-                } else {
-                    traces[traceCount - 1].Calls++;
-                }
+                UpdateKernelTrace();
             }
             return new WgpuComputePass(this, currentPass);
         }

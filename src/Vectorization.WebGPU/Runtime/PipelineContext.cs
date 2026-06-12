@@ -147,6 +147,16 @@ public sealed partial class CommandRecorder
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
+    private void UpdateKernelTrace()
+    {
+        if (traceNewKernel) {
+            AddKernelTrace(TraceType.Kernel, kernelId);
+        } else {
+            traces[traceCount - 1].Calls++;
+        }
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private PipelineTrace[] ResizeTraces()
     {
         var localTraces = traces;
