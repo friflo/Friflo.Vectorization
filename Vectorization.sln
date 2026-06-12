@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.WebGPU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Console", "src\Tests-Console\Tests-Console.csproj", "{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WGSL.Transpiler", "src\WGSL.Transpiler\WGSL.Transpiler.csproj", "{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGSL.Transpiler", "src\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj", "{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
