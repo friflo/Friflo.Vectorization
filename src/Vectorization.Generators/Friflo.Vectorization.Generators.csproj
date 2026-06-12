@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
 
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies> <!-- required for Superpower.dll -->
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -47,6 +48,20 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\WGSL.Parser\WGSL.Parser.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all"/>
+  </ItemGroup>
+  <PropertyGroup>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="GetDependencyTargetPaths">
+    <ItemGroup>
+      <TargetPathWithTargetPlatformMoniker Include="$(TargetDir)Superpower.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(TargetDir)Friflo.WGSL.Parser.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <None Include="..\package-icon.png" Pack="true" PackagePath="" />
