@@ -147,7 +147,7 @@ namespace Kernel.Generators
                 min_off         = min.Offset,
                 max             = max,
         };
-        pass.SetUniform(ref effect, uniforms, "Kernel_Clamp_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "Kernel_Clamp_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

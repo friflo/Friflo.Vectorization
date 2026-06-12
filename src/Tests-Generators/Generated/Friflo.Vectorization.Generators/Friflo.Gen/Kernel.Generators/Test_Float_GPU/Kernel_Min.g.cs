@@ -140,7 +140,7 @@ namespace Kernel.Generators
                 position_off    = position.Offset,
                 velocity_off    = velocity.Offset,
         };
-        pass.SetUniform(ref effect, uniforms, "Kernel_Min_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "Kernel_Min_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

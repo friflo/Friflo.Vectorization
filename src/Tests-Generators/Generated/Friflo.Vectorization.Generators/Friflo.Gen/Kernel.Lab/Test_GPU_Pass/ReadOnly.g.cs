@@ -115,7 +115,7 @@ namespace Kernel.Lab
                 count           = buffers.length,
                 input_off       = input.Offset,
         };
-        pass.SetUniform(ref effect, uniforms, "ReadOnly_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "ReadOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

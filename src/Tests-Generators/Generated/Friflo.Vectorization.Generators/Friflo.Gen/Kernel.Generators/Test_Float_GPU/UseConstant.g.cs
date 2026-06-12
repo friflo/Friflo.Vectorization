@@ -128,7 +128,7 @@ namespace Kernel.Generators
                 count           = buffers.length,
                 position_off    = position.Offset,
         };
-        pass.SetUniform(ref effect, uniforms, "UseConstant_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "UseConstant_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

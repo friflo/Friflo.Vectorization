@@ -156,7 +156,7 @@ namespace Kernel.Generators
                 b_off           = b.Offset,
                 c_off           = c.Offset,
         };
-        pass.SetUniform(ref effect, uniforms, "Add_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "Add_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

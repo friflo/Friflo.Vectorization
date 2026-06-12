@@ -138,7 +138,7 @@ namespace VerifyVectorize
                 position_off    = position.Offset,
                 value           = value,
         };
-        pass.SetUniform(ref effect, uniforms, "Kernel_Sign_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "Kernel_Sign_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

@@ -91,7 +91,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.lastBindGroup0_hash = hash;
     }
 
-    public void SetUniform<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetUniformBindGroup<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = recorder;

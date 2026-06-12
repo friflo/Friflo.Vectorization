@@ -140,7 +140,7 @@ namespace Kernel.Lab
                 output_off      = output.Offset,
                 input_off       = input.Offset,
         };
-        pass.SetUniform(ref effect, uniforms, "Assign_uniforms"u8);
+        pass.SetUniformBindGroup(ref effect, uniforms, "Assign_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
