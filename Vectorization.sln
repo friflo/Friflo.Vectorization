@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.WebGPU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Console", "src\Tests-Console\Tests-Console.csproj", "{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WGSL.Parser", "src\WGSL.Parser\WGSL.Parser.csproj", "{E6305776-21CB-4089-9E01-62E9C20137D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WGSL.Transpiler", "src\WGSL.Transpiler\WGSL.Transpiler.csproj", "{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,9 +56,9 @@ Global
 		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6305776-21CB-4089-9E01-62E9C20137D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6305776-21CB-4089-9E01-62E9C20137D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6305776-21CB-4089-9E01-62E9C20137D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6305776-21CB-4089-9E01-62E9C20137D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -5,8 +5,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <RootNamespace>Friflo.WGSL.Parser</RootNamespace>
-    <AssemblyName>Friflo.WGSL.Parser</AssemblyName>
+    <RootNamespace>Friflo.WGSL.Transpiler</RootNamespace>
+    <AssemblyName>Friflo.WGSL.Transpiler</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!-- packaging -->
@@ -16,7 +16,7 @@
 
     <Title>friflo WGSL parser</Title>
     <Authors>Ullrich Praetz</Authors>
-    <Description>friflo WGSL Parser used by Friflo.Generators https://github.com/friflo/Friflo.Vectorization</Description>
+    <Description>friflo WGSL Transpiler used by Friflo.Generators https://github.com/friflo/Friflo.Vectorization</Description>
     <Copyright>Ullrich Praetz</Copyright>
     <PackageProjectUrl>https://github.com/friflo/Friflo.Vectorization</PackageProjectUrl>
     <RepositoryUrl>https://github.com/friflo/Friflo.Vectorization</RepositoryUrl>

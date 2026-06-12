@@ -50,7 +50,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\WGSL.Parser\WGSL.Parser.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all"/>
+    <ProjectReference Include="..\WGSL.Transpiler\WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all"/>
   </ItemGroup>
   <PropertyGroup>
     <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
@@ -59,7 +59,7 @@
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
       <TargetPathWithTargetPlatformMoniker Include="$(TargetDir)Superpower.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(TargetDir)Friflo.WGSL.Parser.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(TargetDir)Friflo.WGSL.Transpiler.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
 
