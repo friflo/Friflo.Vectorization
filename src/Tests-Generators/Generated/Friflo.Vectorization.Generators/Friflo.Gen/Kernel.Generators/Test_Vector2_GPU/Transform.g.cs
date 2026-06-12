@@ -138,14 +138,14 @@ namespace Kernel.Generators
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Transform_buffers"u8);
             device.UpdateBufferCache(_Transform_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _Transform_GPU_Uniforms {
                 matrix          = matrix,
                 count           = buffers.length,
                 position_off    = position.Offset,
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "Transform_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "Transform_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

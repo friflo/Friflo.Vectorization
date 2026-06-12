@@ -131,14 +131,14 @@ namespace VerifyVectorize
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Sign_buffers"u8);
             device.UpdateBufferCache(_Kernel_Sign_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _Kernel_Sign_GPU_Uniforms {
                 count           = buffers.length,
                 position_off    = position.Offset,
                 value           = value,
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "Kernel_Sign_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "Kernel_Sign_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

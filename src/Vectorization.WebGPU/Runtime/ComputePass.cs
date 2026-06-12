@@ -53,16 +53,16 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBindGroup0(WgpuBindGroup bindGroup, ulong hash)
+    public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup, ulong hash)
     {
         if (hash == recorder.lastBindGroup0_hash) {
             return;
         }
-        wgpuComputePassEncoderSetBindGroup(handle, 0, bindGroup.handle, 0, null);
+        wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
         recorder.lastBindGroup0_hash = hash;
     }
 
-    public void SetUniformBindGroup<T>(ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = recorder;
@@ -82,7 +82,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
         }
-        wgpuComputePassEncoderSetBindGroup(handle, 1, bindGroup.handle, 1, &offset);
+        wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
         
         rec.uniformOffset = offset + alignedSize;
     }

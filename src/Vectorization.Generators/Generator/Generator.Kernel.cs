@@ -190,11 +190,11 @@ $$""""
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
             device.UpdateBufferCache({{methodName_GPU}}_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "{{methodName}}_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "{{methodName}}_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

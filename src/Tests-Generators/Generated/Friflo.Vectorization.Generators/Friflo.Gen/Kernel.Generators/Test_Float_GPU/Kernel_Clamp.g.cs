@@ -139,7 +139,7 @@ namespace Kernel.Generators
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Clamp_buffers"u8);
             device.UpdateBufferCache(_Kernel_Clamp_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _Kernel_Clamp_GPU_Uniforms {
                 count           = buffers.length,
@@ -147,7 +147,7 @@ namespace Kernel.Generators
                 min_off         = min.Offset,
                 max             = max,
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "Kernel_Clamp_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "Kernel_Clamp_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

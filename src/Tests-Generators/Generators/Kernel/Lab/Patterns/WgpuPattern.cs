@@ -46,7 +46,7 @@ public static class WgpuPattern
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
             device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
             
         var uniforms = new MultiplyAdd_GPU_Uniforms {
             count       = buffers.length,
@@ -55,7 +55,7 @@ public static class WgpuPattern
             output_off  = output.Offset,
             bias        = bias
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "MultiplyAdd_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

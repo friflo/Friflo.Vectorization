@@ -122,13 +122,13 @@ namespace Kernel.Generators
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "UseConstant_buffers"u8);
             device.UpdateBufferCache(_UseConstant_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _UseConstant_GPU_Uniforms {
                 count           = buffers.length,
                 position_off    = position.Offset,
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "UseConstant_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "UseConstant_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

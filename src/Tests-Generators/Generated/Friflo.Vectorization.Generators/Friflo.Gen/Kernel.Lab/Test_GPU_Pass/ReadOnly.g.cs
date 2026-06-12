@@ -109,13 +109,13 @@ namespace Kernel.Lab
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ReadOnly_buffers"u8);
             device.UpdateBufferCache(_ReadOnly_GPU_KernelId, bufferGroup, buffers.hash);
         }
-        pass.SetBindGroup0(bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
         var uniforms = new _ReadOnly_GPU_Uniforms {
                 count           = buffers.length,
                 input_off       = input.Offset,
         };
-        pass.SetUniformBindGroup(ref effect, uniforms, "ReadOnly_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "ReadOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
