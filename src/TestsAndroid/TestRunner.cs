@@ -1,7 +1,7 @@
 ﻿using NUnit.Common;
 using NUnitLite;
 using System.Text;
-using Tests.GPU;
+using Tests.Generators.Vectorize;
 
 
 namespace TestsAndroid;
@@ -13,7 +13,7 @@ internal static class TestRunner
         var strWriter = new StringWriter();
         // var autoRun = new AutoRun(Assembly.GetExecutingAssembly());
         
-        var autoRun = new AutoRun(typeof(TestCompute).Assembly);
+        var autoRun = new AutoRun(typeof(Test_Float_Avx).Assembly);
 
         // Execute tests and redirect output to our StringWriter
         var nunitWriter = new NUnitTextWriter(strWriter);
