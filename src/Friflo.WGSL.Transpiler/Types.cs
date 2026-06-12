@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 // ReSharper disable CollectionNeverQueried.Global
 namespace Friflo.WGSL.Transpiler;
-
+/*
 public class WgslShaderMetadata
 {
     public List<WgslStruct>     Structs         { get; set; } = [];
@@ -48,3 +48,4 @@ public class WgslParam
     public string           Name        { get; set; } = string.Empty;
     public string           WgslType    { get; set; } = string.Empty;
 }
+*/

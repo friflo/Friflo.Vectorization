@@ -1,136 +1,268 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+namespace Friflo.WGSL.Transpiler;
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
+using Superpower.Tokenizers;
 
 
-namespace Friflo.WGSL.Transpiler;
+// ==========================================
+// 1. AST / METADATA TYPES
+// ==========================================
 
-
-public static class WgslParser
+public class WgslShaderMetadata
 {
-    // --- Basic Parsers ---
-    private static readonly TextParser<char> Whitespace = Character.WhiteSpace;
-    private static readonly TextParser<Unit> SkipSpaces = Whitespace.Many().Value(Unit.Value);
-    
-    private static readonly TextParser<string> Identifier = 
-        Character.Letter.Or(Character.EqualTo('_'))
-            .Then(c => Character.LetterOrDigit.Or(Character.EqualTo('_')).Many().Select(cs => c + new string(cs)));
+    public List<WgslStruct> Structs { get; set; } = new();
+    public List<WgslBinding> Bindings { get; set; } = new();
+    public List<WgslEntryPoint> EntryPoints { get; set; } = new();
+}
 
-    private static readonly TextParser<int> IntNumber = Numerics.IntegerInt32;
+public class WgslStruct
+{
+    public string Name { get; set; } = string.Empty;
+    public List<WgslField> Fields { get; set; } = new();
+}
 
-    // Matches types like `f32`, `vec3<f32>`, or `array<MyStruct, 16>`
-    private static readonly TextParser<string> WgslTypeParser = 
-        Span.WithAll(c => char.IsLetterOrDigit(c) || c == '_' || c == '<' || c == '>' || c == ',' || char.IsWhiteSpace(c))
-            .Select(s => s.ToString().Trim());
+public class WgslField
+{
+    public string Name { get; set; } = string.Empty;
+    public string WgslType { get; set; } = string.Empty;
+}
 
-    // --- Struct Parser ---
-    private static readonly TextParser<WgslField> FieldParser =
-        from name in Identifier
-        from _1 in SkipSpaces.Then(_ => Character.EqualTo(':')).Then(_ => SkipSpaces)
-        from type in WgslTypeParser
-        from _2 in SkipSpaces.Then(_ => Character.EqualTo(',').Or(Character.EqualTo(';'))).OptionalOrDefault()
+public class WgslBinding
+{
+    public int Group { get; set; }
+    public int Binding { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string WgslType { get; set; } = string.Empty;
+    public string AccessMode { get; set; } = string.Empty;
+}
+
+public class WgslEntryPoint
+{
+    public string Stage { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public List<WgslParam> Parameters { get; set; } = new();
+    public string ReturnType { get; set; } = string.Empty;
+}
+
+public class WgslParam
+{
+    public string Attribute { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string WgslType { get; set; } = string.Empty;
+}
+
+// ==========================================
+// 2. TOKENIZER DEFINITION
+// ==========================================
+
+// ==========================================
+// 1. TOKEN ENUM DEFINITION
+// ==========================================
+public enum WgslToken
+{
+    None,
+    Identifier,
+    Number,
+    Struct,
+    Var,
+    Fn,
+    ReturnArrow,
+    At,
+    Colon,
+    Semicolon,
+    Comma,
+    LParen,
+    RParen,
+    LBrace,
+    RBrace,
+    LAngle,
+    RAngle
+}
+
+// ==========================================
+// 2. WGSL TOKENIZER DEFINITION
+// ==========================================
+public static class WgslTokenizer
+{
+    public static readonly Tokenizer<WgslToken> Instance = new TokenizerBuilder<WgslToken>()
+        // 1. Whitespaces und einzeilige Kommentare überlesen
+        .Ignore(Span.WhiteSpace)
+        .Ignore(Span.EqualTo("//").Then(s => Span.WithAll(c => c != '\n' && c != '\r')))
+        
+        // 2. Schlüsselwörter (Keywords)
+        .Match(Span.EqualTo("struct"), WgslToken.Struct)
+        .Match(Span.EqualTo("var"), WgslToken.Var)
+        .Match(Span.EqualTo("fn"), WgslToken.Fn)
+        .Match(Span.EqualTo("->"), WgslToken.ReturnArrow)
+        
+        // 3. Kontroll- und Strukturzeichen
+        .Match(Character.EqualTo('@'), WgslToken.At)
+        .Match(Character.EqualTo(':'), WgslToken.Colon)
+        .Match(Character.EqualTo(';'), WgslToken.Semicolon)
+        .Match(Character.EqualTo(','), WgslToken.Comma)
+        .Match(Character.EqualTo('('), WgslToken.LParen)
+        .Match(Character.EqualTo(')'), WgslToken.RParen)
+        .Match(Character.EqualTo('{'), WgslToken.LBrace)
+        .Match(Character.EqualTo('}'), WgslToken.RBrace)
+        .Match(Character.EqualTo('<'), WgslToken.LAngle)
+        .Match(Character.EqualTo('>'), WgslToken.RAngle)
+        
+        // 4. Literale (Zahlen) und Bezeichner (Identifier)
+        .Match(Numerics.IntegerInt32.Select(_ => _), WgslToken.Number)
+        .Match(Character.Letter.Or(Character.EqualTo('_'))
+            .Then(c => Character.LetterOrDigit.Or(Character.EqualTo('_')).Many().Select(cs => c + new string(cs))), WgslToken.Identifier)
+        
+        // 5. Fallback für alles andere (=, +, *, [, ], etc.)
+        // Verhindert ParseException bei Zuweisungen oder arithmetischen Operationen im Shader
+        .Match(Character.AnyChar, WgslToken.None) 
+        .Build();
+}
+
+// ==========================================
+// 3. ROBUST TOKEN PARSER
+// ==========================================
+
+public static class WgslSuperpowerParser
+{
+    // --- Primitive Token Matchers ---
+    private static readonly TokenListParser<WgslToken, string> Id = 
+        Token.EqualTo(WgslToken.Identifier).Select(t => t.ToStringValue());
+
+    private static readonly TokenListParser<WgslToken, int> Num = 
+        Token.EqualTo(WgslToken.Number).Select(t => int.Parse(t.ToStringValue()));
+
+    // FIX: Nutzt Token.Matching, um bedingungslos jedes Token zu akzeptieren
+    private static readonly TokenListParser<WgslToken, Token<WgslToken>> AnyToken =
+        Token.Matching<WgslToken>(_ => true, "any token");
+
+    private static readonly TokenListParser<WgslToken, string> WgslType = 
+        Parse.Ref(() =>
+            from baseId in Id
+            from generics in (
+                from open in Token.EqualTo(WgslToken.LAngle)
+                from inner in Parse.Ref(() => WgslType).ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
+                from close in Token.EqualTo(WgslToken.RAngle)
+                select $"<{string.Join(", ", inner)}>"
+            ).OptionalOrDefault(string.Empty)
+            select baseId + generics
+        );
+
+    // Discards attribute blocks like @location(0) or @vertex
+    private static readonly TokenListParser<WgslToken, Unit> SkipAttribute =
+        from at in Token.EqualTo(WgslToken.At)
+        from name in Id
+        from parens in (
+            from open in Token.EqualTo(WgslToken.LParen)
+            from inner in Token.EqualTo(WgslToken.Identifier).Or(Token.EqualTo(WgslToken.Number)).Many()
+            from close in Token.EqualTo(WgslToken.RParen)
+            select Unit.Value
+        ).OptionalOrDefault()
+        select Unit.Value;
+
+    // FIX: Verwendet Token.Matching, um gezielt alle Tokens zu fressen, die keine schließende geschweifte Klammer sind
+    private static readonly TokenListParser<WgslToken, Unit> SkipBracedBlock =
+        from open in Token.EqualTo(WgslToken.LBrace)
+        from content in Token.Matching<WgslToken>(t => t != WgslToken.RBrace, "not RBrace").Value(Unit.Value)
+            .Or(Parse.Ref(() => SkipBracedBlock))
+            .Many()
+        from close in Token.EqualTo(WgslToken.RBrace)
+        select Unit.Value;
+
+    // --- Core WGSL Parsers ---
+
+    private static readonly TokenListParser<WgslToken, WgslField> FieldParser =
+        from attrs in SkipAttribute.Many()
+        from name in Id
+        from colon in Token.EqualTo(WgslToken.Colon)
+        from type in WgslType
+        from comma in Token.EqualTo(WgslToken.Comma).Or(Token.EqualTo(WgslToken.Semicolon)).OptionalOrDefault()
         select new WgslField { Name = name, WgslType = type };
 
-    private static readonly TextParser<WgslStruct> StructParser =
-        from _1 in Span.EqualTo("struct").Then(_ => SkipSpaces)
-        from name in Identifier
-        from _2 in SkipSpaces.Then(_ => Character.EqualTo('{')).Then(_ => SkipSpaces)
-        from fields in FieldParser.Between(SkipSpaces, SkipSpaces).Many()
-        from _3 in SkipSpaces.Then(_ => Character.EqualTo('}'))
+    private static readonly TokenListParser<WgslToken, WgslStruct> StructParser =
+        from keyword in Token.EqualTo(WgslToken.Struct)
+        from name in Id
+        from open in Token.EqualTo(WgslToken.LBrace)
+        from fields in FieldParser.Many()
+        from close in Token.EqualTo(WgslToken.RBrace)
         select new WgslStruct { Name = name, Fields = fields.ToList() };
 
-    // --- Binding Parser ---
-    private static TextParser<int> AttributeIndex(string attrName) =>
-        from _1 in Character.EqualTo('@').Then(_ => Span.EqualTo(attrName)).Then(_ => SkipSpaces)
-        from _2 in Character.EqualTo('(').Then(_ => SkipSpaces)
-        from val in IntNumber
-        from _3 in SkipSpaces.Then(_ => Character.EqualTo(')'))
-        select val;
+    private static readonly TokenListParser<WgslToken, WgslBinding> BindingParser =
+        from gAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "group").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
+        from bAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "binding").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
+        from varKeyword in Token.EqualTo(WgslToken.Var)
+        from access in (
+            from open in Token.EqualTo(WgslToken.LAngle)
+            from mode in Id.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
+            from close in Token.EqualTo(WgslToken.RAngle)
+            select $"<{string.Join(", ", mode)}>"
+        ).OptionalOrDefault(string.Empty)
+        from name in Id
+        from colon in Token.EqualTo(WgslToken.Colon)
+        from type in WgslType
+        from semi in Token.EqualTo(WgslToken.Semicolon)
+        select new WgslBinding { Group = gAttr, Binding = bAttr, AccessMode = access, Name = name, WgslType = type };
 
-    private static readonly TextParser<WgslBinding> BindingParser =
-        from g in AttributeIndex("group").Between(SkipSpaces, SkipSpaces)
-        from b in AttributeIndex("binding").Between(SkipSpaces, SkipSpaces)
-        from _1 in Span.EqualTo("var")
-        // Optional access mode like <storage, read_write>
-        from access in Character.EqualTo('<')
-            .Then(_ => Span.WithAll(c => c != '>'))
-            .Then(a => Character.EqualTo('>').Value(a.ToString()))
-            .OptionalOrDefault(string.Empty)
-        from name in SkipSpaces.Then(_ => Identifier)
-        from _2 in SkipSpaces.Then(_ => Character.EqualTo(':')).Then(_ => SkipSpaces)
-        from type in WgslTypeParser
-        from _3 in SkipSpaces.Then(_ => Character.EqualTo(';'))
-        select new WgslBinding { Group = g, Binding = b, AccessMode = access.Trim(), Name = name, WgslType = type };
-
-    // --- Shader Method / Entry Point Parser ---
-    private static readonly TextParser<string> StageParser =
-        Character.EqualTo('@')
-            .Then(_ => Span.EqualTo("compute").Or(Span.EqualTo("vertex")).Or(Span.EqualTo("fragment")))
-            .Select(s => s.ToString());
-
-    private static readonly TextParser<string> ParamAttributeParser =
-        Character.EqualTo('@')
-            .Then(_ => Identifier)
-            .Then(attr => Character.EqualTo('(')
-                .Then(_ => Identifier)
-                .Then(id => Character.EqualTo(')').Value($"@{attr}({id})"))
-                .Or(Parse.Return($"@{attr}"))
-            );
-
-    private static readonly TextParser<WgslParam> ParamParser =
-        from attr in ParamAttributeParser.OptionalOrDefault(string.Empty).Between(SkipSpaces, SkipSpaces)
-        from name in Identifier
-        from _1 in SkipSpaces.Then(_ => Character.EqualTo(':')).Then(_ => SkipSpaces)
-        from type in WgslTypeParser
+    private static readonly TokenListParser<WgslToken, WgslParam> ParamParser =
+        from attr in (
+            from at in Token.EqualTo(WgslToken.At)
+            from attrName in Id
+            from inner in (from o in Token.EqualTo(WgslToken.LParen) from innerId in Id from c in Token.EqualTo(WgslToken.RParen) select innerId).OptionalOrDefault()
+            select inner != null ? $"@{attrName}({inner})" : $"@{attrName}"
+        ).OptionalOrDefault(string.Empty)
+        from name in Id
+        from colon in Token.EqualTo(WgslToken.Colon)
+        from type in WgslType
         select new WgslParam { Attribute = attr, Name = name, WgslType = type };
 
-    private static readonly TextParser<WgslEntryPoint> EntryPointParser =
-        from stage in StageParser.Between(SkipSpaces, SkipSpaces)
-        // Skip intermediate attributes like @workgroup_size(...) before 'fn'
-        from _skip in Character.EqualTo('@').Then(_ => Span.WithAll(c => c != 'f')).OptionalOrDefault() 
-        from _1 in Span.EqualTo("fn").Then(_ => SkipSpaces)
-        from name in Identifier
-        from _2 in SkipSpaces.Then(_ => Character.EqualTo('(')).Then(_ => SkipSpaces)
-        from parameters in ParamParser.Between(SkipSpaces, SkipSpaces).ManyDelimitedBy(Character.EqualTo(','))
-        from _3 in SkipSpaces.Then(_ => Character.EqualTo(')')).Then(_ => SkipSpaces)
-        from retType in Span.EqualTo("->").Then(_ => SkipSpaces).Then(_ => WgslTypeParser).OptionalOrDefault(string.Empty)
-        // Skip function body completely, look for closing '}'
-        from _body in Character.EqualTo('{').Then(_ => Span.WithAll(c => c != '}')).Then(_ => Character.EqualTo('}'))
+    private static readonly TokenListParser<WgslToken, WgslEntryPoint> EntryPointParser =
+        from stage in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "vertex" || id == "fragment" || id == "compute")
+        from intermediateAttrs in SkipAttribute.Many()
+        from fnKeyword in Token.EqualTo(WgslToken.Fn)
+        from name in Id
+        from open in Token.EqualTo(WgslToken.LParen)
+        from parameters in ParamParser.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
+        from close in Token.EqualTo(WgslToken.RParen)
+        from retType in (
+            from arrow in Token.EqualTo(WgslToken.ReturnArrow)
+            from retAttrs in SkipAttribute.Many()
+            from type in WgslType
+            select type
+        ).OptionalOrDefault(string.Empty)
+        from body in SkipBracedBlock
         select new WgslEntryPoint { Stage = stage, Name = name, Parameters = parameters.ToList(), ReturnType = retType };
 
-    // --- Main Combinator Loop ---
-    private static readonly TextParser<WgslShaderMetadata> ShaderParser =
-        Parse.Ref(() => StructParser.Select(s => (object)s)
-            .Or(BindingParser.Select(b => (object)b))
-            .Or(EntryPointParser.Select(e => (object)e))
-            // Fallback: Consume any unmapped character and move forward
-            .Or(Character.ExceptIn().Value((object)null)) 
-            .Many()
-            .Select(results =>
+    // --- Global Top-Level Parser ---
+    private static readonly TokenListParser<WgslToken, WgslShaderMetadata> GlobalShaderParser =
+        (
+            StructParser.Select(s => (object)s).Try()
+            .Or(BindingParser.Select(b => (object)b).Try())
+            .Or(EntryPointParser.Select(e => (object)e).Try())
+            .Or(AnyToken.Value((object)null))
+        ).Many()
+        .Select(results =>
+        {
+            var metadata = new WgslShaderMetadata();
+            foreach (var item in results)
             {
-                var metadata = new WgslShaderMetadata();
-                foreach (var item in results)
-                {
-                    if (item is WgslStruct s) metadata.Structs.Add(s);
-                    else if (item is WgslBinding b) metadata.Bindings.Add(b);
-                    else if (item is WgslEntryPoint e) metadata.EntryPoints.Add(e);
-                }
-                return metadata;
-            }));
+                if (item is WgslStruct s) metadata.Structs.Add(s);
+                else if (item is WgslBinding b) metadata.Bindings.Add(b);
+                else if (item is WgslEntryPoint e) metadata.EntryPoints.Add(e);
+            }
+            return metadata;
+        });
 
+    // --- Main API Entry Point ---
     public static WgslShaderMetadata ParseShader(string wgslCode)
     {
-        // Strip single-line comments before parsing
-        var lines = wgslCode.Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
-                            .Select(line => line.Contains("//") ? line.Substring(0, line.IndexOf("//", StringComparison.Ordinal)) : line);
-        var cleanCode = string.Join("\n", lines);
-
-        return ShaderParser.Parse(cleanCode);
+        TokenList<WgslToken> tokenList = WgslTokenizer.Instance.Tokenize(wgslCode);
+        var result = GlobalShaderParser.Parse(tokenList);
+        return result;
     }
 }

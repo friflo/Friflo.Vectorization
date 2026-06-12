@@ -22,12 +22,12 @@ public static class Tests_WGSL
     }
     
     
-    // [Test]
+    [Test]
     public static void Tests_WGSL_Parse()
     {
         var wgsl = ReadWgslResource("Tests.Shaders.triangle.wgsl");
         
-        WgslShaderMetadata metadata = WgslParser.ParseShader(wgsl);
+        WgslShaderMetadata metadata = WgslSuperpowerParser.ParseShader(wgsl);
         
         
     }
