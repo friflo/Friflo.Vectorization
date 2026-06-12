@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -19,16 +20,16 @@ public sealed unsafe partial  class WgpuDevice
         [MethodImpl(MethodImplOptions.AggressiveInlining)] [StackTraceHidden]
         get {
             var context = Context;
-            if (context == null) throw MissingContextException();
+            if (context == null) MissingContextException();
             ValidateThreadSafety(context);
             return (CommandRecorder)context;
         }
     }
     
-    private InvalidOperationException MissingContextException() {
-        return new InvalidOperationException($"Missing Device Context: '{Label}'. Call:  using var context = device.BeginContext();  before calling kernel method.");
+    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
+    private void MissingContextException() {
+        throw new InvalidOperationException($"Missing Device Context: '{Label}'. Call:  using var context = device.BeginContext();  before calling kernel method.");
     }
-
     
     
     // --- effectSlots
