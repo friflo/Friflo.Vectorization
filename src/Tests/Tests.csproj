@@ -34,9 +34,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" />
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Vectorization.GPU\Friflo.Vectorization.GPU.csproj" />
       <ProjectReference Include="..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Shaders\**\*.wgsl" />
+      <AdditionalFiles Include="Shaders\**\*.wgsl" />
     </ItemGroup>
     
     <ItemGroup>

@@ -20,5 +20,10 @@
       <ProjectReference Include="..\..\src\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
       <ProjectReference Include="..\..\src\Vectorization.Generators\Friflo.Vectorization.Generators.csproj" OutputItemType="Analyzer"/>
     </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Shaders\**\*.wgsl" />
+      <AdditionalFiles Include="Shaders\**\*.wgsl" />
+    </ItemGroup>
 
 </Project>
