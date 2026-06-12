@@ -64,8 +64,7 @@ public interface IReadOnlyGpuBuffer<T> : IDisposable where T : unmanaged
 /// </summary>
 public abstract class GpuBuffer<T> :
     GpuBuffer,                          // enables non-generic access to fields like: Length, Device, ... 
-    IReadOnlyGpuBuffer<T>,              // enables read only access to immutable buffer data
-    IScopedGpuBuffer<T>                 // enables read / write of buffer data without race conditions
+    IReadOnlyGpuBuffer<T>               // enables read only access to immutable buffer data
         where T : unmanaged
 {
     /// <summary> The CPU-accessible host memory used as a staging area for GPU synchronization. </summary>
@@ -97,17 +96,6 @@ public abstract class GpuBuffer<T> :
         if (start >= 0 && length >= 0 && start + length <= Length)
             return new InView<T>(this, start, length);
         throw OutOfRangeException(start, length);
-    }
-
-
-    public BufferWriter<T>  GetWriter() {
-        // optional check if buffer is ready for write access. E.g. fence state
-        return new BufferWriter<T>(this, hostMemory.Span);
-    }
-
-    public BufferReader<T>  GetReader() {
-        // this.ReadBuffers();
-        return new BufferReader<T>(this, hostMemory.Span);
     }
 }
 

@@ -30,18 +30,6 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
         return CreateBuffer(data, label, BufferProfile.StaticIn, type);
     }
     
-    public IScopedReadBuffer<T>  CreateScopedReadBuffer<T>  (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, label, BufferProfile.InOut, type);
-    }
-    
-    public IScopedWriteBuffer<T> CreateScopedWriteBuffer<T> (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, label, BufferProfile.InOut, type);
-    }
-    
-    public IScopedGpuBuffer<T>   CreateScopedBuffer<T>      (T[] data, string label, BufferType type = BufferType.Storage) where T : unmanaged {
-        return CreateBuffer(data, label, BufferProfile.InOut, type);
-    }
-    
     public PipelineContext          BeginContext([CallerFilePath] string file = "", [CallerLineNumber] int line = 0) => BeginContextInternal(file, line);
     
 
@@ -57,9 +45,7 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
     
     // --- abstract
     public abstract ComputeMode     DefaultComputeMode  { get; }
-    
     public abstract bool            IsDisposed          { get; }
-    
     public abstract GpuLimits       GetDeviceLimits();
     public abstract GpuBuffer<T>    CreateBuffer<T>(Memory<T> data, string label, BufferProfile profile, BufferType type = BufferType.Storage) where T : unmanaged;
 }
@@ -70,7 +56,7 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
 /// The <see cref="ComputeMode"/> determines which backend (CPU or GPU)  is used to perform calculations.<br/>
 /// When <see cref="Device"/> is selected, the <see cref="GpuDevice"/> chooses the most efficient 
 /// supported execution strategy based on its specific hardware capabilities
-/// (e.g., preferring GPU over SIMD, and SIMD over Scalar).
+/// (e.g., the preference for GPU over SIMD and SIMD over scalar).
 /// </remarks>
 public enum ComputeMode
 {
