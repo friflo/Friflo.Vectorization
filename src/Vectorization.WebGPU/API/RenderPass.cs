@@ -23,26 +23,32 @@ public sealed class ShaderAttribute<T> : Attribute where T : struct
 
 public static class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuTextureView view)
     {
         var recorder = (CommandRecorder)context;
-        return new RenderFrame(null, recorder);
+        return new RenderFrame(view, recorder);
     }
 }
 
+public readonly unsafe struct WgpuTextureView(TextureView* view)
+{
+    internal readonly   TextureView*  handle = view;
+}
+
+
 public readonly unsafe struct RenderFrame : IDisposable
 {
-    private  readonly   TextureView*    view;
+    private  readonly   WgpuTextureView view;
     private  readonly   CommandRecorder recorder;
     
-    internal RenderFrame(TextureView* view, CommandRecorder recorder) {
+    internal RenderFrame(WgpuTextureView view, CommandRecorder recorder) {
         this.view       = view;
         this.recorder   = recorder;
     }
 
     public RenderPass<T> BeginRenderPass<T>(RenderPassColorAttachment attachment) where T : struct
     {
-        attachment.view = view;
+        attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
             colorAttachmentCount    = 1,
             colorAttachments        = &attachment
