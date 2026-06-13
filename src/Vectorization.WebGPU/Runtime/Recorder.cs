@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 public sealed unsafe partial class CommandRecorder : PipelineContext
 {
     private  readonly   WgpuDevice              device;
-    private             WgpuEncoder             currentEncoder;
+    internal            WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.HazardDriven;
     internal            ulong                   lastBindGroup0_hash;

@@ -18,10 +18,11 @@ public static class RenderTest
     public struct MainWorld {}
     
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexData {
-        public Vector3 	Position;
-        public uint 	BoneIndices;
-        public Vector2 	TexCoord;
+    public struct VertexData(Vector3 position, Vector4 color, Vector2 uv)
+    {
+        public Vector3 	position    = position;
+        public Vector4 	color       = color;
+        public Vector2 	uv          = uv;
     }
     
     [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
@@ -32,6 +33,17 @@ public static class RenderTest
 	{
 		// ... 
 	}
+
+    private static readonly VertexData[] Vertices =
+    [
+        new(new Vector3(-0.5f,  0.5f, 0.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f)),
+        new(new Vector3(-0.5f, -0.5f, 0.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f), new Vector2(0.0f, 1.0f)),
+        new(new Vector3( 0.5f, -0.5f, 0.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f)),
+        
+        new(new Vector3(-0.5f,  0.5f, 0.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f), new Vector2(0.0f, 0.0f)),
+        new(new Vector3( 0.5f, -0.5f, 0.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f), new Vector2(1.0f, 1.0f)),
+        new(new Vector3( 0.5f,  0.5f, 0.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f))
+    ];
     
     public static void Run()
     {
@@ -39,14 +51,13 @@ public static class RenderTest
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
-        using var data      = device.CreateBuffer(2, new VertexData(), "data", BufferProfile.InOut);
+        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         
         using var context   = device.BeginContext();
         
         while (Running)
         {
             using var frame = context.BeginFrame();
-            
             var attachment = new RenderPassColorAttachment {
                 loadOp      = LoadOp.Clear,
                 storeOp     = StoreOp.Store,
