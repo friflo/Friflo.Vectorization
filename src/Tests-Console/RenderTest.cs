@@ -11,28 +11,23 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace TestConsole;
 
-public static class RenderTest
+public struct MainWorld {}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct VertexData(Vector3 position, Vector4 color, Vector2 uv)
+{
+    public Vector3 	position    = position;
+    public Vector4 	color       = color;
+    public Vector2 	uv          = uv;
+}
+
+public static partial class RenderTest
 {
     public static bool Running = true;
-    
-    public struct MainWorld {}
-    
-    [StructLayout(LayoutKind.Sequential)]
-    public struct VertexData(Vector3 position, Vector4 color, Vector2 uv)
-    {
-        public Vector3 	position    = position;
-        public Vector4 	color       = color;
-        public Vector2 	uv          = uv;
-    }
-    
+
+    /// blueprint method generates:  <see cref="DrawTriangles"/>
     [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
 	private static void Triangles([Span] VertexData triangles) { }
-    
-    // draw method - will be generated
-    public static void DrawTriangles(RenderPass<MainWorld> pass, GpuBuffer<VertexData> triangles)
-	{
-		// ... 
-	}
 
     private static readonly VertexData[] Vertices =
     [
@@ -65,7 +60,7 @@ public static class RenderTest
             };
             using var pass = frame.BeginRenderPass<MainWorld>(attachment);
             
-            DrawTriangles(pass, data);
+            DrawTriangles(pass, data.In());
         }
     }
 }

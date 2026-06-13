@@ -61,6 +61,11 @@ public struct GpuBuffers
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static GpuBuffers Create<T>(InBuffer<T> buffer, string paramName) where T : unmanaged {
+        return Create(buffer.Buffer, buffer.Length, paramName, ComputeMode.GPU);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static GpuBuffers Create(GpuBuffer gpuBuffer, int length, string paramName, ComputeMode computeMode)
     {
         if (gpuBuffer == null) {

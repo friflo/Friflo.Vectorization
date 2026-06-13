@@ -16,6 +16,7 @@ public unsafe struct WgpuEffect
 {
     public   readonly   uint                kernelId; 
     public   readonly   WgpuComputePipeline pipeline;
+    public   readonly   WgpuRenderPipeline  renderPipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
     public              WgpuBufferCache     bufferCache;

@@ -41,6 +41,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal            bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     
+    public              WgpuDevice              Device => device;
+    
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
 
