@@ -42,17 +42,18 @@ public static partial class RenderTest
     
     public static void Run()
     {
-        Run(default);
-    }
-    
-    private static void Run(WgpuSurface surface)
-    {
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
-        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         
+        
+        RunLoop(device, default);
+    }
+    
+    private static void RunLoop(GpuDevice device, WgpuSurface surface)
+    {
+        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
         
         while (Running)

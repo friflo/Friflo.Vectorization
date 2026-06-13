@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-// ReSharper disable CheckNamespace
 
 using System;
 using System.ComponentModel;
@@ -14,6 +13,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
 [AttributeUsage(AttributeTargets.Method)]
@@ -40,14 +40,6 @@ public static class WgpuExtensions
     }
 }
 
-public readonly unsafe struct WgpuSurface(Surface* handle)
-{
-    internal readonly   Surface*  handle = handle;
-    
-    public void Present() {
-        wgpuSurfacePresent(handle);
-    }
-} 
 
 public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 {
