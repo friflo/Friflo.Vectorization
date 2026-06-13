@@ -4,6 +4,8 @@
 
 using System;
 using System.ComponentModel;
+using System.IO;
+using System.Reflection;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -152,7 +154,25 @@ public readonly unsafe struct WgpuRenderPipeline
     internal WgpuRenderPipeline(RenderPipeline* handle) {
         this.handle = handle;
     }
+    
+
 }
+
+public static class WgpuResource
+{
+    public static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourceName)
+    {
+        var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null) { 
+            throw new FileNotFoundException($"Resource '{resourceName}' not found");
+        }
+        if (stream is UnmanagedMemoryStream unmanagedStream) {
+            return new ReadOnlySpan<byte>(unmanagedStream.PositionPointer, (int)unmanagedStream.Length);
+        }
+        throw new InvalidOperationException($"Resource '{resourceName}' not found");
+    }
+}
+
 
 
 
