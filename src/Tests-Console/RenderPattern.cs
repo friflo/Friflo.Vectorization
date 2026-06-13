@@ -49,7 +49,7 @@ public static partial class RenderTest
         };
         pass.SetUniformBindGroup(1, ref effect, uniforms, "Triangles_uniforms"u8);
         
-        pass.Draw(6, 1, 0, 0);
+        pass.Draw(buffers.length, 1, 0, 0);
 	}
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout

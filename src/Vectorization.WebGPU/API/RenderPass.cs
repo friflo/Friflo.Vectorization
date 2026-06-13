@@ -105,9 +105,9 @@ public readonly unsafe struct RenderPass
         rec.uniformOffset = offset + alignedSize;
     }
 
-    public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance)
+    public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance)
     {
-        wgpuRenderPassEncoderDraw(handle, vertexCount, instanceCount, firstVertex, firstInstance);
+        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
     }
 }
 
