@@ -4,6 +4,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -83,7 +84,10 @@ public static partial class RenderTest
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_UniformLayoutKey, "Triangles_uniforms"u8);
         }
         var shaderModule = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles"u8);
-        var pipeline = device.CreateRenderPipeline(shaderModule, bufferLayout, uniformLayout, TextureFormat.BGRA8Unorm, "Triangles"u8, "vs_main"u8, "fs_main"u8);
+        
+        var colorTarget = new ColorTargetState { format = TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All };
+        var primitive   = new PrimitiveState { topology =  PrimitiveTopology.TriangleList };
+        var pipeline = device.CreateRenderPipeline(shaderModule, bufferLayout, uniformLayout, colorTarget, primitive, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
         return ref device.CreateEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
     }
