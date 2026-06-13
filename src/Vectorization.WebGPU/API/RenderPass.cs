@@ -9,6 +9,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InvertIf
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedTypeParameter
@@ -96,7 +97,13 @@ public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
     
     public RenderPass Value => new RenderPass(handle, Recorder);
     
-    public void Dispose() { }
+    public void Dispose()
+    {
+        if (handle != null) {
+            wgpuRenderPassEncoderEnd(handle);
+            wgpuRenderPassEncoderRelease(handle);
+        }
+    }
 }
 
 public readonly unsafe struct RenderPass
