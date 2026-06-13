@@ -9,6 +9,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable UnusedParameter.Local
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InconsistentNaming
@@ -55,8 +56,8 @@ public readonly unsafe struct RenderFrame : IDisposable
 
 public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
 {
-    public   readonly CommandRecorder       Recorder;
-    internal readonly RenderPassEncoder*    handle;
+    private  readonly   CommandRecorder     Recorder;
+    private  readonly   RenderPassEncoder*  handle;
     
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
         this.handle = handle;
@@ -71,7 +72,7 @@ public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
 public readonly unsafe struct RenderPass
 {
     public   readonly CommandRecorder       recorder;
-    internal readonly RenderPassEncoder*    handle;
+    private  readonly RenderPassEncoder*    handle;
     
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
         this.handle     = handle;
