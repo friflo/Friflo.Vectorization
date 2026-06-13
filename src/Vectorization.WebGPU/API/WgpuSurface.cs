@@ -25,6 +25,25 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         wgpuSurfacePresent(handle);
     }
     
+    public void Configure(WgpuDevice device, uint width, uint height)
+    {
+        // WebGPU-Standard fo most monitors: BGRA8Unorm
+        // Better: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
+        var config = new SurfaceConfiguration {
+            nextInChain     = null,
+            device          = device.DevicePtr,
+            format          = TextureFormat.BGRA8Unorm,  // must be same as in   RenderTest.Triangles_GPU_CreateEffect()
+            usage           = TextureUsage_RenderAttachment,
+            viewFormatCount = 0,
+            viewFormats     = null,
+            alphaMode       = CompositeAlphaMode.Opaque,
+            width           = width,
+            height          = height,
+            presentMode     = PresentMode.Fifo // corresponds to VSync (Standard)
+        };
+        wgpuSurfaceConfigure(handle, &config);
+    }
+    
     public static WgpuSurface CreateFromHwnd(WgpuInstance instance, nint hwnd, nint hInstance)
     {
         var winDesc = new SurfaceDescriptorFromWindowsHWND {
