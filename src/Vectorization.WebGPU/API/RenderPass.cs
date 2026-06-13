@@ -35,10 +35,7 @@ public static class WgpuExtensions
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new WgpuTextureView(handle);
         
-        if (surfaceTexture.texture != null) {
-            wgpuTextureRelease(surfaceTexture.texture);
-        }
-        return new RenderFrame(view, recorder);
+        return new RenderFrame(view, surfaceTexture.texture, recorder);
     }
 }
 
@@ -57,10 +54,12 @@ public readonly unsafe struct RenderFrame : IDisposable
 {
     private  readonly   WgpuTextureView view;
     private  readonly   CommandRecorder recorder;
+    private  readonly   Texture*        surfaceTexture;
     
-    internal RenderFrame(WgpuTextureView view, CommandRecorder recorder) {
-        this.view       = view;
-        this.recorder   = recorder;
+    internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, CommandRecorder recorder) {
+        this.view           = view;
+        this.surfaceTexture = surfaceTexture;
+        this.recorder       = recorder;
     }
 
     public RenderPass<T> BeginRenderPass<T>(RenderPassColorAttachment attachment) where T : struct
@@ -79,6 +78,7 @@ public readonly unsafe struct RenderFrame : IDisposable
     
     public void Dispose() {
         view.Dispose();
+        wgpuTextureRelease(surfaceTexture);
     }
 }
 

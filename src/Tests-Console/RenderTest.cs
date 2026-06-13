@@ -62,19 +62,23 @@ public static partial class RenderTest
         
         while (Running)
         {
-            using var frame = context.BeginFrame(surface);
-
-            var attachment = new RenderPassColorAttachment {
-                loadOp      = LoadOp.Clear,
-                storeOp     = StoreOp.Store,
-                clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }
-            };
-            using var pass = frame.BeginRenderPass<MainWorld>(attachment);
-            
-            DrawTriangles(pass, data.In());
-            
-            context.Queue.Submit();
-            
+            {
+                using var frame = context.BeginFrame(surface);
+                
+                {
+                    var attachment = new RenderPassColorAttachment {
+                        loadOp      = LoadOp.Clear,
+                        storeOp     = StoreOp.Store,
+                        clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
+                        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+                    };
+                    using var pass = frame.BeginRenderPass<MainWorld>(attachment);
+                    
+                    DrawTriangles(pass, data.In());
+                }
+                // context.Queue.Submit();              // TODO implement Submit()
+                context.Queue.ReadBuffers();
+            }
             surface.Present();
         }
     }
