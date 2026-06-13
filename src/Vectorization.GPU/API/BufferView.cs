@@ -13,7 +13,7 @@ namespace Friflo.Vectorization.GPU;
 /// </summary>
 public readonly struct InOutView<T> where T : unmanaged
 {
-    public   readonly   GpuBuffer<T>    Buffer;
+    internal readonly   GpuBuffer<T>    Buffer;
     public   readonly   int             Offset;
     public   readonly   int             Length;
     
@@ -80,9 +80,9 @@ public readonly struct InOutView<T> where T : unmanaged
 /// </summary>
 public readonly struct InView<T> where T : unmanaged
 {
-    public  readonly    GpuBuffer<T>    Buffer;
-    public  readonly    int             Offset;
-    public  readonly    int             Length;
+    internal readonly   GpuBuffer<T>    Buffer;
+    public   readonly   int             Offset;
+    public   readonly   int             Length;
     
     /// <summary>
     /// Gets a <see cref="ReadOnlySpan{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
