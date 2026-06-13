@@ -221,7 +221,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Arithmetic_GPU_Shader(), "Arithmetic"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Arithmetic"u8);
         
-        return ref device.CreateEffect(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Arithmetic_GPU_Shader() =>

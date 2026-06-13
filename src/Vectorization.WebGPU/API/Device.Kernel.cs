@@ -52,6 +52,7 @@ public sealed unsafe partial  class WgpuDevice
         int                     kernelId,
         ulong                   wgslHash,
         WgpuComputePipeline     pipeline,
+        WgpuRenderPipeline      renderPipeline,
         WgpuBindGroupLayout     bufferLayout,
         WgpuBindGroupLayout     uniformLayout)
     {
@@ -61,7 +62,7 @@ public sealed unsafe partial  class WgpuDevice
             Array.Copy(slots, newSlots, slots.Length);
             slots = effectSlots = newSlots;
         }
-        slots[kernelId] = new WgpuEffect(kernelId, wgslHash, pipeline, bufferLayout, uniformLayout);
+        slots[kernelId] = new WgpuEffect(kernelId, wgslHash, pipeline, renderPipeline, bufferLayout, uniformLayout);
         return ref slots[kernelId];
     }
     
@@ -116,13 +117,51 @@ public sealed unsafe partial  class WgpuDevice
                 var computeDesc = new ComputePipelineDescriptor {
                     label       = label,
                     layout      = pipelineLayout,
-                    compute     = new ComputeState {	// was: new ProgrammableStageDescriptor
+                    compute     = new ComputeState {
                         module      = module.handle,
                         entryPoint  = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint)
                     }
                 };
                 var handle = wgpuDeviceCreateComputePipeline(DevicePtr, &computeDesc);
                 return new WgpuComputePipeline(handle);
+            } finally {
+                if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
+                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
+            }
+        }
+    }
+    
+    public WgpuRenderPipeline CreateRenderPipeline(
+        WgpuShaderModule    module,
+        WgpuBindGroupLayout bufferLayout,
+        WgpuBindGroupLayout uniformLayout,
+        ReadOnlySpan<byte>  entryPoint)
+    {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
+        layouts[0] = bufferLayout;
+        layouts[1] = uniformLayout;
+        
+        fixed (byte*                pEntryPoint = entryPoint)
+        fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
+        {
+            var label = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint);
+            var layoutDesc = new PipelineLayoutDescriptor {
+                label                   = label,
+                bindGroupLayoutCount    = 2,
+                bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
+            };
+            var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
+            try {
+                var renderDesc = new RenderPipelineDescriptor {
+                    label       = label,
+                    layout      = pipelineLayout,
+                    /* compute     = new ComputeState {         // TODO implement init RenderPipelineDescriptor
+                        module      = module.handle,
+                        entryPoint  = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint)
+                    } */
+                };
+                var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);
+                return new WgpuRenderPipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
                 if (module.handle  != null) wgpuShaderModuleRelease(module.handle);

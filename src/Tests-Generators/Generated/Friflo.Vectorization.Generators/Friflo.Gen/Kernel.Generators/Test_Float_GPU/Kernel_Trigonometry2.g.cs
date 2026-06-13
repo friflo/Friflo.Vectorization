@@ -179,7 +179,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Trigonometry2_GPU_Shader(), "Kernel_Trigonometry2"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Trigonometry2"u8);
         
-        return ref device.CreateEffect(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Trigonometry2_GPU_Shader() =>

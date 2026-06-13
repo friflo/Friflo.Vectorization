@@ -255,7 +255,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Misc_GPU_Shader(), "Kernel_Misc"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Misc"u8);
         
-        return ref device.CreateEffect(_Kernel_Misc_GPU_KernelId, _Kernel_Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Kernel_Misc_GPU_KernelId, _Kernel_Misc_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Misc_GPU_Shader() =>

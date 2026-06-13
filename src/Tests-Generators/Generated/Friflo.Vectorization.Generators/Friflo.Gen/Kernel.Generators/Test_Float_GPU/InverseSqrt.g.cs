@@ -164,7 +164,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_InverseSqrt_GPU_Shader(), "InverseSqrt"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "InverseSqrt"u8);
         
-        return ref device.CreateEffect(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _InverseSqrt_GPU_Shader() =>

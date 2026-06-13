@@ -152,7 +152,7 @@ namespace Kernel.Lab
         var shaderModule    = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
         
-        return ref device.CreateEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _ReadOnly_GPU_Shader() =>

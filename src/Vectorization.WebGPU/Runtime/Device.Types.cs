@@ -25,10 +25,13 @@ public unsafe struct WgpuEffect
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal WgpuEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline, WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout) {
+    internal WgpuEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline, WgpuRenderPipeline renderPipeline,
+        WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
+    {
         this.kernelId       = (uint)kernelId;
         this.wgslHash       = wgslHash;
         this.pipeline       = pipeline;
+        this.renderPipeline = renderPipeline;
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = uniformLayout;
     }

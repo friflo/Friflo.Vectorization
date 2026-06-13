@@ -179,7 +179,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Multiply_GPU_Shader(), "Multiply"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Multiply"u8);
         
-        return ref device.CreateEffect(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateEffect(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>
