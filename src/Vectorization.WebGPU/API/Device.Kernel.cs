@@ -138,14 +138,14 @@ public sealed unsafe partial  class WgpuDevice
         return layout;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, bool dynamicOffset, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, ShaderStage visibility, bool dynamicOffset, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
         for (int i = 0; i < entries.Length; i++) {
             nativeEntries[i] = new BindGroupLayoutEntry {
                 binding         = (uint)entries[i].Binding,
-                visibility      = (ulong)ShaderStage.Compute,
+                visibility      = (ulong)visibility,
                 buffer          = new BufferBindingLayout {
                     type                = entries[i].Type,
                     hasDynamicOffset    = WgpuUtils.FromBool(dynamicOffset),    // true for uniform buffer

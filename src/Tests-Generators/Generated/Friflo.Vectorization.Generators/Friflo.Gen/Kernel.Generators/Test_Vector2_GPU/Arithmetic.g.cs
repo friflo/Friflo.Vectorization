@@ -209,14 +209,14 @@ namespace Kernel.Generators
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
             buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  velocity_arr: array<vec2<f32>>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, false, _Arithmetic_GPU_BufferLayoutKey, "Arithmetic_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, _Arithmetic_GPU_BufferLayoutKey, "Arithmetic_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Arithmetic_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, true, _Arithmetic_GPU_UniformLayoutKey, "Arithmetic_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, _Arithmetic_GPU_UniformLayoutKey, "Arithmetic_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Arithmetic_GPU_Shader(), "Arithmetic"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Arithmetic"u8);

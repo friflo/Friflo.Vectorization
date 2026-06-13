@@ -216,14 +216,14 @@ $$""""
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[{{bufferCount}}];{{bufferLayoutEntries}}
-            bufferLayout = device.CreateBindGroupLayout(buffers, false, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, true, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);

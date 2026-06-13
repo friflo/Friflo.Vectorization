@@ -140,14 +140,14 @@ namespace Kernel.Lab
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0); // var<storage, read      >  input_arr: array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, false, _ReadOnly_GPU_BufferLayoutKey, "ReadOnly_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, _ReadOnly_GPU_BufferLayoutKey, "ReadOnly_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_ReadOnly_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, true, _ReadOnly_GPU_UniformLayoutKey, "ReadOnly_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, _ReadOnly_GPU_UniformLayoutKey, "ReadOnly_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
