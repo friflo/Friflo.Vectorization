@@ -161,6 +161,12 @@ public sealed unsafe partial  class WgpuDevice
                 targetCount = 1,
                 targets     = &targetState
             };
+            var multisample = new MultisampleState {
+                nextInChain            = null,
+                count                  = 1,          // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+                mask                   = 0xFFFFFFFF, // (Standard)
+                alphaToCoverageEnabled = WgpuUtils.FromBool(false)
+            };
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
                 layout      = pipelineLayout,
@@ -169,7 +175,8 @@ public sealed unsafe partial  class WgpuDevice
                     entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint)
                 },
                 fragment    = &fragmentState,
-                primitive   = primitiveState 
+                primitive   = primitiveState,
+                multisample = multisample
             };
             try {
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);
