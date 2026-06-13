@@ -68,6 +68,9 @@ public readonly unsafe struct RenderFrame : IDisposable
             colorAttachmentCount    = 1,
             colorAttachments        = &attachment
         };
+        if (recorder.currentEncoder.handle == null) {
+            recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
+        }
         var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
         return new RenderPass<T>(passEncoder, recorder);
     }
