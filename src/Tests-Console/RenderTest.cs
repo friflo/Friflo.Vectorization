@@ -40,7 +40,12 @@ public static partial class RenderTest
         new(new Vector3( 0.5f,  0.5f, 0.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f), new Vector2(1.0f, 0.0f))
     ];
     
-    public static void Run(WgpuTextureView view)
+    public static void Run()
+    {
+        Run(default);
+    }
+    
+    private static void Run(WgpuSurface surface)
     {
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
         using var adapter   = instance.RequestAdapter(default, null);
@@ -52,7 +57,7 @@ public static partial class RenderTest
         
         while (Running)
         {
-            using var frame = context.BeginFrame(view);
+            using var frame = context.BeginFrame(surface);
 
             var attachment = new RenderPassColorAttachment {
                 loadOp      = LoadOp.Clear,
@@ -62,6 +67,10 @@ public static partial class RenderTest
             using var pass = frame.BeginRenderPass<MainWorld>(attachment);
             
             DrawTriangles(pass, data.In());
+            
+            context.Queue.Submit();
+            
+            surface.Present();
         }
     }
 }

@@ -23,12 +23,27 @@ public sealed class ShaderAttribute<T> : Attribute where T : struct
 
 public static class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuTextureView view)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
     {
         var recorder = (CommandRecorder)context;
+        SurfaceTexture surfaceTexture;
+        wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
+        
+        var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
+        var view = new WgpuTextureView(handle);
+        
         return new RenderFrame(view, recorder);
     }
 }
+
+public readonly unsafe struct WgpuSurface(Surface* handle)
+{
+    internal readonly   Surface*  handle = handle;
+    
+    public void Present() {
+        wgpuSurfacePresent(handle);
+    }
+} 
 
 public readonly unsafe struct WgpuTextureView(TextureView* view)
 {
