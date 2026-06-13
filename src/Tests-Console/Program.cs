@@ -4,6 +4,10 @@ using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using TestConsole;
+
+
+// Render.Run();
 
 // using var instance    = CpuInstance.CreateInstance();
 // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
