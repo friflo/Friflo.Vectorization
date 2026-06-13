@@ -44,11 +44,11 @@ public static partial class RenderTest
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
-        var uniforms = new Triangles_GPU_Uniforms {
+        /* var uniforms = new Triangles_GPU_Uniforms {
             count           = buffers.length,
             triangles_off   = triangles.Offset,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "Triangles_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "Triangles_uniforms"u8); */
         
         pass.Draw(buffers.length, 1, 0, 0);
 	}
@@ -71,23 +71,26 @@ public static partial class RenderTest
     {
         var bufferLayout = device.GetBindGroupLayout(Triangles_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);   // var<storage, read>       weight_arr:     array<f32>;
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1);   // var<storage, read>       input_arr:      array<f32>;
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2);   // var<storage, read_write> output_arr:     array<f32>;
+            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
+            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);   // @group(0) @binding(0) var<storage, read> mesh_data: TriangleStorage;
             bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Vertex, false, Triangles_GPU_BufferLayoutKey, "Triangles_buffers"u8);
         }
-        var uniformLayout = device.GetBindGroupLayout(Triangles_GPU_UniformLayoutKey);
+        WgpuBindGroupLayout uniformLayout = default;
+        /* var uniformLayout = device.GetBindGroupLayout(Triangles_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform(0);            // var<uniform>              uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_UniformLayoutKey, "Triangles_uniforms"u8);
-        }
+        } */
         var shaderModule = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles"u8);
+        
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        layouts[0] = bufferLayout;
+        // layouts[1] = uniformLayout;
         
         var colorTarget = new ColorTargetState { format = TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All };
         var primitive   = new PrimitiveState { topology =  PrimitiveTopology.TriangleList };
-        var pipeline = device.CreateRenderPipeline(shaderModule, bufferLayout, uniformLayout, colorTarget, primitive, "vs_main"u8, "fs_main"u8, "Triangles"u8);
+        var pipeline = device.CreateRenderPipeline(shaderModule, layouts, colorTarget, primitive, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
         return ref device.CreateEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
     }

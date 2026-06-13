@@ -133,29 +133,24 @@ public sealed unsafe partial  class WgpuDevice
     }
     
     public WgpuRenderPipeline CreateRenderPipeline(
-        WgpuShaderModule    module,
-        WgpuBindGroupLayout bufferLayout,
-        WgpuBindGroupLayout uniformLayout,
-        ColorTargetState    targetState,
-        PrimitiveState      primitiveState,
-        ReadOnlySpan<byte>  vertexEntryPoint,
-        ReadOnlySpan<byte>  fragmentEntryPoint,
-        ReadOnlySpan<byte>  labelName)
+        WgpuShaderModule            module,
+        Span<WgpuBindGroupLayout>   layouts,
+        ColorTargetState            targetState,
+        PrimitiveState              primitiveState,
+        ReadOnlySpan<byte>          vertexEntryPoint,
+        ReadOnlySpan<byte>          fragmentEntryPoint,
+        ReadOnlySpan<byte>          labelName)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
-        layouts[0] = bufferLayout;
-        layouts[1] = uniformLayout;
-        
-        fixed (byte*                pLabelName      = labelName)
-        fixed (byte*                pVertexEntry    = vertexEntryPoint)
-        fixed (byte*                pFragmentEntry  = fragmentEntryPoint)
-        fixed (WgpuBindGroupLayout* layoutsPtr      = layouts)
+        fixed (byte* pLabelName      = labelName)
+        fixed (byte* pVertexEntry    = vertexEntryPoint)
+        fixed (byte* pFragmentEntry  = fragmentEntryPoint)
+        fixed (WgpuBindGroupLayout* layoutsPtr = layouts)
         {
             var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
             
             var layoutDesc = new PipelineLayoutDescriptor {
                 label                   = label,
-                bindGroupLayoutCount    = 2,
+                bindGroupLayoutCount    = (uint)layouts.Length,
                 bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
@@ -181,7 +176,6 @@ public sealed unsafe partial  class WgpuDevice
                 return new WgpuRenderPipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
-                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
             }
         }
     }
