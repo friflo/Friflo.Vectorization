@@ -154,8 +154,6 @@ public readonly unsafe struct WgpuRenderPipeline
     internal WgpuRenderPipeline(RenderPipeline* handle) {
         this.handle = handle;
     }
-    
-
 }
 
 public static class WgpuResource
@@ -166,8 +164,15 @@ public static class WgpuResource
         if (stream == null) { 
             throw new FileNotFoundException($"Resource '{resourceName}' not found");
         }
-        if (stream is UnmanagedMemoryStream unmanagedStream) {
-            return new ReadOnlySpan<byte>(unmanagedStream.PositionPointer, (int)unmanagedStream.Length);
+        if (stream is UnmanagedMemoryStream unmanagedStream)
+        {
+            var span = new ReadOnlySpan<byte>(unmanagedStream.PositionPointer, (int)unmanagedStream.Length);
+        
+            // Detect UTF-8 BOM and skip
+            if (span.Length >= 3 && span[0] == 0xEF && span[1] == 0xBB && span[2] == 0xBF) {
+                return span.Slice(3);
+            }
+            return span;
         }
         throw new InvalidOperationException($"Resource '{resourceName}' not found");
     }
