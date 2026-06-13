@@ -50,11 +50,11 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuInstance : GpuInstance
 {
-    private readonly    Instance*   instance;
+    internal readonly   Instance*   instance;
     private             bool        isDisposed;
-    public  override    bool        IsDisposed => isDisposed;
+    public   override   bool        IsDisposed => isDisposed;
     
-    public  override    string      ToString() => isDisposed ? "Disposed" : "Alive";
+    public   override    string      ToString() => isDisposed ? "Disposed" : "Alive";
     
     private WgpuInstance(Instance* instance)
     {

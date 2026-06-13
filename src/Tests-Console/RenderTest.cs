@@ -46,9 +46,11 @@ public static partial class RenderTest
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
+        var hInstance   = Windowing.GetModuleHandleW(null);
+        var hwnd        = Windowing.CreateWindowExW(0, "Static", "WGPU Engine", 0x10CF0000, 100, 100, 1280, 720, 0, 0, hInstance, 0);
+        var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
         
-        
-        RunLoop(device, default);
+        RunLoop(device, surface);
     }
     
     private static void RunLoop(GpuDevice device, WgpuSurface surface)
