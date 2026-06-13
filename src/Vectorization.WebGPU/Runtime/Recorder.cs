@@ -29,7 +29,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
     
-    internal            WgpuBindGroup[]         uniformBindGroups   = [];
+    private             WgpuBindGroup[]         uniformBindGroups   = [];
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
@@ -217,8 +217,21 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
+    internal WgpuBindGroup GetUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    {
+        var bindGroups = uniformBindGroups;
+        
+        if (effect.kernelId < bindGroups.Length) {
+            var bindGroup = bindGroups[effect.kernelId];
+            if (bindGroup.handle != null) {
+                return bindGroup;
+            }
+        }
+        return CreateUniformBindGroup(ref effect, uniformSize, groupLabel);
+    }
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    private WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
     {
         var entry = new BindGroupEntry {
             binding = 0,

@@ -66,17 +66,8 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = recorder;
-        var bindGroups      = rec.uniformBindGroups;
-        WgpuBindGroup bindGroup;
-        
-        if (effect.kernelId < bindGroups.Length) {
-            bindGroup = bindGroups[effect.kernelId];
-            if (bindGroup.handle == null) {
-                bindGroup = rec.CreateUniformBindGroup(ref effect, alignedSize, groupLabel);
-            }
-        } else {
-            bindGroup = rec.CreateUniformBindGroup(ref effect, alignedSize, groupLabel);
-        }
+        var bindGroup       = rec.GetUniformBindGroup(ref effect, alignedSize, groupLabel);
+
         uint offset = rec.uniformOffset;
         
         fixed (byte* pStaging = rec.stagingBuffer) {

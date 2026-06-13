@@ -9,6 +9,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InconsistentNaming
 namespace Friflo.Vectorization.WebGPU;
@@ -62,7 +63,20 @@ public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
         Recorder    = recorder;
     }
     
+    public RenderPass Value => new RenderPass(handle, Recorder);
+    
     public void Dispose() { }
+}
+
+public readonly unsafe struct RenderPass
+{
+    public   readonly CommandRecorder       recorder;
+    internal readonly RenderPassEncoder*    handle;
+    
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
+        this.handle     = handle;
+        this.recorder   = recorder;
+    }
 
     public void SetPipeline(WgpuRenderPipeline renderPipeline)
     {
@@ -72,6 +86,22 @@ public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
     public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup, ulong hash)
     {
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
+    }
+    
+    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    {
+        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        var rec             = recorder;
+        var bindGroup       = rec.GetUniformBindGroup(ref effect, alignedSize, groupLabel);
+
+        uint offset = rec.uniformOffset;
+        
+        fixed (byte* pStaging = rec.stagingBuffer) {
+            *(T*)(pStaging + offset) = uniform;
+        }
+        wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
+        
+        rec.uniformOffset = offset + alignedSize;
     }
 
     public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance)
