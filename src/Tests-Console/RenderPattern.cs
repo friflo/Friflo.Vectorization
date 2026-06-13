@@ -82,8 +82,8 @@ public static partial class RenderTest
             uniform[0] = WgpuLayoutEntry.Uniform(0);            // var<uniform>              uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_UniformLayoutKey, "Triangles_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles"u8);
-        var pipeline        = device.CreateRenderPipeline(shaderModule, bufferLayout, uniformLayout, "Triangles"u8);
+        var shaderModule = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles"u8);
+        var pipeline = device.CreateRenderPipeline(shaderModule, bufferLayout, uniformLayout, TextureFormat.BGRA8Unorm, "Triangles"u8, "vs_main"u8, "fs_main"u8);
         
         return ref device.CreateEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
     }

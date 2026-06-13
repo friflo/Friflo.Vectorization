@@ -76,10 +76,10 @@ public sealed unsafe partial  class WgpuDevice
         fixed (byte* labelPtr = shaderLabel)
         {
             // create descriptor
-            var wgslDesc = new ShaderSourceWGSL {    	// was: new ShaderModuleWGSLDescriptor
+            var wgslDesc = new ShaderSourceWGSL {
                 code    = WgpuUtils.FromPtrSpan(pShaderBytes, wgslSource),
                 chain   = new ChainedStruct {
-                    sType   = SType.ShaderSourceWGSL	// was: SType.ShaderModuleWgsldescriptor
+                    sType   = SType.ShaderSourceWGSL
                 }
             };
             var desc = new ShaderModuleDescriptor {
@@ -135,30 +135,48 @@ public sealed unsafe partial  class WgpuDevice
         WgpuShaderModule    module,
         WgpuBindGroupLayout bufferLayout,
         WgpuBindGroupLayout uniformLayout,
-        ReadOnlySpan<byte>  entryPoint)
+        TextureFormat       textureFormat,
+        ReadOnlySpan<byte>  labelName,
+        ReadOnlySpan<byte>  vertexEntryPoint,
+        ReadOnlySpan<byte>  fragmentEntryPoint)
     {
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         layouts[0] = bufferLayout;
         layouts[1] = uniformLayout;
         
-        fixed (byte*                pEntryPoint = entryPoint)
-        fixed (WgpuBindGroupLayout*  layoutsPtr  = layouts)
+        fixed (byte*                pLabelName      = labelName)
+        fixed (byte*                pVertexEntry    = vertexEntryPoint)
+        fixed (byte*                pFragmentEntry  = fragmentEntryPoint)
+        fixed (WgpuBindGroupLayout* layoutsPtr      = layouts)
         {
-            var label = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint);
+            var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
+            
             var layoutDesc = new PipelineLayoutDescriptor {
                 label                   = label,
                 bindGroupLayoutCount    = 2,
                 bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
+            
+            var colorTarget = new ColorTargetState {
+                format      = textureFormat,
+                writeMask   = ColorWriteMask_All
+            };
+            var fragmentState = new FragmentState {
+                module      = module.handle,
+                entryPoint  = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
+                targetCount = 1,
+                targets     = &colorTarget
+            };
             try {
                 var renderDesc = new RenderPipelineDescriptor {
-                    label       = label,
-                    layout      = pipelineLayout,
-                    /* compute     = new ComputeState {         // TODO implement init RenderPipelineDescriptor
+                    label   = label,
+                    layout  = pipelineLayout,
+                    vertex  = new VertexState {
                         module      = module.handle,
-                        entryPoint  = WgpuUtils.FromPtrSpan(pEntryPoint, entryPoint)
-                    } */
+                        entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint)
+                    },
+                    fragment = &fragmentState
                 };
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);
                 return new WgpuRenderPipeline(handle);
