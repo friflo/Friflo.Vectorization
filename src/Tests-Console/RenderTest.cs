@@ -13,21 +13,9 @@ namespace TestConsole;
 
 public struct MainWorld {}
 
-[StructLayout(LayoutKind.Sequential, Size = 48)]
-public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)
-{
-    public Vector4 	position    = position;
-    public Vector4 	color       = color;
-    public Vector2 	uv          = uv;
-}
-
 public static partial class RenderTest
 {
     public static bool Running = true;
-
-    /// blueprint method generates:  <see cref="DrawTriangles"/>
-    [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
-	private static void Triangles([Span] VertexData triangles) { }
 
     private static readonly VertexData[] Vertices =
     [
@@ -81,4 +69,16 @@ public static partial class RenderTest
             surface.Present();
         }
     }
+    
+    /// blueprint method generates:  <see cref="DrawTriangles"/>
+    [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
+	private static void Triangles([Span] VertexData triangles) { }
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 48)]
+public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)
+{
+    public Vector4 	position    = position;
+    public Vector4 	color       = color;
+    public Vector2 	uv          = uv;
 }
