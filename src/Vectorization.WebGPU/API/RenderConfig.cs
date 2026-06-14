@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -90,7 +89,7 @@ public struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal ReadOnlySpan<ColorTargetState> GetTargets()
+    internal ColorTargetState[] GetTargets()
     {
         var array = new ColorTargetState[targets.Length];
         for (int n = 0; n < targets.Length; n++) {
@@ -101,7 +100,7 @@ public struct WgpuFragmentState
             };
             array[n] = dst;            
         }
-        return array.AsSpan();
+        return array;
     } 
 }
 
@@ -145,6 +144,4 @@ public struct WgpuVertexBufferLayout
     public  ulong                           arrayStride;
     public  ImmutableArray<VertexAttribute> attributes;
 }
-
-
 
