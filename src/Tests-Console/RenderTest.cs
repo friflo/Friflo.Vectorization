@@ -40,10 +40,17 @@ public static partial class RenderTest
         var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
         surface.Configure((WgpuDevice)device, 1280, 720);
         
-        RunLoop(device, surface);
+        var desc = new RenderConfigDescriptor();
+        desc.ColorTargetState.format = TextureFormat.BGRA8Unorm;
+        desc.FragmentState.targets = [new WgpuColorTargetState()];
+        
+        var config = desc.GetConfig();
+        
+        
+        RunLoop(device, surface, config);
     }
     
-    private static void RunLoop(GpuDevice device, WgpuSurface surface)
+    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderConfig config)
     {
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
@@ -61,7 +68,7 @@ public static partial class RenderTest
             
             using (var pass = frame.BeginRenderPass<MainWorld>(attachment))
             {
-                DrawTriangles(pass, data.In());
+                DrawTriangles(pass, data.In(), config);
                 // multiple Draw*() methods can be called here
             }
             // context.Queue.Submit();              // TODO implement Submit()
