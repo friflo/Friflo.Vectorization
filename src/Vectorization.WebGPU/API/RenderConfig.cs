@@ -2,9 +2,15 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConvertToConstant.Global
 // ReSharper disable UnassignedField.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CollectionNeverQueried.Global
@@ -19,21 +25,28 @@ public readonly struct RenderConfig
     internal RenderConfig(int id) {
         Id = id;
     }
+    
+    public RenderConfigDescriptor Descriptor => descriptors[Id];
+    
+    internal static readonly List<RenderConfigDescriptor> descriptors = [new()];
 }
 
 public struct RenderConfigDescriptor
 {
-    public  WgpuColorTargetState    ColorTargetState;
-    public  WgpuPrimitiveState      PrimitiveState;
-    public  WgpuFragmentState       FragmentState       =  new();
-    public  WgpuMultisampleState    MultisampleState    =  new();
-    public  WgpuVertexState         VertexState;
+    public  WgpuColorTargetState    ColorTargetState    = new();
+    public  WgpuPrimitiveState      PrimitiveState      = new();
+    public  WgpuFragmentState       FragmentState       = new();
+    public  WgpuMultisampleState    MultisampleState    = new();
+    public  WgpuVertexState         VertexState         = new();
     
     public RenderConfigDescriptor() { }
     
     public RenderConfig GetConfig()
     {
-        return new RenderConfig(0);
+        var descriptors = RenderConfig.descriptors;
+        var id          = descriptors.Count;
+        descriptors.Add(this);
+        return new RenderConfig(id);
     }
 }
 
@@ -41,34 +54,72 @@ public struct RenderConfigDescriptor
 // --------------------------- top level states ---------------------------
 public struct WgpuColorTargetState
 {
-    public  TextureFormat       format;
+    public  TextureFormat       format      = TextureFormat.BGRA8Unorm;
     public  BlendState?         blend;
-    public  ulong               writeMask;
+    public  ulong               writeMask   = ColorWriteMask_All;
+    
+    public WgpuColorTargetState() { }
 }
 
 public struct WgpuPrimitiveState
 {
-    public  PrimitiveTopology   topology;
+    public  PrimitiveTopology   topology = PrimitiveTopology.TriangleList;
     public  IndexFormat         stripIndexFormat;
     public  FrontFace           frontFace;
     public  CullMode            cullMode;
     public  uint                unclippedDepth;
+    
+    public WgpuPrimitiveState() { }
+    
+    internal PrimitiveState GetNative() {
+        return new PrimitiveState {
+            topology            = topology,
+            stripIndexFormat    = stripIndexFormat,
+            frontFace           = frontFace,
+            cullMode            = cullMode,
+            unclippedDepth      =  unclippedDepth
+        };
+    }
 }
 
 public struct WgpuFragmentState
 {
 //  public  string                                  entryPoint;     defined via [Shader] attribute
     public  ImmutableArray<WgpuConstantEntry>       constants;
-    public  ImmutableArray<WgpuColorTargetState>    targets;
+    public  ImmutableArray<WgpuColorTargetState>    targets = [new() { format =  TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All}];
 
     public WgpuFragmentState() { }
+
+    internal ReadOnlySpan<ColorTargetState> GetTargets()
+    {
+        var array = new ColorTargetState[targets.Length];
+        for (int n = 0; n < targets.Length; n++) {
+            var src = targets[n];
+            var dst = new ColorTargetState {
+                format      =  src.format,
+                writeMask   =  src.writeMask
+            };
+            array[n] = dst;            
+        }
+        return array.AsSpan();
+    } 
 }
 
 public struct WgpuMultisampleState
 {
-    public  uint    count;
-    public  uint    mask;
-    public  uint    alphaToCoverageEnabled;
+    public  uint    count   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+    public  uint    mask    = 0xFFFFFFFF;   // (Standard)
+    public  bool    alphaToCoverageEnabled;
+    
+    public WgpuMultisampleState() { }
+    
+    internal MultisampleState GetNative() {
+        return new MultisampleState {
+            count                   = count,
+            mask                    = mask,
+            alphaToCoverageEnabled  = alphaToCoverageEnabled ? 1u : 0
+        };
+    }
 }
 
 public struct WgpuVertexState

@@ -135,16 +135,19 @@ public sealed unsafe partial  class WgpuDevice
     public WgpuRenderPipeline CreateRenderPipeline(
         WgpuShaderModule            module,
         Span<WgpuBindGroupLayout>   layouts,
-        ColorTargetState            targetState,
-        PrimitiveState              primitiveState,
+        RenderConfig                config,
         ReadOnlySpan<byte>          vertexEntryPoint,
         ReadOnlySpan<byte>          fragmentEntryPoint,
         ReadOnlySpan<byte>          labelName)
     {
-        fixed (byte* pLabelName      = labelName)
-        fixed (byte* pVertexEntry    = vertexEntryPoint)
-        fixed (byte* pFragmentEntry  = fragmentEntryPoint)
-        fixed (WgpuBindGroupLayout* layoutsPtr = layouts)
+        var desc    = config.Descriptor;
+        var targets = desc.FragmentState.GetTargets();
+        
+        fixed (byte*                pLabelName      = labelName)
+        fixed (byte*                pVertexEntry    = vertexEntryPoint)
+        fixed (byte*                pFragmentEntry  = fragmentEntryPoint)
+        fixed (ColorTargetState*    targetsPtr      = targets)
+        fixed (WgpuBindGroupLayout* layoutsPtr      = layouts)
         {
             var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
             
@@ -158,14 +161,8 @@ public sealed unsafe partial  class WgpuDevice
             var fragmentState = new FragmentState {
                 module      = module.handle,
                 entryPoint  = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
-                targetCount = 1,
-                targets     = &targetState
-            };
-            var multisample = new MultisampleState {
-                nextInChain            = null,
-                count                  = 1,          // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
-                mask                   = 0xFFFFFFFF, // (Standard)
-                alphaToCoverageEnabled = WgpuUtils.FromBool(false)
+                targetCount = (uint)targets.Length,
+                targets     = targetsPtr
             };
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
@@ -175,8 +172,8 @@ public sealed unsafe partial  class WgpuDevice
                     entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint)
                 },
                 fragment    = &fragmentState,
-                primitive   = primitiveState,
-                multisample = multisample
+                primitive   = desc.PrimitiveState.GetNative(),
+                multisample = desc.MultisampleState.GetNative()
             };
             try {
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);

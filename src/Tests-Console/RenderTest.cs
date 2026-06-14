@@ -41,11 +41,7 @@ public static partial class RenderTest
         surface.Configure((WgpuDevice)device, 1280, 720);
         
         var desc = new RenderConfigDescriptor();
-        desc.ColorTargetState.format = TextureFormat.BGRA8Unorm;
-        desc.FragmentState.targets = [new WgpuColorTargetState()];
-        
         var config = desc.GetConfig();
-        
         
         RunLoop(device, surface, config);
     }

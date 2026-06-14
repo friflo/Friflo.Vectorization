@@ -90,10 +90,8 @@ public static partial class RenderTest
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = bufferLayout;
         // layouts[1] = uniformLayout;
-        
-        var colorTarget = new ColorTargetState { format = TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All };
-        var primitive   = new PrimitiveState { topology =  PrimitiveTopology.TriangleList };
-        var pipeline = device.CreateRenderPipeline(shaderModule, layouts, colorTarget, primitive, "vs_main"u8, "fs_main"u8, "Triangles"u8);
+
+        var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
         return ref device.CreateEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
     }
