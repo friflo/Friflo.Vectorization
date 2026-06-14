@@ -47,7 +47,7 @@ public static partial class RenderTest
         using var device    = adapter.CreateDevice("test");
         
         var hInstance   = Windowing.GetModuleHandleW(null);
-        var hwnd        = Windowing.CreateWindowExW(0, "Static", "WGPU Engine", 0x10CF0000, 100, 100, 1280, 720, 0, 0, hInstance, 0);
+        var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, 1280, 720, 0, 0, hInstance, 0);
         
         var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
         surface.Configure((WgpuDevice)device, 1280, 720);
@@ -60,20 +60,21 @@ public static partial class RenderTest
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
         
+        var attachment = new RenderPassColorAttachment {
+            loadOp      = LoadOp.Clear,
+            storeOp     = StoreOp.Store,
+            clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
+            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+        };
+        
         while (Running)
         {
             using var frame = context.BeginFrame(surface);
             
+            using (var pass = frame.BeginRenderPass<MainWorld>(attachment))
             {
-                var attachment = new RenderPassColorAttachment {
-                    loadOp      = LoadOp.Clear,
-                    storeOp     = StoreOp.Store,
-                    clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
-                    depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-                };
-                using var pass = frame.BeginRenderPass<MainWorld>(attachment);
-                
                 DrawTriangles(pass, data.In());
+                // multiple Draw() can be called here
             }
             // context.Queue.Submit();              // TODO implement Submit()
             context.Queue.ReadBuffers();
