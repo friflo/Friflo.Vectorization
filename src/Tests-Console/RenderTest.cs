@@ -62,7 +62,7 @@ public static partial class RenderTest
             using (var pass = frame.BeginRenderPass<MainWorld>(attachment))
             {
                 DrawTriangles(pass, data.In());
-                // multiple Draw() can be called here
+                // multiple Draw*() methods can be called here
             }
             // context.Queue.Submit();              // TODO implement Submit()
             context.Queue.ReadBuffers();
