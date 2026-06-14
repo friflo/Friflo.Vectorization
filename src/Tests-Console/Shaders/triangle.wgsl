@@ -4,7 +4,7 @@
 
 // Defines a single vertex payload
 struct VertexData {
-    position: vec3<f32>,
+    position: vec4<f32>,
     color: vec4<f32>,
     uv: vec2<f32>,
 }
@@ -43,7 +43,7 @@ fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
     let vertex = mesh_data.triangles[vertex_id];
     
     // Pass transformed position and color data down the pipeline
-    out.clip_position = vec4<f32>(vertex.position, 1.0);
+    out.clip_position = vertex.position;
     out.color = vertex.color;
     
     return out;
