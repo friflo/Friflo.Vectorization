@@ -50,6 +50,7 @@ public static partial class RenderTest
     {
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
+        context.EnableTraces = true;
         
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,

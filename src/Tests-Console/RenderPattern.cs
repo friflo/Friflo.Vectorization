@@ -26,23 +26,23 @@ public static partial class RenderTest
         var pass        = renderPass.Value;
 		var recorder	= pass.recorder;
 		var device		= recorder.Device;
-		recorder.Init(Triangles_GPU_KernelId, "Triangles"u8);
+		recorder.Init(Triangles_GPU_ShaderId, "Triangles"u8);
         
         recorder.RequireRead(triangles);
 
-        ref var effect = ref device.GetShaderEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        ref var effect = ref device.GetShaderEffect(Triangles_GPU_ShaderId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref Triangles_GPU_CreateEffect(device, config);
         }
         pass.SetPipeline(effect.renderPipeline);
         
         // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
+        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Triangles_buffers"u8);
-            device.UpdateShaderCache(Triangles_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateShaderCache(Triangles_GPU_ShaderId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
@@ -62,7 +62,7 @@ public static partial class RenderTest
         [FieldOffset( 4)]    public int      triangles_off;
     }
     
-    private static readonly int Triangles_GPU_KernelId            =  KernelRegistry.NewKernelId("TrianglesShader");
+    private static readonly int Triangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TrianglesShader");
     private const ulong         Triangles_GPU_BufferLayoutKey     =  0x47;  // unique key set by Generator
     private const ulong         Triangles_GPU_UniformLayoutKey    =  0x11;  // unique key set by Generator
     private static ulong        Triangles_GPU_WgslHash            => 0x123; // support Hot-Relead
@@ -92,7 +92,7 @@ public static partial class RenderTest
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
-        return ref device.CreateShaderEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateShaderEffect(Triangles_GPU_ShaderId, Triangles_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
     
     private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.Shaders.triangle.wgsl");

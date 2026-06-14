@@ -37,7 +37,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
 
     private             int                     kernelSeq;
-    private             int                     kernelId            = -1;
+    internal            int                     kernelId            = -1;
     internal            bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     
@@ -111,16 +111,16 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         if (currentPass != null) {
             wgpuComputePassEncoderEnd(currentPass);
         }
-        if (enableTraces) {
-            AddKernelTrace(TraceType.Kernel, kernelId);
-        }
         fixed (byte* labelPtr = passLabel)
         {
             var label       = WgpuUtils.FromPtrSpan(labelPtr, passLabel);
             var desc        = new ComputePassDescriptor { label = label };
             currentPass     = wgpuCommandEncoderBeginComputePass(currentEncoder.handle, &desc);
-            return new WgpuComputePass(this, currentPass);
         }
+        if (enableTraces) {
+            AddKernelTrace(kernelId);
+        }
+        return new WgpuComputePass(this, currentPass);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]

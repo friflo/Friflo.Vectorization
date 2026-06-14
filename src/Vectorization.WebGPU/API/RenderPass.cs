@@ -19,7 +19,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class ShaderAttribute<T> : Attribute where T : struct
+public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
 {
     public ShaderAttribute (string wgsl) { }
 }
@@ -62,7 +62,7 @@ public readonly unsafe struct RenderFrame : IDisposable
         this.recorder       = recorder;
     }
 
-    public RenderPass<T> BeginRenderPass<T>(RenderPassColorAttachment attachment) where T : struct
+    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment) where TStage : struct
     {
         attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
@@ -73,7 +73,7 @@ public readonly unsafe struct RenderFrame : IDisposable
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
         var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-        return new RenderPass<T>(passEncoder, recorder);
+        return new RenderPass<TStage>(passEncoder, recorder);
     }
     
     public void Dispose() {
@@ -82,7 +82,7 @@ public readonly unsafe struct RenderFrame : IDisposable
     }
 }
 
-public readonly unsafe struct RenderPass<T> : IDisposable where T : struct
+public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : struct
 {
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;

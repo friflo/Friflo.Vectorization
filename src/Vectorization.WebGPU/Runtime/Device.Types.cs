@@ -42,7 +42,7 @@ public unsafe struct WgpuShaderEffect
     public   readonly   WgpuRenderPipeline  renderPipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
-    public              WgpuBufferCache     computeBufferCache;     // todo rename -> bufferCache
+    public              WgpuBufferCache     bufferCache;
     internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
 

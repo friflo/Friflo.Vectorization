@@ -103,7 +103,7 @@ public sealed unsafe partial  class WgpuDevice
     }
     
     public void UpdateShaderCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        shaderEffectSlots[slot].computeBufferCache.Update(bindGroup, hash);
+        shaderEffectSlots[slot].bufferCache.Update(bindGroup, hash);
     }
     
     // --------------------------------------------------------------

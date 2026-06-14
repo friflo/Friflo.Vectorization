@@ -132,14 +132,14 @@ public sealed partial class CommandRecorder
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddKernelTrace(TraceType traceType, int kernel)
+    internal unsafe void AddKernelTrace(int kernel)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
             localTraces = ResizeTraces();
         }
         ref var trace = ref localTraces[traceCount++];
-        trace.TraceType = traceType;
+        trace.TraceType = currentPass != null ? TraceType.Kernel : TraceType.Shader;
         trace.ShaderId  = kernel;
         trace.Calls     = 1;
         trace.SubType   = createNewPass ? (kernelSeq == 1 ? TraceSubType.NewPass : TraceSubType.PassSplit) : TraceSubType.None;
@@ -150,7 +150,7 @@ public sealed partial class CommandRecorder
     private void UpdateKernelTrace()
     {
         if (traceNewKernel) {
-            AddKernelTrace(TraceType.Kernel, kernelId);
+            AddKernelTrace(kernelId);
         } else {
             traces[traceCount - 1].Calls++;
         }
