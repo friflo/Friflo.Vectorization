@@ -14,6 +14,7 @@ namespace Friflo.Vectorization.GPU;
 public enum TraceType : byte
 {
     Kernel,
+    Shader,
     Submit,
     Hazard_RAW,
     Hazard_WAR,
@@ -46,8 +47,8 @@ public struct PipelineStats
 public struct PipelineTrace
 {
     public  TraceType       TraceType;
-    public  string          KernelName => KernelRegistry.GetKernelName(KernelId);
-    public  int             KernelId;
+    public  string          ShaderName => TraceType == TraceType.Kernel ? KernelRegistry.GetKernelName(ShaderId) : ShaderRegistry.GetShaderName(ShaderId);
+    public  int             ShaderId;
     public  int             Calls;
     public  TraceSubType    SubType;
     public  string          Resource;
@@ -57,8 +58,9 @@ public struct PipelineTrace
     internal StringBuilder  Append(StringBuilder sb, int indent)
     {
         switch (TraceType) {
+            case TraceType.Shader:
             case TraceType.Kernel: {
-                var name    = KernelName;
+                var name    = ShaderName;
                 var len     = Math.Max(0, indent - name.Length);
                 sb.Append($"{name}()").Append(' ', len).Append($" calls: {Calls,2}");
                 switch (SubType) {
@@ -127,6 +129,33 @@ public static class KernelRegistry
                 kernelNames = newNames;
             } else {
                 kernelNames[newId] = kernelName;
+            }
+            return newId;
+        }
+    }
+}
+
+public static class ShaderRegistry
+{
+    private static          string[]    shaderNames = new string[20];
+    private static readonly object      mutex = new();
+    private static          int         nextId;
+    
+    internal static         string      GetShaderName(int slot) => shaderNames[slot];
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static int NewShaderId(string shaderName)
+    {
+        lock (mutex)
+        {
+            var newId = ++nextId;
+            if (newId >= shaderNames.Length) {
+                var newNames = new string[2 * shaderNames.Length];
+                Array.Copy(shaderNames, newNames, shaderNames.Length);
+                newNames[newId] = shaderName;
+                shaderNames = newNames;
+            } else {
+                shaderNames[newId] = shaderName;
             }
             return newId;
         }

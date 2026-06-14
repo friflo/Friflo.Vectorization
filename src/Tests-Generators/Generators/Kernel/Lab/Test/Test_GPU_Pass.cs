@@ -38,7 +38,7 @@ public partial class Test_GPU_Pass : KernelBase
         
         AssertResult(gpuOutput.InOut(), 44f);
         Assert.AreEqual(2,              context.Traces.Length);
-        Assert.AreEqual("MultiplyAddKernel", context.Traces[0].KernelName);
+        Assert.AreEqual("MultiplyAddKernel", context.Traces[0].ShaderName);
         Assert.AreEqual("calls: 5  passes: 1  hazards: 0", context.Stats.ToString());
         Assert.That(context.TraceLog, Is.EqualTo(
             """

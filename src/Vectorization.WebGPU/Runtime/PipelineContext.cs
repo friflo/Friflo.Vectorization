@@ -125,7 +125,7 @@ public sealed partial class CommandRecorder
         }
         ref var trace = ref localTraces[traceCount++];
         trace.TraceType = traceType;
-        trace.KernelId  = kernel;
+        trace.ShaderId  = kernel;
         trace.Calls     = calls;
         trace.SubType   = subType;
         trace.Resource  = resource;
@@ -140,7 +140,7 @@ public sealed partial class CommandRecorder
         }
         ref var trace = ref localTraces[traceCount++];
         trace.TraceType = traceType;
-        trace.KernelId  = kernel;
+        trace.ShaderId  = kernel;
         trace.Calls     = 1;
         trace.SubType   = createNewPass ? (kernelSeq == 1 ? TraceSubType.NewPass : TraceSubType.PassSplit) : TraceSubType.None;
         trace.Resource  = null;
