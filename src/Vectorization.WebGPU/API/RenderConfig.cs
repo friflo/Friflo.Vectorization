@@ -27,12 +27,10 @@ public readonly struct RenderConfig
         Id = id;
     }
     
-    public RenderConfigDescriptor Descriptor => descriptors[Id];
-    
-    internal static readonly List<RenderConfigDescriptor> descriptors = [new()];
+    public RenderConfigDescriptor Descriptor => RenderConfigDescriptor.idToDescriptor[Id];
 }
 
-public struct RenderConfigDescriptor
+public record struct RenderConfigDescriptor
 {
     public  WgpuColorTargetState    ColorTargetState    = new();
     public  WgpuPrimitiveState      PrimitiveState      = new();
@@ -44,16 +42,30 @@ public struct RenderConfigDescriptor
     
     public RenderConfig GetConfig()
     {
-        var descriptors = RenderConfig.descriptors;
-        var id          = descriptors.Count;
+        if (descriptorToId.TryGetValue(this, out var id)) {
+            return new RenderConfig(id);
+        }
+        var descriptors = idToDescriptor;
+        var config      = new RenderConfig(descriptors.Count);
         descriptors.Add(this);
-        return new RenderConfig(id);
+        descriptorToId.Add(this, config.Id);
+        return config;
+    }
+    
+    internal static readonly    List<RenderConfigDescriptor>            idToDescriptor;
+    internal static readonly    Dictionary<RenderConfigDescriptor, int> descriptorToId = [];
+    
+    static RenderConfigDescriptor()
+    {
+        var defaultDesc = new RenderConfigDescriptor();
+        idToDescriptor = [defaultDesc];
+        descriptorToId.Add(defaultDesc, 0);
     }
 }
 
 
 // --------------------------- top level states ---------------------------
-public struct WgpuColorTargetState
+public record struct WgpuColorTargetState
 {
     public  TextureFormat       format      = TextureFormat.BGRA8Unorm;
     public  BlendState?         blend;
@@ -62,7 +74,7 @@ public struct WgpuColorTargetState
     public WgpuColorTargetState() { }
 }
 
-public struct WgpuPrimitiveState
+public record struct WgpuPrimitiveState
 {
     public  PrimitiveTopology   topology = PrimitiveTopology.TriangleList;
     public  IndexFormat         stripIndexFormat;
@@ -83,7 +95,7 @@ public struct WgpuPrimitiveState
     }
 }
 
-public struct WgpuFragmentState
+public record struct WgpuFragmentState
 {
 //  public  string                              entryPoint;     defined via [Shader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
@@ -106,7 +118,7 @@ public struct WgpuFragmentState
     } 
 }
 
-public struct WgpuMultisampleState
+public record struct WgpuMultisampleState
 {
     public  uint    count   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
     public  uint    mask    = 0xFFFFFFFF;   // (Standard)
@@ -123,7 +135,7 @@ public struct WgpuMultisampleState
     }
 }
 
-public struct WgpuVertexState
+public record struct WgpuVertexState
 {
 //  public  ShaderModule*                       module;         defined via [Shader] attribute
 //  public  StringView                          entryPoint;     defined via [Shader] attribute
@@ -134,13 +146,13 @@ public struct WgpuVertexState
 }
 
 // --------------------------- child level states ---------------------------
-public struct WgpuConstantEntry
+public record struct WgpuConstantEntry
 {
     public  string  key;
     public  double  value;
 }
 
-public struct WgpuVertexBufferLayout
+public record struct WgpuVertexBufferLayout
 {
     public  VertexStepMode              stepMode;
     public  ulong                       arrayStride;
