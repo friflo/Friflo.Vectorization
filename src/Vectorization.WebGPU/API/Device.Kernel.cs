@@ -48,7 +48,7 @@ public sealed unsafe partial  class WgpuDevice
     
     private static WgpuComputeEffect MissingComputeEffect;
     
-    public ref WgpuComputeEffect CreateEffect(
+    public ref WgpuComputeEffect CreateComputeEffect(
         int                     kernelId,
         ulong                   wgslHash,
         WgpuComputePipeline     pipeline,
@@ -66,8 +66,8 @@ public sealed unsafe partial  class WgpuDevice
         return ref slots[kernelId];
     }
     
-    public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        computeEffectSlots[slot].bufferCache.Update(bindGroup, hash);
+    public void UpdateComputeCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
+        computeEffectSlots[slot].computeBufferCache.Update(bindGroup, hash);
     }
     
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)

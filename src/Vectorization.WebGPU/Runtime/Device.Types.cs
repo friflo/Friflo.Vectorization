@@ -19,7 +19,7 @@ public unsafe struct WgpuComputeEffect
     public   readonly   WgpuRenderPipeline  renderPipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
-    public              WgpuBufferCache     bufferCache;
+    public              WgpuBufferCache     computeBufferCache;
     internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
 

@@ -132,13 +132,13 @@ namespace VerifyVectorize
         pass.SetPipeline(effect.pipeline);
         
         // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
             entries[1] = WgpuBindGroup.From(1, velocity.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
-            device.UpdateBufferCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
@@ -188,7 +188,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
-        return ref device.CreateEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>

@@ -102,12 +102,12 @@ namespace Kernel.Lab
         pass.SetPipeline(effect.pipeline);
         
         // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, input.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ReadOnly_buffers"u8);
-            device.UpdateBufferCache(_ReadOnly_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(_ReadOnly_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
@@ -152,7 +152,7 @@ namespace Kernel.Lab
         var shaderModule    = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
         
-        return ref device.CreateEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _ReadOnly_GPU_Shader() =>

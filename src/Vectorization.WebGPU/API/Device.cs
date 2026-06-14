@@ -101,7 +101,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var computeSlots = computeEffectSlots;
         for (int n = 0; n < computeSlots.Length; n++) {
             ref var effect = ref computeSlots[n];
-            effect.bufferCache.Release();
+            effect.computeBufferCache.Release();
             if(effect.IsCreated) {
                 if (effect.pipeline.handle != null) wgpuComputePipelineRelease(effect.pipeline.handle);
             }

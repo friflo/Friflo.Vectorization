@@ -37,12 +37,12 @@ public static partial class RenderTest
         pass.SetPipeline(effect.renderPipeline);
         
         // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Triangles_buffers"u8);
-            device.UpdateBufferCache(Triangles_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(Triangles_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
@@ -92,7 +92,7 @@ public static partial class RenderTest
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
-        return ref device.CreateEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
     }
     
     private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.Shaders.triangle.wgsl");

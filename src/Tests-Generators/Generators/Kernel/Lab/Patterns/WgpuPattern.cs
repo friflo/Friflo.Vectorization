@@ -37,14 +37,14 @@ public static class WgpuPattern
         pass.SetPipeline(effect.pipeline);
             
         // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
             entries[1] = WgpuBindGroup.From  (1, input.Buffer);
             entries[2] = WgpuBindGroup.From  (2, output.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
-            device.UpdateBufferCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
             
@@ -95,7 +95,7 @@ public static class WgpuPattern
         var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
-        return ref device.CreateEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)
