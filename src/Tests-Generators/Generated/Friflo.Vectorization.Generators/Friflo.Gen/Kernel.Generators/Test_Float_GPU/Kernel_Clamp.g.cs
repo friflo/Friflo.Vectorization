@@ -187,7 +187,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Clamp_GPU_Shader(), "Kernel_Clamp"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Clamp"u8);
         
-        return ref device.CreateComputeEffect(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Clamp_GPU_Shader() =>

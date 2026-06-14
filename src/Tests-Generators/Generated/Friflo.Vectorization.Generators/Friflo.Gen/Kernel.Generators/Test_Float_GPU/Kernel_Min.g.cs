@@ -179,7 +179,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Min_GPU_Shader(), "Kernel_Min"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Min"u8);
         
-        return ref device.CreateComputeEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Min_GPU_Shader() =>

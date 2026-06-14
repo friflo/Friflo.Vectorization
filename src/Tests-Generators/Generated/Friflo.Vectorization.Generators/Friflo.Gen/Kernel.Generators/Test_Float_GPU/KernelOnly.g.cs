@@ -116,7 +116,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_KernelOnly_GPU_Shader(), "KernelOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "KernelOnly"u8);
         
-        return ref device.CreateComputeEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _KernelOnly_GPU_Shader() =>

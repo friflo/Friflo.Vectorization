@@ -197,7 +197,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Add_GPU_Shader(), "Add"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Add"u8);
         
-        return ref device.CreateComputeEffect(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Add_GPU_Shader() =>

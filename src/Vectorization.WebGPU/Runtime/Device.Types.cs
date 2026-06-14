@@ -16,21 +16,43 @@ public unsafe struct WgpuComputeEffect
 {
     public   readonly   uint                kernelId; 
     public   readonly   WgpuComputePipeline pipeline;
-    public   readonly   WgpuRenderPipeline  renderPipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
     public   readonly   WgpuBindGroupLayout uniformLayout;
-    public              WgpuBufferCache     computeBufferCache;
+    public              WgpuBufferCache     computeBufferCache;     // todo rename -> bufferCache
     internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal WgpuComputeEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline, WgpuRenderPipeline renderPipeline,
+    internal WgpuComputeEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline,
         WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
     {
         this.kernelId       = (uint)kernelId;
         this.wgslHash       = wgslHash;
         this.pipeline       = pipeline;
+        this.bufferLayout   = bufferLayout;
+        this.uniformLayout  = uniformLayout;
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public unsafe struct WgpuShaderEffect
+{
+    public   readonly   uint                kernelId; 
+    public   readonly   WgpuRenderPipeline  renderPipeline;
+    public   readonly   WgpuBindGroupLayout bufferLayout;
+    public   readonly   WgpuBindGroupLayout uniformLayout;
+    public              WgpuBufferCache     computeBufferCache;     // todo rename -> bufferCache
+    internal readonly   ulong               wgslHash;
+    public              bool                IsCreated => bufferLayout.handle != null;
+
+    public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
+
+    internal WgpuShaderEffect (int kernelId, ulong wgslHash, WgpuRenderPipeline renderPipeline,
+        WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
+    {
+        this.kernelId       = (uint)kernelId;
+        this.wgslHash       = wgslHash;
         this.renderPipeline = renderPipeline;
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = uniformLayout;

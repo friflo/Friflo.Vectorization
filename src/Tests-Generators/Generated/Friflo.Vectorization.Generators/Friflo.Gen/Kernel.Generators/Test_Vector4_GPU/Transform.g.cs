@@ -180,7 +180,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Transform_GPU_Shader(), "Transform"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Transform"u8);
         
-        return ref device.CreateComputeEffect(_Transform_GPU_KernelId, _Transform_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Transform_GPU_KernelId, _Transform_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Transform_GPU_Shader() =>

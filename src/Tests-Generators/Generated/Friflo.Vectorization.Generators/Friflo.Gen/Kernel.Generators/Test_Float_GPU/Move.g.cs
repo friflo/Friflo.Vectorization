@@ -187,7 +187,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Move_GPU_Shader(), "Move"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Move"u8);
         
-        return ref device.CreateComputeEffect(_Move_GPU_KernelId, _Move_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Move_GPU_KernelId, _Move_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Move_GPU_Shader() =>

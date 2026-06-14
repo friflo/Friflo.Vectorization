@@ -261,7 +261,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Advanced_GPU_Shader(), "Advanced"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Advanced"u8);
         
-        return ref device.CreateComputeEffect(_Advanced_GPU_KernelId, _Advanced_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Advanced_GPU_KernelId, _Advanced_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Advanced_GPU_Shader() =>

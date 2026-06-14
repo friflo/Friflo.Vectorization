@@ -176,7 +176,7 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_Kernel_Sign_GPU_Shader(), "Kernel_Sign"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
         
-        return ref device.CreateComputeEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Sign_GPU_Shader() =>

@@ -228,7 +228,7 @@ $$""""
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return ref device.CreateComputeEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

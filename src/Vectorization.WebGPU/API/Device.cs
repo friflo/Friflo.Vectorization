@@ -34,7 +34,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     private  readonly   WgpuQueue           queue;
     
-    private             WgpuComputeEffect[] computeEffectSlots  	= new WgpuComputeEffect[4];
+    private             WgpuComputeEffect[] computeEffectSlots  = new WgpuComputeEffect[4];
+    private             WgpuShaderEffect[]  shaderEffectSlots   = new WgpuShaderEffect[4];
     private             GCHandle            deviceHandle;
     private  readonly   void*               deviceHandlePtr;
     

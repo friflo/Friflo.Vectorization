@@ -29,8 +29,8 @@ public static partial class RenderTest
 		recorder.Init(Triangles_GPU_KernelId, "Triangles"u8);
         
         recorder.RequireRead(triangles);
-        // TODO  add GetEffect() config parameter 
-        ref var effect = ref device.GetComputeEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
+
+        ref var effect = ref device.GetShaderEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref Triangles_GPU_CreateEffect(device, config);
         }
@@ -42,7 +42,7 @@ public static partial class RenderTest
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Triangles_buffers"u8);
-            device.UpdateComputeCache(Triangles_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateShaderCache(Triangles_GPU_KernelId, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
@@ -69,7 +69,7 @@ public static partial class RenderTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref WgpuShaderEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
     {
         var bufferLayout = device.GetBindGroupLayout(Triangles_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
@@ -92,7 +92,7 @@ public static partial class RenderTest
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         
-        return ref device.CreateComputeEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, default, pipeline, bufferLayout, uniformLayout);
+        return ref device.CreateShaderEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
     
     private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.Shaders.triangle.wgsl");

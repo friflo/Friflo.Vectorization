@@ -32,7 +32,7 @@ public sealed unsafe partial  class WgpuDevice
     }
     
     
-    // --- computeEffectSlots
+    // --------------------- computeEffectSlots ---------------------
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref WgpuComputeEffect GetComputeEffect(int slot, ulong wgslHash)
     {
@@ -52,7 +52,6 @@ public sealed unsafe partial  class WgpuDevice
         int                     kernelId,
         ulong                   wgslHash,
         WgpuComputePipeline     pipeline,
-        WgpuRenderPipeline      renderPipeline,
         WgpuBindGroupLayout     bufferLayout,
         WgpuBindGroupLayout     uniformLayout)
     {
@@ -62,7 +61,7 @@ public sealed unsafe partial  class WgpuDevice
             Array.Copy(slots, newSlots, slots.Length);
             slots = computeEffectSlots = newSlots;
         }
-        slots[kernelId] = new WgpuComputeEffect(kernelId, wgslHash, pipeline, renderPipeline, bufferLayout, uniformLayout);
+        slots[kernelId] = new WgpuComputeEffect(kernelId, wgslHash, pipeline, bufferLayout, uniformLayout);
         return ref slots[kernelId];
     }
     
@@ -70,6 +69,44 @@ public sealed unsafe partial  class WgpuDevice
         computeEffectSlots[slot].computeBufferCache.Update(bindGroup, hash);
     }
     
+    // --------------------- shaderEffectSlots ---------------------
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref WgpuShaderEffect GetShaderEffect(int slot, ulong wgslHash)
+    {
+        var slots = shaderEffectSlots;
+        if (slot < slots.Length) {
+            ref var effect = ref slots[slot];
+            if (effect.wgslHash == wgslHash) {
+                return ref effect;
+            }
+        }
+        return ref MissingShaderEffect;
+    }
+    
+    private static WgpuShaderEffect MissingShaderEffect;
+    
+    public ref WgpuShaderEffect CreateShaderEffect(
+        int                     kernelId,
+        ulong                   wgslHash,
+        WgpuRenderPipeline      renderPipeline,
+        WgpuBindGroupLayout     bufferLayout,
+        WgpuBindGroupLayout     uniformLayout)
+    {
+        var slots = shaderEffectSlots;
+        if (kernelId >= slots.Length) {
+            var newSlots = new WgpuShaderEffect[Math.Max(2 * slots.Length, kernelId + 1)];
+            Array.Copy(slots, newSlots, slots.Length);
+            slots = shaderEffectSlots = newSlots;
+        }
+        slots[kernelId] = new WgpuShaderEffect(kernelId, wgslHash, renderPipeline, bufferLayout, uniformLayout);
+        return ref slots[kernelId];
+    }
+    
+    public void UpdateShaderCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
+        shaderEffectSlots[slot].computeBufferCache.Update(bindGroup, hash);
+    }
+    
+    // --------------------------------------------------------------
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {
         fixed (byte* pShaderBytes = wgslSource)

@@ -179,7 +179,7 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Kernel_Max_GPU_Shader(), "Kernel_Max"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Max"u8);
         
-        return ref device.CreateComputeEffect(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash, pipeline, default, bufferLayout, uniformLayout);
+        return ref device.CreateComputeEffect(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Max_GPU_Shader() =>
