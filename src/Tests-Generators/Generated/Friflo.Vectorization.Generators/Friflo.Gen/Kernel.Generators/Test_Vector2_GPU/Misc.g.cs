@@ -169,7 +169,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Misc"u8);
         
-        ref var effect = ref device.GetEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Misc_GPU_CreateEffect(device);
         }
@@ -212,7 +212,7 @@ namespace Kernel.Generators
     private static ulong        _Misc_GPU_WgslHash           => 0xfa28c2317e6c0dc7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Misc_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Misc_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Misc_GPU_BufferLayoutKey);

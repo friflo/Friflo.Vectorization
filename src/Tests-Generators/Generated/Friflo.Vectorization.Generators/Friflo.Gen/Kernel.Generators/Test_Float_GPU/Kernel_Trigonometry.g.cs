@@ -198,7 +198,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Trigonometry"u8);
         
-        ref var effect = ref device.GetEffect(_Kernel_Trigonometry_GPU_KernelId, _Kernel_Trigonometry_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Kernel_Trigonometry_GPU_KernelId, _Kernel_Trigonometry_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Kernel_Trigonometry_GPU_CreateEffect(device);
         }
@@ -241,7 +241,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Trigonometry_GPU_WgslHash           => 0x9c5b1e847d218990;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Kernel_Trigonometry_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Kernel_Trigonometry_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Trigonometry_GPU_BufferLayoutKey);

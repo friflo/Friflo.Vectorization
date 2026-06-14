@@ -160,7 +160,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Arithmetic"u8);
         
-        ref var effect = ref device.GetEffect(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Arithmetic_GPU_CreateEffect(device);
         }
@@ -201,7 +201,7 @@ namespace Kernel.Generators
     private static ulong        _Arithmetic_GPU_WgslHash           => 0xbf185be78181f548;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Arithmetic_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Arithmetic_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Arithmetic_GPU_BufferLayoutKey);

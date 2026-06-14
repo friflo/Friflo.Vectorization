@@ -118,7 +118,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Multiply"u8);
         
-        ref var effect = ref device.GetEffect(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Multiply_GPU_CreateEffect(device);
         }
@@ -159,7 +159,7 @@ namespace Kernel.Generators
     private static ulong        _Multiply_GPU_WgslHash           => 0x105e0466893e512f;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Multiply_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Multiply_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Multiply_GPU_BufferLayoutKey);

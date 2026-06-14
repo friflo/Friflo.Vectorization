@@ -54,7 +54,7 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("KernelOnly"u8);
         
-        ref var effect = ref device.GetEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _KernelOnly_GPU_CreateEffect(device);
         }
@@ -94,7 +94,7 @@ namespace VerifyVectorize
     private static ulong        _KernelOnly_GPU_WgslHash           => 0xa85ee513a18c92aa;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _KernelOnly_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _KernelOnly_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_KernelOnly_GPU_BufferLayoutKey);

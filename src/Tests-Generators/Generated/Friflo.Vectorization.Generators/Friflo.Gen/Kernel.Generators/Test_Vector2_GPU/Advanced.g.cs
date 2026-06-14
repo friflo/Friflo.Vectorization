@@ -200,7 +200,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Advanced"u8);
         
-        ref var effect = ref device.GetEffect(_Advanced_GPU_KernelId, _Advanced_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Advanced_GPU_KernelId, _Advanced_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Advanced_GPU_CreateEffect(device);
         }
@@ -241,7 +241,7 @@ namespace Kernel.Generators
     private static ulong        _Advanced_GPU_WgslHash           => 0x4b19981c982cc65c;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Advanced_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Advanced_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Advanced_GPU_BufferLayoutKey);

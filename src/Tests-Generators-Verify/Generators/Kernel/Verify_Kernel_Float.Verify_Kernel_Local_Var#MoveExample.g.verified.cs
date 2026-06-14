@@ -117,7 +117,7 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("MoveExample"u8);
         
-        ref var effect = ref device.GetEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _MoveExample_GPU_CreateEffect(device);
         }
@@ -157,7 +157,7 @@ namespace VerifyVectorize
     private static ulong        _MoveExample_GPU_WgslHash           => 0xfa4d8aff78d1af3f;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _MoveExample_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_MoveExample_GPU_BufferLayoutKey);

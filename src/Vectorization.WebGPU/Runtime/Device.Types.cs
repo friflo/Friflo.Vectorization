@@ -12,7 +12,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public unsafe struct WgpuEffect 
+public unsafe struct WgpuComputeEffect 
 {
     public   readonly   uint                kernelId; 
     public   readonly   WgpuComputePipeline pipeline;
@@ -25,7 +25,7 @@ public unsafe struct WgpuEffect
 
     public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
 
-    internal WgpuEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline, WgpuRenderPipeline renderPipeline,
+    internal WgpuComputeEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline, WgpuRenderPipeline renderPipeline,
         WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
     {
         this.kernelId       = (uint)kernelId;

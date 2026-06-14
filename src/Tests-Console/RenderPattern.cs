@@ -4,7 +4,6 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -31,7 +30,7 @@ public static partial class RenderTest
         
         recorder.RequireRead(triangles);
         // TODO  add GetEffect() config parameter 
-        ref var effect = ref device.GetEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        ref var effect = ref device.GetComputeEffect(Triangles_GPU_KernelId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref Triangles_GPU_CreateEffect(device, config);
         }
@@ -70,7 +69,7 @@ public static partial class RenderTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref WgpuComputeEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
     {
         var bufferLayout = device.GetBindGroupLayout(Triangles_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {

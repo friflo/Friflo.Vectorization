@@ -95,7 +95,7 @@ namespace Kernel.Lab
 
         using var pass = recorder.BeginComputePass("ReadOnly"u8);
         
-        ref var effect = ref device.GetEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _ReadOnly_GPU_CreateEffect(device);
         }
@@ -133,7 +133,7 @@ namespace Kernel.Lab
     private static ulong        _ReadOnly_GPU_WgslHash           => 0x113e8790c6a48dd7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _ReadOnly_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _ReadOnly_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_ReadOnly_GPU_BufferLayoutKey);

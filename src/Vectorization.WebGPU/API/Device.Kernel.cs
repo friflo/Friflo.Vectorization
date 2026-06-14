@@ -32,23 +32,23 @@ public sealed unsafe partial  class WgpuDevice
     }
     
     
-    // --- effectSlots
+    // --- computeEffectSlots
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref WgpuEffect GetEffect(int slot, ulong wgslHash)
+    public ref WgpuComputeEffect GetComputeEffect(int slot, ulong wgslHash)
     {
-        var slots = effectSlots;
+        var slots = computeEffectSlots;
         if (slot < slots.Length) {
             ref var effect = ref slots[slot];
             if (effect.wgslHash == wgslHash) {
                 return ref effect;
             }
         }
-        return ref MissingEffect;
+        return ref MissingComputeEffect;
     }
     
-    private static WgpuEffect MissingEffect;
+    private static WgpuComputeEffect MissingComputeEffect;
     
-    public ref WgpuEffect CreateEffect(
+    public ref WgpuComputeEffect CreateEffect(
         int                     kernelId,
         ulong                   wgslHash,
         WgpuComputePipeline     pipeline,
@@ -56,18 +56,18 @@ public sealed unsafe partial  class WgpuDevice
         WgpuBindGroupLayout     bufferLayout,
         WgpuBindGroupLayout     uniformLayout)
     {
-        var slots = effectSlots;
+        var slots = computeEffectSlots;
         if (kernelId >= slots.Length) {
-            var newSlots = new WgpuEffect[Math.Max(2 * slots.Length, kernelId + 1)];
+            var newSlots = new WgpuComputeEffect[Math.Max(2 * slots.Length, kernelId + 1)];
             Array.Copy(slots, newSlots, slots.Length);
-            slots = effectSlots = newSlots;
+            slots = computeEffectSlots = newSlots;
         }
-        slots[kernelId] = new WgpuEffect(kernelId, wgslHash, pipeline, renderPipeline, bufferLayout, uniformLayout);
+        slots[kernelId] = new WgpuComputeEffect(kernelId, wgslHash, pipeline, renderPipeline, bufferLayout, uniformLayout);
         return ref slots[kernelId];
     }
     
     public void UpdateBufferCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        effectSlots[slot].bufferCache.Update(bindGroup, hash);
+        computeEffectSlots[slot].bufferCache.Update(bindGroup, hash);
     }
     
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)

@@ -34,8 +34,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     private  readonly   WgpuQueue           queue;
     
-    private  static     int                 effectSlotCount;
-    private             WgpuEffect[]        effectSlots  	= new WgpuEffect[4];
+    private             WgpuComputeEffect[] computeEffectSlots  	= new WgpuComputeEffect[4];
     private             GCHandle            deviceHandle;
     private  readonly   void*               deviceHandlePtr;
     
@@ -99,8 +98,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
         
-        for (int n = 0; n < effectSlots.Length; n++) {
-            ref var effect = ref effectSlots[n];
+        var computeSlots = computeEffectSlots;
+        for (int n = 0; n < computeSlots.Length; n++) {
+            ref var effect = ref computeSlots[n];
             effect.bufferCache.Release();
             if(effect.IsCreated) {
                 if (effect.pipeline.handle != null) wgpuComputePipelineRelease(effect.pipeline.handle);

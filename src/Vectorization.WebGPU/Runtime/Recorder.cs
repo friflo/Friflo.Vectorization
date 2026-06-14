@@ -217,7 +217,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
-    internal WgpuBindGroup GetUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    internal WgpuBindGroup GetUniformBindGroup(ref WgpuComputeEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
     {
         var bindGroups = uniformBindGroups;
         
@@ -231,7 +231,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private WgpuBindGroup CreateUniformBindGroup(ref WgpuEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    private WgpuBindGroup CreateUniformBindGroup(ref WgpuComputeEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
     {
         var entry = new BindGroupEntry {
             binding = 0,

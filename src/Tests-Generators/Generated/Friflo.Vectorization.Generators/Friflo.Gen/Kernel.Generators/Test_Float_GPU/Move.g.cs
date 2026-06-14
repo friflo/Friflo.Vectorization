@@ -124,7 +124,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Move"u8);
         
-        ref var effect = ref device.GetEffect(_Move_GPU_KernelId, _Move_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Move_GPU_KernelId, _Move_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Move_GPU_CreateEffect(device);
         }
@@ -167,7 +167,7 @@ namespace Kernel.Generators
     private static ulong        _Move_GPU_WgslHash           => 0x420dc7e7885d85b1;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Move_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Move_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Move_GPU_BufferLayoutKey);

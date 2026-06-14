@@ -30,7 +30,7 @@ public static class WgpuPattern
 
         using var pass = recorder.BeginComputePass("MultiplyAdd"u8);
         
-        ref var effect = ref device.GetEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        ref var effect = ref device.GetComputeEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref MultiplyAdd_GPU_CreateEffect(device);
         }
@@ -76,7 +76,7 @@ public static class WgpuPattern
     private static ulong        MultiplyAdd_GPU_WgslHash            => 0x777;   // support Hot-Relead
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect MultiplyAdd_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect MultiplyAdd_GPU_CreateEffect(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {

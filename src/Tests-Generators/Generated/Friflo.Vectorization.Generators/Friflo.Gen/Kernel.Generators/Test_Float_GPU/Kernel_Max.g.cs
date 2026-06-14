@@ -118,7 +118,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Max"u8);
         
-        ref var effect = ref device.GetEffect(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Kernel_Max_GPU_CreateEffect(device);
         }
@@ -159,7 +159,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Max_GPU_WgslHash           => 0x13ef0c5fc4cda50b;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Kernel_Max_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Kernel_Max_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Max_GPU_BufferLayoutKey);

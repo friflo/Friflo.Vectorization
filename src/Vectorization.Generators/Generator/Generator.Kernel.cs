@@ -177,7 +177,7 @@ $$""""
 
         using var pass = recorder.BeginComputePass("{{methodName}}"u8);
         
-        ref var effect = ref device.GetEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
+        ref var effect = ref device.GetComputeEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
         if (!effect.IsCreated) {
             effect = ref {{methodName_GPU}}_CreateEffect(device);
         }
@@ -210,7 +210,7 @@ $$""""
     private static ulong        {{methodName_GPU}}_WgslHash           => 0x{{wgslHash}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);

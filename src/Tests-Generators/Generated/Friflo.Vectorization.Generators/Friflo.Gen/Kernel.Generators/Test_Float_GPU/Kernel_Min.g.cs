@@ -118,7 +118,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Min"u8);
         
-        ref var effect = ref device.GetEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash);
+        ref var effect = ref device.GetComputeEffect(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash);
         if (!effect.IsCreated) {
             effect = ref _Kernel_Min_GPU_CreateEffect(device);
         }
@@ -159,7 +159,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Min_GPU_WgslHash           => 0x2680e253f8905c52;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuEffect _Kernel_Min_GPU_CreateEffect(WgpuDevice device)
+    private static ref WgpuComputeEffect _Kernel_Min_GPU_CreateEffect(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Min_GPU_BufferLayoutKey);
