@@ -7,6 +7,8 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
+// ReSharper disable ArrangeRedundantParentheses
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -16,7 +18,7 @@ public struct MainWorld {}
 
 public static partial class RenderTest
 {
-    public static bool Running = true;
+    private static bool running = true;
 
     private static readonly VertexData[] Vertices =
     [
@@ -73,8 +75,14 @@ public static partial class RenderTest
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
         
-        while (Running)
+        while (running)
         {
+            while (SDL.PollEvent(out var e)) {
+                if ((e.Type == (uint)SDL.EventType.Quit)  ||
+                    (e.Type == (uint)SDL.EventType.KeyDown && e.Key.Scancode == SDL.Scancode.Escape)) {
+                    running = false;
+                }
+            }
             using var frame = context.BeginFrame(surface);
             
             using (var pass = frame.BeginRenderPass<MainWorld>(attachment))
