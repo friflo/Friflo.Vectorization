@@ -60,6 +60,16 @@ public record struct WgpuRenderPipelineDescriptor
     /// Create a new <see cref="RenderPipelineConfig"/> or returns an existing<br/>
     /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
     /// </summary>
+    /// <remarks>
+    /// Example
+    /// <code>
+    ///     var desc = new WgpuRenderPipelineDescriptor();
+    ///     desc.FragmentState = new WgpuFragmentState {
+    ///         targets = [new WgpuColorTargetState { format = TextureFormat.BGRA8Unorm, writeMask = WebGPU_native.ColorWriteMask_All}]
+    ///     };
+    ///     var config = desc.CreateConfig("Custom Config");
+    /// </code>
+    /// </remarks>
     public RenderPipelineConfig CreateConfig(string name)
     {
         if (descriptorToId.TryGetValue(this, out var id)) {
