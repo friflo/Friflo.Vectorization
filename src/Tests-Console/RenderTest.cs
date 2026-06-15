@@ -69,7 +69,7 @@ public static partial class RenderTest
         using var device    = adapter.CreateDevice("test");
         
         var swapChainFormat = surface.GetSwapChainFormat(adapter);
-        surface.Configure((WgpuDevice)device, width, height, swapChainFormat);
+        surface.Configure(device, width, height, swapChainFormat);
 
         var desc = new WgpuRenderPipelineDescriptor();
         desc.FragmentState = new WgpuFragmentState {
