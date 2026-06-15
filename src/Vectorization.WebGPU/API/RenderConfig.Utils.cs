@@ -121,12 +121,13 @@ internal class NativeAllocator
         if (string.IsNullOrEmpty(src)) {
             return default;
         }
-        var maxLength   = Encoding.UTF8.GetMaxByteCount(src.Length) + 1; // + \0
-        var target      = (byte*)NativeMemory.Alloc((nuint)maxLength, sizeof(byte));
+        var len     = Encoding.UTF8.GetByteCount(src);
+        var target  = (byte*)NativeMemory.Alloc((nuint)len + 1, sizeof(byte));   // + 1   => be safe: add \0 terminator
         pointers.Add((nint)target);
         
-        var dest    = new Span<byte>(target, maxLength);
-        int len     = Encoding.UTF8.GetBytes(src, dest);
+        var dest = new Span<byte>(target, len);
+        Encoding.UTF8.GetBytes(src, dest);
+        target[len] = 0;
         
         return new StringView { data = (sbyte*)target, length = (uint)len };
     }
