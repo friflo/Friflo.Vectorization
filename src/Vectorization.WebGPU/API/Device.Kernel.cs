@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable TooWideLocalVariableScope
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -194,9 +195,21 @@ public sealed unsafe partial  class WgpuDevice
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             
-            var fragmentState = desc.FragmentState.GetNative(allocator);
-            fragmentState.module    = module.handle;
-            fragmentState.entryPoint= WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
+            FragmentState* pFragmentState = null;
+            FragmentState   fragmentState;
+            if (desc.FragmentState.HasValue) {
+                fragmentState               = desc.FragmentState.Value.GetNative(allocator);
+                fragmentState.module        = module.handle;
+                fragmentState.entryPoint    = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
+                pFragmentState = &fragmentState;
+            }
+            
+            DepthStencilState* pDepthStencilState = null;
+            DepthStencilState   depthStencilState;
+            if (desc.DepthStencilState.HasValue) {
+                depthStencilState   = desc.DepthStencilState.Value.GetNative();
+                pDepthStencilState  = &depthStencilState;
+            }
             
             var vertexState = desc.VertexState.GetNative(allocator);
             vertexState.module      = module.handle;
@@ -206,10 +219,10 @@ public sealed unsafe partial  class WgpuDevice
                 label       = label,
                 layout      = pipelineLayout,
                 vertex      = vertexState,
-                fragment    = &fragmentState,
+                fragment    = pFragmentState,
                 primitive   = desc.PrimitiveState.GetNative(),
                 multisample = desc.MultisampleState.GetNative(),
-                depthStencil= desc.NativeDepthStencilState(allocator)
+                depthStencil= pDepthStencilState
             };
             try {
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);

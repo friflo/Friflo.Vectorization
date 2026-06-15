@@ -43,7 +43,7 @@ public record struct WgpuRenderPipelineDescriptor
 {
             
     public  WgpuPrimitiveState      PrimitiveState      = new();
-    public  WgpuFragmentState       FragmentState       = new();
+    public  WgpuFragmentState?      FragmentState       = null;
     public  WgpuMultisampleState    MultisampleState    = new();
     public  WgpuVertexState         VertexState         = new();
     public  WgpuDepthStencilState?  DepthStencilState   = null;
@@ -78,17 +78,15 @@ public record struct WgpuRenderPipelineDescriptor
     
     static WgpuRenderPipelineDescriptor()
     {
-        var entry       = new RenderPipelineEntry("Default Render Pipeline", new WgpuRenderPipelineDescriptor());
+        var defaultDesc = new WgpuRenderPipelineDescriptor {
+            FragmentState = new WgpuFragmentState()
+        };
+        var entry       = new RenderPipelineEntry("Default Render Pipeline", defaultDesc);
         idToDescriptor  = [entry];
         descriptorToId.Add(entry.descriptor, 0);
     }
     
-    internal readonly unsafe DepthStencilState* NativeDepthStencilState(NativeAllocator allocator)
-    {
-        return allocator.NullableToNative(DepthStencilState, state => state.GetNative());
-    }
-    
-    internal readonly struct RenderPipelineEntry(string name, WgpuRenderPipelineDescriptor descriptor)
+    internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
     {
         internal readonly string                        name        = name;
         internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
