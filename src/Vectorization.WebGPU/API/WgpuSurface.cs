@@ -1,20 +1,30 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
+// --- Windows
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct SurfaceDescriptorFromWindowsHWND
 {
     public ChainedStruct    chain;
     public void*            hinstance;
     public void*            hwnd;
+}
+
+// --- macOS
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct SurfaceDescriptorFromCocoaWindow {
+    public ChainedStruct    chain;
+    public void*            nsWindow;
 }
 
 public readonly unsafe struct WgpuSurface(Surface* handle)
@@ -44,6 +54,18 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         wgpuSurfaceConfigure(handle, &config);
     }
     
+    
+    public static WgpuSurface CreateFromNativeWindow(WgpuInstance instance, nint hwnd, nint hInstance)
+    {
+        if (OperatingSystem.IsWindows()) {
+            return CreateFromHwnd (instance, hwnd, hInstance);
+        }
+        if (OperatingSystem.IsMacOS()) {
+            return SurfaceDescriptorFromCocoaWindow (instance, hwnd);
+        }
+        throw new NotImplementedException();
+    }
+    
     public static WgpuSurface CreateFromHwnd(WgpuInstance instance, nint hwnd, nint hInstance)
     {
         var winDesc = new SurfaceDescriptorFromWindowsHWND {
@@ -54,13 +76,31 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
             hinstance = (void*)hInstance,
             hwnd      = (void*)hwnd
         };
-
         var surfaceDesc = new SurfaceDescriptor {
             label       = default,
             nextInChain = (ChainedStruct*)&winDesc
         };
         var surfaceHandle = wgpuInstanceCreateSurface(instance.instance, &surfaceDesc);
         
+        return new WgpuSurface(surfaceHandle);
+    }
+    
+    public static WgpuSurface SurfaceDescriptorFromCocoaWindow(WgpuInstance instance, nint nsWindow)
+    {
+        var macDesc = new SurfaceDescriptorFromCocoaWindow {
+            chain = new ChainedStruct {
+                next  = null,
+                sType = SType.SurfaceSourceMetalLayer
+            },
+            nsWindow = (void*)nsWindow
+        };
+        var surfaceDesc = new SurfaceDescriptor {
+            label       = default,
+            nextInChain = (ChainedStruct*)&macDesc
+        };
+    
+        var surfaceHandle = wgpuInstanceCreateSurface(instance.instance, &surfaceDesc);
+    
         return new WgpuSurface(surfaceHandle);
     }
 }

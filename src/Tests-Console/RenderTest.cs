@@ -39,9 +39,15 @@ public static partial class RenderTest
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         var props   = SDL.GetWindowProperties(window);
-        osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
-        osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
-        
+        if (OperatingSystem.IsWindows()) {
+            osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
+            osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
+        } else if (OperatingSystem.IsMacOS()) {
+            osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
+            osInstance  = 0;
+        } else {
+            throw new NotImplementedException($"not setup code of OS: {RuntimeInformation.OSDescription}");
+        }
         SDL.ShowWindow(window);
     }
     
@@ -53,7 +59,7 @@ public static partial class RenderTest
         
         // --- setup wgpu-native ---
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
-        var surface         = WgpuSurface.CreateFromHwnd(instance, osHandle, osInstance);
+        var surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
