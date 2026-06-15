@@ -3,6 +3,7 @@
 
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -21,12 +22,12 @@ namespace Friflo.Vectorization.WebGPU;
 /// </summary>
 public readonly struct RenderPipelineConfig
 {
-    public  readonly int                    Id;
+    public readonly     int                             Id;
     
-    public  string                          Name        => WgpuRenderPipelineDescriptor.idToDescriptor[Id].name;
-    public  WgpuRenderPipelineDescriptor    Descriptor  => WgpuRenderPipelineDescriptor.idToDescriptor[Id].descriptor;
+    public              string                          Name        =>     WgpuRenderPipelineDescriptor.GetEntry(Id).name;
+    public ref readonly WgpuRenderPipelineDescriptor    Descriptor  => ref WgpuRenderPipelineDescriptor.GetEntry(Id).descriptor;
     
-    public  override string                 ToString()  => $"'{WgpuRenderPipelineDescriptor.idToDescriptor[Id].name}'";
+    public override     string                          ToString()  => $"'{WgpuRenderPipelineDescriptor.GetEntry(Id).name}'";
     
     internal RenderPipelineConfig(int id) {
         Id = id;
@@ -66,6 +67,12 @@ public record struct WgpuRenderPipelineDescriptor
         return config;
     }
     
+    internal static ref RenderPipelineEntry GetEntry(int id)
+    {
+        var span = CollectionsMarshal.AsSpan(idToDescriptor);
+        return ref span[id];
+    }
+    
     internal static readonly    List<RenderPipelineEntry>                       idToDescriptor;
     internal static readonly    Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
     
@@ -76,7 +83,7 @@ public record struct WgpuRenderPipelineDescriptor
         descriptorToId.Add(entry.descriptor, 0);
     }
     
-    internal unsafe DepthStencilState* NativeDepthStencilState(NativeAllocator allocator)
+    internal readonly unsafe DepthStencilState* NativeDepthStencilState(NativeAllocator allocator)
     {
         return allocator.NullableToNative(DepthStencilState, state => state.GetNative());
     }
@@ -102,7 +109,7 @@ public record struct WgpuPrimitiveState
     
     public WgpuPrimitiveState() { }
     
-    internal PrimitiveState GetNative() {
+    internal readonly PrimitiveState GetNative() {
         return new PrimitiveState {
             topology            = topology,
             stripIndexFormat    = stripIndexFormat,
@@ -122,7 +129,7 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal unsafe FragmentState GetNative(NativeAllocator allocator)
+    internal readonly unsafe FragmentState GetNative(NativeAllocator allocator)
     {
         return new FragmentState {
             targetCount     = (uint)targets.Length,
@@ -142,7 +149,7 @@ public record struct WgpuMultisampleState
     
     public WgpuMultisampleState() { }
     
-    internal MultisampleState GetNative() {
+    internal readonly MultisampleState GetNative() {
         return new MultisampleState {
             count                   = count,
             mask                    = mask,
@@ -167,7 +174,7 @@ public record struct WgpuDepthStencilState
     
     public WgpuDepthStencilState() { }
     
-    internal DepthStencilState GetNative() {
+    internal readonly DepthStencilState GetNative() {
         return new DepthStencilState {
             format              = format,
             depthWriteEnabled   = depthWriteEnabled,
@@ -193,7 +200,7 @@ public record struct WgpuVertexState
     
     public WgpuVertexState() { }
     
-    internal unsafe VertexState GetNative(NativeAllocator allocator)
+    internal readonly unsafe VertexState GetNative(NativeAllocator allocator)
     {
         return new VertexState {
             constantCount   = (uint)constants.Length,
@@ -215,7 +222,7 @@ public record struct WgpuColorTargetState
     
     public WgpuColorTargetState() { }
     
-    internal unsafe ColorTargetState GetNative(NativeAllocator allocator)
+    internal readonly unsafe ColorTargetState GetNative(NativeAllocator allocator)
     {
         return new ColorTargetState {
             format      = format,
@@ -231,7 +238,7 @@ public record struct WgpuConstantEntry
     public  string  key;
     public  double  value;
     
-    internal ConstantEntry GetNative(NativeAllocator allocator)
+    internal readonly ConstantEntry GetNative(NativeAllocator allocator)
     {
         return new ConstantEntry {
             key     = allocator.StringToNative(key),
@@ -247,7 +254,7 @@ public record struct WgpuVertexBufferLayout
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
     
-    internal unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
+    internal readonly unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
             arrayStride     = arrayStride,

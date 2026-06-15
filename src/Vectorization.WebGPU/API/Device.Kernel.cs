@@ -177,8 +177,8 @@ public sealed unsafe partial  class WgpuDevice
         ReadOnlySpan<byte>          fragmentEntryPoint,
         ReadOnlySpan<byte>          labelName)
     {
-        var desc        = config.Descriptor;
-        var allocator   = new NativeAllocator();
+        ref readonly var desc   = ref config.Descriptor;
+        var allocator           = new NativeAllocator();
         
         fixed (byte*                pLabelName      = labelName)
         fixed (byte*                pVertexEntry    = vertexEntryPoint)
