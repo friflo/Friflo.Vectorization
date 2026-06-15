@@ -46,9 +46,6 @@ public static partial class RenderTest
         var osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
         SDL.ShowWindow(window);
         
-        // var hInstance   = Windowing.GetModuleHandleW(null);
-        // var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, width, height, 0, 0, hInstance, 0);
-
         // --- setup wgpu-native ---
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
         var surface         = WgpuSurface.CreateFromHwnd(instance, osHandle, osInstance);

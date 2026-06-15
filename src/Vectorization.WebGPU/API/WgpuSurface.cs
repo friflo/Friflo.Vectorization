@@ -65,6 +65,11 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     }
 }
 
+/*
+//  Usage:
+// var hInstance   = Windowing.GetModuleHandleW(null);
+// var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, width, height, 0, 0, hInstance, 0);
+
 public static unsafe class Windowing
 {
     public static nint CreateWindowExW(
@@ -88,3 +93,4 @@ internal static unsafe class Win32Native
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     public static extern void* GetModuleHandleW(string lpModuleName);
 }
+*/
