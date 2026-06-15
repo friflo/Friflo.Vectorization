@@ -63,7 +63,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         if (OperatingSystem.IsMacOS()) {
             return SurfaceDescriptorFromCocoaWindow (instance, hwnd);
         }
-        throw new NotImplementedException();
+        throw new NotImplementedException($"not code to get WgpuSurface for OS: {RuntimeInformation.OSDescription}");
     }
     
     public static WgpuSurface CreateFromHwnd(WgpuInstance instance, nint hwnd, nint hInstance)

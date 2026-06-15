@@ -46,7 +46,7 @@ public static partial class RenderTest
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
             osInstance  = 0;
         } else {
-            throw new NotImplementedException($"not setup code of OS: {RuntimeInformation.OSDescription}");
+            throw new NotImplementedException($"not SDL3 setup code of OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
     }
