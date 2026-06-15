@@ -54,7 +54,6 @@ public static partial class RenderTest
             throw new NotImplementedException($"not SDL3 setup code of OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
-        // while (SDL.PollEvent(out var e)) { } // required for macOS!
         return window;
     }
     
@@ -70,17 +69,15 @@ public static partial class RenderTest
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
-        SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-        
-        var swapChainFormat = TextureFormat.BGRA8Unorm;  // surface.GetSwapChainFormat(adapter);
-        
-        surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
-
-        var desc = new WgpuRenderPipelineDescriptor();
+        /*var desc = new WgpuRenderPipelineDescriptor();
         desc.FragmentState = new WgpuFragmentState {
             targets = [new WgpuColorTargetState { format = swapChainFormat, writeMask = ColorWriteMask_All}]
-        };
-        var config = desc.CreateConfig("Custom Config");
+        }; */
+        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        var swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
+        
+        SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
+        surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
         
         RunLoop(device, surface, config, swapChainFormat, window);
     }
