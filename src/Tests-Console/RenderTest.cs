@@ -40,13 +40,13 @@ public static partial class RenderTest
         var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
         surface.Configure((WgpuDevice)device, 1280, 720);
         
-        var desc = new RenderConfigDescriptor();
+        var desc = new WgpuRenderPipelineDescriptor();
         var config = desc.GetConfig();
         
         RunLoop(device, surface, config);
     }
     
-    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderConfig config)
+    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config)
     {
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();

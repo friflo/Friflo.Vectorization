@@ -16,18 +16,26 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-public readonly struct RenderConfig
+/// <summary>
+/// Handle to a unique <see cref="WgpuRenderPipelineDescriptor"/>
+/// </summary>
+public readonly struct RenderPipelineConfig
 {
     public readonly int Id;
     
-    internal RenderConfig(int id) {
+    internal RenderPipelineConfig(int id) {
         Id = id;
     }
     
-    public RenderConfigDescriptor Descriptor => RenderConfigDescriptor.idToDescriptor[Id];
+    public WgpuRenderPipelineDescriptor Descriptor => WgpuRenderPipelineDescriptor.idToDescriptor[Id];
 }
 
-public record struct RenderConfigDescriptor
+/// <summary> managed type for:  <see cref="RenderPipelineDescriptor"/> </summary>
+/// <remarks>
+/// After set up of a unique <see cref="WgpuRenderPipelineDescriptor"/> configuration
+/// create a <see cref="RenderPipelineConfig"/> with <see cref="GetConfig"/>.
+/// </remarks>
+public record struct WgpuRenderPipelineDescriptor
 {
     public  WgpuPrimitiveState      PrimitiveState      = new();
     public  WgpuFragmentState       FragmentState       = new();
@@ -35,26 +43,26 @@ public record struct RenderConfigDescriptor
     public  WgpuVertexState         VertexState         = new();
     public  WgpuDepthStencilState?  DepthStencilState   = null;
     
-    public RenderConfigDescriptor() { }
+    public WgpuRenderPipelineDescriptor() { }
     
-    public RenderConfig GetConfig()
+    public RenderPipelineConfig GetConfig()
     {
         if (descriptorToId.TryGetValue(this, out var id)) {
-            return new RenderConfig(id);
+            return new RenderPipelineConfig(id);
         }
         var descriptors = idToDescriptor;
-        var config      = new RenderConfig(descriptors.Count);
+        var config      = new RenderPipelineConfig(descriptors.Count);
         descriptors.Add(this);
         descriptorToId.Add(this, config.Id);
         return config;
     }
     
-    internal static readonly    List<RenderConfigDescriptor>            idToDescriptor;
-    internal static readonly    Dictionary<RenderConfigDescriptor, int> descriptorToId = [];
+    internal static readonly    List<WgpuRenderPipelineDescriptor>            idToDescriptor;
+    internal static readonly    Dictionary<WgpuRenderPipelineDescriptor, int> descriptorToId = [];
     
-    static RenderConfigDescriptor()
+    static WgpuRenderPipelineDescriptor()
     {
-        var defaultDesc = new RenderConfigDescriptor();
+        var defaultDesc = new WgpuRenderPipelineDescriptor();
         idToDescriptor = [defaultDesc];
         descriptorToId.Add(defaultDesc, 0);
     }
@@ -68,7 +76,7 @@ public record struct RenderConfigDescriptor
 
 
 // ---------------------------------------- top level wgpu states ----------------------------------------
-/// <summary> managed type for <see cref="PrimitiveState"/> </summary>
+/// <summary> managed type for:  <see cref="PrimitiveState"/> </summary>
 public record struct WgpuPrimitiveState
 {
     public  PrimitiveTopology   topology            = PrimitiveTopology.TriangleList;
@@ -90,7 +98,7 @@ public record struct WgpuPrimitiveState
     }
 }
 
-/// <summary> managed type for <see cref="FragmentState"/> </summary>
+/// <summary> managed type for:  <see cref="FragmentState"/> </summary>
 public record struct WgpuFragmentState
 {
 //  public  string                              entryPoint;     defined via [Shader] attribute
@@ -110,7 +118,7 @@ public record struct WgpuFragmentState
     }
 }
 
-/// <summary> managed type for <see cref="MultisampleState"/> </summary>
+/// <summary> managed type for:  <see cref="MultisampleState"/> </summary>
 public record struct WgpuMultisampleState
 {
     public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
@@ -128,7 +136,7 @@ public record struct WgpuMultisampleState
     }
 }
 
-/// <summary> managed type for <see cref="DepthStencilState"/> </summary>
+/// <summary> managed type for:  <see cref="DepthStencilState"/> </summary>
 public record struct WgpuDepthStencilState
 {
     public  TextureFormat       format;
@@ -160,7 +168,7 @@ public record struct WgpuDepthStencilState
     }
 }
 
-/// <summary> managed type for <see cref="VertexState"/> </summary>
+/// <summary> managed type for:  <see cref="VertexState"/> </summary>
 public record struct WgpuVertexState
 {
 //  public  ShaderModule*                       module;         defined via [Shader] attribute
@@ -183,7 +191,7 @@ public record struct WgpuVertexState
 
 // ---------------------------------------- child level wgpu states ----------------------------------------
 
-/// <summary> managed type for <see cref="ColorTargetState"/> </summary>
+/// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
 public record struct WgpuColorTargetState
 {
     public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
@@ -202,7 +210,7 @@ public record struct WgpuColorTargetState
     }
 }
 
-/// <summary> managed type for <see cref="ConstantEntry"/> </summary>
+/// <summary> managed type for:  <see cref="ConstantEntry"/> </summary>
 public record struct WgpuConstantEntry
 {
     public  string  key;
@@ -217,7 +225,7 @@ public record struct WgpuConstantEntry
     }
 }
 
-/// <summary> managed type for <see cref="VertexBufferLayout"/> </summary>
+/// <summary> managed type for:  <see cref="VertexBufferLayout"/> </summary>
 public record struct WgpuVertexBufferLayout
 {
     public  VertexStepMode              stepMode;

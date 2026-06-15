@@ -18,7 +18,7 @@ public static partial class RenderTest
     public static void DrawTriangles(
         RenderPass<MainWorld>   renderPass,
         InBuffer<VertexData>    triangles,
-        RenderConfig            config = default)
+        RenderPipelineConfig    config = default)
 	{
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));
@@ -69,7 +69,7 @@ public static partial class RenderTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuShaderEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref WgpuShaderEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderPipelineConfig config)
     {
         var bufferLayout = device.GetBindGroupLayout(Triangles_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
