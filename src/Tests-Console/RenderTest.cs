@@ -38,7 +38,7 @@ public static partial class RenderTest
         
         var width  = 1280;
         var height =  720;
-        var window = SDL.CreateWindow("wgpu Engine", width, height, SDL.WindowFlags.Hidden);
+        var window = SDL.CreateWindow("friflo GPU", width, height, SDL.WindowFlags.Hidden);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
         
         var props       = SDL.GetWindowProperties(window);
