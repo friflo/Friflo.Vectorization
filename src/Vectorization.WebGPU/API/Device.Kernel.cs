@@ -198,7 +198,7 @@ public sealed unsafe partial  class WgpuDevice
                 module      = module.handle,
                 entryPoint  = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
                 targetCount = (uint)desc.FragmentState.targets.Length,
-                targets     = desc.FragmentState.GetTargets(allocator)
+                targets     = desc.FragmentState.NativeTargets(allocator)
             };
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,

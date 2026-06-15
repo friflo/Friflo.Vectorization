@@ -103,7 +103,7 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal unsafe ColorTargetState* GetTargets(NativeAllocator allocator)
+    internal unsafe ColorTargetState* NativeTargets(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(targets, src => new ColorTargetState {
             format      = src.format,
@@ -112,10 +112,10 @@ public record struct WgpuFragmentState
         });
     }
     
-    internal unsafe ConstantEntry* GetConstants(NativeAllocator allocator)
+    internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(constants, src => new ConstantEntry {
-            // key     = src.key,  // TODO
+            key     = allocator.StringToNative(src.key), 
             value   = src.value
         });
     }
@@ -149,19 +149,26 @@ public record struct WgpuVertexState
     
     public WgpuVertexState() { }
     
-    internal unsafe ConstantEntry* GetConstants(NativeAllocator allocator)
+    internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(constants, src => new ConstantEntry {
-            // key     = src.key,  // TODO
+            key     = allocator.StringToNative(src.key),
             value   = src.value
         });
     }
     
-    internal unsafe VertexBufferLayout* GetBuffers(NativeAllocator allocator)
+    internal unsafe VertexBufferLayout* NativeBuffers(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(buffers, src => new VertexBufferLayout {
-            arrayStride = src.arrayStride,
-            stepMode    = src.stepMode
+            arrayStride     = src.arrayStride,
+            stepMode        = src.stepMode,
+            attributeCount  = (uint)src.attributes.Length,
+            attributes      = allocator.ArrayToNative(src.attributes, attribute
+                => new VertexAttribute {
+                    format          = attribute.format,
+                    offset          = attribute.offset,
+                    shaderLocation  = attribute.shaderLocation,
+                }) 
         });
     }
 }
@@ -181,7 +188,7 @@ public record struct WgpuVertexBufferLayout
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
     
-    internal unsafe VertexAttribute* GetAttributes(NativeAllocator allocator)
+    internal unsafe VertexAttribute* NativeAttributes(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(attributes, src => new VertexAttribute {
             format          = src.format,

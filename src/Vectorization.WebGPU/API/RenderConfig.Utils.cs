@@ -6,13 +6,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using Friflo.Vectorization.WebGPU.Runtime;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
+// -------------------------------------- ValueArray<T> --------------------------------------
 /// <summary>
 /// An immutable, structural value-comparable wrapper around a flat array.
 /// </summary>
@@ -75,6 +79,8 @@ public static class ValueArrayBuilder
     }
 }
 
+
+// -------------------------------------- NativeAllocator --------------------------------------
 internal class NativeAllocator
 {
     private readonly List<nint> pointers = [];
@@ -108,6 +114,21 @@ internal class NativeAllocator
 
         *targets = converter(src.Value);
         return targets;
+    }
+    
+    internal unsafe StringView StringToNative(string src)
+    {
+        if (string.IsNullOrEmpty(src)) {
+            return default;
+        }
+        var maxLength   = Encoding.UTF8.GetMaxByteCount(src.Length) + 1; // + \0
+        var target      = (byte*)NativeMemory.Alloc((nuint)maxLength, sizeof(byte));
+        pointers.Add((nint)target);
+        
+        var dest    = new Span<byte>(target, maxLength);
+        int len     = Encoding.UTF8.GetBytes(src, dest);
+        
+        return new StringView { data = (sbyte*)target, length = (uint)len };
     }
     
     internal unsafe void FreePointers()
