@@ -31,20 +31,26 @@ public static partial class RenderTest
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
-    public static void Run()
+    private static (nint osHandle, nint osInstance) InitSDL3(int width, int height)
     {
-        // --- setup SDL3 window ---
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
-        
-        var width  = 1280;
-        var height =  720;
+
         var window = SDL.CreateWindow("friflo GPU", width, height, SDL.WindowFlags.Hidden);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
-        
+
         var props       = SDL.GetWindowProperties(window);
         var osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
         var osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
+        
         SDL.ShowWindow(window);
+        return (osHandle, osInstance);
+    }
+    
+    public static void Run()
+    {
+        var width  = 1280;
+        var height =  720;
+        var (osHandle, osInstance) = InitSDL3(width, height);
         
         // --- setup wgpu-native ---
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
