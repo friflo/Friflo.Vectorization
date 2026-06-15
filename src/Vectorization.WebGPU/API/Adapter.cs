@@ -14,7 +14,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class WgpuAdapter : GpuAdapter
 {
-    private readonly    Adapter*        adapter;
+    internal readonly   Adapter*        adapter;
     private readonly    Instance*       instance;
     private readonly    WgpuAdapterInfo info;
     private             bool            isDisposed;

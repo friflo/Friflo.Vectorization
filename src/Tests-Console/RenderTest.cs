@@ -5,6 +5,7 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 using SDL3;
 
 // ReSharper disable ArrangeRedundantParentheses
@@ -67,9 +68,14 @@ public static partial class RenderTest
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
-        surface.Configure((WgpuDevice)device, width, height);
+        var swapChainFormat = surface.GetSwapChainFormat(adapter);
+        surface.Configure((WgpuDevice)device, width, height, swapChainFormat);
 
-        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline; // 'Default Render Pipeline'
+        var desc = new WgpuRenderPipelineDescriptor();
+        desc.FragmentState = new WgpuFragmentState {
+            targets = [new WgpuColorTargetState { format = swapChainFormat, writeMask = ColorWriteMask_All}]
+        };
+        var config = desc.CreateConfig("Custom Config");
         
         RunLoop(device, surface, config);
     }

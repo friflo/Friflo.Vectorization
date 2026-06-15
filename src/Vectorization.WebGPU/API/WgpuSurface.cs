@@ -36,14 +36,21 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         wgpuSurfacePresent(handle);
     }
     
-    public void Configure(WgpuDevice device, int width, int height)
+    public TextureFormat GetSwapChainFormat(WgpuAdapter adapter)
+    {
+        var capabilities = new SurfaceCapabilities();
+        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
+        return capabilities.formats[0];
+    }
+    
+    public void Configure(WgpuDevice device, int width, int height, TextureFormat swapChainFormat)
     {
         // WebGPU-Standard fo most monitors: BGRA8Unorm
         // Better: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
         var config = new SurfaceConfiguration {
             nextInChain     = null,
             device          = device.DevicePtr,
-            format          = TextureFormat.BGRA8Unorm,  // must be same as in   RenderTest.Triangles_GPU_CreateEffect()
+            format          = swapChainFormat,  //  TextureFormat.BGRA8Unorm - must be same as in   RenderTest.Triangles_GPU_CreateEffect()
             usage           = TextureUsage_RenderAttachment,
             viewFormatCount = 0,
             viewFormats     = null,
