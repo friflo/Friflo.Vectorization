@@ -23,10 +23,9 @@ public unsafe struct SurfaceDescriptorFromWindowsHWND
 
 // --- macOS
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct SurfaceDescriptorFromCocoaWindow {
+public unsafe struct SurfaceDescriptorFromMetalLayer {
     public ChainedStruct    chain;
-    public void*            layer;
-
+    public void*            layer; // CAMetalLayer (metalLayer)
 }
 
 public readonly unsafe struct WgpuSurface(Surface* handle)
@@ -102,7 +101,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         
         nint metalLayer = MacNative.PrepareNsViewForWgpu(nsView);
         
-        var macDesc = new SurfaceDescriptorFromCocoaWindow {
+        var macDesc = new SurfaceDescriptorFromMetalLayer {
             chain = new ChainedStruct {
                 next  = null,
                 sType = SType.SurfaceSourceMetalLayer

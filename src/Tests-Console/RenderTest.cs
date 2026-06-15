@@ -32,11 +32,11 @@ public static partial class RenderTest
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
-    private static void InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
+    private static nint InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
-        var windowFlags = SDL.WindowFlags.Hidden;
+        SDL.WindowFlags windowFlags = SDL.WindowFlags.Hidden;
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
@@ -54,13 +54,15 @@ public static partial class RenderTest
             throw new NotImplementedException($"not SDL3 setup code of OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
+        while (SDL.PollEvent(out var e)) { } // required for macOS!
+        return window;
     }
     
     public static void Run()
     {
         var width  = 1280;
         var height =  720;
-        InitSDL3(width, height, out var osHandle, out var osInstance);
+        var window = InitSDL3(width, height, out var osHandle, out var osInstance);
         
         // --- setup wgpu-native ---
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
@@ -68,8 +70,11 @@ public static partial class RenderTest
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
+        SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
+        
         var swapChainFormat = surface.GetSwapChainFormat(adapter);
-        surface.Configure(device, width, height, swapChainFormat);
+        
+        surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
 
         var desc = new WgpuRenderPipelineDescriptor();
         desc.FragmentState = new WgpuFragmentState {
