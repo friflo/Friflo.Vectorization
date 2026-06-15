@@ -118,14 +118,14 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal unsafe ColorTargetState* NativeTargets(NativeAllocator allocator)
+    internal unsafe FragmentState GetNative(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(targets, src => src.GetNative(allocator));
-    }
-    
-    internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
-    {
-        return allocator.ArrayToNative(constants, src => src.GetNative(allocator));
+        return new FragmentState {
+            targetCount     = (uint)targets.Length,
+            targets         = allocator.ArrayToNative(targets, src => src.GetNative(allocator)),
+            constantCount   = (uint)constants.Length,
+            constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator))
+        };
     }
 }
 
@@ -189,14 +189,14 @@ public record struct WgpuVertexState
     
     public WgpuVertexState() { }
     
-    internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
+    internal unsafe VertexState GetNative(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(constants, src => src.GetNative(allocator));
-    }
-    
-    internal unsafe VertexBufferLayout* NativeBuffers(NativeAllocator allocator)
-    {
-        return allocator.ArrayToNative(buffers, src => src.GetNative(allocator));
+        return new VertexState {
+            constantCount   = (uint)constants.Length,
+            constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
+            bufferCount     = (uint)buffers.Length,
+            buffers         = allocator.ArrayToNative(buffers, src => src.GetNative(allocator))
+        };
     }
 }
 
@@ -222,11 +222,6 @@ public record struct WgpuVertexBufferLayout
     public  VertexStepMode              stepMode;
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
-    
-    internal unsafe VertexAttribute* NativeAttributes(NativeAllocator allocator)
-    {
-        return allocator.ArrayToNative(attributes, attribute => attribute);
-    }
     
     internal unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
     {

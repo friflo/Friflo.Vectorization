@@ -194,21 +194,18 @@ public sealed unsafe partial  class WgpuDevice
             };
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             
-            var fragmentState = new FragmentState {
-                module          = module.handle,
-                entryPoint      = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
-                targetCount     = (uint)desc.FragmentState.targets.Length,
-                targets         = desc.FragmentState.NativeTargets(allocator),
-                constantCount   = (uint)desc.FragmentState.constants.Length,
-                constants       = desc.FragmentState.NativeConstants(allocator),
-            };
+            var fragmentState = desc.FragmentState.GetNative(allocator);
+            fragmentState.module    = module.handle;
+            fragmentState.entryPoint= WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
+            
+            var vertexState = desc.VertexState.GetNative(allocator);
+            vertexState.module      = module.handle;
+            vertexState.entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint);
+            
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
                 layout      = pipelineLayout,
-                vertex      = new VertexState {
-                    module      = module.handle,
-                    entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint)
-                },
+                vertex      = vertexState,
                 fragment    = &fragmentState,
                 primitive   = desc.PrimitiveState.GetNative(),
                 multisample = desc.MultisampleState.GetNative(),
