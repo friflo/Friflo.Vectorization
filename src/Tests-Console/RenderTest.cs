@@ -36,7 +36,7 @@ public static partial class RenderTest
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
-        SDL.WindowFlags windowFlags = SDL.WindowFlags.Hidden;
+        SDL.WindowFlags windowFlags = SDL.WindowFlags.Hidden | SDL.WindowFlags.Resizable;
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
@@ -54,7 +54,7 @@ public static partial class RenderTest
             throw new NotImplementedException($"not SDL3 setup code of OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
-        while (SDL.PollEvent(out var e)) { } // required for macOS!
+        // while (SDL.PollEvent(out var e)) { } // required for macOS!
         return window;
     }
     
@@ -72,7 +72,7 @@ public static partial class RenderTest
         
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
         
-        var swapChainFormat = surface.GetSwapChainFormat(adapter);
+        var swapChainFormat = TextureFormat.BGRA8Unorm;  // surface.GetSwapChainFormat(adapter);
         
         surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
 
