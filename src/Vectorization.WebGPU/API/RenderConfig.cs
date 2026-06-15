@@ -23,10 +23,10 @@ public readonly struct RenderPipelineConfig
 {
     public  readonly int                    Id;
     
-    public  string                          Name        => $"'{WgpuRenderPipelineDescriptor.idToDescriptor[Id].name}'";
+    public  string                          Name        => WgpuRenderPipelineDescriptor.idToDescriptor[Id].name;
     public  WgpuRenderPipelineDescriptor    Descriptor  => WgpuRenderPipelineDescriptor.idToDescriptor[Id].descriptor;
     
-    public  override string                 ToString()  => WgpuRenderPipelineDescriptor.idToDescriptor[Id].name;
+    public  override string                 ToString()  => $"'{WgpuRenderPipelineDescriptor.idToDescriptor[Id].name}'";
     
     internal RenderPipelineConfig(int id) {
         Id = id;
