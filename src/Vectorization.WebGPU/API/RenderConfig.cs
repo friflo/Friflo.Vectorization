@@ -76,6 +76,15 @@ public record struct WgpuColorTargetState
     public  ulong               writeMask           = ColorWriteMask_All;
     
     public WgpuColorTargetState() { }
+    
+    internal unsafe ColorTargetState GetNative(NativeAllocator allocator)
+    {
+        return new ColorTargetState {
+            format      = format,
+            writeMask   = writeMask,
+            blend       = allocator.NullableToNative(blend, value => value)
+        };
+    }
 }
 
 /// <summary> managed type for <see cref="PrimitiveState"/> </summary>
@@ -111,11 +120,7 @@ public record struct WgpuFragmentState
 
     internal unsafe ColorTargetState* NativeTargets(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(targets, src => new ColorTargetState {
-            format      = src.format,
-            writeMask   = src.writeMask,
-            blend       = allocator.NullableToNative(src.blend, blend => blend)
-        });
+        return allocator.ArrayToNative(targets, src => src.GetNative(allocator));
     }
     
     internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
@@ -191,12 +196,7 @@ public record struct WgpuVertexState
     
     internal unsafe VertexBufferLayout* NativeBuffers(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(buffers, src => new VertexBufferLayout {
-            arrayStride     = src.arrayStride,
-            stepMode        = src.stepMode,
-            attributeCount  = (uint)src.attributes.Length,
-            attributes      = allocator.ArrayToNative(src.attributes, attribute => attribute)
-        });
+        return allocator.ArrayToNative(buffers, src => src.GetNative(allocator));
     }
 }
 
@@ -226,5 +226,15 @@ public record struct WgpuVertexBufferLayout
     internal unsafe VertexAttribute* NativeAttributes(NativeAllocator allocator)
     {
         return allocator.ArrayToNative(attributes, attribute => attribute);
+    }
+    
+    internal unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
+    {
+        return new VertexBufferLayout {
+            arrayStride     = arrayStride,
+            stepMode        = stepMode,
+            attributeCount  = (uint)attributes.Length,
+            attributes      = allocator.ArrayToNative(attributes, attribute => attribute)
+        };
     }
 }
