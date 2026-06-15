@@ -41,7 +41,6 @@ public readonly struct RenderPipelineConfig
 /// </remarks>
 public record struct WgpuRenderPipelineDescriptor
 {
-            
     public  WgpuPrimitiveState      PrimitiveState      = new();
     public  WgpuFragmentState?      FragmentState       = null;
     public  WgpuMultisampleState    MultisampleState    = new();
@@ -208,6 +207,8 @@ public record struct WgpuVertexState
         };
     }
 }
+
+
 
 // ---------------------------------------- child level wgpu states ----------------------------------------
 
