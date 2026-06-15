@@ -64,19 +64,21 @@ public record struct RenderConfigDescriptor
 }
 
 
-// --------------------------- top level states ---------------------------
+// ---------------------------------------- top level wgpu states ----------------------------------------
+/// <summary> managed type for <see cref="ColorTargetState"/> </summary>
 public record struct WgpuColorTargetState
 {
-    public  TextureFormat       format      = TextureFormat.BGRA8Unorm;
+    public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
     public  BlendState?         blend;
-    public  ulong               writeMask   = ColorWriteMask_All;
+    public  ulong               writeMask           = ColorWriteMask_All;
     
     public WgpuColorTargetState() { }
 }
 
+/// <summary> managed type for <see cref="PrimitiveState"/> </summary>
 public record struct WgpuPrimitiveState
 {
-    public  PrimitiveTopology   topology = PrimitiveTopology.TriangleList;
+    public  PrimitiveTopology   topology            = PrimitiveTopology.TriangleList;
     public  IndexFormat         stripIndexFormat;
     public  FrontFace           frontFace;
     public  CullMode            cullMode;
@@ -90,11 +92,12 @@ public record struct WgpuPrimitiveState
             stripIndexFormat    = stripIndexFormat,
             frontFace           = frontFace,
             cullMode            = cullMode,
-            unclippedDepth      =  unclippedDepth
+            unclippedDepth      = unclippedDepth
         };
     }
 }
 
+/// <summary> managed type for <see cref="FragmentState"/> </summary>
 public record struct WgpuFragmentState
 {
 //  public  string                              entryPoint;     defined via [Shader] attribute
@@ -103,25 +106,26 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal ColorTargetState[] GetTargets()
-    {
-        var array = new ColorTargetState[targets.Length];
-        for (int n = 0; n < targets.Length; n++) {
-            var src = targets[n];
-            var dst = new ColorTargetState {
-                format      =  src.format,
-                writeMask   =  src.writeMask
-            };
-            array[n] = dst;            
-        }
-        return array;
-    } 
+    internal ColorTargetState[] GetTargets() {
+        return targets.ToArray(src => new ColorTargetState {
+            format      = src.format,
+            writeMask   = src.writeMask
+        });
+    }
+    
+    internal ConstantEntry[] GetConstants() {
+        return constants.ToArray(src => new ConstantEntry {
+            // key     = src.key,  // TODO
+            value   = src.value
+        });
+    }
 }
 
+/// <summary> managed type for <see cref="MultisampleState"/> </summary>
 public record struct WgpuMultisampleState
 {
-    public  uint    count   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
-    public  uint    mask    = 0xFFFFFFFF;   // (Standard)
+    public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+    public  uint    mask                    = 0xFFFFFFFF;   // (Standard)
     public  bool    alphaToCoverageEnabled;
     
     public WgpuMultisampleState() { }
@@ -135,30 +139,57 @@ public record struct WgpuMultisampleState
     }
 }
 
+/// <summary> managed type for <see cref="VertexState"/> </summary>
 public record struct WgpuVertexState
 {
 //  public  ShaderModule*                       module;         defined via [Shader] attribute
 //  public  StringView                          entryPoint;     defined via [Shader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
-    public  ValueArray<WgpuVertexBufferLayout>  buffer;
+    public  ValueArray<WgpuVertexBufferLayout>  buffers;
     
     public WgpuVertexState() { }
+    
+    internal ConstantEntry[] GetConstants() {
+        return constants.ToArray(src => new ConstantEntry {
+            // key     = src.key,  // TODO
+            value   = src.value
+        });
+    }
+    
+    internal VertexBufferLayout[] GetBuffers() {
+        return buffers.ToArray(src => new VertexBufferLayout {
+            arrayStride = src.arrayStride,
+            stepMode    = src.stepMode
+        });
+    }
 }
 
-// --------------------------- child level states ---------------------------
+// ---------------------------------------- child level wgpu states ----------------------------------------
+/// <summary> managed type for <see cref="ConstantEntry"/> </summary>
 public record struct WgpuConstantEntry
 {
     public  string  key;
     public  double  value;
 }
 
+/// <summary> managed type for <see cref="VertexBufferLayout"/> </summary>
 public record struct WgpuVertexBufferLayout
 {
     public  VertexStepMode              stepMode;
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
+    
+    internal VertexAttribute[] GetAttributes() {
+        return attributes.ToArray(src => new VertexAttribute {
+            format          = src.format,
+            offset          = src.offset,
+            shaderLocation  = src.shaderLocation
+        });
+    }
 }
 
+
+// -------------------------------------------- ValueArray<> --------------------------------------------
 
 /// <summary>
 /// An immutable, structural value-comparable wrapper around a flat array.
@@ -209,6 +240,19 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)(_array ?? Array.Empty<T>())).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    
+    
+    internal TTarget[] ToArray<TTarget>(Func<T, TTarget> converter)
+    {
+        if (Length == 0) {
+            return [];
+        }
+        var targets = new TTarget[Length];
+        for (int n = 0; n < Length; n++) {
+            targets[n] = converter(_array[n]);
+        }
+        return targets;
+    }
 }
 
 /// <summary>
