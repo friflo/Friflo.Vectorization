@@ -41,6 +41,7 @@ public static partial class RenderTest
         surface.Configure((WgpuDevice)device, 1280, 720);
         
         var desc = new WgpuRenderPipelineDescriptor();
+        // desc.FragmentState.constants = [new WgpuConstantEntry { key = "test", value = 123 }]; // add test entry
         var config = desc.CreateConfig("Custom Config");
         
         RunLoop(device, surface, config);
