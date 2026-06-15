@@ -130,7 +130,7 @@ public record struct WgpuFragmentState
     {
         return new FragmentState {
             targetCount     = (uint)targets.Length,
-            targets         = allocator.ArrayToNative(targets, src => src.GetNative(allocator)),
+            targets         = allocator.ArrayToNative(targets,   src => src.GetNative(allocator)),
             constantCount   = (uint)constants.Length,
             constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator))
         };
@@ -203,7 +203,7 @@ public record struct WgpuVertexState
             constantCount   = (uint)constants.Length,
             constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
             bufferCount     = (uint)buffers.Length,
-            buffers         = allocator.ArrayToNative(buffers, src => src.GetNative(allocator))
+            buffers         = allocator.ArrayToNative(buffers,   src => src.GetNative(allocator))
         };
     }
 }
@@ -259,7 +259,7 @@ public record struct WgpuVertexBufferLayout
             arrayStride     = arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
-            attributes      = allocator.ArrayToNative(attributes, attribute => attribute)
+            attributes      = allocator.ArrayToNative(attributes, src => src)
         };
     }
 }
