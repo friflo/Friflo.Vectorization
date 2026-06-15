@@ -5,6 +5,7 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using SDL3;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Local
@@ -30,15 +31,29 @@ public static partial class RenderTest
     
     public static void Run()
     {
+        // --- setup SDL3 window ---
+        if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
+        
+        var width  = 1280;
+        var height =  720;
+        var window = SDL.CreateWindow("wgpu Engine", width, height, SDL.WindowFlags.Hidden);
+        if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
+        
+        var props       = SDL.GetWindowProperties(window);
+        var osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
+        var osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
+        SDL.ShowWindow(window);
+        
+        // var hInstance   = Windowing.GetModuleHandleW(null);
+        // var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, width, height, 0, 0, hInstance, 0);
+
+        // --- setup wgpu-native ---
         using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
+        var surface         = WgpuSurface.CreateFromHwnd(instance, osHandle, osInstance);
         using var adapter   = instance.RequestAdapter(default, null);
         using var device    = adapter.CreateDevice("test");
         
-        var hInstance   = Windowing.GetModuleHandleW(null);
-        var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, 1280, 720, 0, 0, hInstance, 0);
-        
-        var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
-        surface.Configure((WgpuDevice)device, 1280, 720);
+        surface.Configure((WgpuDevice)device, width, height);
 
         var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline; // 'Default Render Pipeline'
         

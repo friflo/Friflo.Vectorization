@@ -25,7 +25,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         wgpuSurfacePresent(handle);
     }
     
-    public void Configure(WgpuDevice device, uint width, uint height)
+    public void Configure(WgpuDevice device, int width, int height)
     {
         // WebGPU-Standard fo most monitors: BGRA8Unorm
         // Better: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
@@ -37,8 +37,8 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
             viewFormatCount = 0,
             viewFormats     = null,
             alphaMode       = CompositeAlphaMode.Opaque,
-            width           = width,
-            height          = height,
+            width           = (uint)width,
+            height          = (uint)height,
             presentMode     = PresentMode.Fifo // corresponds to VSync (Standard)
         };
         wgpuSurfaceConfigure(handle, &config);
