@@ -195,10 +195,12 @@ public sealed unsafe partial  class WgpuDevice
             var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
             
             var fragmentState = new FragmentState {
-                module      = module.handle,
-                entryPoint  = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
-                targetCount = (uint)desc.FragmentState.targets.Length,
-                targets     = desc.FragmentState.NativeTargets(allocator)
+                module          = module.handle,
+                entryPoint      = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
+                targetCount     = (uint)desc.FragmentState.targets.Length,
+                targets         = desc.FragmentState.NativeTargets(allocator),
+                constantCount   = (uint)desc.FragmentState.constants.Length,
+                constants       = desc.FragmentState.NativeConstants(allocator),
             };
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
@@ -209,7 +211,8 @@ public sealed unsafe partial  class WgpuDevice
                 },
                 fragment    = &fragmentState,
                 primitive   = desc.PrimitiveState.GetNative(),
-                multisample = desc.MultisampleState.GetNative()
+                multisample = desc.MultisampleState.GetNative(),
+                depthStencil= desc.NativeDepthStencilState(allocator)
             };
             try {
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);

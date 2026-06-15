@@ -34,6 +34,7 @@ public record struct RenderConfigDescriptor
     public  WgpuFragmentState       FragmentState       = new();
     public  WgpuMultisampleState    MultisampleState    = new();
     public  WgpuVertexState         VertexState         = new();
+    public  WgpuDepthStencilState?  DepthStencilState   = null;
     
     public RenderConfigDescriptor() { }
     
@@ -57,6 +58,11 @@ public record struct RenderConfigDescriptor
         var defaultDesc = new RenderConfigDescriptor();
         idToDescriptor = [defaultDesc];
         descriptorToId.Add(defaultDesc, 0);
+    }
+    
+    internal unsafe DepthStencilState* NativeDepthStencilState(NativeAllocator allocator)
+    {
+        return allocator.NullableToNative(DepthStencilState, state => state.GetNative());
     }
 }
 
@@ -114,10 +120,7 @@ public record struct WgpuFragmentState
     
     internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(constants, src => new ConstantEntry {
-            key     = allocator.StringToNative(src.key), 
-            value   = src.value
-        });
+        return allocator.ArrayToNative(constants, src => src.GetNative(allocator));
     }
 }
 
@@ -139,6 +142,38 @@ public record struct WgpuMultisampleState
     }
 }
 
+/// <summary> managed type for <see cref="DepthStencilState"/> </summary>
+public record struct WgpuDepthStencilState
+{
+    public  TextureFormat       format;
+    public  OptionalBool        depthWriteEnabled;
+    public  CompareFunction     depthCompare;
+    public  StencilFaceState    stencilFront;
+    public  StencilFaceState    stencilBack;
+    public  uint                stencilReadMask;
+    public  uint                stencilWriteMask;
+    public  int                 depthBias;
+    public  float               depthBiasSlopeScale;
+    public  float               depthBiasClamp;
+    
+    public WgpuDepthStencilState() { }
+    
+    internal DepthStencilState GetNative() {
+        return new DepthStencilState {
+            format              = format,
+            depthWriteEnabled   = depthWriteEnabled,
+            depthCompare        = depthCompare,
+            stencilFront        = stencilFront,
+            stencilBack         = stencilBack,
+            stencilReadMask     = stencilReadMask,
+            stencilWriteMask    = stencilWriteMask,
+            depthBias           = depthBias,
+            depthBiasSlopeScale = depthBiasSlopeScale,
+            depthBiasClamp      = depthBiasClamp
+        };
+    }
+}
+
 /// <summary> managed type for <see cref="VertexState"/> </summary>
 public record struct WgpuVertexState
 {
@@ -151,10 +186,7 @@ public record struct WgpuVertexState
     
     internal unsafe ConstantEntry* NativeConstants(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(constants, src => new ConstantEntry {
-            key     = allocator.StringToNative(src.key),
-            value   = src.value
-        });
+        return allocator.ArrayToNative(constants, src => src.GetNative(allocator));
     }
     
     internal unsafe VertexBufferLayout* NativeBuffers(NativeAllocator allocator)
@@ -179,6 +211,14 @@ public record struct WgpuConstantEntry
 {
     public  string  key;
     public  double  value;
+    
+    internal ConstantEntry GetNative(NativeAllocator allocator)
+    {
+        return new ConstantEntry {
+            key     = allocator.StringToNative(key),
+            value   = value
+        };
+    }
 }
 
 /// <summary> managed type for <see cref="VertexBufferLayout"/> </summary>
