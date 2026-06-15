@@ -19,7 +19,11 @@ public static class Test_WGPU
         
         Assert.AreEqual("Custom Config", config.Name);
         
-        ref readonly var desc2 = ref config.Descriptor;
-        Assert.AreEqual(1, desc2.FragmentState!.Value.constants.Length);
+        ref readonly var desc = ref config.Descriptor;
+        Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
+        
+        
+        var defaultConfig = WgpuRenderPipelineDescriptor.DefaultConfig;
+        Assert.AreEqual("Default Render Pipeline", defaultConfig.Name);
     }
 }

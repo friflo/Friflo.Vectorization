@@ -49,6 +49,13 @@ public record struct WgpuRenderPipelineDescriptor
 
     public WgpuRenderPipelineDescriptor()  { }
     
+    /// <summary> Returns the default <see cref="RenderPipelineConfig"/> with a <see cref="FragmentState"/>. </summary>
+    /// <remarks>
+    /// To create a custom config create a new <see cref="WgpuRenderPipelineDescriptor"/><br/>
+    /// instance and call <see cref="CreateConfig"/>.
+    /// </remarks>
+    public static RenderPipelineConfig DefaultConfig = new();
+    
     /// <summary>
     /// Create a new <see cref="RenderPipelineConfig"/> or returns an existing<br/>
     /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
