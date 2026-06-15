@@ -73,8 +73,8 @@ public record struct WgpuRenderPipelineDescriptor
         return ref span[id];
     }
     
-    internal static readonly    List<RenderPipelineEntry>                       idToDescriptor;
-    internal static readonly    Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
+    private static readonly     List<RenderPipelineEntry>                       idToDescriptor;
+    private static readonly     Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
     
     static WgpuRenderPipelineDescriptor()
     {
