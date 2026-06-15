@@ -103,15 +103,17 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal ColorTargetState[] GetTargets() {
-        return targets.ToArray(src => new ColorTargetState {
+    internal ColorTargetState[] GetTargets(NativeAllocator allocator)
+    {
+        return allocator.ToArray(targets, src => new ColorTargetState {
             format      = src.format,
             writeMask   = src.writeMask
         });
     }
     
-    internal ConstantEntry[] GetConstants() {
-        return constants.ToArray(src => new ConstantEntry {
+    internal ConstantEntry[] GetConstants(NativeAllocator allocator)
+    {
+        return allocator.ToArray(constants, src => new ConstantEntry {
             // key     = src.key,  // TODO
             value   = src.value
         });
@@ -146,15 +148,17 @@ public record struct WgpuVertexState
     
     public WgpuVertexState() { }
     
-    internal ConstantEntry[] GetConstants() {
-        return constants.ToArray(src => new ConstantEntry {
+    internal ConstantEntry[] GetConstants(NativeAllocator allocator)
+    {
+        return allocator.ToArray(constants, src => new ConstantEntry {
             // key     = src.key,  // TODO
             value   = src.value
         });
     }
     
-    internal VertexBufferLayout[] GetBuffers() {
-        return buffers.ToArray(src => new VertexBufferLayout {
+    internal VertexBufferLayout[] GetBuffers(NativeAllocator allocator)
+    {
+        return allocator.ToArray(buffers, src => new VertexBufferLayout {
             arrayStride = src.arrayStride,
             stepMode    = src.stepMode
         });
@@ -176,8 +180,9 @@ public record struct WgpuVertexBufferLayout
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
     
-    internal VertexAttribute[] GetAttributes() {
-        return attributes.ToArray(src => new VertexAttribute {
+    internal VertexAttribute[] GetAttributes(NativeAllocator allocator)
+    {
+        return allocator.ToArray(attributes, src => new VertexAttribute {
             format          = src.format,
             offset          = src.offset,
             shaderLocation  = src.shaderLocation

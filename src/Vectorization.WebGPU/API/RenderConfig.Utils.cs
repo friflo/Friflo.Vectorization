@@ -60,19 +60,6 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)(_array ?? Array.Empty<T>())).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    
-    
-    internal TTarget[] ToArray<TTarget>(Func<T, TTarget> converter)
-    {
-        if (Length == 0) {
-            return [];
-        }
-        var targets = new TTarget[Length];
-        for (int n = 0; n < Length; n++) {
-            targets[n] = converter(_array[n]);
-        }
-        return targets;
-    }
 }
 
 /// <summary>
@@ -83,5 +70,21 @@ public static class ValueArrayBuilder
     public static ValueArray<T> Create<T>(ReadOnlySpan<T> items) where T : struct
     {
         return new ValueArray<T>(items);
+    }
+}
+
+internal class NativeAllocator
+{
+    internal TTarget[] ToArray<TFrom, TTarget>(ValueArray<TFrom> src, Func<TFrom, TTarget> converter) where TFrom : struct
+    {
+        var length = src.Length;
+        if (length == 0) {
+            return [];
+        }
+        var targets = new TTarget[length];
+        for (int n = 0; n < length; n++) {
+            targets[n] = converter(src[n]);
+        }
+        return targets;
     }
 }
