@@ -41,7 +41,7 @@ public static partial class RenderTest
         surface.Configure((WgpuDevice)device, 1280, 720);
         
         var desc = new WgpuRenderPipelineDescriptor();
-        var config = desc.GetConfig();
+        var config = desc.CreateConfig("Custom Config");
         
         RunLoop(device, surface, config);
     }

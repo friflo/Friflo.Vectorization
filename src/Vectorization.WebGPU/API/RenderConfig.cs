@@ -21,55 +21,70 @@ namespace Friflo.Vectorization.WebGPU;
 /// </summary>
 public readonly struct RenderPipelineConfig
 {
-    public readonly int Id;
+    public  readonly int                    Id;
+    
+    public  string                          Name        => $"'{WgpuRenderPipelineDescriptor.idToDescriptor[Id].name}'";
+    public  WgpuRenderPipelineDescriptor    Descriptor  => WgpuRenderPipelineDescriptor.idToDescriptor[Id].descriptor;
+    
+    public  override string                 ToString()  => Name;
     
     internal RenderPipelineConfig(int id) {
         Id = id;
     }
-    
-    public WgpuRenderPipelineDescriptor Descriptor => WgpuRenderPipelineDescriptor.idToDescriptor[Id];
 }
 
 /// <summary> managed type for:  <see cref="RenderPipelineDescriptor"/> </summary>
 /// <remarks>
 /// After set up of a unique <see cref="WgpuRenderPipelineDescriptor"/> configuration
-/// create a <see cref="RenderPipelineConfig"/> with <see cref="GetConfig"/>.
+/// create a <see cref="RenderPipelineConfig"/> with <see cref="CreateConfig"/>.
 /// </remarks>
 public record struct WgpuRenderPipelineDescriptor
 {
+            
     public  WgpuPrimitiveState      PrimitiveState      = new();
     public  WgpuFragmentState       FragmentState       = new();
     public  WgpuMultisampleState    MultisampleState    = new();
     public  WgpuVertexState         VertexState         = new();
     public  WgpuDepthStencilState?  DepthStencilState   = null;
+
+    public WgpuRenderPipelineDescriptor()  { }
     
-    public WgpuRenderPipelineDescriptor() { }
-    
-    public RenderPipelineConfig GetConfig()
+    /// <summary>
+    /// Create a new <see cref="RenderPipelineConfig"/> or returns an existing<br/>
+    /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
+    /// </summary>
+    public RenderPipelineConfig CreateConfig(string name)
     {
         if (descriptorToId.TryGetValue(this, out var id)) {
             return new RenderPipelineConfig(id);
         }
         var descriptors = idToDescriptor;
         var config      = new RenderPipelineConfig(descriptors.Count);
-        descriptors.Add(this);
+        var entry       = new RenderPipelineEntry(name, this);
+        descriptors.Add(entry);
         descriptorToId.Add(this, config.Id);
         return config;
     }
     
-    internal static readonly    List<WgpuRenderPipelineDescriptor>            idToDescriptor;
-    internal static readonly    Dictionary<WgpuRenderPipelineDescriptor, int> descriptorToId = [];
+    internal static readonly    List<RenderPipelineEntry>                       idToDescriptor;
+    internal static readonly    Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
     
     static WgpuRenderPipelineDescriptor()
     {
-        var defaultDesc = new WgpuRenderPipelineDescriptor();
-        idToDescriptor = [defaultDesc];
-        descriptorToId.Add(defaultDesc, 0);
+        var entry       = new RenderPipelineEntry("Default Render Pipeline", new WgpuRenderPipelineDescriptor());
+        idToDescriptor  = [entry];
+        descriptorToId.Add(entry.descriptor, 0);
     }
     
     internal unsafe DepthStencilState* NativeDepthStencilState(NativeAllocator allocator)
     {
         return allocator.NullableToNative(DepthStencilState, state => state.GetNative());
+    }
+    
+    internal readonly struct RenderPipelineEntry(string name, WgpuRenderPipelineDescriptor descriptor)
+    {
+        internal readonly string                        name        = name;
+        internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
     }
 }
 

@@ -31,6 +31,8 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 {
     private readonly T[] _array;
 
+    public override string ToString() => $"{typeof(T).Name}[{Length}]";
+
     public ValueArray(ReadOnlySpan<T> span)
     {
         if (span.IsEmpty) return;
