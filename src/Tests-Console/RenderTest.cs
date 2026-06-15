@@ -40,7 +40,7 @@ public static partial class RenderTest
         var surface     = WgpuSurface.CreateFromHwnd(instance, hwnd, hInstance);
         surface.Configure((WgpuDevice)device, 1280, 720);
 
-        var config = WgpuRenderPipelineDescriptor.DefaultConfig; // 'Default Render Pipeline'
+        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline; // 'Default Render Pipeline'
         
         RunLoop(device, surface, config);
     }

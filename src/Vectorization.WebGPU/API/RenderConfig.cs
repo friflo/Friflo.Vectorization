@@ -54,7 +54,7 @@ public record struct WgpuRenderPipelineDescriptor
     /// To create a custom config create a new <see cref="WgpuRenderPipelineDescriptor"/><br/>
     /// instance and call <see cref="CreateConfig"/>.
     /// </remarks>
-    public static RenderPipelineConfig DefaultConfig = new();
+    public static RenderPipelineConfig DefaultRenderPipeline = new();
     
     /// <summary>
     /// Create a new <see cref="RenderPipelineConfig"/> or returns an existing<br/>
