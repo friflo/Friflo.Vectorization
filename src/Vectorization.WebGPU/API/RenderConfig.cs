@@ -29,7 +29,6 @@ public readonly struct RenderConfig
 
 public record struct RenderConfigDescriptor
 {
-    public  WgpuColorTargetState    ColorTargetState    = new();
     public  WgpuPrimitiveState      PrimitiveState      = new();
     public  WgpuFragmentState       FragmentState       = new();
     public  WgpuMultisampleState    MultisampleState    = new();
@@ -67,26 +66,8 @@ public record struct RenderConfigDescriptor
 }
 
 
-// ---------------------------------------- top level wgpu states ----------------------------------------
-/// <summary> managed type for <see cref="ColorTargetState"/> </summary>
-public record struct WgpuColorTargetState
-{
-    public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
-    public  BlendState?         blend;
-    public  ulong               writeMask           = ColorWriteMask_All;
-    
-    public WgpuColorTargetState() { }
-    
-    internal unsafe ColorTargetState GetNative(NativeAllocator allocator)
-    {
-        return new ColorTargetState {
-            format      = format,
-            writeMask   = writeMask,
-            blend       = allocator.NullableToNative(blend, value => value)
-        };
-    }
-}
 
+// ---------------------------------------- top level wgpu states ----------------------------------------
 /// <summary> managed type for <see cref="PrimitiveState"/> </summary>
 public record struct WgpuPrimitiveState
 {
@@ -201,6 +182,26 @@ public record struct WgpuVertexState
 }
 
 // ---------------------------------------- child level wgpu states ----------------------------------------
+
+/// <summary> managed type for <see cref="ColorTargetState"/> </summary>
+public record struct WgpuColorTargetState
+{
+    public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
+    public  BlendState?         blend;
+    public  ulong               writeMask           = ColorWriteMask_All;
+    
+    public WgpuColorTargetState() { }
+    
+    internal unsafe ColorTargetState GetNative(NativeAllocator allocator)
+    {
+        return new ColorTargetState {
+            format      = format,
+            writeMask   = writeMask,
+            blend       = allocator.NullableToNative(blend, value => value)
+        };
+    }
+}
+
 /// <summary> managed type for <see cref="ConstantEntry"/> </summary>
 public record struct WgpuConstantEntry
 {
