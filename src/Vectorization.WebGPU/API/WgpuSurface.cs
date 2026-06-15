@@ -24,7 +24,8 @@ public unsafe struct SurfaceDescriptorFromWindowsHWND
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct SurfaceDescriptorFromCocoaWindow {
     public ChainedStruct    chain;
-    public void*            nsWindow;
+    public void*            layer;
+
 }
 
 public readonly unsafe struct WgpuSurface(Surface* handle)
@@ -87,12 +88,17 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     
     public static WgpuSurface SurfaceDescriptorFromCocoaWindow(WgpuInstance instance, nint nsWindow)
     {
+        nint contentViewSelector = MacNative.SelRegisterName("contentView");
+        nint nsView = MacNative.ObjCMsgSend(nsWindow, contentViewSelector);
+        
+        nint metalLayer = MacNative.PrepareNsViewForWgpu(nsView);
+        
         var macDesc = new SurfaceDescriptorFromCocoaWindow {
             chain = new ChainedStruct {
                 next  = null,
                 sType = SType.SurfaceSourceMetalLayer
             },
-            nsWindow = (void*)nsWindow
+            layer    = (void*)metalLayer,
         };
         var surfaceDesc = new SurfaceDescriptor {
             label       = default,
@@ -103,6 +109,75 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     
         return new WgpuSurface(surfaceHandle);
     }
+}
+
+
+
+
+public static class MacNative
+{
+    public static IntPtr PrepareNsViewForWgpu(IntPtr nsView)
+    {
+        if (nsView == IntPtr.Zero) return IntPtr.Zero;
+
+        nint setWantsLayerSel = SelRegisterName("setWantsLayer:");
+        ObjCMsgSend_Bool(nsView, setWantsLayerSel, true);
+
+        nint caMetalLayerClass = ObjCGetClass("CAMetalLayer");
+        if (caMetalLayerClass == IntPtr.Zero) {
+            nint dl = dlopen("/System/Library/Frameworks/QuartzCore.framework/QuartzCore", 1);
+            caMetalLayerClass = ObjCGetClass("CAMetalLayer");
+        }
+        nint allocSel = SelRegisterName("alloc");
+        nint initSel = SelRegisterName("init");
+    
+        nint metalLayerAlloc = ObjCMsgSend(caMetalLayerClass, allocSel);
+        nint metalLayer = ObjCMsgSend(metalLayerAlloc, initSel);
+
+        if (metalLayer == IntPtr.Zero) {
+            throw new Exception("failed to initialize CAMetalLayer");
+        }
+        nint setLayerSel = SelRegisterName("setLayer:");
+        ObjCMsgSend_IntPtr(nsView, setLayerSel, metalLayer);
+
+        return metalLayer; 
+    }
+    
+    /* public static IntPtr GetMacOsNsView(nint nsWindow)
+    {
+        IntPtr contentViewSelector = SelRegisterName("contentView");
+
+        IntPtr nsView = ObjCMsgSend(nsWindow, contentViewSelector);
+
+        if (nsView == IntPtr.Zero) {
+            throw new Exception("contentView of NSView is Null.");
+        }
+        return nsView;
+    } */
+    
+    private const string ObjCRuntime = "/usr/lib/libobjc.A.dylib";
+
+    
+    
+    [DllImport(ObjCRuntime, EntryPoint = "sel_registerName")]
+    public static extern IntPtr SelRegisterName(string name);
+
+    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
+    public static extern IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector);
+    
+    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
+    public static extern void ObjCMsgSend_IntPtr(IntPtr receiver, IntPtr selector, IntPtr argument);
+    
+    // overload for boolean parameter (required for setWantsLayer:)
+    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
+    public static extern void ObjCMsgSend_Bool(IntPtr receiver, IntPtr selector, bool value);
+
+    // used to find CAMetalLayer class
+    [DllImport(ObjCRuntime, EntryPoint = "objc_getClass")]
+    public static extern IntPtr ObjCGetClass(string name);
+    
+    [DllImport("libdl.dylib")]
+    private static extern IntPtr dlopen(string filename, int flags);
 }
 
 /*

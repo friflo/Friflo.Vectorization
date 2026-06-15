@@ -34,8 +34,12 @@ public static partial class RenderTest
     private static void InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
-
-        var window = SDL.CreateWindow("friflo GPU", width, height, SDL.WindowFlags.Hidden);
+        
+        var windowFlags = SDL.WindowFlags.Hidden;
+        if (OperatingSystem.IsMacOS()) {
+            windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
+        }
+        var window = SDL.CreateWindow("friflo GPU", width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         var props   = SDL.GetWindowProperties(window);
