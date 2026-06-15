@@ -26,12 +26,14 @@ public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
 
 public static class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
+    public static unsafe RenderFrame? BeginFrame(this PipelineContext context, WgpuSurface surface)
     {
         var recorder = (CommandRecorder)context;
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
-        
+        if (surfaceTexture.texture == null) {
+            return null;  //   surfaceTexture.texture == null   if window minimized
+        }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new WgpuTextureView(handle);
         

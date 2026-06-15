@@ -82,10 +82,10 @@ public static partial class RenderTest
         };
         var config = desc.CreateConfig("Custom Config");
         
-        RunLoop(device, surface, config);
+        RunLoop(device, surface, config, swapChainFormat, window);
     }
     
-    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config)
+    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config, TextureFormat swapChainFormat, nint window)
     {
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
@@ -105,10 +105,17 @@ public static partial class RenderTest
                     (e.Type == (uint)SDL.EventType.KeyDown && e.Key.Scancode == SDL.Scancode.Escape)) {
                     running = false;
                 }
+                if (e.Type == (uint)SDL.EventType.WindowRestored || e.Type == (uint)SDL.EventType.WindowExposed || (e.Type == (uint)SDL.EventType.WindowPixelSizeChanged)) {
+                    SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
+                    surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
+                }
             }
-            using var frame = context.BeginFrame(surface);
-            
-            using (var pass = frame.BeginRenderPass<MainWorld>(attachment))
+            using var frame = context.BeginFrame(surface);   //  frame == null   if window minimized
+            if (frame == null) {
+                Thread.Sleep(16); // prevent CPU consuming 100%
+                continue;
+            }
+            using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
             {
                 DrawTriangles(pass, data.In(), config);
                 // multiple Draw*() methods can be called here
