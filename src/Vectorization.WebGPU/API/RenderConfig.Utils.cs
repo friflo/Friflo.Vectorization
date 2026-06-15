@@ -5,6 +5,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -75,16 +77,44 @@ public static class ValueArrayBuilder
 
 internal class NativeAllocator
 {
-    internal TTarget[] ToArray<TFrom, TTarget>(ValueArray<TFrom> src, Func<TFrom, TTarget> converter) where TFrom : struct
+    private readonly List<nint> pointers = [];
+    
+    internal unsafe TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src, Func<TFrom, TTarget> converter)
+        where TFrom   : struct
+        where TTarget : unmanaged
     {
         var length = src.Length;
         if (length == 0) {
-            return [];
+            return null;
         }
-        var targets = new TTarget[length];
+        var targets = (TTarget*)NativeMemory.Alloc((nuint)length, (nuint)sizeof(TTarget));
+        pointers.Add((nint)targets);
+
         for (int n = 0; n < length; n++) {
             targets[n] = converter(src[n]);
         }
         return targets;
+    }
+    
+    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(TFrom? src, Func<TFrom, TTarget> converter)
+        where TFrom   : struct
+        where TTarget : unmanaged
+    {
+        if (!src.HasValue) {
+            return null;
+        }
+        var targets = (TTarget*)NativeMemory.Alloc(1, (nuint)sizeof(TTarget));
+        pointers.Add((nint)targets);
+
+        *targets = converter(src.Value);
+        return targets;
+    }
+    
+    internal unsafe void FreePointers()
+    {
+        foreach (var pointer in pointers) {
+            NativeMemory.Free((void*)pointer);
+        }
+        pointers.Clear();
     }
 }

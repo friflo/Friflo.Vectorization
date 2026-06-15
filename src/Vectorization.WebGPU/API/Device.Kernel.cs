@@ -179,12 +179,10 @@ public sealed unsafe partial  class WgpuDevice
     {
         var desc        = config.Descriptor;
         var allocator   = new NativeAllocator();
-        var targets     = desc.FragmentState.GetTargets(allocator);
         
         fixed (byte*                pLabelName      = labelName)
         fixed (byte*                pVertexEntry    = vertexEntryPoint)
         fixed (byte*                pFragmentEntry  = fragmentEntryPoint)
-        fixed (ColorTargetState*    targetsPtr      = targets)
         fixed (WgpuBindGroupLayout* layoutsPtr      = layouts)
         {
             var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
@@ -199,8 +197,8 @@ public sealed unsafe partial  class WgpuDevice
             var fragmentState = new FragmentState {
                 module      = module.handle,
                 entryPoint  = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint),
-                targetCount = (uint)targets.Length,
-                targets     = targetsPtr
+                targetCount = (uint)desc.FragmentState.targets.Length,
+                targets     = desc.FragmentState.GetTargets(allocator)
             };
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
@@ -217,6 +215,7 @@ public sealed unsafe partial  class WgpuDevice
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);
                 return new WgpuRenderPipeline(handle);
             } finally {
+                allocator.FreePointers();
                 if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
             }
         }

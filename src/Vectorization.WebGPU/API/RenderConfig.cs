@@ -103,17 +103,18 @@ public record struct WgpuFragmentState
 
     public WgpuFragmentState() { }
 
-    internal ColorTargetState[] GetTargets(NativeAllocator allocator)
+    internal unsafe ColorTargetState* GetTargets(NativeAllocator allocator)
     {
-        return allocator.ToArray(targets, src => new ColorTargetState {
+        return allocator.ArrayToNative(targets, src => new ColorTargetState {
             format      = src.format,
-            writeMask   = src.writeMask
+            writeMask   = src.writeMask,
+            blend       = allocator.NullableToNative(src.blend, blend => blend)
         });
     }
     
-    internal ConstantEntry[] GetConstants(NativeAllocator allocator)
+    internal unsafe ConstantEntry* GetConstants(NativeAllocator allocator)
     {
-        return allocator.ToArray(constants, src => new ConstantEntry {
+        return allocator.ArrayToNative(constants, src => new ConstantEntry {
             // key     = src.key,  // TODO
             value   = src.value
         });
@@ -148,17 +149,17 @@ public record struct WgpuVertexState
     
     public WgpuVertexState() { }
     
-    internal ConstantEntry[] GetConstants(NativeAllocator allocator)
+    internal unsafe ConstantEntry* GetConstants(NativeAllocator allocator)
     {
-        return allocator.ToArray(constants, src => new ConstantEntry {
+        return allocator.ArrayToNative(constants, src => new ConstantEntry {
             // key     = src.key,  // TODO
             value   = src.value
         });
     }
     
-    internal VertexBufferLayout[] GetBuffers(NativeAllocator allocator)
+    internal unsafe VertexBufferLayout* GetBuffers(NativeAllocator allocator)
     {
-        return allocator.ToArray(buffers, src => new VertexBufferLayout {
+        return allocator.ArrayToNative(buffers, src => new VertexBufferLayout {
             arrayStride = src.arrayStride,
             stepMode    = src.stepMode
         });
@@ -180,9 +181,9 @@ public record struct WgpuVertexBufferLayout
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
     
-    internal VertexAttribute[] GetAttributes(NativeAllocator allocator)
+    internal unsafe VertexAttribute* GetAttributes(NativeAllocator allocator)
     {
-        return allocator.ToArray(attributes, src => new VertexAttribute {
+        return allocator.ArrayToNative(attributes, src => new VertexAttribute {
             format          = src.format,
             offset          = src.offset,
             shaderLocation  = src.shaderLocation
