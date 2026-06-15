@@ -195,12 +195,7 @@ public record struct WgpuVertexState
             arrayStride     = src.arrayStride,
             stepMode        = src.stepMode,
             attributeCount  = (uint)src.attributes.Length,
-            attributes      = allocator.ArrayToNative(src.attributes, attribute
-                => new VertexAttribute {
-                    format          = attribute.format,
-                    offset          = attribute.offset,
-                    shaderLocation  = attribute.shaderLocation,
-                }) 
+            attributes      = allocator.ArrayToNative(src.attributes, attribute => attribute)
         });
     }
 }
@@ -230,10 +225,6 @@ public record struct WgpuVertexBufferLayout
     
     internal unsafe VertexAttribute* NativeAttributes(NativeAllocator allocator)
     {
-        return allocator.ArrayToNative(attributes, src => new VertexAttribute {
-            format          = src.format,
-            offset          = src.offset,
-            shaderLocation  = src.shaderLocation
-        });
+        return allocator.ArrayToNative(attributes, attribute => attribute);
     }
 }
