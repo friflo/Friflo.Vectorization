@@ -64,10 +64,8 @@ public partial class RendererTest : IDisposable
     
     public void DrawFrame()
     {
-        if (memoryAllocated != 0) {
-            var cur = GC.GetAllocatedBytesForCurrentThread();
-            if (memoryAllocated != cur) { Console.Out.WriteLine($"{cur -  memoryAllocated} memory used"); }
-        }
+        var cur = GC.GetAllocatedBytesForCurrentThread();
+        if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         
         var attachment = new RenderPassColorAttachment {
