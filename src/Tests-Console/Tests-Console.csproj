@@ -22,7 +22,7 @@
         
       <ProjectReference Include="..\..\src\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\..\src\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
-      <ProjectReference Include="..\..\src\Vectorization.Generators\Friflo.Vectorization.Generators.csproj" OutputItemType="Analyzer"/>
+      <ProjectReference Include="..\..\src\Vectorization.Generators\Friflo.Vectorization.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
     
     <ItemGroup>
