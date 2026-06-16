@@ -64,16 +64,19 @@ public class SdlWindow
             renderer = new RenderTest(this);
             ConfigureSurface();
             return SDL.AppResult.Continue;
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             return Capture(exception);
         }
     }
     
-    private void AppQuit(IntPtr appState, SDL.AppResult result) {
+    private void AppQuit(IntPtr appState, SDL.AppResult result)
+    {
         try {
             renderer?.Shutdown();
             renderer = null;
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             Capture(exception);
         }
     }
@@ -83,7 +86,8 @@ public class SdlWindow
         try {
             renderer?.DrawFrame();
             return SDL.AppResult.Continue;
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             return Capture(exception);
         }
     }
@@ -103,7 +107,8 @@ public class SdlWindow
                     break;
             }
             return SDL.AppResult.Continue;
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             return Capture(exception);
         }
     }
