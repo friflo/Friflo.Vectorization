@@ -9,44 +9,22 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable UnusedParameter.Local
 namespace TestConsole;
 
-public partial class RendererTest : IRenderer
+public partial class RenderTest : Renderer
 {
-    private readonly    WgpuInstance            instance;
-    private readonly    WgpuAdapter             adapter;
-    public              GpuDevice               Device          { get; }
-    public              WgpuSurface             Surface         { get; }
-    public              TextureFormat           SwapChainFormat { get; }
-    public              CompositeAlphaMode      AlphaMode       { get; }
-    private readonly    RenderPipelineConfig    config;
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
     
-    public void Dispose()
+    public RenderTest(SdlWindow window) : base(window, "friflo GPU", 1280, 720)
     {
-        data.Dispose();
-        context.Dispose();
-        Device.Dispose();
-        adapter.Dispose();
-        instance.Dispose();
-    }
-    
-    public RendererTest(SdlWindow window)
-    {
-        window.InitSdl3("friflo GPU", 1280, 720, out var osHandle, out var osInstance);
-        
-        instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-        Surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
-        adapter     = instance.RequestAdapter(default, null);
-        Device      = adapter.CreateDevice("test");
-        
-        var fragmentState   = Surface.GetPreferredFragmentState(adapter, true, out var mode);
-        AlphaMode           = mode;
-        SwapChainFormat     = fragmentState.targets[0].format;
-        var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
-        config              = desc.CreateConfig("render config");
-        
         data    = Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context = Device.BeginContext();
+    }
+    
+    public override void Shutdown()
+    {
+        context.Dispose();
+        data.Dispose();
+        base.Shutdown();
     }
     
     private static readonly VertexData[] Vertices =
@@ -62,7 +40,7 @@ public partial class RendererTest : IRenderer
     
     private long memoryAllocated;
     
-    public void DrawFrame()
+    public override void DrawFrame()
     {
         var cur = GC.GetAllocatedBytesForCurrentThread();
         if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
@@ -81,7 +59,7 @@ public partial class RendererTest : IRenderer
         }
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            DrawTriangles(pass, data.In(), config);
+            DrawTriangles(pass, data.In(), Config);
             // multiple Draw*() methods can be called here
         }
         // context.Queue.Submit();              // TODO implement Submit()

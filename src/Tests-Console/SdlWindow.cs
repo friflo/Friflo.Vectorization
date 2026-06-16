@@ -4,22 +4,50 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
-
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable MemberCanBeProtected.Global
 namespace TestConsole;
 
-public interface IRenderer : IDisposable
+public abstract class Renderer
 {
-    public  void                DrawFrame();
-    public  WgpuSurface         Surface         { get; }
-    public  TextureFormat       SwapChainFormat { get; }
-    public  CompositeAlphaMode  AlphaMode       { get; }
-    public  GpuDevice           Device          { get; }
+    public  readonly    WgpuInstance            Instance;
+    public  readonly    WgpuAdapter             Adapter;
+    public  readonly    GpuDevice               Device;
+    public  readonly    WgpuSurface             Surface;
+    public  readonly    TextureFormat           SwapChainFormat;
+    public  readonly    CompositeAlphaMode      AlphaMode;
+    public  readonly    RenderPipelineConfig    Config;
+    
+    public abstract void DrawFrame();
+
+    public virtual void Shutdown()
+    {
+        Device.Dispose();
+        Adapter.Dispose();
+        Instance.Dispose();
+    }
+    
+    protected Renderer(SdlWindow window, string title, int width, int height)
+    {
+        window.InitSdl3(title, width, height, out var osHandle, out var osInstance);
+        
+        Instance    = WgpuInstance.CreateInstance(new InstanceExtras());
+        Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
+        Adapter     = Instance.RequestAdapter(default, null);
+        Device      = Adapter.CreateDevice("test");
+        
+        var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
+        SwapChainFormat     = fragmentState.targets[0].format;
+        var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+        Config              = desc.CreateConfig("render config");
+    }
 }
+
 
 public class SdlWindow
 {
     private nint        window;
-    private IRenderer?  renderer;
+    private Renderer?   renderer;
     
     public void Main()
     {
@@ -29,13 +57,13 @@ public class SdlWindow
     
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        renderer = new RendererTest(this);
+        renderer = new RenderTest(this);
         ConfigureSurface();
         return SDL.AppResult.Continue;
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result) {
-        renderer?.Dispose();
+        renderer?.Shutdown();
         renderer = null;
     }
     
