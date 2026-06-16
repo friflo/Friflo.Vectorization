@@ -70,7 +70,7 @@ public class SdlWindow
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
             osInstance  = 0;
         } else {
-            throw new NotImplementedException($"no SDL3 setup code for OS: {RuntimeInformation.OSDescription}");
+            throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
     }
