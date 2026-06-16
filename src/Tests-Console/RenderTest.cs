@@ -10,7 +10,6 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable InconsistentNaming
 namespace TestConsole;
 
-
 public partial class RenderTest : IDisposable
 {
     public static RenderTest Create(SdlWindow window)
@@ -34,26 +33,32 @@ public partial class RenderTest : IDisposable
         var context = device.BeginContext();
         
         return new RenderTest {
-            surface = surface,
-            device  = device,
-            context = context,
-            config  = config,
-            data    = data
+            instance    = instance,
+            surface     = surface,
+            adapter     = adapter,
+            device      = device,
+            config      = config,
+            context     = context,
+            data        = data
         };
     }
+    
+    public  required    GpuInstance             instance;
+    public              WgpuSurface             surface;
+    public  required    GpuAdapter              adapter;
+    public  required    GpuDevice               device;
+    private             RenderPipelineConfig    config;
+    public  required    PipelineContext         context;
+    public  required    GpuBuffer<VertexData>   data;
     
     public void Dispose()
     {
         data.Dispose();
         context.Dispose();
         device.Dispose();
+        adapter.Dispose();
+        instance.Dispose();
     }
-    
-    public          WgpuSurface             surface;
-    public required GpuDevice               device;
-    public required GpuBuffer<VertexData>   data;
-    private         RenderPipelineConfig    config;
-    public required PipelineContext         context;
     
     private static readonly VertexData[] Vertices =
     [
