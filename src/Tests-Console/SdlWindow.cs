@@ -1,14 +1,25 @@
 ﻿using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
-// ReSharper disable InconsistentNaming
+
 namespace TestConsole;
+
+public interface IRenderer : IDisposable
+{
+    public  void                DrawFrame();
+    public  WgpuSurface         Surface         { get; }
+    public  TextureFormat       SwapChainFormat { get; }
+    public  CompositeAlphaMode  AlphaMode       { get; }
+    public  GpuDevice           Device          { get; }
+}
 
 public class SdlWindow
 {
-    private nint        	window;
-    private RendererTest?   renderer;
+    private nint        window;
+    private IRenderer?  renderer;
     
     public void Main()
     {
@@ -81,13 +92,13 @@ public class SdlWindow
         if (pixelWidth == 0 || pixelHeight == 0) return;
         
         var surfaceConfig = new SurfaceConfiguration {
-            format      = renderer!.swapChainFormat,
+            format      = renderer!.SwapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
-            alphaMode   = renderer!.alphaMode,  // or CompositeAlphaMode.Opaque
+            alphaMode   = renderer!.AlphaMode,  // or CompositeAlphaMode.Opaque
             width       = (uint)pixelWidth,
             height      = (uint)pixelHeight,
             presentMode = PresentMode.Immediate // Fifo = VSync
         }; 
-        renderer.surface.Configure(renderer.device, surfaceConfig);
+        renderer.Surface.Configure(renderer.Device, surfaceConfig);
     }
 }

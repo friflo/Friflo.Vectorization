@@ -7,17 +7,16 @@ using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedParameter.Local
-// ReSharper disable InconsistentNaming
 namespace TestConsole;
 
-public partial class RendererTest : IDisposable
+public partial class RendererTest : IRenderer
 {
     private readonly    WgpuInstance            instance;
-    public  readonly    WgpuSurface             surface;
-    public  readonly    TextureFormat           swapChainFormat;
-    public  readonly    CompositeAlphaMode      alphaMode;
     private readonly    WgpuAdapter             adapter;
-    public  readonly    GpuDevice               device;
+    public              GpuDevice               Device          { get; }
+    public              WgpuSurface             Surface         { get; }
+    public              TextureFormat           SwapChainFormat { get; }
+    public              CompositeAlphaMode      AlphaMode       { get; private set; }
     private readonly    RenderPipelineConfig    config;
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
@@ -26,7 +25,7 @@ public partial class RendererTest : IDisposable
     {
         data.Dispose();
         context.Dispose();
-        device.Dispose();
+        Device.Dispose();
         adapter.Dispose();
         instance.Dispose();
     }
@@ -36,17 +35,18 @@ public partial class RendererTest : IDisposable
         window.InitSDL3(1280, 720, out var osHandle, out var osInstance);
         
         instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-        surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
+        Surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
         adapter     = instance.RequestAdapter(default, null);
-        device      = adapter.CreateDevice("test");
+        Device      = adapter.CreateDevice("test");
         
-        var fragmentState   = surface.GetPreferredFragmentState(adapter, true, out alphaMode);
-        swapChainFormat     = fragmentState.targets[0].format;
+        var fragmentState   = Surface.GetPreferredFragmentState(adapter, true, out var mode);
+        AlphaMode           = mode;
+        SwapChainFormat     = fragmentState.targets[0].format;
         var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
         config              = desc.CreateConfig("render config");
         
-        data    = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        context = device.BeginContext();
+        data    = Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        context = Device.BeginContext();
     }
     
     private static readonly VertexData[] Vertices =
@@ -60,7 +60,7 @@ public partial class RendererTest : IDisposable
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
-    private long memoryAllocated = 0;
+    private long memoryAllocated;
     
     public void DrawFrame()
     {
@@ -74,7 +74,7 @@ public partial class RendererTest : IDisposable
             clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
-        using var frame = context.BeginFrame(surface);
+        using var frame = context.BeginFrame(Surface);
         if (frame == null) {    // window minimized?
             Thread.Sleep(16);   // prevent CPU consuming 100%
             return;
@@ -86,12 +86,12 @@ public partial class RendererTest : IDisposable
         }
         // context.Queue.Submit();              // TODO implement Submit()
         context.Queue.ReadBuffers();
-        surface.Present();
+        Surface.Present();
     }
     
     /// blueprint method generates:  <see cref="DrawTriangles"/>
     [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
-	private static void Triangles([Span] VertexData triangles) { }
+    private static void Triangles([Span] VertexData triangles) { }
 }
 
 public struct MainWorld;
