@@ -39,9 +39,10 @@ public partial class RendererTest : IDisposable
         adapter     = instance.RequestAdapter(default, null);
         device      = adapter.CreateDevice("test");
         
-        config      = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
-        
-        swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSurfaceCapabilities(adapter).formats[];
+        var fragmentState   = surface.GetPreferredFragmentState(adapter, true);
+        swapChainFormat     = fragmentState.targets[0].format;
+        var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+        config              = desc.CreateConfig("render config");
         
         data    = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context = device.BeginContext();

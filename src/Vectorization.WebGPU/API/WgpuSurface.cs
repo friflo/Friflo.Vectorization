@@ -40,10 +40,55 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     {
         var cap = new SurfaceCapabilities();
         wgpuSurfaceGetCapabilities(handle, adapter.adapter, &cap);
-        return new WgpuSurfaceCapabilities( cap.usages,
+        var capabilities = new WgpuSurfaceCapabilities( cap.usages,
             ToArray(cap.formatCount,        cap.formats),
             ToArray(cap.presentModeCount,   cap.presentModes),
             ToArray(cap.alphaModeCount,     cap.alphaModes));
+        wgpuSurfaceCapabilitiesFreeMembers(cap);
+        return capabilities;
+    }
+    
+	public WgpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb)
+    {
+        var capabilities = new SurfaceCapabilities();
+        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
+        var format = capabilities.formatCount > 0 ? capabilities.formats[0] : TextureFormat.BGRA8Unorm;
+        if (useNonSrgb) {
+            format = ToNonSrgb(format);
+        }
+        wgpuSurfaceCapabilitiesFreeMembers(capabilities);
+        return new WgpuFragmentState { targets = [new WgpuColorTargetState { format = format }] };
+    }
+    
+    private static TextureFormat ToNonSrgb(TextureFormat format)
+    {
+        return format switch
+        {
+            TextureFormat.RGBA8UnormSrgb        => TextureFormat.RGBA8Unorm,
+            TextureFormat.BGRA8UnormSrgb        => TextureFormat.BGRA8Unorm,
+            TextureFormat.BC1RGBAUnormSrgb      => TextureFormat.BC1RGBAUnorm,
+            TextureFormat.BC2RGBAUnormSrgb      => TextureFormat.BC2RGBAUnorm,
+            TextureFormat.BC3RGBAUnormSrgb      => TextureFormat.BC3RGBAUnorm,
+            TextureFormat.BC7RGBAUnormSrgb      => TextureFormat.BC7RGBAUnorm,
+            TextureFormat.ETC2RGB8UnormSrgb     => TextureFormat.ETC2RGB8Unorm,
+            TextureFormat.ETC2RGB8A1UnormSrgb   => TextureFormat.ETC2RGB8A1Unorm,
+            TextureFormat.ETC2RGBA8UnormSrgb    => TextureFormat.ETC2RGBA8Unorm,
+            TextureFormat.ASTC4x4UnormSrgb      => TextureFormat.ASTC4x4Unorm,
+            TextureFormat.ASTC5x4UnormSrgb      => TextureFormat.ASTC5x4Unorm,
+            TextureFormat.ASTC5x5UnormSrgb      => TextureFormat.ASTC5x5Unorm,
+            TextureFormat.ASTC6x5UnormSrgb      => TextureFormat.ASTC6x5Unorm,
+            TextureFormat.ASTC6x6UnormSrgb      => TextureFormat.ASTC6x6Unorm,
+            TextureFormat.ASTC8x5UnormSrgb      => TextureFormat.ASTC8x5Unorm,
+            TextureFormat.ASTC8x6UnormSrgb      => TextureFormat.ASTC8x6Unorm,
+            TextureFormat.ASTC8x8UnormSrgb      => TextureFormat.ASTC8x8Unorm,
+            TextureFormat.ASTC10x5UnormSrgb     => TextureFormat.ASTC10x5Unorm,
+            TextureFormat.ASTC10x6UnormSrgb     => TextureFormat.ASTC10x6Unorm,
+            TextureFormat.ASTC10x8UnormSrgb     => TextureFormat.ASTC10x8Unorm,
+            TextureFormat.ASTC10x10UnormSrgb    => TextureFormat.ASTC10x10Unorm,
+            TextureFormat.ASTC12x10UnormSrgb    => TextureFormat.ASTC12x10Unorm,
+            TextureFormat.ASTC12x12UnormSrgb    => TextureFormat.ASTC12x12Unorm,
+            _                                   => format
+        };
     }
     
     private static T[] ToArray<T>(nuint count, T* ptr) where T : unmanaged {
