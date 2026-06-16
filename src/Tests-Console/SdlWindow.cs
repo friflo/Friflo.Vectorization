@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -46,47 +47,71 @@ public abstract class Renderer
 
 public class SdlWindow
 {
-    private nint        window;
-    private Renderer?   renderer;
+    private nint                    window;
+    private Renderer?               renderer;
+    private ExceptionDispatchInfo?  callbackException;
     
     public void Main()
     {
         SDL.SetMainReady();
         SDL.EnterAppMainCallbacks(0, [], AppInit, AppIterate, AppEvent, AppQuit);
+        callbackException?.Throw();
     }
     
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        renderer = new RenderTest(this);
-        ConfigureSurface();
-        return SDL.AppResult.Continue;
+        try {
+            renderer = new RenderTest(this);
+            ConfigureSurface();
+            return SDL.AppResult.Continue;
+        } catch (Exception exception) {
+            return Capture(exception);
+        }
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result) {
-        renderer?.Shutdown();
-        renderer = null;
+        try {
+            renderer?.Shutdown();
+            renderer = null;
+        } catch (Exception exception) {
+            Capture(exception);
+        }
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        renderer?.DrawFrame();
-        return SDL.AppResult.Continue;
+        try {
+            renderer?.DrawFrame();
+            return SDL.AppResult.Continue;
+        } catch (Exception exception) {
+            return Capture(exception);
+        }
     }
     
     private SDL.AppResult AppEvent(IntPtr appState, ref SDL.Event ev)
     {
-        var type = (SDL.EventType)ev.Type;
-        switch (type)
-        {
-            case SDL.EventType.Quit:
-                return SDL.AppResult.Success;
-            case SDL.EventType.WindowRestored:
-            case SDL.EventType.WindowExposed:
-            case SDL.EventType.WindowPixelSizeChanged:
-                ConfigureSurface();
-                break;
+        try {
+            var type = (SDL.EventType)ev.Type;
+            switch (type)
+            {
+                case SDL.EventType.Quit:
+                    return SDL.AppResult.Success;
+                case SDL.EventType.WindowRestored:
+                case SDL.EventType.WindowExposed:
+                case SDL.EventType.WindowPixelSizeChanged:
+                    ConfigureSurface();
+                    break;
+            }
+            return SDL.AppResult.Continue;
+        } catch (Exception exception) {
+            return Capture(exception);
         }
-        return SDL.AppResult.Continue;
+    }
+    
+    private SDL.AppResult Capture(Exception exception)
+    {
+        callbackException ??= ExceptionDispatchInfo.Capture(exception);
+        return SDL.AppResult.Failure;
     }
     
     /// <summary> Init SDL3 and create window </summary>
