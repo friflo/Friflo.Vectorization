@@ -48,6 +48,17 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         return capabilities;
     }
     
+    /// <summary> Used to return the optimal <see cref="WgpuFragmentState"/> for your adapter. </summary>
+    /// <remarks>
+    /// Intended usage
+    /// <code>
+    ///     var fragmentState   = surface.GetPreferredFragmentState(adapter, true);
+    ///     var swapChainFormat = fragmentState.targets[0].format; 
+    ///     var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+    ///     var config          = desc.CreateConfig("render config");
+    /// </code>
+    /// Use <c>swapChainFormat</c> in the <c>SurfaceConfiguration</c> passed to <see cref="Configure"/>.
+    /// </remarks>
 	public WgpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb)
     {
         var capabilities = new SurfaceCapabilities();
@@ -106,14 +117,15 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     /// Typical configuration
     /// <code>
     ///     var surfaceConfig = new SurfaceConfiguration {
-    ///         format      = TextureFormat.BGRA8Unorm,     // supported by most devices
+    ///         format      = swapChainFormat,      // see: WgpuSurface.GetPreferredFragmentState()
     ///         usage       = WebGPU_native.TextureUsage_RenderAttachment,
     ///         alphaMode   = CompositeAlphaMode.Opaque,
     ///         width       = (uint)pixelWidth,
     ///         height      = (uint)pixelHeight,
-    ///         presentMode = PresentMode.Fifo              // Fifo = VSync
+    ///         presentMode = PresentMode.Fifo      // Fifo = VSync
     ///     };
     /// </code>
+    /// Get <c>swapChainFormat</c> via <see cref="GetPreferredFragmentState"/>.
     /// </remarks>
     public void Configure(GpuDevice device, SurfaceConfiguration surfaceConfig)
     {
