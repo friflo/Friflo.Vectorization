@@ -32,7 +32,7 @@ public partial class RendererTest : IRenderer
     
     public RendererTest(SdlWindow window)
     {
-        window.InitSDL3(1280, 720, out var osHandle, out var osInstance);
+        window.InitSdl3("friflo GPU", 1280, 720, out var osHandle, out var osInstance);
         
         instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         Surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);

@@ -62,7 +62,7 @@ public class SdlWindow
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    public void InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
+    public void InitSdl3(string title, int width, int height, out nint osHandle, out nint osInstance)
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
@@ -70,7 +70,7 @@ public class SdlWindow
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
-        window = SDL.CreateWindow("friflo GPU", width, height, windowFlags);
+        window = SDL.CreateWindow(title, width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         var props   = SDL.GetWindowProperties(window);
