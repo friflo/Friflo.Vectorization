@@ -63,7 +63,8 @@ public class SdlWindow
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
         try {
-            renderer = new RenderTest(this);
+            wgpu = InitSdl3("friflo GPU", 1280, 720);
+            renderer = new RenderTest(wgpu);
             ConfigureSurface();
             return SDL.AppResult.Continue;
         }

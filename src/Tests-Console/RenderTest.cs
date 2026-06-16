@@ -5,8 +5,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
-// ReSharper disable UnusedMember.Local
-// ReSharper disable UnusedParameter.Local
+// ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
 public partial class RenderTest : IRenderer
@@ -15,9 +14,9 @@ public partial class RenderTest : IRenderer
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
     
-    public RenderTest(SdlWindow window)
+    public RenderTest(Wgpu wgpu)
     {
-        wgpu    = window.InitSdl3("friflo GPU", 1280, 720);
+        this.wgpu = wgpu;
         data    = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context = wgpu.Device.BeginContext();
     }
