@@ -79,6 +79,8 @@ public class SdlWindow
             renderer = null;
             wgpu?.Shutdown();
             wgpu = null;
+            SDL.DestroyWindow(window);
+            SDL.Quit();
         }
         catch (Exception exception) {
             Capture(exception);
