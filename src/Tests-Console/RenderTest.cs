@@ -41,7 +41,7 @@ public partial class RendererTest : IDisposable
         
         config      = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
         
-        swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
+        swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSurfaceCapabilities(adapter).formats[];
         
         data    = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context = device.BeginContext();

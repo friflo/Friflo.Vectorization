@@ -36,11 +36,25 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         wgpuSurfacePresent(handle);
     }
     
-    public TextureFormat GetSwapChainFormat(WgpuAdapter adapter)
+    public WgpuSurfaceCapabilities GetSurfaceCapabilities(WgpuAdapter adapter)
     {
-        var capabilities = new SurfaceCapabilities();
-        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
-        return capabilities.formats[0];
+        var cap = new SurfaceCapabilities();
+        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &cap);
+        return new WgpuSurfaceCapabilities( cap.usages,
+            ToArray(cap.formatCount,        cap.formats),
+            ToArray(cap.presentModeCount,   cap.presentModes),
+            ToArray(cap.alphaModeCount,     cap.alphaModes));
+    }
+    
+    private static T[] ToArray<T>(nuint count, T* ptr) where T : unmanaged {
+        if (count == 0) {
+            return [];
+        }
+        var arr = new T[count];
+        for (int i = 0; i < (int)count; i++) {
+            arr[i] = ptr[i];
+        }
+        return arr;
     }
     
     /// <remarks>
@@ -119,6 +133,15 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     
         return new WgpuSurface(surfaceHandle);
     }
+}
+
+/// <summary> Managed type for <see cref="SurfaceCapabilities"/> </summary>
+public readonly struct WgpuSurfaceCapabilities(ulong usages, TextureFormat[] formats, PresentMode[] presentModes, CompositeAlphaMode[] alphaModes)
+{
+    public readonly ulong                   usages = usages;
+    public readonly TextureFormat[]         formats = formats;
+    public readonly PresentMode[]           presentModes = presentModes;
+    public readonly CompositeAlphaMode[]    alphaModes = alphaModes;
 }
 
 
