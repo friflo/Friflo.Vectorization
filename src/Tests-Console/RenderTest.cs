@@ -5,33 +5,46 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
-
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming
 namespace TestConsole;
 
 
-public static partial class RenderTest
+public partial class RenderTest : IDisposable
 {
-    private static SdlWindow  window;
-    
-    public static void Run()
+    public void Init(SdlWindow window)
     {
         var width  = 1280;
         var height =  720;
         window.InitSDL3(width, height, out var osHandle, out var osInstance);
         
-        using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
-        var surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
-        using var adapter   = instance.RequestAdapter(default, null);
-        using var device    = adapter.CreateDevice("test");
+        var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
+        surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
+        var adapter     = instance.RequestAdapter(default, null);
+        device          = adapter.CreateDevice("test");
         
-        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
         
         window.swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
-        window.ConfigureSurface(surface, device);
+        window.ConfigureSurface();
         
-        RunLoop(device, surface, config);
+        data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        context   = device.BeginContext();
     }
+    
+    public void Dispose()
+    {
+        data.Dispose();
+        context.Dispose();
+        device.Dispose();
+    }
+    
+    public      WgpuSurface             surface;
+    public      GpuDevice               device;
+    private     GpuBuffer<VertexData>   data;
+    private     RenderPipelineConfig    config;
+    private     PipelineContext         context;
     
     private static readonly VertexData[] Vertices =
     [
@@ -44,35 +57,27 @@ public static partial class RenderTest
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
-    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config)
+    public void DrawFrame()
     {
-        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        using var context   = device.BeginContext();
-        context.EnableTraces = true;
-        
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
-        
-        while (window.PollEvents(surface, device))
-        {
-            using var frame = context.BeginFrame(surface);
-            if (frame == null) {    // window minimized?
-                Thread.Sleep(16);   // prevent CPU consuming 100%
-                continue;
-            }
-            using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
-            {
-                DrawTriangles(pass, data.In(), config);
-                // multiple Draw*() methods can be called here
-            }
-            // context.Queue.Submit();              // TODO implement Submit()
-            context.Queue.ReadBuffers();
-            surface.Present();
+        using var frame = context.BeginFrame(surface);
+        if (frame == null) {    // window minimized?
+            Thread.Sleep(16);   // prevent CPU consuming 100%
+            return;
         }
+        using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
+        {
+            DrawTriangles(pass, data.In(), config);
+            // multiple Draw*() methods can be called here
+        }
+        // context.Queue.Submit();              // TODO implement Submit()
+        context.Queue.ReadBuffers();
+        surface.Present();
     }
     
     /// blueprint method generates:  <see cref="DrawTriangles"/>
@@ -80,7 +85,7 @@ public static partial class RenderTest
 	private static void Triangles([Span] VertexData triangles) { }
 }
 
-public struct MainWorld {}
+public struct MainWorld;
 
 [StructLayout(LayoutKind.Sequential, Size = 48)]
 public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)

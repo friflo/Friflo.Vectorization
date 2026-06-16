@@ -1,16 +1,53 @@
 ﻿using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
 // ReSharper disable InconsistentNaming
 namespace TestConsole;
 
-public struct SdlWindow
+public class SdlWindow
 {
-    private nint            window;
-    public  TextureFormat   swapChainFormat;
+    private          nint           window;
+    public           TextureFormat  swapChainFormat;
+    private readonly RenderTest     renderTest = new();
+    
+    public void Main()
+    {
+        SDL.SetMainReady();
+        SDL.EnterAppMainCallbacks(0, [], AppInit, AppIterate, AppEvent, AppQuit);
+    }
+    
+    private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
+    {
+        renderTest.Init(this);
+        return SDL.AppResult.Continue;
+    }
+    
+    private SDL.AppResult AppIterate(IntPtr appState)
+    {
+        renderTest.DrawFrame();
+        return SDL.AppResult.Continue;
+    }
+    
+    private SDL.AppResult AppEvent(IntPtr appState, ref SDL.Event ev)
+    {
+        var type = (SDL.EventType)ev.Type;
+        switch (type)
+        {
+            case SDL.EventType.Quit:
+                return SDL.AppResult.Success;
+            case SDL.EventType.WindowRestored:
+            case SDL.EventType.WindowExposed:
+            case SDL.EventType.WindowPixelSizeChanged:
+                ConfigureSurface();
+                break;
+        }
+        return SDL.AppResult.Continue;
+    }
+    
+    private void AppQuit(IntPtr appState, SDL.AppResult result) { }
+    
+
     
     /// <summary> Init SDL3 and create window </summary>
     public void InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
@@ -37,10 +74,11 @@ public struct SdlWindow
         SDL.ShowWindow(window);
     }
     
-    /// <summary> Set the size of the surface to its window can configure the swapChainFormat. </summary>
-    public void ConfigureSurface(WgpuSurface surface, GpuDevice device)
+    public void ConfigureSurface()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
+        if (pixelWidth == 0 || pixelHeight == 0) return;
+        
         var surfaceConfig = new SurfaceConfiguration {
             format      = swapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
@@ -49,28 +87,6 @@ public struct SdlWindow
             height      = (uint)pixelHeight,
             presentMode = PresentMode.Fifo  // Fifo = VSync
         };
-        surface.Configure(device, surfaceConfig);
-    }
-    
-    /// <summary> Poll and handle basic SDL events like Quit and window resize. </summary>
-    /// <remarks>
-    /// <c>surface</c> and <c>device</c> are required to resize surface.
-    /// </remarks>
-    public bool PollEvents(WgpuSurface surface, GpuDevice device)
-    {
-        while (SDL.PollEvent(out var e))
-        {
-            switch (e.Type)
-            {
-                case (uint)SDL.EventType.Quit:
-                    return false;
-                case (uint)SDL.EventType.WindowRestored:
-                case (uint)SDL.EventType.WindowExposed:
-                case (uint)SDL.EventType.WindowPixelSizeChanged:
-                    ConfigureSurface(surface, device);
-                    break;
-            }
-        }
-        return true;
+        renderTest.surface.Configure(renderTest.device, surfaceConfig);
     }
 }
