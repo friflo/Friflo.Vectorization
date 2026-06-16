@@ -6,10 +6,15 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
 // ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable MemberCanBeProtected.Global
 namespace TestConsole;
 
-public abstract class Renderer
+public interface IRenderer
+{
+    public void DrawFrame();
+    public void Shutdown();
+}
+
+public class Wgpu
 {
     public  readonly    WgpuInstance            Instance;
     public  readonly    WgpuAdapter             Adapter;
@@ -19,19 +24,8 @@ public abstract class Renderer
     public  readonly    CompositeAlphaMode      AlphaMode;
     public  readonly    RenderPipelineConfig    Config;
     
-    public abstract void DrawFrame();
-
-    public virtual void Shutdown()
+    public Wgpu(nint osHandle, nint osInstance)
     {
-        Device.Dispose();
-        Adapter.Dispose();
-        Instance.Dispose();
-    }
-    
-    protected Renderer(SdlWindow window, string title, int width, int height)
-    {
-        window.InitSdl3(title, width, height, out var osHandle, out var osInstance);
-        
         Instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
         Adapter     = Instance.RequestAdapter(default, null);
@@ -42,13 +36,21 @@ public abstract class Renderer
         var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
         Config              = desc.CreateConfig("render config");
     }
+    
+    public void Shutdown()
+    {
+        Device.Dispose();
+        Adapter.Dispose();
+        Instance.Dispose();
+    }
 }
 
 
 public class SdlWindow
 {
     private nint                    window;
-    private Renderer?               renderer;
+    private Wgpu?                   wgpu;
+    private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
     
     public void Main()
@@ -75,6 +77,8 @@ public class SdlWindow
         try {
             renderer?.Shutdown();
             renderer = null;
+            wgpu?.Shutdown();
+            wgpu = null;
         }
         catch (Exception exception) {
             Capture(exception);
@@ -120,7 +124,7 @@ public class SdlWindow
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    public void InitSdl3(string title, int width, int height, out nint osHandle, out nint osInstance)
+    public Wgpu InitSdl3(string title, int width, int height)
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
@@ -131,6 +135,8 @@ public class SdlWindow
         window = SDL.CreateWindow(title, width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
+        nint osHandle;
+        nint osInstance;
         var props   = SDL.GetWindowProperties(window);
         if (OperatingSystem.IsWindows()) {
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
@@ -142,6 +148,8 @@ public class SdlWindow
             throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
         SDL.ShowWindow(window);
+        
+        return wgpu = new Wgpu(osHandle, osInstance);
     }
     
     private void ConfigureSurface()
@@ -150,13 +158,13 @@ public class SdlWindow
         if (pixelWidth == 0 || pixelHeight == 0) return;
         
         var surfaceConfig = new SurfaceConfiguration {
-            format      = renderer!.SwapChainFormat,
+            format      = wgpu!.SwapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
-            alphaMode   = renderer!.AlphaMode,  // or CompositeAlphaMode.Opaque
+            alphaMode   = wgpu!.AlphaMode,  // or CompositeAlphaMode.Opaque
             width       = (uint)pixelWidth,
             height      = (uint)pixelHeight,
             presentMode = PresentMode.Immediate // Fifo = VSync
         }; 
-        renderer.Surface.Configure(renderer.Device, surfaceConfig);
+        wgpu.Surface.Configure(wgpu.Device, surfaceConfig);
     }
 }

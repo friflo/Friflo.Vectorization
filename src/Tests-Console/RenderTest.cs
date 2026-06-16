@@ -9,22 +9,23 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable UnusedParameter.Local
 namespace TestConsole;
 
-public partial class RenderTest : Renderer
+public partial class RenderTest : IRenderer
 {
+    private readonly    Wgpu                    wgpu;
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
     
-    public RenderTest(SdlWindow window) : base(window, "friflo GPU", 1280, 720)
+    public RenderTest(SdlWindow window)
     {
-        data    = Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        context = Device.BeginContext();
+        wgpu    = window.InitSdl3("friflo GPU", 1280, 720);
+        data    = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        context = wgpu.Device.BeginContext();
     }
     
-    public override void Shutdown()
+    public void Shutdown()
     {
         context.Dispose();
         data.Dispose();
-        base.Shutdown();
     }
     
     private static readonly VertexData[] Vertices =
@@ -40,7 +41,7 @@ public partial class RenderTest : Renderer
     
     private long memoryAllocated;
     
-    public override void DrawFrame()
+    public void DrawFrame()
     {
         var cur = GC.GetAllocatedBytesForCurrentThread();
         if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
@@ -52,19 +53,19 @@ public partial class RenderTest : Renderer
             clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
-        using var frame = context.BeginFrame(Surface);
+        using var frame = context.BeginFrame(wgpu.Surface);
         if (frame == null) {    // window minimized?
             Thread.Sleep(16);   // prevent CPU consuming 100%
             return;
         }
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            DrawTriangles(pass, data.In(), Config);
+            DrawTriangles(pass, data.In(), wgpu.Config);
             // multiple Draw*() methods can be called here
         }
         // context.Queue.Submit();              // TODO implement Submit()
         context.Queue.ReadBuffers();
-        Surface.Present();
+        wgpu.Surface.Present();
     }
     
     /// blueprint method generates:  <see cref="DrawTriangles"/>
