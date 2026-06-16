@@ -7,9 +7,8 @@ namespace TestConsole;
 
 public class SdlWindow
 {
-    private nint           window;
-    public  TextureFormat  swapChainFormat;
-    private RenderTest?    renderTest;
+    private nint        window;
+    private Renderer    renderer;
     
     public void Main()
     {
@@ -19,18 +18,19 @@ public class SdlWindow
     
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        renderTest = RenderTest.Create(this);
+        renderer = Renderer.Create(this);
+        ConfigureSurface();
         return SDL.AppResult.Continue;
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result) {
-        renderTest?.Dispose();
-        renderTest = null;
+        renderer.Dispose();
+        renderer = default;
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        renderTest?.DrawFrame();
+        renderer.DrawFrame();
         return SDL.AppResult.Continue;
     }
     
@@ -75,19 +75,19 @@ public class SdlWindow
         SDL.ShowWindow(window);
     }
     
-    public void ConfigureSurface()
+    private void ConfigureSurface()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
         if (pixelWidth == 0 || pixelHeight == 0) return;
         
         var surfaceConfig = new SurfaceConfiguration {
-            format      = swapChainFormat,
+            format      = renderer.swapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
             alphaMode   = CompositeAlphaMode.Opaque,
             width       = (uint)pixelWidth,
             height      = (uint)pixelHeight,
             presentMode = PresentMode.Immediate  // Fifo = VSync
         };
-        renderTest?.surface.Configure(renderTest.device, surfaceConfig);
+        renderer.surface.Configure(renderer.device, surfaceConfig);
     }
 }

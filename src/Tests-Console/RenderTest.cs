@@ -10,46 +10,16 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable InconsistentNaming
 namespace TestConsole;
 
-public partial class RenderTest : IDisposable
+public partial struct Renderer : IDisposable
 {
-    public static RenderTest Create(SdlWindow window)
-    {
-        var width  = 1280;
-        var height =  720;
-        window.InitSDL3(width, height, out var osHandle, out var osInstance);
-        
-        var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-
-        var surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
-        var adapter     = instance.RequestAdapter(default, null);
-        var device      = adapter.CreateDevice("test");
-        
-        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
-        
-        window.swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
-        window.ConfigureSurface();
-        
-        var data    = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        var context = device.BeginContext();
-        
-        return new RenderTest {
-            instance    = instance,
-            surface     = surface,
-            adapter     = adapter,
-            device      = device,
-            config      = config,
-            context     = context,
-            data        = data
-        };
-    }
-    
-    public  required    GpuInstance             instance;
-    public              WgpuSurface             surface;
-    public  required    GpuAdapter              adapter;
-    public  required    GpuDevice               device;
-    private             RenderPipelineConfig    config;
-    public  required    PipelineContext         context;
-    public  required    GpuBuffer<VertexData>   data;
+    private WgpuInstance            instance;
+    public  WgpuSurface             surface;
+    public  TextureFormat           swapChainFormat;
+    private WgpuAdapter             adapter;
+    public  GpuDevice               device;
+    private RenderPipelineConfig    config;
+    private PipelineContext         context;
+    private GpuBuffer<VertexData>   data;
     
     public void Dispose()
     {
@@ -58,6 +28,29 @@ public partial class RenderTest : IDisposable
         device.Dispose();
         adapter.Dispose();
         instance.Dispose();
+    }
+    
+    public static Renderer Create(SdlWindow window)
+    {
+        var width  = 1280;
+        var height =  720;
+        window.InitSDL3(width, height, out var osHandle, out var osInstance);
+        
+        var renderer = new Renderer();
+        
+        renderer.instance   = WgpuInstance.CreateInstance(new InstanceExtras());
+        renderer.surface    = WgpuSurface.CreateFromNativeWindow(renderer.instance, osHandle, osInstance);
+        renderer.adapter    = renderer.instance.RequestAdapter(default, null);
+        renderer.device     = renderer.adapter.CreateDevice("test");
+        
+        renderer.config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        
+        renderer.swapChainFormat = renderer.config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
+        
+        renderer.data       = renderer.device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        renderer.context    = renderer.device.BeginContext();
+        
+        return renderer;
     }
     
     private static readonly VertexData[] Vertices =
