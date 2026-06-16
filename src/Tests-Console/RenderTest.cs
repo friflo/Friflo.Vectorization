@@ -16,7 +16,7 @@ public partial class RendererTest : IRenderer
     public              GpuDevice               Device          { get; }
     public              WgpuSurface             Surface         { get; }
     public              TextureFormat           SwapChainFormat { get; }
-    public              CompositeAlphaMode      AlphaMode       { get; private set; }
+    public              CompositeAlphaMode      AlphaMode       { get; }
     private readonly    RenderPipelineConfig    config;
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
