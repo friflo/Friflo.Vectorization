@@ -7,9 +7,9 @@ namespace TestConsole;
 
 public class SdlWindow
 {
-    private          nint           window;
-    public           TextureFormat  swapChainFormat;
-    private readonly RenderTest     renderTest = new();
+    private nint           window;
+    public  TextureFormat  swapChainFormat;
+    private RenderTest?    renderTest;
     
     public void Main()
     {
@@ -19,13 +19,18 @@ public class SdlWindow
     
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        renderTest.Init(this);
+        renderTest = RenderTest.Create(this);
         return SDL.AppResult.Continue;
+    }
+    
+    private void AppQuit(IntPtr appState, SDL.AppResult result) {
+        renderTest?.Dispose();
+        renderTest = null;
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        renderTest.DrawFrame();
+        renderTest?.DrawFrame();
         return SDL.AppResult.Continue;
     }
     
@@ -44,10 +49,6 @@ public class SdlWindow
         }
         return SDL.AppResult.Continue;
     }
-    
-    private void AppQuit(IntPtr appState, SDL.AppResult result) { }
-    
-
     
     /// <summary> Init SDL3 and create window </summary>
     public void InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
@@ -85,8 +86,8 @@ public class SdlWindow
             alphaMode   = CompositeAlphaMode.Opaque,
             width       = (uint)pixelWidth,
             height      = (uint)pixelHeight,
-            presentMode = PresentMode.Fifo  // Fifo = VSync
+            presentMode = PresentMode.Immediate  // Fifo = VSync
         };
-        renderTest.surface.Configure(renderTest.device, surfaceConfig);
+        renderTest?.surface.Configure(renderTest.device, surfaceConfig);
     }
 }

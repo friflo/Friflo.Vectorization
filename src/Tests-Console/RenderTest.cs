@@ -13,24 +13,33 @@ namespace TestConsole;
 
 public partial class RenderTest : IDisposable
 {
-    public void Init(SdlWindow window)
+    public static RenderTest Create(SdlWindow window)
     {
         var width  = 1280;
         var height =  720;
         window.InitSDL3(width, height, out var osHandle, out var osInstance);
         
         var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-        surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
+
+        var surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
         var adapter     = instance.RequestAdapter(default, null);
-        device          = adapter.CreateDevice("test");
+        var device      = adapter.CreateDevice("test");
         
-        config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
         
         window.swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
         window.ConfigureSurface();
         
-        data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        context   = device.BeginContext();
+        var data    = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        var context = device.BeginContext();
+        
+        return new RenderTest {
+            surface = surface,
+            device  = device,
+            context = context,
+            config  = config,
+            data    = data
+        };
     }
     
     public void Dispose()
@@ -40,11 +49,11 @@ public partial class RenderTest : IDisposable
         device.Dispose();
     }
     
-    public      WgpuSurface             surface;
-    public      GpuDevice               device;
-    private     GpuBuffer<VertexData>   data;
-    private     RenderPipelineConfig    config;
-    private     PipelineContext         context;
+    public          WgpuSurface             surface;
+    public required GpuDevice               device;
+    public required GpuBuffer<VertexData>   data;
+    private         RenderPipelineConfig    config;
+    public required PipelineContext         context;
     
     private static readonly VertexData[] Vertices =
     [
