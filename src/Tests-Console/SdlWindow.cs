@@ -8,7 +8,7 @@ namespace TestConsole;
 public class SdlWindow
 {
     private nint        	window;
-    private RendererTest    renderer;
+    private RendererTest?   renderer;
     
     public void Main()
     {
@@ -24,13 +24,13 @@ public class SdlWindow
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result) {
-        renderer.Dispose();
-        renderer = default;
+        renderer?.Dispose();
+        renderer = null;
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        renderer.DrawFrame();
+        renderer?.DrawFrame();
         return SDL.AppResult.Continue;
     }
     
@@ -81,7 +81,7 @@ public class SdlWindow
         if (pixelWidth == 0 || pixelHeight == 0) return;
         
         var surfaceConfig = new SurfaceConfiguration {
-            format      = renderer.swapChainFormat,
+            format      = renderer!.swapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
             alphaMode   = CompositeAlphaMode.Opaque,
             width       = (uint)pixelWidth,
