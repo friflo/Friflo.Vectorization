@@ -123,12 +123,18 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         return new WgpuComputePass(this, currentPass);
     }
     
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
     internal void FinishPass()
     {
         if (currentPass== null) {
             return;
         }
+        Reset();
+    }
+    
+    internal void Reset()
+    {
         lastBindGroup0_hash =  0;
         lastPipelineHandle  =  null;
         kernelSeq           =  0;

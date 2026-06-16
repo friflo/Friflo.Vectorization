@@ -104,6 +104,7 @@ public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : st
     public void Dispose()
     {
         if (handle != null) {
+            Recorder.Reset();
             wgpuRenderPassEncoderEnd(handle);
             wgpuRenderPassEncoderRelease(handle);
         }

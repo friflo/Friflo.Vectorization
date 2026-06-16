@@ -60,8 +60,16 @@ public partial class RendererTest : IDisposable
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
+    private long memoryAllocated = 0;
+    
     public void DrawFrame()
     {
+        if (memoryAllocated != 0) {
+            var cur = GC.GetAllocatedBytesForCurrentThread();
+            if (memoryAllocated != cur) { Console.Out.WriteLine($"{cur -  memoryAllocated} memory used"); }
+        }
+        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
+        
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
