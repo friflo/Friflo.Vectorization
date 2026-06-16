@@ -7,8 +7,8 @@ namespace TestConsole;
 
 public class SdlWindow
 {
-    private nint        window;
-    private Renderer    renderer;
+    private nint        	window;
+    private RendererTest    renderer;
     
     public void Main()
     {
@@ -18,7 +18,7 @@ public class SdlWindow
     
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        renderer = Renderer.Create(this);
+        renderer = new RendererTest(this);
         ConfigureSurface();
         return SDL.AppResult.Continue;
     }
