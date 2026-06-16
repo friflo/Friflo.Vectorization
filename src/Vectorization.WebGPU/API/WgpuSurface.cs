@@ -59,7 +59,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
     /// </code>
     /// Use <c>swapChainFormat</c> in the <c>SurfaceConfiguration</c> passed to <see cref="Configure"/>.
     /// </remarks>
-	public WgpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb)
+	public WgpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb, out CompositeAlphaMode alphaMode)
     {
         var capabilities = new SurfaceCapabilities();
         wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
@@ -67,6 +67,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         if (useNonSrgb) {
             format = ToNonSrgb(format);
         }
+        alphaMode = capabilities.alphaModeCount > 0 ? capabilities.alphaModes[0] : CompositeAlphaMode.Opaque;
         wgpuSurfaceCapabilitiesFreeMembers(capabilities);
         return new WgpuFragmentState { targets = [new WgpuColorTargetState { format = format }] };
     }

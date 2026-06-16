@@ -15,6 +15,7 @@ public partial class RendererTest : IDisposable
     private readonly    WgpuInstance            instance;
     public  readonly    WgpuSurface             surface;
     public  readonly    TextureFormat           swapChainFormat;
+    public  readonly    CompositeAlphaMode      alphaMode;
     private readonly    WgpuAdapter             adapter;
     public  readonly    GpuDevice               device;
     private readonly    RenderPipelineConfig    config;
@@ -39,7 +40,7 @@ public partial class RendererTest : IDisposable
         adapter     = instance.RequestAdapter(default, null);
         device      = adapter.CreateDevice("test");
         
-        var fragmentState   = surface.GetPreferredFragmentState(adapter, true);
+        var fragmentState   = surface.GetPreferredFragmentState(adapter, true, out alphaMode);
         swapChainFormat     = fragmentState.targets[0].format;
         var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
         config              = desc.CreateConfig("render config");

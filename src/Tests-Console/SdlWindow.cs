@@ -83,11 +83,11 @@ public class SdlWindow
         var surfaceConfig = new SurfaceConfiguration {
             format      = renderer!.swapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
-            alphaMode   = CompositeAlphaMode.Opaque,
+            alphaMode   = renderer!.alphaMode,  // or CompositeAlphaMode.Opaque
             width       = (uint)pixelWidth,
             height      = (uint)pixelHeight,
-            presentMode = PresentMode.Immediate  // Fifo = VSync
-        };
+            presentMode = PresentMode.Immediate // Fifo = VSync
+        }; 
         renderer.surface.Configure(renderer.device, surfaceConfig);
     }
 }
