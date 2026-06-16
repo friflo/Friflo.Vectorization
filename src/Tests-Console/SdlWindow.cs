@@ -46,25 +46,26 @@ public class Wgpu
 }
 
 
-public class SdlWindow
+public class SdlWindow(Func<Wgpu, IRenderer> createRenderer)
 {
     private nint                    window;
     private Wgpu?                   wgpu;
     private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
     
-    public void Main()
+    public static void SdlMain(Func<Wgpu, IRenderer> createRenderer)
     {
+        var sdl = new SdlWindow(createRenderer);
         SDL.SetMainReady();
-        SDL.EnterAppMainCallbacks(0, [], AppInit, AppIterate, AppEvent, AppQuit);
-        callbackException?.Throw();
+        SDL.EnterAppMainCallbacks(0, [], sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
+        sdl.callbackException?.Throw();
     }
-    
+
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
         try {
             wgpu = InitSdl3("friflo GPU", 1280, 720);
-            renderer = new RenderTest(wgpu);
+            renderer = createRenderer(wgpu);
             ConfigureSurface();
             return SDL.AppResult.Continue;
         }
