@@ -30,15 +30,7 @@ public static partial class RenderTest
         window.swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
         window.ConfigureSurface(surface, device);
         
-        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        using var context   = device.BeginContext();
-        
-        var frame = new Frame(context, surface, config, data);
-        
-        while (window.PollEvents(surface, device))
-        {
-            frame.RenderFrame();
-        }
+        RunLoop(device, surface, config);
     }
     
     private static readonly VertexData[] Vertices =
@@ -51,35 +43,36 @@ public static partial class RenderTest
         new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f), new Vector2(1.0f, 1.0f)),  // Bottom-Right
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
-}
-
-public partial class Frame(
-    PipelineContext         context,
-    WgpuSurface             surface,
-    RenderPipelineConfig    config,
-    GpuBuffer<VertexData>   data)
-{
-    public void RenderFrame()
+    
+    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config)
     {
-        using var frame = context.BeginFrame(surface);
-        if (frame == null) {    // window minimized?
-            Thread.Sleep(16);   // prevent CPU consuming 100%
-            return;
-        }
+        using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        using var context   = device.BeginContext();
+        context.EnableTraces = true;
+        
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
-        using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
+        
+        while (window.PollEvents(surface, device))
         {
-            DrawTriangles(pass, data.In(), config);
-            // multiple Draw*() methods can be called here
+            using var frame = context.BeginFrame(surface);
+            if (frame == null) {    // window minimized?
+                Thread.Sleep(16);   // prevent CPU consuming 100%
+                continue;
+            }
+            using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
+            {
+                DrawTriangles(pass, data.In(), config);
+                // multiple Draw*() methods can be called here
+            }
+            // context.Queue.Submit();              // TODO implement Submit()
+            context.Queue.ReadBuffers();
+            surface.Present();
         }
-        // context.Queue.Submit();              // TODO implement Submit()
-        context.Queue.ReadBuffers();
-        surface.Present();
     }
     
     /// blueprint method generates:  <see cref="DrawTriangles"/>
@@ -87,7 +80,7 @@ public partial class Frame(
 	private static void Triangles([Span] VertexData triangles) { }
 }
 
-public struct MainWorld;
+public struct MainWorld {}
 
 [StructLayout(LayoutKind.Sequential, Size = 48)]
 public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)
