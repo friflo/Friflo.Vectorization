@@ -32,9 +32,7 @@ public partial class RendererTest : IDisposable
     
     public RendererTest(SdlWindow window)
     {
-        var width  = 1280;
-        var height =  720;
-        window.InitSDL3(width, height, out var osHandle, out var osInstance);
+        window.InitSDL3(1280, 720, out var osHandle, out var osInstance);
         
         instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         surface     = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
