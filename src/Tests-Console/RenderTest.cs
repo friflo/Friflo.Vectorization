@@ -1,25 +1,38 @@
-﻿
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using SDL3;
 
-// ReSharper disable ArrangeRedundantParentheses
+
 // ReSharper disable InconsistentNaming
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedMember.Local
-// ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace TestConsole;
 
-public struct MainWorld {}
 
 public static partial class RenderTest
 {
-    private static bool running = true;
-
+    private static SdlWindow  window;
+    
+    public static void Run()
+    {
+        var width  = 1280;
+        var height =  720;
+        window.InitSDL3(width, height, out var osHandle, out var osInstance);
+        
+        using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
+        var surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
+        using var adapter   = instance.RequestAdapter(default, null);
+        using var device    = adapter.CreateDevice("test");
+        
+        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        
+        window.swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
+        window.ConfigureSurface(surface, device);
+        
+        RunLoop(device, surface, config);
+    }
+    
     private static readonly VertexData[] Vertices =
     [
         new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.0f, 0.0f)),  // Top-Left
@@ -31,53 +44,7 @@ public static partial class RenderTest
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector2(1.0f, 0.0f))   // Top-Right
     ];
     
-    private static nint InitSDL3(int width, int height, out nint osHandle, out nint osInstance)
-    {
-        if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
-        
-        SDL.WindowFlags windowFlags = SDL.WindowFlags.Hidden | SDL.WindowFlags.Resizable;
-        if (OperatingSystem.IsMacOS()) {
-            windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
-        }
-        var window = SDL.CreateWindow("friflo GPU", width, height, windowFlags);
-        if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
-
-        var props   = SDL.GetWindowProperties(window);
-        if (OperatingSystem.IsWindows()) {
-            osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowWin32HWNDPointer,       IntPtr.Zero);
-            osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
-        } else if (OperatingSystem.IsMacOS()) {
-            osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
-            osInstance  = 0;
-        } else {
-            throw new NotImplementedException($"not SDL3 setup code of OS: {RuntimeInformation.OSDescription}");
-        }
-        SDL.ShowWindow(window);
-        return window;
-    }
-    
-    public static void Run()
-    {
-        var width  = 1280;
-        var height =  720;
-        var window = InitSDL3(width, height, out var osHandle, out var osInstance);
-        
-        // --- setup wgpu-native ---
-        using var instance  = WgpuInstance.CreateInstance(new InstanceExtras());
-        var surface         = WgpuSurface.CreateFromNativeWindow(instance, osHandle, osInstance);
-        using var adapter   = instance.RequestAdapter(default, null);
-        using var device    = adapter.CreateDevice("test");
-        
-        var config = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
-        var swapChainFormat = config.Descriptor.FragmentState!.Value.targets[0].format;  // surface.GetSwapChainFormat(adapter);
-        
-        SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-        surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
-        
-        RunLoop(device, surface, config, swapChainFormat, window);
-    }
-    
-    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config, TextureFormat swapChainFormat, nint window)
+    private static void RunLoop(GpuDevice device, WgpuSurface surface, RenderPipelineConfig config)
     {
         using var data      = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         using var context   = device.BeginContext();
@@ -90,21 +57,11 @@ public static partial class RenderTest
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
         
-        while (running)
+        while (window.PollEvents(surface, device))
         {
-            while (SDL.PollEvent(out var e)) {
-                if ((e.Type == (uint)SDL.EventType.Quit)  ||
-                    (e.Type == (uint)SDL.EventType.KeyDown && e.Key.Scancode == SDL.Scancode.Escape)) {
-                    running = false;
-                }
-                if (e.Type == (uint)SDL.EventType.WindowRestored || e.Type == (uint)SDL.EventType.WindowExposed || (e.Type == (uint)SDL.EventType.WindowPixelSizeChanged)) {
-                    SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-                    surface.Configure(device, pixelWidth, pixelHeight, swapChainFormat);
-                }
-            }
-            using var frame = context.BeginFrame(surface);   //  frame == null   if window minimized
-            if (frame == null) {
-                Thread.Sleep(16); // prevent CPU consuming 100%
+            using var frame = context.BeginFrame(surface);
+            if (frame == null) {    // window minimized?
+                Thread.Sleep(16);   // prevent CPU consuming 100%
                 continue;
             }
             using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
@@ -122,6 +79,8 @@ public static partial class RenderTest
     [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
 	private static void Triangles([Span] VertexData triangles) { }
 }
+
+public struct MainWorld {}
 
 [StructLayout(LayoutKind.Sequential, Size = 48)]
 public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)

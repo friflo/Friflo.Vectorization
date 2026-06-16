@@ -43,24 +43,27 @@ public readonly unsafe struct WgpuSurface(Surface* handle)
         return capabilities.formats[0];
     }
     
-    public void Configure(GpuDevice device, int width, int height, TextureFormat swapChainFormat)
+    /// <remarks>
+    /// Typical configuration
+    /// <code>
+    ///     var surfaceConfig = new SurfaceConfiguration {
+    ///         format      = TextureFormat.BGRA8Unorm,     // supported by most devices
+    ///         usage       = WebGPU_native.TextureUsage_RenderAttachment,
+    ///         alphaMode   = CompositeAlphaMode.Opaque,
+    ///         width       = (uint)pixelWidth,
+    ///         height      = (uint)pixelHeight,
+    ///         presentMode = PresentMode.Fifo              // Fifo = VSync
+    ///     };
+    /// </code>
+    /// </remarks>
+    public void Configure(GpuDevice device, SurfaceConfiguration surfaceConfig)
     {
         var wgpuDevice = (WgpuDevice)device;
-        // WebGPU-Standard fo most monitors: BGRA8Unorm
-        // Better: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
-        var config = new SurfaceConfiguration {
-            nextInChain     = null,
-            device          = wgpuDevice.DevicePtr,
-            format          = swapChainFormat,  //  TextureFormat.BGRA8Unorm - must be same as in   RenderTest.Triangles_GPU_CreateEffect()
-            usage           = TextureUsage_RenderAttachment,
-            viewFormatCount = 0,
-            viewFormats     = null,
-            alphaMode       = CompositeAlphaMode.Opaque,
-            width           = (uint)width,
-            height          = (uint)height,
-            presentMode     = PresentMode.Fifo // corresponds to VSync (Standard)
-        };
-        wgpuSurfaceConfigure(handle, &config);
+        surfaceConfig.device = wgpuDevice.DevicePtr;
+        // surfaceConfig.format = TextureFormat.BGRA8Unorm;    - standard supported by most devices
+        // or: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
+        
+        wgpuSurfaceConfigure(handle, &surfaceConfig);
     }
     
     
