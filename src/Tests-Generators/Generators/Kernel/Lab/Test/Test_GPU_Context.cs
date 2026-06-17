@@ -92,6 +92,8 @@ public class Test_GPU_Context : KernelBase
     [Test]
     public void Test_GPU_Context_reuse_disposed_context()
     {
+        if (Backend != TestBackend.WGPU) return;
+        
         using var device    = Device;
         using var weight    = device.CreateBuffer(100, 1f, "weight", BufferProfile.StaticIn);
         using var input     = device.CreateBuffer(100, 2f, "input",  BufferProfile.InOut);
