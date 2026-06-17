@@ -41,6 +41,7 @@ public readonly struct GpuHandleDiff
     public  GpuHandle   Textures            { get; init; }
     public  GpuHandle   TextureViews        { get; init; }
     public  GpuHandle   Samplers            { get; init; }
+    public  GpuHandle   Surfaces            { get; init; }
 
     
     
@@ -64,6 +65,7 @@ public readonly struct GpuHandleDiff
             Textures            = new GpuHandle(Textures,           cur.Textures),
             TextureViews        = new GpuHandle(TextureViews,       cur.TextureViews),
             Samplers            = new GpuHandle(Samplers,           cur.Samplers),
+            Surfaces            = new GpuHandle(Surfaces,           cur.Surfaces),
         };
     }
     
@@ -86,7 +88,8 @@ public readonly struct GpuHandleDiff
                 Buffers.            Diff                          == 0 &&
                 Textures.           Diff                          == 0 &&
                 TextureViews.       Diff                          == 0 &&
-                Samplers.           Diff                          == 0);
+                Samplers.           Diff                          == 0 &&
+                Surfaces.           Diff                          == 0);
     }
 
     public override string ToString() {
@@ -115,6 +118,7 @@ Buffers          {Buffers           .Active,4} {Buffers           .Diff,5:+0;-0;
 Textures         {Textures          .Active,4} {Textures          .Diff,5:+0;-0;0}
 TextureViews     {TextureViews      .Active,4} {TextureViews      .Diff,5:+0;-0;0}
 Samplers         {Samplers          .Active,4} {Samplers          .Diff,5:+0;-0;0}
+Surfaces         {Surfaces          .Active,4} {Surfaces          .Diff,5:+0;-0;0}
 ";
     }
 }
