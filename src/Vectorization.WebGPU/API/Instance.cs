@@ -187,6 +187,27 @@ public sealed unsafe class WgpuInstance : GpuInstance
         };
     }
     
+    /// <summary> Returns all <see cref="WgpuAdapter"/>'s. <c>Dispose()</c> adapters to prevent leaks. </summary>
+    public WgpuAdapter[] GetAdapters()
+    {
+        InstanceEnumerateAdapterOptions options = default;
+        nuint adapterCount = wgpuInstanceEnumerateAdapters(instance, &options, null);
+        var wgpuAdapters = new WgpuAdapter[adapterCount];
+        
+        Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
+        wgpuInstanceEnumerateAdapters(instance, &options, adapters); // creates Adapter* handles
+        for (int i = 0; i < (int)adapterCount; i++)
+        {
+            Adapter* adapter = adapters[i];
+            AdapterInfo info = default;
+            wgpuAdapterGetInfo(adapter, &info);
+            var wgpuInfo = WgpuAdapterInfo.CreateAdapterInfo(info);
+            wgpuAdapterInfoFreeMembers(info);
+            wgpuAdapters[i] = new WgpuAdapter(adapter, instance, wgpuInfo);
+        }
+        return wgpuAdapters;
+    }
+    
     public override WgpuAdapterInfo[] GetAdapterInfos()
     {
         InstanceEnumerateAdapterOptions options = default;
