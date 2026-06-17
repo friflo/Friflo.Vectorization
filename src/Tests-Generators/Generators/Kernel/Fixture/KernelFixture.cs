@@ -40,14 +40,20 @@ public sealed class KernelFixture
         Adapter     = instance.CreateAdapter(backendType);
         Instance    = instance;
     }
+
+    private static readonly GpuBackendType BackendType = GpuBackendType.Undefined;  // D3D12  OpenGL  Vulkan
     
     private static void SetupWebGPU () {
         var instance = WgpuInstance.CreateInstance(new InstanceExtras {
             // Backends            = InstanceBackend.DX12,
         });
-        var infos       = instance.GetAdapterInfos();
-        var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
-        Adapter   = instance.RequestAdapter(default); // adapterInfo <= use specific adapter
+        if (BackendType == GpuBackendType.Undefined) {
+            Adapter = instance.RequestAdapter(default);
+        } else {
+            var adapters = instance.GetAdapters();
+            Adapter = adapters.FirstOrDefault(props => props.GetAdapterInfo().BackendType == BackendType);
+            foreach (var adapter in adapters) { if (Adapter != adapter) adapter.Dispose(); }
+        }
         Instance  = instance;
     }
     
