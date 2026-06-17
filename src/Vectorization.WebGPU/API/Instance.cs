@@ -166,14 +166,23 @@ public sealed unsafe class WgpuInstance : GpuInstance
     private static GpuHandleDiff GpuHandles(in HubReport report)
     {
         return new GpuHandleDiff {
+            Adapters            = new GpuHandle((long)report.adapters.           numKeptFromUser),
             Devices             = new GpuHandle((long)report.devices.            numKeptFromUser),
-            Buffers             = new GpuHandle((long)report.buffers.            numKeptFromUser),
-            BindGroups          = new GpuHandle((long)report.bindGroups.         numKeptFromUser),
-            BindGroupLayouts    = new GpuHandle((long)report.bindGroupLayouts.   numKeptFromUser),
-            ComputePipelines    = new GpuHandle((long)report.computePipelines.   numKeptFromUser),
-            CommandBuffers      = new GpuHandle((long)report.commandBuffers.     numKeptFromUser),
+            Queues              = new GpuHandle((long)report.queues.             numKeptFromUser),
+            PipelineLayouts     = new GpuHandle((long)report.pipelineLayouts.    numKeptFromUser),
             ShaderModules       = new GpuHandle((long)report.shaderModules.      numKeptFromUser),
-            PipelineLayouts     = new GpuHandle((long)report.pipelineLayouts.    numKeptFromUser)
+            BindGroupLayouts    = new GpuHandle((long)report.bindGroupLayouts.   numKeptFromUser),
+            BindGroups          = new GpuHandle((long)report.bindGroups.         numKeptFromUser),
+            CommandBuffers      = new GpuHandle((long)report.commandBuffers.     numKeptFromUser),
+            RenderBundles       = new GpuHandle((long)report.renderBundles.      numKeptFromUser),
+            RenderPipelines     = new GpuHandle((long)report.renderPipelines.    numKeptFromUser),
+            ComputePipelines    = new GpuHandle((long)report.computePipelines.   numKeptFromUser),
+            PipelineCaches      = new GpuHandle((long)report.pipelineCaches.     numKeptFromUser),
+            QuerySets           = new GpuHandle((long)report.querySets.          numKeptFromUser),
+            Buffers             = new GpuHandle((long)report.buffers.            numKeptFromUser),
+            Textures            = new GpuHandle((long)report.textures.           numKeptFromUser),
+            TextureViews        = new GpuHandle((long)report.textureViews.       numKeptFromUser),
+            Samplers            = new GpuHandle((long)report.samplers.           numKeptFromUser),
         };
     }
     
