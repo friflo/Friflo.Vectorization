@@ -24,7 +24,6 @@ public readonly struct GpuHandle
 
 public readonly struct GpuHandleDiff
 {
-    public  GpuBackendType  BackendType         { get; init; }
     public  GpuHandle       Devices             { get; init; }
     public  GpuHandle       Buffers             { get; init; }
     public  GpuHandle       BindGroups          { get; init; }
@@ -37,7 +36,6 @@ public readonly struct GpuHandleDiff
     public GpuHandleDiff GetHandleDiff(in GpuHandleDiff cur)
     {
         return new GpuHandleDiff {
-            BackendType         = cur.BackendType,
             Devices             = new GpuHandle(Devices,             cur.Devices),
             Buffers             = new GpuHandle(Buffers,             cur.Buffers),
             BindGroups          = new GpuHandle(BindGroups,          cur.BindGroups),
@@ -62,13 +60,12 @@ public readonly struct GpuHandleDiff
     }
 
     public override string ToString() {
-        return $"Backend: {BackendType}  Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}";
+        return $"Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}";
     }
 
     public string GetState(string title = "")
     {
         return $@"{title}
-BackendType: {BackendType}
 ResourceType    Start Delta
 --------------- ----- -----
 Devices          {Devices           .Active,4} {Devices           .Diff,5:+0;-0;0}
