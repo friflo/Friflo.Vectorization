@@ -17,7 +17,7 @@ public static partial class Test_GPU
     public static void Test_GPU_DetectHazard()
     {
         using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-        using var adapter     = instance.RequestAdapter(default, null);
+        using var adapter     = instance.RequestAdapter(default);
         using var device      = adapter.CreateDevice("test");
         
         using var buffer1 = device.CreateBuffer(10, 1f, "buffer1", BufferProfile.StaticIn);

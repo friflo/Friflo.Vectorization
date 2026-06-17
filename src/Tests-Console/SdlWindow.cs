@@ -28,7 +28,7 @@ public class Wgpu
     {
         Instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
-        Adapter     = Instance.RequestAdapter(default, null);
+        Adapter     = Instance.RequestAdapter(default);
         Device      = Adapter.CreateDevice("Wgpu.Device");
         
         var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);

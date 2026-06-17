@@ -12,9 +12,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
-    public      Adapter*    Adapter     { get; private init; }
-
-    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterInfo props, Adapter* adapter)
+    internal static WgpuAdapterInfo CreateAdapterInfo(AdapterInfo props)
     {
         return new WgpuAdapterInfo {
             VendorID            = (int)props.vendorID,
@@ -23,7 +21,6 @@ public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
             BackendType         = (GpuBackendType)props.backendType,
             Name                = PtrToString(props.device),		// TODO was .Name
             DriverDescription   = PtrToString(props.description),	// TODO was .DriverDescription
-            Adapter             = adapter
         };
     }
     

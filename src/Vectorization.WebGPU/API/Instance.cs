@@ -108,26 +108,23 @@ public sealed unsafe class WgpuInstance : GpuInstance
         *adapterPtr = adapter;
     }
     
-    public WgpuAdapter RequestAdapter(RequestAdapterOptions options, WgpuAdapterInfo adapterInfo)
+    public WgpuAdapter RequestAdapter(RequestAdapterOptions options)
     {
 		Adapter* adapter = null;
-        if (adapterInfo != null) {
-            adapter = adapterInfo.Adapter;
-        } else {
-            var callbackInfo = new RequestAdapterCallbackInfo {
-                mode        = CallbackMode.WaitAnyOnly,
-                callback    = &RequestAdapter_callback,
-                userdata1   = &adapter
-            };
-		    var future = wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
-            if (future.id != 0) {
-                var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
-                wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
-            }
-            if (adapter == null) {
-                throw new Exception("Failed to create WebGPU Adapter. Status: ");
-            }
+        var callbackInfo = new RequestAdapterCallbackInfo {
+            mode        = CallbackMode.WaitAnyOnly,
+            callback    = &RequestAdapter_callback,
+            userdata1   = &adapter
+        };
+		var future = wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
+        if (future.id != 0) {
+            var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
+            wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);
         }
+        if (adapter == null) {
+            throw new Exception("Failed to create WebGPU Adapter. Status: ");
+        }
+
         /* var startTime = Stopwatch.StartNew();
         var timeOutMs = 1000;
         while (adapter == null) {
@@ -139,7 +136,8 @@ public sealed unsafe class WgpuInstance : GpuInstance
         } */
         var props = new AdapterInfo();
         wgpuAdapterGetInfo(adapter, &props);
-        var info = WgpuAdapterInfo.CreateAdapterInfo(props, adapter);
+        var info = WgpuAdapterInfo.CreateAdapterInfo(props);
+        wgpuAdapterInfoFreeMembers(props);
         return new WgpuAdapter(adapter, instance, info);
     }
     
@@ -196,13 +194,15 @@ public sealed unsafe class WgpuInstance : GpuInstance
         var infos = new WgpuAdapterInfo[adapterCount];
         
         Adapter** adapters = stackalloc Adapter*[ (int)adapterCount ];
-        wgpuInstanceEnumerateAdapters(instance, &options, adapters);
+        wgpuInstanceEnumerateAdapters(instance, &options, adapters); // creates Adapter* handles
         for (int i = 0; i < (int)adapterCount; i++)
         {
             Adapter* adapter = adapters[i];
             AdapterInfo info = default;
             wgpuAdapterGetInfo(adapter, &info);
-            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(info, adapter);
+            infos[i] = WgpuAdapterInfo.CreateAdapterInfo(info);
+            wgpuAdapterInfoFreeMembers(info);
+            wgpuAdapterRelease(adapter);
         }
         return infos;
     }

@@ -47,7 +47,7 @@ public sealed class KernelFixture
         });
         var infos       = instance.GetAdapterInfos();
         var adapterInfo = infos.FirstOrDefault(props => props.BackendType == GpuBackendType.D3D12);
-        Adapter   = instance.RequestAdapter(default, null); // adapterInfo <= use specific adapter
+        Adapter   = instance.RequestAdapter(default); // adapterInfo <= use specific adapter
         Instance  = instance;
     }
     

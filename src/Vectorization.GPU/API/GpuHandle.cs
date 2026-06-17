@@ -72,7 +72,7 @@ public readonly struct GpuHandleDiff
     public bool IsDiffZero(int expectedCommandBuffers)
     {
         return (
-        //      Adapters.           Diff                          == 0 &&       // TODO
+                Adapters.           Diff                          == 0 &&
                 Devices.            Diff                          == 0 &&
                 Queues.             Diff                          == 0 &&
                 PipelineLayouts.    Diff                          == 0 &&

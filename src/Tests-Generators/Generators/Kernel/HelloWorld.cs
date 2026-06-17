@@ -26,7 +26,7 @@ public partial class HelloWorld
         // using var instance    = CpuInstance.CreateInstance();
         // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
         using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-        using var adapter     = instance.RequestAdapter(default, null);
+        using var adapter     = instance.RequestAdapter(default);
         using var device      = adapter.CreateDevice("test");
         
         using var a = device.CreateBuffer(1024, 1f, "a", BufferProfile.StaticIn);
