@@ -39,9 +39,11 @@ public class Wgpu
     
     public void Shutdown()
     {
+        Surface.Unconfigure();
         Device.Dispose();
         Adapter.Dispose();
         Surface.Dispose();
+        Console.WriteLine(Instance.GenerateHandles().GetState());
         Instance.Dispose();
     }
 }

@@ -184,5 +184,44 @@ public sealed unsafe class SilkInstance : GpuInstance
         }
         return infos;
     }
+    
+    public override GpuHandleDiff GenerateHandles () {
+        var globalReport = new GlobalReport();
+        wgpuEx.GenerateReport(instance, &globalReport);
+        
+        var sum = new HubReport();
+        AddReport(ref  sum, globalReport.Vulkan);
+        AddReport(ref  sum, globalReport.Metal);
+        AddReport(ref  sum, globalReport.Dx12);
+        AddReport(ref  sum, globalReport.Gl);
+        return GpuHandles(sum);
+    }
+    
+    private static void AddReport(ref HubReport sum , in HubReport report)
+    {
+        sum.Devices.            NumKeptFromUser +=  report.Devices.         NumKeptFromUser;
+        sum.Buffers.            NumKeptFromUser +=  report.Buffers.         NumKeptFromUser;
+        sum.BindGroups.         NumKeptFromUser +=  report.BindGroups.      NumKeptFromUser;
+        sum.BindGroupLayouts.   NumKeptFromUser +=  report.BindGroupLayouts.NumKeptFromUser;
+        sum.ComputePipelines.   NumKeptFromUser +=  report.ComputePipelines.NumKeptFromUser;
+        sum.CommandBuffers.     NumKeptFromUser +=  report.CommandBuffers.  NumKeptFromUser;
+        sum.ShaderModules.      NumKeptFromUser +=  report.ShaderModules.   NumKeptFromUser;
+        sum.PipelineLayouts.    NumKeptFromUser +=  report.PipelineLayouts. NumKeptFromUser;
+    }
+
+    
+    private static GpuHandleDiff GpuHandles(in HubReport report)
+    {
+        return new GpuHandleDiff {
+            Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
+            Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
+            BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
+            BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser),
+            ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser),
+            CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser),
+            ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
+            PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
+        };
+    }
 }
 

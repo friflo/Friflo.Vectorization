@@ -126,26 +126,5 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
             MaxComputeInvocationsPerWorkgroup   = (int) limits.maxComputeInvocationsPerWorkgroup, 
         };
     }
-    
-    public override GpuHandleDiff GenerateHandles () {
-        var globalReport = new GlobalReport();
-        wgpuGenerateReport(instance, &globalReport);
-        return GpuHandles(globalReport.hub, info);
-    }
-    
-    private static GpuHandleDiff GpuHandles(in HubReport report, GpuAdapterInfo info)
-    {
-        return new GpuHandleDiff {
-            BackendType         = info.BackendType,
-            Devices             = new GpuHandle((long)report.devices.            numKeptFromUser),
-            Buffers             = new GpuHandle((long)report.buffers.            numKeptFromUser),
-            BindGroups          = new GpuHandle((long)report.bindGroups.         numKeptFromUser),
-            BindGroupLayouts    = new GpuHandle((long)report.bindGroupLayouts.   numKeptFromUser),
-            ComputePipelines    = new GpuHandle((long)report.computePipelines.   numKeptFromUser),
-            CommandBuffers      = new GpuHandle((long)report.commandBuffers.     numKeptFromUser),
-            ShaderModules       = new GpuHandle((long)report.shaderModules.      numKeptFromUser),
-            PipelineLayouts     = new GpuHandle((long)report.pipelineLayouts.    numKeptFromUser)
-        };
-    }
 }
 

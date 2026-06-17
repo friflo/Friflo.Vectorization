@@ -8,7 +8,9 @@ namespace Friflo.Vectorization.CPU;
 
 public sealed class CpuInstance : GpuInstance
 {
-    private         bool isDisposed;
+    private         bool    isDisposed;
+    internal        long    deviceCount;
+    internal        long    bufferCount;
     
     public override bool IsDisposed => isDisposed;
     
@@ -23,7 +25,7 @@ public sealed class CpuInstance : GpuInstance
             GpuBackendType.SIMD     => CpuAdapterInfo.Simd,
             GpuBackendType.Scalar   => CpuAdapterInfo.Scalar
         };
-        return new CpuAdapter(info);
+        return new CpuAdapter(this, info);
     }
     
     public override void Dispose() {
@@ -32,6 +34,14 @@ public sealed class CpuInstance : GpuInstance
 
     public override GpuAdapterInfo[] GetAdapterInfos() {
         return SimdAdapterInfos;
+    }
+    
+    public override GpuHandleDiff GenerateHandles() {
+        return new GpuHandleDiff
+        {
+            Devices     = new GpuHandle(deviceCount),
+            Buffers     = new GpuHandle(bufferCount),
+        };
     }
     
     private static readonly GpuAdapterInfo[] SimdAdapterInfos = [

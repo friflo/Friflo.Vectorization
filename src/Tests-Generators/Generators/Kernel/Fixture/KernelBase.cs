@@ -14,7 +14,7 @@ public abstract class KernelBase
     // -----------------------  Local Setup -----------------------
     protected       GpuDevice       Device          { get; private set; }
     private         GpuHandleDiff   StartHandles    { get; set; }
-    public          GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Adapter.GenerateHandles());
+    public          GpuHandleDiff   HandleDiff      => StartHandles.GetHandleDiff(Instance.GenerateHandles());
     protected       int             ExpectedCommandBuffers;
 
     protected virtual int UniformBufferSize => 64 * 1024;
@@ -22,7 +22,7 @@ public abstract class KernelBase
     [SetUp]
     public void BaseSetup() {
         Dbg.Instance            = this;
-        StartHandles            = Adapter.GenerateHandles();
+        StartHandles            = Instance.GenerateHandles();
         ExpectedCommandBuffers  = 0;
         Device                  = Adapter.CreateDevice("GpuTestBase", UniformBufferSize);
     }
@@ -38,7 +38,7 @@ public abstract class KernelBase
         GC.WaitForPendingFinalizers(); // required to execute ~GpuDevice()
         Dbg.Instance = null;
         
-        var finalReport = Adapter.GenerateHandles();
+        var finalReport = Instance.GenerateHandles();
         var finalDiff   = StartHandles.GetHandleDiff(finalReport);
         
         AssertResourceLeaks(finalDiff, ExpectedCommandBuffers);

@@ -12,14 +12,14 @@ namespace Friflo.Vectorization.CPU;
 public sealed class CpuAdapter : GpuAdapter
 {
     private             bool            isDisposed;
-    internal            long            deviceCount;
-    internal            long            bufferCount;
-    private readonly    GpuAdapterInfo  info;
+    private  readonly   GpuAdapterInfo  info;
+    internal readonly   CpuInstance     instance;
     
     public override bool    IsDisposed => isDisposed;
     
-    internal CpuAdapter(GpuAdapterInfo info) {
-        this.info = info;
+    internal CpuAdapter(CpuInstance instance, GpuAdapterInfo info) {
+        this.instance   = instance;
+        this.info       = info;
     }
     
     public override void Dispose() {
@@ -28,17 +28,8 @@ public sealed class CpuAdapter : GpuAdapter
 
     public override GpuDevice CreateDevice(string label, int uniformBufferSize = 65536)
     {
-        deviceCount++;
+        instance.deviceCount++;
         return new CpuDevice(this, label, uniformBufferSize);
-    }
-
-    public override GpuHandleDiff GenerateHandles() {
-        return new GpuHandleDiff
-        {
-            BackendType = info.BackendType,
-            Devices     = new GpuHandle(deviceCount),
-            Buffers     = new GpuHandle(bufferCount),
-        };
     }
 
     public override GpuAdapterInfo GetAdapterInfo() {

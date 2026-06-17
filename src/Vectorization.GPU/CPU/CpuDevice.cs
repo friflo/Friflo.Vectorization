@@ -25,7 +25,7 @@ internal sealed class CpuDevice : GpuDevice
     }
 
     public override void Dispose() {
-        if (!isDisposed) adapter.deviceCount--;
+        if (!isDisposed) adapter.instance.deviceCount--;
         isDisposed = true;
         
         base.Dispose();  // calls GC.SuppressFinalize(this); to prevent execution of finalizer WHEN Dispose() is called manually
@@ -36,7 +36,7 @@ internal sealed class CpuDevice : GpuDevice
     }
 
     public override GpuBuffer<T> CreateBuffer<T>(Memory<T> data, string bufferLabel, BufferProfile profile, BufferType type = BufferType.Storage) {
-        adapter.bufferCount++;
+        adapter.instance.bufferCount++;
         return new CpuBuffer<T>(this, data, bufferLabel);
     }
 

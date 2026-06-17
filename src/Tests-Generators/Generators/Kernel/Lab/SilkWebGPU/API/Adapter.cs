@@ -98,39 +98,6 @@ public sealed unsafe class SilkAdapter : GpuAdapter
         };
     }
     
-    public override GpuHandleDiff GenerateHandles () {
-        var globalReport = new GlobalReport();
-        wgpuEx.GenerateReport(instance, &globalReport);
-        var hubReport = GetReport(globalReport, (BackendType)info.BackendType);
-        return GpuHandles(hubReport, info);
-    }
-    
-    private static HubReport GetReport(GlobalReport report, BackendType type)
-    {
-        return type switch {
-            BackendType.Vulkan   => report.Vulkan,
-            BackendType.Metal    => report.Metal,
-            BackendType.D3D11    => report.Dx12,
-            BackendType.D3D12    => report.Dx12,
-            _                    => report.Gl,
-        };
-    }
-    
-    private static GpuHandleDiff GpuHandles(in HubReport report, GpuAdapterInfo info)
-    {
-        return new GpuHandleDiff {
-            BackendType         = info.BackendType,
-            Devices             = new GpuHandle((long)report.Devices.            NumKeptFromUser),
-            Buffers             = new GpuHandle((long)report.Buffers.            NumKeptFromUser),
-            BindGroups          = new GpuHandle((long)report.BindGroups.         NumKeptFromUser),
-            BindGroupLayouts    = new GpuHandle((long)report.BindGroupLayouts.   NumKeptFromUser),
-            ComputePipelines    = new GpuHandle((long)report.ComputePipelines.   NumKeptFromUser),
-            CommandBuffers      = new GpuHandle((long)report.CommandBuffers.     NumKeptFromUser),
-            ShaderModules       = new GpuHandle((long)report.ShaderModules.      NumKeptFromUser),
-            PipelineLayouts     = new GpuHandle((long)report.PipelineLayouts.    NumKeptFromUser)
-        };
-    }
-    
     private static void OnGpuError(ErrorType type, byte* message, void* userData)
     {
         string errorMsg = Marshal.PtrToStringUTF8((IntPtr)message);

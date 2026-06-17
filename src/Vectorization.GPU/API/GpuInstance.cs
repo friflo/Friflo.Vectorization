@@ -12,4 +12,5 @@ public abstract class GpuInstance : IDisposable
     
     public abstract void                Dispose();
     public abstract GpuAdapterInfo[]    GetAdapterInfos();
+    public abstract GpuHandleDiff       GenerateHandles ();
 }

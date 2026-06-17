@@ -14,7 +14,6 @@ public abstract class GpuAdapter : IDisposable
     public abstract void            Dispose();
     
     public abstract GpuDevice       CreateDevice (string label, int uniformBufferSize = 64 * 1024);
-    public abstract GpuHandleDiff   GenerateHandles ();
     public abstract GpuAdapterInfo  GetAdapterInfo ();
     public abstract GpuLimits       GetAdapterLimits();
 }

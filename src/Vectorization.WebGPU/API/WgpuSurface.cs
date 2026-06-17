@@ -36,7 +36,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     {
         wgpuSurfaceRelease(handle);
     }
-
+    
     public void Present() {
         wgpuSurfacePresent(handle);
     }
@@ -141,6 +141,11 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
         // or: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
         
         wgpuSurfaceConfigure(handle, &surfaceConfig);
+    }
+    
+    public void Unconfigure()
+    {
+        wgpuSurfaceUnconfigure(handle);
     }
     
     
