@@ -29,18 +29,19 @@ public class Wgpu
         Instance    = WgpuInstance.CreateInstance(new InstanceExtras());
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
         Adapter     = Instance.RequestAdapter(default, null);
-        Device      = Adapter.CreateDevice("test");
+        Device      = Adapter.CreateDevice("Wgpu.Device");
         
         var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
         SwapChainFormat     = fragmentState.targets[0].format;
         var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
-        Config              = desc.CreateConfig("render config");
+        Config              = desc.CreateConfig("Wgpu.Config");
     }
     
     public void Shutdown()
     {
         Device.Dispose();
         Adapter.Dispose();
+        Surface.Dispose();
         Instance.Dispose();
     }
 }

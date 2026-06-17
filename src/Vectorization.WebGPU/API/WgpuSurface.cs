@@ -28,10 +28,15 @@ public unsafe struct SurfaceDescriptorFromMetalLayer {
     public void*            layer; // CAMetalLayer (metalLayer)
 }
 
-public readonly unsafe struct WgpuSurface(Surface* handle)
+public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
 {
     internal readonly   Surface*  handle = handle;
-    
+
+    public void Dispose()
+    {
+        wgpuSurfaceRelease(handle);
+    }
+
     public void Present() {
         wgpuSurfacePresent(handle);
     }
