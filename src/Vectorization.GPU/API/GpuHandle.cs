@@ -91,6 +91,29 @@ public readonly struct GpuHandleDiff
                 Samplers.           Diff                          == 0 &&
                 Surfaces.           Diff                          == 0);
     }
+    
+    public bool IsActiveZero()
+    {
+        return (
+                Adapters.           Active == 0 &&
+                Devices.            Active == 0 &&
+                Queues.             Active == 0 &&
+                PipelineLayouts.    Active == 0 &&
+                ShaderModules.      Active == 0 &&
+                BindGroupLayouts.   Active == 0 &&
+                BindGroups.         Active == 0 &&
+                CommandBuffers.     Active == 0 &&
+                RenderBundles.      Active == 0 &&
+                RenderPipelines.    Active == 0 &&
+                ComputePipelines.   Active == 0 &&
+                PipelineCaches.     Active == 0 &&
+                QuerySets.          Active == 0 &&
+                Buffers.            Active == 0 &&
+                Textures.           Active == 0 &&
+                TextureViews.       Active == 0 &&
+                Samplers.           Active == 0 &&
+                Surfaces.           Active == 0);
+    }
 
     public override string ToString() {
         return $"Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}";

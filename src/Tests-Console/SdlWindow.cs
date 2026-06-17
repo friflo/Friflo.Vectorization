@@ -43,7 +43,10 @@ public class Wgpu
         Device.Dispose();
         Adapter.Dispose();
         Surface.Dispose();
-        Console.WriteLine(Instance.GenerateHandles().GetState());
+        var handleDiff = Instance.GenerateHandles();
+        if (!handleDiff.IsActiveZero()) {
+            Console.WriteLine(handleDiff.GetState());
+        }
         Instance.Dispose();
     }
 }
