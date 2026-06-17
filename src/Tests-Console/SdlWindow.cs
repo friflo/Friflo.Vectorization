@@ -63,62 +63,26 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
 
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
-        try {
-            wgpu = InitSdl3();
-            renderer = createRenderer(wgpu);
-            ConfigureSurface();
-            return SDL.AppResult.Continue;
-        }
-        catch (Exception exception) {
-            return Capture(exception);
-        }
+        try { InitSdl3();               return SDL.AppResult.Continue; }
+        catch (Exception exception)   { return Capture(exception); }
     }
     
     private void AppQuit(IntPtr appState, SDL.AppResult result)
     {
-        try {
-            renderer?.Shutdown();
-            renderer = null;
-            wgpu?.Shutdown();
-            wgpu = null;
-            SDL.DestroyWindow(window);
-            SDL.Quit();
-        }
-        catch (Exception exception) {
-            Capture(exception);
-        }
+        try { Shutdown(); }
+        catch (Exception exception)   { Capture(exception); }
     }
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        try {
-            renderer?.DrawFrame();
-            return SDL.AppResult.Continue;
-        }
-        catch (Exception exception) {
-            return Capture(exception);
-        }
+        try { renderer?.DrawFrame();    return SDL.AppResult.Continue; }
+        catch (Exception exception)   { return Capture(exception); }
     }
     
     private SDL.AppResult AppEvent(IntPtr appState, ref SDL.Event ev)
     {
-        try {
-            var type = (SDL.EventType)ev.Type;
-            switch (type)
-            {
-                case SDL.EventType.Quit:
-                    return SDL.AppResult.Success;
-                case SDL.EventType.WindowRestored:
-                case SDL.EventType.WindowExposed:
-                case SDL.EventType.WindowPixelSizeChanged:
-                    ConfigureSurface();
-                    break;
-            }
-            return SDL.AppResult.Continue;
-        }
-        catch (Exception exception) {
-            return Capture(exception);
-        }
+        try { return AppEvent(ref ev); }
+        catch (Exception exception)   { return Capture(exception); }
     }
     
     private SDL.AppResult Capture(Exception exception)
@@ -128,8 +92,9 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    public Wgpu InitSdl3()
+    public void InitSdl3()
     {
+        // --- setup SDL window ---
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
         var windowFlags = SDL.WindowFlags.Hidden | SDL.WindowFlags.Resizable;
@@ -153,7 +118,10 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         }
         SDL.ShowWindow(window);
         
-        return wgpu = new Wgpu(osHandle, osInstance);
+        // --- setup wgpu resources --- 
+        wgpu = new Wgpu(osHandle, osInstance);
+        renderer = createRenderer(wgpu);
+        ConfigureSurface();
     }
     
     private void ConfigureSurface()
@@ -170,5 +138,31 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             presentMode = PresentMode.Immediate // Fifo = VSync
         }; 
         wgpu.Surface.Configure(wgpu.Device, surfaceConfig);
+    }
+    
+    private SDL.AppResult AppEvent(ref SDL.Event ev)
+    {
+        var type = (SDL.EventType)ev.Type;
+        switch (type)
+        {
+            case SDL.EventType.Quit:
+                return SDL.AppResult.Success;
+            case SDL.EventType.WindowRestored:
+            case SDL.EventType.WindowExposed:
+            case SDL.EventType.WindowPixelSizeChanged:
+                ConfigureSurface();
+                break;
+        }
+        return SDL.AppResult.Continue;
+    }
+    
+    private void Shutdown()
+    {
+        renderer?.Shutdown();
+        renderer = null;
+        wgpu?.Shutdown();
+        wgpu = null;
+        SDL.DestroyWindow(window);
+        SDL.Quit();
     }
 }
