@@ -56,7 +56,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     public static void Main(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
-        var sdl = new SdlWindow(title, width, height, createRenderer);
+        var sdl = new SdlWindow(title + " - friflo GPU", width, height, createRenderer);
         SDL.SetMainReady();
         SDL.EnterAppMainCallbacks(0, [], sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
         sdl.callbackException?.Throw();
@@ -102,7 +102,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
-        window = SDL.CreateWindow(title + " - friflo GPU", width, height, windowFlags);
+        window = SDL.CreateWindow(title, width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         nint osHandle;
@@ -121,6 +121,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         
         // --- setup wgpu resources --- 
         wgpu = new Wgpu(osHandle, osInstance);
+        var backend = wgpu.Adapter.GetAdapterInfo().BackendType;
+        SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer = createRenderer(wgpu);
         ConfigureSurface();
     }
