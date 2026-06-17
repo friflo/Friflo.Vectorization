@@ -46,16 +46,16 @@ public class Wgpu
 }
 
 
-public class SdlWindow(Func<Wgpu, IRenderer> createRenderer)
+public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
 {
     private nint                    window;
     private Wgpu?                   wgpu;
     private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
     
-    public static void SdlMain(Func<Wgpu, IRenderer> createRenderer)
+    public static void Main(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
-        var sdl = new SdlWindow(createRenderer);
+        var sdl = new SdlWindow(title, width, height, createRenderer);
         SDL.SetMainReady();
         SDL.EnterAppMainCallbacks(0, [], sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
         sdl.callbackException?.Throw();
@@ -64,7 +64,7 @@ public class SdlWindow(Func<Wgpu, IRenderer> createRenderer)
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
     {
         try {
-            wgpu = InitSdl3("friflo GPU", 1280, 720);
+            wgpu = InitSdl3();
             renderer = createRenderer(wgpu);
             ConfigureSurface();
             return SDL.AppResult.Continue;
@@ -128,7 +128,7 @@ public class SdlWindow(Func<Wgpu, IRenderer> createRenderer)
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    public Wgpu InitSdl3(string title, int width, int height)
+    public Wgpu InitSdl3()
     {
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
@@ -136,7 +136,7 @@ public class SdlWindow(Func<Wgpu, IRenderer> createRenderer)
         if (OperatingSystem.IsMacOS()) {
             windowFlags |= SDL.WindowFlags.Metal | SDL.WindowFlags.HighPixelDensity;
         }
-        window = SDL.CreateWindow(title, width, height, windowFlags);
+        window = SDL.CreateWindow(title + " - friflo GPU", width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         nint osHandle;
