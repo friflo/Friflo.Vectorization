@@ -74,7 +74,7 @@ public readonly struct GpuHandleDiff
         return (
         //      Adapters.           Diff                          == 0 &&       // TODO
                 Devices.            Diff                          == 0 &&
-        //      Queues.             Diff                          == 0 &&       // TODO
+                Queues.             Diff                          == 0 &&
                 PipelineLayouts.    Diff                          == 0 &&
                 ShaderModules.      Diff                          == 0 &&
                 BindGroupLayouts.   Diff                          == 0 &&

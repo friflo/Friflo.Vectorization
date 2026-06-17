@@ -118,12 +118,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         foreach (var layout in layoutCache.Values) {
             wgpuBindGroupLayoutRelease(layout.handle);
         }
-        // Important: Queue* must not be released. It shares the same lifetime as Device*.
-        //  if (QueuePtr != null) {
-        //      wgpu.QueueRelease(QueuePtr); will cause segtfault/panic when calling wgpu.QueueSubmit()
-        //  }
         wgpuBufferRelease(stagingReadBuffer.handle);
         if (DevicePtr != null) {
+            wgpuQueueRelease(QueuePtr);
             wgpuDeviceRelease(DevicePtr);
         }
         // Free anchor to managed world MUST be the last call 
