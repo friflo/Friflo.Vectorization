@@ -230,6 +230,7 @@ public sealed unsafe partial  class WgpuDevice
             } finally {
                 allocator.FreePointers();
                 if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
+                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
             }
         }
     }
