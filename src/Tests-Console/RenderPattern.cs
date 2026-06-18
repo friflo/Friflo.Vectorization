@@ -30,6 +30,7 @@ public partial class RenderTest
         
         recorder.RequireRead(triangles);
 
+        // TODO  use config in GetShaderEffect()
         ref var effect = ref device.GetShaderEffect(Triangles_GPU_ShaderId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref Triangles_GPU_CreateEffect(device, config);
