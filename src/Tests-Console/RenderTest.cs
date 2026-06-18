@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
@@ -37,16 +38,18 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
     
-    private long memoryAllocated;
-    private int  frameCount;
+    private long                        memoryAllocated;
+    private int                         frameCount;
+    private Wormhood.ShadertoyUniforms  uniforms = new ();
+    private Stopwatch                   stopwatch = Stopwatch.StartNew();
     
     public void DrawFrame()
     {
-        if (frameCount++ % 5000 == 0) {
+        if (frameCount++ % 50 == 0) {
             Console.Out.WriteLine($"frame: {frameCount}");
         } else {
             var cur = GC.GetAllocatedBytesForCurrentThread();
-            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+            // if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
         }
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         
@@ -65,7 +68,10 @@ public partial class RenderTest : IRenderer
         {
             var effect = new MyUniform (new Vector4(1, 1, 0, 1));
             DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
-            // multiple Draw*() methods can be called here
+            
+            // uniforms.IResolution = new Vector3(currentWindowWidth, currentWindowHeight, 1.0f);  // TODO
+            uniforms.ITime = (float)stopwatch.Elapsed.Milliseconds;
+            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -93,4 +99,25 @@ public struct VertexData(Vector4 position, Vector4 color)
 public struct MyUniform(Vector4 tintColor)
 {
     public Vector4 	tint_color = tintColor;
+}
+
+public static partial class Wormhood
+{
+    // language=file-reference
+    [Shader("Shaders/raymarcher_no_texture.wgsl")]
+    public static partial void RenderTunnel(
+                     RenderPass<MainWorld>  renderPass,
+        [Bind(0, 0)] ShadertoyUniforms      uniforms,
+                     RenderConfig    		config);
+     
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ShadertoyUniforms
+    {
+        public  Vector3     IResolution = new Vector3(1920f, 1080f, 1f);
+        private float       _pad;       // 16-Byte Alignment for Vector3
+        public  float       ITime;
+        private Vector3     _pad2;      // fill block for 16 byte alignment
+
+        public ShadertoyUniforms() {}
+    }
 }
