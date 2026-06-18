@@ -114,11 +114,9 @@ public static partial class Wormhood
     [StructLayout(LayoutKind.Sequential)]
     public struct ShadertoyUniforms
     {
-        public  Vector3     IResolution = new Vector3(1920f, 1080f, 1f);
+        public  Vector3     IResolution;
         private float       _pad;       // 16-Byte Alignment for Vector3
         public  float       ITime;
         private Vector3     _pad2;      // fill block for 16 byte alignment
-
-        public ShadertoyUniforms() {}
     }
 }
