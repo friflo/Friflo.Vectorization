@@ -38,11 +38,16 @@ public partial class RenderTest : IRenderer
     ];
     
     private long memoryAllocated;
+    private int  frame;
     
     public void DrawFrame()
     {
-        var cur = GC.GetAllocatedBytesForCurrentThread();
-        if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+        if (this.frame++ % 5000 == 0) {
+            Console.Out.WriteLine($"frame: {this.frame}");
+        } else {
+            var cur = GC.GetAllocatedBytesForCurrentThread();
+            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+        }
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         
         var attachment = new RenderPassColorAttachment {

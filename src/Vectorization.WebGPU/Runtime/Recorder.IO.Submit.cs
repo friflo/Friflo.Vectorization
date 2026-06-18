@@ -233,6 +233,9 @@ internal readonly struct WgpuIO
         
     internal unsafe void ReadBuffers(WgpuDevice device, uint readSize)
     {
+        if(readSize == 0) {
+            return;
+        }
         ReadOnlySpan<IWgpuBuffer> bufferMap = CollectionsMarshal.AsSpan(device.bufferMap);
         var activeBuffers   = tempActiveBuffers;
         var stagingBuffer   = device.stagingReadBuffer.handle;
