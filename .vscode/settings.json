@@ -25,5 +25,7 @@
         "src/.editorconfig": true,
         "src/.gitattributes": true,
         "src/package-icon.png": true,
-    }
+    },
+    "wgsl-analyzer.inlayHints.parameterHints": false,
+    "wgsl-analyzer.inlayHints.typeHints": false
 }
