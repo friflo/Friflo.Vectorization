@@ -40,8 +40,9 @@ public partial class RenderTest : IRenderer
     
     private long                        memoryAllocated;
     private int                         frameCount;
-    private Wormhood.ShadertoyUniforms  uniforms = new ();
-    private Stopwatch                   stopwatch = Stopwatch.StartNew();
+    private MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
+    private Wormhood.ShadertoyUniforms  uniforms    = new ();
+    private Stopwatch                   stopwatch   = Stopwatch.StartNew();
     
     public void DrawFrame()
     {
@@ -67,12 +68,12 @@ public partial class RenderTest : IRenderer
         var time = (float)stopwatch.Elapsed.TotalSeconds; 
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            var effect = new MyUniform (new Vector4(1, 1, 0.5f * (MathF.Sin(time * 5) + 1), 1));
-            DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
+            myUniform.tint_color.Z = 0.5f * (MathF.Sin(time * 5) + 1f);
+            DrawTriangles(pass, data.In(0, 6), myUniform, wgpu.Config);
             
             uniforms.IResolution = new Vector3(wgpu.width, wgpu.height, 1.0f);
             uniforms.ITime = time;
-            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
+            // Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
