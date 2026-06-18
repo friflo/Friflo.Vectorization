@@ -23,8 +23,8 @@ public class Wgpu
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;
     public  readonly    RenderConfig        Config;
-    public              int                 width;
-    public              int                 height;
+    public              int                 Width;
+    public              int                 Height;
     
     public Wgpu(nint osHandle, nint osInstance)
     {
@@ -137,8 +137,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private void ConfigureSurface()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-        wgpu!.width = pixelWidth;
-        wgpu.height = pixelHeight;
+        wgpu!.Width = pixelWidth;
+        wgpu.Height = pixelHeight;
         if (pixelWidth == 0 || pixelHeight == 0) return;
         
         var surfaceConfig = new SurfaceConfiguration {
