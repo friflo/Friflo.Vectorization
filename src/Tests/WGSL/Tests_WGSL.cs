@@ -29,9 +29,9 @@ public static class Tests_WGSL
         
         WgslShaderMetadata metadata = WgslSuperpowerParser.ParseShader(wgsl);
         
-        Assert.AreEqual(3, metadata.Structs.Count);
+        Assert.AreEqual(4, metadata.Structs.Count);
         Assert.AreEqual(2, metadata.EntryPoints.Count);
-        Assert.AreEqual(1, metadata.Bindings.Count);
+        Assert.AreEqual(2, metadata.Bindings.Count);
         
         
     }
