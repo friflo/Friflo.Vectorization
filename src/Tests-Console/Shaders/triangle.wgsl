@@ -1,8 +1,7 @@
 ﻿// --- buffer structs
 struct VertexData {
     position:   vec4<f32>,
-    color:      vec4<f32>,
-    uv:         vec2<f32>,
+    color:      vec4<f32>
 }
 
 struct TriangleStorage {
