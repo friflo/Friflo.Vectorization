@@ -14,13 +14,10 @@ struct MyUniforms {
     tint_color: vec4<f32>,
 }
 
-struct Triangle_Uniforms {
-    myUniform:  MyUniforms,
-};
 
 // --- bindings
-@group(0) @binding(0) var<storage, read>    mesh_data: TriangleStorage;
-@group(1) @binding(0) var<uniform>          uniforms:  Triangle_Uniforms;
+@group(0) @binding(0) var<storage, read>    mesh_data:  TriangleStorage;
+@group(1) @binding(0) var<uniform>          myUniforms: MyUniforms;
 
 // ---  pipeline stage input/output
 struct VertexOutput {
@@ -36,7 +33,7 @@ fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
     
     // Pass transformed position and color data down the pipeline
     out.clip_position   = vertex.position;
-    out.color           = vertex.color * uniforms.myUniform.tint_color;
+    out.color           = vertex.color * myUniforms.tint_color;
     
     return out;
 }
