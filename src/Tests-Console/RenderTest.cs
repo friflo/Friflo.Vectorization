@@ -39,12 +39,15 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
     
-    private InView<VertexData>          rectangle;
-    private long                        memoryAllocated;
-    private int                         frameCount;
-    private MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
-    private Wormhood.ShadertoyUniforms  uniforms    = new ();
-    private Stopwatch                   stopwatch   = Stopwatch.StartNew();
+    private readonly    RenderPassColorAttachment   attachment = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
+        clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+    };
+    private readonly    InView<VertexData>          rectangle;
+    private             long                        memoryAllocated;
+    private             int                         frameCount;
+    private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
+    private             Wormhood.ShadertoyUniforms  uniforms    = new ();
+    private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
     
     public void DrawFrame()
     {
@@ -52,16 +55,10 @@ public partial class RenderTest : IRenderer
             Console.Out.WriteLine($"frame: {frameCount}");
         } else {
             var cur = GC.GetAllocatedBytesForCurrentThread();
-            // if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
         }
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
-        
-        var attachment = new RenderPassColorAttachment {
-            loadOp      = LoadOp.Clear,
-            storeOp     = StoreOp.Store,
-            clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 },
-            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-        };
+
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame == null) {    // window minimized?
             Thread.Sleep(16);   // prevent CPU consuming 100%
