@@ -38,17 +38,17 @@ public partial class RenderTest : IRenderer
     ];
     
     private long memoryAllocated;
-    private int  frame;
+    private int  frameCount;
     
     public void DrawFrame()
     {
-        if (this.frame++ % 5000 == 0) {
-            Console.Out.WriteLine($"frame: {this.frame}");
+        if (frameCount++ % 5000 == 0) {
+            Console.Out.WriteLine($"frame: {frameCount}");
         } else {
             var cur = GC.GetAllocatedBytesForCurrentThread();
             if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+            memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         }
-        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
@@ -67,8 +67,7 @@ public partial class RenderTest : IRenderer
             DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
             // multiple Draw*() methods can be called here
         }
-        // context.Queue.Submit();              // TODO implement Submit()
-        context.Queue.ReadBuffers();
+        context.Queue.Submit();
         wgpu.Surface.Present();
     }
 

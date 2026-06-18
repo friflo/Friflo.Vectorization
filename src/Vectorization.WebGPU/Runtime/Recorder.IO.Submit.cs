@@ -88,18 +88,31 @@ public sealed unsafe partial class CommandRecorder
         }
     }
     
+    protected override void Submit()
+    {
+        ValidateThreadSafety();
+
+        SubmitInternal();
+    }
+    
     protected override void ReadBuffers()
     {
         ValidateThreadSafety();
 
+        var readSize = SubmitInternal();
+        
+        wgpuIO.ReadBuffers(device, readSize);
+    }
+    
+    private uint SubmitInternal()
+    {
         FinishPass();
 
         commandListQueue.Enqueue(commandList);
         
         var readSize = wgpuIO.Submit(this, device, currentEncoder.handle);
         commandList = device.commandListPool.Fetch(); // commandList is Return()'ed. Fetch a new one
-        
-        wgpuIO.ReadBuffers(device, readSize);
+        return readSize;
     }
 }
 

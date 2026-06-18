@@ -14,6 +14,7 @@ public struct QueueStats
 
 public abstract class CommandStream
 {
+    protected internal virtual  void        Submit()        { }
     protected internal virtual  void        ReadBuffers()   { }
     protected internal virtual  QueueStats  GetQueueStats() => default;
 }
@@ -26,9 +27,8 @@ public readonly struct GpuQueue
     
     public override     string          ToString()  => $"Commands: {Stats.Commands}  Ranges: {Stats.Ranges}";
 
-    
+    public void     Submit()        => commandStream.Submit();
     public void     ReadBuffers()   => commandStream.ReadBuffers();
-    public void     Submit()        { }                     // TODO
     
 //  public void     Synchronize()   { }  ???
 
