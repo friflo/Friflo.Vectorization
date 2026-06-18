@@ -127,8 +127,8 @@ public readonly struct GpuHandleDiff
     {
         var sb = new StringBuilder();
         sb.Append($@"{title}
-ResourceType    Start Delta
---------------- ----- -----
+ResourceType    Active   Diff
+--------------- ------ ------
 ");
         Append(sb, onlyActive, Adapters,            nameof(Adapters));
         Append(sb, onlyActive, Devices,             nameof(Devices));
@@ -158,6 +158,6 @@ ResourceType    Start Delta
             return;
         }
         var len = Math.Max(0, 17 - name.Length);
-        sb.Append(name).Append(' ', len).Append($"{handle.Active,4} {handle.Diff,5:+0;-0;0}\n");
+        sb.Append(name).Append(' ', len).Append($"{handle.Active,5} {handle.Diff,6:+0;-0;0}\n");
     }
 }
