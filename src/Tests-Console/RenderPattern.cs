@@ -18,6 +18,7 @@ public partial class RenderTest
     static partial void DrawTriangles(
         RenderPass<MainWorld>   renderPass,
         InBuffer<VertexData>    triangles,
+        MyUniform               myUniform,
         RenderConfig    		config)
 	{
         var buffers =
@@ -46,11 +47,10 @@ public partial class RenderTest
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
-        /* var uniforms = new Triangles_GPU_Uniforms {
-            count           = buffers.length,
-            triangles_off   = triangles.Offset,
+        var uniforms = new Triangles_GPU_Uniforms {
+            myUniform = myUniform,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "Triangles_uniforms"u8); */
+        pass.SetUniformBindGroup(1, ref effect, uniforms, "Triangles_uniforms"u8);
         
         pass.Draw(buffers.length, 1, triangles.Offset, 0);
 	}
@@ -58,8 +58,7 @@ public partial class RenderTest
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL uses std140/std430 Layout
     private struct Triangles_GPU_Uniforms
     {
-        [FieldOffset( 0)]    public int      count;
-        [FieldOffset( 4)]    public int      triangles_off;
+        [FieldOffset( 0)]    public MyUniform myUniform;
     }
     
     private static readonly int Triangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TrianglesShader");
@@ -77,18 +76,17 @@ public partial class RenderTest
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);   // @group(0) @binding(0) var<storage, read> mesh_data: TriangleStorage;
             bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Vertex, false, Triangles_GPU_BufferLayoutKey, "Triangles_buffers"u8);
         }
-        WgpuBindGroupLayout uniformLayout = default;
-        /* var uniformLayout = device.GetBindGroupLayout(Triangles_GPU_UniformLayoutKey);
+        var uniformLayout = device.GetBindGroupLayout(Triangles_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform(0);            // var<uniform>              uniforms
             uniformLayout   = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_UniformLayoutKey, "Triangles_uniforms"u8);
-        } */
+        }
         var shaderModule = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles"u8);
         
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         layouts[0] = bufferLayout;
-        // layouts[1] = uniformLayout;
+        layouts[1] = uniformLayout;
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Triangles"u8);
         

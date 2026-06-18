@@ -58,7 +58,8 @@ public partial class RenderTest : IRenderer
         }
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            DrawTriangles(pass, data.In(0, 6), wgpu.Config);
+            var effect = new MyUniform (new Vector4(1, 1, 0, 1));
+            DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
             // multiple Draw*() methods can be called here
         }
         // context.Queue.Submit();              // TODO implement Submit()
@@ -68,7 +69,7 @@ public partial class RenderTest : IRenderer
 
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // method body is generated
-    static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, RenderConfig config);
+    static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, MyUniform myUniform, RenderConfig config);
 }
 
 public struct MainWorld;
@@ -79,4 +80,10 @@ public struct VertexData(Vector4 position, Vector4 color, Vector2 uv)
     public Vector4 	position    = position;
     public Vector4 	color       = color;
     public Vector2 	uv          = uv;
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 16)]
+public struct MyUniform(Vector4 tintColor)
+{
+    public Vector4 	tint_color = tintColor;
 }

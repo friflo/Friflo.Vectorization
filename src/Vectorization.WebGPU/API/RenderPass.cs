@@ -137,11 +137,11 @@ public readonly unsafe struct RenderPass
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
     }
     
-    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuComputeEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuShaderEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = recorder;
-        var bindGroup       = rec.GetUniformBindGroup(ref effect, alignedSize, groupLabel);
+        var bindGroup       = rec.GetUniformBindGroup(effect.uniformLayout, alignedSize, ref rec.shaderUniformGroups, groupLabel);
 
         uint offset = rec.uniformOffset;
         

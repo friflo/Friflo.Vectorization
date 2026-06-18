@@ -29,7 +29,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
     
-    private             WgpuBindGroup[]         uniformBindGroups   = [];
+    internal            WgpuBindGroup[]         computeUniformGroups= [];
+    internal            WgpuBindGroup[]         shaderUniformGroups = [];
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
@@ -223,21 +224,19 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
-    internal WgpuBindGroup GetUniformBindGroup(ref WgpuComputeEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    internal WgpuBindGroup GetUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
     {
-        var bindGroups = uniformBindGroups;
-        
-        if (effect.kernelId < bindGroups.Length) {
-            var bindGroup = bindGroups[effect.kernelId];
+        if (layout.index < groups.Length) {
+            var bindGroup = groups[layout.index];
             if (bindGroup.handle != null) {
                 return bindGroup;
             }
         }
-        return CreateUniformBindGroup(ref effect, uniformSize, groupLabel);
+        return CreateUniformBindGroup(layout, uniformSize, ref groups, groupLabel);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private WgpuBindGroup CreateUniformBindGroup(ref WgpuComputeEffect effect, uint uniformSize, ReadOnlySpan<byte> groupLabel)
+    private WgpuBindGroup CreateUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
     {
         var entry = new BindGroupEntry {
             binding = 0,
@@ -248,20 +247,19 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         fixed(byte* labelPtr = groupLabel) {
             var desc = new BindGroupDescriptor {
                 label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel),
-                layout      = effect.uniformLayout.handle,
+                layout      = layout.layout.handle,
                 entryCount  = 1,
                 entries     = &entry
             };
             var groupHandle = wgpuDeviceCreateBindGroup(device.DevicePtr, &desc);
             var bindGroup   = new WgpuBindGroup(groupHandle);
             
-            var groups = uniformBindGroups;
-            if (effect.kernelId >= groups.Length) {
-                var newGroups = new WgpuBindGroup[Math.Max(groups.Length * 2, effect.kernelId + 1)];
+            if (layout.index >= groups.Length) {
+                var newGroups = new WgpuBindGroup[Math.Max(groups.Length * 2, layout.index + 1)];
                 Array.Copy(groups, 0, newGroups, 0, groups.Length);
-                groups = uniformBindGroups = newGroups;
+                groups = newGroups;
             }
-            return groups[effect.kernelId] = bindGroup;
+            return groups[layout.index] = bindGroup;
         }
     }
 }

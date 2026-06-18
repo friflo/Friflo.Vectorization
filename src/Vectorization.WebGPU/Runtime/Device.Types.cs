@@ -11,13 +11,18 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
+public readonly struct UniformLayout(uint index, WgpuBindGroupLayout layout)
+{
+    internal readonly   uint                index = index;
+    internal readonly   WgpuBindGroupLayout layout = layout;
+}
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public unsafe struct WgpuComputeEffect 
 {
-    public   readonly   uint                kernelId; 
     public   readonly   WgpuComputePipeline pipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
-    public   readonly   WgpuBindGroupLayout uniformLayout;
+    public   readonly   UniformLayout       uniformLayout;
     public              WgpuBufferCache     computeBufferCache;     // todo rename -> bufferCache
     internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
@@ -27,21 +32,19 @@ public unsafe struct WgpuComputeEffect
     internal WgpuComputeEffect (int kernelId, ulong wgslHash, WgpuComputePipeline pipeline,
         WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
     {
-        this.kernelId       = (uint)kernelId;
         this.wgslHash       = wgslHash;
         this.pipeline       = pipeline;
         this.bufferLayout   = bufferLayout;
-        this.uniformLayout  = uniformLayout;
+        this.uniformLayout  = new UniformLayout((uint)kernelId, uniformLayout);
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public unsafe struct WgpuShaderEffect
 {
-    public   readonly   uint                kernelId; 
     public   readonly   WgpuRenderPipeline  renderPipeline;
     public   readonly   WgpuBindGroupLayout bufferLayout;
-    public   readonly   WgpuBindGroupLayout uniformLayout;
+    public   readonly   UniformLayout       uniformLayout;
     public              WgpuBufferCache     bufferCache;
     internal readonly   ulong               wgslHash;
     public              bool                IsCreated => bufferLayout.handle != null;
@@ -51,11 +54,10 @@ public unsafe struct WgpuShaderEffect
     internal WgpuShaderEffect (int kernelId, ulong wgslHash, WgpuRenderPipeline renderPipeline,
         WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
     {
-        this.kernelId       = (uint)kernelId;
         this.wgslHash       = wgslHash;
         this.renderPipeline = renderPipeline;
         this.bufferLayout   = bufferLayout;
-        this.uniformLayout  = uniformLayout;
+        this.uniformLayout  = new UniformLayout((uint)kernelId, uniformLayout);
     }
 }
 

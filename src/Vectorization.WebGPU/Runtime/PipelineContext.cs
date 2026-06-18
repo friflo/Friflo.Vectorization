@@ -106,8 +106,15 @@ public sealed partial class CommandRecorder
     {
         uniformBuffer?.Dispose();
         uniformBuffer = null;
-        for (int n = 0; n < uniformBindGroups.Length; n++) {
-            ref var group = ref uniformBindGroups[n];
+        for (int n = 0; n < computeUniformGroups.Length; n++) {
+            ref var group = ref computeUniformGroups[n];
+            if (group.handle != null) {
+                wgpuBindGroupRelease(group.handle);
+                group = default;
+            }
+        }
+        for (int n = 0; n < shaderUniformGroups.Length; n++) {
+            ref var group = ref shaderUniformGroups[n];
             if (group.handle != null) {
                 wgpuBindGroupRelease(group.handle);
                 group = default;
