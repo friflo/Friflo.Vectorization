@@ -67,9 +67,9 @@ public partial class RenderTest : IRenderer
         wgpu.Surface.Present();
     }
     
-    /// blueprint method generates:  <see cref="DrawTriangles"/>
-    [Shader<MainWorld>(wgsl: "Shaders/triangle.wgsl")]
-    private static void Triangles([Span] VertexData triangles) { }
+    [Shader(wgsl: "Shaders/triangle.wgsl")]  // method body is generated
+    public static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, RenderPipelineConfig config);
+	
 }
 
 public struct MainWorld;

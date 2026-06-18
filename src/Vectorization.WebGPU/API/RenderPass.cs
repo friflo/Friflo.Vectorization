@@ -18,8 +18,14 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-[AttributeUsage(AttributeTargets.Method)]
+/* [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
+{
+    public ShaderAttribute (string wgsl) { }
+} */
+
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class ShaderAttribute : Attribute
 {
     public ShaderAttribute (string wgsl) { }
 }
