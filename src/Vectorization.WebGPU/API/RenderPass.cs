@@ -30,6 +30,12 @@ public sealed class ShaderAttribute : Attribute
     public ShaderAttribute (string wgsl) { }
 }
 
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindingAttribute : Attribute
+{
+    public BindingAttribute (int groupIndex, int bindingIndex) { }
+}
+
 public static class WgpuExtensions
 {
     public static unsafe RenderFrame? BeginFrame(this PipelineContext context, WgpuSurface surface)

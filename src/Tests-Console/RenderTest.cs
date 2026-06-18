@@ -68,8 +68,12 @@ public partial class RenderTest : IRenderer
     }
 
 	// language=file-reference
-	[Shader("Shaders/triangle.wgsl")]  // method body is generated
-    static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, MyUniform myUniform, RenderConfig config);
+	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
+    static partial void DrawTriangles(
+                        RenderPass<MainWorld>   renderPass,
+        [Binding(0, 0)] InBuffer<VertexData>    triangles,
+        [Binding(1, 0)] MyUniform               myUniform,
+                        RenderConfig            config);
 }
 
 public struct MainWorld;
