@@ -15,7 +15,7 @@ namespace TestConsole;
 public partial class RenderTest
 {
     /// generated method body
-    public static partial void DrawTriangles(
+    static partial void DrawTriangles(
         RenderPass<MainWorld>   renderPass,
         InBuffer<VertexData>    triangles,
         RenderConfig    		config)
