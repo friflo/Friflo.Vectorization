@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -66,10 +65,11 @@ public partial class RenderTest : IRenderer
         context.Queue.ReadBuffers();
         wgpu.Surface.Present();
     }
-    
-    [Shader(wgsl: "Shaders/triangle.wgsl")]  // method body is generated
+
+	// language=file-reference
+	[Shader("Shaders/triangle.wgsl")]  // method body is generated
     public static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, RenderPipelineConfig config);
-	
+
 }
 
 public struct MainWorld;
