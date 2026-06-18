@@ -47,8 +47,8 @@ public partial class RenderTest : IRenderer
         } else {
             var cur = GC.GetAllocatedBytesForCurrentThread();
             if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
-            memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         }
+        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         
         var attachment = new RenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
@@ -64,7 +64,7 @@ public partial class RenderTest : IRenderer
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
             var effect = new MyUniform (new Vector4(1, 1, 0, 1));
-            DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
+            DrawTriangles(pass, data.In(3, 3), effect, wgpu.Config);
             // multiple Draw*() methods can be called here
         }
         context.Queue.Submit();
