@@ -173,7 +173,7 @@ public sealed unsafe partial  class WgpuDevice
     public WgpuRenderPipeline CreateRenderPipeline(
         WgpuShaderModule            module,
         Span<WgpuBindGroupLayout>   layouts,
-        RenderPipelineConfig        config,
+        RenderConfig        		config,
         ReadOnlySpan<byte>          vertexEntryPoint,
         ReadOnlySpan<byte>          fragmentEntryPoint,
         ReadOnlySpan<byte>          labelName)

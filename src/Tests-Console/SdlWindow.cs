@@ -16,13 +16,13 @@ public interface IRenderer
 
 public class Wgpu
 {
-    public  readonly    WgpuInstance            Instance;
-    public  readonly    WgpuAdapter             Adapter;
-    public  readonly    GpuDevice               Device;
-    public  readonly    WgpuSurface             Surface;
-    public  readonly    TextureFormat           SwapChainFormat;
-    public  readonly    CompositeAlphaMode      AlphaMode;
-    public  readonly    RenderPipelineConfig    Config;
+    public  readonly    WgpuInstance        Instance;
+    public  readonly    WgpuAdapter         Adapter;
+    public  readonly    GpuDevice           Device;
+    public  readonly    WgpuSurface         Surface;
+    public  readonly    TextureFormat       SwapChainFormat;
+    public  readonly    CompositeAlphaMode  AlphaMode;
+    public  readonly    RenderConfig        Config;
     
     public Wgpu(nint osHandle, nint osInstance)
     {

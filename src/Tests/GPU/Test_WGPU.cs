@@ -23,7 +23,7 @@ public static class Test_WGPU
         Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
         
         
-        var defaultConfig = WgpuRenderPipelineDescriptor.DefaultRenderPipeline;
+        var defaultConfig = WgpuRenderPipelineDescriptor.DefaultConfig;
         Assert.AreEqual("Default Render Pipeline", defaultConfig.Name);
     }
 }

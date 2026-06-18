@@ -68,7 +68,7 @@ public partial class RenderTest : IRenderer
 
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // method body is generated
-    public static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, RenderPipelineConfig config);
+    public static partial void DrawTriangles(RenderPass<MainWorld> renderPass, InBuffer<VertexData> triangles, RenderConfig config);
 
 }
 

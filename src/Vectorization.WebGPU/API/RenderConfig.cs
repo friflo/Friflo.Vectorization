@@ -20,7 +20,7 @@ namespace Friflo.Vectorization.WebGPU;
 /// <summary>
 /// Handle to a unique <see cref="WgpuRenderPipelineDescriptor"/>
 /// </summary>
-public readonly struct RenderPipelineConfig
+public readonly struct RenderConfig
 {
     public readonly     int                             Id;
     
@@ -29,7 +29,7 @@ public readonly struct RenderPipelineConfig
     
     public override     string                          ToString()  => $"'{WgpuRenderPipelineDescriptor.GetEntry(Id).name}'";
     
-    internal RenderPipelineConfig(int id) {
+    internal RenderConfig(int id) {
         Id = id;
     }
 }
@@ -37,7 +37,7 @@ public readonly struct RenderPipelineConfig
 /// <summary> managed type for:  <see cref="RenderPipelineDescriptor"/> </summary>
 /// <remarks>
 /// After set up of a unique <see cref="WgpuRenderPipelineDescriptor"/> configuration
-/// create a <see cref="RenderPipelineConfig"/> with <see cref="CreateConfig"/>.
+/// create a <see cref="RenderConfig"/> with <see cref="CreateConfig"/>.
 /// </remarks>
 public record struct WgpuRenderPipelineDescriptor
 {
@@ -49,15 +49,15 @@ public record struct WgpuRenderPipelineDescriptor
 
     public WgpuRenderPipelineDescriptor()  { }
     
-    /// <summary> Returns the default <see cref="RenderPipelineConfig"/> with a <see cref="FragmentState"/>. </summary>
+    /// <summary> Returns the default <see cref="RenderConfig"/> with a <see cref="FragmentState"/>. </summary>
     /// <remarks>
     /// To create a custom config create a new <see cref="WgpuRenderPipelineDescriptor"/><br/>
     /// instance and call <see cref="CreateConfig"/>.
     /// </remarks>
-    public static RenderPipelineConfig DefaultRenderPipeline = new();
+    public static RenderConfig DefaultConfig = new();
     
     /// <summary>
-    /// Create a new <see cref="RenderPipelineConfig"/> or returns an existing<br/>
+    /// Create a new <see cref="RenderConfig"/> or returns an existing<br/>
     /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
     /// </summary>
     /// <remarks>
@@ -70,13 +70,13 @@ public record struct WgpuRenderPipelineDescriptor
     ///     var config = desc.CreateConfig("Custom Config");
     /// </code>
     /// </remarks>
-    public RenderPipelineConfig CreateConfig(string name)
+    public RenderConfig CreateConfig(string name)
     {
         if (descriptorToId.TryGetValue(this, out var id)) {
-            return new RenderPipelineConfig(id);
+            return new RenderConfig(id);
         }
         var descriptors = idToDescriptor;
-        var config      = new RenderPipelineConfig(descriptors.Count);
+        var config      = new RenderConfig(descriptors.Count);
         var entry       = new RenderPipelineEntry(name, this);
         descriptors.Add(entry);
         descriptorToId.Add(this, config.Id);
