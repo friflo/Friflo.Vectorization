@@ -45,7 +45,7 @@ public partial class RenderTest : IRenderer
     
     public void DrawFrame()
     {
-        if (frameCount++ % 50 == 0) {
+        if (frameCount++ % 5000 == 0) {
             Console.Out.WriteLine($"frame: {frameCount}");
         } else {
             var cur = GC.GetAllocatedBytesForCurrentThread();
@@ -64,14 +64,15 @@ public partial class RenderTest : IRenderer
             Thread.Sleep(16);   // prevent CPU consuming 100%
             return;
         }
+        var time = (float)stopwatch.Elapsed.TotalSeconds; 
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            var effect = new MyUniform (new Vector4(1, 1, 0, 1));
+            var effect = new MyUniform (new Vector4(1, 1, 0.5f * (MathF.Sin(time * 5) + 1), 1));
             DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
             
             // uniforms.IResolution = new Vector3(currentWindowWidth, currentWindowHeight, 1.0f);  // TODO
-            uniforms.ITime = (float)stopwatch.Elapsed.Milliseconds;
-            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
+            // uniforms.ITime = time;
+            // Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
