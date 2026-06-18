@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+
+using System;
+using System.Text;
+
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
@@ -119,29 +123,41 @@ public readonly struct GpuHandleDiff
         return $"Devices: {Devices.Active} {Devices.Diff,1:+0;-0;0}  Buffers: {Buffers.Active} {Buffers.Diff,1:+0;-0;0}";
     }
 
-    public string GetState(string title = "")
+    public string GetHandleLog(string title = "", bool onlyActive = false)
     {
-        return $@"{title}
+        var sb = new StringBuilder();
+        sb.Append($@"{title}
 ResourceType    Start Delta
 --------------- ----- -----
-Adapters         {Adapters          .Active,4} {Adapters          .Diff,5:+0;-0;0}
-Devices          {Devices           .Active,4} {Devices           .Diff,5:+0;-0;0}
-Queues           {Queues            .Active,4} {Queues            .Diff,5:+0;-0;0}
-ComputePipelines {ComputePipelines  .Active,4} {ComputePipelines  .Diff,5:+0;-0;0}
-ShaderModules    {ShaderModules     .Active,4} {ShaderModules     .Diff,5:+0;-0;0}
-BindGroupLayouts {BindGroupLayouts  .Active,4} {BindGroupLayouts  .Diff,5:+0;-0;0}
-BindGroups       {BindGroups        .Active,4} {BindGroups        .Diff,5:+0;-0;0}
-CommandBuffers   {CommandBuffers    .Active,4} {CommandBuffers    .Diff,5:+0;-0;0}
-RenderBundles    {RenderBundles     .Active,4} {RenderBundles     .Diff,5:+0;-0;0}
-RenderPipelines  {RenderPipelines   .Active,4} {RenderPipelines   .Diff,5:+0;-0;0}
-PipelineLayouts  {PipelineLayouts   .Active,4} {PipelineLayouts   .Diff,5:+0;-0;0}
-PipelineCaches   {PipelineCaches    .Active,4} {PipelineCaches    .Diff,5:+0;-0;0}
-QuerySets        {QuerySets         .Active,4} {QuerySets         .Diff,5:+0;-0;0}
-Buffers          {Buffers           .Active,4} {Buffers           .Diff,5:+0;-0;0}
-Textures         {Textures          .Active,4} {Textures          .Diff,5:+0;-0;0}
-TextureViews     {TextureViews      .Active,4} {TextureViews      .Diff,5:+0;-0;0}
-Samplers         {Samplers          .Active,4} {Samplers          .Diff,5:+0;-0;0}
-Surfaces         {Surfaces          .Active,4} {Surfaces          .Diff,5:+0;-0;0}
-";
+");
+        Append(sb, onlyActive, Adapters,            nameof(Adapters));
+        Append(sb, onlyActive, Devices,             nameof(Devices));
+        Append(sb, onlyActive, Queues,              nameof(Queues));
+        Append(sb, onlyActive, ComputePipelines,    nameof(ComputePipelines));
+        Append(sb, onlyActive, ShaderModules,       nameof(ShaderModules));
+        Append(sb, onlyActive, BindGroupLayouts,    nameof(BindGroupLayouts));
+        Append(sb, onlyActive, BindGroups,          nameof(BindGroups));
+        Append(sb, onlyActive, CommandBuffers,      nameof(CommandBuffers));
+        Append(sb, onlyActive, RenderBundles,       nameof(RenderBundles));
+        Append(sb, onlyActive, RenderPipelines,     nameof(RenderPipelines));
+        Append(sb, onlyActive, PipelineLayouts,     nameof(PipelineLayouts));
+        Append(sb, onlyActive, PipelineCaches,      nameof(PipelineCaches));
+        Append(sb, onlyActive, QuerySets,           nameof(QuerySets));
+        Append(sb, onlyActive, Buffers,             nameof(Buffers));
+        Append(sb, onlyActive, Textures,            nameof(Textures));
+        Append(sb, onlyActive, TextureViews,        nameof(TextureViews));
+        Append(sb, onlyActive, Samplers,            nameof(Samplers));
+        Append(sb, onlyActive, Surfaces,            nameof(Surfaces));
+        
+        return sb.ToString();
+    }
+    
+    private static void Append(StringBuilder sb, bool onlyActive, GpuHandle handle, string name)
+    {
+        if (onlyActive && handle.Active == 0) {
+            return;
+        }
+        var len = Math.Max(0, 17 - name.Length);
+        sb.Append(name).Append(' ', len).Append($"{handle.Active,4} {handle.Diff,5:+0;-0;0}\n");
     }
 }

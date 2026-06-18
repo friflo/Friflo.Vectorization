@@ -50,7 +50,7 @@ public abstract class KernelBase
             return;
         }
         // return;
-        var str = handleDiff.GetState("[GPU RESOURCE LEAK DETECTED]");
+        var str = handleDiff.GetHandleLog("[GPU RESOURCE LEAK DETECTED]");
         throw new InvalidOperationException(str);
     }
 }

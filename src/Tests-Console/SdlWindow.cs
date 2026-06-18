@@ -45,7 +45,7 @@ public class Wgpu
         Surface.Dispose();
         var handleDiff = Instance.GenerateHandles();
         if (!handleDiff.IsActiveZero()) {
-            Console.WriteLine(handleDiff.GetState("[GPU RESOURCE LEAK DETECTED]"));
+            Console.WriteLine(handleDiff.GetHandleLog("[GPU RESOURCE LEAK DETECTED]", true));
         }
         Instance.Dispose();
     }
