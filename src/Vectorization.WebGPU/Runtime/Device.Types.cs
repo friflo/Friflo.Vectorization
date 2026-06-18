@@ -47,9 +47,9 @@ public unsafe struct WgpuShaderEffect
     public   readonly   UniformLayout       uniformLayout;
     public              WgpuBufferCache     bufferCache;
     internal readonly   ulong               wgslHash;
-    public              bool                IsCreated => bufferLayout.handle != null;
+    public              bool                IsCreated => renderPipeline.handle != null;
 
-    public   override   string              ToString()=> bufferLayout.handle != null ? "Created" : "null";
+    public   override   string              ToString()=> renderPipeline.handle != null ? "Created" : "null";
 
     internal WgpuShaderEffect (int kernelId, ulong wgslHash, WgpuRenderPipeline renderPipeline,
         WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
