@@ -17,8 +17,11 @@ fn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOutput {
 
 // ======= copy from internet
 struct ShadertoyUniforms {
-    iResolution : vec3<f32>,
-    iTime       : f32,
+    			iResolution : vec3<f32>,
+    @size(4) 	_pad 		: f32,
+    
+    			iTime       : f32,
+    @size(12) 	_pad2 		: vec3<f32>,
 }
 
 @group(0) @binding(0) var<uniform> inputs : ShadertoyUniforms;

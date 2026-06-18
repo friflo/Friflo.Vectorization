@@ -54,7 +54,7 @@ public static partial class Wormhood
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform(0);            // [Binding(x, 0)] @group(1) @binding(0) var<uniform>          myUniforms: MyUniforms;
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex | ShaderStage.Fragment, true, Wormhood_GPU_UniformLayoutKey, "MyUniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Fragment, true, Wormhood_GPU_UniformLayoutKey, "MyUniforms"u8);
         }
         var shaderModule = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood"u8);
         

@@ -46,7 +46,7 @@ public partial class RenderTest : IRenderer
     private             long                        memoryAllocated;
     private             int                         frameCount;
     private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
-    private             Wormhood.ShadertoyUniforms  uniforms    = new ();
+    private             Wormhood.ShadertoyUniforms  uniforms;
     private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
     
     public void DrawFrame()
@@ -72,7 +72,7 @@ public partial class RenderTest : IRenderer
             
             uniforms.IResolution = new Vector3(wgpu.width, wgpu.height, 1.0f);
             uniforms.ITime = time;
-            // Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
+            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
