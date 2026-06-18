@@ -70,9 +70,9 @@ public partial class RenderTest : IRenderer
             var effect = new MyUniform (new Vector4(1, 1, 0.5f * (MathF.Sin(time * 5) + 1), 1));
             DrawTriangles(pass, data.In(0, 6), effect, wgpu.Config);
             
-            // uniforms.IResolution = new Vector3(currentWindowWidth, currentWindowHeight, 1.0f);  // TODO
-            // uniforms.ITime = time;
-            // Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
+            uniforms.IResolution = new Vector3(wgpu.width, wgpu.height, 1.0f);
+            uniforms.ITime = time;
+            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
