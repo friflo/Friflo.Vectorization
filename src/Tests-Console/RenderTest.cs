@@ -58,7 +58,7 @@ public partial class RenderTest : IRenderer
         }
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
-            DrawTriangles(pass, data.In(), wgpu.Config);
+            DrawTriangles(pass, data.In(0, 6), wgpu.Config);
             // multiple Draw*() methods can be called here
         }
         // context.Queue.Submit();              // TODO implement Submit()
