@@ -17,8 +17,9 @@ public partial class RenderTest : IRenderer
     public RenderTest(Wgpu wgpu)
     {
         this.wgpu = wgpu;
-        data    = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        context = wgpu.Device.BeginContext();
+        data        = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        context     = wgpu.Device.BeginContext();
+        rectangle   = data.In(0, 6); // two triangles
     }
     
     public void Shutdown()
@@ -38,6 +39,7 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
     
+    private InView<VertexData>          rectangle;
     private long                        memoryAllocated;
     private int                         frameCount;
     private MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
@@ -69,7 +71,7 @@ public partial class RenderTest : IRenderer
         using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
         {
             myUniform.tint_color.Z = 0.5f * (MathF.Sin(time * 5) + 1f);
-            DrawTriangles(pass, data.In(0, 6), myUniform, wgpu.Config);
+            DrawTriangles(pass, rectangle, myUniform, wgpu.Config);
             
             uniforms.IResolution = new Vector3(wgpu.width, wgpu.height, 1.0f);
             uniforms.ITime = time;
