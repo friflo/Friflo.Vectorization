@@ -31,9 +31,9 @@ public sealed class ShaderAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindingAttribute : Attribute
+public sealed class BindAttribute : Attribute
 {
-    public BindingAttribute (int groupIndex, int bindingIndex) { }
+    public BindAttribute (int groupIndex, int bindingIndex) { }
 }
 
 public static class WgpuExtensions
