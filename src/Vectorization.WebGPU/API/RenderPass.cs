@@ -58,8 +58,11 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 {
     internal readonly   TextureView*  handle = view;
     
-    public void Dispose() {
-        wgpuTextureViewRelease(handle);
+    public void Dispose()
+    {
+        if (handle != null) {
+            wgpuTextureViewRelease(handle);
+        }
     }
 }
 
@@ -100,9 +103,12 @@ public readonly unsafe struct RenderFrame : IDisposable
         return new RenderPass<TStage>(passEncoder, recorder, config);
     }
     
-    public void Dispose() {
+    public void Dispose()
+    {
         view.Dispose();
-        wgpuTextureRelease(surfaceTexture);
+        if (surfaceTexture != null) {
+            wgpuTextureRelease(surfaceTexture);
+        }
     }
 }
 
