@@ -33,22 +33,6 @@ public partial class RenderTest : IRenderer
         data.Dispose();
     }
 
-    #region --- performance
-    private long    memoryAllocated;
-    private int     frameCount;
-
-    private void TrackPerformance()
-    {
-        if (frameCount++ % 5000 == 0) {
-            Console.Out.WriteLine($"frame: {frameCount}");
-        } else {
-            var cur = GC.GetAllocatedBytesForCurrentThread();
-            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
-        }
-        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
-    }
-    #endregion
-    
     private static readonly VertexData[] Vertices =
     [
         new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
@@ -60,14 +44,15 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
     
-    private readonly    RenderPassColorAttachment   attachment = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
+
+    private readonly    PerfLog                     perfLog     = new();
+    private readonly    InView<VertexData>          rectangle;
+    private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
+    private             Wormhood.Uniforms           wormhood;
+    private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
+    private readonly    RenderPassColorAttachment   attachment  = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
         clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
-    private readonly    InView<VertexData>  rectangle;
-    private             MyUniform           myUniform   = new(new Vector4(1, 1, 0, 1));
-    private             Wormhood.Uniforms   wormhood;
-    private readonly    Stopwatch           stopwatch   = Stopwatch.StartNew();
-
     
     public void DrawFrame()
     {
@@ -75,7 +60,7 @@ public partial class RenderTest : IRenderer
         if (frame.IsNull) {     // window minimized?
             return;
         }
-        TrackPerformance();
+        perfLog.Trace(5000);
         var time = (float)stopwatch.Elapsed.TotalSeconds; 
         
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
