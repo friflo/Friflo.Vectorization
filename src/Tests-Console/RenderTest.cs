@@ -8,6 +8,11 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
+/// <summary>
+/// Uses an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop by yourself.<br/>
+/// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
+/// Those platforms only support event driven applications. An event loop would lead to application freeze.
+/// </summary>
 public partial class RenderTest : IRenderer
 {
     private readonly    Wgpu                    wgpu;
@@ -71,7 +76,7 @@ public partial class RenderTest : IRenderer
             
             uniforms.IResolution = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
             uniforms.ITime = time;
-            Wormhood.RenderTunnel(pass, uniforms);
+            // Wormhood.RenderTunnel(pass, uniforms);
             DrawTriangles(pass, rectangle, myUniform);
         }
         context.Queue.Submit();
