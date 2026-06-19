@@ -7,7 +7,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using TestConsole;
 
 
-SdlWindow.Main("Rectangle", 1280, 720, wgpu => new RenderTest(wgpu)); return;
+return SdlWindow.Main("Rectangle", 1280, 720, wgpu => new RenderTest(wgpu));
 
 // using var instance    = CpuInstance.CreateInstance();
 // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
