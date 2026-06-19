@@ -89,7 +89,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
     // Minimizes CPU-to-GPU state change overhead dramatically.
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : struct
+    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : unmanaged
     {
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
@@ -115,7 +115,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     }
 }
 
-public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage : struct
+public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage : unmanaged
 {
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;
