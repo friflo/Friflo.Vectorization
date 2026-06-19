@@ -80,10 +80,10 @@ public partial class RenderTest : IRenderer
         
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
-            myUniform.tint_color.Z = 0.5f * (MathF.Sin(time * 5) + 1f);
+            myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
+            uniforms.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
+            uniforms.ITime          = time;
             
-            uniforms.IResolution = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
-            uniforms.ITime = time;
             // Wormhood.RenderTunnel(pass, uniforms);
             DrawTriangles(pass, rectangle, myUniform);
         }
