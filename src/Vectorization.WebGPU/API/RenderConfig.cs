@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -18,7 +19,8 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 /// <summary>
-/// Handle to a unique <see cref="WgpuRenderPipelineDescriptor"/>
+/// Handle to a unique <see cref="WgpuRenderPipelineDescriptor"/>.<br/>
+/// To create a <see cref="RenderConfig"/> see: <see cref="WgpuRenderPipelineDescriptor.CreateConfig"/>.
 /// </summary>
 public readonly struct RenderConfig
 {
@@ -49,13 +51,6 @@ public record struct WgpuRenderPipelineDescriptor
 
     public WgpuRenderPipelineDescriptor()  { }
     
-    /// <summary> Returns the default <see cref="RenderConfig"/> with a <see cref="FragmentState"/>. </summary>
-    /// <remarks>
-    /// To create a custom config create a new <see cref="WgpuRenderPipelineDescriptor"/><br/>
-    /// instance and call <see cref="CreateConfig"/>.
-    /// </remarks>
-    public static RenderConfig DefaultConfig = new();
-    
     /// <summary>
     /// Create a new <see cref="RenderConfig"/> or returns an existing<br/>
     /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
@@ -63,11 +58,10 @@ public record struct WgpuRenderPipelineDescriptor
     /// <remarks>
     /// Example
     /// <code>
-    ///     var desc = new WgpuRenderPipelineDescriptor();
-    ///     desc.FragmentState = new WgpuFragmentState {
-    ///         targets = [new WgpuColorTargetState { format = TextureFormat.BGRA8Unorm, writeMask = WebGPU_native.ColorWriteMask_All}]
-    ///     };
-    ///     var config = desc.CreateConfig("Custom Config");
+    ///     var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
+    ///     SwapChainFormat     = fragmentState.targets[0].format;
+    ///     var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+    ///     Config              = desc.CreateConfig("Wgpu.Config");
     /// </code>
     /// </remarks>
     public RenderConfig CreateConfig(string name)
@@ -85,22 +79,15 @@ public record struct WgpuRenderPipelineDescriptor
     
     internal static ref RenderPipelineEntry GetEntry(int id)
     {
+        if (id == 0) {
+            throw new NullReferenceException("when using a default RenderConfig");
+        }
         var span = CollectionsMarshal.AsSpan(idToDescriptor);
         return ref span[id];
     }
     
-    private static readonly     List<RenderPipelineEntry>                       idToDescriptor;
+    private static readonly     List<RenderPipelineEntry>                       idToDescriptor = [default];
     private static readonly     Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
-    
-    static WgpuRenderPipelineDescriptor()
-    {
-        var defaultDesc = new WgpuRenderPipelineDescriptor {
-            FragmentState = new WgpuFragmentState()
-        };
-        var entry       = new RenderPipelineEntry("Default Render Pipeline", defaultDesc);
-        idToDescriptor  = [entry];
-        descriptorToId.Add(entry.descriptor, 0);
-    }
     
     internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
     {

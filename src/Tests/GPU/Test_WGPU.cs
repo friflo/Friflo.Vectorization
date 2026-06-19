@@ -1,4 +1,5 @@
 ﻿
+using System;
 using Friflo.Vectorization.WebGPU;
 using NUnit.Framework;
 
@@ -23,7 +24,20 @@ public static class Test_WGPU
         Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
         
         
-        var defaultConfig = WgpuRenderPipelineDescriptor.DefaultConfig;
-        Assert.AreEqual("Default Render Pipeline", defaultConfig.Name);
+        // --- using a default RenderConfig
+        var defaultConfig = new RenderConfig();
+        {
+            var e = Assert.Throws<NullReferenceException>(() => {
+                _ = defaultConfig.Descriptor;
+            });
+            Assert.AreEqual("when using a default RenderConfig", e!.Message);
+        } {
+            var e = Assert.Throws<NullReferenceException>(() => {
+                _ = defaultConfig.Name;
+            });
+            Assert.AreEqual("when using a default RenderConfig", e!.Message);
+        }
+        
+        
     }
 }
