@@ -127,13 +127,13 @@ public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : st
 
 public readonly unsafe struct RenderPass
 {
-    public   readonly   CommandRecorder       recorder;
+    public   readonly   CommandRecorder       Recorder;
     private  readonly   RenderPassEncoder*    handle;
     public   readonly   RenderConfig          Config;
     
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, RenderConfig config) {
         this.handle     = handle;
-        this.recorder   = recorder;
+        this.Recorder   = recorder;
         Config          = config;
     }
 
@@ -150,7 +150,7 @@ public readonly unsafe struct RenderPass
     public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuShaderEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
-        var rec             = recorder;
+        var rec             = Recorder;
         var bindGroup       = rec.GetUniformBindGroup(effect.uniformLayout, alignedSize, ref rec.shaderUniformGroups, groupLabel);
 
         uint offset = rec.uniformOffset;

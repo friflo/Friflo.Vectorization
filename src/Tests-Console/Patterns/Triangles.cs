@@ -23,7 +23,7 @@ public partial class RenderTest
         GpuBuffers.Create(triangles, nameof(triangles));
         
         var pass        = renderPass.Value;
-		var recorder	= pass.recorder;
+		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
 		recorder.Init(Triangles_GPU_ShaderId, "Triangles"u8);
         

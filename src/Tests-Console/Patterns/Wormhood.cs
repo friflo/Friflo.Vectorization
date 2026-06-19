@@ -18,7 +18,7 @@ public static partial class Wormhood
         ShadertoyUniforms       uniforms)
 	{
         var pass        = renderPass.Value;
-		var recorder	= pass.recorder;
+		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
 		recorder.Init(Wormhood_GPU_ShaderId, "Wormhood"u8);
 
