@@ -40,6 +40,9 @@ public static class WgpuExtensions
 {
     public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
     {
+        if (surface.handle == null) {
+            throw new InvalidOperationException("WgpuSurface is null");
+        }
         var recorder = (CommandRecorder)context;
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
