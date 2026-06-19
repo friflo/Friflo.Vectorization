@@ -32,8 +32,8 @@ public partial class RenderTest : IRenderer
         context.Dispose();
         data.Dispose();
     }
-    
-    // --- performance
+
+    #region --- performance
     private long    memoryAllocated;
     private int     frameCount;
 
@@ -47,6 +47,7 @@ public partial class RenderTest : IRenderer
         }
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
     }
+    #endregion
     
     private static readonly VertexData[] Vertices =
     [
