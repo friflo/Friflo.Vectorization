@@ -65,12 +65,12 @@ public partial class RenderTest : IRenderer
         memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
 
         using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame == null) {    // window minimized?
-            Thread.Sleep(16);   // prevent CPU consuming 100%
+        if (frame.IsNull) {     // window minimized?
             return;
         }
         var time = (float)stopwatch.Elapsed.TotalSeconds; 
-        using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
+        
+        using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
             myUniform.tint_color.Z = 0.5f * (MathF.Sin(time * 5) + 1f);
             

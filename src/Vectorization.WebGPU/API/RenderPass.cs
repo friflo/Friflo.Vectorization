@@ -38,13 +38,13 @@ public sealed class BindAttribute : Attribute
 
 public static class WgpuExtensions
 {
-    public static unsafe RenderFrame? BeginFrame(this PipelineContext context, WgpuSurface surface)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
     {
         var recorder = (CommandRecorder)context;
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
         if (surfaceTexture.texture == null) {
-            return null;  //   surfaceTexture.texture == null   if window minimized
+            return new RenderFrame(default, null, null);  //   surfaceTexture.texture == null   if window minimized
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new WgpuTextureView(handle);
@@ -70,6 +70,8 @@ public readonly unsafe struct RenderFrame : IDisposable
     private  readonly   CommandRecorder recorder;
     private  readonly   Texture*        surfaceTexture;
     
+    public              bool            IsNull => recorder == null;
+    
     internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, CommandRecorder recorder) {
         this.view           = view;
         this.surfaceTexture = surfaceTexture;
@@ -83,6 +85,9 @@ public readonly unsafe struct RenderFrame : IDisposable
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
     public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : struct
     {
+        if (recorder == null) {
+            throw new InvalidOperationException("RenderFrame is null");
+        }
         attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
             colorAttachmentCount    = 1,
