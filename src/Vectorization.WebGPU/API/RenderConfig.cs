@@ -66,12 +66,13 @@ public record struct WgpuRenderPipelineDescriptor
     /// </remarks>
     public RenderConfig CreateConfig(string name)
     {
-        int testId  = idToDescriptor.Count;
+        var list    = descriptorList;
+        int testId  = list.Count;
         var entry   = new RenderPipelineEntry(name, this);
-        idToDescriptor.Add(entry);
+        list.Add(entry);
         
         if (descriptorToId.TryGetValue(testId, out var id)) {
-            idToDescriptor.RemoveAt(testId);
+            list.RemoveAt(testId);
             return new RenderConfig(id);
         }
         descriptorToId.Add(testId);
@@ -83,11 +84,11 @@ public record struct WgpuRenderPipelineDescriptor
         if (id == 0) {
             throw new NullReferenceException("when using a default RenderConfig");
         }
-        var span = CollectionsMarshal.AsSpan(idToDescriptor);
+        var span = CollectionsMarshal.AsSpan(descriptorList);
         return ref span[id];
     }
     
-    private static readonly     List<RenderPipelineEntry>   idToDescriptor = [default];
+    private static readonly     List<RenderPipelineEntry>   descriptorList = [default];
     private static readonly     HashSet<int>                descriptorToId = new (new DescriptorIdComparer());
     
     // ------ RenderPipelineEntry
