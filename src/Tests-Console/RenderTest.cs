@@ -33,6 +33,21 @@ public partial class RenderTest : IRenderer
         data.Dispose();
     }
     
+    // --- performance
+    private long    memoryAllocated;
+    private int     frameCount;
+
+    private void TrackPerformance()
+    {
+        if (frameCount++ % 5000 == 0) {
+            Console.Out.WriteLine($"frame: {frameCount}");
+        } else {
+            var cur = GC.GetAllocatedBytesForCurrentThread();
+            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
+        }
+        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
+    }
+    
     private static readonly VertexData[] Vertices =
     [
         new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
@@ -48,21 +63,14 @@ public partial class RenderTest : IRenderer
         clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
     private readonly    InView<VertexData>          rectangle;
-    private             long                        memoryAllocated;
-    private             int                         frameCount;
     private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
     private             Wormhood.ShadertoyUniforms  uniforms;
     private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
+
     
     public void DrawFrame()
     {
-        if (frameCount++ % 5000 == 0) {
-            Console.Out.WriteLine($"frame: {frameCount}");
-        } else {
-            var cur = GC.GetAllocatedBytesForCurrentThread();
-            if (cur != memoryAllocated) Console.Out.WriteLine($"{cur -  memoryAllocated} memory used");
-        }
-        memoryAllocated = GC.GetAllocatedBytesForCurrentThread();
+        TrackPerformance();
 
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
