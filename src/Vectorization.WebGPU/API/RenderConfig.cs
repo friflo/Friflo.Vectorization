@@ -102,6 +102,7 @@ public record struct WgpuRenderPipelineDescriptor
 /// <summary> managed type for:  <see cref="PrimitiveState"/> </summary>
 public record struct WgpuPrimitiveState
 {
+    public  WgpuChainedStruct   nextInChain;
     public  PrimitiveTopology   topology            = PrimitiveTopology.TriangleList;
     public  IndexFormat         stripIndexFormat;
     public  FrontFace           frontFace;
@@ -110,8 +111,9 @@ public record struct WgpuPrimitiveState
     
     public WgpuPrimitiveState() { }
     
-    internal readonly PrimitiveState GetNative() {
+    internal readonly unsafe PrimitiveState GetNative() {
         return new PrimitiveState {
+            nextInChain         = nextInChain.value,
             topology            = topology,
             stripIndexFormat    = stripIndexFormat,
             frontFace           = frontFace,
@@ -125,6 +127,7 @@ public record struct WgpuPrimitiveState
 public record struct WgpuFragmentState
 {
 //  public  string                              entryPoint;     defined via [Shader] attribute
+    public  WgpuChainedStruct                   nextInChain;
     public  ValueArray<WgpuConstantEntry>       constants;
     public  ValueArray<WgpuColorTargetState>    targets = [new() { format =  TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All}];
 
@@ -133,6 +136,7 @@ public record struct WgpuFragmentState
     internal readonly unsafe FragmentState GetNative(NativeAllocator allocator)
     {
         return new FragmentState {
+            nextInChain     = nextInChain.value,
             targetCount     = (uint)targets.Length,
             targets         = allocator.ArrayToNative(targets,   src => src.GetNative(allocator)),
             constantCount   = (uint)constants.Length,
@@ -144,14 +148,16 @@ public record struct WgpuFragmentState
 /// <summary> managed type for:  <see cref="MultisampleState"/> </summary>
 public record struct WgpuMultisampleState
 {
-    public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
-    public  uint    mask                    = 0xFFFFFFFF;   // (Standard)
-    public  bool    alphaToCoverageEnabled;
+    public  WgpuChainedStruct   nextInChain;
+    public  uint                count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+    public  uint                mask                    = 0xFFFFFFFF;   // (Standard)
+    public  bool                alphaToCoverageEnabled;
     
     public WgpuMultisampleState() { }
     
-    internal readonly MultisampleState GetNative() {
+    internal readonly unsafe MultisampleState GetNative() {
         return new MultisampleState {
+            nextInChain             = nextInChain.value,
             count                   = count,
             mask                    = mask,
             alphaToCoverageEnabled  = alphaToCoverageEnabled ? 1u : 0
@@ -162,6 +168,7 @@ public record struct WgpuMultisampleState
 /// <summary> managed type for:  <see cref="DepthStencilState"/> </summary>
 public record struct WgpuDepthStencilState
 {
+    public  WgpuChainedStruct   nextInChain;
     public  TextureFormat       format;
     public  OptionalBool        depthWriteEnabled;
     public  CompareFunction     depthCompare;
@@ -175,8 +182,9 @@ public record struct WgpuDepthStencilState
     
     public WgpuDepthStencilState() { }
     
-    internal readonly DepthStencilState GetNative() {
+    internal readonly unsafe DepthStencilState GetNative() {
         return new DepthStencilState {
+            nextInChain         = nextInChain.value,
             format              = format,
             depthWriteEnabled   = depthWriteEnabled,
             depthCompare        = depthCompare,
@@ -194,6 +202,7 @@ public record struct WgpuDepthStencilState
 /// <summary> managed type for:  <see cref="VertexState"/> </summary>
 public record struct WgpuVertexState
 {
+    public  WgpuChainedStruct                   nextInChain;
 //  public  ShaderModule*                       module;         defined via [Shader] attribute
 //  public  StringView                          entryPoint;     defined via [Shader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
@@ -204,6 +213,7 @@ public record struct WgpuVertexState
     internal readonly unsafe VertexState GetNative(NativeAllocator allocator)
     {
         return new VertexState {
+            nextInChain     = nextInChain.value,
             constantCount   = (uint)constants.Length,
             constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
             bufferCount     = (uint)buffers.Length,
@@ -216,9 +226,16 @@ public record struct WgpuVertexState
 
 // ---------------------------------------- child level wgpu states ----------------------------------------
 
+/// <summary> managed type for:  <see cref="ChainedStruct"/> </summary>
+public unsafe struct WgpuChainedStruct
+{
+    public ChainedStruct* value;
+}
+
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
 public record struct WgpuColorTargetState
 {
+    public  WgpuChainedStruct   nextInChain;
     public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
     public  BlendState?         blend;
     public  ulong               writeMask           = ColorWriteMask_All;
@@ -228,6 +245,7 @@ public record struct WgpuColorTargetState
     internal readonly unsafe ColorTargetState GetNative(NativeAllocator allocator)
     {
         return new ColorTargetState {
+            nextInChain = nextInChain.value,
             format      = format,
             writeMask   = writeMask,
             blend       = allocator.NullableToNative(blend, value => value)
@@ -238,14 +256,16 @@ public record struct WgpuColorTargetState
 /// <summary> managed type for:  <see cref="ConstantEntry"/> </summary>
 public record struct WgpuConstantEntry
 {
-    public  string  key;
-    public  double  value;
+    public  WgpuChainedStruct   nextInChain;
+    public  string              key;
+    public  double              value;
     
-    internal readonly ConstantEntry GetNative(NativeAllocator allocator)
+    internal readonly unsafe ConstantEntry GetNative(NativeAllocator allocator)
     {
         return new ConstantEntry {
-            key     = allocator.StringToNative(key),
-            value   = value
+            nextInChain = nextInChain.value,
+            key         = allocator.StringToNative(key),
+            value       = value
         };
     }
 }
@@ -253,6 +273,7 @@ public record struct WgpuConstantEntry
 /// <summary> managed type for:  <see cref="VertexBufferLayout"/> </summary>
 public record struct WgpuVertexBufferLayout
 {
+    public  WgpuChainedStruct           nextInChain;
     public  VertexStepMode              stepMode;
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
@@ -260,6 +281,7 @@ public record struct WgpuVertexBufferLayout
     internal readonly unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
+            nextInChain     = nextInChain.value,
             arrayStride     = arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
