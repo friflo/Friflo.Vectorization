@@ -65,14 +65,14 @@ public partial class RenderTest : IRenderer
             return;
         }
         var time = (float)stopwatch.Elapsed.TotalSeconds; 
-        using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment))
+        using (var pass = frame.Value.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
             myUniform.tint_color.Z = 0.5f * (MathF.Sin(time * 5) + 1f);
-            DrawTriangles(pass, rectangle, myUniform, wgpu.Config);
             
             uniforms.IResolution = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
             uniforms.ITime = time;
-            Wormhood.RenderTunnel(pass, uniforms, wgpu.Config);
+            Wormhood.RenderTunnel(pass, uniforms);
+            DrawTriangles(pass, rectangle, myUniform);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -83,8 +83,7 @@ public partial class RenderTest : IRenderer
     static partial void DrawTriangles(
                      RenderPass<MainWorld>  renderPass,
         [Bind(0, 0)] InBuffer<VertexData>   triangles,
-        [Bind(1, 0)] MyUniform              myUniform,
-                     RenderConfig           config);
+        [Bind(1, 0)] MyUniform              myUniform);
 }
 
 public struct MainWorld;
@@ -108,8 +107,7 @@ public static partial class Wormhood
     [Shader("Shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
                      RenderPass<MainWorld>  renderPass,
-        [Bind(0, 0)] ShadertoyUniforms      uniforms,
-                     RenderConfig    		config);
+        [Bind(0, 0)] ShadertoyUniforms      uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
     public struct ShadertoyUniforms

@@ -81,7 +81,7 @@ public readonly unsafe struct RenderFrame : IDisposable
     // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
     // Minimizes CPU-to-GPU state change overhead dramatically.
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment) where TStage : struct
+    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : struct
     {
         attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
@@ -92,7 +92,7 @@ public readonly unsafe struct RenderFrame : IDisposable
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
         var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-        return new RenderPass<TStage>(passEncoder, recorder);
+        return new RenderPass<TStage>(passEncoder, recorder, config);
     }
     
     public void Dispose() {
@@ -105,13 +105,15 @@ public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : st
 {
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;
+    private  readonly   RenderConfig        config;
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, RenderConfig config) {
         this.handle = handle;
         Recorder    = recorder;
+        this.config = config;
     }
     
-    public RenderPass Value => new RenderPass(handle, Recorder);
+    public RenderPass Value => new RenderPass(handle, Recorder, config);
     
     public void Dispose()
     {
@@ -125,12 +127,14 @@ public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : st
 
 public readonly unsafe struct RenderPass
 {
-    public   readonly CommandRecorder       recorder;
-    private  readonly RenderPassEncoder*    handle;
+    public   readonly   CommandRecorder       recorder;
+    private  readonly   RenderPassEncoder*    handle;
+    public   readonly   RenderConfig          Config;
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, RenderConfig config) {
         this.handle     = handle;
         this.recorder   = recorder;
+        Config          = config;
     }
 
     public void SetPipeline(WgpuRenderPipeline renderPipeline)

@@ -17,8 +17,7 @@ public partial class RenderTest
     static partial void DrawTriangles(
         RenderPass<MainWorld>   renderPass,
         InBuffer<VertexData>    triangles,
-        MyUniform               myUniform,
-        RenderConfig    		config)
+        MyUniform               myUniform)
 	{
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));
@@ -33,7 +32,7 @@ public partial class RenderTest
         // TODO  use config in GetShaderEffect()
         ref var effect = ref device.GetShaderEffect(Triangles_GPU_ShaderId, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
-            effect = ref Triangles_GPU_CreateEffect(device, config);
+            effect = ref Triangles_GPU_CreateEffect(device, pass.Config);
         }
         pass.SetPipeline(effect.renderPipeline);
         
