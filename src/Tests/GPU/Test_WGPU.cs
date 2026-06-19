@@ -16,12 +16,19 @@ public static class Test_WGPU
                 constants = [new WgpuConstantEntry { key = "test", value = 123 }] // add test entry    
             }
         };
-        var config = descSrc.CreateConfig("Custom Config");
+        var config = descSrc.CreateConfig("config");
         
-        Assert.AreEqual("Custom Config", config.Name);
+        Assert.AreEqual("config", config.Name);
         
         ref readonly var desc = ref config.Descriptor;
         Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
+        
+        var sameConfig = descSrc.CreateConfig("sameConfig");    // CreateConfig() with unmodified descSrc
+        Assert.AreEqual("config", sameConfig.Name);
+        
+        descSrc.MultisampleState.alphaToCoverageEnabled = true; // CreateConfig() with modified descSrc
+        var mutatedConfig = descSrc.CreateConfig("mutatedConfig");
+        Assert.AreEqual("mutatedConfig", mutatedConfig.Name);
         
         
         // --- using a default RenderConfig
@@ -37,7 +44,5 @@ public static class Test_WGPU
             });
             Assert.AreEqual("when using a default RenderConfig", e!.Message);
         }
-        
-        
     }
 }

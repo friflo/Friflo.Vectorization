@@ -66,15 +66,16 @@ public record struct WgpuRenderPipelineDescriptor
     /// </remarks>
     public RenderConfig CreateConfig(string name)
     {
-        if (descriptorToId.TryGetValue(this, out var id)) {
+        int testId  = idToDescriptor.Count;
+        var entry   = new RenderPipelineEntry(name, this);
+        idToDescriptor.Add(entry);
+        
+        if (descriptorToId.TryGetValue(testId, out var id)) {
+            idToDescriptor.RemoveAt(testId);
             return new RenderConfig(id);
         }
-        var descriptors = idToDescriptor;
-        var config      = new RenderConfig(descriptors.Count);
-        var entry       = new RenderPipelineEntry(name, this);
-        descriptors.Add(entry);
-        descriptorToId.Add(this, config.Id);
-        return config;
+        descriptorToId.Add(testId);
+        return new RenderConfig(testId);
     }
     
     internal static ref RenderPipelineEntry GetEntry(int id)
@@ -86,13 +87,28 @@ public record struct WgpuRenderPipelineDescriptor
         return ref span[id];
     }
     
-    private static readonly     List<RenderPipelineEntry>                       idToDescriptor = [default];
-    private static readonly     Dictionary<WgpuRenderPipelineDescriptor, int>   descriptorToId = [];
+    private static readonly     List<RenderPipelineEntry>   idToDescriptor = [default];
+    private static readonly     HashSet<int>                descriptorToId = new (new DescriptorIdComparer());
     
+    // ------ RenderPipelineEntry
     internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
     {
         internal readonly string                        name        = name;
         internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
+    }
+    
+    // ------ DescriptorIdComparer
+    internal readonly struct DescriptorIdComparer : IEqualityComparer<int>
+    {
+        public bool Equals(int x, int y)
+        {
+            return GetEntry(x).descriptor.Equals(GetEntry(y).descriptor);
+        }
+
+        public int GetHashCode(int id)
+        {
+            return GetEntry(id).descriptor.GetHashCode();
+        }
     }
 }
 
@@ -113,7 +129,7 @@ public record struct WgpuPrimitiveState
     
     internal readonly unsafe PrimitiveState GetNative() {
         return new PrimitiveState {
-            nextInChain         = nextInChain.value,
+            nextInChain         = nextInChain.GetValue(),
             topology            = topology,
             stripIndexFormat    = stripIndexFormat,
             frontFace           = frontFace,
@@ -136,7 +152,7 @@ public record struct WgpuFragmentState
     internal readonly unsafe FragmentState GetNative(NativeAllocator allocator)
     {
         return new FragmentState {
-            nextInChain     = nextInChain.value,
+            nextInChain     = nextInChain.GetValue(),
             targetCount     = (uint)targets.Length,
             targets         = allocator.ArrayToNative(targets,   src => src.GetNative(allocator)),
             constantCount   = (uint)constants.Length,
@@ -157,7 +173,7 @@ public record struct WgpuMultisampleState
     
     internal readonly unsafe MultisampleState GetNative() {
         return new MultisampleState {
-            nextInChain             = nextInChain.value,
+            nextInChain             = nextInChain.GetValue(),
             count                   = count,
             mask                    = mask,
             alphaToCoverageEnabled  = alphaToCoverageEnabled ? 1u : 0
@@ -184,7 +200,7 @@ public record struct WgpuDepthStencilState
     
     internal readonly unsafe DepthStencilState GetNative() {
         return new DepthStencilState {
-            nextInChain         = nextInChain.value,
+            nextInChain         = nextInChain.GetValue(),
             format              = format,
             depthWriteEnabled   = depthWriteEnabled,
             depthCompare        = depthCompare,
@@ -213,7 +229,7 @@ public record struct WgpuVertexState
     internal readonly unsafe VertexState GetNative(NativeAllocator allocator)
     {
         return new VertexState {
-            nextInChain     = nextInChain.value,
+            nextInChain     = nextInChain.GetValue(),
             constantCount   = (uint)constants.Length,
             constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
             bufferCount     = (uint)buffers.Length,
@@ -227,9 +243,17 @@ public record struct WgpuVertexState
 // ---------------------------------------- child level wgpu states ----------------------------------------
 
 /// <summary> managed type for:  <see cref="ChainedStruct"/> </summary>
-public unsafe struct WgpuChainedStruct
+public unsafe struct WgpuChainedStruct : IEquatable<WgpuChainedStruct>
 {
     public ChainedStruct* value;
+    
+    public readonly ChainedStruct* GetValue() => value;
+    
+    public bool Equals(WgpuChainedStruct other) {
+        return true;
+    }
+
+    public override int GetHashCode() => 0;
 }
 
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
@@ -245,7 +269,7 @@ public record struct WgpuColorTargetState
     internal readonly unsafe ColorTargetState GetNative(NativeAllocator allocator)
     {
         return new ColorTargetState {
-            nextInChain = nextInChain.value,
+            nextInChain = nextInChain.GetValue(),
             format      = format,
             writeMask   = writeMask,
             blend       = allocator.NullableToNative(blend, value => value)
@@ -263,7 +287,7 @@ public record struct WgpuConstantEntry
     internal readonly unsafe ConstantEntry GetNative(NativeAllocator allocator)
     {
         return new ConstantEntry {
-            nextInChain = nextInChain.value,
+            nextInChain = nextInChain.GetValue(),
             key         = allocator.StringToNative(key),
             value       = value
         };
@@ -281,7 +305,7 @@ public record struct WgpuVertexBufferLayout
     internal readonly unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
-            nextInChain     = nextInChain.value,
+            nextInChain     = nextInChain.GetValue(),
             arrayStride     = arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
