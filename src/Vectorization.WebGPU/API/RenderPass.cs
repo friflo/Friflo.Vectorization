@@ -47,12 +47,12 @@ public static class WgpuExtensions
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
         if (surfaceTexture.texture == null) {
-            return new RenderFrame(default, null, null);  //   surfaceTexture.texture == null   if window minimized
+            return new RenderFrame(default, null, surfaceTexture.status, null);  //   surfaceTexture.texture == null   if window minimized
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new WgpuTextureView(handle);
         
-        return new RenderFrame(view, surfaceTexture.texture, recorder);
+        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder);
     }
 }
 
@@ -72,15 +72,19 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 
 public readonly unsafe ref struct  RenderFrame : IDisposable
 {
-    private  readonly   WgpuTextureView view;
-    private  readonly   CommandRecorder recorder;
-    private  readonly   Texture*        surfaceTexture;
+    public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
+    private  readonly   WgpuTextureView                 view;
+    private  readonly   CommandRecorder                 recorder;
+    private  readonly   Texture*                        surfaceTexture;
     
-    public              bool            IsNull => recorder == null;
-    
-    internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, CommandRecorder recorder) {
+    public              bool                            IsNull      => recorder == null;
+
+    public   override   string                          ToString()  => TextureStatus.ToString(); 
+
+    internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder) {
         this.view           = view;
         this.surfaceTexture = surfaceTexture;
+        TextureStatus       = status;
         this.recorder       = recorder;
     }
 
