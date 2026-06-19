@@ -70,7 +70,7 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 }
 
 
-public readonly unsafe struct RenderFrame : IDisposable
+public readonly unsafe ref struct  RenderFrame : IDisposable
 {
     private  readonly   WgpuTextureView view;
     private  readonly   CommandRecorder recorder;
@@ -115,7 +115,7 @@ public readonly unsafe struct RenderFrame : IDisposable
     }
 }
 
-public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : struct
+public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage : struct
 {
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;
@@ -139,7 +139,7 @@ public readonly unsafe struct RenderPass<TStage> : IDisposable where TStage : st
     }
 }
 
-public readonly unsafe struct RenderPass
+public readonly unsafe ref  struct RenderPass
 {
     public   readonly   CommandRecorder       Recorder;
     private  readonly   RenderPassEncoder*    handle;
