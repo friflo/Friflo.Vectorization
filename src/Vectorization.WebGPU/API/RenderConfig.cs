@@ -39,7 +39,7 @@ public readonly struct RenderConfig
 /// <summary> managed type for:  <see cref="RenderPipelineDescriptor"/> </summary>
 /// <remarks>
 /// After set up of a unique <see cref="WgpuRenderPipelineDescriptor"/> configuration
-/// create a <see cref="RenderConfig"/> with <see cref="CreateConfig"/>.
+/// create a <see cref="RenderConfig"/> handle with <see cref="CreateConfig"/>.
 /// </remarks>
 public record struct WgpuRenderPipelineDescriptor
 {
@@ -52,7 +52,7 @@ public record struct WgpuRenderPipelineDescriptor
     public WgpuRenderPipelineDescriptor()  { }
     
     /// <summary>
-    /// Create a new <see cref="RenderConfig"/> or returns an existing<br/>
+    /// Create a new <see cref="RenderConfig"/> handle or returns an existing<br/>
     /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
     /// </summary>
     /// <remarks>
