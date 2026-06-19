@@ -70,12 +70,11 @@ public partial class RenderTest : IRenderer
     
     public void DrawFrame()
     {
-        TrackPerformance();
-
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
             return;
         }
+        TrackPerformance();
         var time = (float)stopwatch.Elapsed.TotalSeconds; 
         
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
