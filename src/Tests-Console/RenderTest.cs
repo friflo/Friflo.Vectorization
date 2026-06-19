@@ -63,10 +63,10 @@ public partial class RenderTest : IRenderer
     private readonly    RenderPassColorAttachment   attachment = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
         clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
-    private readonly    InView<VertexData>          rectangle;
-    private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
-    private             Wormhood.ShadertoyUniforms  uniforms;
-    private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
+    private readonly    InView<VertexData>  rectangle;
+    private             MyUniform           myUniform   = new(new Vector4(1, 1, 0, 1));
+    private             Wormhood.Uniforms   wormhood;
+    private readonly    Stopwatch           stopwatch   = Stopwatch.StartNew();
 
     
     public void DrawFrame()
@@ -81,10 +81,10 @@ public partial class RenderTest : IRenderer
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-            uniforms.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
-            uniforms.ITime          = time;
+            wormhood.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
+            wormhood.ITime          = time;
             
-            // Wormhood.RenderTunnel(pass, uniforms);
+            Wormhood.RenderTunnel(pass, wormhood);
             DrawTriangles(pass, rectangle, myUniform);
         }
         context.Queue.Submit();
@@ -120,10 +120,10 @@ public static partial class Wormhood
     [Shader("Shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
                      RenderPass<MainWorld>  renderPass,
-        [Bind(0, 0)] ShadertoyUniforms      uniforms);
+        [Bind(0, 0)] Uniforms      			uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
-    public struct ShadertoyUniforms
+    public struct Uniforms
     {
         public  Vector3     IResolution;
         private float       _pad;       // 16-Byte Alignment for Vector3
