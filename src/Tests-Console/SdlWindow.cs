@@ -8,6 +8,11 @@ using SDL3;
 // ReSharper disable MemberCanBePrivate.Global
 namespace TestConsole;
 
+/// <summary>
+/// Enables an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop by yourself.<br/>
+/// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
+/// Those platforms only support event driven applications. An event loop would lead to application freeze.
+/// </summary>
 public interface IRenderer
 {
     public void DrawFrame();
