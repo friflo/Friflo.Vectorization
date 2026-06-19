@@ -120,6 +120,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         window = SDL.CreateWindow(title, width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
+        SetWindowIconFromResource(window);
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
@@ -140,6 +141,27 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer = createRenderer(wgpu);
         ConfigureSurface();
+    }
+    
+    public static void SetWindowIconFromResource(IntPtr window)
+    {
+        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.friflo.bmp");
+        if (stream == null) return;
+
+        var bytes = new byte[stream.Length];
+        stream.ReadExactly(bytes);
+
+        var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        try {
+            var io      = SDL.IOFromConstMem(handle.AddrOfPinnedObject(), (nuint)bytes.Length);
+            var surface = SDL.LoadBMPIO(io, true);
+            if (surface != IntPtr.Zero) {
+                SDL.SetWindowIcon(window, surface);
+                SDL.DestroySurface(surface);
+            }
+        } finally {
+            handle.Free();
+        }
     }
     
     private void ConfigureSurface()

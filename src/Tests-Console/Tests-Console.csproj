@@ -29,5 +29,9 @@
       <EmbeddedResource Include="Shaders\**\*.wgsl" />
       <AdditionalFiles Include="Shaders\**\*.wgsl" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Assets/friflo.bmp" />
+    </ItemGroup>
 
 </Project>
