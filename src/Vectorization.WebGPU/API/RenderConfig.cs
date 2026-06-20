@@ -8,13 +8,10 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
-// ReSharper disable SuggestVarOrType_BuiltInTypes
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable ConvertToConstant.Global
-// ReSharper disable UnassignedField.Global
 // ReSharper disable InconsistentNaming
-// ReSharper disable CollectionNeverQueried.Global
+// ReSharper disable UnassignedField.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
@@ -101,15 +98,8 @@ public record struct WgpuRenderPipelineDescriptor
     // ------ DescriptorIdComparer
     internal readonly struct DescriptorIdComparer : IEqualityComparer<int>
     {
-        public bool Equals(int x, int y)
-        {
-            return GetEntry(x).descriptor.Equals(GetEntry(y).descriptor);
-        }
-
-        public int GetHashCode(int id)
-        {
-            return GetEntry(id).descriptor.GetHashCode();
-        }
+        public bool Equals(int x, int y)=> GetEntry(x).descriptor.Equals(GetEntry(y).descriptor);
+        public int  GetHashCode(int id) => GetEntry(id).descriptor.GetHashCode();
     }
 }
 
@@ -185,17 +175,17 @@ public record struct WgpuMultisampleState
 /// <summary> managed type for:  <see cref="DepthStencilState"/> </summary>
 public record struct WgpuDepthStencilState
 {
-    public  WgpuChainedStruct   nextInChain;
-    public  TextureFormat       format;
-    public  OptionalBool        depthWriteEnabled;
-    public  CompareFunction     depthCompare;
-    public  StencilFaceState    stencilFront;
-    public  StencilFaceState    stencilBack;
-    public  uint                stencilReadMask;
-    public  uint                stencilWriteMask;
-    public  int                 depthBias;
-    public  float               depthBiasSlopeScale;
-    public  float               depthBiasClamp;
+    public  WgpuChainedStruct       nextInChain;
+    public  TextureFormat           format;
+    public  OptionalBool            depthWriteEnabled;
+    public  CompareFunction         depthCompare;
+    public  WgpuStencilFaceState    stencilFront;
+    public  WgpuStencilFaceState    stencilBack;
+    public  uint                    stencilReadMask;
+    public  uint                    stencilWriteMask;
+    public  int                     depthBias;
+    public  float                   depthBiasSlopeScale;
+    public  float                   depthBiasClamp;
     
     public WgpuDepthStencilState() { }
     
@@ -205,8 +195,8 @@ public record struct WgpuDepthStencilState
             format              = format,
             depthWriteEnabled   = depthWriteEnabled,
             depthCompare        = depthCompare,
-            stencilFront        = stencilFront,
-            stencilBack         = stencilBack,
+            stencilFront        = stencilFront.GetNative(),
+            stencilBack         = stencilBack.GetNative(),
             stencilReadMask     = stencilReadMask,
             stencilWriteMask    = stencilWriteMask,
             depthBias           = depthBias,
@@ -311,6 +301,26 @@ public record struct WgpuVertexBufferLayout
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
             attributes      = allocator.ArrayToNative(attributes, src => src)
+        };
+    }
+}
+
+/// <summary> managed type for:  <see cref="StencilFaceState"/> </summary>
+// Added extra type to avoid using inefficient runtime-provided implementation
+public record struct WgpuStencilFaceState
+{
+    public  CompareFunction     compare;
+    public  StencilOperation    failOp;
+    public  StencilOperation    depthFailOp;
+    public  StencilOperation    passOp;
+    
+    internal readonly StencilFaceState GetNative()
+    {
+        return new StencilFaceState {
+            compare     = compare,
+            failOp      = failOp,
+            depthFailOp = depthFailOp,
+            passOp      = passOp,
         };
     }
 }
