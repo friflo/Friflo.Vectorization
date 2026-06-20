@@ -64,16 +64,16 @@ public record struct WgpuRenderPipelineDescriptor
     public RenderConfig CreateConfig(string name)
     {
         var list    = descriptorList;
-        int testId  = list.Count;
+        var idHash  = new IdHash(list.Count, GetHashCode());
         var entry   = new RenderPipelineEntry(name, this);
         list.Add(entry);
         
-        if (descriptorToId.TryGetValue(testId, out var id)) {
-            list.RemoveAt(testId);
-            return new RenderConfig(id);
+        if (descriptorToId.TryGetValue(idHash, out var value)) {
+            list.RemoveAt(idHash.id);
+            return new RenderConfig(value.id);
         }
-        descriptorToId.Add(testId);
-        return new RenderConfig(testId);
+        descriptorToId.Add(idHash);
+        return new RenderConfig(idHash.id);
     }
     
     internal static ref RenderPipelineEntry GetEntry(int id)
@@ -86,7 +86,7 @@ public record struct WgpuRenderPipelineDescriptor
     }
     
     private static readonly     List<RenderPipelineEntry>   descriptorList = [default];
-    private static readonly     HashSet<int>                descriptorToId = new (new DescriptorIdComparer());
+    private static readonly     HashSet<IdHash>             descriptorToId = new (new IdHashComparer());
     
     // ------ RenderPipelineEntry
     internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
@@ -95,11 +95,20 @@ public record struct WgpuRenderPipelineDescriptor
         internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
     }
     
-    // ------ DescriptorIdComparer
-    internal readonly struct DescriptorIdComparer : IEqualityComparer<int>
+    // ------ IdHashComparer
+    // Store hash code to avoid expensive GetHashCode() calls
+    internal readonly struct IdHash(int id, int hash) : IEquatable<IdHash>
     {
-        public bool Equals(int x, int y)=> GetEntry(x).descriptor.Equals(GetEntry(y).descriptor);
-        public int  GetHashCode(int id) => GetEntry(id).descriptor.GetHashCode();
+        internal readonly   int id      = id;
+        internal readonly   int hash    = hash;
+        
+        public bool Equals(IdHash other) => id == other.id && hash == other.hash;
+    }
+    
+    internal readonly struct IdHashComparer : IEqualityComparer<IdHash>
+    {
+        public bool Equals(IdHash x, IdHash y)  => GetEntry(x.id).descriptor.Equals(GetEntry(y.id).descriptor);
+        public int  GetHashCode(IdHash value)   => value.hash;
     }
 }
 
