@@ -70,14 +70,12 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     {
         var sdl = new SdlWindow(title + " - friflo GPU", width, height, createRenderer);
         SDL.SetMainReady();
-        string[] argv = null!; // Note!  Must pass null instead of [] to argv, otherwise: AccessViolationException in TargetFramework net8.0
-                               //        caused by System.StubHelpers.MngdNativeArrayMarshaler.ConvertContentsToManaged
-        var result = SDL.EnterAppMainCallbacks(0, argv, sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
+        var result = SDL.EnterAppMainCallbacks(0, null, sdl.AppInit, sdl.AppIterate, sdl.AppEvent, sdl.AppQuit);
         sdl.callbackException?.Throw();
         return result;
     }
 
-    private SDL.AppResult AppInit(IntPtr appState, int argc, string[] argv)
+    private SDL.AppResult AppInit(IntPtr appState, int argc, string[]? argv)
     {
         try { InitSdl3();               return SDL.AppResult.Continue; }
         catch (Exception exception)   { return Capture(exception); }
