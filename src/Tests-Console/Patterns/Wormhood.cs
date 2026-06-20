@@ -22,8 +22,7 @@ public static partial class Wormhood
 		var device		= recorder.Device;
 		recorder.Init(Wormhood_GPU_ShaderId, "Wormhood"u8);
 
-        // TODO  use config in GetShaderEffect()
-        ref var effect = ref device.GetShaderEffect(Wormhood_GPU_ShaderId, Wormhood_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        ref var effect = ref device.GetShaderEffect(Wormhood_GPU_ShaderId, pass.Config, Wormhood_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!effect.IsCreated) {
             effect = ref Wormhood_GPU_CreateEffect(device, pass.Config);
         }
@@ -62,7 +61,7 @@ public static partial class Wormhood
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Wormhood"u8);
         
-        return ref device.CreateShaderEffect(Wormhood_GPU_ShaderId, Wormhood_GPU_WgslHash, pipeline, default, uniformLayout);
+        return ref device.CreateShaderEffect(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, default, uniformLayout);
     }
     
     private static ReadOnlySpan<byte> Wormhood_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.Shaders.raymarcher_no_texture.wgsl");

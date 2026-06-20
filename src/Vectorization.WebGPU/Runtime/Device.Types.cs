@@ -13,8 +13,8 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 
 public readonly struct UniformLayout(uint index, WgpuBindGroupLayout layout)
 {
-    internal readonly   uint                index = index;
-    internal readonly   WgpuBindGroupLayout layout = layout;
+    internal readonly   uint                index   = index;
+    internal readonly   WgpuBindGroupLayout layout  = layout;
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -37,6 +37,16 @@ public unsafe struct WgpuComputeEffect
         this.bufferLayout   = bufferLayout;
         this.uniformLayout  = new UniformLayout((uint)kernelId, uniformLayout);
     }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public struct WgpuShaderEffects
+{
+    internal WgpuShaderEffect[] configEffects = [];
+
+    public override string ToString() => $"length: {configEffects.Length}";
+
+    public WgpuShaderEffects() { }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]

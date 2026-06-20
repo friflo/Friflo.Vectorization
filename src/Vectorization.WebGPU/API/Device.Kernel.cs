@@ -72,13 +72,16 @@ public sealed unsafe partial  class WgpuDevice
     
     // --------------------- shaderEffectSlots ---------------------
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref WgpuShaderEffect GetShaderEffect(int slot, ulong wgslHash)
+    public ref WgpuShaderEffect GetShaderEffect(int slot, RenderConfig config, ulong wgslHash)
     {
         var slots = shaderEffectSlots;
         if (slot < slots.Length) {
-            ref var effect = ref slots[slot];
-            if (effect.wgslHash == wgslHash) {
-                return ref effect;
+            var effects = slots[slot].configEffects;
+            if (config.Id < effects.Length) {
+                ref var effect = ref effects[config.Id];
+                if (effect.wgslHash == wgslHash) {
+                    return ref effect;
+                }
             }
         }
         return ref MissingShaderEffect;
@@ -88,6 +91,7 @@ public sealed unsafe partial  class WgpuDevice
     
     public ref WgpuShaderEffect CreateShaderEffect(
         int                     kernelId,
+        RenderConfig            config,
         ulong                   wgslHash,
         WgpuRenderPipeline      renderPipeline,
         WgpuBindGroupLayout     bufferLayout,
@@ -95,16 +99,27 @@ public sealed unsafe partial  class WgpuDevice
     {
         var slots = shaderEffectSlots;
         if (kernelId >= slots.Length) {
-            var newSlots = new WgpuShaderEffect[Math.Max(2 * slots.Length, kernelId + 1)];
+            var newSlots = new WgpuShaderEffects[Math.Max(2 * slots.Length, kernelId + 1)];
             Array.Copy(slots, newSlots, slots.Length);
+            for (int i = slots.Length; i < newSlots.Length; i++) {
+                newSlots[i] = new WgpuShaderEffects();
+            }
             slots = shaderEffectSlots = newSlots;
         }
-        slots[kernelId] = new WgpuShaderEffect(kernelId, wgslHash, renderPipeline, bufferLayout, uniformLayout);
-        return ref slots[kernelId];
+        ref var slotEffects = ref slots[kernelId];
+        var effects         = slotEffects.configEffects;
+        var configId        = config.Id;
+        if (configId >= effects.Length) {
+            var newEffects = new WgpuShaderEffect[Math.Max(2 * effects.Length, configId + 1)];
+            Array.Copy(effects, newEffects, effects.Length);
+            effects = slotEffects.configEffects = newEffects;
+        }
+        effects[configId] = new WgpuShaderEffect(kernelId, wgslHash, renderPipeline, bufferLayout, uniformLayout);
+        return ref effects[configId];
     }
     
-    public void UpdateShaderCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        shaderEffectSlots[slot].bufferCache.Update(bindGroup, hash);
+    public void UpdateShaderCache(ref WgpuShaderEffect effect, WgpuBindGroup bindGroup, ulong hash) {
+        effect.bufferCache.Update(bindGroup, hash);
     }
     
     // --------------------------------------------------------------
