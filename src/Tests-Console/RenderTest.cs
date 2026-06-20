@@ -80,9 +80,9 @@ public partial class RenderTest : IRenderer
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     public static partial void DrawTriangles(
-                     RenderPass<MainWorld>  renderPass,
-        [Bind(0, 0)] InBuffer<VertexData>   triangles,
-        [Bind(1, 0)] MyUniform              myUniform);
+                            RenderPass<MainWorld>  renderPass,
+        [BindVertex (0, 0)] InBuffer<VertexData>   triangles,
+        [BindUniform(1, 0)] MyUniform              myUniform);
 }
 
 public struct MainWorld;
@@ -105,8 +105,8 @@ public static partial class Wormhood
     // language=file-reference
     [Shader("Shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
-                     RenderPass<MainWorld>  renderPass,
-        [Bind(0, 0)] Uniforms      			uniforms);
+                            RenderPass<MainWorld>  renderPass,
+        [BindUniform(0, 0)] Uniforms      			uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms

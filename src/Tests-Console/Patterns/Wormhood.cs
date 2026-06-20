@@ -28,7 +28,7 @@ public static partial class Wormhood
         }
         pass.SetPipeline(effect.renderPipeline);
         
-        pass.SetUniformBindGroup(0, ref effect, uniforms, "MyUniforms"u8);
+        pass.SetUniformBindGroup(0, ref effect, uniforms, "MyUniforms"u8);  // [BindUniform(0, x)]
         
         pass.Draw(3, 1, 0, 0); // [DrawFullscreenTriangle] with out-of-bounds vertices, 0 overdraw
 	}
@@ -51,13 +51,13 @@ public static partial class Wormhood
         var uniformLayout = device.GetBindGroupLayout(Wormhood_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform(0);            // [Binding(x, 0)] @group(1) @binding(0) var<uniform>          myUniforms: MyUniforms;
+            uniform[0] = WgpuLayoutEntry.Uniform(0);            // [BindUniform(x, 0)] @group(1) @binding(0) var<uniform>          myUniforms: MyUniforms;
             uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Fragment, true, Wormhood_GPU_UniformLayoutKey, "MyUniforms"u8);
         }
         var shaderModule = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = uniformLayout;     // [Binding(1, x)]
+        layouts[0] = uniformLayout;     // [BindUniform(0, x)]
 
         var pipeline = device.CreateRenderPipeline(shaderModule, layouts, config, "vs_main"u8, "fs_main"u8, "Wormhood"u8);
         

@@ -31,10 +31,17 @@ public sealed class ShaderAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindAttribute : Attribute
+public sealed class BindVertexAttribute : Attribute
 {
-    public BindAttribute (int groupIndex, int bindingIndex) { }
+    public BindVertexAttribute (int groupIndex, int bindingIndex) { }
 }
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindUniformAttribute : Attribute
+{
+    public BindUniformAttribute (int groupIndex, int bindingIndex) { }
+}
+
 
 public static class WgpuExtensions
 {
