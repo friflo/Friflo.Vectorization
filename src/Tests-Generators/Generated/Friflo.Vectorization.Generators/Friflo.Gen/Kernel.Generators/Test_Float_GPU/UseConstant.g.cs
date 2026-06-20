@@ -120,7 +120,7 @@ namespace Kernel.Generators
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "UseConstant_buffers"u8);
-            device.UpdateComputeCache(_UseConstant_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         

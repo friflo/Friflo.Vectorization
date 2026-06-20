@@ -188,7 +188,7 @@ $$""""
         if (!bufferGroup.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
-            device.UpdateComputeCache({{methodName_GPU}}_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         

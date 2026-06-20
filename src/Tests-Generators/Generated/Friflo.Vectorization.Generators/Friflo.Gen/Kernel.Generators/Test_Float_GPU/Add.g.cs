@@ -131,7 +131,7 @@ namespace Kernel.Generators
             entries[0] = WgpuBindGroup.From(0, dst.Buffer);
             entries[1] = WgpuBindGroup.From(1, src.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
-            device.UpdateComputeCache(_Add_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         

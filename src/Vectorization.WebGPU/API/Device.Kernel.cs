@@ -66,8 +66,8 @@ public sealed unsafe partial  class WgpuDevice
         return ref slots[kernelId];
     }
     
-    public void UpdateComputeCache(int slot, WgpuBindGroup bindGroup, ulong hash) {
-        computeEffectSlots[slot].computeBufferCache.Update(bindGroup, hash);
+    public void UpdateComputeCache(ref WgpuComputeEffect effect, WgpuBindGroup bindGroup, ulong hash) {
+        effect.computeBufferCache.Update(bindGroup, hash);
     }
     
     // --------------------- shaderEffectSlots ---------------------

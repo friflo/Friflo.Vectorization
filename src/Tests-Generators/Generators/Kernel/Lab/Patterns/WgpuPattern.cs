@@ -44,7 +44,7 @@ public static class WgpuPattern
             entries[1] = WgpuBindGroup.From  (1, input.Buffer);
             entries[2] = WgpuBindGroup.From  (2, output.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
-            device.UpdateComputeCache(MultiplyAdd_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
             

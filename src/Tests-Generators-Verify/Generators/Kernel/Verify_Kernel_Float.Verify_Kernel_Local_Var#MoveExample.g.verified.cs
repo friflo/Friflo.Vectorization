@@ -129,7 +129,7 @@ namespace VerifyVectorize
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
             bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MoveExample_buffers"u8);
-            device.UpdateComputeCache(_MoveExample_GPU_KernelId, bufferGroup, buffers.hash);
+            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
         }
         pass.SetBindGroup(0, bufferGroup, buffers.hash);
         
