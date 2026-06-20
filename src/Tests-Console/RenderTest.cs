@@ -5,6 +5,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
@@ -15,9 +16,9 @@ namespace TestConsole;
 /// </summary>
 public partial class RenderTest : IRenderer
 {
-    private readonly    Wgpu                    wgpu;
-    private readonly    PipelineContext         context;
-    private readonly    GpuBuffer<VertexData>   data;
+    protected readonly  Wgpu                    wgpu;
+    protected readonly  PipelineContext         context;
+    protected readonly  GpuBuffer<VertexData>   data;
     
     public RenderTest(Wgpu wgpu)
     {
@@ -45,23 +46,23 @@ public partial class RenderTest : IRenderer
     ];
     
 
-    private readonly    PerfLog                     perfLog     = new();
-    private readonly    InView<VertexData>          rectangle;
-    private             MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
-    private             Wormhood.Uniforms           wormhood;
-    private readonly    Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    private readonly    RenderPassColorAttachment   attachment  = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
+    protected readonly  PerfLog                     perfLog     = new();
+    protected readonly  InView<VertexData>          rectangle;
+    protected           MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
+    protected           Wormhood.Uniforms           wormhood;
+    protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
+    protected readonly  RenderPassColorAttachment   attachment  = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
         clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
     
-    public void DrawFrame()
+    public virtual void DrawFrame()
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
             return;
         }
         perfLog.Trace(5000);
-        var time = (float)stopwatch.Elapsed.TotalSeconds; 
+        var time = (float)stopwatch.Elapsed.TotalSeconds;
         
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
@@ -78,7 +79,7 @@ public partial class RenderTest : IRenderer
 
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
-    static partial void DrawTriangles(
+    public static partial void DrawTriangles(
                      RenderPass<MainWorld>  renderPass,
         [Bind(0, 0)] InBuffer<VertexData>   triangles,
         [Bind(1, 0)] MyUniform              myUniform);

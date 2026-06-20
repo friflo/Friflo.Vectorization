@@ -26,7 +26,7 @@ public readonly struct RenderConfig
     public              string                          Name        =>     WgpuRenderPipelineDescriptor.GetEntry(Id).name;
     public ref readonly WgpuRenderPipelineDescriptor    Descriptor  => ref WgpuRenderPipelineDescriptor.GetEntry(Id).descriptor;
     
-    public override     string                          ToString()  => $"'{WgpuRenderPipelineDescriptor.GetEntry(Id).name}'";
+    public override     string                          ToString()  => $"Id {Id} '{WgpuRenderPipelineDescriptor.GetEntry(Id).name}'";
     
     internal RenderConfig(int id) {
         Id = id;
