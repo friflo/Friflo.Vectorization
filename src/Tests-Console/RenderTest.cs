@@ -11,7 +11,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 namespace TestConsole;
 
 /// <summary>
-/// Uses an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop by yourself.<br/>
+/// Uses an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop.<br/>
 /// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
 /// Those platforms only support event driven applications. An event loop would lead to application freeze.
 /// </summary>
