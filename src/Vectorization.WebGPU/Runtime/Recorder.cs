@@ -226,8 +226,9 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     internal WgpuBindGroup GetUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
     {
-        if (layout.index < groups.Length) {
-            var bindGroup = groups[layout.index];
+        var index = layout.index;
+        if (index < groups.Length) {
+            var bindGroup = groups[index];
             if (bindGroup.handle != null) {
                 return bindGroup;
             }
