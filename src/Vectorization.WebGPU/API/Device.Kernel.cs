@@ -59,9 +59,7 @@ public sealed unsafe partial  class WgpuDevice
     {
         var slots = computeEffectSlots;
         if (kernelId >= slots.Length) {
-            var newSlots = new WgpuComputeEffect[Math.Max(2 * slots.Length, kernelId + 1)];
-            Array.Copy(slots, newSlots, slots.Length);
-            slots = computeEffectSlots = newSlots;
+            slots = WgpuUtils.Resize(ref computeEffectSlots, kernelId + 1);
         }
         slots[kernelId] = new WgpuComputeEffect(kernelId, wgslHash, pipeline, bufferLayout, uniformLayout);
         return ref slots[kernelId];
@@ -101,20 +99,13 @@ public sealed unsafe partial  class WgpuDevice
     {
         var slots = shaderEffectSlots;
         if (kernelId >= slots.Length) {
-            var newSlots = new WgpuShaderEffects[Math.Max(2 * slots.Length, kernelId + 1)];
-            Array.Copy(slots, newSlots, slots.Length);
-            for (int i = slots.Length; i < newSlots.Length; i++) {
-                newSlots[i] = new WgpuShaderEffects();
-            }
-            slots = shaderEffectSlots = newSlots;
+            slots = WgpuUtils.ResizeInit(ref shaderEffectSlots, kernelId + 1);
         }
         ref var slotEffects = ref slots[kernelId];
         var effects         = slotEffects.configEffects;
         var configId        = config.Id;
         if (configId >= effects.Length) {
-            var newEffects = new WgpuShaderEffect[Math.Max(2 * effects.Length, configId + 1)];
-            Array.Copy(effects, newEffects, effects.Length);
-            effects = slotEffects.configEffects = newEffects;
+            effects = WgpuUtils.Resize(ref slotEffects.configEffects, configId + 1);
         }
         effects[configId] = new WgpuShaderEffect(kernelId, wgslHash, renderPipeline, bufferLayout, uniformLayout);
         return ref effects[configId];

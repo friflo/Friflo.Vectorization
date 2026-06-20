@@ -47,10 +47,7 @@ public sealed unsafe partial class CommandRecorder
     [MethodImpl(MethodImplOptions.NoInlining)]
     private BufferEntry[] ResizeBufferEntries(uint bufferId)
     {
-        var newEntries  = new BufferEntry[bufferId + 1];
-        var entries     = bufferEntries;
-        Array.Copy(entries, newEntries, entries.Length);
-        return bufferEntries = newEntries;
+        return WgpuUtils.Resize(ref bufferEntries, (int)bufferId + 1);
     }
     
     protected override void QueueRead(uint bufferId, int offset, int length) {

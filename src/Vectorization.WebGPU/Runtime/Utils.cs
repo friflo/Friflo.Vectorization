@@ -43,4 +43,23 @@ internal static class WgpuUtils
     internal static uint FromBool (bool value) {
         return value ? 1u : 0u;
     }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    internal static T[] Resize<T>(ref T[] array, int minLength) where T : struct
+    {
+        var newArray = new T [Math.Max(2 * array.Length, minLength)];
+        Array.Copy(array, newArray, array.Length);
+        return array = newArray;
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    internal static T[] ResizeInit<T>(ref T[] array, int minLength) where T : struct
+    {
+        var newArray = new T [Math.Max(2 * array.Length, minLength)];
+        Array.Copy(array, newArray, array.Length);
+        for (int i = array.Length; i < newArray.Length; i++) {
+            newArray[i] = new T();
+        }
+        return array = newArray;
+    }
 }
