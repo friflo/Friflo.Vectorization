@@ -48,6 +48,19 @@ public sealed class BindUniformAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindTextureAttribute : Attribute
+{
+    public BindTextureAttribute (int groupIndex, int bindingIndex) { }
+}
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindSamplerAttribute : Attribute
+{
+    public BindSamplerAttribute (int groupIndex, int bindingIndex) { }
+}
+
+
+[AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindStorageAttribute : Attribute
 {
     public BindStorageAttribute (int groupIndex, int bindingIndex) { }
