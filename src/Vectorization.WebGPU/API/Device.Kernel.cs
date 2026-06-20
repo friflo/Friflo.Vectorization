@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable InvertIf
 // ReSharper disable TooWideLocalVariableScope
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -76,9 +77,10 @@ public sealed unsafe partial  class WgpuDevice
     {
         var slots = shaderEffectSlots;
         if (slot < slots.Length) {
-            var effects = slots[slot].configEffects;
-            if (config.Id < effects.Length) {
-                ref var effect = ref effects[config.Id];
+            var effects     = slots[slot].configEffects;
+            var configId    = config.Id;
+            if (configId < effects.Length) {
+                ref var effect = ref effects[configId];
                 if (effect.wgslHash == wgslHash) {
                     return ref effect;
                 }
