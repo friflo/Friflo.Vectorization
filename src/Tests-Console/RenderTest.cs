@@ -5,6 +5,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
@@ -48,7 +49,7 @@ public partial class RenderTest : IRenderer
 
     protected readonly  PerfLog                     perfLog     = new();
     protected readonly  InView<VertexData>          rectangle;
-    protected           MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
+    protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
     protected           Wormhood.Uniforms           wormhood;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
     protected readonly  RenderPassColorAttachment   attachment  = new() {
@@ -82,7 +83,7 @@ public partial class RenderTest : IRenderer
 
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
-    public static partial void DrawTriangles(
+    protected static partial void DrawTriangles(
                             RenderPass<MainWorld>  renderPass,
         [BindVertex (0, 0)] InBuffer<VertexData>   triangles,
         [BindUniform(1, 0)] MyUniform              myUniform);
@@ -98,9 +99,9 @@ public struct VertexData(Vector4 position, Vector4 color)
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
-public struct MyUniform(Vector4 tintColor)
+public struct MyUniform
 {
-    public Vector4 	tint_color = tintColor;
+    public Vector4 	tint_color;
 }
 
 public static partial class Wormhood
