@@ -51,8 +51,11 @@ public partial class RenderTest : IRenderer
     protected           MyUniform                   myUniform   = new(new Vector4(1, 1, 0, 1));
     protected           Wormhood.Uniforms           wormhood;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    protected readonly  RenderPassColorAttachment   attachment  = new() { loadOp = LoadOp.Clear, storeOp = StoreOp.Store,
-        clearValue  = new Color { r = 0.1, g = 0.1, b = 0.1, a = 1 }, depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+    protected readonly  RenderPassColorAttachment   attachment  = new() {
+        loadOp      = LoadOp.Clear,
+        storeOp     = StoreOp.Store,
+        clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
+        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
     
     public virtual void DrawFrame()
