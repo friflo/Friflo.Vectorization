@@ -30,6 +30,11 @@ public sealed class ShaderAttribute : Attribute
     public ShaderAttribute (string wgsl) { }
 }
 
+// --- Generator Draw Call Rules ---
+// 1. [BindIndex]  present              -> pass.DrawIndexed(indices.Length, [BindInstance] ?? 1, 0, 0, 0);
+// 2. [BindVertex] only                 -> pass.Draw(vertices.Length, [BindInstance] ?? 1, 0, 0);
+// 3. No geometry (Fullscreen/Compute)  -> pass.Draw(3, 1, 0, 0);
+
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindVertexAttribute : Attribute
 {
@@ -41,6 +46,15 @@ public sealed class BindUniformAttribute : Attribute
 {
     public BindUniformAttribute (int groupIndex, int bindingIndex) { }
 }
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindStorageAttribute : Attribute
+{
+    public BindStorageAttribute (int groupIndex, int bindingIndex) { }
+}
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindIndexAttribute : Attribute { }
 
 
 public static class WgpuExtensions
