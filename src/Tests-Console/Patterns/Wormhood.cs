@@ -30,7 +30,7 @@ public static partial class Wormhood
         
         pass.SetUniformBindGroup(0, ref effect, uniforms, "MyUniforms"u8);
         
-        pass.Draw(3, 1, 0, 0);
+        pass.Draw(3, 1, 0, 0); // [DrawFullscreenTriangle] with out-of-bounds vertices, 0 overdraw
 	}
     
     private static readonly int Wormhood_GPU_ShaderId            =  ShaderRegistry.NewShaderId("WormhoodShader");
