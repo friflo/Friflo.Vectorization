@@ -106,6 +106,15 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
         return sampleType;
     }
     
+    internal static TextureSampleType ForceUnfilterable<T>() where T : unmanaged
+    {
+        var sampleType = GetType<T>();
+        if (sampleType == TextureSampleType.Float) {
+            return TextureSampleType.UnfilterableFloat;
+        }
+        return sampleType;
+    }
+    
     internal static TextureSampleType GetType<T>() where T : unmanaged
     {
         var typeCode = Type.GetTypeCode(typeof(T));
