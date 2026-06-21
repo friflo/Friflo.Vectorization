@@ -190,7 +190,7 @@ public sealed class GpuTextureMultisampled2D : GpuTexture
     
     public unsafe texture_multisampled_2d<T> texture_multisampled_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_multisampled_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
+        return new texture_multisampled_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetUnfilterableType<T>()), this);
     }
 }
 
@@ -227,7 +227,7 @@ public sealed class GpuTextureStorage1D : GpuTexture
     
     public unsafe texture_storage_1d<T> texture_storage_1d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_storage_1d<T>(CreateView(desc, TextureViewDimension.D1D, GetType<T>()), this);
+        return new texture_storage_1d<T>(CreateView(desc, TextureViewDimension.D1D, GetUnfilterableType<T>()), this);
     }
 }
 
@@ -243,7 +243,7 @@ public sealed class GpuTextureStorage2D : GpuTexture
     
     public unsafe texture_storage_2d<T> texture_storage_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_storage_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
+        return new texture_storage_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetUnfilterableType<T>()), this);
     }
 }
 
@@ -259,7 +259,7 @@ public sealed class GpuTextureStorage2DArray : GpuTexture
     
     public unsafe texture_storage_2d_array<T> texture_storage_2d_array<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_storage_2d_array<T>(CreateView(desc, TextureViewDimension.D2DArray, GetType<T>()), this);
+        return new texture_storage_2d_array<T>(CreateView(desc, TextureViewDimension.D2DArray, GetUnfilterableType<T>()), this);
     }
 }
 
@@ -275,7 +275,7 @@ public sealed class GpuTextureStorage3D : GpuTexture
     
     public unsafe texture_storage_3d<T> texture_storage_3d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_storage_3d<T>(CreateView(desc, TextureViewDimension.D3D, GetType<T>()), this);
+        return new texture_storage_3d<T>(CreateView(desc, TextureViewDimension.D3D, GetUnfilterableType<T>()), this);
     }
 }
 
