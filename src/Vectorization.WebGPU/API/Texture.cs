@@ -6,10 +6,9 @@ using System.Collections.Generic;
 
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
-
-// ReSharper disable NotAccessedField.Local
-// ReSharper disable UnusedTypeParameter
 // ReSharper disable InconsistentNaming
+// ReSharper disable NotAccessedField.Local
+
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
@@ -126,23 +125,4 @@ public interface ITextureView
 {
     TextureViewHandle Handle { get; }
 }
-
-
-public sealed class GpuTexture2D : GpuTexture
-{
-    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
-    
-    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
-    {
-        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
-    }
-}
-
-public readonly unsafe struct texture_2d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
-{
-    public TextureViewHandle Handle => new(handle, texture);
-}
-
-
-
 
