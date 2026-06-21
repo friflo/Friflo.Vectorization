@@ -45,10 +45,10 @@ public sealed class BindTextureAttribute : Attribute
     /// enums are used by <see cref="TextureBindingLayout"/>
     public BindTextureAttribute (
         int                     groupIndex,
-        int                     bindingIndex,
-        TextureSampleType       sampleType      = TextureSampleType.Float,
-        TextureViewDimension    viewDimension   = TextureViewDimension.D2D,
-        bool                    multisampled    = false) { }
+        int                     bindingIndex) { }
+    //  TextureSampleType       sampleType      = TextureSampleType.Float,
+    //  TextureViewDimension    viewDimension   = TextureViewDimension.D2D,
+    //  bool                    multisampled    = false) 
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
