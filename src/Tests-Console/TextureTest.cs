@@ -3,6 +3,7 @@ using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using StbImageSharp;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -26,7 +27,10 @@ public partial class TextureTest : IRenderer
         data        = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context     = device.BeginContext();
         rectangle   = data.In(0, 6); // two triangles
-        texture2D   = device.CreateTexture2D(123, 456, new TextureDescriptor {
+        
+        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
+        var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+        texture2D   = device.CreateTexture2D(image.Width, image.Height, new TextureDescriptor {
             format      = TextureFormat.RGBA8Unorm,
             usage       = TextureUsage_TextureBinding | TextureUsage_CopyDst | TextureUsage_RenderAttachment    // todo  use enums from new WGPU binding
         });
@@ -34,6 +38,8 @@ public partial class TextureTest : IRenderer
             magFilter   = FilterMode.Linear,
             minFilter   = FilterMode.Linear,
         });
+        var layout = new TexelCopyBufferLayout { bytesPerRow = (uint)image.Width * 4, rowsPerImage = (uint)image.Height };
+        texture2D.Write(new TexelCopyTextureInfo(), image.Data, layout);
     }
     
     public void Shutdown()

@@ -76,14 +76,10 @@ public sealed class BindIndexAttribute : Attribute { }
 
 
 // --- skeletons
-public abstract unsafe class GpuTexture : IDisposable
+public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle) : IDisposable
 {
-    internal Texture* handle;
-    
-    protected GpuTexture(Texture* handle) {
-        this.handle = handle;
-    }
-    
+    private Texture*    handle  = handle;
+
     public void Dispose()
     {
         if (handle != null) {
@@ -91,11 +87,25 @@ public abstract unsafe class GpuTexture : IDisposable
             handle = null;
         }
     }
+    
+    public void Write(TexelCopyTextureInfo destination, ReadOnlySpan<byte> data, TexelCopyBufferLayout dataLayout, Extent3D writeSize = default)
+    {
+        if (writeSize.width == 0 && writeSize.height == 0 && writeSize.depthOrArrayLayers == 0) {
+            writeSize = desc.size;
+        }
+        destination.texture = handle;
+        if (destination.aspect == 0) {
+            destination.aspect = TextureAspect.All;
+        }
+        fixed (byte* dataPtr = data) {
+            wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &dataLayout, &writeSize);
+        }
+    }
 }
 
 public sealed class GpuTexture2D :  GpuTexture
 {
-    internal unsafe GpuTexture2D(Texture* handle) : base(handle) { }
+    internal unsafe GpuTexture2D(WgpuDevice device, TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
 }
 
 
@@ -103,12 +113,11 @@ public sealed class GpuTexture2D :  GpuTexture
 
 public sealed unsafe class GpuSampler : IDisposable
 {
-    internal Sampler* handle;
+    private Sampler* handle;
     
     internal GpuSampler(Sampler* handle) {
         this.handle = handle;
     }
-    
     
     public void Dispose()
     {

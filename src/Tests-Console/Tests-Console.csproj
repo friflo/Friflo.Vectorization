@@ -20,6 +20,7 @@
       <PackageReference Include="SDL3-CS"           Version="3.4.10.3" />
       <PackageReference Include="SDL3-CS.Windows"   Version="3.4.10.3" />
       <PackageReference Include="SDL3-CS.MacOS"     Version="3.4.10.3" />
+      <PackageReference Include="StbImageSharp"     Version="2.30.15" />
         
       <ProjectReference Include="..\..\src\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\..\src\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
@@ -29,6 +30,10 @@
     <ItemGroup>
       <EmbeddedResource Include="Shaders\**\*.wgsl" />
       <AdditionalFiles Include="Shaders\**\*.wgsl" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Assets/img/Di-3d.png" />      
     </ItemGroup>
     
     <ItemGroup>

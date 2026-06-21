@@ -383,7 +383,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             desc.mipLevelCount = 1;
         }
         Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
-        return new GpuTexture2D(texture);
+        return new GpuTexture2D(this, desc, texture);
     }
     
     public GpuSampler CreateSampler(SamplerDescriptor desc)
