@@ -111,16 +111,6 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
     }
 }
 
-public sealed class GpuTexture2D : GpuTexture
-{
-    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
-    
-    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
-    {
-        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
-    }
-}
-
 public readonly unsafe struct TextureViewHandle
 {
     internal readonly   TextureView*    handle;
@@ -137,9 +127,20 @@ public interface ITextureView
     TextureViewHandle Handle { get; }
 }
 
+
+public sealed class GpuTexture2D : GpuTexture
+{
+    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    
+    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
+    {
+        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
+    }
+}
+
 public readonly unsafe struct texture_2d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
-    public TextureViewHandle Handle => new TextureViewHandle(handle, texture);
+    public TextureViewHandle Handle => new(handle, texture);
 }
 
 
