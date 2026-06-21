@@ -3,7 +3,7 @@
 
 using System;
 using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedParameter.Local
@@ -72,58 +72,3 @@ public sealed class BindIndexAttribute : Attribute { }
 
 
 
-
-
-
-// --- skeletons
-public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle) : IDisposable
-{
-    private Texture*    handle  = handle;
-
-    public void Dispose()
-    {
-        if (handle != null) {
-            wgpuTextureRelease(handle);
-            handle = null;
-        }
-    }
-    
-    public void Write(TexelCopyTextureInfo destination, ReadOnlySpan<byte> data, TexelCopyBufferLayout dataLayout, Extent3D writeSize = default)
-    {
-        if (writeSize.width == 0 && writeSize.height == 0 && writeSize.depthOrArrayLayers == 0) {
-            writeSize = desc.size;
-        }
-        destination.texture = handle;
-        if (destination.aspect == 0) {
-            destination.aspect = TextureAspect.All;
-        }
-        fixed (byte* dataPtr = data) {
-            wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &dataLayout, &writeSize);
-        }
-    }
-}
-
-public sealed class GpuTexture2D :  GpuTexture
-{
-    internal unsafe GpuTexture2D(WgpuDevice device, TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
-}
-
-
-
-
-public sealed unsafe class GpuSampler : IDisposable
-{
-    private Sampler* handle;
-    
-    internal GpuSampler(Sampler* handle) {
-        this.handle = handle;
-    }
-    
-    public void Dispose()
-    {
-        if (handle != null) {
-            wgpuSamplerRelease(handle);
-            handle = null;
-        }
-    }
-}

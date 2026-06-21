@@ -11,7 +11,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public partial class TextureTest : IRenderer
+public class TextureTest : IRenderer
 {
     private readonly    Wgpu                    wgpu;
     private readonly    PipelineContext         context;
@@ -40,7 +40,13 @@ public partial class TextureTest : IRenderer
         });
         var layout = new TexelCopyBufferLayout { bytesPerRow = (uint)image.Width * 4, rowsPerImage = (uint)image.Height };
         texture2D.Write(new TexelCopyTextureInfo(), image.Data, layout);
+        
+        texture_2d = texture2D.texture_2d<float>(new TextureViewDescriptor { mipLevelCount = 1, arrayLayerCount = 1 });
+        
+        var tempHandle = texture_2d.Handle;
     }
+
+    readonly texture_2d<float> texture_2d;
     
     public void Shutdown()
     {
@@ -73,7 +79,7 @@ public partial class TextureTest : IRenderer
         depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
     
-    public virtual void DrawFrame()
+    public void DrawFrame()
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
@@ -87,7 +93,7 @@ public partial class TextureTest : IRenderer
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
             RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, texture2D, sampler);
+            RenderSubmarine(pass, texture_2d, sampler);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -97,6 +103,6 @@ public partial class TextureTest : IRenderer
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     protected static void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
-        [BindTexture(0, 0)] GpuTexture2D    material,
-        [BindSampler(0, 1)] GpuSampler      smoothFilter) { }
+        [BindTexture(0, 0)] texture_2d<float>       material,
+        [BindSampler(0, 1)] GpuSampler              smoothFilter) { }
 }
