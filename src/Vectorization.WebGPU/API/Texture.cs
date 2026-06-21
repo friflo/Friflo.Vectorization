@@ -44,8 +44,9 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
         }
     }
     
-    internal TextureView* CreateView(TextureViewDescriptor viewDesc)
+    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension)
     {
+        viewDesc.dimension =  dimension;
         var view = wgpuTextureCreateView(handle, &viewDesc);
         viewList.Add((nint)view);
         return view;
@@ -54,11 +55,11 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
 
 public sealed class GpuTexture2D : GpuTexture
 {
-    internal unsafe GpuTexture2D(WgpuDevice device, TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
     
-    public unsafe texture_2d<T> texture_2d<T>(TextureViewDescriptor desc) where T : unmanaged
+    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc) where T : unmanaged
     {
-        return new texture_2d<T>(CreateView(desc), this);
+        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D), this);
     }
 }
 
