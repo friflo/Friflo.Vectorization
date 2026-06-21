@@ -1,6 +1,5 @@
 ﻿using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
@@ -23,7 +22,7 @@ public class Wgpu
 {
     public  readonly    WgpuInstance        Instance;
     public  readonly    WgpuAdapter         Adapter;
-    public  readonly    GpuDevice           Device;
+    public  readonly    WgpuDevice          Device;
     public  readonly    WgpuSurface         Surface;
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;

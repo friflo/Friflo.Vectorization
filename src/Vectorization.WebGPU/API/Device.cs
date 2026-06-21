@@ -369,5 +369,16 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var readSize = wgpuIO.Submit(null, this, null);
         wgpuIO.ReadBuffers(this, readSize);
     }
+    
+    
+    public GpuTexture2D CreateTexture()
+    {
+        return new GpuTexture2D();
+    }
+    
+    public GpuSampler CreateSampler()
+    {
+        return new GpuSampler();
+    }
 }
 

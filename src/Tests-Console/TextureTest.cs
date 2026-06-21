@@ -1,0 +1,88 @@
+﻿using System.Diagnostics;
+using System.Numerics;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable ConvertToPrimaryConstructor
+namespace TestConsole;
+
+public partial class TextureTest : IRenderer
+{
+    private readonly    Wgpu                    wgpu;
+    private readonly    PipelineContext         context;
+    private readonly    GpuBuffer<VertexData>   data;
+    private readonly    GpuTexture2D            texture2D;
+    private readonly    GpuSampler              sampler;
+    
+    
+    public TextureTest(Wgpu wgpu)
+    {
+        this.wgpu = wgpu;
+        var device = wgpu.Device;
+        data        = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        context     = device.BeginContext();
+        rectangle   = data.In(0, 6); // two triangles
+        texture2D   = device.CreateTexture();
+        sampler     = device.CreateSampler();
+    }
+    
+    public void Shutdown()
+    {
+        sampler.Dispose();
+        texture2D.Dispose();
+        context.Dispose();
+        data.Dispose();
+    }
+
+    private static readonly VertexData[] Vertices =
+    [
+        new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
+        new(new Vector4(-0.5f, -0.5f, 0.0f, 1), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),  // Bottom-Left
+        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
+        
+        new(new Vector4(-0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
+        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
+        new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
+    ];
+    
+
+    protected readonly  PerfLog                     perfLog     = new();
+    protected readonly  InView<VertexData>          rectangle;
+    protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
+    protected readonly  RenderPassColorAttachment   attachment  = new() {
+        loadOp      = LoadOp.Clear,
+        storeOp     = StoreOp.Store,
+        clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
+        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+    };
+    
+    public virtual void DrawFrame()
+    {
+        using var frame = context.BeginFrame(wgpu.Surface);
+        if (frame.IsNull) {     // window minimized?
+            return;
+        }
+        perfLog.Trace(5000);
+        var time = (float)stopwatch.Elapsed.TotalSeconds;
+        
+        using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
+        {
+            myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
+
+            RenderSubmarine(pass, texture2D, sampler);
+        }
+        context.Queue.Submit();
+        wgpu.Surface.Present();
+    }
+
+	// language=file-reference
+	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
+    protected static void RenderSubmarine(
+                            RenderPass<MainWorld>   renderPass,
+        [BindTexture(0, 0)] GpuTexture2D    material,
+        [BindSampler(0, 1)] GpuSampler      smoothFilter) { }
+}

@@ -70,7 +70,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         *devicePtr = device;
     }
 
-    public override GpuDevice CreateDevice(string label, int uniformBufferSize = 64 * 1024)
+    public override WgpuDevice CreateDevice(string label, int uniformBufferSize = 64 * 1024)
     {
 		Device* device = null;
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
