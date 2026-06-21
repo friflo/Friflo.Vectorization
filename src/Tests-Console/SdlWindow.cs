@@ -117,7 +117,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         window = SDL.CreateWindow(title, width, height, windowFlags);
         if (window == IntPtr.Zero)          throw new Exception($"Failed to create window: {SDL.GetError()}");
 
-        SetWindowIconFromResource(window);
+        SetWindowIconFromResource();
         nint osHandle;
         nint osInstance;
         var props   = SDL.GetWindowProperties(window);
@@ -140,9 +140,12 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         ConfigureSurface();
     }
     
-    public static void SetWindowIconFromResource(IntPtr window)
+    public void SetWindowIconFromResource()
     {
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.friflo.bmp");
+        var theme = SDL.GetSystemTheme();
+        var image = theme == SDL.SystemTheme.Dark ? "Tests-Console.Assets.wgpu-transparent-dark-128x128.bmp" : 
+                                                    "Tests-Console.Assets.wgpu-transparent-light-128x128.bmp";
+        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream(image);
         if (stream == null) {
             return;
         }
@@ -183,6 +186,9 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.WindowExposed:
             case SDL.EventType.WindowPixelSizeChanged:
                 ConfigureSurface();
+                break;
+            case SDL.EventType.SystemThemeChanged:
+                SetWindowIconFromResource();
                 break;
         }
         return SDL.AppResult.Continue;

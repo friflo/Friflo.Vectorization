@@ -32,7 +32,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Assets/friflo.bmp" />
+      <EmbeddedResource Include="Assets/wgpu-transparent-light-128x128.bmp" />
+      <EmbeddedResource Include="Assets/wgpu-transparent-dark-128x128.bmp" />
     </ItemGroup>
 
 </Project>
