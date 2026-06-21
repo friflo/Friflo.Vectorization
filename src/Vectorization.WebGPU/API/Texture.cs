@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics.CodeAnalysis;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable InconsistentNaming
@@ -105,10 +105,24 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
             TypeCode.Single => TextureSampleType.Float,
             TypeCode.Int32  => TextureSampleType.Sint,
             TypeCode.UInt32 => TextureSampleType.Uint,
-            _               => throw new ArgumentOutOfRangeException(nameof(typeCode), typeCode, null)
+            TypeCode.Object => UnfilterableFloat<T>(),
+            _               => throw InvalidType(typeof(T))
         };
     }
+
+    private static ArgumentException InvalidType(Type type)
+        => throw new ArgumentException($"invalid type - expect: float, int, uint or UnfilterableFloat. Was: {type.Name}");
+    
+    private static TextureSampleType UnfilterableFloat<T>() where T : unmanaged
+    {
+        if (typeof(T) == typeof(UnfilterableFloat)) {
+            return TextureSampleType.UnfilterableFloat;
+        }
+        throw InvalidType(typeof(T));
+    }
 }
+
+public struct UnfilterableFloat;
 
 public readonly unsafe struct TextureViewHandle
 {
@@ -125,4 +139,5 @@ public interface ITextureView
 {
     TextureViewHandle Handle { get; }
 }
+
 
