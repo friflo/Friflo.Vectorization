@@ -41,7 +41,8 @@ public class TextureTest : IRenderer
         var layout = new TexelCopyBufferLayout { bytesPerRow = (uint)image.Width * 4, rowsPerImage = (uint)image.Height };
         texture2D.Write(new TexelCopyTextureInfo(), image.Data, layout);
         
-        texture_2d = texture2D.texture_2d<float>(new TextureViewDescriptor { mipLevelCount = 1, arrayLayerCount = 1 });
+        texture_2d  = texture2D.texture_2d<float>();
+        var temp    = texture2D.texture_2d<float>();
         
         var tempHandle = texture_2d.Handle;
     }

@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -14,8 +16,10 @@ namespace Friflo.Vectorization.WebGPU;
 
 public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle) : IDisposable
 {
-    private             Texture*    handle      = handle;
-    private readonly    List<nint>  viewList    = new();
+    private             Texture*        handle      = handle;
+    private readonly    List<ViewEntry> viewEntries = [];
+    private readonly    List<nint>      viewHandles = [];
+    
     
     public void Write(TexelCopyTextureInfo destination, ReadOnlySpan<byte> data, TexelCopyBufferLayout dataLayout, Extent3D writeSize = default)
     {
@@ -33,10 +37,11 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
     
     public void Dispose()
     {
-        foreach (var view in viewList) {
-            wgpuTextureViewRelease((TextureView*)view);
+        foreach (var viewHandle in viewHandles) {
+            wgpuTextureViewRelease((TextureView*)viewHandle);
         }
-        viewList.Clear();
+        viewHandles.Clear();
+        viewEntries.Clear();
         
         if (handle != null) {
             wgpuTextureRelease(handle);
@@ -44,12 +49,65 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
         }
     }
     
-    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension)
+    private readonly record struct ViewEntry
     {
-        viewDesc.dimension =  dimension;
+        internal readonly   TextureSampleType       sampleType;
+        // --- TextureViewDescriptor
+        internal readonly   TextureFormat           format;
+        internal readonly   TextureViewDimension    dimension;
+        internal readonly   uint                    baseMipLevel;
+        internal readonly   uint                    mipLevelCount;
+        internal readonly   uint                    baseArrayLayer;
+        internal readonly   uint                    arrayLayerCount;
+        internal readonly   TextureAspect           aspect;
+        internal readonly   ulong                   usage;
+
+        public ViewEntry(in TextureViewDescriptor descriptor, TextureSampleType sampleType)
+        {
+            this.sampleType = sampleType;
+            format          = descriptor.format;
+            dimension       = descriptor.dimension;
+            baseMipLevel    = descriptor.baseMipLevel;
+            mipLevelCount   = descriptor.mipLevelCount;
+            baseArrayLayer  = descriptor.baseArrayLayer;
+            arrayLayerCount = descriptor.arrayLayerCount;
+            aspect          = descriptor.aspect;
+            usage           = descriptor.usage;
+        }
+    }
+
+    
+    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension, TextureSampleType sampleType)
+    {
+        viewDesc.dimension          = dimension;
+        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? desc.format : viewDesc.format;
+        viewDesc.mipLevelCount      = viewDesc.mipLevelCount    == 0 ? 1 : viewDesc.mipLevelCount;
+        viewDesc.arrayLayerCount    = viewDesc.arrayLayerCount  == 0 ? 1 : viewDesc.arrayLayerCount;
+        viewDesc.aspect             = viewDesc.aspect           == TextureAspect.Undefined ? TextureAspect.All : viewDesc.aspect;
+        
+        var entry = new ViewEntry(viewDesc, sampleType);
+        
+        var index = viewEntries.IndexOf(entry);
+        if (index >= 0) {
+            return (TextureView*)viewHandles[index];
+        }
         var view = wgpuTextureCreateView(handle, &viewDesc);
-        viewList.Add((nint)view);
+        
+        viewHandles.Add((nint)view);
+        viewEntries.Add(entry);
         return view;
+    }
+    
+    internal static TextureSampleType GetType<T>() where T : unmanaged
+    {
+        var typeCode = Type.GetTypeCode(typeof(T));
+        return typeCode switch
+        {
+            TypeCode.Single => TextureSampleType.Float,
+            TypeCode.Int32  => TextureSampleType.Sint,
+            TypeCode.UInt32 => TextureSampleType.Uint,
+            _               => throw new ArgumentOutOfRangeException(nameof(typeCode), typeCode, null)
+        };
     }
 }
 
@@ -57,9 +115,9 @@ public sealed class GpuTexture2D : GpuTexture
 {
     internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
     
-    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc) where T : unmanaged
+    public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
-        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D), this);
+        return new texture_2d<T>(CreateView(desc, TextureViewDimension.D2D, GetType<T>()), this);
     }
 }
 
