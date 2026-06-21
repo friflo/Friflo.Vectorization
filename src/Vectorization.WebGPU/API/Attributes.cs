@@ -3,6 +3,7 @@
 
 using System;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedParameter.Local
@@ -75,16 +76,45 @@ public sealed class BindIndexAttribute : Attribute { }
 
 
 // --- skeletons
-public abstract class GpuTexture : IDisposable
+public abstract unsafe class GpuTexture : IDisposable
 {
-    public void Dispose() { }
+    internal Texture* handle;
+    
+    protected GpuTexture(Texture* handle) {
+        this.handle = handle;
+    }
+    
+    public void Dispose()
+    {
+        if (handle != null) {
+            wgpuTextureRelease(handle);
+            handle = null;
+        }
+    }
 }
 
-public sealed class GpuTexture2D :  GpuTexture { }
-
-
-
-public sealed class GpuSampler : IDisposable
+public sealed class GpuTexture2D :  GpuTexture
 {
-    public void Dispose() { }
+    internal unsafe GpuTexture2D(Texture* handle) : base(handle) { }
+}
+
+
+
+
+public sealed unsafe class GpuSampler : IDisposable
+{
+    internal Sampler* handle;
+    
+    internal GpuSampler(Sampler* handle) {
+        this.handle = handle;
+    }
+    
+    
+    public void Dispose()
+    {
+        if (handle != null) {
+            wgpuSamplerRelease(handle);
+            handle = null;
+        }
+    }
 }

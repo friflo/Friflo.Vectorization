@@ -371,14 +371,30 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     }
     
     
-    public GpuTexture2D CreateTexture()
+    public GpuTexture2D CreateTexture2D(int width, int height, TextureDescriptor desc)
     {
-        return new GpuTexture2D();
+        desc.size.width                 = (uint)width;
+        desc.size.height                = (uint)height;
+        desc.size.depthOrArrayLayers    = 1;  // always 1 for 2D
+        if (desc.sampleCount == 0) {
+            desc.sampleCount = 1;
+        }
+        if (desc.mipLevelCount == 0) {
+            desc.mipLevelCount = 1;
+        }
+        Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
+        return new GpuTexture2D(texture);
     }
     
-    public GpuSampler CreateSampler()
+    public GpuSampler CreateSampler(SamplerDescriptor desc)
     {
-        return new GpuSampler();
+        // desc.addressModeU = AddressMode.Repeat;  // TODO necessary?
+        // desc.addressModeV = AddressMode.Repeat;
+        if (desc.maxAnisotropy == 0) {
+            desc.maxAnisotropy = 1;
+        }
+        Sampler* sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
+        return new GpuSampler(sampler);
     }
 }
 

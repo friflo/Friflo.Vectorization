@@ -3,6 +3,7 @@ using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -25,8 +26,14 @@ public partial class TextureTest : IRenderer
         data        = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context     = device.BeginContext();
         rectangle   = data.In(0, 6); // two triangles
-        texture2D   = device.CreateTexture();
-        sampler     = device.CreateSampler();
+        texture2D   = device.CreateTexture2D(123, 456, new TextureDescriptor {
+            format      = TextureFormat.RGBA8Unorm,
+            usage       = TextureUsage_TextureBinding | TextureUsage_CopyDst | TextureUsage_RenderAttachment    // todo  use enums from new WGPU binding
+        });
+        sampler     = device.CreateSampler(new SamplerDescriptor {
+            magFilter   = FilterMode.Linear,
+            minFilter   = FilterMode.Linear,
+        });
     }
     
     public void Shutdown()
@@ -73,6 +80,7 @@ public partial class TextureTest : IRenderer
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
+            RenderTest.DrawTriangles(pass, rectangle, myUniform);
             RenderSubmarine(pass, texture2D, sampler);
         }
         context.Queue.Submit();

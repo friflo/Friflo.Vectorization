@@ -83,7 +83,7 @@ public partial class RenderTest : IRenderer
 
 	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
-    protected static partial void DrawTriangles(
+    public static partial void DrawTriangles(
                             RenderPass<MainWorld>  renderPass,
         [BindVertex (0, 0)] InBuffer<VertexData>   triangles,
         [BindUniform(1, 0)] MyUniform              myUniform);
