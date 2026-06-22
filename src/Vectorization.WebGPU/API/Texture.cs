@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Local
-
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
@@ -18,6 +17,8 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
     private             Texture*        handle      = handle;
     private readonly    List<ViewEntry> viewEntries = [];
     private readonly    List<nint>      viewHandles = [];
+    
+    public              bool            IsDisposed  =>  handle == null;
     
     
     public void Write(TexelCopyTextureInfo destination, ReadOnlySpan<byte> data, TexelCopyBufferLayout dataLayout, Extent3D writeSize = default)
@@ -144,12 +145,20 @@ public struct UnfilterableFloat;
 
 public readonly unsafe struct TextureViewHandle
 {
-    internal readonly   TextureView*    handle;
-    internal readonly   GpuTexture      texture;
+    private  readonly   TextureView*    handle;
+    private  readonly   GpuTexture      texture;
     
     internal TextureViewHandle (TextureView* handle, GpuTexture texture) {
         this.handle     = handle;
         this.texture    = texture;
+    }
+    
+    internal  TextureView* GetPointer()
+    {
+        if (texture.IsDisposed) {
+            throw new ObjectDisposedException(nameof(TextureViewHandle));
+        }
+        return handle;
     }
 }
 

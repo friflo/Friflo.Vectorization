@@ -369,32 +369,5 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         var readSize = wgpuIO.Submit(null, this, null);
         wgpuIO.ReadBuffers(this, readSize);
     }
-    
-    
-    public GpuTexture2D CreateTexture2D(int width, int height, TextureDescriptor desc)
-    {
-        desc.size.width                 = (uint)width;
-        desc.size.height                = (uint)height;
-        desc.size.depthOrArrayLayers    = 1;  // always 1 for 2D
-        if (desc.sampleCount == 0) {
-            desc.sampleCount = 1;
-        }
-        if (desc.mipLevelCount == 0) {
-            desc.mipLevelCount = 1;
-        }
-        Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
-        return new GpuTexture2D(this, desc, texture);
-    }
-    
-    public GpuSampler CreateSampler(SamplerDescriptor desc)
-    {
-        // desc.addressModeU = AddressMode.Repeat;  // TODO necessary?
-        // desc.addressModeV = AddressMode.Repeat;
-        if (desc.maxAnisotropy == 0) {
-            desc.maxAnisotropy = 1;
-        }
-        Sampler* sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
-        return new GpuSampler(sampler);
-    }
 }
 
