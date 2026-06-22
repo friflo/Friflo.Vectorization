@@ -35,7 +35,7 @@ public sealed unsafe partial class WgpuDevice
         TextureFormat           format,
         TextureUsage            usage,
         in TextureOptions?      options,
-        Span<TextureFormat>     viewFormats)
+        int                     viewFormatCount)
     {
         var opt = options ?? new TextureOptions();
         
@@ -48,7 +48,7 @@ public sealed unsafe partial class WgpuDevice
         desc.sampleCount                = opt.sampleCount;
         desc.mipLevelCount              = opt.mipLevelCount;
         desc.nextInChain                = opt.nextInChain;
-        desc.viewFormatCount            = (uint)viewFormats.Length;
+        desc.viewFormatCount            = (uint)viewFormatCount;
     }
 
     /// <summary> Mimics <c>createTexture()</c> from WebGPU JavaScript - same as <see cref="CreateTexture2D"/>  </summary>
@@ -60,7 +60,7 @@ public sealed unsafe partial class WgpuDevice
     public GpuTexture2D CreateTexture2D(int width, int height, TextureFormat format, TextureUsage usage, string label = null, in TextureOptions? options = null, Span<TextureFormat> viewFormats = default)
     {
         var desc = new TextureDescriptor();
-        SetTextureDescriptor(ref desc, TextureDimension.D2D, width, height, format, usage, in options, viewFormats);
+        SetTextureDescriptor(ref desc, TextureDimension.D2D, width, height, format, usage, in options, viewFormats.Length);
         
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
