@@ -179,10 +179,11 @@ public sealed unsafe partial  class WgpuDevice
     }
     
     public WgpuRenderPipeline CreateRenderPipeline(
-        WgpuShaderModule            module,
         Span<WgpuBindGroupLayout>   layouts,
         RenderConfig        		config,
+        WgpuShaderModule            vsModule,
         ReadOnlySpan<byte>          vertexEntryPoint,
+        WgpuShaderModule            fsModule,
         ReadOnlySpan<byte>          fragmentEntryPoint,
         ReadOnlySpan<byte>          labelName)
     {
@@ -207,7 +208,7 @@ public sealed unsafe partial  class WgpuDevice
             FragmentState   fragmentState;
             if (desc.FragmentState.HasValue) {
                 fragmentState               = desc.FragmentState.Value.GetNative(allocator);
-                fragmentState.module        = module.handle;
+                fragmentState.module        = fsModule.handle;
                 fragmentState.entryPoint    = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
                 pFragmentState = &fragmentState;
             }
@@ -220,7 +221,7 @@ public sealed unsafe partial  class WgpuDevice
             }
             
             var vertexState = desc.VertexState.GetNative(allocator);
-            vertexState.module      = module.handle;
+            vertexState.module      = vsModule.handle;
             vertexState.entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint);
             
             var renderDesc = new RenderPipelineDescriptor {
@@ -237,8 +238,13 @@ public sealed unsafe partial  class WgpuDevice
                 return new WgpuRenderPipeline(handle);
             } finally {
                 allocator.FreePointers();
-                if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
-                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
+                if (pipelineLayout != null)     wgpuPipelineLayoutRelease(pipelineLayout);
+                if (vsModule.handle != null) {
+                    wgpuShaderModuleRelease(vsModule.handle);
+                }
+                if (fsModule.handle != null && fsModule.handle != vsModule.handle) {
+                    wgpuShaderModuleRelease(fsModule.handle);
+                }
             }
         }
     }
