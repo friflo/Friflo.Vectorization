@@ -5,6 +5,7 @@ using System;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable UnassignedField.Global
@@ -66,15 +67,16 @@ public struct SamplerOptions
 public sealed unsafe class GpuSampler : IDisposable
 {
     private             Sampler*            handle;
-    public  readonly    SamplerDescriptor   Descriptor;
+    private readonly    SamplerDescriptor   desc;
     public  readonly    string              Label;
     
+    public ref readonly SamplerDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;
     
     internal GpuSampler(Sampler* handle, in SamplerDescriptor desc, string label) {
         this.handle = handle;
-        Descriptor  = desc;
+        this.desc   = desc;
         Label       = label;
     }
     

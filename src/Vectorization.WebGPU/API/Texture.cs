@@ -15,23 +15,24 @@ namespace Friflo.Vectorization.WebGPU;
 
 public abstract unsafe class GpuTexture : IDisposable
 {
-    public  readonly    TextureDescriptor   Descriptor;
+    private readonly    TextureDescriptor   desc;
     public  readonly    string              Label;
     private readonly    WgpuDevice          device;
     private             Texture*            handle;
     private readonly    List<ViewEntry>     viewEntries = [];
     private readonly    List<nint>          viewHandles = [];
     
+    public ref readonly TextureDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;
     
     protected GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label)
     {
         this.device = device;
-        Descriptor  = desc;
+        this.desc  	= desc;
         Label       = label;
         this.handle = handle;
-        Descriptor.label = default;
+        this.desc.label = default;
     }
 
     public void Write(
@@ -56,9 +57,9 @@ public abstract unsafe class GpuTexture : IDisposable
             rowsPerImage    = (uint)rowsPerImage
         };
         var finalWriteSize = writeSize ?? new Extent3D {
-            width               = Descriptor.size.width,
-            height              = Descriptor.size.height,
-            depthOrArrayLayers  = Descriptor.size.depthOrArrayLayers
+            width               = desc.size.width,
+            height              = desc.size.height,
+            depthOrArrayLayers  = desc.size.depthOrArrayLayers
         };
         fixed (byte* dataPtr = data) {
             wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &finalWriteSize);
@@ -110,7 +111,7 @@ public abstract unsafe class GpuTexture : IDisposable
     internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension, TextureSampleType sampleType)
     {
         viewDesc.dimension          = dimension;
-        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? Descriptor.format : viewDesc.format;
+        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? desc.format : viewDesc.format;
         viewDesc.mipLevelCount      = viewDesc.mipLevelCount    == 0 ? 1 : viewDesc.mipLevelCount;
         viewDesc.arrayLayerCount    = viewDesc.arrayLayerCount  == 0 ? 1 : viewDesc.arrayLayerCount;
         viewDesc.aspect             = viewDesc.aspect           == TextureAspect.Undefined ? TextureAspect.All : viewDesc.aspect;
