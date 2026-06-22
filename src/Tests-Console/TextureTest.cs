@@ -11,7 +11,7 @@ using StbImageSharp;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class TextureTest : IRenderer
+public partial class TextureTest : IRenderer
 {
     private readonly    Wgpu                    wgpu;
     private readonly    PipelineContext         context;
@@ -98,11 +98,11 @@ public class TextureTest : IRenderer
     // planned: [Shader()] triggers C# source generator to emit method body
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
-    protected static void RenderSubmarine(
+    protected static partial void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] GpuSampler              smoothFilter,
-        [BindTexture(0, 2)] texture_2d<float>       material) { }
+        [BindTexture(0, 2)] texture_2d<float>       material);
 
 
     [StructLayout(LayoutKind.Sequential)]
