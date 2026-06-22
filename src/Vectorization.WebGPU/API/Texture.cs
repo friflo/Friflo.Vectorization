@@ -18,6 +18,7 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
     private readonly    List<ViewEntry> viewEntries = [];
     private readonly    List<nint>      viewHandles = [];
     
+    public              string          Label       => label;
     public              bool            IsDisposed  => handle == null;
     public  override    string          ToString()  => label;
 
@@ -61,7 +62,7 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
         internal readonly   uint                    baseArrayLayer;
         internal readonly   uint                    arrayLayerCount;
         internal readonly   TextureAspect           aspect;
-        internal readonly   ulong                   usage;
+        internal readonly   TextureUsage            usage;
 
         public ViewEntry(in TextureViewDescriptor descriptor, TextureSampleType sampleType)
         {
@@ -73,7 +74,7 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
             baseArrayLayer  = descriptor.baseArrayLayer;
             arrayLayerCount = descriptor.arrayLayerCount;
             aspect          = descriptor.aspect;
-            usage           = descriptor.usage;
+            usage           = (TextureUsage)descriptor.usage;
         }
     }
 
