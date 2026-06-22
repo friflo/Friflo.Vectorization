@@ -4,7 +4,6 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using StbImageSharp;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -31,7 +30,7 @@ public class TextureTest : IRenderer
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
-                        TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment);
+                        TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment, "Di-3d.png");
         sampler     = device.CreateSampler(new SamplerDescriptor {
             magFilter   = FilterMode.Linear,
             minFilter   = FilterMode.Linear,

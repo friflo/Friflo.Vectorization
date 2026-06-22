@@ -12,15 +12,16 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle) : IDisposable
+public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label) : IDisposable
 {
     private             Texture*        handle      = handle;
     private readonly    List<ViewEntry> viewEntries = [];
     private readonly    List<nint>      viewHandles = [];
     
-    public              bool            IsDisposed  =>  handle == null;
-    
-    
+    public              bool            IsDisposed  => handle == null;
+    public  override    string          ToString()  => label;
+
+
     public void Write(TexelCopyTextureInfo destination, ReadOnlySpan<byte> data, TexelCopyBufferLayout dataLayout, Extent3D writeSize = default)
     {
         if (writeSize.width == 0 && writeSize.height == 0 && writeSize.depthOrArrayLayers == 0) {

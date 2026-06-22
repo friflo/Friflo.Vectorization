@@ -16,7 +16,7 @@ namespace Friflo.Vectorization.WebGPU;
 // ------ GpuTexture1D
 public sealed class GpuTexture1D : GpuTexture
 {
-    internal unsafe GpuTexture1D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTexture1D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_1d<T> texture_1d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -32,7 +32,7 @@ public readonly unsafe struct texture_1d<T>(TextureView* handle, GpuTexture text
 // ------ GpuTexture2D
 public sealed class GpuTexture2D : GpuTexture
 {
-    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTexture2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_2d<T> texture_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -48,7 +48,7 @@ public readonly unsafe struct texture_2d<T>(TextureView* handle, GpuTexture text
 // ------ GpuTexture2DArray
 public sealed class GpuTexture2DArray : GpuTexture
 {
-    internal unsafe GpuTexture2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTexture2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_2d_array<T> texture_2d_array<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -64,7 +64,7 @@ public readonly unsafe struct texture_2d_array<T>(TextureView* handle, GpuTextur
 // ------ GpuTexture3D
 public sealed class GpuTexture3D : GpuTexture
 {
-    internal unsafe GpuTexture3D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTexture3D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_3d<T> texture_3d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -80,7 +80,7 @@ public readonly unsafe struct texture_3d<T>(TextureView* handle, GpuTexture text
 // ------ GpuTextureCube
 public sealed class GpuTextureCube : GpuTexture
 {
-    internal unsafe GpuTextureCube(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureCube(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_cube<T> texture_cube<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -96,7 +96,7 @@ public readonly unsafe struct texture_cube<T>(TextureView* handle, GpuTexture te
 // ------ GpuTextureCubeArray
 public sealed class GpuTextureCubeArray : GpuTexture
 {
-    internal unsafe GpuTextureCubeArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureCubeArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_cube_array<T> texture_cube_array<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -117,7 +117,7 @@ public readonly unsafe struct texture_cube_array<T>(TextureView* handle, GpuText
 // ------ GpuTextureDepth2D
 public sealed class GpuTextureDepth2D : GpuTexture
 {
-    internal unsafe GpuTextureDepth2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureDepth2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_depth_2d texture_depth_2d(in TextureViewDescriptor desc = default)
     {
@@ -133,7 +133,7 @@ public readonly unsafe struct texture_depth_2d(TextureView* handle, GpuTexture t
 // ------ GpuTextureDepth2DArray
 public sealed class GpuTextureDepth2DArray : GpuTexture
 {
-    internal unsafe GpuTextureDepth2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureDepth2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_depth_2d_array texture_depth_2d_array(in TextureViewDescriptor desc = default)
     {
@@ -149,7 +149,7 @@ public readonly unsafe struct texture_depth_2d_array(TextureView* handle, GpuTex
 // ------ GpuTextureDepthCube
 public sealed class GpuTextureDepthCube : GpuTexture
 {
-    internal unsafe GpuTextureDepthCube(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureDepthCube(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_depth_cube texture_depth_cube(in TextureViewDescriptor desc = default)
     {
@@ -165,7 +165,7 @@ public readonly unsafe struct texture_depth_cube(TextureView* handle, GpuTexture
 // ------ GpuTextureDepthCubeArray
 public sealed class GpuTextureDepthCubeArray : GpuTexture
 {
-    internal unsafe GpuTextureDepthCubeArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureDepthCubeArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_depth_cube_array texture_depth_cube_array(in TextureViewDescriptor desc = default)
     {
@@ -186,7 +186,7 @@ public readonly unsafe struct texture_depth_cube_array(TextureView* handle, GpuT
 // ------ GpuTextureMultisampled2D
 public sealed class GpuTextureMultisampled2D : GpuTexture
 {
-    internal unsafe GpuTextureMultisampled2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureMultisampled2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_multisampled_2d<T> texture_multisampled_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -202,7 +202,7 @@ public readonly unsafe struct texture_multisampled_2d<T>(TextureView* handle, Gp
 // ------ GpuTextureDepthMultisampled2D
 public sealed class GpuTextureDepthMultisampled2D : GpuTexture
 {
-    internal unsafe GpuTextureDepthMultisampled2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureDepthMultisampled2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_depth_multisampled_2d texture_depth_multisampled_2d(in TextureViewDescriptor desc = default)
     {
@@ -223,7 +223,7 @@ public readonly unsafe struct texture_depth_multisampled_2d(TextureView* handle,
 // ------ GpuTextureStorage1D
 public sealed class GpuTextureStorage1D : GpuTexture
 {
-    internal unsafe GpuTextureStorage1D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureStorage1D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_storage_1d<T> texture_storage_1d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -239,7 +239,7 @@ public readonly unsafe struct texture_storage_1d<T>(TextureView* handle, GpuText
 // ------ GpuTextureStorage2D
 public sealed class GpuTextureStorage2D : GpuTexture
 {
-    internal unsafe GpuTextureStorage2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureStorage2D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_storage_2d<T> texture_storage_2d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -255,7 +255,7 @@ public readonly unsafe struct texture_storage_2d<T>(TextureView* handle, GpuText
 // ------ GpuTextureStorage2DArray
 public sealed class GpuTextureStorage2DArray : GpuTexture
 {
-    internal unsafe GpuTextureStorage2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureStorage2DArray(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_storage_2d_array<T> texture_storage_2d_array<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {
@@ -271,7 +271,7 @@ public readonly unsafe struct texture_storage_2d_array<T>(TextureView* handle, G
 // ------ GpuTextureStorage3D
 public sealed class GpuTextureStorage3D : GpuTexture
 {
-    internal unsafe GpuTextureStorage3D(WgpuDevice device, in TextureDescriptor desc, Texture* handle) : base(device, desc, handle) { }
+    internal unsafe GpuTextureStorage3D(WgpuDevice device, in TextureDescriptor desc, Texture* handle, string label) : base(device, desc, handle, label) { }
     
     public unsafe texture_storage_3d<T> texture_storage_3d<T>(in TextureViewDescriptor desc = default) where T : unmanaged
     {

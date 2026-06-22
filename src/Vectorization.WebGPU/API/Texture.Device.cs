@@ -69,7 +69,7 @@ public sealed unsafe partial class WgpuDevice
         fixed(TextureFormat* ptr = viewFormats) {
             desc.viewFormats = ptr;
             Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
-            return new GpuTexture2D(this, desc, texture);
+            return new GpuTexture2D(this, desc, texture, label);
         }
     }
 }
