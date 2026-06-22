@@ -25,7 +25,7 @@ public sealed class ShaderAttribute : Attribute
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class VertexShaderAttribute : Attribute
 {
-    public VertexShaderAttribute (string wgsl, string vert = null, string frag = null) { }
+    public VertexShaderAttribute (string wgsl, string vert = null) { }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
