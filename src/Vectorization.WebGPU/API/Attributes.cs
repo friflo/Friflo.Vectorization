@@ -3,6 +3,7 @@
 
 using System;
 using Friflo.Vectorization.WebGPU.Runtime;
+using JetBrains.Annotations;
 
 
 // ReSharper disable UnusedType.Global
@@ -19,19 +20,19 @@ public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
 {
-    public ShaderAttribute (string wgsl, string vert = null, string frag = null) { }
+    public ShaderAttribute([PathReference] string wgsl, string vert = null, string frag = null) { }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class VertexShaderAttribute : Attribute
 {
-    public VertexShaderAttribute (string wgsl, string vert = null) { }
+    public VertexShaderAttribute([PathReference] string wgsl, string vert = null) { }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class FragmentShaderAttribute : Attribute
 {
-    public FragmentShaderAttribute (string wgsl, string frag = null) { }
+    public FragmentShaderAttribute([PathReference] string wgsl, string frag = null) { }
 }
 
 // --- Generator Draw Call Rules ---

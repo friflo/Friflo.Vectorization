@@ -96,8 +96,8 @@ public class TextureTest : IRenderer
     }
     
     // planned: [Shader()] triggers C# source generator to emit method body
-	/* language=file-reference */   [VertexShader  ("Shaders/basic.vert.wgsl",                  vert: "main")]
-	/* language=file-reference */   [FragmentShader("Shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
+	[VertexShader  ("Shaders/basic.vert.wgsl",                  vert: "main")]
+	[FragmentShader("Shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
         [BindUniform(0, 0)] in Uniforms             uniforms,

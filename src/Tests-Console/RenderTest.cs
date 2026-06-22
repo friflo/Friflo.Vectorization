@@ -81,7 +81,6 @@ public partial class RenderTest : IRenderer
         wgpu.Surface.Present();
     }
 
-	// language=file-reference
 	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     public static partial void DrawTriangles(
                             RenderPass<MainWorld>  renderPass,
@@ -106,7 +105,7 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-    // language=file-reference
+
     [Shader("Shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
                             RenderPass<MainWorld>  renderPass,
