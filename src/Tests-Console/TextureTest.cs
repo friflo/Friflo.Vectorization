@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -63,6 +64,7 @@ public class TextureTest : IRenderer
     
 
     protected readonly  PerfLog                     perfLog     = new();
+    protected           Uniforms                    uniforms    = new();
     protected readonly  InView<VertexData>          rectangle;
     protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
@@ -87,7 +89,7 @@ public class TextureTest : IRenderer
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
             RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, textureView, sampler);
+            RenderSubmarine(pass, uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -98,6 +100,13 @@ public class TextureTest : IRenderer
 	/* language=file-reference */   [Shader("Shaders/sampleTextureMixColor.frag.wgsl")]
     protected static void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
-        [BindTexture(0, 0)] texture_2d<float>       material,
-        [BindSampler(0, 1)] GpuSampler              smoothFilter) { }
+        [BindUniform(0, 0)] in Uniforms             uniforms,
+        [BindSampler(0, 1)] GpuSampler              smoothFilter,
+        [BindTexture(0, 2)] texture_2d<float>       material) { }
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    protected struct Uniforms {
+        Matrix4x4   modelViewProjectionMatrix;
+    }
 }
