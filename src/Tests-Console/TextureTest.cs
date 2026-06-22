@@ -21,8 +21,8 @@ public class TextureTest : IRenderer
     
     public TextureTest(Wgpu wgpu)
     {
-        this.wgpu = wgpu;
-        var device = wgpu.Device;
+        this.wgpu   = wgpu;
+        var device  = wgpu.Device;
         data        = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context     = device.BeginContext();
         rectangle   = data.In(0, 6); // two triangles
@@ -32,12 +32,11 @@ public class TextureTest : IRenderer
         texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
                         TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment, "Di-3d.png");
         sampler     = device.CreateSampler(FilterMode.Linear, FilterMode.Linear, "Sampler");
-        var layout = new TexelCopyBufferLayout { bytesPerRow = (uint)image.Width * 4, rowsPerImage = (uint)image.Height };
-        texture2D.Write(new TexelCopyTextureInfo(), image.Data, layout);
+        texture2D.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
         texture_2d  = texture2D.texture_2d<float>();
         var temp    = texture2D.texture_2d<float>();
-        
+
         var tempHandle = texture_2d.Handle;
     }
 
