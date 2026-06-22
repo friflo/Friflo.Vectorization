@@ -11,11 +11,6 @@ using JetBrains.Annotations;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-/* [AttributeUsage(AttributeTargets.Method)]
-public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
-{
-    public ShaderAttribute (string wgsl) { }
-} */
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
