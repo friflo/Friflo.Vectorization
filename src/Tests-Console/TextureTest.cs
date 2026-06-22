@@ -30,10 +30,8 @@ public class TextureTest : IRenderer
         
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        texture2D   = device.CreateTexture2D(image.Width, image.Height, new TextureDescriptor {
-            format      = TextureFormat.RGBA8Unorm,
-            usage       = TextureUsage_TextureBinding | TextureUsage_CopyDst | TextureUsage_RenderAttachment    // todo  use enums from new WGPU binding
-        });
+        texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
+                        TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment);
         sampler     = device.CreateSampler(new SamplerDescriptor {
             magFilter   = FilterMode.Linear,
             minFilter   = FilterMode.Linear,
