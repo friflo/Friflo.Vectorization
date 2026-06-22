@@ -16,10 +16,22 @@ public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
     public ShaderAttribute (string wgsl) { }
 } */
 
-[AttributeUsage(AttributeTargets.Method,  AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
 {
     public ShaderAttribute (string wgsl, string vert = null, string frag = null) { }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class VertexShaderAttribute : Attribute
+{
+    public VertexShaderAttribute (string wgsl, string vert = null, string frag = null) { }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class FragmentShaderAttribute : Attribute
+{
+    public FragmentShaderAttribute (string wgsl, string frag = null) { }
 }
 
 // --- Generator Draw Call Rules ---
