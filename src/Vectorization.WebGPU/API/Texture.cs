@@ -110,6 +110,11 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
         if (index >= 0) {
             return (TextureView*)viewHandles[index];
         }
+        
+        var labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        var labelBuffer     = stackalloc byte[labelMaxCount];
+        viewDesc.label      = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
+        
         var view = wgpuTextureCreateView(handle, &viewDesc);
         
         viewHandles.Add((nint)view);
