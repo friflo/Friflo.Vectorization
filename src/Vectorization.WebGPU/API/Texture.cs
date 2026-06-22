@@ -6,22 +6,33 @@ using System.Collections.Generic;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Local
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
 
-public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label) : IDisposable
+public abstract unsafe class GpuTexture : IDisposable
 {
-    private             Texture*            handle      = handle;
+    public  readonly    TextureDescriptor   Descriptor;
+    public  readonly    string              Label;
+    private readonly    WgpuDevice          device;
+    private             Texture*            handle;
     private readonly    List<ViewEntry>     viewEntries = [];
     private readonly    List<nint>          viewHandles = [];
     
-    public              TextureDescriptor   Descriptor  => desc;
-    public              string              Label       => label;
     public              bool                IsDisposed  => handle == null;
-    public  override    string              ToString()  => label;
+    public  override    string              ToString()  => Label;
+    
+    protected GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label)
+    {
+        this.device = device;
+        Descriptor  = desc;
+        Label       = label;
+        this.handle = handle;
+        Descriptor.label = default;
+    }
 
     public void Write(
         ReadOnlySpan<byte>  data,
@@ -45,9 +56,9 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
             rowsPerImage    = (uint)rowsPerImage
         };
         var finalWriteSize = writeSize ?? new Extent3D {
-            width               = desc.size.width,
-            height              = desc.size.height,
-            depthOrArrayLayers  = desc.size.depthOrArrayLayers
+            width               = Descriptor.size.width,
+            height              = Descriptor.size.height,
+            depthOrArrayLayers  = Descriptor.size.depthOrArrayLayers
         };
         fixed (byte* dataPtr = data) {
             wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &finalWriteSize);
@@ -99,7 +110,7 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
     internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension, TextureSampleType sampleType)
     {
         viewDesc.dimension          = dimension;
-        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? desc.format : viewDesc.format;
+        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? Descriptor.format : viewDesc.format;
         viewDesc.mipLevelCount      = viewDesc.mipLevelCount    == 0 ? 1 : viewDesc.mipLevelCount;
         viewDesc.arrayLayerCount    = viewDesc.arrayLayerCount  == 0 ? 1 : viewDesc.arrayLayerCount;
         viewDesc.aspect             = viewDesc.aspect           == TextureAspect.Undefined ? TextureAspect.All : viewDesc.aspect;
@@ -111,9 +122,9 @@ public abstract unsafe class GpuTexture(WgpuDevice device, TextureDescriptor des
             return (TextureView*)viewHandles[index];
         }
         
-        var labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        var labelMaxCount   = WgpuUtils.GetMaxCount(Label);
         var labelBuffer     = stackalloc byte[labelMaxCount];
-        viewDesc.label      = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
+        viewDesc.label      = WgpuUtils.CopyToStringView(Label, labelBuffer, labelMaxCount);
         
         var view = wgpuTextureCreateView(handle, &viewDesc);
         
