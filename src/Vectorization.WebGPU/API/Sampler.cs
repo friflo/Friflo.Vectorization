@@ -42,6 +42,8 @@ public sealed unsafe partial class WgpuDevice
         desc.label          = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
 
         Sampler* sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
+        
+        desc.label = default;
         return new GpuSampler(sampler, desc, label);
     }
 }
