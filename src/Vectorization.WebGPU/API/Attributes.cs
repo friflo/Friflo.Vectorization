@@ -19,7 +19,7 @@ public sealed class ShaderAttribute<TStage> : Attribute where TStage : struct
 [AttributeUsage(AttributeTargets.Method,  AllowMultiple = true)]
 public sealed class ShaderAttribute : Attribute
 {
-    public ShaderAttribute (string wgsl) { }
+    public ShaderAttribute (string wgsl, string vert = null, string frag = null) { }
 }
 
 // --- Generator Draw Call Rules ---
