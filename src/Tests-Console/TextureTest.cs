@@ -31,10 +31,7 @@ public class TextureTest : IRenderer
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
                         TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment, "Di-3d.png");
-        sampler     = device.CreateSampler(new SamplerDescriptor {
-            magFilter   = FilterMode.Linear,
-            minFilter   = FilterMode.Linear,
-        });
+        sampler     = device.CreateSampler(FilterMode.Linear, FilterMode.Linear, "Sampler");
         var layout = new TexelCopyBufferLayout { bytesPerRow = (uint)image.Width * 4, rowsPerImage = (uint)image.Height };
         texture2D.Write(new TexelCopyTextureInfo(), image.Data, layout);
         
