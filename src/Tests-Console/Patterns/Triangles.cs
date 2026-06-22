@@ -82,5 +82,5 @@ public partial class RenderTest
         return ref device.CreateShaderEffect(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
     }
     
-    private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.Shaders.triangle.wgsl");
+    private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.triangle.wgsl");
 }

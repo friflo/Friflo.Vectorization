@@ -28,8 +28,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Shaders\**\*.wgsl" />
-      <AdditionalFiles Include="Shaders\**\*.wgsl" />
+      <EmbeddedResource Include="shaders\**\*.wgsl" />
+      <AdditionalFiles  Include="shaders\**\*.wgsl" />
     </ItemGroup>
     
     <ItemGroup>

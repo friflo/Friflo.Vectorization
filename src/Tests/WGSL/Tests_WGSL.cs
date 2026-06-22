@@ -9,7 +9,7 @@ namespace Tests.WGSL;
 public static class Tests_WGSL
 {
     // Pattern: [RootNamespace].[Folder].[Filename].[Extension]
-    // E.g.    "Tests.Shaders.triangle.wgsl"
+    // E.g.    "Tests.shaders.triangle.wgsl"
     private static string ReadWgslResource(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -25,7 +25,7 @@ public static class Tests_WGSL
     [Test]
     public static void Tests_WGSL_Parse_triangle()
     {
-        var wgsl = ReadWgslResource("Tests.Shaders.triangle.wgsl");
+        var wgsl = ReadWgslResource("Tests.shaders.triangle.wgsl");
         
         WgslShaderMetadata metadata = WgslSuperpowerParser.ParseShader(wgsl);
         
@@ -37,7 +37,7 @@ public static class Tests_WGSL
     [Test]
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
-        var wgsl = ReadWgslResource("Tests.Shaders.raymarcher_no_texture.wgsl");
+        var wgsl = ReadWgslResource("Tests.shaders.raymarcher_no_texture.wgsl");
         
         WgslShaderMetadata metadata = WgslSuperpowerParser.ParseShader(wgsl);
         
