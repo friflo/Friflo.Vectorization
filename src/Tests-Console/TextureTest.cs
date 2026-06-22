@@ -92,9 +92,10 @@ public class TextureTest : IRenderer
         context.Queue.Submit();
         wgpu.Surface.Present();
     }
-
-	// language=file-reference
-	[Shader("Shaders/sampleTextureMixColor.frag.wgsl")]  // triggers C# source generator to emit method body
+    
+    // planned: [Shader()] triggers C# source generator to emit method body
+	/* language=file-reference */   [Shader("Shaders/basic.vert.wgsl")]
+	/* language=file-reference */   [Shader("Shaders/sampleTextureMixColor.frag.wgsl")]
     protected static void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
         [BindTexture(0, 0)] texture_2d<float>       material,
