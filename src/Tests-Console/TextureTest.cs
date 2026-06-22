@@ -34,13 +34,13 @@ public class TextureTest : IRenderer
         sampler     = device.CreateSampler(FilterMode.Linear, FilterMode.Linear, "Sampler");
         texture2D.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
-        texture_2d  = texture2D.texture_2d<float>();
+        textureView = texture2D.texture_2d<float>();
         var temp    = texture2D.texture_2d<float>();
 
-        var tempHandle = texture_2d.Handle;
+        var tempHandle = textureView.Handle;
     }
 
-    readonly texture_2d<float> texture_2d;
+    private readonly texture_2d<float> textureView;
     
     public void Shutdown()
     {
@@ -87,7 +87,7 @@ public class TextureTest : IRenderer
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
             RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, texture_2d, sampler);
+            RenderSubmarine(pass, textureView, sampler);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
