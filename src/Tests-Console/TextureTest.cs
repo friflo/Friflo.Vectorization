@@ -94,7 +94,7 @@ public class TextureTest : IRenderer
     }
 
 	// language=file-reference
-	[Shader("Shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
+	[Shader("Shaders/sampleTextureMixColor.frag.wgsl")]  // triggers C# source generator to emit method body
     protected static void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
         [BindTexture(0, 0)] texture_2d<float>       material,
