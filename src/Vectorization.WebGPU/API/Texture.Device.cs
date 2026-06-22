@@ -49,7 +49,13 @@ public sealed unsafe partial class WgpuDevice
         desc.mipLevelCount              = opt.mipLevelCount;
         desc.nextInChain                = opt.nextInChain;
         desc.viewFormatCount            = (uint)viewFormats.Length;
-    } 
+    }
+
+    /// <summary> Mimics <c>createTexture()</c> from WebGPU JavaScript - same as <see cref="CreateTexture2D"/>  </summary>
+    public GpuTexture2D CreateTexture(int width, int height, TextureFormat format, TextureUsage usage, string label = null, in TextureOptions? options = null, Span<TextureFormat> viewFormats = default)
+    {
+        return CreateTexture2D(width, height, format, usage, label, in options, viewFormats);
+    }
     
     public GpuTexture2D CreateTexture2D(int width, int height, TextureFormat format, TextureUsage usage, string label = null, in TextureOptions? options = null, Span<TextureFormat> viewFormats = default)
     {
