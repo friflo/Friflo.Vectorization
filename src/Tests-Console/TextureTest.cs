@@ -114,7 +114,7 @@ public partial class TextureTest : IRenderer
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
             RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, verticesBuffer, vertexConfig, uniforms, sampler, textureView);
+            RenderSubmarine(pass, verticesBuffer.In(), vertexConfig, uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -124,7 +124,7 @@ public partial class TextureTest : IRenderer
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
-                            GpuBuffer<float>        verticesBuffer,
+                            InBuffer<float>         verticesBuffer,
                             RenderConfig            vertexConfig,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] FilteringSampler        smoothFilter,

@@ -9,6 +9,7 @@ using System.Reflection;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InvertIf
@@ -161,6 +162,11 @@ public readonly unsafe ref  struct RenderPass
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
         
         rec.uniformOffset = offset + alignedSize;
+    }
+    
+    public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
+    {
+        wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, (ulong)buffer.Offset, (ulong)buffer.Length);
     }
 
     public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance)
