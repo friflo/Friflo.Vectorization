@@ -133,18 +133,21 @@ public abstract unsafe class GpuSampler : IDisposable
 }
 
 /// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
+/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.Filtering"/>. </remarks>
 public sealed unsafe class FilteringSampler : GpuSampler
 {
     public FilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
 }
 
 /// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
+/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.NonFiltering"/>. </remarks>
 public sealed unsafe class NonFilteringSampler : GpuSampler
 {
     public NonFilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
 }
 
 /// <summary> Maps to  WGSL type: <c>sampler_comparison</c>. </summary>
+/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.Comparison"/>. </remarks>
 public sealed unsafe class ComparisonSampler : GpuSampler
 {
     public ComparisonSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
