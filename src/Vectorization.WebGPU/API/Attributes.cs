@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.WebGPU.Runtime;
 using JetBrains.Annotations;
 
 
