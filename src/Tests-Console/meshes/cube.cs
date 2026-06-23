@@ -1,8 +1,15 @@
 ﻿
 
-public static class CubeVertexArray
+// ReSharper disable InconsistentNaming
+public static class Cube
 {
-  public static readonly float[] Data =
+  public const int cubeVertexSize     = 4 * 10; // Byte size of one cube vertex.
+  public const int cubePositionOffset = 0;
+  public const int cubeColorOffset    = 4 * 4; // Byte offset of cube vertex color attribute.
+  public const int cubeUVOffset       = 4 * 8;
+  public const int cubeVertexCount    = 36;
+  
+  public static readonly float[] cubeVertexArray =
   [
   // float4 position, float4 color, float2 uv,
   1, -1, 1, 1,   1, 0, 1, 1,  0, 1,

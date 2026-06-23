@@ -18,6 +18,8 @@ public partial class TextureTest : IRenderer
     private readonly    GpuBuffer<VertexData>   data;
     private readonly    GpuTexture2D            texture2D;
     private readonly    FilteringSampler        sampler;
+    private readonly    GpuBuffer<float>        verticesBuffer;
+    private readonly    RenderConfig            vertexConfig;
     
     
     public TextureTest(Wgpu wgpu)
@@ -39,12 +41,35 @@ public partial class TextureTest : IRenderer
         var temp    = texture2D.texture_2d<float>();
 
         var tempHandle = textureView.Handle;
+        
+        // --- Cube Vertex Buffer Config
+        verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
+        verticesBuffer.In().Write(context);
+        
+        var desc = wgpu.Config.Descriptor;
+        desc.VertexState.buffers = [ new WgpuVertexBufferLayout {
+            arrayStride = Cube.cubeVertexSize,
+            attributes = [
+                new VertexAttribute {
+                    shaderLocation = 0,
+                    offset = Cube.cubePositionOffset,
+                    format = VertexFormat.Float32x4
+                },
+                new VertexAttribute {
+                    shaderLocation = 1,
+                    offset = Cube.cubeUVOffset,
+                    format = VertexFormat.Float32x2
+                },
+            ]
+        }];
+        vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
     private readonly texture_2d<float> textureView;
     
     public void Shutdown()
     {
+        verticesBuffer.Dispose();
         sampler.Dispose();
         texture2D.Dispose();
         context.Dispose();
@@ -89,17 +114,18 @@ public partial class TextureTest : IRenderer
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
             RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, uniforms, sampler, textureView);
+            RenderSubmarine(pass, verticesBuffer, vertexConfig, uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
     }
     
-    // planned: [Shader()] triggers C# source generator to emit method body
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
+                            GpuBuffer<float>        verticesBuffer,
+                            RenderConfig            vertexConfig,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] FilteringSampler        smoothFilter,
         [BindTexture(0, 2)] texture_2d<float>       material);
