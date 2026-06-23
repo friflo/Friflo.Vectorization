@@ -214,7 +214,7 @@ public readonly unsafe struct TextureViewHandle
 /// Important for understanding:<br/>
 /// A <see cref="TextureView"/>* defines an immutable configuration state created with <see cref="wgpuTextureCreateView"/>.<br/>
 /// <br/>
-/// <see cref="BindGroupLayoutEntry"/> fields:<br/>
+/// <see cref="TextureBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.texture"/>:<br/>
 /// - <see cref="TextureBindingLayout.sampleType"/><br/>
 /// - <see cref="TextureBindingLayout.viewDimension"/><br/>
 /// - <see cref="TextureBindingLayout.multisampled"/><br/>

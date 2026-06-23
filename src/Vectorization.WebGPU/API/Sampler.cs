@@ -102,4 +102,36 @@ public sealed unsafe class sampler : IDisposable
     }
 }
 
+
+public readonly unsafe struct SamplerHandle  // TODO may be removed
+{
+    private  readonly   Sampler*    handle;
+}
+
+/// <summary>
+/// Names of struct types implementing <see cref="ISampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
+/// </summary>
+/// <remarks>
+/// Bind group layout creation:<br/>
+/// <see cref="BindGroupLayoutEntry"/>'s are used to create a <see cref="BindGroupLayoutDescriptor"/>.<br/>
+/// The descriptor is used to create a <see cref="BindGroupLayout"/> handle with <see cref="wgpuDeviceCreateBindGroupLayout"/>.<br/>
+/// <br/>
+/// Bind group creation:<br/>
+/// The <see cref="BindGroupLayout"/> handle is used in <see cref="BindGroupDescriptor.entries"/> to create a <see cref="BindGroup"/> handle.<br/>
+/// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
+/// A <see cref="BindGroupEntry.sampler"/> can be assigned with <see cref="SamplerHandle.handle"/><br/>
+/// <br/>
+/// Important for understanding:<br/>
+/// A <see cref="Sampler"/>* defines an immutable configuration state created with <see cref="wgpuDeviceCreateSampler"/>.<br/>
+/// <br/>
+/// <see cref="SamplerBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.sampler"/>:<br/>
+/// - <see cref="SamplerBindingLayout.type"/><br/>
+/// </remarks>
+public interface ISampler
+{
+    SamplerHandle Handle { get; }
+}
+
+
+
 #pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
