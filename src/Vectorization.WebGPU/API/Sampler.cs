@@ -14,30 +14,23 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
+#pragma warning disable CS8981 // typename: sampler:  The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
 public sealed unsafe partial class WgpuDevice
 {
-    public GpuSampler CreateSampler(
-        FilterMode magFilter       = FilterMode.Nearest,
-        FilterMode minFilter       = FilterMode.Nearest,
-        string label               = null,
-        in SamplerOptions? options = null)
+    public sampler CreateSampler(
+        SamplerType         samplerType = SamplerType.Filtering,
+        FilterMode          magFilter   = FilterMode.Nearest,
+        FilterMode          minFilter   = FilterMode.Nearest,
+        string              label       = null,
+        in SamplerOptions?  options     = null)
     {
-        var opt = options ?? new SamplerOptions();
-        var desc = new SamplerDescriptor
-        {
-            nextInChain     = opt.nextInChain,
-            magFilter       = magFilter,
-            minFilter       = minFilter,
-            addressModeU    = opt.addressModeU,
-            addressModeV    = opt.addressModeV,
-            addressModeW    = opt.addressModeW,
-            mipmapFilter    = opt.mipmapFilter,
-            lodMinClamp     = opt.lodMinClamp,
-            lodMaxClamp     = opt.lodMaxClamp,
-            compare         = opt.compare,
-            maxAnisotropy   = opt.maxAnisotropy
-        };
+        var opt     = options ?? new SamplerOptions();
+        var desc    = new SamplerDescriptor();
+        opt.SetSamplerDescriptor(ref desc);
+        desc.magFilter       = magFilter;
+        desc.minFilter       = minFilter;
+
         int labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte* labelBuffer   = stackalloc byte[labelMaxCount];
         desc.label          = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
@@ -45,7 +38,7 @@ public sealed unsafe partial class WgpuDevice
         Sampler* sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
         
         desc.label = default;
-        return new GpuSampler(sampler, desc, label);
+        return new sampler(sampler, desc, samplerType, label);
     }
 }
 
@@ -62,22 +55,42 @@ public struct SamplerOptions
     public          ushort              maxAnisotropy  = 1;
 
     public SamplerOptions() { }
+    
+    internal unsafe void SetSamplerDescriptor(ref SamplerDescriptor desc)
+    {
+        desc.nextInChain     = nextInChain;
+        desc.addressModeU    = addressModeU;
+        desc.addressModeV    = addressModeV;
+        desc.addressModeW    = addressModeW;
+        desc.mipmapFilter    = mipmapFilter;
+        desc.lodMinClamp     = lodMinClamp;
+        desc.lodMaxClamp     = lodMaxClamp;
+        desc.compare         = compare;
+        desc.maxAnisotropy   = maxAnisotropy;
+    }
 }
 
-public sealed unsafe class GpuSampler : IDisposable
+public enum SamplerType {
+    Filtering,
+    NonFiltering
+}
+
+public sealed unsafe class sampler : IDisposable
 {
     private             Sampler*            handle;
     private readonly    SamplerDescriptor   desc;
     public  readonly    string              Label;
+    public  readonly    SamplerType         SamplerType;
     
     public ref readonly SamplerDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;
     
-    internal GpuSampler(Sampler* handle, in SamplerDescriptor desc, string label) {
+    internal sampler(Sampler* handle, in SamplerDescriptor desc, SamplerType type, string label) {
         this.handle = handle;
         this.desc   = desc;
         Label       = label;
+        SamplerType = type;
     }
     
     public void Dispose()
@@ -88,3 +101,5 @@ public sealed unsafe class GpuSampler : IDisposable
         }
     }
 }
+
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
