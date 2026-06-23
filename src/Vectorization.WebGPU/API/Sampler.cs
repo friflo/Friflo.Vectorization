@@ -156,7 +156,7 @@ public sealed unsafe class ComparisonSampler : GpuSampler
 
 
 /// <summary>
-/// Names of struct types implementing <see cref="GpuSampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
+/// Classes extending <see cref="GpuSampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
 /// </summary>
 /// <remarks>
 /// Bind group layout creation:<br/>
