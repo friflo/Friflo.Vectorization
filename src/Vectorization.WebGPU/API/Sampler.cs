@@ -5,13 +5,13 @@ using System;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
-// ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable ReplaceWithFieldKeyword
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable UnassignedField.Global
-// ReSharper disable ConvertToConstant.Global
 // ReSharper disable InconsistentNaming
+// ReSharper disable UnassignedField.Global
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable ConvertToConstant.Global
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
@@ -75,8 +75,13 @@ public sealed unsafe partial class WgpuDevice
         in SamplerOptions?  options,
         out Sampler*        sampler)
     {
-        var opt     = options ?? new SamplerOptions();
-        opt.SetSamplerDescriptor(ref desc);
+        var opt = options ?? new SamplerOptions();
+        desc.nextInChain     = opt.nextInChain;
+        desc.addressModeU    = opt.addressModeU;
+        desc.addressModeV    = opt.addressModeV;
+        desc.addressModeW    = opt.addressModeW;
+        desc.lodMinClamp     = opt.lodMinClamp;
+        desc.lodMaxClamp     = opt.lodMaxClamp;
 
         int labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte* labelBuffer   = stackalloc byte[labelMaxCount];
@@ -99,16 +104,6 @@ public struct SamplerOptions
     public          float           lodMaxClamp     = 32.0f;
 
     public SamplerOptions() { }
-    
-    internal unsafe void SetSamplerDescriptor(ref SamplerDescriptor desc)
-    {
-        desc.nextInChain     = nextInChain;
-        desc.addressModeU    = addressModeU;
-        desc.addressModeV    = addressModeV;
-        desc.addressModeW    = addressModeW;
-        desc.lodMinClamp     = lodMinClamp;
-        desc.lodMaxClamp     = lodMaxClamp;
-    }
 }
 
 
