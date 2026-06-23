@@ -56,9 +56,7 @@ public sealed class BindTextureAttribute : Attribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindSamplerAttribute : Attribute
 {
-    /// type is used by <see cref="SamplerBindingLayout"/>
     public BindSamplerAttribute (int groupIndex, int bindingIndex) { }
-    //  SamplerBindingType      type            = SamplerBindingType.Filtering) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
