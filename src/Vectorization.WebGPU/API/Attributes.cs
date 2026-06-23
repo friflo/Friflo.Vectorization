@@ -50,23 +50,15 @@ public sealed class BindUniformAttribute : Attribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindTextureAttribute : Attribute
 {
-    /// enums are used by <see cref="TextureBindingLayout"/>
-    public BindTextureAttribute (
-        int                     groupIndex,
-        int                     bindingIndex) { }
-    //  TextureSampleType       sampleType      = TextureSampleType.Float,
-    //  TextureViewDimension    viewDimension   = TextureViewDimension.D2D,
-    //  bool                    multisampled    = false) 
+    public BindTextureAttribute (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindSamplerAttribute : Attribute
 {
     /// type is used by <see cref="SamplerBindingLayout"/>
-    public BindSamplerAttribute (
-        int                     groupIndex,
-        int                     bindingIndex,
-        SamplerBindingType      type            = SamplerBindingType.Filtering) { }
+    public BindSamplerAttribute (int groupIndex, int bindingIndex) { }
+    //  SamplerBindingType      type            = SamplerBindingType.Filtering) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]

@@ -198,6 +198,18 @@ public readonly unsafe struct TextureViewHandle
     }
 }
 
+/// <summary>
+/// Names of struct types implementing <see cref="ITextureView"/> define the <see cref="BindGroupLayoutEntry.texture"/>
+/// </summary>
+/// <remarks>
+/// <see cref="BindGroupLayoutEntry"/>'s are used to create a <see cref="BindGroupLayoutDescriptor"/>.<br/>
+/// The descriptor is used to create a layout handle with <see cref="wgpuDeviceCreateBindGroupLayout"/>.<br/>
+/// <br/>
+/// <see cref="BindGroupLayoutEntry"/> fields:<br/>
+/// - <see cref="TextureBindingLayout.sampleType"/><br/>
+/// - <see cref="TextureBindingLayout.viewDimension"/><br/>
+/// - <see cref="TextureBindingLayout.multisampled"/><br/>
+/// </remarks>
 public interface ITextureView
 {
     TextureViewHandle Handle { get; }
