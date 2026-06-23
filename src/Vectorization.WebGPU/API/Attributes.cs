@@ -44,6 +44,18 @@ public sealed class BindVertexAttribute : Attribute
     public BindVertexAttribute (int groupIndex, int bindingIndex) { }
 }
 
+/// <summary> Annotates a shader method parameter passing a uniform. </summary>
+/// <remarks>
+/// A uniform can be any unmanaged C# type containing blittable data.<br/>
+/// Supported primitives and math types include:<br/>
+/// - <c>int</c> i32, <c>uint</c> u32, <c>float</c> f32<br/>
+/// - <c>Vector2</c> vec2&lt;f32&gt;, <c>Vector3</c> vec3&lt;f32&gt;, <c>Vector4</c> vec4&lt;f32&gt;, <c>Matrix4x4</c> mat4x4&lt;f32&gt;<br/>
+/// - Or any custom <c>struct</c> meeting WebGPU alignment rules (e.g., <c>Vector3</c> requires 16-byte alignment).<br/>
+/// <br/>
+/// <b>Restrictions:</b><br/>
+/// <c>bool</c> is prohibited inside structs (use <c>uint</c>).<br/>
+/// 64-bit types (<c>double</c>, <c>long</c>) and 8/16-bit types (<c>byte</c>, <c>short</c>) are not supported.<br/>
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindUniformAttribute : Attribute
 {
