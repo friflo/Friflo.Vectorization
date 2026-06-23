@@ -211,6 +211,9 @@ public readonly unsafe struct TextureViewHandle
 /// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
 /// A <see cref="BindGroupEntry.textureView"/> can be assigned with <see cref="TextureViewHandle.handle"/><br/>
 /// <br/>
+/// Important for understanding:<br/>
+/// A <see cref="TextureView"/>* defines an immutable configuration state created with <see cref="wgpuTextureCreateView"/>.<br/>
+/// <br/>
 /// <see cref="BindGroupLayoutEntry"/> fields:<br/>
 /// - <see cref="TextureBindingLayout.sampleType"/><br/>
 /// - <see cref="TextureBindingLayout.viewDimension"/><br/>
