@@ -24,11 +24,11 @@ public sealed class GpuTexture1D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_1d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_1d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTexture2D
@@ -42,6 +42,7 @@ public sealed class GpuTexture2D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_2d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_2d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
@@ -59,11 +60,11 @@ public sealed class GpuTexture2DArray : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_2d_array&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_2d_array<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTexture3D
@@ -77,11 +78,11 @@ public sealed class GpuTexture3D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_3d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_3d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureCube
@@ -95,11 +96,11 @@ public sealed class GpuTextureCube : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_cube&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_cube<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureCubeArray
@@ -113,11 +114,11 @@ public sealed class GpuTextureCubeArray : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_cube_array&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_cube_array<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 #endregion
 
@@ -136,11 +137,11 @@ public sealed class GpuTextureDepth2D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_depth_2d</c>. </summary>
 public readonly unsafe struct texture_depth_2d(TextureView* handle, GpuTexture texture) : ITextureView
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureDepth2DArray
@@ -154,11 +155,11 @@ public sealed class GpuTextureDepth2DArray : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_depth_2d_array</c>. </summary>
 public readonly unsafe struct texture_depth_2d_array(TextureView* handle, GpuTexture texture) : ITextureView
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureDepthCube
@@ -172,11 +173,11 @@ public sealed class GpuTextureDepthCube : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_depth_cube</c>. </summary>
 public readonly unsafe struct texture_depth_cube(TextureView* handle, GpuTexture texture) : ITextureView
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureDepthCubeArray
@@ -190,11 +191,11 @@ public sealed class GpuTextureDepthCubeArray : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_depth_cube_array</c>. </summary>
 public readonly unsafe struct texture_depth_cube_array(TextureView* handle, GpuTexture texture) : ITextureView
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 #endregion
 
@@ -213,11 +214,11 @@ public sealed class GpuTextureMultisampled2D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_multisampled_2d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_multisampled_2d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureDepthMultisampled2D
@@ -231,11 +232,11 @@ public sealed class GpuTextureDepthMultisampled2D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_depth_multisampled_2d</c>. </summary>
 public readonly unsafe struct texture_depth_multisampled_2d(TextureView* handle, GpuTexture texture) : ITextureView
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 #endregion
 
@@ -254,11 +255,11 @@ public sealed class GpuTextureStorage1D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_storage_1d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_storage_1d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureStorage2D
@@ -272,11 +273,11 @@ public sealed class GpuTextureStorage2D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_storage_2d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_storage_2d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureStorage2DArray
@@ -290,11 +291,11 @@ public sealed class GpuTextureStorage2DArray : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_storage_2d_array&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_storage_2d_array<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 
 // ------ GpuTextureStorage3D
@@ -308,10 +309,10 @@ public sealed class GpuTextureStorage3D : GpuTexture
     }
 }
 
+/// <summary> A texture view that maps to the WGSL type: <c>texture_storage_3d&lt;T&gt;</c>. </summary>
 public readonly unsafe struct texture_storage_3d<T>(TextureView* handle, GpuTexture texture) : ITextureView where T : unmanaged
 {
     public          TextureViewHandle   Handle      => new(handle, texture);
     public override string              ToString()  => texture.Label;
-
 }
 #endregion
