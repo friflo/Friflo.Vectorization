@@ -17,7 +17,7 @@ public partial class TextureTest : IRenderer
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
     private readonly    GpuTexture2D            texture2D;
-    private readonly    sampler              	sampler;
+    private readonly    FilteringSampler        sampler;
     
     
     public TextureTest(Wgpu wgpu)
@@ -32,7 +32,7 @@ public partial class TextureTest : IRenderer
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
                         TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment, "Di-3d.png");
-        sampler     = device.CreateSampler(SamplerType.Filtering, FilterMode.Linear, FilterMode.Linear, "Sampler");
+        sampler     = device.CreateFilteringSampler(label: "Sampler");
         texture2D.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
         textureView = texture2D.texture_2d<float>();
@@ -101,7 +101,7 @@ public partial class TextureTest : IRenderer
     protected static partial void RenderSubmarine(
                             RenderPass<MainWorld>   renderPass,
         [BindUniform(0, 0)] in Uniforms             uniforms,
-        [BindSampler(0, 1)] sampler              	smoothFilter,
+        [BindSampler(0, 1)] FilteringSampler        smoothFilter,
         [BindTexture(0, 2)] texture_2d<float>       material);
 
 

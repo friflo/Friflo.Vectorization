@@ -5,6 +5,7 @@ using System;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -14,45 +15,88 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-#pragma warning disable CS8981 // typename: sampler:  The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
 public sealed unsafe partial class WgpuDevice
 {
-    public sampler CreateSampler(
-        SamplerType         samplerType = SamplerType.Filtering,
-        FilterMode          magFilter   = FilterMode.Nearest,
-        FilterMode          minFilter   = FilterMode.Nearest,
+    public FilteringSampler CreateFilteringSampler(
+        FilterMode          magFilter       = FilterMode.Linear,
+        FilterMode          minFilter       = FilterMode.Linear,
+        MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Linear,
+        ushort              maxAnisotropy   = 1,
+        string              label           = null,
+        in SamplerOptions?  options         = null)
+    {
+        var desc = new SamplerDescriptor {
+            magFilter       = magFilter,
+            minFilter       = minFilter,
+            mipmapFilter    = mipmapFilter,
+            maxAnisotropy   = maxAnisotropy
+        };
+        desc = CreateSampler(desc, label, options, out var sampler);
+        return new FilteringSampler(sampler, desc, label);
+    }
+    
+    public NonFilteringSampler CreateNonFilteringSampler(
         string              label       = null,
         in SamplerOptions?  options     = null)
     {
+        var desc = new SamplerDescriptor {
+            magFilter       = FilterMode.Nearest,
+            minFilter       = FilterMode.Nearest,
+            mipmapFilter    = MipmapFilterMode.Nearest,
+            maxAnisotropy   = 1,
+        };
+        desc = CreateSampler(desc, label, options, out var sampler);
+        return new NonFilteringSampler(sampler, desc, label);
+    }
+    
+    public ComparisonSampler CreateComparisonSampler(
+        CompareFunction     compare,
+        FilterMode          magFilter       = FilterMode.Linear,
+        FilterMode          minFilter       = FilterMode.Linear,
+        MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Nearest,
+        string              label           = null,
+        in SamplerOptions?  options         = null)
+    {
+        var desc = new SamplerDescriptor {
+            compare         = compare,
+            magFilter       = magFilter,
+            minFilter       = minFilter,
+            mipmapFilter    = mipmapFilter,
+            maxAnisotropy   = 1
+        };
+        desc = CreateSampler(desc, label, options, out var sampler);
+        return new ComparisonSampler(sampler, desc, label);
+    }
+        
+    private SamplerDescriptor CreateSampler(
+        SamplerDescriptor   desc,
+        string              label,
+        in SamplerOptions?  options,
+        out Sampler*        sampler)
+    {
         var opt     = options ?? new SamplerOptions();
-        var desc    = new SamplerDescriptor();
         opt.SetSamplerDescriptor(ref desc);
-        desc.magFilter       = magFilter;
-        desc.minFilter       = minFilter;
 
         int labelMaxCount   = WgpuUtils.GetMaxCount(label);
         byte* labelBuffer   = stackalloc byte[labelMaxCount];
         desc.label          = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
 
-        Sampler* sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
+        sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
         
         desc.label = default;
-        return new sampler(sampler, desc, samplerType, label);
+        return desc;
     }
 }
 
 public struct SamplerOptions
 {
-    public unsafe   ChainedStruct*      nextInChain;
-    public          AddressMode         addressModeU   = AddressMode.ClampToEdge;
-    public          AddressMode         addressModeV   = AddressMode.ClampToEdge;
-    public          AddressMode         addressModeW   = AddressMode.ClampToEdge;
-    public          MipmapFilterMode    mipmapFilter   = MipmapFilterMode.Linear;
-    public          float               lodMinClamp    = 0.0f;
-    public          float               lodMaxClamp    = float.MaxValue;
-    public          CompareFunction     compare        = CompareFunction.Undefined;
-    public          ushort              maxAnisotropy  = 1;
+    public unsafe   ChainedStruct*  nextInChain;
+    public          AddressMode     addressModeU    = AddressMode.ClampToEdge;
+    public          AddressMode     addressModeV    = AddressMode.ClampToEdge;
+    public          AddressMode     addressModeW    = AddressMode.ClampToEdge;
+    public          float           lodMinClamp     = 0.0f;
+    public          float           lodMaxClamp     = 32.0f;
 
     public SamplerOptions() { }
     
@@ -62,35 +106,26 @@ public struct SamplerOptions
         desc.addressModeU    = addressModeU;
         desc.addressModeV    = addressModeV;
         desc.addressModeW    = addressModeW;
-        desc.mipmapFilter    = mipmapFilter;
         desc.lodMinClamp     = lodMinClamp;
         desc.lodMaxClamp     = lodMaxClamp;
-        desc.compare         = compare;
-        desc.maxAnisotropy   = maxAnisotropy;
     }
 }
 
-public enum SamplerType {
-    Filtering,
-    NonFiltering
-}
 
-public sealed unsafe class sampler : IDisposable
+public abstract unsafe class GpuSampler : IDisposable
 {
     private             Sampler*            handle;
     private readonly    SamplerDescriptor   desc;
     public  readonly    string              Label;
-    public  readonly    SamplerType         SamplerType;
     
     public ref readonly SamplerDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;
     
-    internal sampler(Sampler* handle, in SamplerDescriptor desc, SamplerType type, string label) {
+    internal GpuSampler(Sampler* handle, in SamplerDescriptor desc, string label) {
         this.handle = handle;
         this.desc   = desc;
         Label       = label;
-        SamplerType = type;
     }
     
     public void Dispose()
@@ -102,14 +137,28 @@ public sealed unsafe class sampler : IDisposable
     }
 }
 
-
-public readonly unsafe struct SamplerHandle  // TODO may be removed
+/// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
+public sealed unsafe class FilteringSampler : GpuSampler
 {
-    private  readonly   Sampler*    handle;
+    public FilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
 }
 
+/// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
+public sealed unsafe class NonFilteringSampler : GpuSampler
+{
+    public NonFilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
+}
+
+/// <summary> Maps to  WGSL type: <c>sampler_comparison</c>. </summary>
+public sealed unsafe class ComparisonSampler : GpuSampler
+{
+    public ComparisonSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
+}
+
+
+
 /// <summary>
-/// Names of struct types implementing <see cref="ISampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
+/// Names of struct types implementing <see cref="GpuSampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
 /// </summary>
 /// <remarks>
 /// Bind group layout creation:<br/>
@@ -119,7 +168,7 @@ public readonly unsafe struct SamplerHandle  // TODO may be removed
 /// Bind group creation:<br/>
 /// The <see cref="BindGroupLayout"/> handle is used in <see cref="BindGroupDescriptor.entries"/> to create a <see cref="BindGroup"/> handle.<br/>
 /// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
-/// A <see cref="BindGroupEntry.sampler"/> can be assigned with <see cref="SamplerHandle.handle"/><br/>
+/// A <see cref="BindGroupEntry.sampler"/> can be assigned with <see cref="GpuSampler.handle"/><br/>
 /// <br/>
 /// Important for understanding:<br/>
 /// A <see cref="Sampler"/>* defines an immutable configuration state created with <see cref="wgpuDeviceCreateSampler"/>.<br/>
@@ -127,11 +176,5 @@ public readonly unsafe struct SamplerHandle  // TODO may be removed
 /// <see cref="SamplerBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.sampler"/>:<br/>
 /// - <see cref="SamplerBindingLayout.type"/><br/>
 /// </remarks>
-public interface ISampler
-{
-    SamplerHandle Handle { get; }
-}
+internal interface ISamplerDocs { }
 
-
-
-#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.

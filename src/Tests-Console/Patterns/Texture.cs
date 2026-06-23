@@ -17,7 +17,7 @@ public partial class TextureTest
     protected static partial void RenderSubmarine(
         RenderPass<MainWorld>   renderPass,
         in Uniforms             uniforms,
-        sampler              	smoothFilter,
+        FilteringSampler        smoothFilter,
         texture_2d<float>       material)
 	{
         /*
