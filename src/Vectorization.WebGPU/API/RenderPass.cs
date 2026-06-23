@@ -166,7 +166,9 @@ public readonly unsafe ref  struct RenderPass
     
     public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
     {
-        wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, (ulong)buffer.Offset, (ulong)buffer.Length);
+        ulong offset = 0; // (ulong)buffer.Offset;  TODO   use buffer.Offset
+        ulong length = 0; // (ulong)buffer.Length;  TODO   use buffer.Length
+        wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, length);
     }
 
     public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance)

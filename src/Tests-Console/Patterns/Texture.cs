@@ -59,7 +59,7 @@ public partial class TextureTest
         
         pass.SetVertexBuffer(0, verticesBuffer);
         
-        pass.Draw(buffers.length, 0, verticesBuffer.Offset, 0);
+        pass.Draw(buffers.length, 0, 0, 0);
 	}
     
     private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
