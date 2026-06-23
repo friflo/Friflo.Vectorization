@@ -257,19 +257,48 @@ public sealed unsafe partial  class WgpuDevice
         return layout;
     }
 
-    public WgpuBindGroupLayout CreateBindGroupLayout(ReadOnlySpan<WgpuLayoutEntry> entries, ShaderStage visibility, bool dynamicOffset, ulong hashKey, ReadOnlySpan<byte> layoutLabel)
+    public WgpuBindGroupLayout CreateBindGroupLayout(
+        ReadOnlySpan<WgpuLayoutEntry>   entries,
+        ShaderStage                     visibility,
+        bool                            dynamicOffset,          // TODO remove - obsolete
+        ulong                           hashKey,
+        ReadOnlySpan<byte>              layoutLabel)
     {
         Span<BindGroupLayoutEntry> nativeEntries = stackalloc BindGroupLayoutEntry[entries.Length];
         
-        for (int i = 0; i < entries.Length; i++) {
+        for (int i = 0; i < entries.Length; i++)
+        {
+            var entry   = entries[i];
+            var buffer  = new BufferBindingLayout();
+            var sampler = new SamplerBindingLayout();
+            var texture = new TextureBindingLayout();
+            switch (entry.type)
+            {
+                case LayoutEntryType.Buffer:
+                    buffer.type             = entry.BufferType;
+                    buffer.hasDynamicOffset = WgpuUtils.FromBool(false);
+                    buffer.minBindingSize   = 0;                            // 0: no validation of minimum size
+                    break;
+                case LayoutEntryType.Uniform:
+                    buffer.type             = entry.BufferType;
+                    buffer.hasDynamicOffset = WgpuUtils.FromBool(true);     // true for uniform buffer
+                    buffer.minBindingSize   = 0;                            // 0: no validation of minimum size
+                    break;
+                case LayoutEntryType.Sampler:
+                    sampler.type            = entry.samplerType;
+                    break;
+                case LayoutEntryType.Texture    :
+                    texture.sampleType      = entry.sampleType;
+                    texture.viewDimension   = entry.viewDimension;
+                    texture.multisampled    = (uint)(entry.multisampled ? 1 : 0);
+                    break;
+            }
             nativeEntries[i] = new BindGroupLayoutEntry {
-                binding         = (uint)entries[i].Binding,
-                visibility      = (ulong)visibility,
-                buffer          = new BufferBindingLayout {
-                    type                = entries[i].Type,
-                    hasDynamicOffset    = WgpuUtils.FromBool(dynamicOffset),    // true for uniform buffer
-                    minBindingSize      = 0                                     // 0: no validation of minimum size
-                }
+                binding     = (uint)entry.Binding,
+                visibility  = (ulong)visibility,
+                buffer      = buffer,
+                sampler     = sampler,
+                texture     = texture
             };
         }
         fixed (byte*                    labelPtr    = layoutLabel)

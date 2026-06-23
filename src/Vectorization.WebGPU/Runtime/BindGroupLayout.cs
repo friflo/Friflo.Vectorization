@@ -25,17 +25,49 @@ public readonly unsafe struct WgpuBindGroupLayout
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct WgpuLayoutEntry
 {
-    internal readonly   int                 Binding;
-    internal readonly   BufferBindingType   Type;
+    internal readonly   LayoutEntryType         type;
+    internal readonly   int                     Binding;
+    internal readonly   BufferBindingType       BufferType;     // Buffer / Uniform
+    internal readonly   SamplerBindingType      samplerType;    // Sampler
+    internal readonly   TextureSampleType       sampleType;     // Texture
+    internal readonly   TextureViewDimension    viewDimension;  // Texture
+    internal readonly   bool                    multisampled;   // Texture
 
-    public override string ToString() => $"{Binding} {Type}";
+    public override string ToString() => $"{Binding} {BufferType}";
 
-    private WgpuLayoutEntry(int binding, BufferBindingType type) {
-        Binding = binding;
-        Type    = type;
+    private WgpuLayoutEntry(int binding, LayoutEntryType type, BufferBindingType bufferType) {
+        this.type   = type;
+        Binding     = binding;
+        BufferType  = bufferType;
     }
     
-    public static WgpuLayoutEntry Uniform         (int binding) => new (binding, BufferBindingType.Uniform);
-    public static WgpuLayoutEntry ReadWriteStorage(int binding) => new (binding, BufferBindingType.Storage);
-    public static WgpuLayoutEntry ReadOnlyStorage (int binding) => new (binding, BufferBindingType.ReadOnlyStorage);
+    private WgpuLayoutEntry(int binding, SamplerBindingType samplerType) {
+        type                = LayoutEntryType.Sampler;
+        Binding             = binding;
+        this.samplerType    = samplerType;
+    }
+    
+    private WgpuLayoutEntry(int binding, TextureSampleType sampleType, TextureViewDimension viewDimension, bool multisampled) {
+        type                = LayoutEntryType.Texture;
+        Binding             = binding;
+        this.sampleType     = sampleType;
+        this.viewDimension  = viewDimension;
+        this.multisampled   = multisampled;
+    }
+    
+    public static WgpuLayoutEntry Uniform         (int binding) => new (binding, LayoutEntryType.Uniform, BufferBindingType.Uniform);
+    public static WgpuLayoutEntry ReadWriteStorage(int binding) => new (binding, LayoutEntryType.Buffer,  BufferBindingType.Storage);
+    public static WgpuLayoutEntry ReadOnlyStorage (int binding) => new (binding, LayoutEntryType.Buffer,  BufferBindingType.ReadOnlyStorage);
+    
+    public static WgpuLayoutEntry Sampler         (int binding, SamplerBindingType samplerType) => new (binding, samplerType);
+    public static WgpuLayoutEntry Texture         (int binding, TextureSampleType sampleType, TextureViewDimension viewDimension, bool multisampled)
+                                                    => new(binding, sampleType, viewDimension, multisampled);
+}
+
+internal enum LayoutEntryType
+{
+    Buffer,
+    Uniform,
+    Sampler,
+    Texture,
 }
