@@ -181,8 +181,8 @@ public readonly unsafe ref  struct RenderPass
     
     public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
     {
-        ulong offset = (ulong)buffer.Offset;
-        ulong size   = (ulong)buffer.Length;
+        ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
+        ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
         wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
     }
 
