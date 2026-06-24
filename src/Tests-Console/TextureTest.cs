@@ -61,6 +61,10 @@ public partial class TextureTest : IRenderer
                 },
             ]
         }];
+        desc.PrimitiveState = new WgpuPrimitiveState {
+            topology    = PrimitiveTopology.TriangleList,
+            cullMode    = CullMode.Back
+        };
         desc.DepthStencilState = new WgpuDepthStencilState {
             depthWriteEnabled   = OptionalBool.True,
             depthCompare        = CompareFunction.Less,
@@ -110,12 +114,20 @@ public partial class TextureTest : IRenderer
     
     public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
     {
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        var view = (Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time)))
+                 * Matrix4x4.CreateTranslation(0, 0, -4f);
+        var mvp = view * proj;
+        return Matrix4x4.Transpose(mvp);
+    }
+    /* public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    {
         var proj = Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded((2 * MathF.PI) / 5, width / height, 1f, 100f);
         var view =  (Matrix4x4.CreateRotationX(MathF.Sin(time))
                     * Matrix4x4.CreateRotationY(MathF.Cos(time)))
                     * Matrix4x4.CreateTranslation(0, 0, -4f);
         return view * proj;
-    }
+    }*/
     
     public unsafe void DrawFrame()                          // TODO remove unsafe
     {
@@ -136,7 +148,7 @@ public partial class TextureTest : IRenderer
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(wgpu.Width, wgpu.Height, time);
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, vertexConfig))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
