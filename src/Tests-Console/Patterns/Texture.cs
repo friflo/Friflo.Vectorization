@@ -63,32 +63,32 @@ public partial class TextureTest
 	}
     
     private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const ulong         TextureTest_GPU_group_0_layout_Key  =  0x4755;  // unique key set by Generator
-    private const ulong         TextureTest_GPU_UniformLayoutKey    =  0x1155;  // unique key set by Generator
+    private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator
+    private const  ulong        TextureTest_GPU_UniformLayoutKey    =  0x1155;  // unique key set by Generator
     private static ulong        TextureTest_GPU_WgslHash            => 0x1255;  // support Hot-Relead
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuShaderEffect TextureTest_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
     {
-        var group_0_layout = device.GetBindGroupLayout(TextureTest_GPU_group_0_layout_Key);
-        if (!group_0_layout.IsCreated) {
+        var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
+        if (!layout_0.IsCreated) {
             Span<WgpuLayoutEntry> entries = stackalloc WgpuLayoutEntry[3];
             entries[0] = WgpuLayoutEntry.Uniform (0);
             entries[1] = WgpuLayoutEntry.Sampler (1, SamplerBindingType.Filtering);
             entries[2] = WgpuLayoutEntry.Texture (2, TextureSampleType.Float, TextureViewDimension.D2D, false);
-            group_0_layout = device.CreateBindGroupLayout(entries, ShaderStage.Vertex | ShaderStage.Fragment, false, TextureTest_GPU_group_0_layout_Key, "TriangleStorage"u8);
+            layout_0 = device.CreateBindGroupLayout(entries, ShaderStage.Vertex | ShaderStage.Fragment, false, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
-        var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest"u8);
-        var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest"u8);
+        var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
+        var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = group_0_layout;      // [BindVertex (0, x)]
+        layouts[0] = layout_0;      // [BindVertex (0, x)]
 
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest"u8);
 
         var bufferLayout = new WgpuBindGroupLayout();      // TODO remove
-        return ref device.CreateShaderEffect(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, bufferLayout, group_0_layout);
+        return ref device.CreateShaderEffect(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, bufferLayout, layout_0);
     }
     
     private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.basic.vert.wgsl");

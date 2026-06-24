@@ -33,35 +33,28 @@ public static partial class Wormhood
         pass.Draw(3, 1, 0, 0); // [DrawFullscreenTriangle] with out-of-bounds vertices, 0 overdraw
 	}
     
-    private static readonly int Wormhood_GPU_ShaderId            =  ShaderRegistry.NewShaderId("WormhoodShader");
-    private const ulong         Wormhood_GPU_BufferLayoutKey     =  0x4744;  // unique key set by Generator
-    private const ulong         Wormhood_GPU_UniformLayoutKey    =  0x1144;  // unique key set by Generator
-    private static ulong        Wormhood_GPU_WgslHash            => 0x1244; // support Hot-Relead
+    private static readonly int Wormhood_GPU_ShaderId       =  ShaderRegistry.NewShaderId("WormhoodShader");
+    private const  ulong        Wormhood_GPU_layout_0_key   =  0x1144;  // unique key set by Generator
+    private static ulong        Wormhood_GPU_WgslHash       => 0x1244; // support Hot-Relead
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref WgpuShaderEffect Wormhood_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
     {
-        /* var bufferLayout = device.GetBindGroupLayout(Wormhood_GPU_BufferLayoutKey);
-        if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Vertex, false, Wormhood_GPU_BufferLayoutKey, "TriangleStorage"u8);
-        } */
-        var uniformLayout = device.GetBindGroupLayout(Wormhood_GPU_UniformLayoutKey);
-        if (!uniformLayout.IsCreated) {
+        var layout_0 = device.GetBindGroupLayout(Wormhood_GPU_layout_0_key);
+        if (!layout_0.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform(0);            // [BindUniform(x, 0)] @group(1) @binding(0) var<uniform>          myUniforms: MyUniforms;
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Fragment, true, Wormhood_GPU_UniformLayoutKey, "MyUniforms"u8);
+            uniform[0] = WgpuLayoutEntry.Uniform(0);
+            layout_0 = device.CreateBindGroupLayout(uniform, ShaderStage.Fragment, true, Wormhood_GPU_layout_0_key, "Wormhood_layout_0"u8);
         }
-        var module = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood"u8);
+        var module = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood_Shader"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = uniformLayout;     // [BindUniform(0, x)]
+        layouts[0] = layout_0;
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Wormhood"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Wormhood_pipeline"u8);
         
-        return ref device.CreateShaderEffect(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, default, uniformLayout);
+        return ref device.CreateShaderEffect(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, default, layout_0);
     }
     
     private static ReadOnlySpan<byte> Wormhood_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.raymarcher_no_texture.wgsl");
