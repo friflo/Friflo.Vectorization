@@ -179,26 +179,6 @@ public abstract unsafe class GpuTexture : IDisposable
 
 public struct UnfilterableFloat;
 
-public readonly unsafe struct TextureViewHandle
-{
-    public   readonly   TextureView*    handle;                     // TODO  make private
-    private  readonly   GpuTexture      texture;
-    
-    public              nint            Handle => (nint)handle;
-    
-    internal TextureViewHandle (TextureView* handle, GpuTexture texture) {
-        this.handle     = handle;
-        this.texture    = texture;
-    }
-    
-    internal  TextureView* GetPointer()
-    {
-        if (texture.IsDisposed) {
-            throw new ObjectDisposedException(nameof(TextureViewHandle));
-        }
-        return handle;
-    }
-}
 
 /// <summary>
 /// Names of struct types implementing <see cref="ITextureView"/> define the <see cref="BindGroupLayoutEntry.texture"/>
@@ -211,7 +191,7 @@ public readonly unsafe struct TextureViewHandle
 /// Bind group creation:<br/>
 /// The <see cref="BindGroupLayout"/> handle is used in <see cref="BindGroupDescriptor.entries"/> to create a <see cref="BindGroup"/> handle.<br/>
 /// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
-/// A <see cref="BindGroupEntry.textureView"/> can be assigned with <see cref="TextureViewHandle.handle"/><br/>
+/// A <see cref="BindGroupEntry.textureView"/> can be assigned with <see cref="ITextureView.Handle"/><br/>
 /// <br/>
 /// Important for understanding:<br/>
 /// A <see cref="TextureView"/>* defines an immutable configuration state created with <see cref="wgpuTextureCreateView"/>.<br/>
@@ -223,7 +203,16 @@ public readonly unsafe struct TextureViewHandle
 /// </remarks>
 public interface ITextureView
 {
-    TextureViewHandle Handle { get; }
+    nint Handle { get; }
 }
 
-
+internal static class TextureViewUtils
+{
+    internal static unsafe nint GetHandle(TextureView* handle, GpuTexture texture)
+    {
+        if (texture.IsDisposed) {
+            throw new ObjectDisposedException("texture view");
+        }
+        return (nint)handle;
+    }
+}

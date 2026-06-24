@@ -72,7 +72,7 @@ public readonly unsafe struct WgpuBindGroup
     {
         return new BindGroupEntry {
             binding = (uint)binding,
-            textureView = textureView.Handle.GetPointer()
+            textureView = (TextureView*)textureView.Handle
         };
     }
 }

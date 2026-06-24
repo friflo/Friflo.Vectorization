@@ -121,7 +121,7 @@ public partial class TextureTest : IRenderer
             depthTexture = wgpu.Device.CreateTexture2D(wgpu.Width, wgpu.Height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         }
         renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
-            view            = depthTexture!.texture_2d<float>().Handle.handle,
+            view            = (TextureView*)depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store
