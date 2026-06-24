@@ -15,9 +15,8 @@ public partial class TextureTest : IRenderer
 {
     private readonly    Wgpu                    wgpu;
     private readonly    PipelineContext         context;
-    private readonly    GpuBuffer<VertexData>   data;
     private readonly    GpuTexture2D            texture2D;
-    private             GpuTexture2D            depthTexture;
+    private             GpuTexture2D?           depthTexture;
     private readonly    FilteringSampler        sampler;
     private readonly    GpuBuffer<float>        verticesBuffer;
     private readonly    RenderConfig            vertexConfig;
@@ -27,9 +26,7 @@ public partial class TextureTest : IRenderer
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;
-        data        = device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context     = device.BeginContext();
-        rectangle   = data.In(0, 6); // two triangles
         
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
@@ -77,30 +74,15 @@ public partial class TextureTest : IRenderer
     
     public void Shutdown()
     {
-        depthTexture.Dispose();
+        depthTexture?.Dispose();
         verticesBuffer.Dispose();
         sampler.Dispose();
         texture2D.Dispose();
         context.Dispose();
-        data.Dispose();
     }
 
-    private static readonly VertexData[] Vertices =
-    [
-        new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
-        new(new Vector4(-0.5f, -0.5f, 0.0f, 1), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),  // Bottom-Left
-        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
-        
-        new(new Vector4(-0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
-        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
-        new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
-    ];
-    
-
     protected readonly  PerfLog                     perfLog     = new();
-    protected           Uniforms                    uniforms    = new();
-    protected readonly  InView<VertexData>          rectangle;
-    protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected           Uniforms                    uniforms;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
     protected           RenderPassOptions           renderPassOptions  = new() {
         colorAttachments = [ new RenderPassColorAttachment {
@@ -139,7 +121,7 @@ public partial class TextureTest : IRenderer
             depthTexture = wgpu.Device.CreateTexture2D(wgpu.Width, wgpu.Height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         }
         renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
-            view            = depthTexture.texture_2d<float>().Handle.handle,
+            view            = depthTexture!.texture_2d<float>().Handle.handle,
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store
@@ -149,10 +131,7 @@ public partial class TextureTest : IRenderer
         
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, vertexConfig))
         {
-            myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-
-            // RenderTest.DrawTriangles(pass, rectangle, myUniform);
-            RenderSubmarine(pass, verticesBuffer.In(), vertexConfig, uniforms, sampler, textureView);
+            RenderCube(pass, verticesBuffer.In(), vertexConfig, uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -160,7 +139,7 @@ public partial class TextureTest : IRenderer
     
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
-    protected static partial void RenderSubmarine(
+    protected static partial void RenderCube(
                             RenderPass<MainWorld>   renderPass,
                             InBuffer<float>         verticesBuffer,
                             RenderConfig            vertexConfig,
