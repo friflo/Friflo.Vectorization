@@ -25,7 +25,7 @@ public partial class RenderTest
         var pass        = renderPass.Value;
 		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
-		recorder.Init(Triangles_GPU_ShaderId, "Triangles_GPU_Cache"u8);
+		recorder.Init(Triangles_GPU_ShaderId, "Triangles_encoder"u8);
         
         recorder.RequireRead(triangles);
 
@@ -41,7 +41,7 @@ public partial class RenderTest
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
-            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "Triangle_bindGroup0"u8);
+            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "Triangles_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
         pass.SetBindGroup(0, bindGroup0);
@@ -50,7 +50,7 @@ public partial class RenderTest
         if (!bindGroup1.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = recorder.CreateUniformBindGroup<MyUniform>(0);
-            bindGroup1 = recorder.CreateBindGroupNew(pipelineCache.layouts[1], entries, "Triangle_bindGroup1"u8);
+            bindGroup1 = recorder.CreateBindGroupNew(pipelineCache.layouts[1], entries, "Triangles_bindGroup1"u8);
             bindGroupCache.bindGroup1 = bindGroup1;
         }
         pass.SetBindGroup(1, bindGroup1, myUniform);
@@ -68,7 +68,6 @@ public partial class RenderTest
             ReleaseBindGroup(ref bindGroup1);
         }
     }
-    private static  PipelineCache Test() { return default; }
     
     private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("TrianglesShader");
     private const  ulong        Triangles_GPU_layout_0_key  =  0x47;  // unique key set by Generator
@@ -91,7 +90,7 @@ public partial class RenderTest
             uniform[0] = WgpuLayoutEntry.Uniform(0);
             layout_1 = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
         }
-        var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_Shader"u8);
+        var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         layouts[0] = layout_0;
