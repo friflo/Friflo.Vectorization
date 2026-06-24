@@ -49,7 +49,7 @@ public partial class TextureTest
         var key_0 = (verticesBuffer.Handle, smoothFilter.Handle, material.Handle.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-            entries[0]  = recorder.CreateUniformBindGroupEntry<MyUniform>(0);
+            entries[0]  = recorder.CreateUniformBindGroupEntry<Uniforms>(0);
             entries[1]  = WgpuBindGroup.From  (1, smoothFilter);
             entries[2]  = WgpuBindGroup.From  (2, material);
             bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
@@ -59,7 +59,7 @@ public partial class TextureTest
         
         pass.SetVertexBuffer(0, verticesBuffer);
         
-        pass.Draw(36, 0, 0, 0);                     // TODO   calculate correct size for verticesBuffer
+        pass.Draw(36, 1, 0, 0);                     // TODO   calculate correct size for verticesBuffer
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
