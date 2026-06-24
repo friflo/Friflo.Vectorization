@@ -189,7 +189,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public BindGroupEntry CreateUniformBindGroup<T>(int binding) where T : unmanaged
+    public BindGroupEntry CreateUniformBindGroupEntry<T>(int binding) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (UniformAlignment - 1)) & ~(UniformAlignment - 1);
         return new BindGroupEntry {

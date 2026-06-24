@@ -49,7 +49,7 @@ public partial class RenderTest
         var bindGroup1 = bindGroupCache.bindGroup1;
         if (!bindGroup1.IsCreated) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0] = recorder.CreateUniformBindGroup<MyUniform>(0);
+            entries[0] = recorder.CreateUniformBindGroupEntry<MyUniform>(0);
             bindGroup1 = recorder.CreateBindGroupNew(pipelineCache.layouts[1], entries, "Triangles_bindGroup1"u8);
             bindGroupCache.bindGroup1 = bindGroup1;
         }
