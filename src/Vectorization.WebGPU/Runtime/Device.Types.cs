@@ -39,38 +39,6 @@ public unsafe struct WgpuComputeEffect
     }
 }
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public struct WgpuShaderEffects
-{
-    internal WgpuShaderEffect[] configEffects = [];
-
-    public override string ToString() => $"length: {configEffects.Length}";
-
-    public WgpuShaderEffects() { }
-}
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public unsafe struct WgpuShaderEffect
-{
-    public   readonly   WgpuRenderPipeline  renderPipeline;
-    public   readonly   WgpuBindGroupLayout bufferLayout;
-    public   readonly   UniformLayout       uniformLayout;
-    public              WgpuBufferCache     bufferCache;
-    internal readonly   ulong               wgslHash;
-    public              bool                IsCreated => renderPipeline.handle != null;
-
-    public   override   string              ToString()=> renderPipeline.handle != null ? "Created" : "null";
-
-    internal WgpuShaderEffect (int kernelId, ulong wgslHash, WgpuRenderPipeline renderPipeline,
-        WgpuBindGroupLayout  bufferLayout, WgpuBindGroupLayout uniformLayout)
-    {
-        this.wgslHash       = wgslHash;
-        this.renderPipeline = renderPipeline;
-        this.bufferLayout   = bufferLayout;
-        this.uniformLayout  = new UniformLayout((uint)kernelId, uniformLayout);
-    }
-}
-
 internal struct CacheEntry
 {
     internal WgpuBindGroup  bindGroup;

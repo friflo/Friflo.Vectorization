@@ -30,7 +30,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             WgpuCommandBuffer       commandBuffer;
     
     internal            WgpuBindGroup[]         computeUniformGroups= [];
-    internal            WgpuBindGroup[]         shaderUniformGroups = [];
+
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
@@ -38,7 +38,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal readonly   byte[]                  stagingBuffer;              // CPU-cache for uniform buffer
 
     private             int                     kernelSeq;
-    internal            int                     kernelId            = -1;
+    private             int                     kernelId            = -1;
     internal            bool                    createNewPass;
     private  readonly   List<SegmentMap>        clearSegmentMaps    = new (10);
     
@@ -218,7 +218,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
         
-    // TODO REMOVE
+    // TODO REMOVE - 2
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel)
@@ -255,6 +255,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
     
+    // TODO REMOVE - 2
     internal WgpuBindGroup GetUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
     {
         var index = layout.index;
@@ -267,6 +268,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         return CreateUniformBindGroup(layout, uniformSize, ref groups, groupLabel);
     }
     
+    // TODO REMOVE - 2
     [MethodImpl(MethodImplOptions.NoInlining)]
     private WgpuBindGroup CreateUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
     {

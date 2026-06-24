@@ -69,53 +69,6 @@ public sealed unsafe partial  class WgpuDevice
         effect.computeBufferCache.Update(bindGroup, hash);
     }
     
-    // --------------------- shaderEffectSlots ---------------------
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref WgpuShaderEffect GetShaderEffect(int slot, RenderConfig config, ulong wgslHash)
-    {
-        var slots = shaderEffectSlots;
-        if (slot < slots.Length) {
-            var effects     = slots[slot].configEffects;
-            var configId    = config.Id;
-            if (configId < effects.Length) {
-                ref var effect = ref effects[configId];
-                if (effect.wgslHash == wgslHash) {
-                    return ref effect;
-                }
-            }
-        }
-        return ref MissingShaderEffect;
-    }
-    
-    private static WgpuShaderEffect MissingShaderEffect;
-    
-    // TODO REMOVE
-    public ref WgpuShaderEffect CreateShaderEffect(
-        int                     kernelId,
-        RenderConfig            config,
-        ulong                   wgslHash,
-        WgpuRenderPipeline      renderPipeline,
-        WgpuBindGroupLayout     bufferLayout,
-        WgpuBindGroupLayout     uniformLayout)
-    {
-        var slots = shaderEffectSlots;
-        if (kernelId >= slots.Length) {
-            slots = WgpuUtils.ResizeInit(ref shaderEffectSlots, kernelId + 1);
-        }
-        ref var slotEffects = ref slots[kernelId];
-        var effects         = slotEffects.configEffects;
-        var configId        = config.Id;
-        if (configId >= effects.Length) {
-            effects = WgpuUtils.Resize(ref slotEffects.configEffects, configId + 1);
-        }
-        effects[configId] = new WgpuShaderEffect(kernelId, wgslHash, renderPipeline, bufferLayout, uniformLayout);
-        return ref effects[configId];
-    }
-    
-    public void UpdateShaderCache(ref WgpuShaderEffect effect, WgpuBindGroup bindGroup, ulong hash) {
-        effect.bufferCache.Update(bindGroup, hash);
-    }
-    
     // --------------------------------------------------------------
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {

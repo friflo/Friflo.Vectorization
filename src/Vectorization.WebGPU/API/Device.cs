@@ -35,8 +35,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private  readonly   WgpuQueue           queue;
     
     private             PipelineCaches[]    pipelineCacheSlots  = [];
-    private             WgpuComputeEffect[] computeEffectSlots  = new WgpuComputeEffect[4];
-    private             WgpuShaderEffects[] shaderEffectSlots   = [];
+    private             WgpuComputeEffect[] computeEffectSlots  = new WgpuComputeEffect[4];  // TODO REMOVE - 2
+    
     private             GCHandle            deviceHandle;
     private  readonly   void*               deviceHandlePtr;
     
@@ -114,19 +114,6 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             effect.computeBufferCache.Release();
             if(effect.IsCreated) {
                 if (effect.pipeline.handle != null) wgpuComputePipelineRelease(effect.pipeline.handle);
-            }
-        }
-        var shaderSlots = shaderEffectSlots;
-        for (int n = 0; n < shaderSlots.Length; n++)
-        {
-            var configEffects = shaderSlots[n].configEffects;
-            for (int i = 0 ; i < configEffects.Length; i ++)
-            {
-                ref var effect = ref configEffects[i];
-                effect.bufferCache.Release();
-                if (effect.IsCreated) {
-                    if (effect.renderPipeline.handle != null) wgpuRenderPipelineRelease(effect.renderPipeline.handle);
-                }
             }
         }
         foreach (var layout in layoutCache.Values) {

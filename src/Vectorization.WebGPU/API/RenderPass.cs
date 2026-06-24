@@ -199,23 +199,6 @@ public readonly unsafe ref  struct RenderPass
         rec.uniformOffset = offset + alignedSize;
     }
     
-    // TODO REMOVE
-    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuShaderEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
-    {
-        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
-        var rec             = Recorder;
-        var bindGroup       = rec.GetUniformBindGroup(effect.uniformLayout, alignedSize, ref rec.shaderUniformGroups, groupLabel);
-
-        uint offset = rec.uniformOffset;
-        
-        fixed (byte* pStaging = rec.stagingBuffer) {
-            *(T*)(pStaging + offset) = uniform;
-        }
-        wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
-        
-        rec.uniformOffset = offset + alignedSize;
-    }
-    
     public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
     {
         ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes

@@ -113,13 +113,6 @@ public sealed partial class CommandRecorder
                 group = default;
             }
         }
-        for (int n = 0; n < shaderUniformGroups.Length; n++) {
-            ref var group = ref shaderUniformGroups[n];
-            if (group.handle != null) {
-                wgpuBindGroupRelease(group.handle);
-                group = default;
-            }
-        }
     }
     
     /// --- <see cref="PipelineTrace"/>
@@ -139,7 +132,7 @@ public sealed partial class CommandRecorder
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal unsafe void AddKernelTrace(int kernel)
+    private unsafe void AddKernelTrace(int kernel)
     {
         var localTraces = traces;
         if (traceCount >= localTraces.Length) {
