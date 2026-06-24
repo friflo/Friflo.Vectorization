@@ -100,6 +100,15 @@ public partial class TextureTest : IRenderer
         depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     };
     
+    public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    {
+        var proj = Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded((2 * MathF.PI) / 5, width / height, 1f, 100f);
+        var view =  (Matrix4x4.CreateRotationX(MathF.Sin(time))
+                    * Matrix4x4.CreateRotationY(MathF.Cos(time)))
+                    * Matrix4x4.CreateTranslation(0, 0, -4f);
+        return view * proj;
+    }
+    
     public void DrawFrame()
     {
         using var frame = context.BeginFrame(wgpu.Surface);
@@ -108,12 +117,13 @@ public partial class TextureTest : IRenderer
         }
         perfLog.Trace(5000);
         var time = (float)stopwatch.Elapsed.TotalSeconds;
+        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(wgpu.Width, wgpu.Height, time);
         
         using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
-            RenderTest.DrawTriangles(pass, rectangle, myUniform);
+            // RenderTest.DrawTriangles(pass, rectangle, myUniform);
             RenderSubmarine(pass, verticesBuffer.In(), vertexConfig, uniforms, sampler, textureView);
         }
         context.Queue.Submit();
@@ -133,6 +143,6 @@ public partial class TextureTest : IRenderer
 
     [StructLayout(LayoutKind.Sequential)]
     protected struct Uniforms {
-        Matrix4x4   modelViewProjectionMatrix;
+        public Matrix4x4   modelViewProjectionMatrix;
     }
 }
