@@ -57,4 +57,22 @@ public readonly unsafe struct WgpuBindGroup
             size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
         };
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BindGroupEntry From(int binding, GpuSampler sampler)
+    {
+        return new BindGroupEntry {
+            binding = (uint)binding,
+            sampler = sampler.handle,
+        };
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BindGroupEntry From<T>(int binding, T textureView) where T : ITextureView
+    {
+        return new BindGroupEntry {
+            binding = (uint)binding,
+            textureView = textureView.Handle.GetPointer()
+        };
+    }
 }

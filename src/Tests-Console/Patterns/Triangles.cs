@@ -35,7 +35,7 @@ public partial class RenderTest
         }
         pass.SetPipeline(pipelineCache.renderPipeline);
         
-        var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
+        var bindGroupCache = (Triangles_GPU_Cache)pipelineCache.bindGroupCache;
         
         var key_0 = triangles.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
@@ -58,7 +58,7 @@ public partial class RenderTest
         pass.Draw(buffers.length, 1, triangles.Offset, 0);
 	}
     
-    private sealed class TextureTest_GPU_Cache : BindGroupCache
+    private sealed class Triangles_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup0 = new ();
         internal            WgpuBindGroup                         bindGroup1;
@@ -98,7 +98,7 @@ public partial class RenderTest
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Triangles_pipeline"u8);
         
-        var bindGroupCache = new TextureTest_GPU_Cache();
+        var bindGroupCache = new Triangles_GPU_Cache();
         
         return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }

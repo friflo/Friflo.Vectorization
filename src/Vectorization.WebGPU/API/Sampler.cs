@@ -109,7 +109,7 @@ public struct SamplerOptions
 
 public abstract unsafe class GpuSampler : IDisposable
 {
-    private             Sampler*            handle;
+    internal            Sampler*            handle;
     private readonly    SamplerDescriptor   desc;
     public  readonly    string              Label;
     

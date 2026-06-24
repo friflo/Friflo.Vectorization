@@ -34,33 +34,42 @@ public partial class TextureTest
         var pass        = renderPass.Value;
 		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
-		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest"u8);
+		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
         
         recorder.RequireRead(verticesBuffer);
 
-        ref var effect = ref device.GetShaderEffect(TextureTest_GPU_ShaderId, vertexConfig, TextureTest_GPU_WgslHash); // Each device has its own GpuEffect[] array
-        if (!effect.IsCreated) {
-            effect = ref TextureTest_GPU_CreateEffect(device, vertexConfig);
+        ref var pipelineCache = ref device.GetPipelineCache(TextureTest_GPU_ShaderId, vertexConfig, TextureTest_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref TextureTest_GPU_CreatePipelineCache(device, vertexConfig);
         }
-        pass.SetPipeline(effect.renderPipeline);
+        pass.SetPipeline(pipelineCache.renderPipeline);
         
-        // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        /*
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0]  = WgpuBindGroup.From  (0, verticesBuffer.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "TriangleStorage"u8);
-            device.UpdateShaderCache(ref effect, bufferGroup, buffers.hash);
+        var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
+        
+        var key_0 = verticesBuffer.Handle;
+        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
+            entries[0]  = recorder.CreateUniformBindGroup<MyUniform>(0);
+            entries[1]  = WgpuBindGroup.From  (1, smoothFilter);
+            entries[2]  = WgpuBindGroup.From  (2, material);
+            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
+            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);                    // [BindVertex(0, x)]
-        */
-        pass.SetUniformBindGroup(0, ref effect, uniforms, "Uniforms"u8);
+        pass.SetBindGroup(0, bindGroup0, uniforms);
         
         pass.SetVertexBuffer(0, verticesBuffer);
         
         pass.Draw(buffers.length, 0, 0, 0);
 	}
+    
+    private sealed class TextureTest_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup0 = new ();
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bindGroup0);
+        }
+    }
     
     private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
     private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator
@@ -69,7 +78,7 @@ public partial class TextureTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuShaderEffect TextureTest_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref PipelineCache TextureTest_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
@@ -83,12 +92,12 @@ public partial class TextureTest
         var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;      // [BindVertex (0, x)]
+        layouts[0] = layout_0;
 
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest"u8);
 
-        var bufferLayout = new WgpuBindGroupLayout();      // TODO remove
-        return ref device.CreateShaderEffect(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, bufferLayout, layout_0);
+        var bindGroupCache = new TextureTest_GPU_Cache();
+        return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
     private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.basic.vert.wgsl");
