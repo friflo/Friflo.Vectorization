@@ -23,15 +23,22 @@ internal struct PipelineCaches
     public PipelineCaches() { }
 }
 
+
+[InlineArray(4)]
+public struct WgpuBindGroupLayout4
+{
+    private WgpuBindGroupLayout _element0;
+}
+
 /// <summary>
 /// Caches the <see cref="renderPipeline"/>, the <see cref="layouts"/> and the <see cref="WgpuBindGroup"/>'s
 /// for a specific <see cref="RenderConfig"/>.
 /// </summary>
-public readonly unsafe struct PipelineCache
+public unsafe struct PipelineCache
 {
     public   readonly   BindGroupCache          bindGroupCache;
     public   readonly   WgpuRenderPipeline      renderPipeline;
-    public   readonly   WgpuBindGroupLayout[]   layouts = new WgpuBindGroupLayout[4]; // TODO change to inline array
+    public              WgpuBindGroupLayout4    layouts;
     internal readonly   ulong                   wgslHash;
     public              bool                    IsCreated => renderPipeline.handle != null;
 

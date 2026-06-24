@@ -52,7 +52,7 @@ public partial class TextureTest
             entries[0]  = recorder.CreateUniformBindGroupEntry<Uniforms>(0);
             entries[1]  = WgpuBindGroup.From  (1, smoothFilter);
             entries[2]  = WgpuBindGroup.From  (2, material);
-            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
+            bindGroup0  = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
         pass.SetBindGroup(0, bindGroup0, uniforms);
