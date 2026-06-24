@@ -181,7 +181,7 @@ public struct UnfilterableFloat;
 
 public readonly unsafe struct TextureViewHandle
 {
-    private  readonly   TextureView*    handle;
+    public   readonly   TextureView*    handle;                     // TODO  make private
     private  readonly   GpuTexture      texture;
     
     public              nint            Handle => (nint)handle;

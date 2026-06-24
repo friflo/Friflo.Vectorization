@@ -17,6 +17,7 @@ public partial class TextureTest : IRenderer
     private readonly    PipelineContext         context;
     private readonly    GpuBuffer<VertexData>   data;
     private readonly    GpuTexture2D            texture2D;
+    private             GpuTexture2D            depthTexture;
     private readonly    FilteringSampler        sampler;
     private readonly    GpuBuffer<float>        verticesBuffer;
     private readonly    RenderConfig            vertexConfig;
@@ -38,9 +39,7 @@ public partial class TextureTest : IRenderer
         texture2D.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
         textureView = texture2D.texture_2d<float>();
-        var temp    = texture2D.texture_2d<float>();
 
-        var tempHandle = textureView.Handle;
         
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
@@ -62,6 +61,11 @@ public partial class TextureTest : IRenderer
                 },
             ]
         }];
+        desc.DepthStencilState = new WgpuDepthStencilState {
+            depthWriteEnabled   = OptionalBool.True,
+            depthCompare        = CompareFunction.Less,
+            format              = TextureFormat.Depth24Plus
+        };
         vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
@@ -69,6 +73,7 @@ public partial class TextureTest : IRenderer
     
     public void Shutdown()
     {
+        depthTexture.Dispose();
         verticesBuffer.Dispose();
         sampler.Dispose();
         texture2D.Dispose();
@@ -93,11 +98,14 @@ public partial class TextureTest : IRenderer
     protected readonly  InView<VertexData>          rectangle;
     protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    protected readonly  RenderPassColorAttachment   attachment  = new() {
-        loadOp      = LoadOp.Clear,
-        storeOp     = StoreOp.Store,
-        clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
-        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+    protected           RenderPassOptions           renderPassOptions  = new() {
+        colorAttachments = [ new RenderPassColorAttachment {
+                loadOp      = LoadOp.Clear,
+                storeOp     = StoreOp.Store,
+                clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
+                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+            }
+        ],
     };
     
     public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
@@ -109,17 +117,26 @@ public partial class TextureTest : IRenderer
         return view * proj;
     }
     
-    public void DrawFrame()
+    public unsafe void DrawFrame()                          // TODO remove unsafe
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
             return;
         }
         perfLog.Trace(5000);
+        if (perfLog.FrameCount == 1) {
+            depthTexture = wgpu.Device.CreateTexture2D(wgpu.Width, wgpu.Height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+        }
+        renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
+            view            = depthTexture.texture_2d<float>().Handle.handle,
+            depthClearValue = 1,
+            depthLoadOp     = LoadOp.Clear,
+            depthStoreOp    = StoreOp.Store
+        };
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(wgpu.Width, wgpu.Height, time);
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 

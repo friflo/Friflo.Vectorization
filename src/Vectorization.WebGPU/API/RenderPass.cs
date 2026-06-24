@@ -11,6 +11,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 
+// ReSharper disable TooWideLocalVariableScope
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -113,8 +114,9 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             colorAttachments[n].view = view.handle;
         }
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
-        var depthStencilAttachment = new RenderPassDepthStencilAttachment();
+        RenderPassDepthStencilAttachment   depthStencilAttachment;
         if (options.depthStencilAttachment != null) {
+            depthStencilAttachment  = options.depthStencilAttachment.Value;
             pDepthStencilAttachment = &depthStencilAttachment;
         }
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
