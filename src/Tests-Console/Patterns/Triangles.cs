@@ -25,30 +25,50 @@ public partial class RenderTest
         var pass        = renderPass.Value;
 		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
-		recorder.Init(Triangles_GPU_ShaderId, "Triangles"u8);
+		recorder.Init(Triangles_GPU_ShaderId, "Triangles_GPU_Cache"u8);
         
         recorder.RequireRead(triangles);
 
-        ref var effect = ref device.GetShaderEffect(Triangles_GPU_ShaderId, pass.Config, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
-        if (!effect.IsCreated) {
-            effect = ref Triangles_GPU_CreateEffect(device, pass.Config);
+        ref var pipelineCache = ref device.GetPipelineCache(Triangles_GPU_ShaderId, pass.Config, Triangles_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref Triangles_GPU_CreatePipelineCache(device, pass.Config);
         }
-        pass.SetPipeline(effect.renderPipeline);
+        pass.SetPipeline(pipelineCache.renderPipeline);
         
-        // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
+        
+        var key_0 = triangles.Handle;
+        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "TriangleStorage"u8);
-            device.UpdateShaderCache(ref effect, bufferGroup, buffers.hash);
+            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "Triangle_bindGroup0"u8);
+            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bindGroup0);
         
-        pass.SetUniformBindGroup(1, ref effect, myUniform, "MyUniforms"u8);
+        var bindGroup1 = bindGroupCache.bindGroup1;
+        if (!bindGroup1.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
+            entries[0] = recorder.CreateUniformBindGroup<MyUniform>(0);
+            bindGroup1 = recorder.CreateBindGroupNew(pipelineCache.layouts[1], entries, "Triangle_bindGroup1"u8);
+            bindGroupCache.bindGroup1 = bindGroup1;
+        }
+        pass.SetBindGroup(1, bindGroup1, myUniform);
         
         pass.Draw(buffers.length, 1, triangles.Offset, 0);
 	}
+    
+    private sealed class TextureTest_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup0 = new ();
+        internal            WgpuBindGroup                         bindGroup1;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroup(ref bindGroup1);
+        }
+    }
+    private static  PipelineCache Test() { return default; }
     
     private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("TrianglesShader");
     private const  ulong        Triangles_GPU_layout_0_key  =  0x47;  // unique key set by Generator
@@ -57,7 +77,7 @@ public partial class RenderTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuShaderEffect Triangles_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref PipelineCache Triangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         var layout_0 = device.GetBindGroupLayout(Triangles_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
@@ -79,7 +99,9 @@ public partial class RenderTest
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Triangles_pipeline"u8);
         
-        return ref device.CreateShaderEffect(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layout_0, layout_1);
+        var bindGroupCache = new TextureTest_GPU_Cache();
+        
+        return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
     private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.triangle.wgsl");

@@ -34,6 +34,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     
     private  readonly   WgpuQueue           queue;
     
+    private             PipelineCaches[]    pipelineCacheSlots  = [];
     private             WgpuComputeEffect[] computeEffectSlots  = new WgpuComputeEffect[4];
     private             WgpuShaderEffects[] shaderEffectSlots   = [];
     private             GCHandle            deviceHandle;
@@ -98,7 +99,15 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
-        
+        foreach (var pipelineSlot in pipelineCacheSlots)
+        {
+            foreach (ref readonly var cache in pipelineSlot.caches.AsSpan())
+            {
+                if (!cache.IsCreated) continue;
+                cache.bindGroupCache.Clear();
+                wgpuRenderPipelineRelease(cache.renderPipeline.handle);
+            }
+        }
         var computeSlots = computeEffectSlots;
         for (int n = 0; n < computeSlots.Length; n++) {
             ref var effect = ref computeSlots[n];
