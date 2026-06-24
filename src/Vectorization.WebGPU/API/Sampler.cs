@@ -113,6 +113,7 @@ public abstract unsafe class GpuSampler : IDisposable
     private readonly    SamplerDescriptor   desc;
     public  readonly    string              Label;
     
+    public              nint                Handle      => (nint)handle;
     public ref readonly SamplerDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;

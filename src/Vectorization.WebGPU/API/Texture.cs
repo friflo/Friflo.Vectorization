@@ -184,6 +184,8 @@ public readonly unsafe struct TextureViewHandle
     private  readonly   TextureView*    handle;
     private  readonly   GpuTexture      texture;
     
+    public              nint            Handle => (nint)handle;
+    
     internal TextureViewHandle (TextureView* handle, GpuTexture texture) {
         this.handle     = handle;
         this.texture    = texture;
