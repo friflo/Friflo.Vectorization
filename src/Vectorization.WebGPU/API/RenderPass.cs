@@ -52,6 +52,13 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
     }
 }
 
+/// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
+public struct RenderPassOptions
+{
+    public  ValueArray<RenderPassColorAttachment>   colorAttachments;
+    public  RenderPassDepthStencilAttachment?       depthStencilAttachment;      
+}
+
 
 public readonly unsafe ref struct  RenderFrame : IDisposable
 {
@@ -81,16 +88,44 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
         }
+        if (recorder.currentEncoder.handle == null) {
+            recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
+        }
         attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
             colorAttachmentCount    = 1,
             colorAttachments        = &attachment
         };
+        var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
+        return new RenderPass<TStage>(passEncoder, recorder, config);
+    }
+    
+    public RenderPass<TStage> BeginRenderPass<TStage>(in RenderPassOptions options, RenderConfig config) where TStage : unmanaged
+    {
+        if (recorder == null) {
+            throw new InvalidOperationException("RenderFrame is null");
+        }
         if (recorder.currentEncoder.handle == null) {
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
-        var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-        return new RenderPass<TStage>(passEncoder, recorder, config);
+        var colorAttachments = options.colorAttachments._array;
+        for (int n = 0; n < colorAttachments.Length; n++) {
+            colorAttachments[n].view = view.handle;
+        }
+        RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
+        var depthStencilAttachment = new RenderPassDepthStencilAttachment();
+        if (options.depthStencilAttachment != null) {
+            pDepthStencilAttachment = &depthStencilAttachment;
+        }
+        fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
+            var renderPassDesc = new RenderPassDescriptor {
+                colorAttachmentCount    = (uint)colorAttachments.Length,
+                colorAttachments        = pAttachments,
+                depthStencilAttachment  = pDepthStencilAttachment
+            };
+            var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
+            return new RenderPass<TStage>(passEncoder, recorder, config);
+        }
     }
     
     public void Dispose()

@@ -32,7 +32,7 @@ public class ConfigTest : RenderTest
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(attachment, config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);

@@ -52,11 +52,14 @@ public partial class RenderTest : IRenderer
     protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
     protected           Wormhood.Uniforms           wormhood;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    protected readonly  RenderPassColorAttachment   attachment  = new() {
-        loadOp      = LoadOp.Clear,
-        storeOp     = StoreOp.Store,
-        clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
-        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+    protected readonly  RenderPassOptions           renderPassOptions  = new() {
+        colorAttachments = [ new RenderPassColorAttachment {
+                loadOp      = LoadOp.Clear,
+                storeOp     = StoreOp.Store,
+                clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
+                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+            }
+        ]
     };
     
     public virtual void DrawFrame()
@@ -68,7 +71,7 @@ public partial class RenderTest : IRenderer
         perfLog.Trace(5000);
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(attachment, wgpu.Config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);

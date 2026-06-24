@@ -29,7 +29,7 @@ namespace Friflo.Vectorization.WebGPU;
 [CollectionBuilder(typeof(ValueArrayBuilder), nameof(ValueArrayBuilder.Create))]
 public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T> where T : struct
 {
-    private readonly T[] _array;
+    internal readonly T[] _array;
 
     public override string ToString() => $"{typeof(T).Name}[{Length}]";
 
@@ -41,7 +41,12 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public int Length => _array?.Length ?? 0;
     
-    public T this[int index] => _array != null ? _array[index] : throw new IndexOutOfRangeException();
+    public ref T this[int index] {
+        get {
+            if (_array != null) return ref _array[index];
+            throw new IndexOutOfRangeException();
+        }
+    }    
 
     public bool Equals(ValueArray<T> other)
     {
