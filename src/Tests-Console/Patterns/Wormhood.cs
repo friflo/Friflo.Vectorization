@@ -20,18 +20,36 @@ public static partial class Wormhood
         var pass        = renderPass.Value;
 		var recorder	= pass.Recorder;
 		var device		= recorder.Device;
-		recorder.Init(Wormhood_GPU_ShaderId, "Wormhood"u8);
+		recorder.Init(Wormhood_GPU_ShaderId, "Wormhood_encoder"u8);
 
-        ref var effect = ref device.GetShaderEffect(Wormhood_GPU_ShaderId, pass.Config, Wormhood_GPU_WgslHash); // Each device has its own GpuEffect[] array
-        if (!effect.IsCreated) {
-            effect = ref Wormhood_GPU_CreateEffect(device, pass.Config);
+        ref var pipelineCache = ref device.GetPipelineCache(Wormhood_GPU_ShaderId, pass.Config, Wormhood_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref Wormhood_GPU_CreatePipelineCache(device, pass.Config);
         }
-        pass.SetPipeline(effect.renderPipeline);
+        pass.SetPipeline(pipelineCache.renderPipeline);
         
-        pass.SetUniformBindGroup(0, ref effect, uniforms, "MyUniforms"u8);  // [BindUniform(0, x)]
+        var bindGroupCache = (Wormhood_GPU_Cache)pipelineCache.bindGroupCache;
         
-        pass.Draw(3, 1, 0, 0); // [DrawFullscreenTriangle] with out-of-bounds vertices, 0 overdraw
+        var bindGroup0 = bindGroupCache.bindGroup0;
+        if (!bindGroup0.IsCreated) {
+            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
+            entries[0] = recorder.CreateUniformBindGroupEntry<Uniforms>(0);
+            bindGroup0 = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "Wormhood_bindGroup0"u8);
+            bindGroupCache.bindGroup0 = bindGroup0;
+        }
+        pass.SetBindGroup(0, bindGroup0, uniforms);
+        
+        pass.Draw(3, 1, 0, 0);
 	}
+    
+    private sealed class Wormhood_GPU_Cache : BindGroupCache
+    {
+        internal            WgpuBindGroup                         bindGroup0;
+        
+        protected override void Clear() {
+            ReleaseBindGroup(ref bindGroup0);
+        }
+    }
     
     private static readonly int Wormhood_GPU_ShaderId       =  ShaderRegistry.NewShaderId("WormhoodShader");
     private const  ulong        Wormhood_GPU_layout_0_key   =  0x1144;  // unique key set by Generator
@@ -39,7 +57,7 @@ public static partial class Wormhood
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuShaderEffect Wormhood_GPU_CreateEffect(WgpuDevice device, RenderConfig config)
+    private static ref PipelineCache Wormhood_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         var layout_0 = device.GetBindGroupLayout(Wormhood_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
@@ -54,7 +72,8 @@ public static partial class Wormhood
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Wormhood_pipeline"u8);
         
-        return ref device.CreateShaderEffect(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, default, layout_0);
+        var bindGroupCache = new Wormhood_GPU_Cache();
+        return ref device.CreatePipelineCache(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
     private static ReadOnlySpan<byte> Wormhood_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.raymarcher_no_texture.wgsl");
