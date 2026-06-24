@@ -96,7 +96,7 @@ public partial class TextureTest
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = layout_0;
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
