@@ -80,7 +80,7 @@ public sealed partial  class WgpuDevice
             var configId    = config.Id;
             if (configId < caches.Length)
             {
-                ref var cache = ref caches[slot]; 
+                ref var cache = ref caches[configId]; 
                 if (cache.wgslHash == wgslHash) {
                     return ref cache;
                 }
