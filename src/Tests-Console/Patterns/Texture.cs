@@ -58,8 +58,10 @@ public partial class TextureTest
         pass.SetBindGroup(0, bindGroup0, uniforms);
         
         pass.SetVertexBuffer(0, verticesBuffer);
-        
-        pass.Draw(36, 1, 0, 0);                     // TODO   calculate correct size for verticesBuffer
+   
+        var vertexCount = sizeof(float) * verticesBuffer.Length /  
+                          (int)vertexConfig.Descriptor.VertexState.buffers[0].arrayStride; // 36        //   TODO  use better calculation  
+        pass.Draw(vertexCount, 1, 0, 0);
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
