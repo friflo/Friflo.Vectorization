@@ -46,7 +46,7 @@ public partial class TextureTest
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
-        var key_0 = (verticesBuffer.Handle, smoothFilter.Handle, material.Handle);
+        var key_0 = (smoothFilter.Handle, material.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0]  = recorder.CreateUniformBindGroupEntry<Uniforms>(0);
@@ -64,7 +64,7 @@ public partial class TextureTest
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint,nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
         
         protected override void Clear() {
             ReleaseBindGroups(bindGroup0);
