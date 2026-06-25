@@ -109,7 +109,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("UseConstant"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _UseConstant_GPU_CreateComputeCache(device);
         }

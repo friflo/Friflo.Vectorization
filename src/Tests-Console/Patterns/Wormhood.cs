@@ -18,7 +18,7 @@ public static partial class Wormhood
 		var device		= recorder.Device;
 		recorder.Init(Wormhood_GPU_ShaderId, "Wormhood_encoder"u8);
 
-        ref var pipelineCache = ref device.GetPipelineCache(Wormhood_GPU_ShaderId, pass.Config, Wormhood_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(Wormhood_GPU_ShaderId, pass.Config, Wormhood_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref Wormhood_GPU_CreatePipelineCache(device, pass.Config);
         }

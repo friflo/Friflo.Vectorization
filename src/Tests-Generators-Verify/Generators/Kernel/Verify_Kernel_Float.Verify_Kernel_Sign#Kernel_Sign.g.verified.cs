@@ -118,7 +118,7 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("Kernel_Sign"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Kernel_Sign_GPU_CreateComputeCache(device);
         }

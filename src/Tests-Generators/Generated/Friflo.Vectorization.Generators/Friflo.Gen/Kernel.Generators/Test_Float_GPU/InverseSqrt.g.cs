@@ -108,7 +108,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("InverseSqrt"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _InverseSqrt_GPU_CreateComputeCache(device);
         }

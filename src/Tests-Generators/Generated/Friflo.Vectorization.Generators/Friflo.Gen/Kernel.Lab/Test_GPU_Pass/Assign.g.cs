@@ -119,7 +119,7 @@ namespace Kernel.Lab
 
         using var pass = recorder.BeginComputePass("Assign"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Assign_GPU_KernelId, _Assign_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Assign_GPU_CreateComputeCache(device);
         }

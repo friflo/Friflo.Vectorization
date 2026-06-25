@@ -119,7 +119,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Max"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Kernel_Max_GPU_CreateComputeCache(device);
         }

@@ -125,7 +125,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Clamp"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Kernel_Clamp_GPU_CreateComputeCache(device);
         }

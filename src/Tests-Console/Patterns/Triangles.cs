@@ -26,7 +26,7 @@ public partial class RenderTest
         
         recorder.RequireRead(triangles);
 
-        ref var pipelineCache = ref device.GetPipelineCache(Triangles_GPU_ShaderId, pass.Config, Triangles_GPU_WgslHash); // PipelineCache device/config via two arrays 
+        ref readonly var pipelineCache = ref device.GetPipelineCache(Triangles_GPU_ShaderId, pass.Config, Triangles_GPU_WgslHash); // PipelineCache device/config via two arrays 
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref Triangles_GPU_CreatePipelineCache(device, pass.Config);
         }

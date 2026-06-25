@@ -28,7 +28,7 @@ public partial class TextureTest
         
         recorder.RequireRead(verticesBuffer);
 
-        ref var pipelineCache = ref device.GetPipelineCache(TextureTest_GPU_ShaderId, vertexConfig, TextureTest_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(TextureTest_GPU_ShaderId, vertexConfig, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref TextureTest_GPU_CreatePipelineCache(device, vertexConfig);
         }

@@ -96,7 +96,7 @@ namespace Kernel.Lab
 
         using var pass = recorder.BeginComputePass("ReadOnly"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _ReadOnly_GPU_CreateComputeCache(device);
         }

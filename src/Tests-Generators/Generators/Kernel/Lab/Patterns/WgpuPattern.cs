@@ -31,7 +31,7 @@ public static class WgpuPattern
 
         using var pass = recorder.BeginComputePass("MultiplyAdd"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        ref readonly var pipelineCache = ref device.GetPipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref MultiplyAdd_GPU_CreateComputeCache(device);
         }

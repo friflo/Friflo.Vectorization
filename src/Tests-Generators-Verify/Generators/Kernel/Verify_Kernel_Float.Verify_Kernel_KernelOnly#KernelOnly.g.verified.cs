@@ -55,7 +55,7 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("KernelOnly"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _KernelOnly_GPU_CreateComputeCache(device);
         }

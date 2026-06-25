@@ -119,7 +119,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Multiply"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Multiply_GPU_CreateComputeCache(device);
         }

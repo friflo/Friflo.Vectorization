@@ -193,7 +193,7 @@ $$""""
 
         using var pass = recorder.BeginComputePass("{{methodName}}"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref {{methodName_GPU}}_CreateComputeCache(device);
         }

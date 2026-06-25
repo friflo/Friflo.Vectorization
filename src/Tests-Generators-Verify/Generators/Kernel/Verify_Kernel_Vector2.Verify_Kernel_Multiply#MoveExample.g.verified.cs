@@ -126,7 +126,7 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("MoveExample"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _MoveExample_GPU_CreateComputeCache(device);
         }

@@ -125,7 +125,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Move"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Move_GPU_KernelId, _Move_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Move_GPU_KernelId, _Move_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Move_GPU_CreateComputeCache(device);
         }

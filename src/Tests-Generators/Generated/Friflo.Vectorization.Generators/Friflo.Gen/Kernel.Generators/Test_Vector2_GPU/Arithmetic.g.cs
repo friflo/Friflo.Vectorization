@@ -161,7 +161,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Arithmetic"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Arithmetic_GPU_CreateComputeCache(device);
         }

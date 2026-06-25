@@ -193,7 +193,7 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Kernel_Misc"u8);
         
-        ref var pipelineCache = ref device.GetPipelineCache(_Kernel_Misc_GPU_KernelId, _Kernel_Misc_GPU_WgslHash);
+        ref readonly var pipelineCache = ref device.GetPipelineCache(_Kernel_Misc_GPU_KernelId, _Kernel_Misc_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _Kernel_Misc_GPU_CreateComputeCache(device);
         }
