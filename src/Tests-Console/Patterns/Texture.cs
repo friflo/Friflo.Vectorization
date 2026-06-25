@@ -57,7 +57,7 @@ public partial class TextureTest
         }
         pass.SetBindGroupUniform(0, bindGroup0, uniforms);
         
-        pass.SetVertexBuffer(0, verticesBuffer);
+        pass.SetVertexBuffer(0, verticesBuffer); // slot: 0  ->  maps to: desc.VertexState.buffers[0]
    
         var vertexCount = sizeof(float) * verticesBuffer.Length /  
                           (int)vertexConfig.Descriptor.VertexState.buffers[0].arrayStride; // 36        //   TODO  use better calculation  
