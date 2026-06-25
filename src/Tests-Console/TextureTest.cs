@@ -6,8 +6,6 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using StbImageSharp;
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
@@ -36,6 +34,7 @@ public partial class TextureTest : IRenderer
         var device  = wgpu.Device;
         context     = device.BeginContext();
         
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
         texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
@@ -51,6 +50,7 @@ public partial class TextureTest : IRenderer
         verticesBuffer.In().Write(context);
         
         var desc = wgpu.Config.Descriptor;
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
         desc.VertexState.buffers = [
             new WgpuVertexBufferLayout {  // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
                 arrayStride = Cube.cubeVertexSize,
@@ -79,32 +79,34 @@ public partial class TextureTest : IRenderer
         vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
-    private   readonly  texture_2d<float>           textureView;
-    protected readonly  PerfLog                     perfLog     = new();
-    protected           Uniforms                    uniforms;
-    protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    protected           RenderPassOptions           renderPassOptions  = new() {
-        colorAttachments = [ new RenderPassColorAttachment {
-                loadOp      = LoadOp.Clear,
-                storeOp     = StoreOp.Store,
-                clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
-                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-            }
-        ],
-    };
+    private   readonly  texture_2d<float>   textureView;
+    private   readonly  PerfLog             perfLog             = new();
+    private             Uniforms            uniforms;
+    private   readonly  Stopwatch           stopwatch           = Stopwatch.StartNew();
+    private             RenderPassOptions   renderPassOptions   = new() {
+                                                colorAttachments = [ new RenderPassColorAttachment {
+                                                        loadOp      = LoadOp.Clear,
+                                                        storeOp     = StoreOp.Store,
+                                                        clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
+                                                        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+                                                    }
+                                                ]
+                                            };
     
-    public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L168
+    private Matrix4x4 GetTransformationMatrix(float width, float height, float time)
     {
         var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
         var view = Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time))
                  * Matrix4x4.CreateTranslation(0, 0, -4f);
-        return view * proj; 
+        return view * proj;
     }
-    
+
     public void ResizeWindow(int width, int height)
     {
         depthTexture?.Dispose(); // create new texture 2D
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L155
         renderPassOptions.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
             view            = depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
@@ -113,6 +115,7 @@ public partial class TextureTest : IRenderer
         };
     }
     
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L179
     public void DrawFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
