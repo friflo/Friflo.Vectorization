@@ -101,12 +101,12 @@ public partial class TextureTest : IRenderer
         return view * proj; 
     }
     
-    public unsafe void ResizeWindow(int width, int height)
+    public void ResizeWindow(int width, int height)
     {
-        depthTexture?.Dispose();
+        depthTexture?.Dispose(); // create new texture 2D
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
-        renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
-            view            = (TextureView*)depthTexture!.texture_2d<float>().Handle,   // TODO remove unsafe code
+        renderPassOptions.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
+            view            = depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store

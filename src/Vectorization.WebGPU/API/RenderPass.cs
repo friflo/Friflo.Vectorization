@@ -11,6 +11,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 
+// ReSharper disable UnassignedField.Global
 // ReSharper disable TooWideLocalVariableScope
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable InvertIf
@@ -57,7 +58,38 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 public struct RenderPassOptions
 {
     public  ValueArray<RenderPassColorAttachment>   colorAttachments;
-    public  RenderPassDepthStencilAttachment?       depthStencilAttachment;
+    public  WgpuRenderPassDepthStencilAttachment?   depthStencilAttachment;
+}
+
+/// <summary> see: <see cref="RenderPassDepthStencilAttachment"/> </summary>
+public struct WgpuRenderPassDepthStencilAttachment
+{
+    public  nint    nextInChain;
+    public  nint    view;
+    public  LoadOp  depthLoadOp;
+    public  StoreOp depthStoreOp;
+    public  float   depthClearValue;
+    public  uint    depthReadOnly;
+    public  LoadOp  stencilLoadOp;
+    public  StoreOp stencilStoreOp;
+    public  uint    stencilClearValue;
+    public  uint    stencilReadOnly;
+    
+    public unsafe RenderPassDepthStencilAttachment GetNative()
+    {
+        return new RenderPassDepthStencilAttachment {
+            nextInChain         =  (ChainedStruct*)nextInChain,
+            view                =  (TextureView*)view,
+            depthLoadOp         =  depthLoadOp,
+            depthStoreOp        =  depthStoreOp,
+            depthClearValue     =  depthClearValue,
+            depthReadOnly       =  depthReadOnly,
+            stencilLoadOp       =  stencilLoadOp,
+            stencilStoreOp      =  stencilStoreOp,
+            stencilClearValue   =  stencilClearValue,
+            stencilReadOnly     =  stencilReadOnly
+        };
+    }
 }
 
 
@@ -117,7 +149,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
         RenderPassDepthStencilAttachment   depthStencilAttachment;
         if (options.depthStencilAttachment != null) {
-            depthStencilAttachment  = options.depthStencilAttachment.Value;
+            depthStencilAttachment  = options.depthStencilAttachment.Value.GetNative();
             pDepthStencilAttachment = &depthStencilAttachment;
         }
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
