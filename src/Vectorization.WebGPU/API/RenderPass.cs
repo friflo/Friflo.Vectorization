@@ -86,7 +86,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             throw new InvalidOperationException("RenderFrame is null");
         }
         if (recorder.currentEncoder.handle == null) {
-            recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
+            recorder.Init(0, "RenderEncoder"u8);
         }
         attachment.view = view.handle;
         var renderPassDesc = new RenderPassDescriptor {
