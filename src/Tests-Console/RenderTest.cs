@@ -45,7 +45,6 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
-    
 
     protected readonly  PerfLog                     perfLog     = new();
     protected readonly  InView<VertexData>          rectangle;
@@ -53,14 +52,14 @@ public partial class RenderTest : IRenderer
     protected           Wormhood.Uniforms           wormhood;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
     protected readonly  RenderPassOptions           renderPassOptions  = new() {
-        colorAttachments = [ new RenderPassColorAttachment {
-                loadOp      = LoadOp.Clear,
-                storeOp     = StoreOp.Store,
-                clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
-                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-            }
-        ]
-    };
+                                                        colorAttachments = [ new RenderPassColorAttachment {
+                                                                loadOp      = LoadOp.Clear,
+                                                                storeOp     = StoreOp.Store,
+                                                                clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
+                                                                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+                                                            }
+                                                        ]
+                                                    };
     
     public virtual void DrawFrame(int width, int height)
     {
@@ -91,6 +90,7 @@ public partial class RenderTest : IRenderer
         [BindUniform(1, 0)] MyUniform              myUniform);
 }
 
+
 public struct MainWorld;
 
 [StructLayout(LayoutKind.Sequential, Size = 32)]
@@ -108,7 +108,6 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
                             RenderPass<MainWorld>  renderPass,
