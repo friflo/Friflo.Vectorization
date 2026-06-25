@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.GPU;
 using JetBrains.Annotations;
 
 
@@ -27,6 +28,17 @@ public sealed class VertexShaderAttribute : Attribute
 public sealed class FragmentShaderAttribute : Attribute
 {
     public FragmentShaderAttribute([PathReference] string wgsl, string frag = null) { }
+}
+
+/// <summary> Specifies that the parameter binds a vertex buffer to the designated GPU input slot. </summary>
+/// <remarks>
+/// Vertex buffers are created with buffer type <see cref="BufferType.Vertex"/> using <c>GpuDevice.CreateBuffer()</c>. 
+/// </remarks>
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class VertexBufferAttribute : Attribute
+{
+    /// <param name="slot">Maps to the <see cref="WgpuVertexState.buffers"/> element index. </param>
+    public VertexBufferAttribute (int slot) { }
 }
 
 // --- Generator Draw Call Rules ---

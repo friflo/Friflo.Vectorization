@@ -141,7 +141,7 @@ public partial class TextureTest : IRenderer
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(
                             RenderPass<MainWorld>   renderPass,
-                            InBuffer<float>         verticesBuffer,
+        [VertexBuffer(0)]   InBuffer<float>         verticesBuffer,
                             RenderConfig            vertexConfig,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] FilteringSampler        smoothFilter,
