@@ -43,20 +43,21 @@ public partial class TextureTest : IRenderer
         verticesBuffer.In().Write(context);
         
         var desc = wgpu.Config.Descriptor;
-        desc.VertexState.buffers = [ new WgpuVertexBufferLayout {  // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
-            arrayStride = Cube.cubeVertexSize,
-            attributes = [
-                new VertexAttribute {
-                    shaderLocation = 0,     // @location(0) position : vec4f (Im Shader)
-                    offset = Cube.cubePositionOffset,
-                    format = VertexFormat.Float32x4
-                },
-                new VertexAttribute {
-                    shaderLocation = 1,     // @location(1) uv       : vec2f (Im Shader)
-                    offset = Cube.cubeUVOffset,
-                    format = VertexFormat.Float32x2
-                },
-            ]
+        desc.VertexState.buffers = [
+            new WgpuVertexBufferLayout {  // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
+                arrayStride = Cube.cubeVertexSize,
+                attributes = [
+                    new VertexAttribute {
+                        shaderLocation = 0,     // @location(0) position : vec4f (Im Shader)
+                        offset = Cube.cubePositionOffset,
+                        format = VertexFormat.Float32x4
+                    },
+                    new VertexAttribute {
+                        shaderLocation = 1,     // @location(1) uv       : vec2f (Im Shader)
+                        offset = Cube.cubeUVOffset,
+                        format = VertexFormat.Float32x2
+                    },
+                ]
         }];
         desc.PrimitiveState = new WgpuPrimitiveState {
             topology    = PrimitiveTopology.TriangleList,

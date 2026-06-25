@@ -32,7 +32,29 @@ public sealed class FragmentShaderAttribute : Attribute
 
 /// <summary> Specifies that the parameter binds a vertex buffer to the designated GPU input slot. </summary>
 /// <remarks>
-/// Vertex buffers are created with buffer type <see cref="BufferType.Vertex"/> using <c>GpuDevice.CreateBuffer()</c>. 
+/// <para>
+/// Vertex buffers are created with buffer type <see cref="BufferType.Vertex"/> using <c>GpuDevice.CreateBuffer()</c>.
+/// </para>
+/// <para> A vertex buffer requires a <see cref="WgpuVertexBufferLayout"/>. </para>
+/// Example:
+/// <code>
+/// desc.VertexState.buffers = [
+///     new WgpuVertexBufferLayout {  // buffers[0]  ->  slot = 0
+///         arrayStride = Cube.cubeVertexSize,
+///         attributes = [
+///             new VertexAttribute {
+///                 shaderLocation = 0,     // WGSL: @location(0) position : vec4f (Im Shader)
+///                 offset = Cube.cubePositionOffset,
+///                 format = VertexFormat.Float32x4
+///             },
+///             new VertexAttribute {
+///                 shaderLocation = 1,     // WGSL: @location(1) uv       : vec2f (Im Shader)
+///                 offset = Cube.cubeUVOffset,
+///                 format = VertexFormat.Float32x2
+///             },
+///         ]
+/// }];
+/// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class VertexBufferAttribute : Attribute
