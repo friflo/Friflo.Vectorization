@@ -102,14 +102,6 @@ public partial class TextureTest : IRenderer
                  * Matrix4x4.CreateTranslation(0, 0, -4f);
         return view * proj; 
     }
-    /* public Matrix4x4 GetTransformationMatrix(float width, float height, float time)
-    {
-        var proj = Matrix4x4.CreatePerspectiveFieldOfViewLeftHanded((2 * MathF.PI) / 5, width / height, 1f, 100f);
-        var view =  (Matrix4x4.CreateRotationX(MathF.Sin(time))
-                    * Matrix4x4.CreateRotationY(MathF.Cos(time)))
-                    * Matrix4x4.CreateTranslation(0, 0, -4f);
-        return view * proj;
-    }*/
     
     public unsafe void DrawFrame()                          // TODO remove unsafe
     {
