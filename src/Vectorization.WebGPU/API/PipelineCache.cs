@@ -34,21 +34,28 @@ public struct WgpuBindGroupLayout4
 /// Caches the <see cref="renderPipeline"/>, the <see cref="layouts"/> and the <see cref="WgpuBindGroup"/>'s
 /// for a specific <see cref="RenderConfig"/>.
 /// </summary>
-public unsafe struct PipelineCache
+public readonly unsafe struct PipelineCache
 {
     public   readonly   BindGroupCache          bindGroupCache;     //  8
     public   readonly   WgpuRenderPipeline      renderPipeline;     //  8
-    public              WgpuBindGroupLayout4    layouts;            // 32
+    public   readonly   WgpuBindGroupLayout4    layouts;            // 32
     internal readonly   ulong                   wgslHash;           //  8
     
     public              bool                    IsCreated   => renderPipeline.handle != null;
     public   override   string                  ToString()  => renderPipeline.handle != null ? "Created" : "null";
 
-    internal PipelineCache (ulong wgslHash, WgpuRenderPipeline renderPipeline, BindGroupCache bindGroupCache)
+    internal PipelineCache (
+        ulong                               wgslHash,
+        WgpuRenderPipeline                  renderPipeline,
+        BindGroupCache                      bindGroupCache,
+        ReadOnlySpan<WgpuBindGroupLayout>   layouts)
     {
         this.wgslHash       = wgslHash;
         this.renderPipeline = renderPipeline;
         this.bindGroupCache = bindGroupCache;
+        for (int n = 0; n < layouts.Length; n++) {
+            this.layouts[n] = layouts[n];
+        }
     }
 }
 
@@ -117,11 +124,7 @@ public sealed partial  class WgpuDevice
             caches = WgpuUtils.Resize(ref slotCaches.caches, configId + 1);
         }
         ref var cache = ref caches[configId];
-        cache = new PipelineCache(wgslHash, renderPipeline, bindGroupCache);
-        
-        for (int n = 0; n < layouts.Length; n++) {
-            cache.layouts[n] = layouts[n];
-        }
+        cache = new PipelineCache(wgslHash, renderPipeline, bindGroupCache, layouts);
         return ref cache;
     }
 }
