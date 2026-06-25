@@ -72,13 +72,13 @@ public partial class RenderTest
         if (!layout_0.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
             buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);
-            layout_0 = device.CreateBindGroupLayout(buffers, ShaderStage.Vertex, false, Triangles_GPU_layout_0_key, "Triangles_layout_0"u8);
+            layout_0 = device.CreateBindGroupLayout(buffers, ShaderStage.Vertex, Triangles_GPU_layout_0_key, "Triangles_layout_0"u8);
         }
         var layout_1 = device.GetBindGroupLayout(Triangles_GPU_layout_1_key);
         if (!layout_1.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0] = WgpuLayoutEntry.Uniform(0);
-            layout_1 = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, true, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
+            layout_1 = device.CreateBindGroupLayout(uniform, ShaderStage.Vertex, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
         }
         var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
         

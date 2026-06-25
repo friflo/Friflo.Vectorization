@@ -189,14 +189,14 @@ namespace VerifyVectorize
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
             buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  velocity_arr: array<vec2<f32>>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, _MoveExample_GPU_BufferLayoutKey, "MoveExample_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, _MoveExample_GPU_BufferLayoutKey, "MoveExample_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_MoveExample_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, _MoveExample_GPU_UniformLayoutKey, "MoveExample_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, _MoveExample_GPU_UniformLayoutKey, "MoveExample_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_MoveExample_GPU_Shader(), "MoveExample"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);

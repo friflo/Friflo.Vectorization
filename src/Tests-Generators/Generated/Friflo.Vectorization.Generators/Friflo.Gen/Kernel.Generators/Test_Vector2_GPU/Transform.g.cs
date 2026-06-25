@@ -184,14 +184,14 @@ namespace Kernel.Generators
         if (!bufferLayout.IsCreated) {
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
             buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<vec2<f32>>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, _Transform_GPU_BufferLayoutKey, "Transform_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, _Transform_GPU_BufferLayoutKey, "Transform_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Transform_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, _Transform_GPU_UniformLayoutKey, "Transform_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, _Transform_GPU_UniformLayoutKey, "Transform_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Transform_GPU_Shader(), "Transform"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Transform"u8);

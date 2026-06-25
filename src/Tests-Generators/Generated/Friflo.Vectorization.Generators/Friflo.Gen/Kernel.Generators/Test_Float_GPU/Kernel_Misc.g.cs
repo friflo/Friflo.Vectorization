@@ -256,14 +256,14 @@ namespace Kernel.Generators
             Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[2];
             buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<f32>;
             buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  velocity_arr: array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, false, _Kernel_Misc_GPU_BufferLayoutKey, "Kernel_Misc_buffers"u8);
+            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, _Kernel_Misc_GPU_BufferLayoutKey, "Kernel_Misc_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Kernel_Misc_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
             Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
             uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, true, _Kernel_Misc_GPU_UniformLayoutKey, "Kernel_Misc_uniforms"u8);
+            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, _Kernel_Misc_GPU_UniformLayoutKey, "Kernel_Misc_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Kernel_Misc_GPU_Shader(), "Kernel_Misc"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Misc"u8);

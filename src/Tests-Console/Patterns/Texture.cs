@@ -75,7 +75,7 @@ public partial class TextureTest
             entries[0] = WgpuLayoutEntry.Uniform (0);
             entries[1] = WgpuLayoutEntry.Sampler (1, SamplerBindingType.Filtering);
             entries[2] = WgpuLayoutEntry.Texture (2, TextureSampleType.Float, TextureViewDimension.D2D, false);
-            layout_0 = device.CreateBindGroupLayout(entries, ShaderStage.Vertex | ShaderStage.Fragment, false, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
+            layout_0 = device.CreateBindGroupLayout(entries, ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
         var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
         var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);

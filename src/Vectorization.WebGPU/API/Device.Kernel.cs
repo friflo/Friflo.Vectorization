@@ -178,7 +178,6 @@ public sealed unsafe partial  class WgpuDevice
     public WgpuBindGroupLayout CreateBindGroupLayout(
         ReadOnlySpan<WgpuLayoutEntry>   entries,
         ShaderStage                     visibility,
-        bool                            dynamicOffset,          // TODO remove - obsolete
         ulong                           hashKey,
         ReadOnlySpan<byte>              layoutLabel)
     {
