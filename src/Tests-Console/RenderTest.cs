@@ -21,18 +21,18 @@ public partial class RenderTest : IRenderer
     protected readonly  PipelineContext         context;
     protected readonly  GpuBuffer<VertexData>   data;
     
+    public void Shutdown()
+    {
+        context.Dispose();
+        data.Dispose();
+    }
+    
     public RenderTest(Wgpu wgpu)
     {
         this.wgpu = wgpu;
         data        = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         context     = wgpu.Device.BeginContext();
         rectangle   = data.In(0, 6); // two triangles
-    }
-    
-    public void Shutdown()
-    {
-        context.Dispose();
-        data.Dispose();
     }
 
     private static readonly VertexData[] Vertices =

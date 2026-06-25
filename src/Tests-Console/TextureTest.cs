@@ -13,14 +13,22 @@ namespace TestConsole;
 
 public partial class TextureTest : IRenderer
 {
-    private readonly    Wgpu                    wgpu;
-    private readonly    PipelineContext         context;
-    private readonly    GpuTexture2D            texture2D;
-    private             GpuTexture2D?           depthTexture;
-    private readonly    FilteringSampler        sampler;
-    private readonly    GpuBuffer<float>        verticesBuffer;
-    private readonly    RenderConfig            vertexConfig;
+    private readonly    Wgpu                wgpu;
+    private readonly    PipelineContext     context;
+    private readonly    GpuTexture2D        texture2D;
+    private             GpuTexture2D?       depthTexture;
+    private readonly    FilteringSampler    sampler;
+    private readonly    GpuBuffer<float>    verticesBuffer;
+    private readonly    RenderConfig        vertexConfig;
     
+    public void Shutdown()
+    {
+        depthTexture?.Dispose();
+        verticesBuffer.Dispose();
+        sampler.Dispose();
+        texture2D.Dispose();
+        context.Dispose();
+    }
     
     public TextureTest(Wgpu wgpu)
     {
@@ -71,17 +79,7 @@ public partial class TextureTest : IRenderer
         vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
-    private readonly texture_2d<float> textureView;
-    
-    public void Shutdown()
-    {
-        depthTexture?.Dispose();
-        verticesBuffer.Dispose();
-        sampler.Dispose();
-        texture2D.Dispose();
-        context.Dispose();
-    }
-
+    private   readonly  texture_2d<float>           textureView;
     protected readonly  PerfLog                     perfLog     = new();
     protected           Uniforms                    uniforms;
     protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
