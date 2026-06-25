@@ -64,14 +64,13 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     
     public void SetUniformBindGroup<T>(uint groupIndex, in ComputeCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
+        var rec = recorder;
         if (!bindGroup.IsCreated) {
-            var entry   = recorder.CreateUniformBindGroupEntry<T>(0);
-            bindGroup   = recorder.CreateBindGroupNew(pipelineCache.uniformLayout, entry, groupLabel);
+            var entry   = rec.CreateUniformBindGroupEntry<T>(0);
+            bindGroup   = rec.CreateBindGroupNew(pipelineCache.uniformLayout, entry, groupLabel);
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
-        var rec             = recorder;
-
-        uint offset = rec.uniformOffset;
+        uint offset         = rec.uniformOffset;
         
         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
