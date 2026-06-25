@@ -101,26 +101,25 @@ public partial class TextureTest : IRenderer
         return view * proj; 
     }
     
-    public void ResizeWindow(int width, int height)
+    public unsafe void ResizeWindow(int width, int height)
     {
         depthTexture?.Dispose();
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
-    }
-    
-    public unsafe void DrawFrame(int width, int height)                          // TODO remove unsafe
-    {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
-        perfLog.Trace(5000);
-
         renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
             view            = (TextureView*)depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store
         };
+    }
+    
+    public void DrawFrame(int width, int height)                          // TODO remove unsafe
+    {
+        using var frame = context.BeginFrame(wgpu.Surface);
+        if (frame.IsNull) {     // window minimized?
+            return;
+        }
+        perfLog.Trace(5000);
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         
