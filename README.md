@@ -113,7 +113,7 @@ Leave a ⭐ at  [friflo Vectorization](https://github.com/friflo/Friflo.Vector
 
 **License**
 
-This project is licensed under MIT.  
+This project is licensed under AGPL 3.0  
 
 friflo Vectorization  
 Copyright © 2026   Ullrich Praetz - https://github.com/friflo

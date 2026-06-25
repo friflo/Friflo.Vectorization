@@ -69,7 +69,7 @@
 
   <PropertyGroup>
     <NoWarn>1591</NoWarn>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
   <!-- packaging: end -->
 
