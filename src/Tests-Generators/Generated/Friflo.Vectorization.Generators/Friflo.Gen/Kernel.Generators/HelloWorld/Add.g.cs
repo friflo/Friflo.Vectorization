@@ -147,7 +147,7 @@ namespace Kernel.Generators
             entries[0] = WgpuBindGroup.From(0, a.Buffer);
             entries[1] = WgpuBindGroup.From(1, b.Buffer);
             entries[2] = WgpuBindGroup.From(2, c.Buffer);
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Add_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "Add_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

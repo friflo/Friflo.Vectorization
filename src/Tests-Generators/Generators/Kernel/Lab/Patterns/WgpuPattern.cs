@@ -45,7 +45,7 @@ public static class WgpuPattern
             entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
             entries[1] = WgpuBindGroup.From  (1, input.Buffer);
             entries[2] = WgpuBindGroup.From  (2, output.Buffer);
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "MultiplyAdd_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "MultiplyAdd_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

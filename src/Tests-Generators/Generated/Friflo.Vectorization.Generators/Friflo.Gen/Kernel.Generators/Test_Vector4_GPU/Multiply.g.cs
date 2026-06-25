@@ -132,7 +132,7 @@ namespace Kernel.Generators
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
             entries[1] = WgpuBindGroup.From(1, velocity.Buffer);
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Multiply_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "Multiply_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

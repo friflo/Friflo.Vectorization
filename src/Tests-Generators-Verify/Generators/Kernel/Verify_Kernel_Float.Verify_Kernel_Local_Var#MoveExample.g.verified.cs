@@ -130,7 +130,7 @@ namespace VerifyVectorize
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "MoveExample_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "MoveExample_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

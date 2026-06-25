@@ -204,7 +204,7 @@ $$""""
         var key = {{bufferKey}};
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "{{methodName}}_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "{{methodName}}_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

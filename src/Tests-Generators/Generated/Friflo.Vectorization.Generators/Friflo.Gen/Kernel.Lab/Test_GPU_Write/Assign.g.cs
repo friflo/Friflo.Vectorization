@@ -132,7 +132,7 @@ namespace Kernel.Lab
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
             entries[0] = WgpuBindGroup.From(0, output.Buffer);
             entries[1] = WgpuBindGroup.From(1, input.Buffer);
-            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Assign_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "Assign_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);
