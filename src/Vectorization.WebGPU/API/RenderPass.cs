@@ -79,12 +79,8 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         this.recorder       = recorder;
     }
 
-    // OPTIMIZATION: <TStage> enables Static Global Bindings.
-    // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.
-    // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
-    // Minimizes CPU-to-GPU state change overhead dramatically.
-    // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : unmanaged
+
+    /* public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : unmanaged
     {
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
@@ -99,8 +95,13 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         };
         var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
         return new RenderPass<TStage>(passEncoder, recorder, config);
-    }
+    } */
     
+    // OPTIMIZATION: <TStage> enables Static Global Bindings.
+    // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.
+    // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
+    // Minimizes CPU-to-GPU state change overhead dramatically.
+    // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
     public RenderPass<TStage> BeginRenderPass<TStage>(in RenderPassOptions options, RenderConfig config) where TStage : unmanaged
     {
         if (recorder == null) {
