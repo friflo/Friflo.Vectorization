@@ -166,15 +166,15 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         }
         wgpu!.Width = pixelWidth;
         wgpu.Height = pixelHeight;
-        
+        if (pixelWidth == 0 || pixelHeight == 0) {
+            return;
+        }
         ConfigureSurface(pixelWidth, pixelHeight);
-        
         renderer?.ResizeWindow(pixelWidth, pixelHeight);
     }
     
     private void ConfigureSurface(int pixelWidth, int pixelHeight)
     {
-        if (pixelWidth == 0 || pixelHeight == 0) return;
         var surfaceConfig = new SurfaceConfiguration {
             format      = wgpu!.SwapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
