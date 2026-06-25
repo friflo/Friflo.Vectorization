@@ -36,13 +36,13 @@ public struct WgpuBindGroupLayout4
 /// </summary>
 public unsafe struct PipelineCache
 {
-    public   readonly   BindGroupCache          bindGroupCache;
-    public   readonly   WgpuRenderPipeline      renderPipeline;
-    public              WgpuBindGroupLayout4    layouts;
-    internal readonly   ulong                   wgslHash;
-    public              bool                    IsCreated => renderPipeline.handle != null;
-
-    public   override   string                  ToString()=> renderPipeline.handle != null ? "Created" : "null";
+    public   readonly   BindGroupCache          bindGroupCache;     //  8
+    public   readonly   WgpuRenderPipeline      renderPipeline;     //  8
+    public              WgpuBindGroupLayout4    layouts;            // 32
+    internal readonly   ulong                   wgslHash;           //  8
+    
+    public              bool                    IsCreated   => renderPipeline.handle != null;
+    public   override   string                  ToString()  => renderPipeline.handle != null ? "Created" : "null";
 
     internal PipelineCache (ulong wgslHash, WgpuRenderPipeline renderPipeline, BindGroupCache bindGroupCache)
     {

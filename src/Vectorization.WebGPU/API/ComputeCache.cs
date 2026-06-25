@@ -20,14 +20,14 @@ namespace Friflo.Vectorization.WebGPU;
 /// </summary>
 public readonly unsafe struct ComputeCache
 {
-    public   readonly   BindGroupCache          bindGroupCache;
-    public   readonly   WgpuComputePipeline     computePipeline;
-    public   readonly   WgpuBindGroupLayout     bufferLayout;
-    public   readonly   WgpuBindGroupLayout     uniformLayout;
-    internal readonly   ulong                   wgslHash;
-    public              bool                    IsCreated => computePipeline.handle != null;
-
-    public   override   string                  ToString()=> computePipeline.handle != null ? "Created" : "null";
+    public   readonly   BindGroupCache          bindGroupCache;     //  8
+    public   readonly   WgpuComputePipeline     computePipeline;    //  8
+    public   readonly   WgpuBindGroupLayout     bufferLayout;       //  8
+    public   readonly   WgpuBindGroupLayout     uniformLayout;      //  8
+    internal readonly   ulong                   wgslHash;           //  8
+    
+    public              bool                    IsCreated   => computePipeline.handle != null;
+    public   override   string                  ToString()  => computePipeline.handle != null ? "Created" : "null";
 
     internal ComputeCache (
         ulong                   wgslHash,
