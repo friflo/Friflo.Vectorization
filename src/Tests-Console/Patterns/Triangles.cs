@@ -5,9 +5,6 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedMember.Local
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace TestConsole;
 
