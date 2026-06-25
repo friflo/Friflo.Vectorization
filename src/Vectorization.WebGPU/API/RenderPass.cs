@@ -217,13 +217,16 @@ public readonly unsafe ref  struct RenderPass
         rec.uniformOffset = offset + alignedSize;
     }
 
+    /// <summary>
+    /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="WgpuVertexBufferLayout"/>.  
+    /// </summary>
     public int SetVertexBuffer<T>(RenderConfig config, int slot, InBuffer<T> buffer) where T : unmanaged
     {
         ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
         ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
-        wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
+        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride); // arrayStride == 0 should result in DivideByZeroException  
         
-        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride);
+        wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
         return vertexCount;
     }
 
