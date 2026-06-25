@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -54,30 +55,42 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("KernelOnly"u8);
         
-        ref var effect = ref device.GetComputeEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref _KernelOnly_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _KernelOnly_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = (_KernelOnly_GPU_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = position.Handle;
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "KernelOnly_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "KernelOnly_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new _KernelOnly_GPU_Uniforms {
             count           = buffers.length,
             position_off    = position.Offset,
             value           = value,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "KernelOnly_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "KernelOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class _KernelOnly_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<nint, WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
@@ -94,7 +107,7 @@ namespace VerifyVectorize
     private static ulong        _KernelOnly_GPU_WgslHash           => 0xa85ee513a18c92aa;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect _KernelOnly_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache _KernelOnly_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_KernelOnly_GPU_BufferLayoutKey);
@@ -113,7 +126,8 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_KernelOnly_GPU_Shader(), "KernelOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "KernelOnly"u8);
         
-        return ref device.CreateComputeEffect(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new _KernelOnly_GPU_Cache();
+        return ref device.CreatePipelineCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _KernelOnly_GPU_Shader() =>

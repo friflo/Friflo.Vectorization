@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
+using System.Collections.Generic;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -169,22 +170,23 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Misc"u8);
         
-        ref var effect = ref device.GetComputeEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref _Misc_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(_Misc_GPU_KernelId, _Misc_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _Misc_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = (_Misc_GPU_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = (position.Handle, velocity.Handle);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[2];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
             entries[1] = WgpuBindGroup.From(1, velocity.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Misc_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Misc_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new _Misc_GPU_Uniforms {
             max             = max,
@@ -192,9 +194,20 @@ namespace Kernel.Generators
             position_off    = position.Offset,
             velocity_off    = velocity.Offset,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "Misc_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "Misc_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class _Misc_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL layout: std140/std430
@@ -212,7 +225,7 @@ namespace Kernel.Generators
     private static ulong        _Misc_GPU_WgslHash           => 0xfa28c2317e6c0dc7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect _Misc_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache _Misc_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Misc_GPU_BufferLayoutKey);
@@ -232,7 +245,8 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Misc_GPU_Shader(), "Misc"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Misc"u8);
         
-        return ref device.CreateComputeEffect(_Misc_GPU_KernelId, _Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new _Misc_GPU_Cache();
+        return ref device.CreatePipelineCache(_Misc_GPU_KernelId, _Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>

@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
+using System.Collections.Generic;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -95,29 +96,41 @@ namespace Kernel.Lab
 
         using var pass = recorder.BeginComputePass("ReadOnly"u8);
         
-        ref var effect = ref device.GetComputeEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref _ReadOnly_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _ReadOnly_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = (_ReadOnly_GPU_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = input.Handle;
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, input.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "ReadOnly_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "ReadOnly_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new _ReadOnly_GPU_Uniforms {
             count           = buffers.length,
             input_off       = input.Offset,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "ReadOnly_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "ReadOnly_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class _ReadOnly_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<nint, WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
@@ -133,7 +146,7 @@ namespace Kernel.Lab
     private static ulong        _ReadOnly_GPU_WgslHash           => 0x113e8790c6a48dd7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect _ReadOnly_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache _ReadOnly_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_ReadOnly_GPU_BufferLayoutKey);
@@ -152,7 +165,8 @@ namespace Kernel.Lab
         var shaderModule    = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
         
-        return ref device.CreateComputeEffect(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new _ReadOnly_GPU_Cache();
+        return ref device.CreatePipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _ReadOnly_GPU_Shader() =>

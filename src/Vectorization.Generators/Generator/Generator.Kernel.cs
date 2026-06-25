@@ -98,6 +98,8 @@ public sealed partial class Gen
         var bufferBindEntries   = new StringBuilder();
         var bufferLayoutEntries = new StringBuilder();
         var bindings            = new StringBuilder();
+        var bufferKeyBuilder    = new StringBuilder();
+        var bufferKeyTypeBuilder= new StringBuilder();
         var bindingHash         = BindingStartHash;
         int bufferCount = 0;
         // var setTaskOnOutputs    = new StringBuilder();
@@ -128,6 +130,20 @@ public sealed partial class Gen
             bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
             // Note: the data type in a buffer is not relevant for layout. Need to understand why.
             bufferCount++;
+            bufferKeyBuilder.Append($"{paramName}.Handle, ");
+            bufferKeyTypeBuilder.Append("nint, ");
+        }
+        bufferKeyBuilder.Length -= 2;
+        bufferKeyTypeBuilder.Length -= 2;
+        
+        string bufferKey;
+        string bufferKeyType;
+        if (bufferCount == 1) {
+            bufferKey       = bufferKeyBuilder.ToString();
+            bufferKeyType   = bufferKeyTypeBuilder.ToString();
+        } else {
+            bufferKey       = "(" + bufferKeyBuilder + ")";
+            bufferKeyType   = "(" + bufferKeyTypeBuilder + ")";
         }
         
         // ----------------- uniforms
@@ -177,26 +193,38 @@ $$""""
 
         using var pass = recorder.BeginComputePass("{{methodName}}"u8);
         
-        ref var effect = ref device.GetComputeEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref {{methodName_GPU}}_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref {{methodName_GPU}}_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = {{bufferKey}};
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "{{methodName}}_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "{{methodName}}_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "{{methodName}}_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "{{methodName}}_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class {{methodName_GPU}}_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<{{bufferKeyType}}, WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = {{alignedSize}})]  // WGSL layout: std140/std430
@@ -210,7 +238,7 @@ $$""""
     private static ulong        {{methodName_GPU}}_WgslHash           => 0x{{wgslHash}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect {{methodName_GPU}}_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache {{methodName_GPU}}_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
@@ -228,7 +256,8 @@ $$""""
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
-        return ref device.CreateComputeEffect({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new {{methodName_GPU}}_Cache();
+        return ref device.CreatePipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

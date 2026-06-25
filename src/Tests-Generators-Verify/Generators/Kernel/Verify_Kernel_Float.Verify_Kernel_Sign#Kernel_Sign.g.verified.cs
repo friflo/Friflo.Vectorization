@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
+using System.Collections.Generic;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -117,30 +118,42 @@ namespace VerifyVectorize
 
         using var pass = recorder.BeginComputePass("Kernel_Sign"u8);
         
-        ref var effect = ref device.GetComputeEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref _Kernel_Sign_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _Kernel_Sign_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = (_Kernel_Sign_GPU_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = position.Handle;
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
             entries[0] = WgpuBindGroup.From(0, position.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Kernel_Sign_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Kernel_Sign_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new _Kernel_Sign_GPU_Uniforms {
             count           = buffers.length,
             position_off    = position.Offset,
             value           = value,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "Kernel_Sign_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "Kernel_Sign_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class _Kernel_Sign_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<nint, WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
@@ -157,7 +170,7 @@ namespace VerifyVectorize
     private static ulong        _Kernel_Sign_GPU_WgslHash           => 0xa85ee513a18c92aa;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect _Kernel_Sign_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache _Kernel_Sign_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Sign_GPU_BufferLayoutKey);
@@ -176,7 +189,8 @@ namespace VerifyVectorize
         var shaderModule    = device.CreateShaderModule(_Kernel_Sign_GPU_Shader(), "Kernel_Sign"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
         
-        return ref device.CreateComputeEffect(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new _Kernel_Sign_GPU_Cache();
+        return ref device.CreatePipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Sign_GPU_Shader() =>

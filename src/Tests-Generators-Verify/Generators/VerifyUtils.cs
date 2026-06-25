@@ -28,6 +28,7 @@ public static class VerifyUtils
                 MetadataReference.CreateFromFile(typeof(VectorizeAttribute) .Assembly.Location),    // Friflo.Vectorization.Attributes
                 MetadataReference.CreateFromFile(typeof(IComponent)         .Assembly.Location),    // Friflo.Engine.ECS
                 MetadataReference.CreateFromFile(typeof(MathF)              .Assembly.Location),    // System
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Collections.dll")),  // Dictionary<,>
                 MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Numerics.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Numerics.Vectors.dll")),
                 

@@ -287,7 +287,8 @@ using Friflo.Vectorization.Intrinsics;");
         
         if (hasKernelAttribute)
         {
-            sb.AppendLine(@"using Friflo.Vectorization.GPU;
+            sb.AppendLine(@"using System.Collections.Generic;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;");

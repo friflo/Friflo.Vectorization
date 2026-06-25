@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
+using System.Collections.Generic;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -132,23 +133,24 @@ namespace Kernel.Generators
 
         using var pass = recorder.BeginComputePass("Add"u8);
         
-        ref var effect = ref device.GetComputeEffect(_Add_GPU_KernelId, _Add_GPU_WgslHash);
-        if (!effect.IsCreated) {
-            effect = ref _Add_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(_Add_GPU_KernelId, _Add_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _Add_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+
+        var bindGroupCache = (_Add_GPU_Cache)pipelineCache.bindGroupCache;
         
-        // Creation of buffer bind group is expensive. Try get from cache with two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = (a.Handle, b.Handle, c.Handle);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = WgpuBindGroup.From(0, a.Buffer);
             entries[1] = WgpuBindGroup.From(1, b.Buffer);
             entries[2] = WgpuBindGroup.From(2, c.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "Add_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "Add_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
         
         var uniforms = new _Add_GPU_Uniforms {
             count           = buffers.length,
@@ -156,9 +158,20 @@ namespace Kernel.Generators
             b_off           = b.Offset,
             c_off           = c.Offset,
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "Add_uniforms"u8);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "Add_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+
+    private sealed class _Add_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<(nint, nint, nint), WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 16)]  // WGSL layout: std140/std430
@@ -176,7 +189,7 @@ namespace Kernel.Generators
     private static ulong        _Add_GPU_WgslHash           => 0xc8ebe1134bf1f4b6;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect _Add_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache _Add_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Add_GPU_BufferLayoutKey);
@@ -197,7 +210,8 @@ namespace Kernel.Generators
         var shaderModule    = device.CreateShaderModule(_Add_GPU_Shader(), "Add"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Add"u8);
         
-        return ref device.CreateComputeEffect(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new _Add_GPU_Cache();
+        return ref device.CreatePipelineCache(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Add_GPU_Shader() =>
