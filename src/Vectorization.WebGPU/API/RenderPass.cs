@@ -57,7 +57,7 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 public struct RenderPassOptions
 {
     public  ValueArray<RenderPassColorAttachment>   colorAttachments;
-    public  RenderPassDepthStencilAttachment?       depthStencilAttachment;      
+    public  RenderPassDepthStencilAttachment?       depthStencilAttachment;
 }
 
 

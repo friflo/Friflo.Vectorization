@@ -101,6 +101,12 @@ public partial class TextureTest : IRenderer
         return view * proj; 
     }
     
+    public void ResizeWindow(int width, int height)
+    {
+        depthTexture?.Dispose();
+        depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+    }
+    
     public unsafe void DrawFrame(int width, int height)                          // TODO remove unsafe
     {
         using var frame = context.BeginFrame(wgpu.Surface);
@@ -108,9 +114,7 @@ public partial class TextureTest : IRenderer
             return;
         }
         perfLog.Trace(5000);
-        if (perfLog.FrameCount == 1) {
-            depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
-        }
+
         renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
             view            = (TextureView*)depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,

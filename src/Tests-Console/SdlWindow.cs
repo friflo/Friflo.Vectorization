@@ -14,7 +14,8 @@ namespace TestConsole;
 /// </summary>
 public interface IRenderer
 {
-    public void DrawFrame(int width, int height);
+    public void ResizeWindow(int width, int height) { }
+    public void DrawFrame   (int width, int height);
     public void Shutdown();
 }
 
@@ -137,7 +138,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         var backend = wgpu.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer = createRenderer(wgpu);
-        ConfigureSurface();
+        SetWindowSize();
     }
     
     public void SetWindowIconFromResource()
@@ -157,15 +158,25 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         }
     }
     
-    private void ConfigureSurface()
+    private void SetWindowSize()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
+        if (wgpu!.Width == pixelWidth && wgpu.Height == pixelHeight) {
+            return;
+        }
         wgpu!.Width = pixelWidth;
         wgpu.Height = pixelHeight;
-        if (pixelWidth == 0 || pixelHeight == 0) return;
         
+        ConfigureSurface(pixelWidth, pixelHeight);
+        
+        renderer?.ResizeWindow(pixelWidth, pixelHeight);
+    }
+    
+    private void ConfigureSurface(int pixelWidth, int pixelHeight)
+    {
+        if (pixelWidth == 0 || pixelHeight == 0) return;
         var surfaceConfig = new SurfaceConfiguration {
-            format      = wgpu.SwapChainFormat,
+            format      = wgpu!.SwapChainFormat,
             usage       = WebGPU_native.TextureUsage_RenderAttachment,
             alphaMode   = wgpu.AlphaMode,  // or CompositeAlphaMode.Opaque
             width       = (uint)pixelWidth,
@@ -185,7 +196,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.WindowRestored:
             case SDL.EventType.WindowExposed:
             case SDL.EventType.WindowPixelSizeChanged:
-                ConfigureSurface();
+                SetWindowSize();
                 break;
             case SDL.EventType.SystemThemeChanged:
                 SetWindowIconFromResource();
