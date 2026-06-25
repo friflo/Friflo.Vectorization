@@ -220,7 +220,7 @@ public readonly unsafe ref  struct RenderPass
     /// <summary>
     /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="WgpuVertexBufferLayout"/>.  
     /// </summary>
-    public int SetVertexBuffer<T>(RenderConfig config, int slot, InBuffer<T> buffer) where T : unmanaged
+    public int SetVertexBuffer<T>(RenderConfig config, int slot, in InBuffer<T> buffer) where T : unmanaged
     {
         ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
         ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
