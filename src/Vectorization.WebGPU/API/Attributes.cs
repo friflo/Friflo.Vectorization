@@ -36,7 +36,8 @@ public sealed class FragmentShaderAttribute : Attribute
 /// Vertex buffers are created with buffer type <see cref="BufferType.Vertex"/> using <c>GpuDevice.CreateBuffer()</c>.
 /// </para>
 /// <para> A vertex buffer requires a <see cref="WgpuVertexBufferLayout"/>. </para>
-/// Example:
+/// Example using a vertex buffer parameter:<br/>
+/// <c>[VertexBuffer(0)] InBuffer&lt;float&gt; vertexBuffer, // slot = 0</c>
 /// <code>
 /// desc.VertexState.buffers = [
 ///     new WgpuVertexBufferLayout {  // buffers[0]  ->  slot = 0
