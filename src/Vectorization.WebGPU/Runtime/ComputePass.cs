@@ -55,11 +55,11 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup)
     {
-        /* if (hash == recorder.lastBindGroup0_hash) {  // TODO OPTIMIZE   check lastBindGroup
+        if (bindGroup.handle == recorder.lastBufferBindGroup) {
             return;
-        } */
+        }
         wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
-        // recorder.lastBindGroup0_hash = hash;
+        recorder.lastBufferBindGroup = bindGroup.handle;
     }
     
     public void SetUniformBindGroup<T>(uint groupIndex, ComputeCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged

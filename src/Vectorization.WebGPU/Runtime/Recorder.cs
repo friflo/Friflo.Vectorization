@@ -24,6 +24,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.HazardDriven;
     internal            ComputePipeline*        lastPipelineHandle;
+    internal            BindGroup*              lastBufferBindGroup;
     
     private             WgpuCommandBuffer       commandBuffer;
     
@@ -236,6 +237,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     private void ClosePass()
     {
+        lastBufferBindGroup =  null;
         if (currentPass != null) {
             wgpuComputePassEncoderEnd(currentPass);
             wgpuComputePassEncoderRelease(currentPass);
