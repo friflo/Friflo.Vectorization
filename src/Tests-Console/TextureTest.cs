@@ -132,7 +132,7 @@ public partial class TextureTest : IRenderer
         
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, vertexConfig))
         {
-            RenderCube(pass, verticesBuffer.In(), vertexConfig, uniforms, sampler, textureView);
+            RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -142,8 +142,8 @@ public partial class TextureTest : IRenderer
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(
                             RenderPass<MainWorld>   renderPass,
-        [VertexBuffer(0)]   InBuffer<float>         verticesBuffer,
                             RenderConfig            vertexConfig,
+        [VertexBuffer(0)]   InBuffer<float>         verticesBuffer,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] FilteringSampler        smoothFilter,
         [BindTexture(0, 2)] texture_2d<float>       material);
