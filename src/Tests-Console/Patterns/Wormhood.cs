@@ -30,7 +30,7 @@ public static partial class Wormhood
         
         var bindGroupCache = (Wormhood_GPU_Cache)pipelineCache.bindGroupCache;
         
-        pass.SetBindGroupUniform(0, pipelineCache, ref bindGroupCache.bindGroup0, uniforms, "Wormhood_bindGroup0"u8);
+        pass.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache, "Wormhood_bindGroup0"u8);
         
         pass.Draw(3, 1, 0, 0);
 	}

@@ -211,7 +211,7 @@ $$""""
         
         var uniforms = new {{methodName_GPU}}_Uniforms {{{uniformAssignments}}
         };
-        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "{{methodName}}_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "{{methodName}}_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

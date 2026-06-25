@@ -233,7 +233,7 @@ public readonly unsafe ref  struct RenderPass
     }
     
     /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
-    public void SetBindGroupUniform<T>(uint groupIndex, in PipelineCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetBindGroupUniform<T>(uint groupIndex, ref WgpuBindGroup bindGroup, T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = Recorder;
         if (!bindGroup.IsCreated) {

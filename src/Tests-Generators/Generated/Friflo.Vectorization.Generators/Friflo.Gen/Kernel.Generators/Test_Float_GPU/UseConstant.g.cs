@@ -130,7 +130,7 @@ namespace Kernel.Generators
             count           = buffers.length,
             position_off    = position.Offset,
         };
-        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "UseConstant_uniforms"u8);
+        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "UseConstant_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

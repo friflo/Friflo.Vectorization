@@ -46,7 +46,7 @@ public partial class RenderTest
         }
         pass.SetBindGroup(0, bindGroup0);
         
-        pass.SetBindGroupUniform(1, pipelineCache, ref bindGroupCache.bindGroup1, myUniform, "Triangles_bindGroup1"u8);
+        pass.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
         pass.Draw(buffers.length, 1, triangles.Offset, 0);
 	}

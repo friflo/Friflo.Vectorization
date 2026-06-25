@@ -62,7 +62,7 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.lastBufferBindGroup = bindGroup.handle;
     }
     
-    public void SetUniformBindGroup<T>(uint groupIndex, in ComputeCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuBindGroup bindGroup, in ComputeCache pipelineCache, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = recorder;
         if (!bindGroup.IsCreated) {
