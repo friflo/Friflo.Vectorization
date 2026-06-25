@@ -90,6 +90,27 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         rec.uniformOffset = offset + alignedSize;
     }
     
+    public void SetUniformBindGroup<T>(uint groupIndex, ComputeCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    {
+        if (!bindGroup.IsCreated) {
+            var entry   = recorder.CreateUniformBindGroupEntry<T>(0);
+            bindGroup   = recorder.CreateBindGroupNew(pipelineCache.uniformLayout, entry, groupLabel);
+        }
+        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        var rec             = recorder;
+
+        uint offset = rec.uniformOffset;
+        
+        fixed (byte* pStaging = rec.stagingBuffer) {
+            *(T*)(pStaging + offset) = uniform;
+        }
+        wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
+        
+        rec.uniformOffset = offset + alignedSize;
+    }
+    
+    // TODO REMOVE
+    /*
     public void SetBindGroup<T>(uint groupIndex, WgpuBindGroup bindGroup, T uniform) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
@@ -103,6 +124,6 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
         
         rec.uniformOffset = offset + alignedSize;
-    }
+    } */
 }
 

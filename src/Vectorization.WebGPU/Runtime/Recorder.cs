@@ -218,7 +218,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public WgpuBindGroup CreateBindGroupNew(WgpuBindGroupLayout layout, BindGroupEntry entry, ReadOnlySpan<byte> groupLabel)
+    internal WgpuBindGroup CreateBindGroupNew(WgpuBindGroupLayout layout, BindGroupEntry entry, ReadOnlySpan<byte> groupLabel)
     {
         fixed(byte*             labelPtr        = groupLabel) {
             var descriptor = new BindGroupDescriptor {

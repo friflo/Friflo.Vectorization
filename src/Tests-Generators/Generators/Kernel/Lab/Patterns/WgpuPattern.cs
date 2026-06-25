@@ -57,13 +57,7 @@ public static class WgpuPattern
             output_off  = output.Offset,
             bias        = bias
         };
-        var uniformGroup = bindGroupCache.uniformGroup;
-        if (!uniformGroup.IsCreated) {
-            var entry    = recorder.CreateUniformBindGroupEntry<MultiplyAdd_GPU_Uniforms>(0);
-            uniformGroup = recorder.CreateBindGroupNew(pipelineCache.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
-            bindGroupCache.uniformGroup = uniformGroup;
-        }
-        pass.SetBindGroup(1, uniformGroup, uniforms);
+        pass.SetUniformBindGroup(1, pipelineCache, ref bindGroupCache.uniformGroup, uniforms, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
