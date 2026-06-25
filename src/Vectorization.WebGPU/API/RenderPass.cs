@@ -185,7 +185,8 @@ public readonly unsafe ref  struct RenderPass
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
     }
     
-    public void SetBindGroup<T>(uint groupIndex, WgpuBindGroup bindGroup, T uniform) where T : unmanaged
+    /// <summary> Set bind group with a uniform for a group layout with multiple layout single entries. </summary>
+    public void SetBindGroupUniform<T>(uint groupIndex, WgpuBindGroup bindGroup, T uniform) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = Recorder;
@@ -195,9 +196,27 @@ public readonly unsafe ref  struct RenderPass
             *(T*)(pStaging + offset) = uniform;
         }
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
-        
         rec.uniformOffset = offset + alignedSize;
     }
+    
+    /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
+    public void SetBindGroupUniform<T>(uint groupIndex, in PipelineCache pipelineCache, ref WgpuBindGroup bindGroup, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    {
+        var rec = Recorder;
+        if (!bindGroup.IsCreated) {
+            var entry   = rec.CreateUniformBindGroupEntry<T>(0);
+            bindGroup   = rec.CreateBindGroupNew(pipelineCache.layouts[(int)groupIndex], entry, groupLabel);
+        }
+        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        uint offset         = rec.uniformOffset;
+        
+        fixed (byte* pStaging = rec.stagingBuffer) {
+            *(T*)(pStaging + offset) = uniform;
+        }
+        wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
+        rec.uniformOffset = offset + alignedSize;
+    }
+
     
     public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
     {

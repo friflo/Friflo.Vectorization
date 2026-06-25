@@ -55,7 +55,7 @@ public partial class TextureTest
             bindGroup0  = recorder.CreateBindGroupNew(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
-        pass.SetBindGroup(0, bindGroup0, uniforms);
+        pass.SetBindGroupUniform(0, bindGroup0, uniforms);
         
         pass.SetVertexBuffer(0, verticesBuffer);
    

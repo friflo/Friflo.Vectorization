@@ -46,14 +46,7 @@ public partial class RenderTest
         }
         pass.SetBindGroup(0, bindGroup0);
         
-        var bindGroup1 = bindGroupCache.bindGroup1;
-        if (!bindGroup1.IsCreated) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0] = recorder.CreateUniformBindGroupEntry<MyUniform>(0);
-            bindGroup1 = recorder.CreateBindGroupNew(pipelineCache.layouts[1], entries, "Triangles_bindGroup1"u8);
-            bindGroupCache.bindGroup1 = bindGroup1;
-        }
-        pass.SetBindGroup(1, bindGroup1, myUniform);
+        pass.SetBindGroupUniform(1, pipelineCache, ref bindGroupCache.bindGroup1, myUniform, "Triangles_bindGroup1"u8);
         
         pass.Draw(buffers.length, 1, triangles.Offset, 0);
 	}
