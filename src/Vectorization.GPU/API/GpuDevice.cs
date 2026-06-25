@@ -58,7 +58,7 @@ public abstract partial class GpuDevice : CommandStream, IDisposable
 /// supported execution strategy based on its specific hardware capabilities
 /// (e.g., the preference for GPU over SIMD and SIMD over scalar).
 /// </remarks>
-public enum ComputeMode
+public enum ComputeMode : byte
 {
     /// <summary> Automatically selects the optimal mode based on device capabilities. </summary>
     Device  = 0,

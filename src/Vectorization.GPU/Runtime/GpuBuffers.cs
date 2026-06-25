@@ -15,15 +15,15 @@ using System.Runtime.CompilerServices;
 namespace Friflo.Vectorization.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public struct GpuBuffers
+public readonly struct GpuBuffers
 {
-    public  readonly    int         length;
+    public  readonly    int         length;         //  4
     [CLSCompliant(false)]
-    public              ulong       hash; // uses FNV-1a derivative hashing
-    public  readonly    GpuDevice   device;
-    private readonly    bool        areSpans;
-    private readonly    string      firstParam;
-    private readonly    ComputeMode computeMode;
+    // public           ulong       hash;           //  uses FNV-1a derivative hashing
+    public  readonly    GpuDevice   device;         //  8
+    private readonly    bool        areSpans;       //  1
+    private readonly    string      firstParam;     //  8
+    private readonly    ComputeMode computeMode;    //  1
     
     public              bool        ComputeGPU  => computeMode == ComputeMode.GPU;
     public              bool        ComputeSIMD => computeMode == ComputeMode.SIMD;
@@ -31,8 +31,8 @@ public struct GpuBuffers
     public  override    string 		ToString()  => $"length: {length}  mode: {computeMode}  device: {device}";
 
 
-    private const ulong Prime       = 0x100000001b3;
-    private const ulong OffsetBasis = 0xcbf29ce484222325;
+    // private const ulong Prime       = 0x100000001b3;
+    // private const ulong OffsetBasis = 0xcbf29ce484222325;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GpuBuffers(ComputeMode computeMode, int length) {
@@ -42,9 +42,9 @@ public struct GpuBuffers
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private GpuBuffers(ComputeMode computeMode, int length, ulong hash, GpuDevice device, string firstParam) {
+    private GpuBuffers(ComputeMode computeMode, int length, GpuDevice device, string firstParam) {
         this.length         = length;
-        this.hash           = hash;
+        // this.hash        = hash;
         this.device         = device;
         this.firstParam     = firstParam;
         this.computeMode    = computeMode == ComputeMode.Device ? device.DefaultComputeMode : computeMode;
@@ -75,9 +75,9 @@ public struct GpuBuffers
             return new GpuBuffers(computeMode, length);
         }
         var bufferDevice = gpuBuffer.Device;
-        ulong hash;
-        unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
-        var buffers = new GpuBuffers(computeMode, length, hash, bufferDevice, paramName);
+        // ulong hash;
+        // unchecked { hash = (OffsetBasis ^ (ulong)gpuBuffer.Id) * Prime; }
+        var buffers = new GpuBuffers(computeMode, length, bufferDevice, paramName);
         if (bufferDevice != null    &&
            !bufferDevice.IsDisposed)
         {
@@ -115,7 +115,7 @@ public struct GpuBuffers
                 bufferDevice  == device  &&
                 bufferLength  == length)
             {
-                unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
+                // unchecked { hash = (hash ^ (ulong)gpuBuffer.Id) * Prime; }
                 return;
             }
         }

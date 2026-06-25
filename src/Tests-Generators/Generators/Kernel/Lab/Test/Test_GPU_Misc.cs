@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
+using Friflo.Vectorization.WebGPU;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
@@ -70,5 +73,13 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         context.Queue.ReadBuffers();
         
         Assert.AreEqual(new float[] { 43, 44, 45, 46 }, outputMem.ToArray());
+    }
+    
+    [Test]
+    public void Test_GPU_SizeOf()
+    {
+        Assert.AreEqual(24, Unsafe.SizeOf<GpuBuffers>());
+        Assert.AreEqual(40, Unsafe.SizeOf<ComputeCache>());
+        Assert.AreEqual(56, Unsafe.SizeOf<PipelineCache>());
     }
 }

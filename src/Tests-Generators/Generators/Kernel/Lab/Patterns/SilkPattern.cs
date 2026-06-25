@@ -40,14 +40,15 @@ public static class SilkPattern
             pass.SetPipeline(effect.pipeline);
             
             // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-            var bufferGroup = effect.bufferCache.GetGroup(buffers.hash);
+            ulong buffersHash = 1234;   // was: buffers.hash
+            var bufferGroup = effect.bufferCache.GetGroup(buffersHash);
             if (!bufferGroup.IsCreated) {
                 Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
                 entries[0] = SilkBindGroup.From  (0, weight);
                 entries[1] = SilkBindGroup.From  (1, input);
                 entries[2] = SilkBindGroup.From  (2, output);
                 bufferGroup = task.CreateBindGroup(effect.bufferLayout, entries, "ShadowMethod_buffers"u8);
-                device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffers.hash);
+                device.UpdateBufferCache(ShadowMethod_GPU_EffectSlot, bufferGroup, buffersHash);
             }
             pass.SetBindGroup(0, bufferGroup);
             
