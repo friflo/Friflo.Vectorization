@@ -217,12 +217,14 @@ public readonly unsafe ref  struct RenderPass
         rec.uniformOffset = offset + alignedSize;
     }
 
-    
-    public void SetVertexBuffer<T>(int slot, InBuffer<T> buffer) where T : unmanaged
+    public int SetVertexBuffer<T>(RenderConfig config, int slot, InBuffer<T> buffer) where T : unmanaged
     {
         ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
         ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
         wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
+        
+        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride);
+        return vertexCount;
     }
 
     public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance)
