@@ -4,7 +4,6 @@
 
 using Friflo.Vectorization.WebGPU.Runtime;
 
-// ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedTypeParameter
