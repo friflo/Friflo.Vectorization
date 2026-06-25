@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -211,8 +214,16 @@ internal static class TextureViewUtils
     internal static unsafe nint GetHandle(TextureView* handle, GpuTexture texture)
     {
         if (texture.IsDisposed) {
-            throw new ObjectDisposedException("texture view");
+            ThrowObjectDisposedException(texture);
         }
         return (nint)handle;
     }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
+    private static void ThrowObjectDisposedException(GpuTexture texture)
+    {
+        throw new ObjectDisposedException($"texture view of disposed GpuTexture '{texture.Label}'");
+    }
+    
+    
 }
