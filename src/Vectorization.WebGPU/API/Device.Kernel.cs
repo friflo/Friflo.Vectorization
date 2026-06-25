@@ -65,6 +65,7 @@ public sealed unsafe partial  class WgpuDevice
         return ref slots[kernelId];
     }
     
+    // TODO REMOVE
     public void UpdateComputeCache(ref WgpuComputeEffect effect, WgpuBindGroup bindGroup, ulong hash) {
         effect.computeBufferCache.Update(bindGroup, hash);
     }

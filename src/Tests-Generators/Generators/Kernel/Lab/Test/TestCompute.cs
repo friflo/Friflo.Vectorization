@@ -169,7 +169,7 @@ public class TestCompute : KernelBase
         
         Pattern.MultiplyAddKernel(gpuWeight.In(), gpuInput.In(), 45, gpuOutput3.InOut().Read());
         Assert.AreEqual(2, HandleDiff.BindGroupLayouts.Diff);
-        Assert.AreEqual(3, HandleDiff.BindGroups.Diff);
+        Assert.AreEqual(4, HandleDiff.BindGroups.Diff);
         
         context.Queue.ReadBuffers();
         

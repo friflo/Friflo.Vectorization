@@ -35,6 +35,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private  readonly   WgpuQueue           queue;
     
     private             PipelineCaches[]    pipelineCacheSlots  = [];
+    private             ComputeCache[]      computeCacheSlots   = [];
     private             WgpuComputeEffect[] computeEffectSlots  = new WgpuComputeEffect[4];  // TODO REMOVE - 2
     
     private             GCHandle            deviceHandle;
@@ -107,6 +108,12 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
                 cache.bindGroupCache.Clear();
                 wgpuRenderPipelineRelease(cache.renderPipeline.handle);
             }
+        }
+        foreach (var computeCache in computeCacheSlots)
+        {
+            if (!computeCache.IsCreated) continue;
+            computeCache.bindGroupCache.Clear();
+            wgpuComputePipelineRelease(computeCache.computePipeline.handle);
         }
         var computeSlots = computeEffectSlots;
         for (int n = 0; n < computeSlots.Length; n++) {

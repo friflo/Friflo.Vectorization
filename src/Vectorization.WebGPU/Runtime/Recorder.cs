@@ -216,6 +216,22 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             return group;
         }
     }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public WgpuBindGroup CreateBindGroupNew(WgpuBindGroupLayout layout, BindGroupEntry entry, ReadOnlySpan<byte> groupLabel)
+    {
+        fixed(byte*             labelPtr        = groupLabel) {
+            var descriptor = new BindGroupDescriptor {
+                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
+                layout      = layout.handle,
+                entryCount  = 1,
+                entries     = &entry
+            };
+            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            var group = new WgpuBindGroup(handle); 
+            return group;
+        }
+    }
         
     // TODO REMOVE - 2
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)

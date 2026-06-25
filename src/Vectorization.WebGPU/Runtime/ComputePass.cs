@@ -53,6 +53,17 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup)
+    {
+        /* if (hash == recorder.lastBindGroup0_hash) {  // TODO check lastBindGroup
+            return;
+        } */
+        wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
+        // recorder.lastBindGroup0_hash = hash;
+    }
+    
+    // TODO REMOVE
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup, ulong hash)
     {
         if (hash == recorder.lastBindGroup0_hash) {
@@ -62,11 +73,27 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.lastBindGroup0_hash = hash;
     }
 
+    // TODO REMOVE
     public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuComputeEffect effect, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = recorder;
         var bindGroup       = rec.GetUniformBindGroup(effect.uniformLayout, alignedSize, ref rec.computeUniformGroups, groupLabel);
+
+        uint offset = rec.uniformOffset;
+        
+        fixed (byte* pStaging = rec.stagingBuffer) {
+            *(T*)(pStaging + offset) = uniform;
+        }
+        wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
+        
+        rec.uniformOffset = offset + alignedSize;
+    }
+    
+    public void SetBindGroup<T>(uint groupIndex, WgpuBindGroup bindGroup, T uniform) where T : unmanaged
+    {
+        uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
+        var rec             = recorder;
 
         uint offset = rec.uniformOffset;
         

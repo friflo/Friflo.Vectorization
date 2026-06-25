@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
@@ -30,23 +31,24 @@ public static class WgpuPattern
 
         using var pass = recorder.BeginComputePass("MultiplyAdd"u8);
         
-        ref var effect = ref device.GetComputeEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
-        if (!effect.IsCreated) {
-            effect = ref MultiplyAdd_GPU_CreateEffect(device);
+        ref var pipelineCache = ref device.GetPipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash); // Each device has its own GpuEffect[] array
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref MultiplyAdd_GPU_CreateComputeCache(device);
         }
-        pass.SetPipeline(effect.pipeline);
+        pass.SetPipeline(pipelineCache.computePipeline);
+        
+        var bindGroupCache = (MultiplyAdd_GPU_Cache)pipelineCache.bindGroupCache;
             
-        // Creation of a buffer bind group is expensive in wgpu. So we cache them. Cache has two entries.
-        var bufferGroup = effect.computeBufferCache.GetGroup(buffers.hash);
-        if (!bufferGroup.IsCreated) {
+        var key = (weight.Handle, input.Handle, output.Handle);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
             Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
             entries[0] = WgpuBindGroup.From  (0, weight.Buffer);
             entries[1] = WgpuBindGroup.From  (1, input.Buffer);
             entries[2] = WgpuBindGroup.From  (2, output.Buffer);
-            bufferGroup = recorder.CreateBindGroup(effect.bufferLayout, entries, "MultiplyAdd_buffers"u8);
-            device.UpdateComputeCache(ref effect, bufferGroup, buffers.hash);
+            bufferGroup = recorder.CreateBindGroupNew(pipelineCache.bufferLayout, entries, "MultiplyAdd_buffers"u8);
+            bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
-        pass.SetBindGroup(0, bufferGroup, buffers.hash);
+        pass.SetBindGroup(0, bufferGroup);
             
         var uniforms = new MultiplyAdd_GPU_Uniforms {
             count       = buffers.length,
@@ -55,9 +57,26 @@ public static class WgpuPattern
             output_off  = output.Offset,
             bias        = bias
         };
-        pass.SetUniformBindGroup(1, ref effect, uniforms, "MultiplyAdd_uniforms"u8);
+        var uniformGroup = bindGroupCache.uniformGroup;
+        if (!uniformGroup.IsCreated) {
+            var entry    = recorder.CreateUniformBindGroupEntry<MultiplyAdd_GPU_Uniforms>(0);
+            uniformGroup = recorder.CreateBindGroupNew(pipelineCache.uniformLayout, entry, "MultiplyAdd_uniforms"u8);
+            bindGroupCache.uniformGroup = uniformGroup;
+        }
+        pass.SetBindGroup(1, uniformGroup, uniforms);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
+    }
+    
+    private sealed class MultiplyAdd_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<(nint,nint,nint), WgpuBindGroup> bufferGroup = new ();
+        internal            WgpuBindGroup                               uniformGroup;
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bufferGroup);
+            ReleaseBindGroup(ref uniformGroup);
+        }
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 32)]  // WGSL uses std140/std430 Layout
@@ -76,7 +95,7 @@ public static class WgpuPattern
     private static ulong        MultiplyAdd_GPU_WgslHash            => 0x777;   // support Hot-Relead
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref WgpuComputeEffect MultiplyAdd_GPU_CreateEffect(WgpuDevice device)
+    private static ref ComputeCache MultiplyAdd_GPU_CreateComputeCache(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
@@ -95,7 +114,8 @@ public static class WgpuPattern
         var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
-        return ref device.CreateComputeEffect(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout);
+        var bindGroupCache = new MultiplyAdd_GPU_Cache();
+        return ref device.CreatePipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)

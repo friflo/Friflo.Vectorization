@@ -17,6 +17,7 @@ public readonly struct UniformLayout(uint index, WgpuBindGroupLayout layout)
     internal readonly   WgpuBindGroupLayout layout  = layout;
 }
 
+// TODO REMOVE
 [EditorBrowsable(EditorBrowsableState.Never)]
 public unsafe struct WgpuComputeEffect 
 {
