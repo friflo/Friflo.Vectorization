@@ -62,7 +62,7 @@ public partial class RenderTest : IRenderer
         ]
     };
     
-    public virtual void DrawFrame()
+    public virtual void DrawFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
@@ -74,7 +74,7 @@ public partial class RenderTest : IRenderer
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-            wormhood.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
+            wormhood.IResolution    = new Vector3(width, height, 1.0f);
             wormhood.ITime          = time;
             
             Wormhood.RenderTunnel(pass, wormhood);

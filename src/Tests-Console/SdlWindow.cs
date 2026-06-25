@@ -14,7 +14,7 @@ namespace TestConsole;
 /// </summary>
 public interface IRenderer
 {
-    public void DrawFrame();
+    public void DrawFrame(int width, int height);
     public void Shutdown();
 }
 
@@ -88,7 +88,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        try { renderer?.DrawFrame();    return SDL.AppResult.Continue; }
+        try { renderer?.DrawFrame(wgpu!.Width, wgpu.Height);    return SDL.AppResult.Continue; }
         catch (Exception exception)   { return Capture(exception); }
     }
     

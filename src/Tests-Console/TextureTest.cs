@@ -103,7 +103,7 @@ public partial class TextureTest : IRenderer
         return view * proj; 
     }
     
-    public unsafe void DrawFrame()                          // TODO remove unsafe
+    public unsafe void DrawFrame(int width, int height)                          // TODO remove unsafe
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
@@ -111,7 +111,7 @@ public partial class TextureTest : IRenderer
         }
         perfLog.Trace(5000);
         if (perfLog.FrameCount == 1) {
-            depthTexture = wgpu.Device.CreateTexture2D(wgpu.Width, wgpu.Height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+            depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         }
         renderPassOptions.depthStencilAttachment = new RenderPassDepthStencilAttachment {
             view            = (TextureView*)depthTexture!.texture_2d<float>().Handle,
@@ -120,7 +120,7 @@ public partial class TextureTest : IRenderer
             depthStoreOp    = StoreOp.Store
         };
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(wgpu.Width, wgpu.Height, time);
+        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, vertexConfig))
         {

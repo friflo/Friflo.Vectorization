@@ -22,7 +22,7 @@ public class ConfigTest : RenderTest
     private readonly RenderConfig testConfig;
     
     
-    public override void DrawFrame()
+    public override void DrawFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?
@@ -35,7 +35,7 @@ public class ConfigTest : RenderTest
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-            wormhood.IResolution    = new Vector3(wgpu.Width, wgpu.Height, 1.0f);
+            wormhood.IResolution    = new Vector3(width, height, 1.0f);
             wormhood.ITime          = time;
             
             // Wormhood.RenderTunnel(pass, wormhood);
