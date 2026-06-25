@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  WgpuDevice
 
@@ -11,11 +10,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
-public readonly struct UniformLayout(uint index, WgpuBindGroupLayout layout)
-{
-    internal readonly   uint                index   = index;
-    internal readonly   WgpuBindGroupLayout layout  = layout;
-}
+/*
 
 // TODO REMOVE
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -99,7 +94,7 @@ public struct WgpuBufferCache
         group0.Release();
         group1.Release();
     }
-}
+} */
 
 
 [EditorBrowsable(EditorBrowsableState.Never)]

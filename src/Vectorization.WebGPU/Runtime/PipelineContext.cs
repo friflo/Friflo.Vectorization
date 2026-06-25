@@ -4,7 +4,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
@@ -102,17 +101,10 @@ public sealed partial class CommandRecorder
         uniformBuffer ??= (WgpuBuffer<byte>)device.CreateBuffer<byte>(uniformBufferSize, 0, device.Label, BufferProfile.StaticIn, BufferType.Uniform);
     }
     
-    protected override unsafe void ReleaseResources()
+    protected override void ReleaseResources()
     {
         uniformBuffer?.Dispose();
         uniformBuffer = null;
-        for (int n = 0; n < computeUniformGroups.Length; n++) {
-            ref var group = ref computeUniformGroups[n];
-            if (group.handle != null) {
-                wgpuBindGroupRelease(group.handle);
-                group = default;
-            }
-        }
     }
     
     /// --- <see cref="PipelineTrace"/>

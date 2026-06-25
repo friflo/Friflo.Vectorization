@@ -33,43 +33,6 @@ public sealed unsafe partial  class WgpuDevice
         throw new InvalidOperationException($"Missing Device Context: '{Label}'. Call:  using var context = device.BeginContext();  before calling kernel method.");
     }
     
-    
-    // --------------------- computeEffectSlots ---------------------
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref WgpuComputeEffect GetComputeEffect(int slot, ulong wgslHash)
-    {
-        var slots = computeEffectSlots;
-        if (slot < slots.Length) {
-            ref var effect = ref slots[slot];
-            if (effect.wgslHash == wgslHash) {
-                return ref effect;
-            }
-        }
-        return ref MissingComputeEffect;
-    }
-    
-    private static WgpuComputeEffect MissingComputeEffect;
-    
-    public ref WgpuComputeEffect CreateComputeEffect(
-        int                     kernelId,
-        ulong                   wgslHash,
-        WgpuComputePipeline     pipeline,
-        WgpuBindGroupLayout     bufferLayout,
-        WgpuBindGroupLayout     uniformLayout)
-    {
-        var slots = computeEffectSlots;
-        if (kernelId >= slots.Length) {
-            slots = WgpuUtils.Resize(ref computeEffectSlots, kernelId + 1);
-        }
-        slots[kernelId] = new WgpuComputeEffect(kernelId, wgslHash, pipeline, bufferLayout, uniformLayout);
-        return ref slots[kernelId];
-    }
-    
-    // TODO REMOVE
-    public void UpdateComputeCache(ref WgpuComputeEffect effect, WgpuBindGroup bindGroup, ulong hash) {
-        effect.computeBufferCache.Update(bindGroup, hash);
-    }
-    
     // --------------------------------------------------------------
     public WgpuShaderModule CreateShaderModule(ReadOnlySpan<byte> wgslSource, ReadOnlySpan<byte> shaderLabel)
     {

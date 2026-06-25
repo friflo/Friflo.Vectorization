@@ -23,14 +23,10 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal            WgpuEncoder             currentEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.HazardDriven;
-    internal            ulong                   lastBindGroup0_hash;
     internal            ComputePipeline*        lastPipelineHandle;
     
-    private  readonly   List<WgpuBindGroup>     createdBindGroups   = [];   // TODO can use array
     private             WgpuCommandBuffer       commandBuffer;
     
-    internal            WgpuBindGroup[]         computeUniformGroups= [];
-
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
@@ -136,7 +132,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     internal void Reset()
     {
-        lastBindGroup0_hash =  0;
         lastPipelineHandle  =  null;
         kernelSeq           =  0;
         kernelId            = -1;
@@ -145,10 +140,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
         clearSegmentMaps.Clear();
         
-        foreach (var group in createdBindGroups) {
-            wgpuBindGroupRelease(group.handle);
-        }
-        createdBindGroups.Clear();
         ClosePass();
         
         if (uniformOffset > 0) {
@@ -233,24 +224,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
     }
         
-    // TODO REMOVE - 2
-    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<BindGroupEntry> bindEntries, ReadOnlySpan<byte> groupLabel)
-    {
-        fixed(byte*             labelPtr        = groupLabel)
-        fixed(BindGroupEntry*   nativeEntryPtr  = bindEntries) {
-            var descriptor = new BindGroupDescriptor {
-                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
-                layout      = layout.handle,
-                entryCount  = (uint)bindEntries.Length,
-                entries     = nativeEntryPtr
-            };
-            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            var group = new WgpuBindGroup(handle); 
-            createdBindGroups.Add(group);
-            return group;
-        }
-    }
-    
     public override void Dispose()
     {
         ClosePass();
@@ -267,48 +240,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
             wgpuComputePassEncoderEnd(currentPass);
             wgpuComputePassEncoderRelease(currentPass);
             currentPass = null;
-        }
-    }
-    
-    // TODO REMOVE - 2
-    internal WgpuBindGroup GetUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
-    {
-        var index = layout.index;
-        if (index < groups.Length) {
-            var bindGroup = groups[index];
-            if (bindGroup.handle != null) {
-                return bindGroup;
-            }
-        }
-        return CreateUniformBindGroup(layout, uniformSize, ref groups, groupLabel);
-    }
-    
-    // TODO REMOVE - 2
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private WgpuBindGroup CreateUniformBindGroup(in UniformLayout layout, uint uniformSize, ref WgpuBindGroup[] groups, ReadOnlySpan<byte> groupLabel)
-    {
-        var entry = new BindGroupEntry {
-            binding = 0,
-            buffer  = uniformBuffer.handle,
-            offset  = 0,
-            size    = uniformSize
-        };
-        fixed(byte* labelPtr = groupLabel) {
-            var desc = new BindGroupDescriptor {
-                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel),
-                layout      = layout.layout.handle,
-                entryCount  = 1,
-                entries     = &entry
-            };
-            var groupHandle = wgpuDeviceCreateBindGroup(device.DevicePtr, &desc);
-            var bindGroup   = new WgpuBindGroup(groupHandle);
-            
-            if (layout.index >= groups.Length) {
-                var newGroups = new WgpuBindGroup[Math.Max(groups.Length * 2, layout.index + 1)];
-                Array.Copy(groups, 0, newGroups, 0, groups.Length);
-                groups = newGroups;
-            }
-            return groups[layout.index] = bindGroup;
         }
     }
 }
