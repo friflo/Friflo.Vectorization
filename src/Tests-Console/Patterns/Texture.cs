@@ -32,6 +32,7 @@ public partial class TextureTest
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref TextureTest_GPU_CreatePipelineCache(device, vertexConfig);
         }
+        
         pass.SetPipeline(pipelineCache.renderPipeline);
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
@@ -67,7 +68,7 @@ public partial class TextureTest
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref PipelineCache TextureTest_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
+    private static ref readonly PipelineCache TextureTest_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {

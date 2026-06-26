@@ -105,7 +105,7 @@ public sealed partial  class WgpuDevice
     
     private static PipelineCache MissingPipelineCache;
     
-    public ref PipelineCache CreatePipelineCache(
+    public ref readonly PipelineCache CreatePipelineCache(
         int                                         kernelId,
         RenderConfig                                config,
         ulong                                       wgslHash,

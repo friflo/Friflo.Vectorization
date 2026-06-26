@@ -46,7 +46,7 @@ public static partial class Wormhood
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref PipelineCache Wormhood_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
+    private static ref readonly PipelineCache Wormhood_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         var layout_0 = device.GetBindGroupLayout(Wormhood_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
