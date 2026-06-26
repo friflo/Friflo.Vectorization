@@ -142,12 +142,12 @@ namespace Kernel.Generators
         var bindGroupCache = (_Add_GPU_Cache)pipelineCache.bindGroupCache;
         
         var key = (a.Handle, b.Handle, c.Handle);
-        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-            entries[0] = WgpuBindGroup.From(0, a.Buffer);
-            entries[1] = WgpuBindGroup.From(1, b.Buffer);
-            entries[2] = WgpuBindGroup.From(2, c.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "Add_buffers"u8);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
+        {
+            recorder.AddBindGroupEntryBuffer(0, a.Buffer);
+            recorder.AddBindGroupEntryBuffer(1, b.Buffer);
+            recorder.AddBindGroupEntryBuffer(2, c.Buffer);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Add_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

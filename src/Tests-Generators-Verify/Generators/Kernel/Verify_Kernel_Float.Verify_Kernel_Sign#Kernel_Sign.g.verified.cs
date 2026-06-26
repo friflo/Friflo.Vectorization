@@ -127,10 +127,10 @@ namespace VerifyVectorize
         var bindGroupCache = (_Kernel_Sign_GPU_Cache)pipelineCache.bindGroupCache;
         
         var key = position.Handle;
-        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0] = WgpuBindGroup.From(0, position.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "Kernel_Sign_buffers"u8);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
+        {
+            recorder.AddBindGroupEntryBuffer(0, position.Buffer);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Kernel_Sign_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

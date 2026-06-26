@@ -117,10 +117,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName},");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        recorder.{requireType}({paramName});");
-            /* if (isOutput) {
-                setTaskOnOutputs.Append($"\n        recorder.TrackWrite({paramName}_);");
-            } */
-            bufferBindEntries.Append($"\n            entries[{bufferCount}] = WgpuBindGroup.From({bufferCount}, {paramName}.Buffer);");
+            bufferBindEntries.Append($"\n            recorder.AddBindGroupEntryBuffer({bufferCount}, {paramName}.Buffer);");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
@@ -202,9 +199,9 @@ $$""""
         var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
         
         var key = {{bufferKey}};
-        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[{{bufferCount}}];{{bufferBindEntries}}
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "{{methodName}}_buffers"u8);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
+        {{{bufferBindEntries}}
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "{{methodName}}_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

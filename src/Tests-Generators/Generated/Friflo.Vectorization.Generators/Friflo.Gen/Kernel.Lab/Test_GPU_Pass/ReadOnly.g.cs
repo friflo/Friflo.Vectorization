@@ -105,10 +105,10 @@ namespace Kernel.Lab
         var bindGroupCache = (_ReadOnly_GPU_Cache)pipelineCache.bindGroupCache;
         
         var key = input.Handle;
-        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0] = WgpuBindGroup.From(0, input.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, entries, "ReadOnly_buffers"u8);
+        if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
+        {
+            recorder.AddBindGroupEntryBuffer(0, input.Buffer);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "ReadOnly_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);
