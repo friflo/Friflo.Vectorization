@@ -46,17 +46,17 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
 
-    protected readonly  PerfLog             perfLog             = new();
-    protected readonly  InView<VertexData>  rectangle;
-    protected           MyUniform           myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
-    protected           Wormhood.Uniforms   wormhood;
-    protected readonly  Stopwatch           stopwatch           = Stopwatch.StartNew();
-    protected           RenderPassOptions   renderPassOptions   = new () { colorAttachments = [ default ] };
+    protected readonly  PerfLog                     perfLog             = new();
+    protected readonly  InView<VertexData>          rectangle;
+    protected           MyUniform                   myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected           Wormhood.Uniforms           wormhood;
+    protected readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
+    protected           WgpuRenderPassDescriptor    renderPassDescriptor= new () { colorAttachments = [ default ] };
     
     
     public void OnWindowChanged(int width, int height)
     {
-        renderPassOptions.colorAttachments[0] = new WgpuRenderPassColorAttachment {
+        renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
@@ -71,10 +71,10 @@ public partial class RenderTest : IRenderer
             return;
         }
         perfLog.Trace(5000);
-        renderPassOptions.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, wgpu.Config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(width, height, 1.0f);

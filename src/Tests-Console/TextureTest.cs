@@ -79,11 +79,11 @@ public partial class TextureTest : IRenderer
         vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
-    private   readonly  texture_2d<float>   textureView;
-    private   readonly  PerfLog             perfLog             = new();
-    private             Uniforms            uniforms;
-    private   readonly  Stopwatch           stopwatch           = Stopwatch.StartNew();
-    private             RenderPassOptions   renderPassOptions   = new() { colorAttachments = [ default ] };
+    private   readonly  texture_2d<float>           textureView;
+    private   readonly  PerfLog                     perfLog             = new();
+    private             Uniforms                    uniforms;
+    private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
+    private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
 
     
     public void OnWindowChanged(int width, int height)
@@ -92,13 +92,13 @@ public partial class TextureTest : IRenderer
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
-        renderPassOptions.colorAttachments[0] = new WgpuRenderPassColorAttachment {
+        renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
             depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
         };
-        renderPassOptions.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
+        renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
             view            = depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
@@ -123,11 +123,11 @@ public partial class TextureTest : IRenderer
             return;
         }
         perfLog.Trace(5000);
-        renderPassOptions.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, vertexConfig))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, vertexConfig))
         {
             RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms, sampler, textureView);
         }

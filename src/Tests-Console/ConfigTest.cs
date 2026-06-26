@@ -29,11 +29,11 @@ public class ConfigTest : RenderTest
             return;
         }
         perfLog.Trace(5000);
-        renderPassOptions.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, config))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(width, height, 1.0f);

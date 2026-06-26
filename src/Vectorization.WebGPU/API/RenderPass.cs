@@ -55,7 +55,7 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 }
 
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
-public struct RenderPassOptions
+public struct WgpuRenderPassDescriptor
 {
     public  WgpuRenderPassColorAttachment[]         colorAttachments;
     public  WgpuRenderPassDepthStencilAttachment?   depthStencilAttachment;
@@ -160,7 +160,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
     // Minimizes CPU-to-GPU state change overhead dramatically.
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass<TStage> BeginRenderPass<TStage>(in RenderPassOptions options, RenderConfig config) where TStage : unmanaged
+    public RenderPass<TStage> BeginRenderPass<TStage>(in WgpuRenderPassDescriptor descriptor, RenderConfig config) where TStage : unmanaged
     {
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
@@ -169,15 +169,15 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
         
-        Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[options.colorAttachments.Length];
+        Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[descriptor.colorAttachments.Length];
 
         for (int n = 0; n < colorAttachments.Length; n++) {
-            colorAttachments[n] = options.colorAttachments[n].GetNative();
+            colorAttachments[n] = descriptor.colorAttachments[n].GetNative();
         }
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
         RenderPassDepthStencilAttachment   depthStencilAttachment;
-        if (options.depthStencilAttachment != null) {
-            depthStencilAttachment  = options.depthStencilAttachment.Value.GetNative();
+        if (descriptor.depthStencilAttachment != null) {
+            depthStencilAttachment  = descriptor.depthStencilAttachment.Value.GetNative();
             pDepthStencilAttachment = &depthStencilAttachment;
         }
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
