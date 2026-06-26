@@ -172,7 +172,7 @@ namespace Kernel.Lab
     private static ulong        _Assign_GPU_WgslHash           => 0xcdfaeede58060e75;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Assign_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Assign_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Assign_GPU_BufferLayoutKey);

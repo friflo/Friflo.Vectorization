@@ -180,7 +180,7 @@ namespace Kernel.Generators
     private static ulong        _Move_GPU_WgslHash           => 0x420dc7e7885d85b1;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Move_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Move_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Move_GPU_BufferLayoutKey);

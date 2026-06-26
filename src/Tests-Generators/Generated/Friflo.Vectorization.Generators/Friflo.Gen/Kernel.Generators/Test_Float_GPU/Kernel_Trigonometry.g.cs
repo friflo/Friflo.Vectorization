@@ -254,7 +254,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Trigonometry_GPU_WgslHash           => 0x9c5b1e847d218990;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Kernel_Trigonometry_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Kernel_Trigonometry_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Trigonometry_GPU_BufferLayoutKey);

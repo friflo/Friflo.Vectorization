@@ -225,7 +225,7 @@ namespace Kernel.Generators
     private static ulong        _Misc_GPU_WgslHash           => 0xfa28c2317e6c0dc7;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Misc_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Misc_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Misc_GPU_BufferLayoutKey);

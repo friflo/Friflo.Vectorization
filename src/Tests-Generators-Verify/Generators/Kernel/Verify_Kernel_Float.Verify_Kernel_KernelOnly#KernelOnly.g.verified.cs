@@ -107,7 +107,7 @@ namespace VerifyVectorize
     private static ulong        _KernelOnly_GPU_WgslHash           => 0xa85ee513a18c92aa;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _KernelOnly_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _KernelOnly_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_KernelOnly_GPU_BufferLayoutKey);

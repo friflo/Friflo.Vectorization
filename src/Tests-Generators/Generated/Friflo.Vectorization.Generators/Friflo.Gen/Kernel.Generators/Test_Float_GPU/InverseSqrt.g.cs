@@ -158,7 +158,7 @@ namespace Kernel.Generators
     private static ulong        _InverseSqrt_GPU_WgslHash           => 0x8a5dd36b7de2dde4;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _InverseSqrt_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _InverseSqrt_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_InverseSqrt_GPU_BufferLayoutKey);

@@ -214,7 +214,7 @@ namespace Kernel.Generators
     private static ulong        _Arithmetic_GPU_WgslHash           => 0xbf185be78181f548;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Arithmetic_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Arithmetic_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Arithmetic_GPU_BufferLayoutKey);

@@ -172,7 +172,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Min_GPU_WgslHash           => 0x2680e253f8905c52;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Kernel_Min_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Kernel_Min_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Min_GPU_BufferLayoutKey);

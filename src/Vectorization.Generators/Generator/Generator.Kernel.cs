@@ -238,7 +238,7 @@ $$""""
     private static ulong        {{methodName_GPU}}_WgslHash           => 0x{{wgslHash}};
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache {{methodName_GPU}}_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache {{methodName_GPU}}_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);

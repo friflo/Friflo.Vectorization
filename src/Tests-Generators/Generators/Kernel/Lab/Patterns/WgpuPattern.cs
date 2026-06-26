@@ -89,7 +89,7 @@ public static class WgpuPattern
     private static ulong        MultiplyAdd_GPU_WgslHash            => 0x777;   // support Hot-Relead
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache MultiplyAdd_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache MultiplyAdd_GPU_CreateComputeCache(WgpuDevice device)
     {
         var bufferLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {

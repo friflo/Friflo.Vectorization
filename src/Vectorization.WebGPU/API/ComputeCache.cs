@@ -60,7 +60,7 @@ public sealed partial  class WgpuDevice
     
     private static ComputeCache MissingComputeCache;
     
-    public ref ComputeCache CreatePipelineCache(
+    public ref readonly ComputeCache CreatePipelineCache(
         int                 kernelId,
         ulong               wgslHash,
         WgpuComputePipeline renderPipeline,

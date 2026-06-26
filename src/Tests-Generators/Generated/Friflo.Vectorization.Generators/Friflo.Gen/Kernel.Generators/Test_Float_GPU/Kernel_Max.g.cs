@@ -172,7 +172,7 @@ namespace Kernel.Generators
     private static ulong        _Kernel_Max_GPU_WgslHash           => 0x13ef0c5fc4cda50b;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static ref ComputeCache _Kernel_Max_GPU_CreateComputeCache(WgpuDevice device)
+    private static ref readonly ComputeCache _Kernel_Max_GPU_CreateComputeCache(WgpuDevice device)
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Max_GPU_BufferLayoutKey);
