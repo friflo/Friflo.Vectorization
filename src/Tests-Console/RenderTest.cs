@@ -56,7 +56,7 @@ public partial class RenderTest : IRenderer
     
     public void OnWindowChanged(int width, int height)
     {
-        renderPassOptions.colorAttachments[0] = new RenderPassColorAttachment {
+        renderPassOptions.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },

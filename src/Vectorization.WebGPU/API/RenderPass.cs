@@ -44,7 +44,8 @@ public static class WgpuExtensions
 
 public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 {
-    internal readonly   TextureView*  handle = view;
+    internal readonly   TextureView*    handle  = view;
+    public              nint            Handle  => (nint)handle;
     
     public void Dispose()
     {
@@ -57,9 +58,35 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
 public struct RenderPassOptions
 {
-    public  RenderPassColorAttachment[]             colorAttachments;
+    public  WgpuRenderPassColorAttachment[]         colorAttachments;
     public  WgpuRenderPassDepthStencilAttachment?   depthStencilAttachment;
 }
+
+/// <summary> see: <see cref="RenderPassColorAttachment"/> </summary>
+public struct WgpuRenderPassColorAttachment
+{
+    public  nint    nextInChain;
+    public  nint    view;
+    public  uint    depthSlice;
+    public  nint    resolveTarget;
+    public  LoadOp  loadOp;
+    public  StoreOp storeOp;
+    public  Color   clearValue;
+    
+    public unsafe RenderPassColorAttachment GetNative()
+    {
+        return new RenderPassColorAttachment {
+            nextInChain     = (ChainedStruct*)nextInChain,
+            view            = (TextureView*)view,
+            depthSlice      = depthSlice,
+            resolveTarget   = (TextureView*)resolveTarget,
+            loadOp          = loadOp,
+            storeOp         = storeOp,
+            clearValue      = clearValue
+        };
+    }
+}
+
 
 /// <summary> see: <see cref="RenderPassDepthStencilAttachment"/> </summary>
 public struct WgpuRenderPassDepthStencilAttachment
@@ -142,8 +169,11 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         if (recorder.currentEncoder.handle == null) {
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
-        var colorAttachments = options.colorAttachments;
+        
+        Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[options.colorAttachments.Length];
+
         for (int n = 0; n < colorAttachments.Length; n++) {
+            colorAttachments[n]      = options.colorAttachments[n].GetNative();
             colorAttachments[n].view = view.handle;
         }
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;

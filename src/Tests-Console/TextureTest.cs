@@ -92,7 +92,7 @@ public partial class TextureTest : IRenderer
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
-        renderPassOptions.colorAttachments[0] = new RenderPassColorAttachment {
+        renderPassOptions.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
