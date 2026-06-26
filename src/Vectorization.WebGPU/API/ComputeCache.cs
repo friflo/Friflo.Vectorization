@@ -46,7 +46,7 @@ public sealed partial  class WgpuDevice
 {
     // --------------------- computeCacheSlots ---------------------
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public ref ComputeCache GetPipelineCache(int slot, ulong wgslHash)
+    public ref readonly ComputeCache GetPipelineCache(int slot, ulong wgslHash)
     {
         var slots = computeCacheSlots;
         if (slot < slots.Length) {

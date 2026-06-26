@@ -86,7 +86,7 @@ public sealed partial  class WgpuDevice
 {
     // --------------------- shaderEffectSlots ---------------------
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public ref PipelineCache GetPipelineCache(int slot, RenderConfig config, ulong wgslHash)
+    public ref readonly PipelineCache GetPipelineCache(int slot, RenderConfig config, ulong wgslHash)
     {
         var slots = pipelineCacheSlots;
         if (slot < slots.Length) {
