@@ -88,7 +88,7 @@ public partial class TextureTest : IRenderer
     
     public void OnWindowChanged(int width, int height)
     {
-        depthTexture?.Dispose(); // create new texture 2D
+        depthTexture?.Dispose(); // create new depthTexture with different width & height
         depthTexture = wgpu.Device.CreateTexture(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
