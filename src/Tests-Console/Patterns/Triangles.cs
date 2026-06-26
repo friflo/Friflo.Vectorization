@@ -36,9 +36,8 @@ public partial class RenderTest
         
         var key_0 = triangles.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[1];
-            entries[0] = WgpuBindGroup.From  (0, triangles.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], entries, "Triangles_bindGroup0"u8);
+            recorder.AddBindGroupEntryBuffer(0, triangles.Buffer);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Triangles_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
         pass.SetBindGroup(0, bindGroup0);

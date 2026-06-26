@@ -27,6 +27,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     internal            BindGroup*              lastBufferBindGroup;
     
     private             WgpuCommandBuffer       commandBuffer;
+    private  readonly   BindGroupEntry[]        bindGroupEntries = new  BindGroupEntry[1000];
+    private             int                     bindGroupEntriesCount;
     
     private             WgpuBuffer<byte>        uniformBuffer;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
@@ -179,7 +181,67 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         }
         commandList.commands.Add(commandBuffer);
     }
+
+    // ---------------- add AddBindGroupEntry*() / CreateBindGroup() ----------------
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void AddBindGroupEntryUniform<T>(int binding) where T : unmanaged
+    {
+        uint alignedSize    = ((uint)sizeof(T) + (UniformAlignment - 1)) & ~(UniformAlignment - 1);
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
+            binding = (uint)binding,
+            buffer  = uniformBuffer.handle,
+            offset  = 0,
+            size    = alignedSize
+        };
+    }
     
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void AddBindGroupEntrySampler(int binding, GpuSampler sampler)
+    {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
+            binding = (uint)binding,
+            sampler = sampler.handle
+        };
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void AddBindGroupEntryTexture(int binding, nint textureView)
+    {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
+            binding     = (uint)binding,
+            textureView = (TextureView*)textureView
+        };
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void AddBindGroupEntryBuffer<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
+    {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
+            binding = (uint)binding,
+            buffer  = (Buffer*)buffer.NativeHandle,
+            offset  = 0,
+            size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
+        };
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<byte> groupLabel)
+    {
+        fixed(byte*             labelPtr        = groupLabel)
+        fixed(BindGroupEntry*   nativeEntryPtr  = bindGroupEntries) {
+            var descriptor = new BindGroupDescriptor {
+                label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
+                layout      = layout.handle,
+                entryCount  = (uint)bindGroupEntriesCount,
+                entries     = nativeEntryPtr
+            };
+            bindGroupEntriesCount = 0;
+            var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
+            return new WgpuBindGroup(handle);
+        }
+    }
+    
+    // TODO REMOVE
     [MethodImpl(MethodImplOptions.NoInlining)]
     public BindGroupEntry CreateUniformBindGroupEntry<T>(int binding) where T : unmanaged
     {

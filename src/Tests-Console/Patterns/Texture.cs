@@ -39,11 +39,10 @@ public partial class TextureTest
         
         var key_0 = (smoothFilter.Handle, material.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            Span<BindGroupEntry> entries = stackalloc BindGroupEntry[3];
-            entries[0]  = recorder.CreateUniformBindGroupEntry<Uniforms>(0);
-            entries[1]  = WgpuBindGroup.From  (1, smoothFilter);
-            entries[2]  = WgpuBindGroup.From  (2, material);
-            bindGroup0  = recorder.CreateBindGroup(pipelineCache.layouts[0], entries, "TextureTest_bindGroup0"u8);
+            recorder.AddBindGroupEntryUniform<Uniforms>(0);
+            recorder.AddBindGroupEntrySampler(1, smoothFilter);
+            recorder.AddBindGroupEntryTexture(2, material.Handle);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
         pass.SetBindGroupUniform(0, bindGroup0, uniforms);
