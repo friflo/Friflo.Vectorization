@@ -41,7 +41,7 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public int Length => _array?.Length ?? 0;
     
-    public ref T this[int index] {
+    public ref readonly T this[int index] {
         get {
             if (_array != null) return ref _array[index];
             throw new IndexOutOfRangeException();

@@ -57,7 +57,7 @@ public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
 public struct RenderPassOptions
 {
-    public  ValueArray<RenderPassColorAttachment>   colorAttachments;
+    public  RenderPassColorAttachment[]             colorAttachments;
     public  WgpuRenderPassDepthStencilAttachment?   depthStencilAttachment;
 }
 
@@ -142,7 +142,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         if (recorder.currentEncoder.handle == null) {
             recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
         }
-        var colorAttachments = options.colorAttachments._array;
+        var colorAttachments = options.colorAttachments;
         for (int n = 0; n < colorAttachments.Length; n++) {
             colorAttachments[n].view = view.handle;
         }
