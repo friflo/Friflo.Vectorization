@@ -92,17 +92,15 @@ public static class WgpuPattern
     {
         var bufferLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0);   // var<storage, read>       weight_arr:     array<f32>;
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1);   // var<storage, read>       input_arr:      array<f32>;
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2);   // var<storage, read_write> output_arr:     array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, MultiplyAdd_GPU_BufferLayoutKey, "MultiplyAdd_buffers"u8);
+            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
+            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
+            device.BindGroupLayoutBuffer(BufferBindingType.Storage);
+            bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, MultiplyAdd_GPU_BufferLayoutKey, "MultiplyAdd_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0] = WgpuLayoutEntry.Uniform(0);            // var<uniform>              uniforms
-            uniformLayout   = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, MultiplyAdd_GPU_UniformLayoutKey, "MultiplyAdd_uniforms"u8);
+            device.BindGroupLayoutUniform();
+            uniformLayout   = device.CreateBindGroupLayout(ShaderStage.Compute, MultiplyAdd_GPU_UniformLayoutKey, "MultiplyAdd_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
