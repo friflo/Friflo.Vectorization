@@ -71,6 +71,7 @@ public partial class RenderTest : IRenderer
             return;
         }
         perfLog.Trace(5000);
+        renderPassOptions.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
         using (var pass = frame.BeginRenderPass<MainWorld>(renderPassOptions, wgpu.Config))

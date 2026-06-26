@@ -29,6 +29,7 @@ public class ConfigTest : RenderTest
             return;
         }
         perfLog.Trace(5000);
+        renderPassOptions.colorAttachments[0].view = frame.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
         

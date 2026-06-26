@@ -123,6 +123,7 @@ public partial class TextureTest : IRenderer
             return;
         }
         perfLog.Trace(5000);
+        renderPassOptions.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         

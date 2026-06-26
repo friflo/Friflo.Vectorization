@@ -45,7 +45,6 @@ public static class WgpuExtensions
 public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
 {
     internal readonly   TextureView*    handle  = view;
-    public              nint            Handle  => (nint)handle;
     
     public void Dispose()
     {
@@ -65,21 +64,21 @@ public struct RenderPassOptions
 /// <summary> see: <see cref="RenderPassColorAttachment"/> </summary>
 public struct WgpuRenderPassColorAttachment
 {
-    public  nint    nextInChain;
-    public  nint    view;
-    public  uint    depthSlice;
-    public  nint    resolveTarget;
-    public  LoadOp  loadOp;
-    public  StoreOp storeOp;
-    public  Color   clearValue;
+    public  nint            nextInChain;
+    public  WgpuTextureView view;
+    public  uint            depthSlice;
+    public  WgpuTextureView resolveTarget;
+    public  LoadOp          loadOp;
+    public  StoreOp         storeOp;
+    public  Color           clearValue;
     
     public unsafe RenderPassColorAttachment GetNative()
     {
         return new RenderPassColorAttachment {
             nextInChain     = (ChainedStruct*)nextInChain,
-            view            = (TextureView*)view,
+            view            = view.handle,
             depthSlice      = depthSlice,
-            resolveTarget   = (TextureView*)resolveTarget,
+            resolveTarget   = resolveTarget.handle,
             loadOp          = loadOp,
             storeOp         = storeOp,
             clearValue      = clearValue
@@ -123,7 +122,7 @@ public struct WgpuRenderPassDepthStencilAttachment
 public readonly unsafe ref struct  RenderFrame : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
-    private  readonly   WgpuTextureView                 view;
+    public   readonly   WgpuTextureView                 View;
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
@@ -132,7 +131,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     public   override   string                          ToString()  => TextureStatus.ToString(); 
 
     internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder) {
-        this.view           = view;
+        View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;
         this.recorder       = recorder;
@@ -173,8 +172,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[options.colorAttachments.Length];
 
         for (int n = 0; n < colorAttachments.Length; n++) {
-            colorAttachments[n]      = options.colorAttachments[n].GetNative();
-            colorAttachments[n].view = view.handle;
+            colorAttachments[n] = options.colorAttachments[n].GetNative();
         }
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
         RenderPassDepthStencilAttachment   depthStencilAttachment;
@@ -195,7 +193,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     
     public void Dispose()
     {
-        view.Dispose();
+        View.Dispose();
         if (surfaceTexture != null) {
             wgpuTextureRelease(surfaceTexture);
         }
