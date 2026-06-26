@@ -77,7 +77,7 @@ public sealed unsafe partial class WgpuDevice
         out Sampler*        sampler)
     {
         var opt = options ?? new SamplerOptions();
-        desc.nextInChain     = opt.nextInChain;
+        desc.nextInChain     = (ChainedStruct*)opt.nextInChain;
         desc.addressModeU    = opt.addressModeU;
         desc.addressModeV    = opt.addressModeV;
         desc.addressModeW    = opt.addressModeW;
@@ -97,12 +97,12 @@ public sealed unsafe partial class WgpuDevice
 
 public struct SamplerOptions
 {
-    public unsafe   ChainedStruct*  nextInChain;
-    public          AddressMode     addressModeU    = AddressMode.ClampToEdge;
-    public          AddressMode     addressModeV    = AddressMode.ClampToEdge;
-    public          AddressMode     addressModeW    = AddressMode.ClampToEdge;
-    public          float           lodMinClamp     = 0.0f;
-    public          float           lodMaxClamp     = 32.0f;
+    public  nint        nextInChain;
+    public  AddressMode addressModeU    = AddressMode.ClampToEdge;
+    public  AddressMode addressModeV    = AddressMode.ClampToEdge;
+    public  AddressMode addressModeW    = AddressMode.ClampToEdge;
+    public  float       lodMinClamp     = 0.0f;
+    public  float       lodMaxClamp     = 32.0f;
 
     public SamplerOptions() { }
 }

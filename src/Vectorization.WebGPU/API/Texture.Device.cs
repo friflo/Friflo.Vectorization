@@ -16,10 +16,10 @@ namespace Friflo.Vectorization.WebGPU;
 /// <summary> <see cref="TextureDescriptor"/> </summary>
 public struct TextureOptions
 {
-    public  unsafe  ChainedStruct*  nextInChain;
-    public          uint            mipLevelCount       = 1;
-    public          uint            sampleCount         = 1;
-    public          uint            depthOrArrayLayers  = 1;
+    public  nint    nextInChain;
+    public  uint    mipLevelCount       = 1;
+    public  uint    sampleCount         = 1;
+    public  uint    depthOrArrayLayers  = 1;
 
     public TextureOptions() { }
 }
@@ -46,7 +46,7 @@ public sealed unsafe partial class WgpuDevice
         desc.size.depthOrArrayLayers    = opt.depthOrArrayLayers;
         desc.sampleCount                = opt.sampleCount;
         desc.mipLevelCount              = opt.mipLevelCount;
-        desc.nextInChain                = opt.nextInChain;
+        desc.nextInChain                = (ChainedStruct*)opt.nextInChain;
         desc.viewFormatCount            = (uint)viewFormatCount;
     }
 
