@@ -175,6 +175,28 @@ public sealed unsafe partial  class WgpuDevice
         return layout;
     }
     
+    public void BindGroupLayoutSampler(SamplerBindingType samplerType)
+    {
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
+            binding = (uint)bindGroupLayoutEntriesCount++,
+            sampler = new SamplerBindingLayout {
+                type    = samplerType
+            }
+        };
+    }
+    
+    public void BindGroupLayoutTexture(TextureSampleType sampleType, TextureViewDimension viewDimension, bool multisampled)
+    {
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
+            binding = (uint)bindGroupLayoutEntriesCount++,
+            texture = new TextureBindingLayout {
+                sampleType      =  sampleType,
+                viewDimension   = viewDimension,
+                multisampled    = multisampled ? 1u : 0 
+            }
+        };
+    }
+    
     public void BindGroupLayoutUniform()
     {
         bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
@@ -183,6 +205,18 @@ public sealed unsafe partial  class WgpuDevice
                 type                = BufferBindingType.Uniform,
                 hasDynamicOffset    = WgpuUtils.FromBool(true), // true for uniform buffer
                 minBindingSize      = 0                         // 0: no validation of minimum size
+            }
+        };
+    }
+    
+    public void BindGroupLayoutBuffer(BufferBindingType bindingType)
+    {
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
+            binding = (uint)bindGroupLayoutEntriesCount++,
+            buffer  = new BufferBindingLayout {
+                type                = bindingType,
+                hasDynamicOffset    = WgpuUtils.FromBool(false), // true for uniform buffer
+                minBindingSize      = 0                          // 0: no validation of minimum size
             }
         };
     }
