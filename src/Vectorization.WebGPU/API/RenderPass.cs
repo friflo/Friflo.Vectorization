@@ -178,6 +178,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 
         for (int n = 0; n < colorAttachments.Length; n++) {
             colorAttachments[n] = descriptor.colorAttachments[n].GetNative();
+            if (colorAttachments[n].view == null) throw new ArgumentException($"renderPassDescriptor.colorAttachments[{n}].view is null. Assign: RenderFrame.View");
         }
         RenderPassDepthStencilAttachment* pDepthStencilAttachment = null;
         RenderPassDepthStencilAttachment   depthStencilAttachment;
