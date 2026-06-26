@@ -77,7 +77,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
 
     private SDL.AppResult AppInit(IntPtr appState, int argc, string[]? argv)
     {
-        try { InitSdl3();               return SDL.AppResult.Continue; }
+        try { return InitSdl3(); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
@@ -106,7 +106,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     }
     
     /// <summary> Init SDL3 and create window </summary>
-    public void InitSdl3()
+    public SDL.AppResult InitSdl3()
     {
         // --- setup SDL window ---
         if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
@@ -139,6 +139,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer = createRenderer(wgpu);
         SetWindowSize();
+        return SDL.AppResult.Continue;
     }
     
     public void SetWindowIconFromResource()
