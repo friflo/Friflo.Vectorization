@@ -272,7 +272,7 @@ public readonly unsafe ref  struct RenderPass
         var rec = Recorder;
         if (!bindGroup.IsCreated) {
             var entry   = rec.CreateUniformBindGroupEntry<T>(0);
-            bindGroup   = rec.CreateBindGroupNew(pipelineCache.layouts[(int)groupIndex], entry, groupLabel);
+            bindGroup   = rec.CreateBindGroupInternal(pipelineCache.layouts[(int)groupIndex], entry, groupLabel);
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         uint offset         = rec.uniformOffset;
