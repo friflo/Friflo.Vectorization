@@ -35,7 +35,6 @@ internal readonly unsafe struct WgpuCommandBuffer
     }
 }
 
-// TODO REMOVE
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuBindGroup
 {
@@ -46,37 +45,5 @@ public readonly unsafe struct WgpuBindGroup
     
     internal WgpuBindGroup(BindGroup* handle) {
         this.handle = handle;
-    }
-    
-    // TODO REMOVE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
-    {
-        return new BindGroupEntry {
-            binding = (uint)binding,
-            buffer  = (Buffer*)buffer.NativeHandle,
-            offset  = 0,
-            size    = (uint)(Unsafe.SizeOf<T>() * buffer.Length)
-        };
-    }
-    
-    // TODO REMOVE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From(int binding, GpuSampler sampler)
-    {
-        return new BindGroupEntry {
-            binding = (uint)binding,
-            sampler = sampler.handle,
-        };
-    }
-    
-    // TODO REMOVE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BindGroupEntry From<T>(int binding, T textureView) where T : ITextureView
-    {
-        return new BindGroupEntry {
-            binding = (uint)binding,
-            textureView = (TextureView*)textureView.Handle
-        };
     }
 }
