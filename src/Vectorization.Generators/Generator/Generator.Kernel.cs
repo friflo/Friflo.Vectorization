@@ -79,7 +79,6 @@ public sealed partial class Gen
     private const ulong UniformStartHash    = 11136453673324647311UL;
     private const ulong Prime               = 1099511628211UL;
     
-    // TODO REMOVE
     public enum BufferBindingType
     {
       BindingNotUsed    = 0,
