@@ -41,6 +41,7 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public int Length => _array?.Length ?? 0;
     
+    /// <summary> Important: Returns an element by <c>ref readonly</c> to ensure the array remains immutable.</summary>
     public ref readonly T this[int index] {
         get {
             if (_array != null) return ref _array[index];
