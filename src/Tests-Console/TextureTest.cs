@@ -13,7 +13,7 @@ public partial class TextureTest : IRenderer
 {
     private readonly    Wgpu                wgpu;
     private readonly    PipelineContext     context;
-    private readonly    GpuTexture2D        texture2D;
+    private readonly    GpuTexture2D        cubeTexture;
     private             GpuTexture2D?       depthTexture;
     private readonly    FilteringSampler    sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
@@ -24,7 +24,7 @@ public partial class TextureTest : IRenderer
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
         sampler.Dispose();
-        texture2D.Dispose();
+        cubeTexture.Dispose();
         context.Dispose();
     }
     
@@ -37,12 +37,12 @@ public partial class TextureTest : IRenderer
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        texture2D   = device.CreateTexture2D(image.Width, image.Height, TextureFormat.RGBA8Unorm,
-                        TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment, "Di-3d.png");
+        cubeTexture = device.CreateTexture(image.Width, image.Height, TextureFormat.RGBA8Unorm,
+                        TextureUsage.TextureBinding | TextureUsage.CopyDst, "Di-3d.png");
         sampler     = device.CreateFilteringSampler(label: "Sampler");
-        texture2D.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
+        cubeTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
-        textureView = texture2D.texture_2d<float>();
+        textureView = cubeTexture.texture_2d<float>();
 
         
         // --- Cube Vertex Buffer Config
@@ -89,7 +89,7 @@ public partial class TextureTest : IRenderer
     public void OnWindowChanged(int width, int height)
     {
         depthTexture?.Dispose(); // create new texture 2D
-        depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+        depthTexture = wgpu.Device.CreateTexture(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
