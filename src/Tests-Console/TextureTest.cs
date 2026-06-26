@@ -11,13 +11,12 @@ namespace TestConsole;
 
 public partial class TextureTest : IRenderer
 {
-    private readonly    Wgpu                wgpu;
+    // --- IDisposable fields
     private readonly    PipelineContext     context;
     private readonly    GpuTexture2D        cubeTexture;
-    private             GpuTexture2D?       depthTexture;
     private readonly    FilteringSampler    sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
-    private readonly    RenderConfig        vertexConfig;
+    private             GpuTexture2D?       depthTexture;
     
     public void OnShutdown()
     {
@@ -79,6 +78,9 @@ public partial class TextureTest : IRenderer
         vertexConfig = desc.CreateConfig("Cube Vertex Config");
     }
 
+    // --- non-disposable fields
+    private   readonly  Wgpu                        wgpu;
+    private   readonly  RenderConfig                vertexConfig;
     private   readonly  texture_2d<float>           textureView;
     private   readonly  PerfLog                     perfLog             = new();
     private             Uniforms                    uniforms;

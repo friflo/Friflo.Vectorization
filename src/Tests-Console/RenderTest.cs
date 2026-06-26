@@ -17,9 +17,9 @@ namespace TestConsole;
 /// </summary>
 public partial class RenderTest : IRenderer
 {
-    protected readonly  Wgpu                    wgpu;
-    protected readonly  PipelineContext         context;
+    // --- IDisposable fields
     protected readonly  GpuBuffer<VertexData>   data;
+    protected readonly  PipelineContext         context;
     
     public void OnShutdown()
     {
@@ -46,6 +46,8 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
 
+    // --- non-disposable fields
+    protected readonly  Wgpu                        wgpu;
     protected readonly  PerfLog                     perfLog             = new();
     protected readonly  InView<VertexData>          rectangle;
     protected           MyUniform                   myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
