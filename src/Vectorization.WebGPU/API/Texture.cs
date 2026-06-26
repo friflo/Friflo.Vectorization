@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -22,8 +21,9 @@ public abstract unsafe class GpuTexture : IDisposable
     public  readonly    string              Label;
     private readonly    WgpuDevice          device;
     private             Texture*            handle;
-    private readonly    List<ViewEntry>     viewEntries = [];
-    private readonly    List<nint>          viewHandles = [];
+    private             ViewEntry[]         viewEntries = [];
+    private             nint[]              viewHandles = [];
+    private             int                 viewCount;
     
     public ref readonly TextureDescriptor   Descriptor  => ref desc;
     public              bool                IsDisposed  => handle == null;
@@ -71,11 +71,10 @@ public abstract unsafe class GpuTexture : IDisposable
     
     public void Dispose()
     {
-        foreach (var viewHandle in viewHandles) {
-            wgpuTextureViewRelease((TextureView*)viewHandle);
+        for (int n = 0; n < viewCount; n++) {
+            wgpuTextureViewRelease((TextureView*)viewHandles[n]);
         }
-        viewHandles.Clear();
-        viewEntries.Clear();
+        viewCount = 0;
         
         if (handle != null) {
             wgpuTextureRelease(handle);
@@ -132,8 +131,14 @@ public abstract unsafe class GpuTexture : IDisposable
         
         var view = wgpuTextureCreateView(handle, &viewDesc);
         
-        viewHandles.Add((nint)view);
-        viewEntries.Add(entry);
+        if (viewCount >= viewHandles.Length) {
+            var newLength = Math.Max(4, viewHandles.Length * 2);
+            viewHandles = WgpuUtils.Resize(ref viewHandles, newLength);
+            viewEntries = WgpuUtils.Resize(ref viewEntries, newLength);
+        }
+        viewHandles[viewCount] = (nint)view;
+        viewEntries[viewCount] = entry;
+        viewCount++;
         return view;
     }
     
