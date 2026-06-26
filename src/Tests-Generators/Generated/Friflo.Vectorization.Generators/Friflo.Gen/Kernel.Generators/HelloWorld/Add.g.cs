@@ -193,19 +193,18 @@ namespace Kernel.Generators
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_Add_GPU_BufferLayoutKey);
-        if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[3];
-            buffers[0] = WgpuLayoutEntry.ReadOnlyStorage (0); // var<storage, read      >  a_arr: array<f32>;
-            buffers[1] = WgpuLayoutEntry.ReadOnlyStorage (1); // var<storage, read      >  b_arr: array<f32>;
-            buffers[2] = WgpuLayoutEntry.ReadWriteStorage(2); // var<storage, read_write>  c_arr: array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, _Add_GPU_BufferLayoutKey, "Add_buffers"u8);
+        if (!bufferLayout.IsCreated)
+        {
+            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage); // var<storage, read      >  a_arr: array<f32>;
+            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage); // var<storage, read      >  b_arr: array<f32>;
+            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  c_arr: array<f32>;
+            bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Add_GPU_BufferLayoutKey, "Add_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Add_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, _Add_GPU_UniformLayoutKey, "Add_uniforms"u8);
+            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Add_GPU_UniformLayoutKey, "Add_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_Add_GPU_Shader(), "Add"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Add"u8);

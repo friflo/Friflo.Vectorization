@@ -79,6 +79,7 @@ public sealed partial class Gen
     private const ulong UniformStartHash    = 11136453673324647311UL;
     private const ulong Prime               = 1099511628211UL;
     
+    // TODO REMOVE
     public enum BufferBindingType
     {
       BindingNotUsed    = 0,
@@ -118,11 +119,11 @@ public sealed partial class Gen
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        recorder.{requireType}({paramName});");
             bufferBindEntries.Append($"\n            recorder.AddBindGroupEntryBuffer({paramName}.Buffer);");
-            var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
+            var storageMethod = isOutput ? "Storage);        " : "ReadOnlyStorage);";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
             bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
-            bufferLayoutEntries.Append($"\n            buffers[{bufferCount}] = WgpuLayoutEntry.{storageMethod}({bufferCount}); // {binding }");
+            bufferLayoutEntries.Append($"\n            device.BindGroupLayoutBuffer(BufferBindingType.{storageMethod} // {binding }");
             bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
             bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
             // Note: the data type in a buffer is not relevant for layout. Need to understand why.
@@ -239,16 +240,15 @@ $$""""
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout({{methodName_GPU}}_BufferLayoutKey);
-        if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[{{bufferCount}}];{{bufferLayoutEntries}}
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
+        if (!bufferLayout.IsCreated)
+        {{{bufferLayoutEntries}}
+            bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, {{methodName_GPU}}_BufferLayoutKey, "{{methodName}}_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
+            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);

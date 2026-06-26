@@ -162,17 +162,16 @@ namespace Kernel.Generators
     {
         // @group(0)
         var bufferLayout = device.GetBindGroupLayout(_InverseSqrt_GPU_BufferLayoutKey);
-        if (!bufferLayout.IsCreated) {
-            Span<WgpuLayoutEntry> buffers = stackalloc WgpuLayoutEntry[1];
-            buffers[0] = WgpuLayoutEntry.ReadWriteStorage(0); // var<storage, read_write>  position_arr: array<f32>;
-            bufferLayout = device.CreateBindGroupLayout(buffers, ShaderStage.Compute, _InverseSqrt_GPU_BufferLayoutKey, "InverseSqrt_buffers"u8);
+        if (!bufferLayout.IsCreated)
+        {
+            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
+            bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _InverseSqrt_GPU_BufferLayoutKey, "InverseSqrt_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_InverseSqrt_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            Span<WgpuLayoutEntry> uniform = stackalloc WgpuLayoutEntry[1];
-            uniform[0]    = WgpuLayoutEntry.Uniform(0); // var<uniform>              uniforms
-            uniformLayout = device.CreateBindGroupLayout(uniform, ShaderStage.Compute, _InverseSqrt_GPU_UniformLayoutKey, "InverseSqrt_uniforms"u8);
+            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _InverseSqrt_GPU_UniformLayoutKey, "InverseSqrt_uniforms"u8);
         }
         var shaderModule    = device.CreateShaderModule(_InverseSqrt_GPU_Shader(), "InverseSqrt"u8);
         var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "InverseSqrt"u8);
