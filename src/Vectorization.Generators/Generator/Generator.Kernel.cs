@@ -117,7 +117,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName},");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        recorder.{requireType}({paramName});");
-            bufferBindEntries.Append($"\n            recorder.AddBindGroupEntryBuffer({bufferCount}, {paramName}.Buffer);");
+            bufferBindEntries.Append($"\n            recorder.AddBindGroupEntryBuffer({paramName}.Buffer);");
             var storageMethod = isOutput ? "ReadWriteStorage" : "ReadOnlyStorage ";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";

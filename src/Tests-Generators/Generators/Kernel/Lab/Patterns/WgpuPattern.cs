@@ -41,9 +41,9 @@ public static class WgpuPattern
             
         var key = (weight.Handle, input.Handle, output.Handle);
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup)) {
-            recorder.AddBindGroupEntryBuffer(0, weight.Buffer);
-            recorder.AddBindGroupEntryBuffer(1, input.Buffer);
-            recorder.AddBindGroupEntryBuffer(2, output.Buffer);
+            recorder.AddBindGroupEntryBuffer(weight.Buffer);
+            recorder.AddBindGroupEntryBuffer(input.Buffer);
+            recorder.AddBindGroupEntryBuffer(output.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "MultiplyAdd_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }

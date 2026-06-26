@@ -144,9 +144,9 @@ namespace Kernel.Generators
         var key = (a.Handle, b.Handle, c.Handle);
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
-            recorder.AddBindGroupEntryBuffer(0, a.Buffer);
-            recorder.AddBindGroupEntryBuffer(1, b.Buffer);
-            recorder.AddBindGroupEntryBuffer(2, c.Buffer);
+            recorder.AddBindGroupEntryBuffer(a.Buffer);
+            recorder.AddBindGroupEntryBuffer(b.Buffer);
+            recorder.AddBindGroupEntryBuffer(c.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Add_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }

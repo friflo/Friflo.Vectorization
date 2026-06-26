@@ -39,9 +39,9 @@ public partial class TextureTest
         
         var key_0 = (smoothFilter.Handle, material.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.AddBindGroupEntryUniform<Uniforms>(0);
-            recorder.AddBindGroupEntrySampler(1, smoothFilter);
-            recorder.AddBindGroupEntryTexture(2, material.Handle);
+            recorder.AddBindGroupEntryUniform<Uniforms>();
+            recorder.AddBindGroupEntrySampler(smoothFilter);
+            recorder.AddBindGroupEntryTexture(material.Handle);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }

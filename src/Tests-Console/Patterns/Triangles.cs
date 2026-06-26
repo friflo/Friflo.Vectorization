@@ -36,7 +36,7 @@ public partial class RenderTest
         
         var key_0 = triangles.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.AddBindGroupEntryBuffer(0, triangles.Buffer);
+            recorder.AddBindGroupEntryBuffer(triangles.Buffer);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Triangles_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }

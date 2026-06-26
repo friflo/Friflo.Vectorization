@@ -184,17 +184,17 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
 
     // ---------------- add AddBindGroupEntry*() / CreateBindGroup() ----------------
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBindGroupEntryUniform<T>(int binding) where T : unmanaged
+    public void AddBindGroupEntryUniform<T>() where T : unmanaged
     {
         uint alignedSize = ((uint)sizeof(T) + (UniformAlignment - 1)) & ~(UniformAlignment - 1);
-        AddBindGroupEntryUniformInternal(binding, alignedSize);
+        AddBindGroupEntryUniformInternal(alignedSize);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddBindGroupEntryUniformInternal(int binding, uint alignedSize)
+    private void AddBindGroupEntryUniformInternal(uint alignedSize)
     {
-        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
-            binding = (uint)binding,
+        bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
+            binding = (uint)bindGroupEntriesCount++,
             buffer  = uniformBuffer.handle,
             offset  = 0,
             size    = alignedSize
@@ -202,34 +202,34 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public void AddBindGroupEntrySampler(int binding, GpuSampler sampler)
+    public void AddBindGroupEntrySampler(GpuSampler sampler)
     {
-        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
-            binding = (uint)binding,
+        bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
+            binding = (uint)bindGroupEntriesCount++,
             sampler = sampler.handle
         };
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public void AddBindGroupEntryTexture(int binding, nint textureView)
+    public void AddBindGroupEntryTexture(nint textureView)
     {
-        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
-            binding     = (uint)binding,
+        bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
+            binding     = (uint)bindGroupEntriesCount++,
             textureView = (TextureView*)textureView
         };
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBindGroupEntryBuffer<T>(int binding, GpuBuffer<T> buffer) where T : unmanaged
+    public void AddBindGroupEntryBuffer<T>(GpuBuffer<T> buffer) where T : unmanaged
     {
-        AddBindGroupEntryBuffeInternal(binding, buffer.NativeHandle, Unsafe.SizeOf<T>() * buffer.Length);
+        AddBindGroupEntryBuffeInternal(buffer.NativeHandle, Unsafe.SizeOf<T>() * buffer.Length);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddBindGroupEntryBuffeInternal(int binding, nint buffer, int size)
+    private void AddBindGroupEntryBuffeInternal(nint buffer, int size)
     {
-        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
-            binding = (uint)binding,
+        bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
+            binding = (uint)bindGroupEntriesCount++,
             buffer  = (Buffer*)buffer,
             offset  = 0,
             size    = (uint)size
