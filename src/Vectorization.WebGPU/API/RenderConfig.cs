@@ -142,7 +142,8 @@ public record struct WgpuPrimitiveState
 /// <summary> managed type for:  <see cref="FragmentState"/> </summary>
 public record struct WgpuFragmentState
 {
-//  public  string                              entryPoint;     defined via [Shader] attribute
+//  public  string                              entryPoint;     defined via [Shader] or [FragmentShader] attribute
+//  public  ShaderModule*                       module;         defined via [Shader] or [FragmentShader] attribute
     public  nint                                nextInChain;
     public  ValueArray<WgpuConstantEntry>       constants;
     public  ValueArray<WgpuColorTargetState>    targets = [new() { format =  TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All}];
@@ -219,8 +220,8 @@ public record struct WgpuDepthStencilState
 public record struct WgpuVertexState
 {
     public  nint                                nextInChain;
-//  public  ShaderModule*                       module;         defined via [Shader] attribute
-//  public  StringView                          entryPoint;     defined via [Shader] attribute
+//  public  ShaderModule*                       module;         defined via [Shader] or [VertexShader] attribute
+//  public  StringView                          entryPoint;     defined via [Shader] or [VertexShader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
     public  ValueArray<WgpuVertexBufferLayout>  buffers;
     
