@@ -19,7 +19,7 @@ public partial class TextureTest : IRenderer
     private readonly    GpuBuffer<float>    verticesBuffer;
     private readonly    RenderConfig        vertexConfig;
     
-    public void Shutdown()
+    public void OnShutdown()
     {
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
@@ -52,16 +52,16 @@ public partial class TextureTest : IRenderer
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
         desc.VertexState.buffers = [
-            new WgpuVertexBufferLayout {  // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
+            new WgpuVertexBufferLayout {    // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
                 arrayStride = Cube.cubeVertexSize,
                 attributes = [
                     new VertexAttribute {
-                        shaderLocation = 0,     // @location(0) position : vec4f (Im Shader)
+                        shaderLocation = 0, // basic.vert.wgsl:  @location(0) position : vec4f
                         offset = Cube.cubePositionOffset,
                         format = VertexFormat.Float32x4
                     },
                     new VertexAttribute {
-                        shaderLocation = 1,     // @location(1) uv       : vec2f (Im Shader)
+                        shaderLocation = 1, // basic.vert.wgsl:  @location(1) uv : vec2f
                         offset = Cube.cubeUVOffset,
                         format = VertexFormat.Float32x2
                     },
@@ -83,30 +83,21 @@ public partial class TextureTest : IRenderer
     private   readonly  PerfLog             perfLog             = new();
     private             Uniforms            uniforms;
     private   readonly  Stopwatch           stopwatch           = Stopwatch.StartNew();
-    private             RenderPassOptions   renderPassOptions   = new() {
-                                                colorAttachments = [ new RenderPassColorAttachment {
-                                                        loadOp      = LoadOp.Clear,
-                                                        storeOp     = StoreOp.Store,
-                                                        clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
-                                                        depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-                                                    }
-                                                ]
-                                            };
-    
-    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L168
-    private Matrix4x4 GetTransformationMatrix(float width, float height, float time)
-    {
-        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
-        var view = Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time))
-                 * Matrix4x4.CreateTranslation(0, 0, -4f);
-        return view * proj;
-    }
+    private             RenderPassOptions   renderPassOptions   = new() { colorAttachments = [ default ] };
 
-    public void ResizeWindow(int width, int height)
+    
+    public void OnWindowChanged(int width, int height)
     {
         depthTexture?.Dispose(); // create new texture 2D
         depthTexture = wgpu.Device.CreateTexture2D(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L155
+        
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
+        renderPassOptions.colorAttachments[0] = new RenderPassColorAttachment {
+            loadOp      = LoadOp.Clear,
+            storeOp     = StoreOp.Store,
+            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
+            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+        };
         renderPassOptions.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
             view            = depthTexture!.texture_2d<float>().Handle,
             depthClearValue = 1,
@@ -115,8 +106,17 @@ public partial class TextureTest : IRenderer
         };
     }
     
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L168
+    private static Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    {
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        var view = Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time))
+                 * Matrix4x4.CreateTranslation(0, 0, -4f);
+        return view * proj;
+    }
+    
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L179
-    public void DrawFrame(int width, int height)
+    public void OnFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?

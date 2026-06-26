@@ -49,8 +49,8 @@ public record struct WgpuRenderPipelineDescriptor
     public WgpuRenderPipelineDescriptor()  { }
     
     /// <summary>
-    /// Create a new <see cref="RenderConfig"/> handle or returns an existing<br/>
-    /// if already one created with the same <see cref="WgpuRenderPipelineDescriptor"/> setup.
+    /// Creates a new <see cref="RenderConfig"/> handle to an immutable <see cref="WgpuRenderPipelineDescriptor"/>.<br/>
+    /// Returns an existing if there is already a descriptor with the same state.  
     /// </summary>
     /// <remarks>
     /// Example

@@ -22,7 +22,7 @@ public class ConfigTest : RenderTest
     private readonly RenderConfig testConfig;
     
     
-    public override void DrawFrame(int width, int height)
+    public override void OnFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?

@@ -21,7 +21,7 @@ public partial class RenderTest : IRenderer
     protected readonly  PipelineContext         context;
     protected readonly  GpuBuffer<VertexData>   data;
     
-    public void Shutdown()
+    public void OnShutdown()
     {
         context.Dispose();
         data.Dispose();
@@ -46,22 +46,25 @@ public partial class RenderTest : IRenderer
         new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
 
-    protected readonly  PerfLog                     perfLog     = new();
-    protected readonly  InView<VertexData>          rectangle;
-    protected           MyUniform                   myUniform   = new() { tint_color = new Vector4(1, 1, 0, 1) };
-    protected           Wormhood.Uniforms           wormhood;
-    protected readonly  Stopwatch                   stopwatch   = Stopwatch.StartNew();
-    protected readonly  RenderPassOptions           renderPassOptions  = new() {
-                                                        colorAttachments = [ new RenderPassColorAttachment {
-                                                                loadOp      = LoadOp.Clear,
-                                                                storeOp     = StoreOp.Store,
-                                                                clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
-                                                                depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-                                                            }
-                                                        ]
-                                                    };
+    protected readonly  PerfLog             perfLog             = new();
+    protected readonly  InView<VertexData>  rectangle;
+    protected           MyUniform           myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected           Wormhood.Uniforms   wormhood;
+    protected readonly  Stopwatch           stopwatch           = Stopwatch.StartNew();
+    protected           RenderPassOptions   renderPassOptions   = new () { colorAttachments = [ default ] };
     
-    public virtual void DrawFrame(int width, int height)
+    
+    public void OnWindowChanged(int width, int height)
+    {
+        renderPassOptions.colorAttachments[0] = new RenderPassColorAttachment {
+            loadOp      = LoadOp.Clear,
+            storeOp     = StoreOp.Store,
+            clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
+            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+        };
+    }
+    
+    public virtual void OnFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
         if (frame.IsNull) {     // window minimized?

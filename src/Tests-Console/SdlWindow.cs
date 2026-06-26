@@ -14,9 +14,9 @@ namespace TestConsole;
 /// </summary>
 public interface IRenderer
 {
-    public void ResizeWindow(int width, int height) { }
-    public void DrawFrame   (int width, int height);
-    public void Shutdown();
+    public void OnWindowChanged(int width, int height) { }
+    public void OnFrame        (int width, int height);
+    public void OnShutdown();
 }
 
 public class Wgpu
@@ -89,7 +89,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        try { renderer?.DrawFrame(wgpu!.Width, wgpu.Height);    return SDL.AppResult.Continue; }
+        try { renderer?.OnFrame(wgpu!.Width, wgpu.Height);    return SDL.AppResult.Continue; }
         catch (Exception exception)   { return Capture(exception); }
     }
     
@@ -170,7 +170,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             return;
         }
         ConfigureSurface(pixelWidth, pixelHeight);
-        renderer?.ResizeWindow(pixelWidth, pixelHeight);
+        renderer?.OnWindowChanged(pixelWidth, pixelHeight);
     }
     
     private void ConfigureSurface(int pixelWidth, int pixelHeight)
@@ -207,7 +207,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private void Shutdown()
     {
-        renderer?.Shutdown();
+        renderer?.OnShutdown();
         renderer = null;
         wgpu?.Shutdown();
         wgpu = null;
