@@ -223,6 +223,10 @@ public record struct WgpuVertexState
 //  public  ShaderModule*                       module;         defined via [Shader] or [VertexShader] attribute
 //  public  StringView                          entryPoint;     defined via [Shader] or [VertexShader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
+    /// <summary>
+    /// Note: VertexState buffer layouts should be global/standardized,
+    /// so all compatible vertex buffers conform to the same structural layout contract.
+    /// </summary>
     public  ValueArray<WgpuVertexBufferLayout>  buffers;
     
     public WgpuVertexState() { }
