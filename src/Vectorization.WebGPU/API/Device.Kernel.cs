@@ -174,7 +174,49 @@ public sealed unsafe partial  class WgpuDevice
         layoutCache.TryGetValue(hashKey, out WgpuBindGroupLayout layout);
         return layout;
     }
-
+    
+    public void BindGroupLayoutUniform()
+    {
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
+            binding = (uint)bindGroupLayoutEntriesCount++,
+            buffer  = new BufferBindingLayout {
+                type                = BufferBindingType.Uniform,
+                hasDynamicOffset    = WgpuUtils.FromBool(true), // true for uniform buffer
+                minBindingSize      = 0                         // 0: no validation of minimum size
+            }
+        };
+    }
+    
+    public WgpuBindGroupLayout CreateBindGroupLayout(
+        ShaderStage                     visibility,
+        ulong                           hashKey,
+        ReadOnlySpan<byte>              layoutLabel)
+    {
+        var entries = bindGroupLayoutEntries;
+        for (int n = 0; n < bindGroupLayoutEntriesCount; ++n) {
+            entries[n].visibility = (ulong)visibility;
+        }
+        fixed (byte*                    labelPtr    = layoutLabel)
+        fixed (BindGroupLayoutEntry*    entriesPtr  = entries)
+        {
+            var desc = new BindGroupLayoutDescriptor {
+                label       = WgpuUtils.FromPtrSpan(labelPtr, layoutLabel),
+                entryCount  = (uint)bindGroupLayoutEntriesCount,
+                entries     = entriesPtr,
+            };
+            bindGroupLayoutEntriesCount = 0;
+            var handle = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
+            if (handle == null)
+                throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
+            
+            // Add new GpuBindGroupLayout to cache
+            var layout = new WgpuBindGroupLayout(handle);
+            layoutCache.Add(hashKey, layout);
+            return layout;
+        }
+    }
+    
+    // TODO REMOVE
     public WgpuBindGroupLayout CreateBindGroupLayout(
         ReadOnlySpan<WgpuLayoutEntry>   entries,
         ShaderStage                     visibility,

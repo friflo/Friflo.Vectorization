@@ -55,6 +55,7 @@ public readonly struct WgpuLayoutEntry
         this.multisampled   = multisampled;
     }
     
+    // TODO REMOVE
     public static WgpuLayoutEntry Uniform         (int binding) => new (binding, LayoutEntryType.Uniform, BufferBindingType.Uniform);
     public static WgpuLayoutEntry ReadWriteStorage(int binding) => new (binding, LayoutEntryType.Buffer,  BufferBindingType.Storage);
     public static WgpuLayoutEntry ReadOnlyStorage (int binding) => new (binding, LayoutEntryType.Buffer,  BufferBindingType.ReadOnlyStorage);

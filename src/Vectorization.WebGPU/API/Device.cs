@@ -22,33 +22,36 @@ namespace Friflo.Vectorization.WebGPU;
 [DebuggerTypeProxy(typeof(WgpuDeviceDebugView))]
 public sealed unsafe partial class WgpuDevice : GpuDevice
 {
-    private             bool                isDisposed;
-    public   override   ComputeMode         DefaultComputeMode  => ComputeMode.GPU;
-    public   override   bool                IsDisposed          => isDisposed;
+    private             bool                    isDisposed;
+    public   override   ComputeMode             DefaultComputeMode  => ComputeMode.GPU;
+    public   override   bool                    IsDisposed          => isDisposed;
     
-    internal readonly   Instance*           instance;
-    internal            Device*             DevicePtr   { get; } 
-    internal            Queue*              QueuePtr    { get; }
-    internal readonly   WgpuErrorHandler    errorHandler;
-    private             GCHandle            errorHandle;
+    internal readonly   Instance*               instance;
+    internal            Device*                 DevicePtr   { get; } 
+    internal            Queue*                  QueuePtr    { get; }
+    internal readonly   WgpuErrorHandler        errorHandler;
+    private             GCHandle                errorHandle;
     
-    private  readonly   WgpuQueue           queue;
+    private  readonly   WgpuQueue               queue;
     
-    private             PipelineCaches[]    pipelineCacheSlots  = [];
-    private             ComputeCache[]      computeCacheSlots   = [];
+    private  readonly   BindGroupLayoutEntry[]  bindGroupLayoutEntries = new BindGroupLayoutEntry[1000];
+    private             int                     bindGroupLayoutEntriesCount;
     
-    private             GCHandle            deviceHandle;
-    private  readonly   void*               deviceHandlePtr;
+    private             PipelineCaches[]        pipelineCacheSlots  = [];
+    private             ComputeCache[]          computeCacheSlots   = [];
     
-    private  readonly   BindGroupLayoutMap  layoutCache     = new ();
-    internal readonly   List<IWgpuBuffer>   bufferMap       = [];
-    internal readonly   CommandListPool     commandListPool = new ();
-    internal readonly   StagingReadBuffer   stagingReadBuffer;
+    private             GCHandle                deviceHandle;
+    private  readonly   void*                   deviceHandlePtr;
+    
+    private  readonly   BindGroupLayoutMap      layoutCache     = new ();
+    internal readonly   List<IWgpuBuffer>       bufferMap       = [];
+    internal readonly   CommandListPool         commandListPool = new ();
+    internal readonly   StagingReadBuffer       stagingReadBuffer;
 
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
-    internal readonly   CommandListQueue    commandListQueue    = [];
-    internal            BufferEntry[]       bufferEntries       = [];   // ranges & segments per GpuBuffer
-    private  readonly   WgpuIO              wgpuIO              = new ();
+    internal readonly   CommandListQueue        commandListQueue    = [];
+    internal            BufferEntry[]           bufferEntries       = [];   // ranges & segments per GpuBuffer
+    private  readonly   WgpuIO                  wgpuIO              = new ();
     
     
     private sealed class WgpuDeviceDebugView(WgpuDevice device)
