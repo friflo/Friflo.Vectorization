@@ -59,8 +59,7 @@ public partial class RenderTest : IRenderer
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 },
-            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+            clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 }
         };
     }
     

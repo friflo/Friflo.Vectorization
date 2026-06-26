@@ -95,8 +95,7 @@ public partial class TextureTest : IRenderer
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
-            depthSlice  = 0xFFFFFFFF // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
+            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 }
         };
         renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
             view            = depthTexture!.texture_2d<float>().Handle,

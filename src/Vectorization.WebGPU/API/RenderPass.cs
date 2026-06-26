@@ -11,6 +11,9 @@ using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConvertToConstant.Global
 // ReSharper disable UnassignedField.Global
 // ReSharper disable TooWideLocalVariableScope
 // ReSharper disable UnusedTypeParameter
@@ -66,11 +69,13 @@ public struct WgpuRenderPassColorAttachment
 {
     public  nint            nextInChain;
     public  WgpuTextureView view;
-    public  uint            depthSlice;
+    public  uint            depthSlice = 0xFFFFFFFF; // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
     public  WgpuTextureView resolveTarget;
     public  LoadOp          loadOp;
     public  StoreOp         storeOp;
     public  Color           clearValue;
+    
+    public WgpuRenderPassColorAttachment() { } 
     
     public unsafe RenderPassColorAttachment GetNative()
     {
