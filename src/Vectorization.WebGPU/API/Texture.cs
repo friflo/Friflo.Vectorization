@@ -132,9 +132,8 @@ public abstract unsafe class GpuTexture : IDisposable
         var view = wgpuTextureCreateView(handle, &viewDesc);
         
         if (viewCount >= viewHandles.Length) {
-            var newLength = Math.Max(4, viewHandles.Length * 2);
-            viewHandles = WgpuUtils.Resize(ref viewHandles, newLength);
-            viewEntries = WgpuUtils.Resize(ref viewEntries, newLength);
+            viewHandles = WgpuUtils.Resize(ref viewHandles, viewCount + 1);
+            viewEntries = WgpuUtils.Resize(ref viewEntries, viewCount + 1);
         }
         viewHandles[viewCount] = (nint)view;
         viewEntries[viewCount] = entry;
