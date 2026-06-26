@@ -118,7 +118,7 @@ public record struct WgpuRenderPipelineDescriptor
 /// <summary> managed type for:  <see cref="PrimitiveState"/> </summary>
 public record struct WgpuPrimitiveState
 {
-    public  WgpuChainedStruct   nextInChain;
+    public  nint                nextInChain;
     public  PrimitiveTopology   topology            = PrimitiveTopology.TriangleList;
     public  IndexFormat         stripIndexFormat;
     public  FrontFace           frontFace;
@@ -129,7 +129,7 @@ public record struct WgpuPrimitiveState
     
     internal readonly unsafe PrimitiveState GetNative() {
         return new PrimitiveState {
-            nextInChain         = nextInChain.GetValue(),
+            nextInChain         = (ChainedStruct*)nextInChain,
             topology            = topology,
             stripIndexFormat    = stripIndexFormat,
             frontFace           = frontFace,
@@ -143,7 +143,7 @@ public record struct WgpuPrimitiveState
 public record struct WgpuFragmentState
 {
 //  public  string                              entryPoint;     defined via [Shader] attribute
-    public  WgpuChainedStruct                   nextInChain;
+    public  nint                                nextInChain;
     public  ValueArray<WgpuConstantEntry>       constants;
     public  ValueArray<WgpuColorTargetState>    targets = [new() { format =  TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All}];
 
@@ -152,7 +152,7 @@ public record struct WgpuFragmentState
     internal readonly unsafe FragmentState GetNative(NativeAllocator allocator)
     {
         return new FragmentState {
-            nextInChain     = nextInChain.GetValue(),
+            nextInChain     = (ChainedStruct*)nextInChain,
             targetCount     = (uint)targets.Length,
             targets         = allocator.ArrayToNative(targets,   src => src.GetNative(allocator)),
             constantCount   = (uint)constants.Length,
@@ -164,16 +164,16 @@ public record struct WgpuFragmentState
 /// <summary> managed type for:  <see cref="MultisampleState"/> </summary>
 public record struct WgpuMultisampleState
 {
-    public  WgpuChainedStruct   nextInChain;
-    public  uint                count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
-    public  uint                mask                    = 0xFFFFFFFF;   // (Standard)
-    public  bool                alphaToCoverageEnabled;
+    public  nint    nextInChain;
+    public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+    public  uint    mask                    = 0xFFFFFFFF;   // (Standard)
+    public  bool    alphaToCoverageEnabled;
     
     public WgpuMultisampleState() { }
     
     internal readonly unsafe MultisampleState GetNative() {
         return new MultisampleState {
-            nextInChain             = nextInChain.GetValue(),
+            nextInChain             = (ChainedStruct*)nextInChain,
             count                   = count,
             mask                    = mask,
             alphaToCoverageEnabled  = alphaToCoverageEnabled ? 1u : 0
@@ -184,7 +184,7 @@ public record struct WgpuMultisampleState
 /// <summary> managed type for:  <see cref="DepthStencilState"/> </summary>
 public record struct WgpuDepthStencilState
 {
-    public  WgpuChainedStruct       nextInChain;
+    public  nint                    nextInChain;
     public  TextureFormat           format;
     public  OptionalBool            depthWriteEnabled;
     public  CompareFunction         depthCompare;
@@ -200,7 +200,7 @@ public record struct WgpuDepthStencilState
     
     internal readonly unsafe DepthStencilState GetNative() {
         return new DepthStencilState {
-            nextInChain         = nextInChain.GetValue(),
+            nextInChain         = (ChainedStruct*)nextInChain,
             format              = format,
             depthWriteEnabled   = depthWriteEnabled,
             depthCompare        = depthCompare,
@@ -218,7 +218,7 @@ public record struct WgpuDepthStencilState
 /// <summary> managed type for:  <see cref="VertexState"/> </summary>
 public record struct WgpuVertexState
 {
-    public  WgpuChainedStruct                   nextInChain;
+    public  nint                                nextInChain;
 //  public  ShaderModule*                       module;         defined via [Shader] attribute
 //  public  StringView                          entryPoint;     defined via [Shader] attribute
     public  ValueArray<WgpuConstantEntry>       constants;
@@ -229,7 +229,7 @@ public record struct WgpuVertexState
     internal readonly unsafe VertexState GetNative(NativeAllocator allocator)
     {
         return new VertexState {
-            nextInChain     = nextInChain.GetValue(),
+            nextInChain     = (ChainedStruct*)nextInChain,
             constantCount   = (uint)constants.Length,
             constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
             bufferCount     = (uint)buffers.Length,
@@ -242,34 +242,21 @@ public record struct WgpuVertexState
 
 // ---------------------------------------- child level wgpu states ----------------------------------------
 
-/// <summary> managed type for:  <see cref="ChainedStruct"/> </summary>
-public unsafe struct WgpuChainedStruct : IEquatable<WgpuChainedStruct>
-{
-    public ChainedStruct* value;
-    
-    public readonly ChainedStruct* GetValue() => value;
-    
-    public bool Equals(WgpuChainedStruct other) {
-        return true;
-    }
-
-    public override int GetHashCode() => 0;
-}
 
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
 public record struct WgpuColorTargetState
 {
-    public  WgpuChainedStruct   nextInChain;
-    public  TextureFormat       format              = TextureFormat.BGRA8Unorm;
-    public  BlendState?         blend;
-    public  ulong               writeMask           = ColorWriteMask_All;
+    public  nint            nextInChain;
+    public  TextureFormat   format              = TextureFormat.BGRA8Unorm;
+    public  BlendState?     blend;
+    public  ulong           writeMask           = ColorWriteMask_All;
     
     public WgpuColorTargetState() { }
     
     internal readonly unsafe ColorTargetState GetNative(NativeAllocator allocator)
     {
         return new ColorTargetState {
-            nextInChain = nextInChain.GetValue(),
+            nextInChain = (ChainedStruct*)nextInChain,
             format      = format,
             writeMask   = writeMask,
             blend       = allocator.NullableToNative(blend, value => value)
@@ -280,14 +267,14 @@ public record struct WgpuColorTargetState
 /// <summary> managed type for:  <see cref="ConstantEntry"/> </summary>
 public record struct WgpuConstantEntry
 {
-    public  WgpuChainedStruct   nextInChain;
-    public  string              key;
-    public  double              value;
+    public  nint    nextInChain;
+    public  string  key;
+    public  double  value;
     
     internal readonly unsafe ConstantEntry GetNative(NativeAllocator allocator)
     {
         return new ConstantEntry {
-            nextInChain = nextInChain.GetValue(),
+            nextInChain = (ChainedStruct*)nextInChain,
             key         = allocator.StringToNative(key),
             value       = value
         };
@@ -297,7 +284,7 @@ public record struct WgpuConstantEntry
 /// <summary> managed type for:  <see cref="VertexBufferLayout"/> </summary>
 public record struct WgpuVertexBufferLayout
 {
-    public  WgpuChainedStruct           nextInChain;
+    public  nint                        nextInChain;
     public  VertexStepMode              stepMode;
     public  ulong                       arrayStride;
     public  ValueArray<VertexAttribute> attributes;
@@ -305,7 +292,7 @@ public record struct WgpuVertexBufferLayout
     internal readonly unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
-            nextInChain     = nextInChain.GetValue(),
+            nextInChain     = (ChainedStruct*)nextInChain,
             arrayStride     = arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
