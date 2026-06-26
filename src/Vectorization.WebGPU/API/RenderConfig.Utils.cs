@@ -29,7 +29,7 @@ namespace Friflo.Vectorization.WebGPU;
 [CollectionBuilder(typeof(ValueArrayBuilder), nameof(ValueArrayBuilder.Create))]
 public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T> where T : struct
 {
-    internal readonly T[] _array;
+    private readonly T[] _array;
 
     public override string ToString() => $"{typeof(T).Name}[{Length}]";
 
