@@ -9,12 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Friflo.Vectorization.WebGPU.Runtime;
-// ReSharper disable ConvertToPrimaryConstructor
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
-
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
@@ -188,7 +187,7 @@ internal class NativeAllocator
         return targets;
     }
     
-    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
+    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(in ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
         where TFrom   : struct
         where TTarget : unmanaged
     {
