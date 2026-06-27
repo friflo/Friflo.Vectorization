@@ -23,13 +23,9 @@ public static class Test_WGPU
         ref readonly var desc = ref config.Descriptor;
         Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
         
-        var sameConfig = descSrc.CreateConfig("sameConfig");    // CreateConfig() with unmodified descSrc
-        Assert.AreEqual("config", sameConfig.Name);
-        
         descSrc.MultisampleState.alphaToCoverageEnabled = true; // CreateConfig() with modified descSrc
         var mutatedConfig = descSrc.CreateConfig("mutatedConfig");
         Assert.AreEqual("mutatedConfig", mutatedConfig.Name);
-        
         
         // --- using a default RenderConfig
         var defaultConfig = new RenderConfig();

@@ -3,8 +3,6 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -49,8 +47,7 @@ public record struct WgpuRenderPipelineDescriptor
     public WgpuRenderPipelineDescriptor()  { }
     
     /// <summary>
-    /// Creates a new <see cref="RenderConfig"/> handle to an immutable <see cref="WgpuRenderPipelineDescriptor"/>.<br/>
-    /// Returns an existing if there is already a descriptor with the same state.  
+    /// Creates a new <see cref="RenderConfig"/> handle to a <see cref="WgpuRenderPipelineDescriptor"/>.
     /// </summary>
     /// <remarks>
     /// Example
@@ -63,17 +60,13 @@ public record struct WgpuRenderPipelineDescriptor
     /// </remarks>
     public RenderConfig CreateConfig(string name)
     {
-        var list    = descriptorList;
-        var idHash  = new IdHash(list.Count, GetHashCode());
-        var entry   = new RenderPipelineEntry(name, this);
-        list.Add(entry);
-        
-        if (descriptorToId.TryGetValue(idHash, out var value)) {
-            list.RemoveAt(idHash.id);
-            return new RenderConfig(value.id);
+        var array   = descriptors;
+        var id      = descriptorCount++;
+        if (id >= array.Length) {
+            array = WgpuUtils.Resize(ref descriptors, id + 1);
         }
-        descriptorToId.Add(idHash);
-        return new RenderConfig(idHash.id);
+        array[id] = new RenderPipelineEntry(name, this);;
+        return new RenderConfig(id);
     }
     
     internal static ref RenderPipelineEntry GetEntry(int id)
@@ -81,34 +74,17 @@ public record struct WgpuRenderPipelineDescriptor
         if (id == 0) {
             throw new NullReferenceException("when using a default RenderConfig");
         }
-        var span = CollectionsMarshal.AsSpan(descriptorList);
-        return ref span[id];
+        return ref descriptors[id];
     }
     
-    private static readonly     List<RenderPipelineEntry>   descriptorList = [default];
-    private static readonly     HashSet<IdHash>             descriptorToId = new (new IdHashComparer());
+    private static  RenderPipelineEntry[]   descriptors     = [default];
+    private static  int                     descriptorCount = 1;
     
     // ------ RenderPipelineEntry
     internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
     {
         internal readonly string                        name        = name;
         internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
-    }
-    
-    // ------ IdHashComparer
-    // Store hash code to avoid expensive GetHashCode() calls
-    internal readonly struct IdHash(int id, int hash) : IEquatable<IdHash>
-    {
-        internal readonly   int id      = id;
-        internal readonly   int hash    = hash;
-        
-        public bool Equals(IdHash other) => id == other.id && hash == other.hash;
-    }
-    
-    internal readonly struct IdHashComparer : IEqualityComparer<IdHash>
-    {
-        public bool Equals(IdHash x, IdHash y)  => GetEntry(x.id).descriptor.Equals(GetEntry(y.id).descriptor);
-        public int  GetHashCode(IdHash value)   => value.hash;
     }
 }
 
