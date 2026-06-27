@@ -47,7 +47,7 @@ public partial class TextureTest
         }
         pass.SetBindGroupUniform(0, bindGroup0, uniforms);
         
-        int verticesBufferCount = pass.SetVertexBuffer(vertexConfig, 0, verticesBuffer); // slot: 0  ->  maps to: desc.VertexState.buffers[0]
+        int verticesBufferCount = pass.SetVertexBuffer(vertexConfig, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         pass.Draw(verticesBufferCount, 1, 0, 0);
 	}
