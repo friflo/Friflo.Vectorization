@@ -270,8 +270,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Trigonometry_GPU_UniformLayoutKey, "Kernel_Trigonometry_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Kernel_Trigonometry_GPU_Shader(), "Kernel_Trigonometry"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Trigonometry"u8);
+        using var shaderModule  = device.CreateShaderModule(_Kernel_Trigonometry_GPU_Shader(), "Kernel_Trigonometry"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Trigonometry"u8);
         
         var bindGroupCache = new _Kernel_Trigonometry_GPU_Cache();
         return ref device.CreatePipelineCache(_Kernel_Trigonometry_GPU_KernelId, _Kernel_Trigonometry_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

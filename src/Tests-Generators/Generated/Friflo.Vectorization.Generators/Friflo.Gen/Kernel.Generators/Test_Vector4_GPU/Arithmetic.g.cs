@@ -230,8 +230,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Arithmetic_GPU_UniformLayoutKey, "Arithmetic_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Arithmetic_GPU_Shader(), "Arithmetic"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Arithmetic"u8);
+        using var shaderModule  = device.CreateShaderModule(_Arithmetic_GPU_Shader(), "Arithmetic"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Arithmetic"u8);
         
         var bindGroupCache = new _Arithmetic_GPU_Cache();
         return ref device.CreatePipelineCache(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

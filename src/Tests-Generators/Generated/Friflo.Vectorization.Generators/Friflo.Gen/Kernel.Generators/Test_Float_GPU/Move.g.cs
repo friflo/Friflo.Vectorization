@@ -196,8 +196,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Move_GPU_UniformLayoutKey, "Move_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Move_GPU_Shader(), "Move"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Move"u8);
+        using var shaderModule  = device.CreateShaderModule(_Move_GPU_Shader(), "Move"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Move"u8);
         
         var bindGroupCache = new _Move_GPU_Cache();
         return ref device.CreatePipelineCache(_Move_GPU_KernelId, _Move_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  WgpuDevice
 
@@ -109,13 +111,19 @@ public readonly unsafe struct WgpuComputePipeline
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public readonly unsafe struct WgpuShaderModule
+public readonly unsafe struct WgpuShaderModule : IDisposable
 {
     internal readonly   ShaderModule*   handle;
     public   override   string          ToString() => handle != null ? "Created" : "null";
-    
+
     internal WgpuShaderModule(ShaderModule* handle) {
         this.handle = handle;
+    }
+    
+    public void Dispose() {
+        if (handle != null) {
+            wgpuShaderModuleRelease(handle);
+        }
     }
 }
 

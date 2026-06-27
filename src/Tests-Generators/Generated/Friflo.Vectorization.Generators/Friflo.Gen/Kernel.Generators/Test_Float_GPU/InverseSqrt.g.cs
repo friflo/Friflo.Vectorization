@@ -173,8 +173,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _InverseSqrt_GPU_UniformLayoutKey, "InverseSqrt_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_InverseSqrt_GPU_Shader(), "InverseSqrt"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "InverseSqrt"u8);
+        using var shaderModule  = device.CreateShaderModule(_InverseSqrt_GPU_Shader(), "InverseSqrt"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "InverseSqrt"u8);
         
         var bindGroupCache = new _InverseSqrt_GPU_Cache();
         return ref device.CreatePipelineCache(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

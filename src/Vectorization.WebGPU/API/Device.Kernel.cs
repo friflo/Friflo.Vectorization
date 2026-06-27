@@ -91,7 +91,6 @@ public sealed unsafe partial  class WgpuDevice
                 return new WgpuComputePipeline(handle);
             } finally {
                 if (pipelineLayout != null) wgpuPipelineLayoutRelease(pipelineLayout);
-                if (module.handle  != null) wgpuShaderModuleRelease(module.handle);
             }
         }
     }
@@ -157,12 +156,6 @@ public sealed unsafe partial  class WgpuDevice
             } finally {
                 allocator.FreePointers();
                 if (pipelineLayout != null)     wgpuPipelineLayoutRelease(pipelineLayout);
-                if (vsModule.handle != null) {
-                    wgpuShaderModuleRelease(vsModule.handle);
-                }
-                if (fsModule.handle != null && fsModule.handle != vsModule.handle) {
-                    wgpuShaderModuleRelease(fsModule.handle);
-                }
             }
         }
     }

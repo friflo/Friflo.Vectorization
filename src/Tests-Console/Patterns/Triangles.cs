@@ -77,7 +77,7 @@ public partial class RenderTest
             device.BindGroupLayoutUniform();
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
         }
-        var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
+        using var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
         
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         layouts[0] = layout_0;

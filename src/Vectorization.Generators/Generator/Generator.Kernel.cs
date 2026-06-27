@@ -249,8 +249,8 @@ $$""""
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
+        using var shaderModule  = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

@@ -102,8 +102,8 @@ public static class WgpuPattern
             device.BindGroupLayoutUniform();
             uniformLayout   = device.CreateBindGroupLayout(ShaderStage.Compute, MultiplyAdd_GPU_UniformLayoutKey, "MultiplyAdd_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
+        using var shaderModule  = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
         var bindGroupCache = new MultiplyAdd_GPU_Cache();
         return ref device.CreatePipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

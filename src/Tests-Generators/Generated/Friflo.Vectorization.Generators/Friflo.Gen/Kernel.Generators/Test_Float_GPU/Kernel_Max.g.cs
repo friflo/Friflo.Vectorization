@@ -188,8 +188,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Max_GPU_UniformLayoutKey, "Kernel_Max_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Kernel_Max_GPU_Shader(), "Kernel_Max"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Max"u8);
+        using var shaderModule  = device.CreateShaderModule(_Kernel_Max_GPU_Shader(), "Kernel_Max"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Max"u8);
         
         var bindGroupCache = new _Kernel_Max_GPU_Cache();
         return ref device.CreatePipelineCache(_Kernel_Max_GPU_KernelId, _Kernel_Max_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

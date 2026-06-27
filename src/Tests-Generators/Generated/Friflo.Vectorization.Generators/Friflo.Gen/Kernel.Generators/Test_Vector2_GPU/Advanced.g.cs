@@ -270,8 +270,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Advanced_GPU_UniformLayoutKey, "Advanced_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Advanced_GPU_Shader(), "Advanced"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Advanced"u8);
+        using var shaderModule  = device.CreateShaderModule(_Advanced_GPU_Shader(), "Advanced"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Advanced"u8);
         
         var bindGroupCache = new _Advanced_GPU_Cache();
         return ref device.CreatePipelineCache(_Advanced_GPU_KernelId, _Advanced_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

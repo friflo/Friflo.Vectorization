@@ -188,8 +188,8 @@ namespace Kernel.Generators
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Min_GPU_UniformLayoutKey, "Kernel_Min_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Kernel_Min_GPU_Shader(), "Kernel_Min"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Min"u8);
+        using var shaderModule  = device.CreateShaderModule(_Kernel_Min_GPU_Shader(), "Kernel_Min"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Min"u8);
         
         var bindGroupCache = new _Kernel_Min_GPU_Cache();
         return ref device.CreatePipelineCache(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

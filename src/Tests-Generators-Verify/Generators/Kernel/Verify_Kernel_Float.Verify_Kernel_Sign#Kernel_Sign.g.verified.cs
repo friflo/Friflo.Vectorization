@@ -185,8 +185,8 @@ namespace VerifyVectorize
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Sign_GPU_UniformLayoutKey, "Kernel_Sign_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_Kernel_Sign_GPU_Shader(), "Kernel_Sign"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
+        using var shaderModule  = device.CreateShaderModule(_Kernel_Sign_GPU_Shader(), "Kernel_Sign"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
         
         var bindGroupCache = new _Kernel_Sign_GPU_Cache();
         return ref device.CreatePipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);

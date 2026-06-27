@@ -161,8 +161,8 @@ namespace Kernel.Lab
             device.BindGroupLayoutUniform();  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _ReadOnly_GPU_UniformLayoutKey, "ReadOnly_uniforms"u8);
         }
-        var shaderModule    = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
-        var pipeline        = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
+        using var shaderModule  = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);
+        var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
         
         var bindGroupCache = new _ReadOnly_GPU_Cache();
         return ref device.CreatePipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
