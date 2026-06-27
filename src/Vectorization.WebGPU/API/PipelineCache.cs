@@ -40,6 +40,7 @@ public readonly unsafe struct PipelineCache
     public   readonly   WgpuRenderPipeline      renderPipeline;     //  8
     public   readonly   WgpuBindGroupLayout4    layouts;            // 32
     internal readonly   ulong                   wgslHash;           //  8
+    internal readonly   int                     configRevision;     //  4
     
     public              bool                    IsCreated   => renderPipeline.handle != null;
     public   override   string                  ToString()  => renderPipeline.handle != null ? "Created" : "null";
@@ -48,11 +49,13 @@ public readonly unsafe struct PipelineCache
         ulong                               wgslHash,
         WgpuRenderPipeline                  renderPipeline,
         BindGroupCache                      bindGroupCache,
-        ReadOnlySpan<WgpuBindGroupLayout>   layouts)
+        ReadOnlySpan<WgpuBindGroupLayout>   layouts,
+        int                                 revision)
     {
         this.wgslHash       = wgslHash;
         this.renderPipeline = renderPipeline;
         this.bindGroupCache = bindGroupCache;
+        configRevision      = revision;
         for (int n = 0; n < layouts.Length; n++) {
             this.layouts[n] = layouts[n];
         }
@@ -95,7 +98,7 @@ public sealed partial  class WgpuDevice
             if (configId < caches.Length)
             {
                 ref var cache = ref caches[configId]; 
-                if (cache.wgslHash == wgslHash) {
+                if (cache.wgslHash == wgslHash && cache.configRevision == config.Revision) {
                     return ref cache;
                 }
             }
@@ -103,9 +106,9 @@ public sealed partial  class WgpuDevice
         return ref MissingPipelineCache;
     }
     
-    private static PipelineCache MissingPipelineCache;
+    private static readonly PipelineCache MissingPipelineCache = default;
     
-    public ref readonly PipelineCache CreatePipelineCache(
+    public unsafe ref readonly PipelineCache CreatePipelineCache(
         int                                         kernelId,
         RenderConfig                                config,
         ulong                                       wgslHash,
@@ -124,7 +127,14 @@ public sealed partial  class WgpuDevice
             caches = WgpuUtils.Resize(ref slotCaches.caches, configId + 1);
         }
         ref var cache = ref caches[configId];
-        cache = new PipelineCache(wgslHash, renderPipeline, bindGroupCache, layouts);
+        
+        // release wgpu resources if RenderConfig was updated
+        cache.bindGroupCache?.Clear(); 
+        if (cache.renderPipeline.handle != null) {
+            wgpuRenderPipelineRelease(cache.renderPipeline.handle);
+        }
+        
+        cache = new PipelineCache(wgslHash, renderPipeline, bindGroupCache, layouts, config.Revision);
         return ref cache;
     }
 }

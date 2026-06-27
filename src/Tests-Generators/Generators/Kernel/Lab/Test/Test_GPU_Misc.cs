@@ -80,6 +80,6 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
     {
         Assert.AreEqual(24, Unsafe.SizeOf<GpuBuffers>());
         Assert.AreEqual(40, Unsafe.SizeOf<ComputeCache>());
-        Assert.AreEqual(56, Unsafe.SizeOf<PipelineCache>());
+        Assert.AreEqual(64, Unsafe.SizeOf<PipelineCache>());
     }
 }

@@ -23,8 +23,16 @@ public readonly struct RenderConfig
     
     public              string                          Name        =>     WgpuRenderPipelineDescriptor.GetEntry(Id).name;
     public ref readonly WgpuRenderPipelineDescriptor    Descriptor  => ref WgpuRenderPipelineDescriptor.GetEntry(Id).descriptor;
+    public              int                             Revision    =>     WgpuRenderPipelineDescriptor.GetEntry(Id).revision;
     
     public override     string                          ToString()  => $"Id {Id} '{WgpuRenderPipelineDescriptor.GetEntry(Id).name}'";
+    
+    public void UpdateDescriptor(in WgpuRenderPipelineDescriptor descriptor)
+    {
+        ref var entry       = ref WgpuRenderPipelineDescriptor.GetEntry(Id);
+        entry.descriptor    = descriptor;
+        entry.revision++;
+    }
     
     internal RenderConfig(int id) {
         Id = id;
@@ -65,14 +73,14 @@ public record struct WgpuRenderPipelineDescriptor
         if (id >= array.Length) {
             array = WgpuUtils.Resize(ref descriptors, id + 1);
         }
-        array[id] = new RenderPipelineEntry(name, this);;
+        array[id] = new RenderPipelineEntry(name, this);
         return new RenderConfig(id);
     }
     
     internal static ref RenderPipelineEntry GetEntry(int id)
     {
         if (id == 0) {
-            throw new NullReferenceException("when using a default RenderConfig");
+            throw new NullReferenceException("using a default RenderConfig");
         }
         return ref descriptors[id];
     }
@@ -81,10 +89,11 @@ public record struct WgpuRenderPipelineDescriptor
     private static  int                     descriptorCount = 1;
     
     // ------ RenderPipelineEntry
-    internal readonly struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
+    internal struct RenderPipelineEntry(string name, in WgpuRenderPipelineDescriptor descriptor)
     {
-        internal readonly string                        name        = name;
-        internal readonly WgpuRenderPipelineDescriptor  descriptor  = descriptor;
+        internal readonly   string                          name        = name;
+        internal            WgpuRenderPipelineDescriptor    descriptor  = descriptor;
+        internal            int                             revision;
     }
 }
 
@@ -118,8 +127,8 @@ public record struct WgpuPrimitiveState
 /// <summary> managed type for:  <see cref="FragmentState"/> </summary>
 public record struct WgpuFragmentState
 {
-//  public  string                              entryPoint;     defined via [Shader] or [FragmentShader] attribute
-//  public  ShaderModule*                       module;         defined via [Shader] or [FragmentShader] attribute
+    public  string                              entryPoint;
+    public  string                              module;
     public  nint                                nextInChain;
     public  ValueArray<WgpuConstantEntry>       constants;
     public  ValueArray<WgpuColorTargetState>    targets = [new() { format =  TextureFormat.BGRA8Unorm, writeMask = ColorWriteMask_All}];
@@ -196,8 +205,8 @@ public record struct WgpuDepthStencilState
 public record struct WgpuVertexState
 {
     public  nint                                nextInChain;
-//  public  ShaderModule*                       module;         defined via [Shader] or [VertexShader] attribute
-//  public  StringView                          entryPoint;     defined via [Shader] or [VertexShader] attribute
+    public  string                              module;
+    public  string                              entryPoint;
     public  ValueArray<WgpuConstantEntry>       constants;
     /// <summary>
     /// Note: VertexState buffer layouts should be global/standardized,

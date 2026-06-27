@@ -23,7 +23,7 @@ public static class Test_WGPU
         ref readonly var desc = ref config.Descriptor;
         Assert.AreEqual(1, desc.FragmentState!.Value.constants.Length);
         
-        descSrc.MultisampleState.alphaToCoverageEnabled = true; // CreateConfig() with modified descSrc
+        descSrc.MultisampleState.alphaToCoverageEnabled = true;
         var mutatedConfig = descSrc.CreateConfig("mutatedConfig");
         Assert.AreEqual("mutatedConfig", mutatedConfig.Name);
         
@@ -33,12 +33,12 @@ public static class Test_WGPU
             var e = Assert.Throws<NullReferenceException>(() => {
                 _ = defaultConfig.Descriptor;
             });
-            Assert.AreEqual("when using a default RenderConfig", e!.Message);
+            Assert.AreEqual("using a default RenderConfig", e!.Message);
         } {
             var e = Assert.Throws<NullReferenceException>(() => {
                 _ = defaultConfig.Name;
             });
-            Assert.AreEqual("when using a default RenderConfig", e!.Message);
+            Assert.AreEqual("using a default RenderConfig", e!.Message);
         }
     }
 }
