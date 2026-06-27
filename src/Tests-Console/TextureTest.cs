@@ -128,7 +128,7 @@ public partial class TextureTest : IRenderer
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, vertexConfig))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor))
         {
             RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms, sampler, textureView);
         }

@@ -33,14 +33,14 @@ public class ConfigTest : RenderTest
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(width, height, 1.0f);
             wormhood.ITime          = time;
             
             // Wormhood.RenderTunnel(pass, wormhood);
-            DrawTriangles(pass, rectangle, myUniform);
+            DrawTriangles(pass, config, rectangle, myUniform);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();

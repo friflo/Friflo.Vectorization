@@ -75,14 +75,14 @@ public partial class RenderTest : IRenderer
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor, wgpu.Config))
+        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(width, height, 1.0f);
             wormhood.ITime          = time;
             
-            Wormhood.RenderTunnel(pass, wormhood);
-            DrawTriangles(pass, rectangle, myUniform);
+            Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
+            DrawTriangles(pass, wgpu.Config, rectangle, myUniform);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -90,9 +90,10 @@ public partial class RenderTest : IRenderer
 
 	[Shader("shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     public static partial void DrawTriangles(
-                            RenderPass<MainWorld>  renderPass,
-        [BindVertex (0, 0)] InBuffer<VertexData>   triangles,
-        [BindUniform(1, 0)] MyUniform              myUniform);
+                            RenderPass<MainWorld>   renderPass,
+                            RenderConfig            config,
+        [BindVertex (0, 0)] InBuffer<VertexData>    triangles,
+        [BindUniform(1, 0)] MyUniform               myUniform);
 }
 
 
@@ -115,7 +116,8 @@ public static partial class Wormhood
 {
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
-                            RenderPass<MainWorld>  renderPass,
+                            RenderPass<MainWorld>   renderPass,
+                            RenderConfig            config,
         [BindUniform(0, 0)] Uniforms      			uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
