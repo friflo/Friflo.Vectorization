@@ -55,7 +55,8 @@ public struct WgpuRenderPipelineDescriptor
     public WgpuRenderPipelineDescriptor()  { }
     
     /// <summary>
-    /// Creates a new <see cref="RenderConfig"/> handle to a <see cref="WgpuRenderPipelineDescriptor"/>.
+    /// Creates a new <see cref="RenderConfig"/> handle to an immutable <see cref="WgpuRenderPipelineDescriptor"/>.<br/>
+    /// To change a <see cref="RenderConfig"/> use <see cref="RenderConfig.UpdateDescriptor"/>.
     /// </summary>
     /// <remarks>
     /// Example
