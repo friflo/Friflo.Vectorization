@@ -44,7 +44,7 @@ public readonly struct RenderConfig
 /// After set up of a unique <see cref="WgpuRenderPipelineDescriptor"/> configuration
 /// create a <see cref="RenderConfig"/> handle with <see cref="CreateConfig"/>.
 /// </remarks>
-public record struct WgpuRenderPipelineDescriptor
+public struct WgpuRenderPipelineDescriptor
 {
     public  WgpuPrimitiveState      PrimitiveState      = new();
     public  WgpuFragmentState?      FragmentState       = null;
@@ -101,7 +101,7 @@ public record struct WgpuRenderPipelineDescriptor
 
 // ---------------------------------------- top level wgpu states ----------------------------------------
 /// <summary> managed type for:  <see cref="PrimitiveState"/> </summary>
-public record struct WgpuPrimitiveState
+public struct WgpuPrimitiveState
 {
     public  nint                nextInChain;
     public  PrimitiveTopology   topology            = PrimitiveTopology.TriangleList;
@@ -125,7 +125,7 @@ public record struct WgpuPrimitiveState
 }
 
 /// <summary> managed type for:  <see cref="FragmentState"/> </summary>
-public record struct WgpuFragmentState
+public struct WgpuFragmentState
 {
     public  string                              entryPoint;
     public  string                              module;
@@ -148,7 +148,7 @@ public record struct WgpuFragmentState
 }
 
 /// <summary> managed type for:  <see cref="MultisampleState"/> </summary>
-public record struct WgpuMultisampleState
+public struct WgpuMultisampleState
 {
     public  nint    nextInChain;
     public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
@@ -168,7 +168,7 @@ public record struct WgpuMultisampleState
 }
 
 /// <summary> managed type for:  <see cref="DepthStencilState"/> </summary>
-public record struct WgpuDepthStencilState
+public struct WgpuDepthStencilState
 {
     public  nint                    nextInChain;
     public  TextureFormat           format;
@@ -202,7 +202,7 @@ public record struct WgpuDepthStencilState
 }
 
 /// <summary> managed type for:  <see cref="VertexState"/> </summary>
-public record struct WgpuVertexState
+public struct WgpuVertexState
 {
     public  nint                                nextInChain;
     public  string                              module;
@@ -234,7 +234,7 @@ public record struct WgpuVertexState
 
 
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
-public record struct WgpuColorTargetState
+public struct WgpuColorTargetState
 {
     public  nint            nextInChain;
     public  TextureFormat   format              = TextureFormat.BGRA8Unorm;
@@ -255,7 +255,7 @@ public record struct WgpuColorTargetState
 }
 
 /// <summary> managed type for:  <see cref="ConstantEntry"/> </summary>
-public record struct WgpuConstantEntry
+public struct WgpuConstantEntry
 {
     public  nint    nextInChain;
     public  string  key;
@@ -272,7 +272,7 @@ public record struct WgpuConstantEntry
 }
 
 /// <summary> managed type for:  <see cref="VertexBufferLayout"/> </summary>
-public record struct WgpuVertexBufferLayout
+public struct WgpuVertexBufferLayout
 {
     public  nint                        nextInChain;
     public  VertexStepMode              stepMode;
@@ -293,7 +293,7 @@ public record struct WgpuVertexBufferLayout
 
 /// <summary> managed type for:  <see cref="StencilFaceState"/> </summary>
 // Added extra type to avoid using inefficient runtime-provided implementation
-public record struct WgpuStencilFaceState
+public struct WgpuStencilFaceState
 {
     public  CompareFunction     compare;
     public  StencilOperation    failOp;
