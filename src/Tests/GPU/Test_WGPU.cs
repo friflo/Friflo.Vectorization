@@ -3,6 +3,7 @@ using System;
 using Friflo.Vectorization.WebGPU;
 using NUnit.Framework;
 
+// ReSharper disable UseObjectOrCollectionInitializer
 // ReSharper disable InconsistentNaming
 namespace Tests.GPU;
 
@@ -43,5 +44,25 @@ public static class Test_WGPU
             });
             Assert.AreEqual("using a default RenderConfig", e!.Message);
         }
+    }
+    
+    struct TestStruct
+    {
+        public ValueNullable<int>   integer = null;
+
+        public TestStruct() { }
+    }
+    
+    [Test]
+    public static void Test_WGPU_ValueNullable()
+    {
+        var test = new TestStruct();
+        var e = Assert.Throws<InvalidOperationException>(() => {
+            _ = test.integer.Value;
+        });
+        Assert.AreEqual("Nullable object must have a value.", e!.Message);
+        
+        test.integer = 1;
+        Assert.AreEqual(1, test.integer.Value);
     }
 }

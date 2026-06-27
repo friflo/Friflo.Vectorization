@@ -46,11 +46,11 @@ public readonly struct RenderConfig
 /// </remarks>
 public struct WgpuRenderPipelineDescriptor
 {
-    public  WgpuPrimitiveState      PrimitiveState      = new();
-    public  WgpuFragmentState?      FragmentState       = null;
-    public  WgpuMultisampleState    MultisampleState    = new();
-    public  WgpuVertexState         VertexState         = new();
-    public  WgpuDepthStencilState?  DepthStencilState   = null;
+    public  WgpuPrimitiveState                      PrimitiveState      = new();
+    public  ValueNullable<WgpuFragmentState>        FragmentState       = null;
+    public  WgpuMultisampleState                    MultisampleState    = new();
+    public  WgpuVertexState                         VertexState         = new();
+    public  ValueNullable<WgpuDepthStencilState>    DepthStencilState   = null;
 
     public WgpuRenderPipelineDescriptor()  { }
     
@@ -236,10 +236,10 @@ public struct WgpuVertexState
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
 public struct WgpuColorTargetState
 {
-    public  nint            nextInChain;
-    public  TextureFormat   format              = TextureFormat.BGRA8Unorm;
-    public  BlendState?     blend;
-    public  ulong           writeMask           = ColorWriteMask_All;
+    public  nint                        nextInChain;
+    public  TextureFormat               format              = TextureFormat.BGRA8Unorm;
+    public  ValueNullable<BlendState>   blend;
+    public  ulong                       writeMask           = ColorWriteMask_All;
     
     public WgpuColorTargetState() { }
     

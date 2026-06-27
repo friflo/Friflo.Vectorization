@@ -188,7 +188,7 @@ internal class NativeAllocator
         return targets;
     }
     
-    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(TFrom? src, Func<TFrom, TTarget> converter)
+    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
         where TFrom   : struct
         where TTarget : unmanaged
     {
