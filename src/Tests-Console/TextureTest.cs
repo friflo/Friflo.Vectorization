@@ -51,7 +51,7 @@ public partial class TextureTest : IRenderer
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
         desc.VertexState.buffers = [
-            new WgpuVertexBufferLayout {    // buffers[0]  ->  maps to slot = 0 in SetVertexBuffer<T>(int slot, InBuffer<T> buffer)
+            new WgpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
                 arrayStride = Cube.cubeVertexSize,
                 attributes = [
                     new VertexAttribute {
