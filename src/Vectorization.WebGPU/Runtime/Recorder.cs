@@ -182,16 +182,16 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         commandList.commands.Add(commandBuffer);
     }
 
-    // ---------------- add AddBindGroupEntry*() / CreateBindGroup() ----------------
+    // ---------------- add BindGroupEntry*() / CreateBindGroup() ----------------
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBindGroupEntryUniform<T>() where T : unmanaged
+    public void BindGroupEntryUniform<T>() where T : unmanaged
     {
         uint alignedSize = ((uint)sizeof(T) + (UniformAlignment - 1)) & ~(UniformAlignment - 1);
-        AddBindGroupEntryUniformInternal(alignedSize);
+        BindGroupEntryUniformInternal(alignedSize);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddBindGroupEntryUniformInternal(uint alignedSize)
+    private void BindGroupEntryUniformInternal(uint alignedSize)
     {
         bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
             binding = (uint)bindGroupEntriesCount++,
@@ -202,7 +202,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public void AddBindGroupEntrySampler(GpuSampler sampler)
+    public void BindGroupEntrySampler(GpuSampler sampler)
     {
         bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
             binding = (uint)bindGroupEntriesCount++,
@@ -211,7 +211,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public void AddBindGroupEntryTexture(nint textureView)
+    public void BindGroupEntryTexture(nint textureView)
     {
         bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
             binding     = (uint)bindGroupEntriesCount++,
@@ -220,13 +220,13 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBindGroupEntryBuffer<T>(GpuBuffer<T> buffer) where T : unmanaged
+    public void BindGroupEntryBuffer<T>(GpuBuffer<T> buffer) where T : unmanaged
     {
-        AddBindGroupEntryBuffeInternal(buffer.NativeHandle, Unsafe.SizeOf<T>() * buffer.Length);
+        BindGroupEntryBufferInternal(buffer.NativeHandle, Unsafe.SizeOf<T>() * buffer.Length);
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddBindGroupEntryBuffeInternal(nint buffer, int size)
+    private void BindGroupEntryBufferInternal(nint buffer, int size)
     {
         bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
             binding = (uint)bindGroupEntriesCount++,

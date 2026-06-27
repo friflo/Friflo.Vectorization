@@ -136,8 +136,8 @@ namespace Kernel.Generators
         var key = (position.Handle, velocity.Handle);
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
-            recorder.AddBindGroupEntryBuffer(position.Buffer);
-            recorder.AddBindGroupEntryBuffer(velocity.Buffer);
+            recorder.BindGroupEntryBuffer(position.Buffer);
+            recorder.BindGroupEntryBuffer(velocity.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Move_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }

@@ -130,8 +130,8 @@ namespace Kernel.Lab
         var key = (output.Handle, input.Handle);
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
-            recorder.AddBindGroupEntryBuffer(output.Buffer);
-            recorder.AddBindGroupEntryBuffer(input.Buffer);
+            recorder.BindGroupEntryBuffer(output.Buffer);
+            recorder.BindGroupEntryBuffer(input.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Assign_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }

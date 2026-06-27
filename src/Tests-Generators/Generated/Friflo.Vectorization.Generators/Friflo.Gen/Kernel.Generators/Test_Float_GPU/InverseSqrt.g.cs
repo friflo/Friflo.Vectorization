@@ -119,7 +119,7 @@ namespace Kernel.Generators
         var key = position.Handle;
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
-            recorder.AddBindGroupEntryBuffer(position.Buffer);
+            recorder.BindGroupEntryBuffer(position.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "InverseSqrt_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
