@@ -235,11 +235,13 @@ internal unsafe class NativeAllocator : IDisposable
     
     private void* Alloc(int elementCount, int elementSize)
     {
-        var size = elementCount * elementSize;
-        var pos  = nativeMemoryPos;
-        if (nativeMemoryPos + size < NativeMemoryMax) {
-            nativeMemoryPos = pos + size;
-            return nativeMemory + pos;
+        var size        = elementCount * elementSize;
+        int alignment   = Math.Min(elementSize, 8); // ensure 8 byte alignment
+        var alignedPos  = (nativeMemoryPos + (alignment - 1)) & ~(alignment - 1);
+        
+        if (alignedPos + size <= NativeMemoryMax) {
+            nativeMemoryPos = alignedPos + size;
+            return nativeMemory + alignedPos;
         }
         var target = (byte*)NativeMemory.Alloc((nuint)elementCount, (nuint)elementSize);
         pointers.Add((nint)target);
