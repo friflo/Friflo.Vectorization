@@ -173,11 +173,23 @@ internal interface INativeSource<out TTarget>
 }
 
 
-internal class NativeAllocator
+internal unsafe class NativeAllocator : IDisposable
 {
-    private readonly List<nint> pointers = [];
+    private readonly    byte*       nativeMemory;
+    private             int         nativeMemoryPos;
+    private const       int         NativeMemoryMax = 4096;
+    private readonly    List<nint>  pointers = [];
     
-    internal unsafe TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src)
+    internal NativeAllocator() {
+        nativeMemory = (byte*)NativeMemory.Alloc(NativeMemoryMax);
+    }
+
+    public void Dispose()
+    {
+        NativeMemory.Free(nativeMemory);
+    }
+
+    internal TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src)
         where TFrom   : struct, INativeSource<TTarget>
         where TTarget : unmanaged
     {
@@ -194,7 +206,7 @@ internal class NativeAllocator
         return targets; 
     }
     
-    internal unsafe TTarget* NullableToNative<TFrom, TTarget>(in ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
+    internal TTarget* NullableToNative<TFrom, TTarget>(in ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
         where TFrom   : struct
         where TTarget : unmanaged
     {
@@ -206,7 +218,7 @@ internal class NativeAllocator
         return targets;
     }
     
-    internal unsafe StringView StringToNative(string src)
+    internal StringView StringToNative(string src)
     {
         if (string.IsNullOrEmpty(src)) {
             return default;
@@ -221,15 +233,22 @@ internal class NativeAllocator
         return new StringView { data = (sbyte*)target, length = (uint)len };
     }
     
-    private unsafe void* Alloc(int elementCount, int elementSize)
+    private void* Alloc(int elementCount, int elementSize)
     {
+        var size = elementCount * elementSize;
+        var pos  = nativeMemoryPos;
+        if (nativeMemoryPos + size < NativeMemoryMax) {
+            nativeMemoryPos = pos + size;
+            return nativeMemory + pos;
+        }
         var target = (byte*)NativeMemory.Alloc((nuint)elementCount, (nuint)elementSize);
         pointers.Add((nint)target);
         return target;
     }
     
-    internal unsafe void FreePointers()
+    internal void Clear()
     {
+        nativeMemoryPos = 0;
         foreach (var pointer in pointers) {
             NativeMemory.Free((void*)pointer);
         }

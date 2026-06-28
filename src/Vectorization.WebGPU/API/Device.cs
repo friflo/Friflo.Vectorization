@@ -37,6 +37,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private  readonly   BindGroupLayoutEntry[]  bindGroupLayoutEntries = new BindGroupLayoutEntry[1000];
     private             int                     bindGroupLayoutEntriesCount;
     
+    private  readonly   NativeAllocator         nativeAllocator     = new ();
     private             PipelineCaches[]        pipelineCacheSlots  = [];
     private             ComputeCache[]          computeCacheSlots   = [];
     
@@ -102,6 +103,8 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
         // Native resources cleanup - cases: manual Dispose() call & finalizer calls
         // Release native resources. Order matters: first queue than device
         // Native pointer MUST be checked for null. Their creation may have failed
+        nativeAllocator.Dispose();
+        
         foreach (var pipelineSlot in pipelineCacheSlots)
         {
             foreach (ref readonly var cache in pipelineSlot.caches.AsSpan())

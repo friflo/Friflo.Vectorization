@@ -105,7 +105,7 @@ public sealed unsafe partial  class WgpuDevice
         ReadOnlySpan<byte>          labelName)
     {
         ref readonly var desc   = ref config.Descriptor;
-        var allocator           = new NativeAllocator();
+        nativeAllocator.Clear();
         
         fixed (byte*                pLabelName      = labelName)
         fixed (byte*                pVertexEntry    = vertexEntryPoint)
@@ -124,7 +124,7 @@ public sealed unsafe partial  class WgpuDevice
             FragmentState* pFragmentState = null;
             FragmentState   fragmentState;
             if (desc.FragmentState.HasValue) {
-                fragmentState               = desc.FragmentState.Value.GetNative(allocator);
+                fragmentState               = desc.FragmentState.Value.GetNative(nativeAllocator);
                 fragmentState.module        = fsModule.handle;
                 fragmentState.entryPoint    = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
                 pFragmentState = &fragmentState;
@@ -137,7 +137,7 @@ public sealed unsafe partial  class WgpuDevice
                 pDepthStencilState  = &depthStencilState;
             }
             
-            var vertexState = desc.VertexState.GetNative(allocator);
+            var vertexState = desc.VertexState.GetNative(nativeAllocator);
             vertexState.module      = vsModule.handle;
             vertexState.entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint);
             
@@ -154,7 +154,7 @@ public sealed unsafe partial  class WgpuDevice
                 var handle = wgpuDeviceCreateRenderPipeline(DevicePtr, &renderDesc);
                 return new WgpuRenderPipeline(handle);
             } finally {
-                allocator.FreePointers();
+                nativeAllocator.Clear();
                 if (pipelineLayout != null)     wgpuPipelineLayoutRelease(pipelineLayout);
             }
         }
