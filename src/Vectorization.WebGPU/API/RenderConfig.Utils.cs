@@ -187,6 +187,7 @@ internal unsafe class NativeAllocator : IDisposable
     public void Dispose()
     {
         NativeMemory.Free(nativeMemory);
+        Clear();
     }
 
     internal TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src)
@@ -235,9 +236,9 @@ internal unsafe class NativeAllocator : IDisposable
     
     private void* Alloc(int elementCount, int elementSize)
     {
-        var size        = elementCount * elementSize;
-        int alignment   = Math.Min(elementSize, 8); // ensure 8 byte alignment
-        var alignedPos  = (nativeMemoryPos + (alignment - 1)) & ~(alignment - 1);
+        var size            = elementCount * elementSize;
+        const int alignment = 8; // ensure 8 byte alignment
+        var alignedPos      = (nativeMemoryPos + (alignment - 1)) & ~(alignment - 1);
         
         if (alignedPos + size <= NativeMemoryMax) {
             nativeMemoryPos = alignedPos + size;
