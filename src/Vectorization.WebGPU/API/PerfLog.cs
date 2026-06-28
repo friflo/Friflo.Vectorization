@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 
+// ReSharper disable EmptyConstructor
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -15,6 +16,9 @@ public sealed class PerfLog
     public              int             FrameCount      { get; private set; }
     public  readonly    StringBuilder   Builder         = new(256);
     private readonly    StreamWriter    writer          = new(Console.OpenStandardOutput(), Encoding.UTF8, 256);
+    
+    
+    public PerfLog() { }
 
     public void Flush()
     {
@@ -30,6 +34,9 @@ public sealed class PerfLog
         
     public void Trace(int lapCount)
     {
+        if (FrameCount == 0) {
+            MemoryAllocated = GC.GetAllocatedBytesForCurrentThread();
+        }
         if (++FrameCount % lapCount == 0) {
             Builder.Append("frame: ");
             Builder.Append(FrameCount);
