@@ -54,12 +54,12 @@ public partial class TextureTest : IRenderer
             new WgpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
                 arrayStride = Cube.cubeVertexSize,
                 attributes = [
-                    new VertexAttribute {
+                    new WgpuVertexAttribute {
                         shaderLocation = 0, // basic.vert.wgsl:  @location(0) position : vec4f
                         offset = Cube.cubePositionOffset,
                         format = VertexFormat.Float32x4
                     },
-                    new VertexAttribute {
+                    new WgpuVertexAttribute {
                         shaderLocation = 1, // basic.vert.wgsl:  @location(1) uv : vec2f
                         offset = Cube.cubeUVOffset,
                         format = VertexFormat.Float32x2

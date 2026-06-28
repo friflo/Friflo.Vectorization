@@ -141,9 +141,9 @@ public struct WgpuFragmentState
         return new FragmentState {
             nextInChain     = (ChainedStruct*)nextInChain,
             targetCount     = (uint)targets.Length,
-            targets         = allocator.ArrayToNative(targets,   src => src.GetNative(allocator)),
+            targets         = allocator.ArrayToNative<WgpuColorTargetState, ColorTargetState>(targets),
             constantCount   = (uint)constants.Length,
-            constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator))
+            constants       = allocator.ArrayToNative<WgpuConstantEntry, ConstantEntry>(constants)
         };
     }
 }
@@ -222,9 +222,9 @@ public struct WgpuVertexState
         return new VertexState {
             nextInChain     = (ChainedStruct*)nextInChain,
             constantCount   = (uint)constants.Length,
-            constants       = allocator.ArrayToNative(constants, src => src.GetNative(allocator)),
+            constants       = allocator.ArrayToNative<WgpuConstantEntry, ConstantEntry>(constants),
             bufferCount     = (uint)buffers.Length,
-            buffers         = allocator.ArrayToNative(buffers,   src => src.GetNative(allocator))
+            buffers         = allocator.ArrayToNative<WgpuVertexBufferLayout, VertexBufferLayout>(buffers)
         };
     }
 }
@@ -235,7 +235,7 @@ public struct WgpuVertexState
 
 
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
-public struct WgpuColorTargetState
+public struct WgpuColorTargetState : INativeSource<ColorTargetState>
 {
     public  nint                        nextInChain;
     public  TextureFormat               format              = TextureFormat.BGRA8Unorm;
@@ -244,25 +244,25 @@ public struct WgpuColorTargetState
     
     public WgpuColorTargetState() { }
     
-    internal readonly unsafe ColorTargetState GetNative(NativeAllocator allocator)
+    readonly unsafe ColorTargetState INativeSource<ColorTargetState>.GetNative(NativeAllocator allocator)
     {
         return new ColorTargetState {
             nextInChain = (ChainedStruct*)nextInChain,
             format      = format,
             writeMask   = writeMask,
-            blend       = allocator.NullableToNative(blend, value => value)
+            blend       = allocator.NullableToNative(blend, static value => value)
         };
     }
 }
 
 /// <summary> managed type for:  <see cref="ConstantEntry"/> </summary>
-public struct WgpuConstantEntry
+public struct WgpuConstantEntry : INativeSource<ConstantEntry>
 {
     public  nint    nextInChain;
     public  string  key;
     public  double  value;
     
-    internal readonly unsafe ConstantEntry GetNative(NativeAllocator allocator)
+    readonly unsafe ConstantEntry INativeSource<ConstantEntry>.GetNative(NativeAllocator allocator)
     {
         return new ConstantEntry {
             nextInChain = (ChainedStruct*)nextInChain,
@@ -273,21 +273,40 @@ public struct WgpuConstantEntry
 }
 
 /// <summary> managed type for:  <see cref="VertexBufferLayout"/> </summary>
-public struct WgpuVertexBufferLayout
+public struct WgpuVertexBufferLayout : INativeSource<VertexBufferLayout>
 {
-    public  nint                        nextInChain;
-    public  VertexStepMode              stepMode;
-    public  ulong                       arrayStride;
-    public  ValueArray<VertexAttribute> attributes;
+    public  nint                            nextInChain;
+    public  VertexStepMode                  stepMode;
+    public  ulong                           arrayStride;
+    public  ValueArray<WgpuVertexAttribute> attributes;
     
-    internal readonly unsafe VertexBufferLayout GetNative(NativeAllocator allocator)
+    readonly unsafe VertexBufferLayout INativeSource<VertexBufferLayout>.GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
             nextInChain     = (ChainedStruct*)nextInChain,
             arrayStride     = arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
-            attributes      = allocator.ArrayToNative(attributes, src => src)
+            attributes      = allocator.ArrayToNative<WgpuVertexAttribute, VertexAttribute>(attributes)
+        };
+    }
+}
+
+/// <summary> managed type for:  <see cref="VertexAttribute"/> </summary>
+public struct WgpuVertexAttribute : INativeSource<VertexAttribute>
+{
+    public  nint            nextInChain;
+    public  VertexFormat    format;
+    public  ulong           offset;
+    public  uint            shaderLocation;
+  
+    readonly unsafe VertexAttribute INativeSource<VertexAttribute>.GetNative(NativeAllocator allocator)
+    {
+        return new VertexAttribute {
+            nextInChain     = (ChainedStruct*)nextInChain,
+            format          = format,
+            offset          = offset,
+            shaderLocation  = shaderLocation,
         };
     }
 }

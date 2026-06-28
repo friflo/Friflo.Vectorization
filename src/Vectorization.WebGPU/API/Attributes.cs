@@ -43,12 +43,12 @@ public sealed class FragmentShaderAttribute : Attribute
 ///     new WgpuVertexBufferLayout {  // buffers[0]  ->  slot = 0
 ///         arrayStride = Cube.cubeVertexSize,
 ///         attributes = [
-///             new VertexAttribute {
+///             new WgpuVertexAttribute {
 ///                 shaderLocation = 0,     // WGSL: @location(0) position : vec4f (Im Shader)
 ///                 offset = Cube.cubePositionOffset,
 ///                 format = VertexFormat.Float32x4
 ///             },
-///             new VertexAttribute {
+///             new WgpuVertexAttribute {
 ///                 shaderLocation = 1,     // WGSL: @location(1) uv       : vec2f (Im Shader)
 ///                 offset = Cube.cubeUVOffset,
 ///                 format = VertexFormat.Float32x2

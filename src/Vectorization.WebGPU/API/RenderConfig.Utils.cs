@@ -30,7 +30,7 @@ namespace Friflo.Vectorization.WebGPU;
 [CollectionBuilder(typeof(ValueArrayBuilder), nameof(ValueArrayBuilder.Create))]
 public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T> where T : struct
 {
-    private readonly T[] _array;
+    internal readonly T[] _array;
 
     public override string ToString() => $"{typeof(T).Name}[{Length}]";
 
@@ -166,25 +166,32 @@ public readonly struct ValueNullable<T> : IEquatable<ValueNullable<T>> where T :
 
 
 // -------------------------------------- NativeAllocator --------------------------------------
+internal interface INativeSource<out TTarget>
+    where TTarget : unmanaged
+{
+     internal TTarget GetNative(NativeAllocator allocator);
+}
+
+
 internal class NativeAllocator
 {
     private readonly List<nint> pointers = [];
     
-    internal unsafe TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src, Func<TFrom, TTarget> converter)
-        where TFrom   : struct
+    internal unsafe TTarget* ArrayToNative<TFrom, TTarget>(ValueArray<TFrom> src)
+        where TFrom   : struct, INativeSource<TTarget>
         where TTarget : unmanaged
     {
         var length = src.Length;
         if (length == 0) {
             return null;
         }
-        var targets = (TTarget*)NativeMemory.Alloc((nuint)length, (nuint)sizeof(TTarget));
-        pointers.Add((nint)targets);
+        var targets     = (TTarget*)Alloc(length, sizeof(TTarget));
+        var srcArray    = src._array;
 
         for (int n = 0; n < length; n++) {
-            targets[n] = converter(src[n]);
+            targets[n] = srcArray[n].GetNative(this);
         }
-        return targets;
+        return targets; 
     }
     
     internal unsafe TTarget* NullableToNative<TFrom, TTarget>(in ValueNullable<TFrom> src, Func<TFrom, TTarget> converter)
@@ -194,10 +201,8 @@ internal class NativeAllocator
         if (!src.HasValue) {
             return null;
         }
-        var targets = (TTarget*)NativeMemory.Alloc(1, (nuint)sizeof(TTarget));
-        pointers.Add((nint)targets);
-
-        *targets = converter(src.Value);
+        var targets = (TTarget*)Alloc(1, sizeof(TTarget));
+        *targets    = converter(src.Value);
         return targets;
     }
     
@@ -207,14 +212,20 @@ internal class NativeAllocator
             return default;
         }
         var len     = Encoding.UTF8.GetByteCount(src);
-        var target  = (byte*)NativeMemory.Alloc((nuint)len + 1, sizeof(byte));   // + 1   => be safe: add \0 terminator
-        pointers.Add((nint)target);
+        var target  = (byte*)Alloc(len + 1, sizeof(byte));   // + 1   => be safe: add \0 terminator
         
         var dest = new Span<byte>(target, len);
         Encoding.UTF8.GetBytes(src, dest);
         target[len] = 0;
         
         return new StringView { data = (sbyte*)target, length = (uint)len };
+    }
+    
+    private unsafe void* Alloc(int elementCount, int elementSize)
+    {
+        var target = (byte*)NativeMemory.Alloc((nuint)elementCount, (nuint)elementSize);
+        pointers.Add((nint)target);
+        return target;
     }
     
     internal unsafe void FreePointers()
