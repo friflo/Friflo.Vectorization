@@ -81,8 +81,6 @@ public unsafe class GpuTexture : IDisposable
     
     private readonly record struct ViewEntry
     {
-        internal readonly   TextureSampleType       sampleType;
-        // --- TextureViewDescriptor
         internal readonly   TextureFormat           format;
         internal readonly   TextureViewDimension    dimension;
         internal readonly   uint                    baseMipLevel;
@@ -92,9 +90,8 @@ public unsafe class GpuTexture : IDisposable
         internal readonly   TextureAspect           aspect;
         internal readonly   TextureUsage            usage;
 
-        public ViewEntry(in TextureViewDescriptor descriptor, TextureSampleType sampleType)
+        public ViewEntry(in TextureViewDescriptor descriptor)
         {
-            this.sampleType = sampleType;
             format          = descriptor.format;
             dimension       = descriptor.dimension;
             baseMipLevel    = descriptor.baseMipLevel;
@@ -108,12 +105,12 @@ public unsafe class GpuTexture : IDisposable
     
     public GpuTextureView CreateView(in TextureViewDescriptor descriptor = default)
     {
-        var view = CreateView(descriptor, TextureViewDimension.D2D, GetType<float>());
+        var view = CreateView(descriptor, TextureViewDimension.D2D);
         return new GpuTextureView(view, this);
     }
 
     
-    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension, TextureSampleType sampleType)
+    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension)
     {
         viewDesc.dimension          = dimension;
         viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? desc.format : viewDesc.format;
@@ -121,7 +118,7 @@ public unsafe class GpuTexture : IDisposable
         viewDesc.arrayLayerCount    = viewDesc.arrayLayerCount  == 0 ? 1 : viewDesc.arrayLayerCount;
         viewDesc.aspect             = viewDesc.aspect           == TextureAspect.Undefined ? TextureAspect.All : viewDesc.aspect;
         
-        var entry = new ViewEntry(viewDesc, sampleType);
+        var entry = new ViewEntry(viewDesc);
         
         var index = viewEntries.IndexOf(entry);
         if (index >= 0) {
@@ -143,51 +140,9 @@ public unsafe class GpuTexture : IDisposable
         viewCount++;
         return view;
     }
-    
-    internal static TextureSampleType GetUnfilterableType<T>() where T : unmanaged
-    {
-        var sampleType = GetType<T>();
-        if (sampleType == TextureSampleType.Float) {
-            return TextureSampleType.UnfilterableFloat;
-        }
-        return sampleType;
-    }
-    
-    internal static TextureSampleType ForceUnfilterable<T>() where T : unmanaged
-    {
-        var sampleType = GetType<T>();
-        if (sampleType == TextureSampleType.Float) {
-            return TextureSampleType.UnfilterableFloat;
-        }
-        return sampleType;
-    }
-    
-    internal static TextureSampleType GetType<T>() where T : unmanaged
-    {
-        var typeCode = Type.GetTypeCode(typeof(T));
-        return typeCode switch
-        {
-            TypeCode.Single => TextureSampleType.Float,
-            TypeCode.Int32  => TextureSampleType.Sint,
-            TypeCode.UInt32 => TextureSampleType.Uint,
-            TypeCode.Object => UnfilterableFloat<T>(),
-            _               => throw InvalidType(typeof(T))
-        };
-    }
-
-    private static ArgumentException InvalidType(Type type)
-        => throw new ArgumentException($"invalid type - expect: float, int, uint or UnfilterableFloat. Was: {type.Name}");
-    
-    private static TextureSampleType UnfilterableFloat<T>() where T : unmanaged
-    {
-        if (typeof(T) == typeof(UnfilterableFloat)) {
-            return TextureSampleType.UnfilterableFloat;
-        }
-        throw InvalidType(typeof(T));
-    }
 }
 
-public struct UnfilterableFloat;
+
 
 
 /// <summary>
