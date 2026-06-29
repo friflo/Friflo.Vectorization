@@ -166,7 +166,8 @@ public unsafe class GpuTexture : IDisposable
 /// - <see cref="TextureBindingLayout.viewDimension"/><br/>
 /// - <see cref="TextureBindingLayout.multisampled"/><br/>
 /// </remarks>
-public interface ITextureView
+[Obsolete("REMOVE")]
+internal interface ITextureViewXXX
 {
     nint Handle { get; }
 }

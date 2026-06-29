@@ -139,12 +139,12 @@ public partial class TextureTest : IRenderer
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(
-                            RenderPass<MainWorld>   renderPass,
-                            RenderConfig            vertexConfig,
-        [VertexBuffer(0)]   InBuffer<float>         verticesBuffer,
-        [BindUniform(0, 0)] in Uniforms             uniforms,
-        [BindSampler(0, 1)] FilteringSampler        smoothFilter,
-        [BindTexture(0, 2)] GpuTextureView          material);
+                                    RenderPass<MainWorld>   renderPass,
+                                    RenderConfig            vertexConfig,
+        [VertexBuffer(0)]           InBuffer<float>         verticesBuffer,
+        [BindUniform(0, 0)]         in Uniforms             uniforms,
+        [BindSampler(0, 1)]         FilteringSampler        smoothFilter,
+        [texture_2d<float>(0, 2)]   GpuTextureView          material);
 
 
     [StructLayout(LayoutKind.Sequential)]
