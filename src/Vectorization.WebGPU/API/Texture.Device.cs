@@ -2,6 +2,10 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -13,13 +17,32 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public struct TextureSize
+[CollectionBuilder(typeof(TextureSizeBuilder), nameof(TextureSizeBuilder.Create))]
+public struct TextureSize : IEnumerable<int>
 {
-    public  int width;
-    public  int height;
-    public  int depthOrArrayLayers = 1;
+    public  int     width;
+    public  int     height;
+    public  int     depthOrArrayLayers = 1;
     
     public TextureSize() { }
+    
+    public IEnumerator<int> GetEnumerator() => throw new NotImplementedException();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+/// <summary>
+/// Internal compiler helper to enable the [...] collection expression for <see cref="TextureSize"/>.
+/// </summary>
+public static class TextureSizeBuilder
+{
+    public static TextureSize Create(ReadOnlySpan<int> items)
+    {
+        var size = new TextureSize();
+        if (items.Length > 0) size.width                = items[0];
+        if (items.Length > 1) size.height               = items[1];
+        if (items.Length > 2) size.depthOrArrayLayers   = items[2];
+        return size;
+    }
 }
 
 
