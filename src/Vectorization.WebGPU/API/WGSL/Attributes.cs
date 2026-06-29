@@ -73,6 +73,17 @@ public sealed class VertexBufferAttribute : Attribute
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>
 /// Vertices are fetched directly from an indexed buffer range, driven by the Draw() offset.
 /// </summary>
+/// <remarks>
+/// <code>
+///   // InBuffer&lt;&gt;      WGSL: var&lt;storage, read&gt;
+///   C#    [BindStorage(0, 0)]    InBuffer&lt;VertexData&gt;  triangles,
+///   WGSL:  @group(0) @binding(0) var&lt;storage, read&gt;    mesh_data:  VertexData;
+///    
+///   // InOutBuffer&lt;&gt;   WGSL: var&lt;storage, read_write&gt;
+///   C#    [BindStorage(0, 0)]    InOutBuffer&lt;VertexData&gt;  triangles,
+///   WGSL:  @group(0) @binding(0) var&lt;storage, read_write&gt; mesh_data:  VertexData;
+/// </code>
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindStorageAttribute : Attribute
 {
@@ -90,6 +101,11 @@ public sealed class BindStorageAttribute : Attribute
 /// <b>Restrictions:</b><br/>
 /// <c>bool</c> is prohibited inside structs (use <c>uint</c>).<br/>
 /// 64-bit types (<c>double</c>, <c>long</c>) and 8/16-bit types (<c>byte</c>, <c>short</c>) are not supported.<br/>
+/// <code>
+///   // struct MyUniforms      WGSL: var&lt;uniform&gt;
+///   C#    [BindUniform(1, 0)]    InBuffer&lt;VertexData&gt;  myUniforms,
+///   WGSL:  @group(1) @binding(0) var&lt;uniform&gt;          myUniforms: MyUniforms;
+/// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindUniformAttribute : Attribute
