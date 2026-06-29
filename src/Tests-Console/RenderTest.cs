@@ -92,7 +92,7 @@ public partial class RenderTest : IRenderer
     public static partial void DrawTriangles(
                             RenderPass<MainWorld>   renderPass,
                             RenderConfig            config,
-        [BindVertex (0, 0)] InBuffer<VertexData>    triangles,
+        [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);
 }
 

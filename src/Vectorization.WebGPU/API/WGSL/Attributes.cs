@@ -65,18 +65,18 @@ public sealed class VertexBufferAttribute : Attribute
 }
 
 // --- Generator Draw Call Rules ---
-// 1. [BindIndex]  present              -> pass.DrawIndexed(indices.Length, [BindInstance] ?? 1, 0, 0, 0);
-// 2. [BindVertex] only                 -> pass.Draw(vertices.Length, [BindInstance] ?? 1, 0, 0);
-// 3. No geometry (Fullscreen/Compute)  -> pass.Draw(3, 1, 0, 0);
+// 1. [BindIndex]   present              -> pass.DrawIndexed(indices.Length, [BindInstance] ?? 1, 0, 0, 0);
+// 2. [BindStorage] only                 -> pass.Draw(vertices.Length, [BindInstance] ?? 1, 0, 0);
+// 3. No geometry (Fullscreen/Compute)   -> pass.Draw(3, 1, 0, 0);
 
 /// <summary>
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>
 /// Vertices are fetched directly from an indexed buffer range, driven by the Draw() offset.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindVertexAttribute : Attribute
+public sealed class BindStorageAttribute : Attribute
 {
-    public BindVertexAttribute (int groupIndex, int bindingIndex) { }
+    public BindStorageAttribute (int groupIndex, int bindingIndex) { }
 }
 
 /// <summary> Annotates a shader method parameter passing a uniform. </summary>
@@ -97,13 +97,6 @@ public sealed class BindUniformAttribute : Attribute
     public BindUniformAttribute (int groupIndex, int bindingIndex) { }
 }
 
-
-
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindStorageAttribute : Attribute
-{
-    public BindStorageAttribute (int groupIndex, int bindingIndex) { }
-}
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindIndexAttribute : Attribute { }

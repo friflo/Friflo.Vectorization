@@ -15,7 +15,7 @@ namespace Friflo.Vectorization.GPU;
 ///   <see cref="InOutView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
 /// </para>
 /// <para>
-///   When used as a shader method parameter the parameter must have a <c>[BindVertex]</c> or a <c>[VertexBuffer]</c> attribute.  
+///   When used as a shader method parameter the parameter must have a <c>[BindStorage]</c> or a <c>[VertexBuffer]</c> attribute.  
 /// </para>
 /// </remarks>
 public readonly ref struct InOutBuffer<T> where T : unmanaged
@@ -63,7 +63,7 @@ public readonly ref struct InOutBuffer<T> where T : unmanaged
 ///   <see cref="InView{T}"/>, <see cref="InOutView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
 /// </para>
 /// <para>
-///   When used as a shader method parameter the parameter must have a <c>[BindVertex]</c> or a <c>[VertexBuffer]</c> attribute.  
+///   When used as a shader method parameter the parameter must have a <c>[BindStorage]</c> or a <c>[VertexBuffer]</c> attribute.  
 /// </para>
 /// </remarks>
 public readonly ref struct InBuffer<T> where T : unmanaged
