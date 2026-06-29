@@ -23,7 +23,7 @@ namespace Friflo.Vectorization.WebGPU;
 /// - <see cref="texture_2d{ST}"/><br/>
 /// - <see cref="texture_2d_array{ST}"/><br/>
 /// - <see cref="texture_3d{ST}"/><br/>
-/// - <see cref="texture_cubeAttribute{ST}"/><br/>
+/// - <see cref="texture_cube{ST}"/><br/>
 /// - <see cref="texture_cube_array{ST}"/><br/>
 /// <br/>
 /// <b><a href="https://www.w3.org/TR/WGSL/#multisampled-texture-type">
@@ -80,9 +80,9 @@ public sealed class texture_3d<ST> : TextureAttribute  where ST : unmanaged, ISa
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_cubeAttribute<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_cube<ST> : TextureAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_cubeAttribute (int groupIndex, int bindingIndex) { }
+    public texture_cube (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
@@ -190,7 +190,7 @@ public struct f32 : ISampleType;
 /// - <see cref="texture_2d{ST}"/>                  - <see cref="TextureViewDimension.D2D"/><br/>
 /// - <see cref="texture_2d_array{ST}"/>            - <see cref="TextureViewDimension.D2DArray"/><br/>
 /// - <see cref="texture_3d{ST}"/>                  - <see cref="TextureViewDimension.D3D"/><br/>
-/// - <see cref="texture_cubeAttribute{ST}"/>       - <see cref="TextureViewDimension.Cube"/><br/>
+/// - <see cref="texture_cube{ST}"/>                - <see cref="TextureViewDimension.Cube"/><br/>
 /// - <see cref="texture_cube_array{ST}"/>          - <see cref="TextureViewDimension.CubeArray"/><br/>
 /// <br/>
 /// <b><a href="https://www.w3.org/TR/WGSL/#multisampled-texture-type">
