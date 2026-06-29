@@ -66,16 +66,16 @@ public sealed unsafe partial class WgpuDevice
 {
     private static void SetTextureDescriptor(ref TextureDescriptor native, in GpuTextureDescriptor descriptor)
     {
-        native.dimension                  = descriptor.dimension;
-        native.size.width                 = (uint)descriptor.size.width;
-        native.size.height                = (uint)descriptor.size.height;
-        native.size.depthOrArrayLayers    = (uint)descriptor.size.depthOrArrayLayers;
-        native.format                     = descriptor.format;
-        native.usage                      = (ulong)descriptor.usage;
-        native.sampleCount                = (uint)descriptor.sampleCount;
-        native.mipLevelCount              = (uint)descriptor.mipLevelCount;
-        native.nextInChain                = (ChainedStruct*)descriptor.nextInChain;
-        native.viewFormatCount            = (uint)(descriptor.viewFormats?.Length ?? 0);
+        native.nextInChain              = (ChainedStruct*)descriptor.nextInChain;
+        native.usage                    = (ulong)descriptor.usage;
+        native.dimension                = descriptor.dimension;
+        native.size.width               = (uint)descriptor.size.width;
+        native.size.height              = (uint)descriptor.size.height;
+        native.size.depthOrArrayLayers  = (uint)descriptor.size.depthOrArrayLayers;
+        native.format                   = descriptor.format;
+        native.mipLevelCount            = (uint)descriptor.mipLevelCount;
+        native.sampleCount              = (uint)descriptor.sampleCount;
+        native.viewFormatCount          = (uint)(descriptor.viewFormats?.Length ?? 0);
     }
 
     public GpuTexture CreateTexture(in GpuTextureDescriptor? descriptor = null)
