@@ -14,17 +14,17 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class GpuTexture : IDisposable
 {
-    private readonly    GpuTextureDescriptor    desc;
-    private readonly    WgpuDevice              device;
-    private             Texture*                handle;
-    private             ViewEntry[]             viewEntries = [];
-    private             nint[]                  viewHandles = [];
-    private             int                     viewCount;
+    private readonly    GpuTextureDescriptor        desc;
+    private readonly    WgpuDevice                  device;
+    private             Texture*                    handle;
+    private             GpuTextureViewDescriptor[]  viewDescriptors = [];
+    private             nint[]                      viewHandles     = [];
+    private             int                         viewCount;
     
-    public              string                  Label       => desc.label;
-    public ref readonly GpuTextureDescriptor    Descriptor  => ref desc;
-    public              bool                    IsDisposed  => handle == null;
-    public  override    string                  ToString()  => Label;
+    public              string                      Label       => desc.label;
+    public ref readonly GpuTextureDescriptor        Descriptor  => ref desc;
+    public              bool                        IsDisposed  => handle == null;
+    public  override    string                      ToString()  => Label;
     
     internal GpuTexture(WgpuDevice device, in GpuTextureDescriptor desc, Texture* handle)
     {
@@ -79,66 +79,38 @@ public sealed unsafe class GpuTexture : IDisposable
         }
     }
     
-    private readonly record struct ViewEntry
+    public GpuTextureView CreateView(in GpuTextureViewDescriptor? descriptor = null)
     {
-        internal readonly   TextureFormat           format;
-        internal readonly   TextureViewDimension    dimension;
-        internal readonly   uint                    baseMipLevel;
-        internal readonly   uint                    mipLevelCount;
-        internal readonly   uint                    baseArrayLayer;
-        internal readonly   uint                    arrayLayerCount;
-        internal readonly   TextureAspect           aspect;
-        internal readonly   TextureUsage            usage;
-
-        public ViewEntry(in TextureViewDescriptor descriptor)
-        {
-            format          = descriptor.format;
-            dimension       = descriptor.dimension;
-            baseMipLevel    = descriptor.baseMipLevel;
-            mipLevelCount   = descriptor.mipLevelCount;
-            baseArrayLayer  = descriptor.baseArrayLayer;
-            arrayLayerCount = descriptor.arrayLayerCount;
-            aspect          = descriptor.aspect;
-            usage           = (TextureUsage)descriptor.usage;
-        }
-    }
-    
-    public GpuTextureView CreateView(in TextureViewDescriptor descriptor = default)
-    {
-        var view = CreateView(descriptor, TextureViewDimension.D2D);
-        return new GpuTextureView(view, this);
-    }
-
-    
-    internal TextureView* CreateView(TextureViewDescriptor viewDesc, TextureViewDimension dimension)
-    {
-        viewDesc.dimension          = dimension;
-        viewDesc.format             = viewDesc.format           == TextureFormat.Undefined  ? desc.format : viewDesc.format;
-        viewDesc.mipLevelCount      = viewDesc.mipLevelCount    == 0 ? 1 : viewDesc.mipLevelCount;
-        viewDesc.arrayLayerCount    = viewDesc.arrayLayerCount  == 0 ? 1 : viewDesc.arrayLayerCount;
-        viewDesc.aspect             = viewDesc.aspect           == TextureAspect.Undefined ? TextureAspect.All : viewDesc.aspect;
+        var inDesc   = descriptor ?? new GpuTextureViewDescriptor();
+        var viewDesc = new TextureViewDescriptor {
+            dimension       = inDesc.dimension,
+            format          = inDesc.format == TextureFormat.Undefined  ? desc.format : inDesc.format,
+            mipLevelCount   = (uint)(inDesc.mipLevelCount    == 0 ? 1 : inDesc.mipLevelCount),
+            arrayLayerCount = (uint)(inDesc.arrayLayerCount  == 0 ? 1 : inDesc.arrayLayerCount),
+            aspect          = inDesc.aspect == TextureAspect.Undefined ? TextureAspect.All : inDesc.aspect
+        };
+        var label = inDesc.label ?? Label;
+        inDesc.label = null;
         
-        var entry = new ViewEntry(viewDesc);
-        
-        var index = viewEntries.IndexOf(entry);
+        var index = Array.IndexOf(viewDescriptors, inDesc);
         if (index >= 0) {
-            return (TextureView*)viewHandles[index];
+            return new GpuTextureView((TextureView*)viewHandles[index], this);
         }
         
-        var labelMaxCount   = WgpuUtils.GetMaxCount(Label);
+        var labelMaxCount   = WgpuUtils.GetMaxCount(label);
         var labelBuffer     = stackalloc byte[labelMaxCount];
-        viewDesc.label      = WgpuUtils.CopyToStringView(Label, labelBuffer, labelMaxCount);
+        viewDesc.label      = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
         
         var view = wgpuTextureCreateView(handle, &viewDesc);
         
         if (viewCount >= viewHandles.Length) {
-            viewHandles = WgpuUtils.Resize(ref viewHandles, viewCount + 1);
-            viewEntries = WgpuUtils.Resize(ref viewEntries, viewCount + 1);
+            viewHandles     = WgpuUtils.Resize(ref viewHandles,     viewCount + 1);
+            viewDescriptors = WgpuUtils.Resize(ref viewDescriptors, viewCount + 1);
         }
-        viewHandles[viewCount] = (nint)view;
-        viewEntries[viewCount] = entry;
+        viewHandles    [viewCount] = (nint)view;
+        viewDescriptors[viewCount] = inDesc;
         viewCount++;
-        return view;
+        return new GpuTextureView(view, this);
     }
 }
 
