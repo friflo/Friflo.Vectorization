@@ -14,25 +14,23 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class GpuTexture : IDisposable
 {
-    private readonly    TextureDescriptor   desc;
-    public  readonly    string              Label;
-    private readonly    WgpuDevice          device;
-    private             Texture*            handle;
-    private             ViewEntry[]         viewEntries = [];
-    private             nint[]              viewHandles = [];
-    private             int                 viewCount;
+    private readonly    GpuTextureDescriptor    desc;
+    private readonly    WgpuDevice              device;
+    private             Texture*                handle;
+    private             ViewEntry[]             viewEntries = [];
+    private             nint[]                  viewHandles = [];
+    private             int                     viewCount;
     
-    public ref readonly TextureDescriptor   Descriptor  => ref desc;
-    public              bool                IsDisposed  => handle == null;
-    public  override    string              ToString()  => Label;
+    public              string                  Label       => desc.label;
+    public ref readonly GpuTextureDescriptor    Descriptor  => ref desc;
+    public              bool                    IsDisposed  => handle == null;
+    public  override    string                  ToString()  => Label;
     
-    internal GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label)
+    internal GpuTexture(WgpuDevice device, in GpuTextureDescriptor desc, Texture* handle, string label)
     {
         this.device = device;
         this.desc  	= desc;
-        Label       = label;
         this.handle = handle;
-        this.desc.label = default;
     }
 
     public void Write(
@@ -43,7 +41,7 @@ public sealed unsafe class GpuTexture : IDisposable
         int                 offset      = 0,
         Origin3D            origin      = default,
         TextureAspect       aspect      = TextureAspect.All,
-        Extent3D?           writeSize   = null)
+        TextureSize?        writeSize   = null)
     {
         var destination = new TexelCopyTextureInfo {
             texture         = handle,
@@ -56,13 +54,15 @@ public sealed unsafe class GpuTexture : IDisposable
             bytesPerRow     = (uint)bytesPerRow,
             rowsPerImage    = (uint)rowsPerImage
         };
-        var finalWriteSize = writeSize ?? new Extent3D {
-            width               = desc.size.width,
-            height              = desc.size.height,
-            depthOrArrayLayers  = desc.size.depthOrArrayLayers
+        writeSize ??= desc.size;
+        var extent3D = new Extent3D {
+            height              = (uint)writeSize.Value.height,
+            width               = (uint)writeSize.Value.width,
+            depthOrArrayLayers  = (uint)writeSize.Value.depthOrArrayLayers
         };
+
         fixed (byte* dataPtr = data) {
-            wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &finalWriteSize);
+            wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &extent3D);
         }
     }
     

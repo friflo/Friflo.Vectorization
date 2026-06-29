@@ -36,8 +36,10 @@ public partial class TextureTest : IRenderer
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
         var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        cubeTexture = device.CreateTexture(image.Width, image.Height, TextureFormat.RGBA8Unorm,
-                        TextureUsage.TextureBinding | TextureUsage.CopyDst, "Di-3d.png");
+        cubeTexture = device.CreateTexture(new GpuTextureDescriptor {
+            size = new TextureSize { width = image.Width, height = image.Height }, format = TextureFormat.RGBA8Unorm,
+            usage = TextureUsage.TextureBinding | TextureUsage.CopyDst, label = "Di-3d.png" 
+        });
         sampler     = device.CreateFilteringSampler(label: "Sampler");
         cubeTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
@@ -91,7 +93,9 @@ public partial class TextureTest : IRenderer
     public void OnWindowChanged(int width, int height)
     {
         depthTexture?.Dispose(); // create new depthTexture with different width & height
-        depthTexture = wgpu.Device.CreateTexture(width, height, TextureFormat.Depth24Plus, TextureUsage.RenderAttachment);
+        depthTexture = wgpu.Device.CreateTexture(new GpuTextureDescriptor {
+            size = new TextureSize { width = width, height = height}, format = TextureFormat.Depth24Plus, usage = TextureUsage.RenderAttachment
+        });
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
