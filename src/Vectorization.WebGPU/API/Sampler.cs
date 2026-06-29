@@ -19,7 +19,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe partial class WgpuDevice
 {
-    public FilteringSampler CreateFilteringSampler(
+    public GpuSampler CreateFilteringSampler(
         FilterMode          magFilter       = FilterMode.Linear,
         FilterMode          minFilter       = FilterMode.Linear,
         MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Linear,
@@ -34,10 +34,10 @@ public sealed unsafe partial class WgpuDevice
             maxAnisotropy   = maxAnisotropy
         };
         desc = CreateSampler(desc, label, options, out var sampler);
-        return new FilteringSampler(sampler, desc, label);
+        return new GpuSampler(sampler, desc, label);
     }
     
-    public NonFilteringSampler CreateNonFilteringSampler(
+    public GpuSampler CreateNonFilteringSampler(
         string              label       = null,
         in SamplerOptions?  options     = null)
     {
@@ -48,10 +48,10 @@ public sealed unsafe partial class WgpuDevice
             maxAnisotropy   = 1,
         };
         desc = CreateSampler(desc, label, options, out var sampler);
-        return new NonFilteringSampler(sampler, desc, label);
+        return new GpuSampler(sampler, desc, label);
     }
     
-    public ComparisonSampler CreateComparisonSampler(
+    public GpuSampler CreateComparisonSampler(
         CompareFunction     compare,
         FilterMode          magFilter       = FilterMode.Linear,
         FilterMode          minFilter       = FilterMode.Linear,
@@ -67,7 +67,7 @@ public sealed unsafe partial class WgpuDevice
             maxAnisotropy   = 1
         };
         desc = CreateSampler(desc, label, options, out var sampler);
-        return new ComparisonSampler(sampler, desc, label);
+        return new GpuSampler(sampler, desc, label);
     }
         
     private SamplerDescriptor CreateSampler(
@@ -108,7 +108,7 @@ public struct SamplerOptions
 }
 
 
-public abstract unsafe class GpuSampler : IDisposable
+public sealed unsafe class GpuSampler : IDisposable
 {
     internal            Sampler*            handle;
     private readonly    SamplerDescriptor   desc;
@@ -134,28 +134,6 @@ public abstract unsafe class GpuSampler : IDisposable
     }
 }
 
-/// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
-/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.Filtering"/>. </remarks>
-public sealed unsafe class FilteringSampler : GpuSampler
-{
-    public FilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
-}
-
-/// <summary> Maps to  WGSL type: <c>sampler</c>. </summary>
-/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.NonFiltering"/>. </remarks>
-public sealed unsafe class NonFilteringSampler : GpuSampler
-{
-    public NonFilteringSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
-}
-
-/// <summary> Maps to  WGSL type: <c>sampler_comparison</c>. </summary>
-/// <remarks> <see cref="SamplerBindingLayout"/> is created with <see cref="SamplerBindingType.Comparison"/>. </remarks>
-public sealed unsafe class ComparisonSampler : GpuSampler
-{
-    public ComparisonSampler(Sampler* handle, in SamplerDescriptor desc, string label) : base(handle, in desc, label) { }
-}
-
-
 
 /// <summary>
 /// Classes extending <see cref="GpuSampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
@@ -176,5 +154,6 @@ public sealed unsafe class ComparisonSampler : GpuSampler
 /// <see cref="SamplerBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.sampler"/>:<br/>
 /// - <see cref="SamplerBindingLayout.type"/><br/>
 /// </remarks>
+[Obsolete("REMOVE")]
 internal interface ISamplerDocs { }
 

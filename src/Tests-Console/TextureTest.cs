@@ -14,7 +14,7 @@ public partial class TextureTest : IRenderer
     // --- IDisposable fields
     private readonly    PipelineContext     context;
     private readonly    GpuTexture          cubeTexture;
-    private readonly    FilteringSampler    sampler;
+    private readonly    GpuSampler          sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
     private             GpuTexture?         depthTexture;
     
@@ -143,7 +143,7 @@ public partial class TextureTest : IRenderer
                                     RenderConfig            vertexConfig,
         [VertexBuffer(0)]           InBuffer<float>         verticesBuffer,
         [BindUniform(0, 0)]         in Uniforms             uniforms,
-        [BindSampler(0, 1)]         FilteringSampler        smoothFilter,
+        [sampler(0, 1)]             GpuSampler              smoothFilter,
         [texture_2d<float>(0, 2)]   GpuTextureView          material);
 
 

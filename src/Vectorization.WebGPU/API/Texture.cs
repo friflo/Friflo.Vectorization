@@ -12,7 +12,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public unsafe class GpuTexture : IDisposable
+public sealed unsafe class GpuTexture : IDisposable
 {
     private readonly    TextureDescriptor   desc;
     public  readonly    string              Label;

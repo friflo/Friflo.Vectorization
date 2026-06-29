@@ -97,18 +97,7 @@ public sealed class BindUniformAttribute : Attribute
     public BindUniformAttribute (int groupIndex, int bindingIndex) { }
 }
 
-/// <summary> Annotates a shader method parameter passing a GPU sampler. </summary>
-/// <remarks>
-/// Valid parameter types and their corresponding WGSL type:<br/>
-/// - <see cref="FilteringSampler"/>   -> WGSL: <c>sampler</c><br/>
-/// - <see cref="NonFilteringSampler"/>-> WGSL: <c>sampler</c><br/>
-/// - <see cref="ComparisonSampler"/>  -> WGSL: <c>sampler_comparison</c><br/>
-/// </remarks>
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindSamplerAttribute : Attribute
-{
-    public BindSamplerAttribute (int groupIndex, int bindingIndex) { }
-}
+
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindStorageAttribute : Attribute

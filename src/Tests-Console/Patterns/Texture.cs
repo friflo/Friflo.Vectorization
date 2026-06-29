@@ -15,7 +15,7 @@ public partial class TextureTest
         RenderConfig            vertexConfig,
         InBuffer<float>         verticesBuffer,
         in Uniforms             uniforms,
-        FilteringSampler        smoothFilter,
+        GpuSampler              smoothFilter,
         GpuTextureView          material)
 	{
         var buffers =
