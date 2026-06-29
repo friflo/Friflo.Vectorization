@@ -142,32 +142,3 @@ public sealed unsafe class GpuTexture : IDisposable
     }
 }
 
-
-
-
-/// <summary>
-/// Names of struct types implementing <see cref="ITextureView"/> define the <see cref="BindGroupLayoutEntry.texture"/>
-/// </summary>
-/// <remarks>
-/// Bind group layout creation:<br/>
-/// <see cref="BindGroupLayoutEntry"/>'s are used to create a <see cref="BindGroupLayoutDescriptor"/>.<br/>
-/// The descriptor is used to create a <see cref="BindGroupLayout"/> handle with <see cref="wgpuDeviceCreateBindGroupLayout"/>.<br/>
-/// <br/>
-/// Bind group creation:<br/>
-/// The <see cref="BindGroupLayout"/> handle is used in <see cref="BindGroupDescriptor.entries"/> to create a <see cref="BindGroup"/> handle.<br/>
-/// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
-/// A <see cref="BindGroupEntry.textureView"/> can be assigned with <see cref="ITextureView.Handle"/><br/>
-/// <br/>
-/// Important for understanding:<br/>
-/// A <see cref="TextureView"/>* defines an immutable configuration state created with <see cref="wgpuTextureCreateView"/>.<br/>
-/// <br/>
-/// <see cref="TextureBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.texture"/>:<br/>
-/// - <see cref="TextureBindingLayout.sampleType"/><br/>
-/// - <see cref="TextureBindingLayout.viewDimension"/><br/>
-/// - <see cref="TextureBindingLayout.multisampled"/><br/>
-/// </remarks>
-[Obsolete("REMOVE")]
-internal interface ITextureViewXXX
-{
-    nint Handle { get; }
-}
