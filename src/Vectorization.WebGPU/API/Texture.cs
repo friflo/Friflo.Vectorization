@@ -26,7 +26,7 @@ public sealed unsafe class GpuTexture : IDisposable
     public              bool                    IsDisposed  => handle == null;
     public  override    string                  ToString()  => Label;
     
-    internal GpuTexture(WgpuDevice device, in GpuTextureDescriptor desc, Texture* handle, string label)
+    internal GpuTexture(WgpuDevice device, in GpuTextureDescriptor desc, Texture* handle)
     {
         this.device = device;
         this.desc  	= desc;
