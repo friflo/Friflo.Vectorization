@@ -142,8 +142,8 @@ public partial class TextureTest : IRenderer
                                     RenderPass<MainWorld>   renderPass,
                                     RenderConfig            vertexConfig,
         [VertexBuffer(0)]           InBuffer<float>         verticesBuffer,
-        [BindUniform(0, 0)]         in Uniforms             uniforms,
-        [sampler(0, 1)]             GpuSampler              smoothFilter,
+        [BindUniform      (0, 0)]   in Uniforms             uniforms,
+        [sampler          (0, 1)]   GpuSampler              smoothFilter,
         [texture_2d<float>(0, 2)]   GpuTextureView          material);
 
 
