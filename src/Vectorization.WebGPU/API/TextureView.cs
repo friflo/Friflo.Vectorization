@@ -11,6 +11,9 @@ using Friflo.Vectorization.WebGPU.Runtime;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
+/// <summary>
+/// When used as a shader method parameter the parameter must have a <see cref="SamplerAttribute"/>.
+/// </summary>
 public readonly unsafe struct GpuTextureView
 {
     internal readonly   TextureView*    handle;

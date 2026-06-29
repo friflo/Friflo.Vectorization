@@ -107,7 +107,7 @@ public partial class TextureTest : IRenderer
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 }
         };
         renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
-            view            = depthTexture.CreateView(),    // depthTexture!.texture_2d<float>().Handle,  TODO VIEW
+            view            = depthTexture.CreateView(),
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store

@@ -107,7 +107,9 @@ public struct SamplerOptions
     public SamplerOptions() { }
 }
 
-
+/// <summary>
+/// When used as a shader method parameter the parameter must have a <see cref="TextureAttribute"/>.
+/// </summary>
 public sealed unsafe class GpuSampler : IDisposable
 {
     internal            Sampler*            handle;

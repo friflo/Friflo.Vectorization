@@ -10,8 +10,13 @@ namespace Friflo.Vectorization.GPU;
 
 /// <summary> Specify a read-write buffer for a Kernel method as input/output parameter </summary>
 /// <remarks>
-/// Generic types that can be converted into an input/output parameter are:<br/>
-/// <see cref="InOutView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
+/// <para>
+///   Generic types that can be converted into an input/output parameter are:<br/>
+///   <see cref="InOutView{T}"/>, <see cref="Span{T}"/> and <see cref="Memory{T}"/>.
+/// </para>
+/// <para>
+///   When used as a shader method parameter the parameter must have a <c>[BindVertex]</c> or a <c>[VertexBuffer]</c> attribute.  
+/// </para>
 /// </remarks>
 public readonly ref struct InOutBuffer<T> where T : unmanaged
 {
@@ -53,8 +58,13 @@ public readonly ref struct InOutBuffer<T> where T : unmanaged
 
 /// <summary> Specify a read-only buffer for a Kernel method as input parameter </summary>
 /// <remarks>
-/// Generic types that can be converted into an input parameter are:<br/>
-/// <see cref="InView{T}"/>, <see cref="InOutView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
+/// <para>
+///   Generic types that can be converted into an input parameter are:<br/>
+///   <see cref="InView{T}"/>, <see cref="InOutView{T}"/>, <see cref="ReadOnlySpan{T}"/> and <see cref="ReadOnlyMemory{T}"/>.
+/// </para>
+/// <para>
+///   When used as a shader method parameter the parameter must have a <c>[BindVertex]</c> or a <c>[VertexBuffer]</c> attribute.  
+/// </para>
 /// </remarks>
 public readonly ref struct InBuffer<T> where T : unmanaged
 {
