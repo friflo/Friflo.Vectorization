@@ -7,6 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable UnassignedField.Global
+// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -35,7 +38,9 @@ public readonly unsafe struct GpuTextureView
 {
     internal readonly   TextureView*    handle;
     private  readonly   GpuTexture      texture;
-    
+
+    public   override   string          ToString() => texture.Label; 
+
     public nint Handle {
         get {
             if (texture.IsDisposed) {
