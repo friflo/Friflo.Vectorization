@@ -4,6 +4,7 @@
 
 using System;
 using Friflo.Vectorization.WebGPU.Runtime;
+using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
@@ -50,9 +51,19 @@ public sealed unsafe partial class WgpuDevice
         desc.viewFormatCount            = (uint)viewFormatCount;
     }
 
-    /// <summary> Mimics <c>createTexture()</c> from WebGPU JavaScript - same as <see cref="CreateTexture2D"/>  </summary>
-    public GpuTexture2D CreateTexture(int width, int height, TextureFormat format, TextureUsage usage, string label = null, in TextureOptions? options = null, Span<TextureFormat> viewFormats = default)
+    public GpuTexture CreateTexture(int width, int height, TextureFormat format, TextureUsage usage, string label = null, in TextureOptions? options = null, Span<TextureFormat> viewFormats = default)
     {
-        return CreateTexture2D(width, height, format, usage, label, in options, viewFormats);
+        var desc = new TextureDescriptor();
+        SetTextureDescriptor(ref desc, TextureDimension.D2D, width, height, format, usage, in options, viewFormats.Length);
+        
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        desc.label              = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
+        
+        fixed(TextureFormat* ptr = viewFormats) {
+            desc.viewFormats = ptr;
+            Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
+            return new GpuTexture(this, desc, texture, label);
+        }
     }
 }

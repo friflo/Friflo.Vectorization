@@ -16,7 +16,7 @@ public partial class TextureTest
         InBuffer<float>         verticesBuffer,
         in Uniforms             uniforms,
         FilteringSampler        smoothFilter,
-        texture_2d<float>       material)
+        GpuTextureView          material)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));

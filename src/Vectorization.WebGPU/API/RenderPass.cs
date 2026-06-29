@@ -38,22 +38,9 @@ public static class WgpuExtensions
             return new RenderFrame(default, null, surfaceTexture.status, null);  //   surfaceTexture.texture == null   if window minimized
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
-        var view = new WgpuTextureView(handle);
+        var view = new GpuTextureView(handle, null);
         
         return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder);
-    }
-}
-
-
-public readonly unsafe struct WgpuTextureView(TextureView* view) : IDisposable
-{
-    internal readonly   TextureView*    handle  = view;
-    
-    public void Dispose()
-    {
-        if (handle != null) {
-            wgpuTextureViewRelease(handle);
-        }
     }
 }
 
@@ -68,9 +55,9 @@ public struct WgpuRenderPassDescriptor
 public struct WgpuRenderPassColorAttachment
 {
     public  nint            nextInChain;
-    public  WgpuTextureView view;
+    public  GpuTextureView  view;
     public  uint            depthSlice = 0xFFFFFFFF; // 0xFFFFFFFF = WGPU_DEPTH_SLICE_UNDEFINED. Prevent wgpu expects 3D Texture
-    public  WgpuTextureView resolveTarget;
+    public  GpuTextureView  resolveTarget;
     public  LoadOp          loadOp;
     public  StoreOp         storeOp;
     public  Color           clearValue;
@@ -95,22 +82,22 @@ public struct WgpuRenderPassColorAttachment
 /// <summary> see: <see cref="RenderPassDepthStencilAttachment"/> </summary>
 public struct WgpuRenderPassDepthStencilAttachment
 {
-    public  nint    nextInChain;
-    public  nint    view;
-    public  LoadOp  depthLoadOp;
-    public  StoreOp depthStoreOp;
-    public  float   depthClearValue;
-    public  uint    depthReadOnly;
-    public  LoadOp  stencilLoadOp;
-    public  StoreOp stencilStoreOp;
-    public  uint    stencilClearValue;
-    public  uint    stencilReadOnly;
+    public  nint            nextInChain;
+    public  GpuTextureView  view;
+    public  LoadOp          depthLoadOp;
+    public  StoreOp         depthStoreOp;
+    public  float           depthClearValue;
+    public  uint            depthReadOnly;
+    public  LoadOp          stencilLoadOp;
+    public  StoreOp         stencilStoreOp;
+    public  uint            stencilClearValue;
+    public  uint            stencilReadOnly;
     
     public unsafe RenderPassDepthStencilAttachment GetNative()
     {
         return new RenderPassDepthStencilAttachment {
             nextInChain         =  (ChainedStruct*)nextInChain,
-            view                =  (TextureView*)view,
+            view                =  view.handle,
             depthLoadOp         =  depthLoadOp,
             depthStoreOp        =  depthStoreOp,
             depthClearValue     =  depthClearValue,
@@ -127,7 +114,7 @@ public struct WgpuRenderPassDepthStencilAttachment
 public readonly unsafe ref struct  RenderFrame : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
-    public   readonly   WgpuTextureView                 View;
+    public   readonly   GpuTextureView                  View;
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
@@ -135,7 +122,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 
     public   override   string                          ToString()  => TextureStatus.ToString(); 
 
-    internal RenderFrame(WgpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder) {
+    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder) {
         View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;
@@ -199,7 +186,9 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     
     public void Dispose()
     {
-        View.Dispose();
+        if (View.handle != null) {
+            wgpuTextureViewRelease(View.handle);
+        }
         if (surfaceTexture != null) {
             wgpuTextureRelease(surfaceTexture);
         }

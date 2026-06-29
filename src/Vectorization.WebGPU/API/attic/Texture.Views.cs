@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
+/*
+ 
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable UnusedMember.Global
@@ -317,3 +318,5 @@ public readonly unsafe struct texture_storage_3d<T>(TextureView* handle, GpuText
     public override string  ToString()  => texture.Label;
 }
 #endregion
+
+*/

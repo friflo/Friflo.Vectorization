@@ -13,10 +13,10 @@ public partial class TextureTest : IRenderer
 {
     // --- IDisposable fields
     private readonly    PipelineContext     context;
-    private readonly    GpuTexture2D        cubeTexture;
+    private readonly    GpuTexture          cubeTexture;
     private readonly    FilteringSampler    sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
-    private             GpuTexture2D?       depthTexture;
+    private             GpuTexture?         depthTexture;
     
     public void OnShutdown()
     {
@@ -41,7 +41,7 @@ public partial class TextureTest : IRenderer
         sampler     = device.CreateFilteringSampler(label: "Sampler");
         cubeTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
-        textureView = cubeTexture.texture_2d<float>();
+        textureView = cubeTexture.CreateView();
 
         
         // --- Cube Vertex Buffer Config
@@ -81,7 +81,7 @@ public partial class TextureTest : IRenderer
     // --- non-disposable fields
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                vertexConfig;
-    private   readonly  texture_2d<float>           textureView;
+    private   readonly  GpuTextureView              textureView;
     private   readonly  PerfLog                     perfLog             = new();
     private             Uniforms                    uniforms;
     private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
@@ -100,7 +100,7 @@ public partial class TextureTest : IRenderer
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 }
         };
         renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
-            view            = depthTexture!.texture_2d<float>().Handle,
+            view            = depthTexture.CreateView(),    // depthTexture!.texture_2d<float>().Handle,  TODO VIEW
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
             depthStoreOp    = StoreOp.Store
@@ -144,7 +144,7 @@ public partial class TextureTest : IRenderer
         [VertexBuffer(0)]   InBuffer<float>         verticesBuffer,
         [BindUniform(0, 0)] in Uniforms             uniforms,
         [BindSampler(0, 1)] FilteringSampler        smoothFilter,
-        [BindTexture(0, 2)] texture_2d<float>       material);
+        [BindTexture(0, 2)] GpuTextureView          material);
 
 
     [StructLayout(LayoutKind.Sequential)]

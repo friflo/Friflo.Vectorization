@@ -2,9 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -15,7 +12,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public abstract unsafe class GpuTexture : IDisposable
+public unsafe class GpuTexture : IDisposable
 {
     private readonly    TextureDescriptor   desc;
     public  readonly    string              Label;
@@ -29,7 +26,7 @@ public abstract unsafe class GpuTexture : IDisposable
     public              bool                IsDisposed  => handle == null;
     public  override    string              ToString()  => Label;
     
-    protected GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label)
+    internal GpuTexture(WgpuDevice device, TextureDescriptor desc, Texture* handle, string label)
     {
         this.device = device;
         this.desc  	= desc;
@@ -107,6 +104,12 @@ public abstract unsafe class GpuTexture : IDisposable
             aspect          = descriptor.aspect;
             usage           = (TextureUsage)descriptor.usage;
         }
+    }
+    
+    public GpuTextureView CreateView(in TextureViewDescriptor descriptor = default)
+    {
+        var view = CreateView(descriptor, TextureViewDimension.D2D, GetType<float>());
+        return new GpuTextureView(view, this);
     }
 
     
@@ -211,23 +214,4 @@ public struct UnfilterableFloat;
 public interface ITextureView
 {
     nint Handle { get; }
-}
-
-internal static class TextureViewUtils
-{
-    internal static unsafe nint GetHandle(TextureView* handle, GpuTexture texture)
-    {
-        if (texture.IsDisposed) {
-            ThrowObjectDisposedException(texture);
-        }
-        return (nint)handle;
-    }
-    
-    [MethodImpl(MethodImplOptions.NoInlining)] [StackTraceHidden] [DoesNotReturn]
-    private static void ThrowObjectDisposedException(GpuTexture texture)
-    {
-        throw new ObjectDisposedException($"texture view of disposed GpuTexture '{texture.Label}'");
-    }
-    
-    
 }
