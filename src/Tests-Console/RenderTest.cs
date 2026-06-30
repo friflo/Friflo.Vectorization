@@ -75,7 +75,7 @@ public partial class RenderTest : IRenderer
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
-        using (var pass = frame.BeginRenderPass<MainWorld>(renderPassDescriptor))
+        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
             myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
             wormhood.IResolution    = new Vector3(width, height, 1.0f);
@@ -90,14 +90,14 @@ public partial class RenderTest : IRenderer
 
 	[Shader("shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     public static partial void DrawTriangles(
-                            RenderPass<MainWorld>   renderPass,
+                            RenderPass              renderPass,
                             RenderConfig            config,
         [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);
 }
 
 
-public struct MainWorld;
+
 
 [StructLayout(LayoutKind.Sequential, Size = 32)]
 public struct VertexData(Vector4 position, Vector4 color)
@@ -116,9 +116,9 @@ public static partial class Wormhood
 {
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
-                            RenderPass<MainWorld>   renderPass,
-                            RenderConfig            config,
-        [BindUniform(0, 0)] Uniforms      			uniforms);
+                            RenderPass      renderPass,
+                            RenderConfig    config,
+        [BindUniform(0, 0)] Uniforms      	uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms

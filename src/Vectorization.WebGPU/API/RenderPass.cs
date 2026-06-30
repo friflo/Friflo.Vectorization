@@ -4,6 +4,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Friflo.Vectorization.GPU;
@@ -129,30 +130,11 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         this.recorder       = recorder;
     }
 
-
-    /* public RenderPass<TStage> BeginRenderPass<TStage>(RenderPassColorAttachment attachment, RenderConfig config) where TStage : unmanaged
-    {
-        if (recorder == null) {
-            throw new InvalidOperationException("RenderFrame is null");
-        }
-        if (recorder.currentEncoder.handle == null) {
-            recorder.Init(0, "RenderEncoder"u8);
-        }
-        attachment.view = view.handle;
-        var renderPassDesc = new RenderPassDescriptor {
-            colorAttachmentCount    = 1,
-            colorAttachments        = &attachment
-        };
-        var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-        return new RenderPass<TStage>(passEncoder, recorder, config);
-    } */
-    
-    // OPTIMIZATION: <TStage> enables Static Global Bindings.
     // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.
     // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
     // Minimizes CPU-to-GPU state change overhead dramatically.
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass<TStage> BeginRenderPass<TStage>(in WgpuRenderPassDescriptor descriptor) where TStage : unmanaged
+    public RenderPass BeginRenderPass(in WgpuRenderPassDescriptor descriptor)
     {
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
@@ -180,7 +162,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
                 depthStencilAttachment  = pDepthStencilAttachment
             };
             var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-            return new RenderPass<TStage>(passEncoder, recorder);
+            return new RenderPass(passEncoder, recorder);
         }
     }
     
@@ -195,7 +177,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     }
 }
 
-public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage : unmanaged
+public readonly unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;
@@ -206,7 +188,9 @@ public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage
 
     }
     
-    public RenderPass Value => new RenderPass(handle, Recorder);
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public RenderPassInternal Internal => new (handle, Recorder);
     
     public void Dispose()
     {
@@ -218,12 +202,12 @@ public readonly unsafe ref  struct RenderPass<TStage> : IDisposable where TStage
     }
 }
 
-public readonly unsafe ref  struct RenderPass
+public readonly unsafe ref struct RenderPassInternal
 {
     public   readonly   CommandRecorder       Recorder;
     private  readonly   RenderPassEncoder*    handle;
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
+    internal RenderPassInternal(RenderPassEncoder* handle, CommandRecorder recorder) {
         this.handle = handle;
         Recorder    = recorder;
     }
