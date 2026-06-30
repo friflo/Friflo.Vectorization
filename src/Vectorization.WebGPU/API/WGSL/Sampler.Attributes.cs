@@ -13,8 +13,6 @@ namespace Friflo.Vectorization.WebGPU;
 
 /// <summary> Annotates a shader method parameter passing a <see cref="GpuSampler"/>. </summary>
 /// <remarks>
-/// The attribute names match exactly their corresponding WGSL sampler type.<br/>
-/// <br/>
 /// <b><a href="https://www.w3.org/TR/WGSL/#sampler-type">
 /// WGSL: Sampler Types
 /// </a></b><br/>
