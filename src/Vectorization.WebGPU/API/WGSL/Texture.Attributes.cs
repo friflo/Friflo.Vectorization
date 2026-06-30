@@ -118,25 +118,25 @@ public sealed class texture_depth_multisampled_2d : TextureAttribute
 // See:  https://www.w3.org/TR/WGSL/#texture-storage
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_1d<ST> : TextureAttribute  where ST : unmanaged
+public sealed class texture_storage_1d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_1d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_2d<ST> : TextureAttribute  where ST : unmanaged
+public sealed class texture_storage_2d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_2d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_2d_array<ST> : TextureAttribute  where ST : unmanaged
+public sealed class texture_storage_2d_array<ST> : TextureAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_2d_array (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_3d<ST> : TextureAttribute  where ST : unmanaged
+public sealed class texture_storage_3d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_3d (int groupIndex, int bindingIndex) { }
 }
@@ -178,7 +178,7 @@ public sealed class texture_depth_cube_array : TextureAttribute
 public interface ISampleType;
 
 public struct i32 : ISampleType;
-public struct u32 : ISampleType; 
+public struct u32 : ISampleType;
 public struct f32 : ISampleType;
 
 
