@@ -55,7 +55,7 @@ public struct GpuSamplerDescriptor
     public  AddressMode         addressModeW    = AddressMode.ClampToEdge;
     public  FilterMode          magFilter       = FilterMode.Nearest;
     public  FilterMode          minFilter       = FilterMode.Nearest;
-    public  MipmapFilterMode    mipmapFilter;
+    public  MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Nearest;
     public  float               lodMinClamp     = 0.0f;
     public  float               lodMaxClamp     = 32.0f;
     public  CompareFunction     compare;
