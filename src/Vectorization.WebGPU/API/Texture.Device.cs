@@ -21,8 +21,8 @@ namespace Friflo.Vectorization.WebGPU;
 public struct TextureSize : IEnumerable<int>
 {
     public  int     width;
-    public  int     height;
-    public  int     depthOrArrayLayers = 1;
+    public  int     height              = 1;
+    public  int     depthOrArrayLayers  = 1;
     
     public TextureSize() { }
     
@@ -52,7 +52,7 @@ public struct GpuTextureDescriptor
     public  nint                nextInChain;
     public  string              label;
     public  TextureUsage        usage;
-    public  TextureDimension    dimension;
+    public  TextureDimension    dimension       = TextureDimension.D2D;
     public  TextureSize         size;
     public  TextureFormat       format;
     public  int                 mipLevelCount   = 1;
@@ -78,6 +78,9 @@ public sealed unsafe partial class WgpuDevice
         native.viewFormatCount          = (uint)(descriptor.viewFormats?.Length ?? 0);
     }
 
+    /// <remarks>
+    /// <remarks>Same behavior as: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createTexture">MDN: GPUDevice.createTexture()</a></remarks>
+    /// </remarks>
     public GpuTexture CreateTexture(in GpuTextureDescriptor? descriptor = null)
     {
         var desc    = new TextureDescriptor();
