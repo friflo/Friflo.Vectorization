@@ -105,9 +105,10 @@ public partial class TextureTest : IRenderer
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
+            view        = default,  // Assigned later for each frame
+            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
             loadOp      = LoadOp.Clear,
-            storeOp     = StoreOp.Store,
-            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 }
+            storeOp     = StoreOp.Store
         };
         renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
             view            = depthTexture.CreateView(),
