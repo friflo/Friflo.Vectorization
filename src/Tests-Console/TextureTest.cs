@@ -77,7 +77,7 @@ public partial class TextureTest : IRenderer
             cullMode    = CullMode.Back
         };
         desc.DepthStencilState = new WgpuDepthStencilState {
-            depthWriteEnabled   = OptionalBool.True,
+            depthWriteEnabled   = true,
             depthCompare        = CompareFunction.Less,
             format              = TextureFormat.Depth24Plus
         };

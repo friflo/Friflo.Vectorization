@@ -173,7 +173,7 @@ public struct WgpuDepthStencilState
 {
     public  nint                    nextInChain;
     public  TextureFormat           format;
-    public  OptionalBool            depthWriteEnabled;
+    public  bool?                   depthWriteEnabled;
     public  CompareFunction         depthCompare;
     public  WgpuStencilFaceState    stencilFront;
     public  WgpuStencilFaceState    stencilBack;
@@ -186,10 +186,11 @@ public struct WgpuDepthStencilState
     public WgpuDepthStencilState() { }
     
     internal readonly unsafe DepthStencilState GetNative() {
+        var depthWrite = depthWriteEnabled.HasValue ? (depthWriteEnabled.Value ? OptionalBool.True : OptionalBool.False) : OptionalBool.Undefined;
         return new DepthStencilState {
             nextInChain         = (ChainedStruct*)nextInChain,
             format              = format,
-            depthWriteEnabled   = depthWriteEnabled,
+            depthWriteEnabled   = depthWrite,
             depthCompare        = depthCompare,
             stencilFront        = stencilFront.GetNative(),
             stencilBack         = stencilBack.GetNative(),
