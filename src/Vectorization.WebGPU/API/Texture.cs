@@ -5,6 +5,10 @@ using System;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable UnassignedField.Global
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ConvertToConstant.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Local
@@ -87,7 +91,6 @@ public sealed unsafe class GpuTexture : IDisposable
             format          = inDesc.format == TextureFormat.Undefined  ? desc.format : inDesc.format,
             mipLevelCount   = (uint)(inDesc.mipLevelCount    == 0 ? 1 : inDesc.mipLevelCount),
             arrayLayerCount = (uint)(inDesc.arrayLayerCount  == 0 ? 1 : inDesc.arrayLayerCount),
-            aspect          = inDesc.aspect == TextureAspect.Undefined ? TextureAspect.All : inDesc.aspect
         };
         var label = inDesc.label ?? Label;
         inDesc.label = null;
@@ -112,5 +115,23 @@ public sealed unsafe class GpuTexture : IDisposable
         viewCount++;
         return new GpuTextureView(view, this);
     }
+}
+
+/// <summary> manage type for:  <see cref="TextureViewDescriptor"/>. </summary>
+/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture/createView">GPUTexture.createView()</a></remarks>
+public record struct GpuTextureViewDescriptor
+{
+    public  nint                    nextInChain;
+    public  string                  label;
+    public  TextureFormat           format;
+    public  TextureViewDimension    dimension       = TextureViewDimension.D2D;
+    public  int                     baseMipLevel;
+    public  int                     mipLevelCount;
+    public  int                     baseArrayLayer;
+    public  int                     arrayLayerCount;
+    public  TextureAspect           aspect          = TextureAspect.All;
+    public  TextureUsage            usage;
+    
+    public GpuTextureViewDescriptor() { }
 }
 
