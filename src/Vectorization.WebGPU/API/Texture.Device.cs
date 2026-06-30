@@ -64,36 +64,31 @@ public struct GpuTextureDescriptor
 
 public sealed unsafe partial class WgpuDevice
 {
-    private static void SetTextureDescriptor(ref TextureDescriptor native, in GpuTextureDescriptor descriptor)
-    {
-        native.nextInChain              = (ChainedStruct*)descriptor.nextInChain;
-        native.usage                    = (ulong)descriptor.usage;
-        native.dimension                = descriptor.dimension;
-        native.size.width               = (uint)descriptor.size.width;
-        native.size.height              = (uint)descriptor.size.height;
-        native.size.depthOrArrayLayers  = (uint)descriptor.size.depthOrArrayLayers;
-        native.format                   = descriptor.format;
-        native.mipLevelCount            = (uint)descriptor.mipLevelCount;
-        native.sampleCount              = (uint)descriptor.sampleCount;
-        native.viewFormatCount          = (uint)(descriptor.viewFormats?.Length ?? 0);
-    }
-
     /// <remarks>
     /// <remarks>Same behavior as: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createTexture">MDN: GPUDevice.createTexture()</a></remarks>
     /// </remarks>
     public GpuTexture CreateTexture(in GpuTextureDescriptor? descriptor = null)
     {
-        var desc    = new TextureDescriptor();
+        var native  = new TextureDescriptor();
         var src     = descriptor ?? new GpuTextureDescriptor();
-        SetTextureDescriptor(ref desc, src);
+        native.nextInChain              = (ChainedStruct*)src.nextInChain;
+        native.usage                    = (ulong)src.usage;
+        native.dimension                = src.dimension;
+        native.size.width               = (uint)src.size.width;
+        native.size.height              = (uint)src.size.height;
+        native.size.depthOrArrayLayers  = (uint)src.size.depthOrArrayLayers;
+        native.format                   = src.format;
+        native.mipLevelCount            = (uint)src.mipLevelCount;
+        native.sampleCount              = (uint)src.sampleCount;
+        native.viewFormatCount          = (uint)(src.viewFormats?.Length ?? 0);
         
         int     labelMaxCount   = WgpuUtils.GetMaxCount(src.label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        desc.label              = WgpuUtils.CopyToStringView(src.label, labelBuffer, labelMaxCount);
+        native.label              = WgpuUtils.CopyToStringView(src.label, labelBuffer, labelMaxCount);
         
         fixed(TextureFormat* ptr = src.viewFormats) {
-            desc.viewFormats = ptr;
-            Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &desc);
+            native.viewFormats = ptr;
+            Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &native);
             return new GpuTexture(this, src, texture);
         }
     }
