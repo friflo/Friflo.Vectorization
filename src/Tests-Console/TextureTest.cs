@@ -153,7 +153,7 @@ public partial class TextureTest : IRenderer
                                 RenderConfig            vertexConfig,
         [VertexBuffer(0)]       InBuffer<float>         verticesBuffer,
         [BindUniform    (0, 0)] in Uniforms             uniforms,
-        [sampler        (0, 1)] GpuSampler              smoothFilter,
+        [SamplerFiltering(0, 1)]GpuSampler              smoothFilter,
         [texture_2d<f32>(0, 2)] GpuTextureView          material);
 
 

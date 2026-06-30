@@ -12,7 +12,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 namespace Friflo.Vectorization.WebGPU;
 
 /// <summary>
-/// When used as a shader method parameter the parameter must have a <see cref="SamplerAttribute"/>.
+/// When used as a shader method parameter the parameter must have a <see cref="TextureTypeAttribute"/>.
 /// </summary>
 public readonly unsafe struct GpuTextureView
 {

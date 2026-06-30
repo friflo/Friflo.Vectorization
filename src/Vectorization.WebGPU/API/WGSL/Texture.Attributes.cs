@@ -47,7 +47,7 @@ namespace Friflo.Vectorization.WebGPU;
 /// - <see cref="texture_depth_cube"/><br/>
 /// - <see cref="texture_depth_cube_array"/><br/>
 /// </remarks>
-public class TextureAttribute : Attribute;
+public class TextureTypeAttribute : Attribute;
 
 
 
@@ -56,37 +56,37 @@ public class TextureAttribute : Attribute;
 // See:  https://www.w3.org/TR/WGSL/#sampled-texture-type
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_1d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_1d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_1d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_2d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_2d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_2d_array<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_2d_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_2d_array (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_3d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_3d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_3d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_cube<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_cube<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_cube (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_cube_array<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_cube_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_cube_array (int groupIndex, int bindingIndex) { }
 }
@@ -99,13 +99,13 @@ public sealed class texture_cube_array<ST> : TextureAttribute  where ST : unmana
 // See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_multisampled_2d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_multisampled_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_multisampled_2d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_depth_multisampled_2d : TextureAttribute
+public sealed class texture_depth_multisampled_2d : TextureTypeAttribute
 {
     public texture_depth_multisampled_2d (int groupIndex, int bindingIndex) { }
 }
@@ -118,25 +118,25 @@ public sealed class texture_depth_multisampled_2d : TextureAttribute
 // See:  https://www.w3.org/TR/WGSL/#texture-storage
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_1d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_storage_1d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_1d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_2d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_storage_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_2d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_2d_array<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_storage_2d_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_2d_array (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_storage_3d<ST> : TextureAttribute  where ST : unmanaged, ISampleType
+public sealed class texture_storage_3d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
     public texture_storage_3d (int groupIndex, int bindingIndex) { }
 }
@@ -149,25 +149,25 @@ public sealed class texture_storage_3d<ST> : TextureAttribute  where ST : unmana
 // See:  https://www.w3.org/TR/WGSL/#texture-depth
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_depth_2d : TextureAttribute
+public sealed class texture_depth_2d : TextureTypeAttribute
 {
     public texture_depth_2d (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_depth_2d_array : TextureAttribute
+public sealed class texture_depth_2d_array : TextureTypeAttribute
 {
     public texture_depth_2d_array (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_depth_cube : TextureAttribute
+public sealed class texture_depth_cube : TextureTypeAttribute
 {
     public texture_depth_cube (int groupIndex, int bindingIndex) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class texture_depth_cube_array : TextureAttribute
+public sealed class texture_depth_cube_array : TextureTypeAttribute
 {
     public texture_depth_cube_array (int groupIndex, int bindingIndex) { }
 }

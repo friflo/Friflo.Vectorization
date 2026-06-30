@@ -65,7 +65,7 @@ public struct GpuSamplerDescriptor
 }
 
 /// <summary>
-/// When used as a shader method parameter the parameter must have a <see cref="SamplerAttribute"/>.
+/// When used as a shader method parameter the parameter must have a <see cref="SamplerTypeAttribute"/>.
 /// </summary>
 public sealed unsafe class GpuSampler : IDisposable
 {
