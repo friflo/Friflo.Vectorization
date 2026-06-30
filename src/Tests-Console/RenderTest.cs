@@ -91,7 +91,7 @@ public partial class RenderTest : IRenderer
 	[Shader("shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
     public static partial void DrawTriangles(
                             RenderPass              renderPass,
-                            RenderConfig            config,
+                            RenderConfig            renderConfig,
         [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);
 }
@@ -117,7 +117,7 @@ public static partial class Wormhood
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     public static partial void RenderTunnel(
                             RenderPass      renderPass,
-                            RenderConfig    config,
+                            RenderConfig    renderConfig,
         [BindUniform(0, 0)] Uniforms      	uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
