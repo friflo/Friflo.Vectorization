@@ -21,9 +21,9 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe class GpuTexture : IDisposable
 {
-    private readonly    GpuTextureDescriptor        desc;
-    private readonly    WgpuDevice                  device;
     private             Texture*                    handle;
+    private readonly    WgpuDevice                  device;
+    private readonly    GpuTextureDescriptor        desc;
     private             GpuTextureViewDescriptor[]  viewDescriptors = [];
     private             nint[]                      viewHandles     = [];
     private             int                         viewCount;
