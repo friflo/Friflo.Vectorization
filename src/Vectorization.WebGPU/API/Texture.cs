@@ -95,9 +95,8 @@ public sealed unsafe class GpuTexture : IDisposable
         var inDesc = descriptor ?? new GpuTextureViewDescriptor();
         
         // Resolve texture view dimension based on texture type if undefined
-        var viewDimension = inDesc.dimension;
-        if (viewDimension == TextureViewDimension.Undefined) {
-            viewDimension = desc.dimension switch {
+        if (inDesc.dimension == TextureViewDimension.Undefined) {
+            inDesc.dimension = desc.dimension switch {
                 TextureDimension.D1D    => TextureViewDimension.D1D,
                 TextureDimension.D2D    => TextureViewDimension.D2D,
                 TextureDimension.D3D    => TextureViewDimension.D3D,
@@ -105,23 +104,24 @@ public sealed unsafe class GpuTexture : IDisposable
             };
         }
         // 0 means: use all remaining mip levels
-        var mips = inDesc.mipLevelCount == 0
-            ? (uint)(desc.mipLevelCount - inDesc.baseMipLevel) 
-            : (uint)inDesc.mipLevelCount;
-        
+        inDesc.mipLevelCount = inDesc.mipLevelCount == 0        ? desc.mipLevelCount - inDesc.baseMipLevel 
+                                                                : inDesc.mipLevelCount;
         // 0 means: use all remaining array layers
-        var layers = inDesc.arrayLayerCount == 0 
-            ? (uint)(desc.size.depthOrArrayLayers - inDesc.baseArrayLayer) 
-            : (uint)inDesc.arrayLayerCount;
+        inDesc.arrayLayerCount = inDesc.arrayLayerCount == 0    ? desc.size.depthOrArrayLayers - inDesc.baseArrayLayer
+                                                                : inDesc.arrayLayerCount;
+        
+        inDesc.format = inDesc.format == TextureFormat.Undefined ? desc.format : inDesc.format;
 
-        var viewDesc = new TextureViewDescriptor {
-            dimension       = viewDimension,
-            format          = inDesc.format == TextureFormat.Undefined ? desc.format : inDesc.format,
+        var nativeDesc = new TextureViewDescriptor {
+            nextInChain     = (ChainedStruct*)inDesc.nextInChain,
+            dimension       = inDesc.dimension,
+            format          = inDesc.format,
             baseMipLevel    = (uint)inDesc.baseMipLevel,
-            mipLevelCount   = mips,
+            mipLevelCount   = (uint)inDesc.mipLevelCount,
             baseArrayLayer  = (uint)inDesc.baseArrayLayer,
-            arrayLayerCount = layers,
-            aspect          = inDesc.aspect
+            arrayLayerCount = (uint)inDesc.arrayLayerCount,
+            aspect          = inDesc.aspect,
+            usage           = (ulong)inDesc.usage 
         };
         var label = inDesc.label ?? Label;
         inDesc.label = null;
@@ -133,9 +133,9 @@ public sealed unsafe class GpuTexture : IDisposable
         
         var labelMaxCount   = WgpuUtils.GetMaxCount(label);
         var labelBuffer     = stackalloc byte[labelMaxCount];
-        viewDesc.label      = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
+        nativeDesc.label      = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
         
-        var view = wgpuTextureCreateView(handle, &viewDesc);
+        var view = wgpuTextureCreateView(handle, &nativeDesc);
         
         if (viewCount >= viewHandles.Length) {
             viewHandles     = WgpuUtils.Resize(ref viewHandles,     viewCount + 1);
