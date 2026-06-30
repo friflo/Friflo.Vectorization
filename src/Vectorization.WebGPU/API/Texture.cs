@@ -86,14 +86,42 @@ public sealed unsafe class GpuTexture : IDisposable
         }
     }
     
+    /// <summary> Creates a <see cref="GpuTextureView"/> representing a specific view of the GPUTexture. </summary>
+    /// <remarks>
+    /// <remarks>Same behavior as: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture/createView">MDN: GPUTexture.createView()</a></remarks>
+    /// </remarks>
     public GpuTextureView CreateView(in GpuTextureViewDescriptor? descriptor = null)
     {
-        var inDesc   = descriptor ?? new GpuTextureViewDescriptor();
+        var inDesc = descriptor ?? new GpuTextureViewDescriptor();
+        
+        // Resolve texture view dimension based on texture type if undefined
+        var viewDimension = inDesc.dimension;
+        if (viewDimension == TextureViewDimension.Undefined) {
+            viewDimension = desc.dimension switch {
+                TextureDimension.D1D    => TextureViewDimension.D1D,
+                TextureDimension.D2D    => TextureViewDimension.D2D,
+                TextureDimension.D3D    => TextureViewDimension.D3D,
+                _                       => TextureViewDimension.D2D
+            };
+        }
+        // 0 means: use all remaining mip levels
+        var mips = inDesc.mipLevelCount == 0
+            ? (uint)(desc.mipLevelCount - inDesc.baseMipLevel) 
+            : (uint)inDesc.mipLevelCount;
+        
+        // 0 means: use all remaining array layers
+        var layers = inDesc.arrayLayerCount == 0 
+            ? (uint)(desc.size.depthOrArrayLayers - inDesc.baseArrayLayer) 
+            : (uint)inDesc.arrayLayerCount;
+
         var viewDesc = new TextureViewDescriptor {
-            dimension       = inDesc.dimension,
-            format          = inDesc.format == TextureFormat.Undefined  ? desc.format : inDesc.format,
-            mipLevelCount   = (uint)(inDesc.mipLevelCount    == 0 ? 1 : inDesc.mipLevelCount),
-            arrayLayerCount = (uint)(inDesc.arrayLayerCount  == 0 ? 1 : inDesc.arrayLayerCount),
+            dimension       = viewDimension,
+            format          = inDesc.format == TextureFormat.Undefined ? desc.format : inDesc.format,
+            baseMipLevel    = (uint)inDesc.baseMipLevel,
+            mipLevelCount   = mips,
+            baseArrayLayer  = (uint)inDesc.baseArrayLayer,
+            arrayLayerCount = layers,
+            aspect          = inDesc.aspect
         };
         var label = inDesc.label ?? Label;
         inDesc.label = null;
@@ -121,18 +149,17 @@ public sealed unsafe class GpuTexture : IDisposable
 }
 
 /// <summary> manage type for:  <see cref="TextureViewDescriptor"/>. </summary>
-/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture/createView">MDN: GPUTexture.createView()</a></remarks>
 public record struct GpuTextureViewDescriptor
 {
     public  nint                    nextInChain;
     public  string                  label;
-    public  TextureFormat           format;
-    public  TextureViewDimension    dimension       = TextureViewDimension.D2D;
+    public  TextureFormat           format              = TextureFormat.Undefined;
+    public  TextureViewDimension    dimension           = TextureViewDimension.Undefined;
     public  int                     baseMipLevel;
-    public  int                     mipLevelCount;
+    public  int                     mipLevelCount;      // 0: use all remaining mip levels
     public  int                     baseArrayLayer;
-    public  int                     arrayLayerCount;
-    public  TextureAspect           aspect          = TextureAspect.All;
+    public  int                     arrayLayerCount;    // 0: use all remaining array layers
+    public  TextureAspect           aspect              = TextureAspect.All;
     public  TextureUsage            usage;
     
     public GpuTextureViewDescriptor() { }
