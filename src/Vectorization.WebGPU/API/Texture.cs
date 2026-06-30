@@ -118,7 +118,7 @@ public sealed unsafe class GpuTexture : IDisposable
 }
 
 /// <summary> manage type for:  <see cref="TextureViewDescriptor"/>. </summary>
-/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture/createView">GPUTexture.createView()</a></remarks>
+/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture/createView">MDN: GPUTexture.createView()</a></remarks>
 public record struct GpuTextureViewDescriptor
 {
     public  nint                    nextInChain;

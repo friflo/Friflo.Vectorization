@@ -74,6 +74,7 @@ public sealed class VertexBufferAttribute : Attribute
 /// Vertices are fetched directly from an indexed buffer range, driven by the Draw() offset.
 /// </summary>
 /// <remarks>
+/// See: <b><a href="https://www.w3.org/TR/WGSL/#var-and-value">WGSL: Variable and Value Declarations</a></b><br/>
 /// <code>
 ///   // InBuffer&lt;&gt;      WGSL: var&lt;storage, read&gt;
 ///   C#    [BindStorage(0, 0)]    InBuffer&lt;VertexData&gt;  triangles,
@@ -92,6 +93,7 @@ public sealed class BindStorageAttribute : Attribute
 
 /// <summary> Annotates a shader method parameter passing a uniform. </summary>
 /// <remarks>
+/// See: <b><a href="https://www.w3.org/TR/WGSL/#var-and-value">WGSL: Variable and Value Declarations</a></b><br/>
 /// A uniform can be any unmanaged C# type containing blittable data.<br/>
 /// Supported primitives and math types include:<br/>
 /// - <c>int</c> i32, <c>uint</c> u32, <c>float</c> f32<br/>

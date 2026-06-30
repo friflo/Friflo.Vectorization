@@ -45,7 +45,7 @@ public sealed unsafe partial class WgpuDevice
 }
 
 /// <summary> Managed type for:  <see cref="SamplerDescriptor"/> </summary>
-/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler">GPUDevice.createSampler()</a></remarks>
+/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler">MDN: GPUDevice.createSampler()</a></remarks>
 public struct GpuSamplerDescriptor
 {
     public  nint                nextInChain;
