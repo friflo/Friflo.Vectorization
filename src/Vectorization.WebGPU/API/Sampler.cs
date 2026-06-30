@@ -19,112 +19,67 @@ namespace Friflo.Vectorization.WebGPU;
 
 public sealed unsafe partial class WgpuDevice
 {
-    public GpuSampler CreateFilteringSampler(
-        FilterMode          magFilter       = FilterMode.Linear,
-        FilterMode          minFilter       = FilterMode.Linear,
-        MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Linear,
-        ushort              maxAnisotropy   = 1,
-        string              label           = null,
-        in SamplerOptions?  options         = null)
+    public GpuSampler CreateSampler(in GpuSamplerDescriptor descriptor)
     {
         var desc = new SamplerDescriptor {
-            magFilter       = magFilter,
-            minFilter       = minFilter,
-            mipmapFilter    = mipmapFilter,
-            maxAnisotropy   = maxAnisotropy
+            nextInChain     = (ChainedStruct*)descriptor.nextInChain,
+            addressModeU    = descriptor.addressModeU,
+            addressModeV    = descriptor.addressModeV,
+            addressModeW    = descriptor.addressModeW,
+            magFilter       = descriptor.magFilter,
+            minFilter       = descriptor.minFilter,
+            mipmapFilter    = descriptor.mipmapFilter,
+            lodMinClamp     = descriptor.lodMinClamp,
+            lodMaxClamp     = descriptor.lodMaxClamp,
+            compare         = descriptor.compare,
+            maxAnisotropy   = descriptor.maxAnisotropy,
         };
-        desc = CreateSampler(desc, label, options, out var sampler);
-        return new GpuSampler(sampler, desc, label);
-    }
-    
-    public GpuSampler CreateNonFilteringSampler(
-        string              label       = null,
-        in SamplerOptions?  options     = null)
-    {
-        var desc = new SamplerDescriptor {
-            magFilter       = FilterMode.Nearest,
-            minFilter       = FilterMode.Nearest,
-            mipmapFilter    = MipmapFilterMode.Nearest,
-            maxAnisotropy   = 1,
-        };
-        desc = CreateSampler(desc, label, options, out var sampler);
-        return new GpuSampler(sampler, desc, label);
-    }
-    
-    public GpuSampler CreateComparisonSampler(
-        CompareFunction     compare,
-        FilterMode          magFilter       = FilterMode.Linear,
-        FilterMode          minFilter       = FilterMode.Linear,
-        MipmapFilterMode    mipmapFilter    = MipmapFilterMode.Nearest,
-        string              label           = null,
-        in SamplerOptions?  options         = null)
-    {
-        var desc = new SamplerDescriptor {
-            compare         = compare,
-            magFilter       = magFilter,
-            minFilter       = minFilter,
-            mipmapFilter    = mipmapFilter,
-            maxAnisotropy   = 1
-        };
-        desc = CreateSampler(desc, label, options, out var sampler);
-        return new GpuSampler(sampler, desc, label);
-    }
-        
-    private SamplerDescriptor CreateSampler(
-        SamplerDescriptor   desc,
-        string              label,
-        in SamplerOptions?  options,
-        out Sampler*        sampler)
-    {
-        var opt = options ?? new SamplerOptions();
-        desc.nextInChain     = (ChainedStruct*)opt.nextInChain;
-        desc.addressModeU    = opt.addressModeU;
-        desc.addressModeV    = opt.addressModeV;
-        desc.addressModeW    = opt.addressModeW;
-        desc.lodMinClamp     = opt.lodMinClamp;
-        desc.lodMaxClamp     = opt.lodMaxClamp;
-
-        int labelMaxCount   = WgpuUtils.GetMaxCount(label);
+        int labelMaxCount   = WgpuUtils.GetMaxCount(descriptor.label);
         byte* labelBuffer   = stackalloc byte[labelMaxCount];
-        desc.label          = WgpuUtils.CopyToStringView(label, labelBuffer, labelMaxCount);
+        desc.label          = WgpuUtils.CopyToStringView(descriptor.label, labelBuffer, labelMaxCount);
 
-        sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
+        var sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
         
-        desc.label = default;
-        return desc;
+        return new GpuSampler(sampler, descriptor);
     }
 }
 
-public struct SamplerOptions
+/// <summary> Managed type for:  <see cref="SamplerDescriptor"/> </summary>
+/// <remarks>Default values see: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler">GPUDevice.createSampler</a></remarks>
+public struct GpuSamplerDescriptor
 {
-    public  nint        nextInChain;
-    public  AddressMode addressModeU    = AddressMode.ClampToEdge;
-    public  AddressMode addressModeV    = AddressMode.ClampToEdge;
-    public  AddressMode addressModeW    = AddressMode.ClampToEdge;
-    public  float       lodMinClamp     = 0.0f;
-    public  float       lodMaxClamp     = 32.0f;
+    public  nint                nextInChain;
+    public  string              label;
+    public  AddressMode         addressModeU    = AddressMode.ClampToEdge;
+    public  AddressMode         addressModeV    = AddressMode.ClampToEdge;
+    public  AddressMode         addressModeW    = AddressMode.ClampToEdge;
+    public  FilterMode          magFilter       = FilterMode.Nearest;
+    public  FilterMode          minFilter       = FilterMode.Nearest;
+    public  MipmapFilterMode    mipmapFilter;
+    public  float               lodMinClamp     = 0.0f;
+    public  float               lodMaxClamp     = 32.0f;
+    public  CompareFunction     compare;
+    public  ushort              maxAnisotropy   = 1;
 
-    public SamplerOptions() { }
+    public GpuSamplerDescriptor() { }
 }
 
 /// <summary>
-/// When used as a shader method parameter the parameter must have a <see cref="TextureAttribute"/>.
+/// When used as a shader method parameter the parameter must have a <see cref="SamplerAttribute"/>.
 /// </summary>
 public sealed unsafe class GpuSampler : IDisposable
 {
-    internal            Sampler*            handle;
-    private readonly    SamplerDescriptor   desc;
-    public  readonly    string              Label;
+    internal            Sampler*                handle;
+    private readonly    GpuSamplerDescriptor    desc;
+    public              string                  Label       => desc.label;
+    public              nint                    Handle      => (nint)handle;
+    public ref readonly GpuSamplerDescriptor    Descriptor  => ref desc;
+    public              bool                    IsDisposed  => handle == null;
+    public  override    string                  ToString()  => Label;
     
-    public              nint                Handle      => (nint)handle;
-    public ref readonly SamplerDescriptor   Descriptor  => ref desc;
-    public              bool                IsDisposed  => handle == null;
-    public  override    string              ToString()  => Label;
-    
-    internal GpuSampler(Sampler* handle, in SamplerDescriptor desc, string label) {
+    internal GpuSampler(Sampler* handle, in GpuSamplerDescriptor descriptor) {
         this.handle = handle;
-        this.desc   = desc;
-        Label       = label;
+        desc        = descriptor;
     }
     
     public void Dispose()
@@ -136,26 +91,4 @@ public sealed unsafe class GpuSampler : IDisposable
     }
 }
 
-
-/// <summary>
-/// Classes extending <see cref="GpuSampler"/> define the <see cref="BindGroupLayoutEntry.sampler"/>
-/// </summary>
-/// <remarks>
-/// Bind group layout creation:<br/>
-/// <see cref="BindGroupLayoutEntry"/>'s are used to create a <see cref="BindGroupLayoutDescriptor"/>.<br/>
-/// The descriptor is used to create a <see cref="BindGroupLayout"/> handle with <see cref="wgpuDeviceCreateBindGroupLayout"/>.<br/>
-/// <br/>
-/// Bind group creation:<br/>
-/// The <see cref="BindGroupLayout"/> handle is used in <see cref="BindGroupDescriptor.entries"/> to create a <see cref="BindGroup"/> handle.<br/>
-/// These <see cref="BindGroupDescriptor.entries"/> are of type <see cref="BindGroupEntry"/>.<br/> 
-/// A <see cref="BindGroupEntry.sampler"/> can be assigned with <see cref="GpuSampler.handle"/><br/>
-/// <br/>
-/// Important for understanding:<br/>
-/// A <see cref="Sampler"/>* defines an immutable configuration state created with <see cref="wgpuDeviceCreateSampler"/>.<br/>
-/// <br/>
-/// <see cref="SamplerBindingLayout"/> fields used in <see cref="BindGroupLayoutEntry.sampler"/>:<br/>
-/// - <see cref="SamplerBindingLayout.type"/><br/>
-/// </remarks>
-[Obsolete("REMOVE")]
-internal interface ISamplerDocs { }
 

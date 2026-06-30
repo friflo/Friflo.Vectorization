@@ -41,7 +41,10 @@ public partial class TextureTest : IRenderer
             format  = TextureFormat.RGBA8Unorm,
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
-        sampler     = device.CreateFilteringSampler(label: "Sampler");
+        sampler = device.CreateSampler(new GpuSamplerDescriptor {
+            magFilter = FilterMode.Linear,
+            minFilter = FilterMode.Linear
+        });
         cubeTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
         
         textureView = cubeTexture.CreateView();
