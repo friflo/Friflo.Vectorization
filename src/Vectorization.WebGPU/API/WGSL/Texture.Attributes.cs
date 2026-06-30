@@ -16,7 +16,7 @@ namespace Friflo.Vectorization.WebGPU;
 /// <remarks>
 /// The attribute names match exactly their corresponding WGSL texture type.<br/>
 /// <br/>
-/// See: <b><a href="https://www.w3.org/TR/WGSL/#sampled-texture-type">
+/// <b><a href="https://www.w3.org/TR/WGSL/#sampled-texture-type">
 /// WGSL: Sampled Texture Types
 /// </a></b><br/>
 /// - <see cref="texture_1d{ST}"/><br/>
