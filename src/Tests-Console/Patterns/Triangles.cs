@@ -22,14 +22,13 @@ public partial class RenderTest
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		var device		= recorder.Device;
 		recorder.Init(Triangles_GPU_ShaderId, "Triangles_encoder"u8);
         
         recorder.RequireRead(triangles);
 
-        ref readonly var pipelineCache = ref device.GetPipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash); // PipelineCache device/config via two arrays 
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash); 
         if (!pipelineCache.IsCreated) {
-            pipelineCache = ref Triangles_GPU_CreatePipelineCache(device, config);
+            pipelineCache = ref Triangles_GPU_CreatePipelineCache(recorder.Device, config);
         }
         pass_.SetPipeline(pipelineCache.renderPipeline);
         

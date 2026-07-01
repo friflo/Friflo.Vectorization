@@ -23,14 +23,13 @@ public partial class TextureTest
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		var device		= recorder.Device;
 		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
         
         recorder.RequireRead(verticesBuffer);
 
-        ref readonly var pipelineCache = ref device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
-            pipelineCache = ref TextureTest_GPU_CreatePipelineCache(device, config);
+            pipelineCache = ref TextureTest_GPU_CreatePipelineCache(recorder.Device, config);
         }
         
         pass_.SetPipeline(pipelineCache.renderPipeline);
