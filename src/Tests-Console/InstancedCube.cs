@@ -32,7 +32,7 @@ public partial class InstancedCube : IRenderer
         verticesBuffer.In().Write(context);
         
         var desc = wgpu.Config.Descriptor;
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L49
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L49
         desc.VertexState.buffers = [
             new WgpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
                 arrayStride = Cube.cubeVertexSize,
@@ -83,7 +83,7 @@ public partial class InstancedCube : IRenderer
             usage   = TextureUsage.RenderAttachment
         });
         
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L140
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L173
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
@@ -98,7 +98,7 @@ public partial class InstancedCube : IRenderer
         };
     }
     
-    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L171
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L148
     private void UpdateTransformationMatrix(float width, float height, float now)
     {
         var tmpMat41 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now), MathF.Cos(now), 0), 1f) * modelMatrix1;
@@ -110,7 +110,7 @@ public partial class InstancedCube : IRenderer
         modelViewProjectionMatrix2 = tmpMat42 * viewMatrix * projectionMatrix;
     }
     
-    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L191
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L192
     public void OnFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
