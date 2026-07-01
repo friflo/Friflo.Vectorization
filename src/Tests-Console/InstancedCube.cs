@@ -17,9 +17,10 @@ public partial class InstancedCube : IRenderer
     private             GpuTexture?             depthTexture;
     private readonly    GpuBuffer<Matrix4x4>    mvpMatricesData;
     
-    private readonly    bool useUniformBuffer = true;
-    // true:  as in WebGPU JS example
-    // false: (recommended) uses Storage Buffer supporting significant higher amount of numInstances (1400 x 1400)
+    private readonly    bool useUniformBuffer = true; // true == original WebGPU JS example 
+    // true:  Uniform Buffer - WebGPU standard limit (max 64 KiB -> max 1,024 instances / 32 x 32 grid)
+    // false: Storage Buffer - Supports massive data loads (min 128 MiB -> over 2 million instances)
+    //        Tip for max FPS: Update transformations via Compute Shader directly on GPU to eliminate CPU loop math and PCIe transfer of .Write().
     
     public void OnShutdown()
     {
