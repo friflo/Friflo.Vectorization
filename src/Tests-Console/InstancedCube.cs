@@ -122,25 +122,13 @@ public partial class InstancedCube : IRenderer
     private void UpdateTransformationMatrix(float width, float height, float now)
     {
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
-        
         int i = 0;
         for (int x = 0; x < xCount; x++) {
             for (int y = 0; y < yCount; y++) {
-                var axis = new Vector3(
-                    MathF.Sin((x + 0.5f) * now), 
-                    MathF.Cos((y + 0.5f) * now), 
-                    0f
-                );
+                var rawAxis     = new Vector3(MathF.Sin((x + 0.5f) * now), MathF.Cos((y + 0.5f) * now), 0f);
+                var axis        = Vector3.Normalize(rawAxis);   // JS: mat4.rotate() normalize the axis internally
                 var modelMatrix = Matrix4x4.CreateFromAxisAngle(axis, 1f) * modelMatrices[i];
                 mvpMatrices[i]  = modelMatrix * viewMatrix * projectionMatrix;
-                /*mat4.rotate(
-                    modelMatrices[i],
-                    [MathF.Sin((x + 0.5) * now), MathF.Cos((y + 0.5) * now), 0],
-                    1,
-                    tmpMat4
-                );
-                mat4.multiply(viewMatrix, tmpMat4, tmpMat4);
-                mat4.multiply(projectionMatrix, tmpMat4, tmpMat4);*/
                 i++;
             }
         }
