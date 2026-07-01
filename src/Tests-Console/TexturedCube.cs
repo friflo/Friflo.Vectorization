@@ -9,7 +9,7 @@ using StbImageSharp;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public partial class TextureTest : IRenderer
+public partial class TexturedCube : IRenderer
 {
     // --- IDisposable fields
     private readonly    PipelineContext     context;
@@ -27,7 +27,7 @@ public partial class TextureTest : IRenderer
         context.Dispose();
     }
     
-    public TextureTest(Wgpu wgpu)
+    public TexturedCube(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;

@@ -6,7 +6,7 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using TestConsole;
 
-return SdlWindow.Main("TextureTest", 1280, 720, wgpu => new TextureTest(wgpu));
+return SdlWindow.Main("TextureTest", 1280, 720, wgpu => new TexturedCube(wgpu));
 // return SdlWindow.Main("ConfigTest", 1280, 720, wgpu => new ConfigTest(wgpu));
 return SdlWindow.Main("RenderTest", 1280, 720, wgpu => new RenderTest(wgpu));
 
