@@ -46,7 +46,7 @@ public partial class InstancedCube
         
         int verticesBufferCount = pass_.SetVertexBuffer(config, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
-        pass_.Draw(verticesBufferCount, 16, 0, 0);  // TODO calculate 16
+        pass_.Draw(verticesBufferCount, verticesBuffer.Length, 0, 0);
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
