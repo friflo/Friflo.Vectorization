@@ -88,10 +88,8 @@ public partial class RenderTest : IRenderer
         wgpu.Surface.Present();
     }
 
-	[Shader("shaders/triangle.wgsl")]  // triggers C# source generator to emit method body
-    public static partial void DrawTriangles(
-                            RenderPass              renderPass,
-                            RenderConfig            renderConfig,
+	[Shader("shaders/triangle.wgsl")]
+    public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);
 }
@@ -115,9 +113,7 @@ public struct MyUniform
 public static partial class Wormhood
 {
     [Shader("shaders/raymarcher_no_texture.wgsl")]
-    public static partial void RenderTunnel(
-                            RenderPass      renderPass,
-                            RenderConfig    renderConfig,
+    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [BindUniform(0, 0)] Uniforms      	uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
