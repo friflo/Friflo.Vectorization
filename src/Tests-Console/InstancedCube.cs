@@ -4,15 +4,18 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
 public partial class InstancedCube : IRenderer
 {
     // --- IDisposable fields
-    private readonly    PipelineContext     context;
-    private readonly    GpuBuffer<float>    verticesBuffer;
-    private             GpuTexture?         depthTexture;
+    private readonly    PipelineContext         context;
+    private readonly    GpuBuffer<float>        verticesBuffer;
+    private             GpuTexture?             depthTexture;
+    private readonly    GpuBuffer<Matrix4x4>    mvpMatricesData;
     
     public void OnShutdown()
     {
@@ -30,6 +33,22 @@ public partial class InstancedCube : IRenderer
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write(context);
+        
+        mvpMatricesData = wgpu.Device.CreateBuffer(mvpMatrices, "mvpMatricesData", BufferProfile.StaticIn);
+        const float step = 4.0f;
+
+        // Initialize the matrix data for every instance.
+        int m = 0;
+        for (var x = 0; x < xCount; x++) {
+            for (var y = 0; y < yCount; y++) {
+                modelMatrices[m] = Matrix4x4.CreateTranslation(new Vector3(
+                    step * (x - xCount / 2f + 0.5f),
+                    step * (y - yCount / 2f + 0.5f),
+                    0f
+                ));
+                m++;
+            }
+        }
         
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L49
@@ -65,12 +84,13 @@ public partial class InstancedCube : IRenderer
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                config;
     private   readonly  PerfLog                     perfLog             = new();
-    private   readonly  Matrix4x4                   modelMatrix1 = Matrix4x4.CreateTranslation(new Vector3(-2, 0, 0));
-    private   readonly  Matrix4x4                   modelMatrix2 = Matrix4x4.CreateTranslation(new Vector3( 2, 0, 0));
-    private             Matrix4x4                   modelViewProjectionMatrix1;
-    private             Matrix4x4                   modelViewProjectionMatrix2;
-    private   readonly  Matrix4x4                   viewMatrix   = Matrix4x4.CreateTranslation(new Vector3(0, 0, -7));
-    private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
+    private   const     int                         xCount          = 4;
+    private   const     int                         yCount          = 4;
+    private   const     int                         numInstances    = xCount * yCount;
+    private   readonly  Matrix4x4[]                 modelMatrices   = new Matrix4x4[numInstances];
+    private   readonly  Matrix4x4[]                 mvpMatrices     = new Matrix4x4[numInstances];
+    private   readonly  Matrix4x4                   viewMatrix      = Matrix4x4.CreateTranslation(new Vector3(0, 0, -12));
+    private   readonly  Stopwatch                   stopwatch       = Stopwatch.StartNew();
     private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
 
     
@@ -101,13 +121,29 @@ public partial class InstancedCube : IRenderer
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L148
     private void UpdateTransformationMatrix(float width, float height, float now)
     {
-        var tmpMat41 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now), MathF.Cos(now), 0), 1f) * modelMatrix1;
-        var tmpMat42 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Cos(now), MathF.Sin(now), 0), 1f) * modelMatrix2;
-        
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
         
-        modelViewProjectionMatrix1 = tmpMat41 * viewMatrix * projectionMatrix;
-        modelViewProjectionMatrix2 = tmpMat42 * viewMatrix * projectionMatrix;
+        int i = 0;
+        for (int x = 0; x < xCount; x++) {
+            for (int y = 0; y < yCount; y++) {
+                var axis = new Vector3(
+                    MathF.Sin((x + 0.5f) * now), 
+                    MathF.Cos((y + 0.5f) * now), 
+                    0f
+                );
+                var modelMatrix = Matrix4x4.CreateFromAxisAngle(axis, 1f) * modelMatrices[i];
+                mvpMatrices[i]  = modelMatrix * viewMatrix * projectionMatrix;
+                /*mat4.rotate(
+                    modelMatrices[i],
+                    [MathF.Sin((x + 0.5) * now), MathF.Cos((y + 0.5) * now), 0],
+                    1,
+                    tmpMat4
+                );
+                mat4.multiply(viewMatrix, tmpMat4, tmpMat4);
+                mat4.multiply(projectionMatrix, tmpMat4, tmpMat4);*/
+                i++;
+            }
+        }
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L192
@@ -124,16 +160,15 @@ public partial class InstancedCube : IRenderer
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
-            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
+            RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
     }
     
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
+	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void RenderCube(RenderPass pass, RenderConfig config,
-        [VertexBuffer(0)]           InBuffer<float> verticesBuffer,
-        [BindUniform     (0, 0)]    in Matrix4x4    modelViewProjectionMatrix);
+    public static partial void RenderCubes(RenderPass pass, RenderConfig config,
+        [VertexBuffer(0)]           InBuffer<float>     verticesBuffer,
+        [BindUniform     (0, 0)]    InBuffer<Matrix4x4> modelMatricesData);
 }
