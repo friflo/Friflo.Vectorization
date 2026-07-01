@@ -286,7 +286,13 @@ public readonly unsafe struct WgpuRenderPipeline
 
 public static class WgpuResource
 {
-    public static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourceName)
+     
+    public static ReadOnlySpan<byte> GetResource(Type type, string resourceName)
+    {
+        return GetResource(type.Assembly, resourceName);
+    }
+     
+    private static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourceName)
     {
         var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream == null) { 

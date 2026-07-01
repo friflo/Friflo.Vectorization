@@ -64,5 +64,5 @@ public static partial class Wormhood
         return ref device.CreatePipelineCache(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> Wormhood_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest).Assembly, "Tests-Console.shaders.raymarcher_no_texture.wgsl");
+    private static ReadOnlySpan<byte> Wormhood_GPU_Shader() => WgpuResource.GetResource(typeof(Wormhood), "Tests-Console.shaders.raymarcher_no_texture.wgsl");
 }
