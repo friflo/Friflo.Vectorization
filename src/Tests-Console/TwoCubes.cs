@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -33,7 +32,7 @@ public partial class TwoCubes : IRenderer
         verticesBuffer.In().Write(context);
         
         var desc = wgpu.Config.Descriptor;
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L49
         desc.VertexState.buffers = [
             new WgpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
                 arrayStride = Cube.cubeVertexSize,
@@ -66,7 +65,11 @@ public partial class TwoCubes : IRenderer
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                config;
     private   readonly  PerfLog                     perfLog             = new();
+    private   readonly  Matrix4x4                   modelMatrix1 = Matrix4x4.CreateTranslation(new Vector3(-2, 0, 0));
+    private   readonly  Matrix4x4                   modelMatrix2 = Matrix4x4.CreateTranslation(new Vector3( 2, 0, 0));
     private             Matrix4x4                   modelViewProjectionMatrix1;
+    private             Matrix4x4                   modelViewProjectionMatrix2;
+    private   readonly  Matrix4x4                   viewMatrix   = Matrix4x4.CreateTranslation(new Vector3(0, 0, -7));
     private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
     private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
 
@@ -80,7 +83,7 @@ public partial class TwoCubes : IRenderer
             usage   = TextureUsage.RenderAttachment
         });
         
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L140
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
             clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
@@ -95,16 +98,19 @@ public partial class TwoCubes : IRenderer
         };
     }
     
-    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L168
-    private static Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L171
+    private void UpdateTransformationMatrix(float width, float height, float now)
     {
-        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
-        var view = Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time))
-                 * Matrix4x4.CreateTranslation(0, 0, -4f);
-        return view * proj;
+        var tmpMat41 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now), MathF.Cos(now), 0), 1f) * modelMatrix1;
+        var tmpMat42 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Cos(now), MathF.Sin(now), 0), 1f) * modelMatrix2;
+        
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        
+        modelViewProjectionMatrix1 = tmpMat41 * viewMatrix * projectionMatrix;
+        modelViewProjectionMatrix2 = tmpMat42 * viewMatrix * projectionMatrix;
     }
     
-    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L179
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L191
     public void OnFrame(int width, int height)
     {
         using var frame = context.BeginFrame(wgpu.Surface);
@@ -114,11 +120,12 @@ public partial class TwoCubes : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        modelViewProjectionMatrix1 = GetTransformationMatrix(width, height, time);
+        UpdateTransformationMatrix(width, height, time);
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
             RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
+            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
