@@ -34,7 +34,7 @@ public partial class InstancedCube : IRenderer
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write(context);
         
-        mvpMatricesData = wgpu.Device.CreateBuffer(mvpMatrices, "mvpMatricesData", BufferProfile.StaticIn, BufferType.Uniform);
+        mvpMatricesData = wgpu.Device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, BufferType.Uniform);
         const float step = 4.0f;
 
         // Initialize the matrix data for every instance.
@@ -88,7 +88,6 @@ public partial class InstancedCube : IRenderer
     private   const     int                         yCount          = 4;
     private   const     int                         numInstances    = xCount * yCount;
     private   readonly  Matrix4x4[]                 modelMatrices   = new Matrix4x4[numInstances];
-    private   readonly  Matrix4x4[]                 mvpMatrices     = new Matrix4x4[numInstances];
     private   readonly  Matrix4x4                   viewMatrix      = Matrix4x4.CreateTranslation(new Vector3(0, 0, -12));
     private   readonly  Stopwatch                   stopwatch       = Stopwatch.StartNew();
     private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
@@ -123,6 +122,7 @@ public partial class InstancedCube : IRenderer
     {
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
         int i = 0;
+        var mvpMatrices = mvpMatricesData.In().Span;
         for (int x = 0; x < xCount; x++) {
             for (int y = 0; y < yCount; y++) {
                 var rawAxis     = new Vector3(MathF.Sin((x + 0.5f) * now), MathF.Cos((y + 0.5f) * now), 0f);
