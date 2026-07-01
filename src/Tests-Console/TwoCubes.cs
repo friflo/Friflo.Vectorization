@@ -66,7 +66,7 @@ public partial class TwoCubes : IRenderer
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                config;
     private   readonly  PerfLog                     perfLog             = new();
-    private             Uniforms                    uniforms;
+    private             Matrix4x4                   modelViewProjectionMatrix1;
     private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
     private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
 
@@ -114,11 +114,11 @@ public partial class TwoCubes : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
+        modelViewProjectionMatrix1 = GetTransformationMatrix(width, height, time);
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCube(pass, config, verticesBuffer.In(), uniforms);
+            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
@@ -126,13 +126,7 @@ public partial class TwoCubes : IRenderer
     
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
+    public static partial void RenderCube(RenderPass pass, RenderConfig config,
         [VertexBuffer(0)]           InBuffer<float> verticesBuffer,
-        [BindUniform     (0, 0)]    in Uniforms     uniforms);
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    protected struct Uniforms {
-        public Matrix4x4   modelViewProjectionMatrix;
-    }
+        [BindUniform     (0, 0)]    in Matrix4x4    modelViewProjectionMatrix);
 }
