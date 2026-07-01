@@ -211,11 +211,11 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     }
     
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public void BindGroupEntryTexture(nint textureView)
+    public void BindGroupEntryTexture(in GpuTextureView textureView)
     {
         bindGroupEntries[bindGroupEntriesCount] = new BindGroupEntry {
             binding     = (uint)bindGroupEntriesCount++,
-            textureView = (TextureView*)textureView
+            textureView = textureView.handle
         };
     }
     
