@@ -34,7 +34,7 @@ public partial class InstancedCube : IRenderer
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write(context);
         
-        mvpMatricesData = wgpu.Device.CreateBuffer(mvpMatrices, "mvpMatricesData", BufferProfile.StaticIn);
+        mvpMatricesData = wgpu.Device.CreateBuffer(mvpMatrices, "mvpMatricesData", BufferProfile.StaticIn, BufferType.Uniform);
         const float step = 4.0f;
 
         // Initialize the matrix data for every instance.
@@ -162,7 +162,7 @@ public partial class InstancedCube : IRenderer
         {
             RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
         }
-        context.Queue.Submit();
+        context.Queue.Submit();    
         wgpu.Surface.Present();
     }
     

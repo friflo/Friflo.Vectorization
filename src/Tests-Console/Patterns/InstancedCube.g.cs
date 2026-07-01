@@ -18,13 +18,14 @@ public partial class InstancedCube
         InBuffer<Matrix4x4> modelMatricesData)
 	{
         var buffers =
-        GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));
+        GpuBuffers.Create(verticesBuffer,   nameof(verticesBuffer));
+        // buffers.Validate(modelMatricesData, nameof(modelMatricesData));    TODO  check: is count validation useful here? 
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
-        
         recorder.RequireRead(verticesBuffer);
+        recorder.RequireRead(modelMatricesData);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -67,7 +68,7 @@ public partial class InstancedCube
     {
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);
+            device.BindGroupLayoutBuffer(BufferBindingType.Uniform);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
         using var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
@@ -81,6 +82,6 @@ public partial class InstancedCube
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
-    private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
+    private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.instanced.vert.wgsl");
     private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.vertexPositionColor.frag.wgsl");
 }
