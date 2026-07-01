@@ -24,6 +24,7 @@ public partial class InstancedCube : IRenderer
     
     public void OnShutdown()
     {
+        mvpMatricesData.Dispose();
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
         context.Dispose();
