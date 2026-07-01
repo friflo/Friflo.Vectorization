@@ -158,5 +158,5 @@ public partial class InstancedCube : IRenderer
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubes(RenderPass pass, RenderConfig config,
         [VertexBuffer(0)]           InBuffer<float>     verticesBuffer,
-        [BindUniform     (0, 0)]    InBuffer<Matrix4x4> modelMatricesData);
+        [BindUniform     (0, 0)]    InBuffer<Matrix4x4> mvpMatricesData);
 }

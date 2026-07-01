@@ -15,17 +15,17 @@ public partial class InstancedCube
         RenderPass          pass,
         RenderConfig        config,
         InBuffer<float>     verticesBuffer,
-        InBuffer<Matrix4x4> modelMatricesData)
+        InBuffer<Matrix4x4> mvpMatricesData)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer,   nameof(verticesBuffer));
-        // buffers.Validate(modelMatricesData, nameof(modelMatricesData));    TODO  check: is count validation useful here? 
+        // buffers.Validate(mvpMatricesData, nameof(mvpMatricesData));   //  TODO  check: is count validation useful here? 
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
         recorder.RequireRead(verticesBuffer);
-        recorder.RequireRead(modelMatricesData);
+        recorder.RequireRead(mvpMatricesData);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -36,9 +36,9 @@ public partial class InstancedCube
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
-        var key_0 = modelMatricesData.Handle;
+        var key_0 = mvpMatricesData.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryBuffer(modelMatricesData.Buffer);
+            recorder.BindGroupEntryBuffer(mvpMatricesData.Buffer);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
