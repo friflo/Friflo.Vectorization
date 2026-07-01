@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-using StbImageSharp;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
@@ -13,8 +12,6 @@ public partial class TwoCubes : IRenderer
 {
     // --- IDisposable fields
     private readonly    PipelineContext     context;
-    private readonly    GpuTexture          cubeTexture;
-    private readonly    GpuSampler          sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
     private             GpuTexture?         depthTexture;
     
@@ -22,8 +19,6 @@ public partial class TwoCubes : IRenderer
     {
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
-        sampler.Dispose();
-        cubeTexture.Dispose();
         context.Dispose();
     }
     
@@ -32,23 +27,6 @@ public partial class TwoCubes : IRenderer
         this.wgpu   = wgpu;
         var device  = wgpu.Device;
         context     = device.BeginContext();
-        
-        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
-        var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        cubeTexture = device.CreateTexture(new GpuTextureDescriptor { label = "Di-3d.png", 
-            size    = [image.Width, image.Height],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
-        });
-        sampler = device.CreateSampler(new GpuSamplerDescriptor {
-            magFilter = FilterMode.Linear,
-            minFilter = FilterMode.Linear
-        });
-        cubeTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
-        
-        textureView = cubeTexture.CreateView();
-
         
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
@@ -87,7 +65,6 @@ public partial class TwoCubes : IRenderer
     // --- non-disposable fields
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                vertexConfig;
-    private   readonly  GpuTextureView              textureView;
     private   readonly  PerfLog                     perfLog             = new();
     private             Uniforms                    uniforms;
     private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
@@ -141,19 +118,17 @@ public partial class TwoCubes : IRenderer
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms, sampler, textureView);
+            RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
     }
     
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
-	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
+	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [VertexBuffer(0)]           InBuffer<float> verticesBuffer,
-        [BindUniform     (0, 0)]    in Uniforms     uniforms,
-        [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
-        [texture_2d<f32> (0, 2)]    GpuTextureView  material);
+        [BindUniform     (0, 0)]    in Uniforms     uniforms);
 
 
     [StructLayout(LayoutKind.Sequential)]

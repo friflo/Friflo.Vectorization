@@ -14,9 +14,7 @@ public partial class TwoCubes
         RenderPass      pass,
         RenderConfig    config,
         InBuffer<float> verticesBuffer,
-        in Uniforms     uniforms,
-        GpuSampler      smoothFilter,
-        GpuTextureView  material)
+        in Uniforms     uniforms)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));
@@ -36,15 +34,7 @@ public partial class TwoCubes
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
-        var key_0 = (smoothFilter.Handle, material.Handle);
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryUniform<Uniforms>();
-            recorder.BindGroupEntrySampler(smoothFilter);
-            recorder.BindGroupEntryTexture(material);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
-        }
-        pass_.SetBindGroupUniform(0, bindGroup0, uniforms);
+        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache, "TextureTest_bindGroup0"u8);
         
         int verticesBufferCount = pass_.SetVertexBuffer(config, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
@@ -53,16 +43,16 @@ public partial class TwoCubes
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal WgpuBindGroup    bindGroup0 = new ();
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroup(ref bindGroup0);
         }
     }
     
     private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator
-    private static ulong        TextureTest_GPU_WgslHash            => 0x1255;  // support Hot-Relead
+    private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4766;  // unique key set by Generator
+    private static ulong        TextureTest_GPU_WgslHash            => 0x1266;  // support Hot-Relead
     
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -71,8 +61,6 @@ public partial class TwoCubes
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
-            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
         using var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
@@ -87,5 +75,5 @@ public partial class TwoCubes
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
+    private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.vertexPositionColor.frag.wgsl");
 }
