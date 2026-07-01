@@ -59,12 +59,12 @@ public partial class TwoCubes : IRenderer
             depthCompare        = CompareFunction.Less,
             format              = TextureFormat.Depth24Plus
         };
-        vertexConfig = desc.CreateConfig("Cube Vertex Config");
+        config = desc.CreateConfig("Cube Vertex Config");
     }
 
     // --- non-disposable fields
     private   readonly  Wgpu                        wgpu;
-    private   readonly  RenderConfig                vertexConfig;
+    private   readonly  RenderConfig                config;
     private   readonly  PerfLog                     perfLog             = new();
     private             Uniforms                    uniforms;
     private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
@@ -118,7 +118,7 @@ public partial class TwoCubes : IRenderer
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms);
+            RenderCube(pass, config, verticesBuffer.In(), uniforms);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();

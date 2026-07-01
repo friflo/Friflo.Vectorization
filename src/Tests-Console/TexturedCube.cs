@@ -81,12 +81,12 @@ public partial class TexturedCube : IRenderer
             depthCompare        = CompareFunction.Less,
             format              = TextureFormat.Depth24Plus
         };
-        vertexConfig = desc.CreateConfig("Cube Vertex Config");
+        config = desc.CreateConfig("Cube Vertex Config");
     }
 
     // --- non-disposable fields
     private   readonly  Wgpu                        wgpu;
-    private   readonly  RenderConfig                vertexConfig;
+    private   readonly  RenderConfig                config;
     private   readonly  GpuTextureView              textureView;
     private   readonly  PerfLog                     perfLog             = new();
     private             Uniforms                    uniforms;
@@ -141,7 +141,7 @@ public partial class TexturedCube : IRenderer
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCube(pass, vertexConfig, verticesBuffer.In(), uniforms, sampler, textureView);
+            RenderCube(pass, config, verticesBuffer.In(), uniforms, sampler, textureView);
         }
         context.Queue.Submit();
         wgpu.Surface.Present();
