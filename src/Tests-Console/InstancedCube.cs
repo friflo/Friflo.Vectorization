@@ -17,6 +17,10 @@ public partial class InstancedCube : IRenderer
     private             GpuTexture?             depthTexture;
     private readonly    GpuBuffer<Matrix4x4>    mvpMatricesData;
     
+    private readonly    bool useUniformBuffer = true;
+    // true:  as in WebGPU JS example
+    // false: (recommended) uses Storage Buffer supporting significant higher amount of numInstances (1400 x 1400)
+    
     public void OnShutdown()
     {
         depthTexture?.Dispose();
@@ -34,7 +38,8 @@ public partial class InstancedCube : IRenderer
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write(context);
         
-        mvpMatricesData = wgpu.Device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, BufferType.Uniform);
+        var bufferType  = useUniformBuffer ? BufferType.Uniform : BufferType.Storage;
+        mvpMatricesData = wgpu.Device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, bufferType);
         const float step = 4.0f;
 
         // Initialize the matrix data for every instance.
@@ -83,9 +88,9 @@ public partial class InstancedCube : IRenderer
     // --- non-disposable fields
     private   readonly  Wgpu                        wgpu;
     private   readonly  RenderConfig                config;
-    private   readonly  PerfLog                     perfLog             = new();
-    private   const     int                         xCount          = 4;
-    private   const     int                         yCount          = 4;
+    private   readonly  PerfLog                     perfLog         = new();
+    private   const     int                         xCount          = 4; // 32  1400
+    private   const     int                         yCount          = 4; // 32  1400
     private   const     int                         numInstances    = xCount * yCount;
     private   readonly  Matrix4x4[]                 modelMatrices   = new Matrix4x4[numInstances];
     private   readonly  Matrix4x4                   viewMatrix      = Matrix4x4.CreateTranslation(new Vector3(0, 0, -12));
@@ -148,7 +153,11 @@ public partial class InstancedCube : IRenderer
         
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
-            RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+            if (useUniformBuffer) {
+                RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+            } else {
+                RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+            }
         }
         context.Queue.Submit();    
         wgpu.Surface.Present();
@@ -157,6 +166,12 @@ public partial class InstancedCube : IRenderer
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubes(RenderPass pass, RenderConfig config,
-        [VertexBuffer(0)]           InBuffer<float>     verticesBuffer,
-        [BindUniform     (0, 0)]    InBuffer<Matrix4x4> mvpMatricesData);
+        [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatricesData);
+    
+	[VertexShader  ("shaders/instanced.storage.vert.wgsl",      vert: "main")]
+	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
+    public static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,
+        [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [BindStorage(0, 0)] InBuffer<Matrix4x4> mvpMatricesData);
 }
