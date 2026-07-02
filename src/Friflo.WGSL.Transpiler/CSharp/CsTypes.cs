@@ -10,32 +10,32 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 public class CsMethod
 {
-    public required     CsTypeIdentifier    Identifier  { get; init; }
-    public required     List<CsAttribute>   Attributes  { get; init; } = [];
-    public required     List<CsParameter>   Parameters  { get; init; } = [];
+    public required     CsTypeIdentifier        Identifier  { get; init; }
+    public required     List<CsAttribute>       Attributes  { get; init; }
+    public required     List<CsParameter>       Parameters  { get; init; }
 }
 
 public struct CsAttribute
 {
-    public required     CsTypeIdentifier    Identifier  { get; init; }
-    public required     List<CsArg>         Args        { get; init; } = [];
+    public required     CsTypeIdentifier        Identifier  { get; init; }
+    public required     List<CsAttributeArg>    Args        { get; init; }
     
     public CsAttribute() { }
 }
 
-public struct CsArg
+public struct CsAttributeArg
 {
-    public required     string              Name        { get; init; }
-    public required     string              Value       { get; init; } // string or int
+    public required     string                  Name        { get; init; }
+    public required     string                  Value       { get; init; } // string or int
     
-    public CsArg() { }
+    public CsAttributeArg() { }
 }
 
 public struct CsParameter
 {
-    public required     List<CsAttribute>   Attributes  { get; init; } = [];
-    public required     CsType              Type        { get; init; }
-    public required     string              Name        { get; init; }
+    public required     List<CsAttribute>       Attributes  { get; init; }
+    public required     CsType                  Type        { get; init; }
+    public required     string                  Name        { get; init; }
     
     public CsParameter() { }
 }
@@ -43,17 +43,18 @@ public struct CsParameter
 /// Is a class - it has an identity
 public class CsType
 {
-    public required     CsTypeIdentifier    Identifier  { get; init; }
-    public required     CsTypeKind          Kind        { get; init; }
-    public required     List<CsAttribute>   Attributes  { get; init; } = [];
-    public required     List<CsField>       Fields      { get; init; } = []; // only set for CsTypeKind.Struct -> no cyclic dependencies
+    public required     CsTypeIdentifier        Identifier  { get; init; }
+    public required     CsTypeKind              Kind        { get; init; }
+    public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
+    public required     List<CsAttribute>       Attributes  { get; init; }
+    public required     List<CsField>           Fields      { get; init; } // only set for CsTypeKind.Struct -> no cyclic dependencies
 }
 
 public struct CsField
 {
-    public required     List<CsAttribute>   Attributes  { get; init; } = [];
-    public required     CsType              Type        { get; init; }
-    public required     string              Name        { get; init; }
+    public required     List<CsAttribute>       Attributes  { get; init; }
+    public required     CsType                  Type        { get; init; }
+    public required     string                  Name        { get; init; }
     
     public CsField() { }
 }
@@ -69,7 +70,5 @@ public struct CsTypeIdentifier
     public required     string              Name        { get; init; }
     public required     string              Namespace   { get; init; }
 }
-
-
 
 
