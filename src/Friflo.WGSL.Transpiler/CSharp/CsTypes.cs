@@ -13,16 +13,16 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 public class CsMethod
 {
-    public required     string                  Name            { get; init; }
-    public required     CsType                  DeclaringType   { get; init; }
-    public required     List<CsAttribute>       Attributes      { get; init; }
-    public required     List<CsParameter>       Parameters      { get; init; }
+    public required     string          Name            { get; init; }
+    public required     CsType          DeclaringType   { get; init; }
+    public required     CsAttribute[]   Attributes      { get; init; }
+    public required     CsParameter[]   Parameters      { get; init; }
     
     public override string ToString()
     {
         var sb = new StringBuilder();
         sb.Append($"{Name}(");
-        if (Parameters.Count == 0) {
+        if (Parameters.Length == 0) {
             sb.Append(")");
             return sb.ToString();
         }
@@ -114,8 +114,8 @@ public class CsType
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     CsTypeKind              Kind        { get; init; }
     public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
-    public required     List<CsAttribute>       Attributes  { get; init; }
-    public required     List<CsField>           Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
+    public required     CsAttribute[]           Attributes  { get; init; }
+    public required     CsField[]               Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
     
     public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     
@@ -136,9 +136,9 @@ public class CsType
 
 public readonly struct CsField
 {
-    public required     List<CsAttribute>       Attributes  { get; init; }
-    public required     CsType                  Type        { get; init; }
-    public required     string                  Name        { get; init; }
+    public required     CsAttribute[]   Attributes  { get; init; }
+    public required     CsType          Type        { get; init; }
+    public required     string          Name        { get; init; }
 
     public override string ToString()
     {

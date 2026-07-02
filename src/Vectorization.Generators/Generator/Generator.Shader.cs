@@ -59,17 +59,19 @@ public sealed partial class Gen
         IMethodSymbol                   methodSymbol)
     {
         var declaringType   = MapType(methodSymbol.ContainingType, false);
-        var attributes      = methodAttributes.Select(MapAttribute).ToList();
+        var attributes      = methodAttributes.Select(MapAttribute).ToArray();
         
-        var parameters  = new List<CsParameter>();
-        foreach (var paramSymbol in methodSymbol.Parameters)
+        var methodParameters = methodSymbol.Parameters;
+        var parameters  = new CsParameter[methodParameters.Length];
+        for (int n = 0; n <  methodParameters.Length; n++)
         {
+            var paramSymbol = methodParameters[n];
             var parameterType = GetParameterType(paramSymbol);
-            parameters.Add(new CsParameter {
+            parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 Type            = MapType(paramSymbol.Type, parameterType != CsParameterType.None),
                 ParameterType   = parameterType
-            });
+            };
         }
         return new CsMethod {
             Name            = methodSymbol.Name,
@@ -127,7 +129,7 @@ public sealed partial class Gen
             }
         }
 
-        var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToList();
+        var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
         var csType = new CsType {
             Identifier  = GetIdentifier(typeSymbol),
             Kind        = typeSymbol.IsValueType ? CsTypeKind.Struct : CsTypeKind.Class,
@@ -147,10 +149,10 @@ public sealed partial class Gen
                 .Where(fieldSymbol => !fieldSymbol.IsStatic)
                 .Select(fieldSymbol => new CsField
                 {
-                    Name = fieldSymbol.Name,
-                    Type = MapType(fieldSymbol.Type, true), // recursive call
-                    Attributes = fieldSymbol.GetAttributes().Select(MapAttribute).ToList()
-                }).ToList();
+                    Name        = fieldSymbol.Name,
+                    Type        = MapType(fieldSymbol.Type, true), // recursive call
+                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToArray()
+                }).ToArray();
         }
         return csType;
     }
