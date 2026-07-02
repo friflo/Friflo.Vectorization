@@ -24,7 +24,7 @@ public static class Verify_Shader
         // 2. Run
         var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
         
-        // VerifyUtils.CheckOutputCompilation(outputCompilation);
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
 
         // 3. Verify (NUnit adapter)
         await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
@@ -49,13 +49,17 @@ public partial class ShaderExample
         [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);
         
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Uniforms
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
+    public struct MyUniform
     {
-        public  Vector3     vector1;
-        private float       _pad;
-        public  float       time;
-        private Vector3     vector2;
+        public Vector4 	tint_color;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = 32)]
+    public struct VertexData(Vector4 position, Vector4 color)
+    {
+        public Vector4 	position    = position;
+        public Vector4 	color       = color;
     }
 }
 """;

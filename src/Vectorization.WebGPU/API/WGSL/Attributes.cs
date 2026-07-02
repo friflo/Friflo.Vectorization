@@ -11,6 +11,11 @@ using JetBrains.Annotations;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class NoEmitAttribute : Attribute
+{
+    public NoEmitAttribute() { }
+}
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute

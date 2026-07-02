@@ -12,14 +12,15 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 public class CsMethod
 {
-    public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     List<CsAttribute>       Attributes  { get; init; }
-    public required     List<CsParameter>       Parameters  { get; init; }
+    public required     string                  Name            { get; init; }
+    public required     CsType                  DeclaringType   { get; init; }
+    public required     List<CsAttribute>       Attributes      { get; init; }
+    public required     List<CsParameter>       Parameters      { get; init; }
     
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"{Identifier.Namespace}.{Identifier.Name}(");
+        sb.Append($"{Name}(");
         if (Parameters.Count == 0) {
             sb.Append(")");
             return sb.ToString();

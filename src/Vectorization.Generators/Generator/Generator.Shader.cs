@@ -20,6 +20,7 @@ public sealed partial class Gen
         GenerateTrigger                 trigger,
         out EmissionResult              emissionResult)
     {
+        var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
         var fragmentShader  = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.FragmentShaderAttribute");
@@ -36,8 +37,19 @@ public sealed partial class Gen
                 return false;
             }
         }
-        // var method = CreateCsMethod(methodAttributes, methodSymbol);
-        emissionResult = new EmissionResult("", "", diagnostics.List);
+        var method = CreateCsMethod(methodAttributes, methodSymbol);
+        var hash = "";
+        // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
+        // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
+        
+        var code = ShaderEmitter.EmitShader(methodSymbol.IsStatic, method, hash);
+        
+        if (noEmit) {
+            emissionResult = default;
+            return false;
+        }
+        var fileName = CreateFileName(methodSymbol, hash);
+        emissionResult = new EmissionResult(fileName, code, diagnostics.List);
         return true;
     }
     
@@ -47,19 +59,14 @@ public sealed partial class Gen
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol)
     {
+        var declaringType = MapType(methodSymbol.ContainingType);
+
         return new CsMethod
         {
-            Identifier = new CsTypeIdentifier
-            {
-                Name = methodSymbol.Name,
-                Namespace = methodSymbol.ContainingType?.ContainingNamespace?.IsGlobalNamespace == false
-                    ? methodSymbol.ContainingType.ContainingNamespace.ToDisplayString()
-                    : string.Empty
-            },
-
-            Attributes = methodAttributes.Select(MapAttribute).ToList(),
-
-            Parameters = methodSymbol.Parameters.Select(paramSymbol => new CsParameter
+            Name            = methodSymbol.Name,
+            DeclaringType   = declaringType,
+            Attributes      = methodAttributes.Select(MapAttribute).ToList(),
+            Parameters      = methodSymbol.Parameters.Select(paramSymbol => new CsParameter
             {
                 Name = paramSymbol.Name,
                 Type = MapType(paramSymbol.Type),
