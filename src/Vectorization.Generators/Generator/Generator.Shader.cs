@@ -52,63 +52,45 @@ public sealed partial class Gen
         emissionResult = new EmissionResult(fileName, code, diagnostics.List);
         return true;
     }
-    
 
 
     private static CsMethod CreateCsMethod(
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol)
     {
-        var declaringType = MapType(methodSymbol.ContainingType);
+        var declaringType   = MapType(methodSymbol.ContainingType);
+        var attributes      = methodAttributes.Select(MapAttribute).ToList();
+        var parameters      = methodSymbol.Parameters.Select(paramSymbol => new CsParameter {
+            Name = paramSymbol.Name,
+            Type = MapType(paramSymbol.Type),
+            Attributes = paramSymbol.GetAttributes().Select(MapAttribute).ToList()
+        }).ToList();
 
-        return new CsMethod
-        {
+        return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
-            Attributes      = methodAttributes.Select(MapAttribute).ToList(),
-            Parameters      = methodSymbol.Parameters.Select(paramSymbol => new CsParameter
-            {
-                Name = paramSymbol.Name,
-                Type = MapType(paramSymbol.Type),
-                Attributes = paramSymbol.GetAttributes().Select(MapAttribute).ToList()
-            }).ToList()
+            Attributes      = attributes,
+            Parameters      = parameters
         };
     }
 
     private static CsType MapType(ITypeSymbol typeSymbol)
     {
         var genericIdentifiers = new List<CsTypeIdentifier>();
-        string typeName = typeSymbol.Name;
-
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
-            typeName = namedType.Name;
-            
-            foreach (var typeArg in namedType.TypeArguments)
-            {
-                genericIdentifiers.Add(new CsTypeIdentifier
-                {
-                    Name = typeArg.Name,
-                    Namespace = typeArg.ContainingNamespace?.IsGlobalNamespace == false
-                        ? typeArg.ContainingNamespace.ToDisplayString()
-                        : string.Empty
-                });
+            foreach (var typeArg in namedType.TypeArguments) {
+                genericIdentifiers.Add(GetIdentifier(typeArg));
             }
         }
 
-        var csType = new CsType
-        {
-            Identifier = new CsTypeIdentifier
-            {
-                Name = typeName,
-                Namespace = typeSymbol.ContainingNamespace?.IsGlobalNamespace == false
-                    ? typeSymbol.ContainingNamespace.ToDisplayString()
-                    : string.Empty
-            },
-            Kind = typeSymbol.IsValueType ? CsTypeKind.Struct : CsTypeKind.Class,
-            Generics = genericIdentifiers,
-            Attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToList(),
-            Fields = []
+        var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToList();
+        var csType = new CsType {
+            Identifier  = GetIdentifier(typeSymbol),
+            Kind        = typeSymbol.IsValueType ? CsTypeKind.Struct : CsTypeKind.Class,
+            Generics    = genericIdentifiers,
+            Attributes  = attributes,
+            Fields      = []
         };
 
         // recursion only for struct types
@@ -133,32 +115,33 @@ public sealed partial class Gen
 
         foreach (var constructorArg in attributeData.ConstructorArguments)
         {
-            args.Add(new CsAttributeArg
-            {
-                Name = string.Empty,
-                Value = constructorArg.Value?.ToString() ?? "null"
+            args.Add(new CsAttributeArg {
+                Name    = string.Empty,
+                Value   = constructorArg.Value?.ToString() ?? "null"
             });
         }
 
         foreach (var namedArg in attributeData.NamedArguments)
         {
-            args.Add(new CsAttributeArg
-            {
-                Name = namedArg.Key,
-                Value = namedArg.Value.Value?.ToString() ?? "null"
+            args.Add(new CsAttributeArg {
+                Name    = namedArg.Key,
+                Value   = namedArg.Value.Value?.ToString() ?? "null"
             });
         }
-
-        return new CsAttribute
-        {
-            Identifier = new CsTypeIdentifier
-            {
-                Name = attributeData.AttributeClass?.Name ?? "UnknownAttribute",
-                Namespace = attributeData.AttributeClass?.ContainingNamespace?.IsGlobalNamespace == false
-                    ? attributeData.AttributeClass.ContainingNamespace.ToDisplayString()
-                    : string.Empty
-            },
+        return new CsAttribute {
+            Identifier = GetIdentifier(attributeData.AttributeClass),
             Args = args
+        };
+    }
+    
+    private static CsTypeIdentifier GetIdentifier(ITypeSymbol? symbol)
+    {
+        var ns = symbol?.ContainingNamespace?.IsGlobalNamespace == false
+                    ? symbol.ContainingNamespace.ToDisplayString()
+                    : string.Empty;
+        return new CsTypeIdentifier {
+            Name        = symbol?.Name ?? "UnknownType",
+            Namespace   = ns
         };
     }
 }
