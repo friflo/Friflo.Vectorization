@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -116,6 +117,7 @@ public static class KernelRegistry
     
     internal static         string      GetKernelName(int slot) => kernelNames[slot];
     
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static int NewKernelId(string kernelName)
     {
@@ -143,6 +145,7 @@ public static class ShaderRegistry
     
     internal static         string      GetShaderName(int slot) => shaderNames[slot];
     
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static int NewShaderId(string shaderName)
     {
