@@ -20,10 +20,15 @@ public class CsMethod
     {
         var sb = new StringBuilder();
         sb.Append($"{Identifier.Namespace}.{Identifier.Name}(");
+        if (Parameters.Count == 0) {
+            sb.Append(")");
+            return sb.ToString();
+        }
         foreach (var parameter in Parameters) {
             parameter.AppendString(sb);
             sb.Append(", ");
         }
+        sb.Length -= 2;
         sb.Append(")");
         return sb.ToString();
     }
@@ -85,7 +90,9 @@ public class CsType
         sb.Append("<");
         foreach (var generic in Generics) {
             sb.Append(generic.Name);
+            sb.Append(", ");
         }
+        sb.Length -= 2;
         sb.Append(">");
         return sb;
     }
@@ -101,7 +108,7 @@ public readonly struct CsField
     {
         var sb = new StringBuilder();
         sb.Append(Name);
-        sb.Append(" : ");
+        sb.Append("        : ");
         Type.AppendString(sb);
         return sb.ToString();
     }

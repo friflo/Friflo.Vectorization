@@ -36,7 +36,7 @@ public sealed partial class Gen
                 return false;
             }
         }
-        // CreateCsMethod(methodAttributes, methodSymbol);
+        // var method = CreateCsMethod(methodAttributes, methodSymbol);
         emissionResult = new EmissionResult("", "", diagnostics.List);
         return true;
     }

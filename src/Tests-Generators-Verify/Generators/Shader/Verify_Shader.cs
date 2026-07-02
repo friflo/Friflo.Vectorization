@@ -44,9 +44,10 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("shaders/raymarcher_no_texture.wgsl")]
-    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [BindUniform(0, 0)] Uniforms      	uniforms);
+    [Shader("shaders/triangle.wgsl")]
+    public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
+        [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
+        [BindUniform(1, 0)] MyUniform               myUniform);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms
