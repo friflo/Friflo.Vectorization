@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedType.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -55,11 +56,45 @@ public readonly struct CsAttributeArg
     public CsAttributeArg() { }
 }
 
+public enum CsParameterType
+{
+    None,
+    //
+    VertexBuffer,
+    //
+    BindStorage,
+    //
+    BindUniform,
+    //
+    BindIndex,
+    //
+    SamplerFiltering,
+    SamplerNonFiltering,
+    SamplerComparison,
+    //
+    texture_1d,
+    texture_2d,
+    texture_2d_array,
+    texture_3d,
+    texture_cube,
+    texture_cube_array,
+    texture_multisampled_2d,
+    texture_depth_multisampled_2d,
+    texture_storage_1d,
+    texture_storage_2d,
+    texture_storage_2d_array,
+    texture_storage_3d,
+    texture_depth_2d,
+    texture_depth_2d_array,
+    texture_depth_cube,
+    texture_depth_cube_array
+}
+
 public readonly struct CsParameter
 {
-    public required     List<CsAttribute>       Attributes  { get; init; }
-    public required     CsType                  Type        { get; init; }
-    public required     string                  Name        { get; init; }
+    public required     CsParameterType         ParameterType   { get; init; }
+    public required     CsType                  Type            { get; init; }
+    public required     string                  Name            { get; init; }
     
     public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     

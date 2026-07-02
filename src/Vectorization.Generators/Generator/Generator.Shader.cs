@@ -58,14 +58,19 @@ public sealed partial class Gen
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol)
     {
-        var declaringType   = MapType(methodSymbol.ContainingType);
+        var declaringType   = MapType(methodSymbol.ContainingType, false);
         var attributes      = methodAttributes.Select(MapAttribute).ToList();
-        var parameters      = methodSymbol.Parameters.Select(paramSymbol => new CsParameter {
-            Name = paramSymbol.Name,
-            Type = MapType(paramSymbol.Type),
-            Attributes = paramSymbol.GetAttributes().Select(MapAttribute).ToList()
-        }).ToList();
-
+        
+        var parameters  = new List<CsParameter>();
+        foreach (var paramSymbol in methodSymbol.Parameters)
+        {
+            var parameterType = GetParameterType(paramSymbol);
+            parameters.Add(new CsParameter {
+                Name            = paramSymbol.Name,
+                Type            = MapType(paramSymbol.Type, parameterType != CsParameterType.None),
+                ParameterType   = GetParameterType(paramSymbol)
+            });
+        }
         return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
@@ -73,8 +78,46 @@ public sealed partial class Gen
             Parameters      = parameters
         };
     }
+    
+    private static CsParameterType GetParameterType(IParameterSymbol paramSymbol)
+    {
+        var attributes = paramSymbol.GetAttributes();
+        foreach (var attribute in attributes)
+        {
+            var fullName = attribute.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            switch (fullName)
+            {
+                case "global::Friflo.Vectorization.WebGPU.VertexBufferAttribute":           return CsParameterType.VertexBuffer;
+                case "global::Friflo.Vectorization.WebGPU.BindStorageAttribute":            return CsParameterType.BindStorage;
+                case "global::Friflo.Vectorization.WebGPU.BindUniformAttribute":            return CsParameterType.BindUniform;
+                case "global::Friflo.Vectorization.WebGPU.BindIndexAttribute":              return CsParameterType.BindIndex;
+                //
+                case "global::Friflo.Vectorization.WebGPU.SamplerFiltering":                return CsParameterType.SamplerFiltering;
+                case "global::Friflo.Vectorization.WebGPU.SamplerNonFiltering":             return CsParameterType.SamplerNonFiltering;
+                case "global::Friflo.Vectorization.WebGPU.SamplerComparison":               return CsParameterType.SamplerComparison;
+                //
+                case "global::Friflo.Vectorization.WebGPU.texture_1d":                      return CsParameterType.texture_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d":                      return CsParameterType.texture_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d_array":                return CsParameterType.texture_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_3d":                      return CsParameterType.texture_3d;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube":                    return CsParameterType.texture_cube;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube_array":              return CsParameterType.texture_cube_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d":         return CsParameterType.texture_multisampled_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_depth_multisampled_2d":   return CsParameterType.texture_depth_multisampled_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d":              return CsParameterType.texture_storage_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d":              return CsParameterType.texture_storage_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array":        return CsParameterType.texture_storage_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d":              return CsParameterType.texture_storage_3d;
+                case "global::Friflo.Vectorization.WebGPU.texture_depth_2d":                return CsParameterType.texture_depth_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_depth_2d_array":          return CsParameterType.texture_depth_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_depth_cube":              return CsParameterType.texture_depth_cube;
+                case "global::Friflo.Vectorization.WebGPU.texture_depth_cube_array":        return CsParameterType.texture_depth_cube_array;
+            }
+        }
+        return CsParameterType.None;
+    }
 
-    private static CsType MapType(ITypeSymbol typeSymbol)
+    private static CsType MapType(ITypeSymbol typeSymbol, bool getFields)
     {
         var genericIdentifiers = new List<CsTypeIdentifier>();
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
@@ -92,6 +135,9 @@ public sealed partial class Gen
             Attributes  = attributes,
             Fields      = []
         };
+        if (!getFields) {
+            return csType;
+        }
 
         // recursion only for struct types
         if (csType.Kind == CsTypeKind.Struct && typeSymbol is INamedTypeSymbol structSymbol)
@@ -102,7 +148,7 @@ public sealed partial class Gen
                 .Select(fieldSymbol => new CsField
                 {
                     Name = fieldSymbol.Name,
-                    Type = MapType(fieldSymbol.Type), // recursive call
+                    Type = MapType(fieldSymbol.Type, true), // recursive call
                     Attributes = fieldSymbol.GetAttributes().Select(MapAttribute).ToList()
                 }).ToList();
         }
