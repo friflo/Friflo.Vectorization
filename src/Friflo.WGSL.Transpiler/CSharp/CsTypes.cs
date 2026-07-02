@@ -86,7 +86,7 @@ public class CsType
     
     public StringBuilder AppendString(StringBuilder sb)
     {
-        sb.Append($"{Identifier.Namespace}.{Identifier.Name}");
+        sb.Append($"{Identifier.Name}");
         if (Generics.Count == 0) return sb;
         sb.Append("<");
         foreach (var generic in Generics) {

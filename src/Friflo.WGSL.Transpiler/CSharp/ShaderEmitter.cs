@@ -36,8 +36,8 @@ using Friflo.Vectorization.WebGPU;
 
 namespace {{method.DeclaringType.Identifier.Namespace}};
 
-public partial class {{method.DeclaringType.Identifier.Name}} { 
-
+public partial class {{method.DeclaringType.Identifier.Name}}
+{
     public {{(staticMethod ? "static " : "")}}partial void {{method.Name}}(
 {{signature}})
     {

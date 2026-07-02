@@ -6,8 +6,8 @@ using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
 
-public partial class ShaderExample { 
-
+public partial class ShaderExample
+{
     public static partial void DrawTriangles(
         RenderPass pass,
         RenderConfig config,
