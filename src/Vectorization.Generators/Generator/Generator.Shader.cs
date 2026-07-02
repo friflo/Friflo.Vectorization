@@ -68,7 +68,7 @@ public sealed partial class Gen
             parameters.Add(new CsParameter {
                 Name            = paramSymbol.Name,
                 Type            = MapType(paramSymbol.Type, parameterType != CsParameterType.None),
-                ParameterType   = GetParameterType(paramSymbol)
+                ParameterType   = parameterType
             });
         }
         return new CsMethod {
