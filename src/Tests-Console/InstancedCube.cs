@@ -169,12 +169,12 @@ public partial class InstancedCube : IRenderer
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubes(RenderPass pass, RenderConfig config,
         [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
-        [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatricesData);
+        [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
     
     // Alternative Shader method with [BindStorage(0, 0)] to use a Storage Buffer
 	[VertexShader  ("shaders/instanced.storage.vert.wgsl",      vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,
         [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
-        [BindStorage(0, 0)] InBuffer<Matrix4x4> mvpMatricesData);
+        [BindStorage(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
 }

@@ -15,7 +15,7 @@ public partial class InstancedCube
         RenderPass          pass,
         RenderConfig        config,
         InBuffer<float>     verticesBuffer,
-        InBuffer<Matrix4x4> mvpMatricesData)
+        InBuffer<Matrix4x4> mvpMatrices)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer,   nameof(verticesBuffer));
@@ -25,7 +25,7 @@ public partial class InstancedCube
 		var recorder	= pass_.Recorder;
 		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
         recorder.RequireRead(verticesBuffer);
-        recorder.RequireRead(mvpMatricesData);
+        recorder.RequireRead(mvpMatrices);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -36,9 +36,9 @@ public partial class InstancedCube
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
-        var key_0 = mvpMatricesData.Handle;
+        var key_0 = mvpMatrices.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryBuffer(mvpMatricesData.Buffer);
+            recorder.BindGroupEntryBuffer(mvpMatrices.Buffer);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
@@ -46,7 +46,7 @@ public partial class InstancedCube
         
         int verticesBufferCount = pass_.SetVertexBuffer(config, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
-        pass_.Draw(verticesBufferCount, mvpMatricesData.Length, 0, 0);
+        pass_.Draw(verticesBufferCount, mvpMatrices.Length, 0, 0);
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache

@@ -13,19 +13,19 @@ public partial class TexturedCube
     protected static partial void RenderCube(
         RenderPass      pass,
         RenderConfig    config,
-        InBuffer<float> verticesBuffer,
+        InBuffer<float> vertices,
         in Uniforms     uniforms,
         GpuSampler      smoothFilter,
         GpuTextureView  material)
 	{
         var buffers =
-        GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));
+        GpuBuffers.Create(vertices, nameof(vertices));
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
         
-        recorder.RequireRead(verticesBuffer);
+        recorder.RequireRead(vertices);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -46,7 +46,7 @@ public partial class TexturedCube
         }
         pass_.SetBindGroupUniform(0, bindGroup0, uniforms);
         
-        int verticesBufferCount = pass_.SetVertexBuffer(config, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
+        int verticesBufferCount = pass_.SetVertexBuffer(config, 0, vertices); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         pass_.Draw(verticesBufferCount, 1, 0, 0);
 	}
