@@ -1,0 +1,64 @@
+// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System.Threading.Tasks;
+using Friflo;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+using Tests.Generators;
+using VerifyNUnit;
+using VerifyTests;
+
+// ReSharper disable InconsistentNaming
+namespace Shader;
+
+public static class Verify_Shader
+{
+    private static async Task Verify(string code)
+    {
+        // 1. Setup (Helper method suggested for readability)
+        var compilation = VerifyUtils.CreateCompilation(code);
+        var generator = new Gen();
+        var driver = CSharpGeneratorDriver.Create(generator);
+
+        // 2. Run
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        
+        // VerifyUtils.CheckOutputCompilation(outputCompilation);
+
+        // 3. Verify (NUnit adapter)
+        await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Example()
+    {
+        var code =
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("shaders/raymarcher_no_texture.wgsl")]
+    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
+        [BindUniform(0, 0)] Uniforms      	uniforms);
+        
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Uniforms
+    {
+        public  Vector3     vector1;
+        private float       _pad;
+        public  float       time;
+        private Vector3     vector2;
+    }
+}
+""";
+        await Verify(code);
+    }
+
+}

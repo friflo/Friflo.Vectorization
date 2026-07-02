@@ -109,6 +109,7 @@ public sealed partial class Gen
         {
             csType.Fields = structSymbol.GetMembers()
                 .OfType<IFieldSymbol>()
+                .Where(fieldSymbol => !fieldSymbol.IsStatic)
                 .Select(fieldSymbol => new CsField
                 {
                     Name = fieldSymbol.Name,
@@ -116,7 +117,6 @@ public sealed partial class Gen
                     Attributes = fieldSymbol.GetAttributes().Select(MapAttribute).ToList()
                 }).ToList();
         }
-
         return csType;
     }
 

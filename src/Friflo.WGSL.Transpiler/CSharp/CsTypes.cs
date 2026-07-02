@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Text;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedType.Global
@@ -14,30 +15,55 @@ public class CsMethod
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     List<CsAttribute>       Attributes  { get; init; }
     public required     List<CsParameter>       Parameters  { get; init; }
+    
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"{Identifier.Namespace}.{Identifier.Name}(");
+        foreach (var parameter in Parameters) {
+            parameter.AppendString(sb);
+            sb.Append(", ");
+        }
+        sb.Append(")");
+        return sb.ToString();
+    }
 }
 
-public struct CsAttribute
+public readonly struct CsAttribute
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     List<CsAttributeArg>    Args        { get; init; }
     
+    public override     string                  ToString() => Identifier.ToString();
+    
     public CsAttribute() { }
 }
 
-public struct CsAttributeArg
+public readonly struct CsAttributeArg
 {
     public required     string                  Name        { get; init; }
     public required     string                  Value       { get; init; } // string or int
-    
+
+    public override     string                  ToString()  => $"{Value} ({Name})";
+
     public CsAttributeArg() { }
 }
 
-public struct CsParameter
+public readonly struct CsParameter
 {
     public required     List<CsAttribute>       Attributes  { get; init; }
     public required     CsType                  Type        { get; init; }
     public required     string                  Name        { get; init; }
     
+    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
+    
+    public StringBuilder AppendString(StringBuilder sb)
+    {
+        sb.Append(Name);
+        sb.Append(" : ");
+        Type.AppendString(sb);
+        return sb;
+    }
     public CsParameter() { }
 }
 
@@ -49,14 +75,37 @@ public class CsType
     public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
     public required     List<CsAttribute>       Attributes  { get; init; }
     public required     List<CsField>           Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
+    
+    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
+    
+    public StringBuilder AppendString(StringBuilder sb)
+    {
+        sb.Append($"{Identifier.Namespace}.{Identifier.Name}");
+        if (Generics.Count == 0) return sb;
+        sb.Append("<");
+        foreach (var generic in Generics) {
+            sb.Append(generic.Name);
+        }
+        sb.Append(">");
+        return sb;
+    }
 }
 
-public struct CsField
+public readonly struct CsField
 {
     public required     List<CsAttribute>       Attributes  { get; init; }
     public required     CsType                  Type        { get; init; }
     public required     string                  Name        { get; init; }
-    
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append(Name);
+        sb.Append(" : ");
+        Type.AppendString(sb);
+        return sb.ToString();
+    }
+
     public CsField() { }
 }
 
@@ -66,10 +115,12 @@ public enum CsTypeKind
     Struct
 }
 
-public struct CsTypeIdentifier
+public readonly struct CsTypeIdentifier
 {
     public required     string              Name        { get; init; }
     public required     string              Namespace   { get; init; }
+
+    public override     string              ToString() => $"{Namespace}.{Name}";
 }
 
 
