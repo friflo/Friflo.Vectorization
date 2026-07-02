@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedType.Global
 // ReSharper disable ClassNeverInstantiated.Global
 namespace Friflo.WGSL.Transpiler.CSharp;
@@ -47,7 +48,7 @@ public class CsType
     public required     CsTypeKind              Kind        { get; init; }
     public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
     public required     List<CsAttribute>       Attributes  { get; init; }
-    public required     List<CsField>           Fields      { get; init; } // only set for CsTypeKind.Struct -> no cyclic dependencies
+    public required     List<CsField>           Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
 }
 
 public struct CsField

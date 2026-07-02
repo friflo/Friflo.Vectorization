@@ -154,7 +154,7 @@ public sealed partial class Gen : IIncrementalGenerator
             return new EmissionResult("", "", []);
         }
         var  attributes         = blueprintMethod.GetAttributes();
-        if (GenerateShaderMethod(semanticModel, attributes, blueprintMethod, trigger, out var result)) {
+        if (GenerateShaderMethod(attributes, blueprintMethod, trigger, out var result)) {
             return result;
         }
         bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
