@@ -63,9 +63,7 @@ public enum CsParameterType
     VertexBuffer,
     //
     BindStorage,
-    //
     BindUniform,
-    //
     BindIndex,
     //
     SamplerFiltering,
@@ -95,6 +93,8 @@ public readonly struct CsParameter
     public required     CsParameterType         ParameterType   { get; init; }
     public required     CsType                  Type            { get; init; }
     public required     string                  Name            { get; init; }
+    public required     int                     GroupIndex      { get; init; }
+    public required     int                     BindingIndex    { get; init; }
     
     public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     

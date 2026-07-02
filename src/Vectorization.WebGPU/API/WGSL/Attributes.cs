@@ -122,7 +122,10 @@ public sealed class BindUniformAttribute : Attribute
 
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindIndexAttribute : Attribute { }
+public sealed class BindIndexAttribute : Attribute
+{
+    public BindIndexAttribute (int groupIndex, int bindingIndex) { }
+}
 
 
 

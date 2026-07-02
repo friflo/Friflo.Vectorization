@@ -65,12 +65,28 @@ public sealed partial class Gen
         var parameters  = new CsParameter[methodParameters.Length];
         for (int n = 0; n <  methodParameters.Length; n++)
         {
-            var paramSymbol = methodParameters[n];
-            var parameterType = GetParameterType(paramSymbol);
+            var paramSymbol     = methodParameters[n];
+            var parameterType   = GetParameterType(paramSymbol, out var attributeData);
+            int arg0 = -1;
+            int arg1 = -1;
+            if (attributeData != null) {
+                var args = attributeData.ConstructorArguments;
+                switch (parameterType) {
+                    case CsParameterType.VertexBuffer:
+                        arg0 = (int)args[0].Value!;
+                        break;
+                    default:
+                        arg0 = (int)args[0].Value!;
+                        arg1 = (int)args[1].Value!;
+                        break;
+                }
+            }
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 Type            = MapType(paramSymbol.Type, parameterType != CsParameterType.None),
-                ParameterType   = parameterType
+                ParameterType   = parameterType,
+                GroupIndex      = arg0,
+                BindingIndex    = arg1
             };
         }
         return new CsMethod {
@@ -81,15 +97,17 @@ public sealed partial class Gen
         };
     }
     
-    private static CsParameterType GetParameterType(IParameterSymbol paramSymbol)
+    private static CsParameterType GetParameterType(IParameterSymbol paramSymbol, out AttributeData? attributeData)
     {
         var attributes = paramSymbol.GetAttributes();
         foreach (var attribute in attributes)
         {
+            attributeData = attribute;
             var fullName = attribute.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             switch (fullName)
             {
                 case "global::Friflo.Vectorization.WebGPU.VertexBufferAttribute":           return CsParameterType.VertexBuffer;
+                //
                 case "global::Friflo.Vectorization.WebGPU.BindStorageAttribute":            return CsParameterType.BindStorage;
                 case "global::Friflo.Vectorization.WebGPU.BindUniformAttribute":            return CsParameterType.BindUniform;
                 case "global::Friflo.Vectorization.WebGPU.BindIndexAttribute":              return CsParameterType.BindIndex;
@@ -116,6 +134,7 @@ public sealed partial class Gen
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_cube_array":        return CsParameterType.texture_depth_cube_array;
             }
         }
+        attributeData = null;
         return CsParameterType.None;
     }
 
