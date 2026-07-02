@@ -71,5 +71,15 @@ public static class Errors
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true
     );
+    
+    // --------------- Shader
+    public static readonly DiagnosticDescriptor ShaderError = new (
+        id: "ECSGEN010",
+        title: "Shader Error",
+        messageFormat: "Shader Error - {0}",
+        category: "Syntax",
+        defaultSeverity: DiagnosticSeverity.Warning, 
+        isEnabledByDefault: true
+    );
 
 }

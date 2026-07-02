@@ -147,6 +147,10 @@ public enum GenerateTrigger
     QueryAttribute,
     VectorizeAttribute,
     KernelAttribute,
+    //
+    ShaderAttribute,
+    VertexShaderAttribute,
+    FragmentShaderAttribute,
 }
 
 public struct Param
