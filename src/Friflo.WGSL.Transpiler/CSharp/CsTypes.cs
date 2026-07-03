@@ -15,7 +15,11 @@ public class CsMethod
 {
     public required     string          Name            { get; init; }
     public required     CsType          DeclaringType   { get; init; }
-    public required     CsAttribute[]   Attributes      { get; init; }
+    public required     string          Shader          { get; init; }
+    public required     string          VertexShader    { get; init; }
+    public required     string          FragmentShader  { get; init; }
+    public required     string          VertexEntry     { get; init; }
+    public required     string          FragmentEntry   { get; init; }
     public required     CsParameter[]   Parameters      { get; init; }
     
     public override string ToString()

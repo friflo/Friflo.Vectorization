@@ -44,7 +44,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("shaders/triangle.wgsl")]
+    [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
         [BindUniform(1, 0)] MyUniform               myUniform);

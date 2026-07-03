@@ -53,7 +53,7 @@ public sealed partial class Gen
         if (noEmit) {
             return true;
         }
-        var method = CreateCsMethod(methodAttributes, methodSymbol);
+        var method = CreateCsMethod(methodAttributes, methodSymbol, shader, vertexShader, fragmentShader);
         var hash = "";
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
@@ -68,7 +68,10 @@ public sealed partial class Gen
 
     private static CsMethod CreateCsMethod(
         ImmutableArray<AttributeData>   methodAttributes,
-        IMethodSymbol                   methodSymbol)
+        IMethodSymbol                   methodSymbol,
+        AttributeData?                  shader,
+        AttributeData?                  vertexShader,
+        AttributeData?                  fragmentShader)
     {
         var declaringType   = MapType(methodSymbol.ContainingType, false);
         var attributes      = methodAttributes.Select(MapAttribute).ToArray();
@@ -111,11 +114,17 @@ public sealed partial class Gen
                 SampleType      = sampleType
             };
         }
+        var vertexEntry   = (string?)(shader != null ? shader.ConstructorArguments[1].Value : vertexShader!  .ConstructorArguments[1].Value);
+        var fragmentEntry = (string?)(shader != null ? shader.ConstructorArguments[2].Value : fragmentShader!.ConstructorArguments[1].Value);
         return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
-            Attributes      = attributes,
-            Parameters      = parameters
+            Parameters      = parameters,
+            Shader          = (string)shader?        .ConstructorArguments[0].Value!,
+            VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
+            FragmentShader  = (string)fragmentShader?.ConstructorArguments[0].Value!,
+            VertexEntry     = vertexEntry,
+            FragmentEntry   = fragmentEntry
         };
     }
     
