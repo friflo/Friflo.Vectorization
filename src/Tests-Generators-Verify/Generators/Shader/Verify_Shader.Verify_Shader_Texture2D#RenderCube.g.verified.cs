@@ -1,8 +1,10 @@
 ﻿//HintName: VerifyShader/ShaderExample/RenderCube.g.cs
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
@@ -17,28 +19,27 @@ public partial class ShaderExample
         GpuSampler smoothFilter,
         GpuTextureView material)
     {
-        // hello shader
+
     }
 
-    /*
+
     private sealed class _RenderCube_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        // internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            // ReleaseBindGroups(bindGroup0);
         }
     }
 
     private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator
-    private static ulong        _RenderCube_GPU_WgslHash            => 0x1255;  // support Hot-Relead
-
+    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator   TODO calculate key
+    private static ulong        _RenderCube_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderCube_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
+    /*  var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
             device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
@@ -54,9 +55,9 @@ public partial class ShaderExample
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
-        return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache);
+        return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
+        throw new  NotImplementedException();
     }
-    private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
-    */
+    // private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
+    // private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
 }

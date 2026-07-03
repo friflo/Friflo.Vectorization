@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
 
@@ -27,8 +28,8 @@ public static class ShaderEmitter
             return result;
         });
 
-
-        var layouts         = new List<BindGroupLayout>();
+        var buffers = new StringBuilder();
+        var layouts = new List<BindGroupLayout>();
         BindGroupLayout curBindGroupLayout = null;
         
         foreach (var bindGroup in bindGroups) {
@@ -39,6 +40,14 @@ public static class ShaderEmitter
                 layouts.Add(curBindGroupLayout);
             }
             curBindGroupLayout.bindings.Add(bindGroup);
+            var typeName = bindGroup.Type.Identifier.Name;
+            if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                if (buffers.Length == 0) {
+                    buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({bindGroup.Name}, nameof({bindGroup.Name}));");
+                } else {
+                    // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({bindGroup.Name}, nameof({bindGroup.Name}));"); // TODO
+                }
+            }
         }
         
         var bindGroupCaches = new StringBuilder();
@@ -60,8 +69,10 @@ public static class ShaderEmitter
 $$"""
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 
 namespace {{method.DeclaringType.Identifier.Namespace}};
@@ -71,28 +82,27 @@ public partial class {{method.DeclaringType.Identifier.Name}}
     public {{(staticMethod ? "static " : "")}}partial void {{method.Name}}(
 {{signature}})
     {
-        // hello shader
+{{buffers}}
     }
 
-    /*
+
     private sealed class {{method_GPU}}_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        // internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            // ReleaseBindGroups(bindGroup0);
         }
     }
 
     private static readonly int {{method_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        {{method_GPU}}_layout_0_Key        =  0x4755;  // unique key set by Generator
-    private static ulong        {{method_GPU}}_WgslHash            => 0x1255;  // support Hot-Relead
-
+    private const  ulong        {{method_GPU}}_layout_0_Key        =  0x4755;  // unique key set by Generator   TODO calculate key
+    private static ulong        {{method_GPU}}_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{method_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        var layout_0 = device.GetBindGroupLayout({{method_GPU}}_layout_0_Key);
+    /*  var layout_0 = device.GetBindGroupLayout({{method_GPU}}_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
             device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
@@ -108,11 +118,11 @@ public partial class {{method.DeclaringType.Identifier.Name}}
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new {{method_GPU}}_Cache();
-        return ref device.CreatePipelineCache({{method_GPU}}_ShaderId, config, {{method_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
+        return ref device.CreatePipelineCache({{method_GPU}}_ShaderId, config, {{method_GPU}}_WgslHash, pipeline, layouts, bindGroupCache); */
+        throw new  NotImplementedException();
     }
-    private static ReadOnlySpan<byte> {{method_GPU}}_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    private static ReadOnlySpan<byte> {{method_GPU}}_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
-    */
+    // private static ReadOnlySpan<byte> {{method_GPU}}_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
+    // private static ReadOnlySpan<byte> {{method_GPU}}_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
 }
 """;
         return code;
