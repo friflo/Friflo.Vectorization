@@ -32,21 +32,21 @@ public class SamplerTypeAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class SamplerFiltering : SamplerTypeAttribute
 {
-    public SamplerFiltering (int groupIndex, int bindingIndex) { }
+    public SamplerFiltering (int group, int binding) { }
 }
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class SamplerNonFiltering : SamplerTypeAttribute
 {
-    public SamplerNonFiltering (int groupIndex, int bindingIndex) { }
+    public SamplerNonFiltering (int group, int binding) { }
 }
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler_comparison</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class SamplerComparison : SamplerTypeAttribute
 {
-    public SamplerComparison (int groupIndex, int bindingIndex) { }
+    public SamplerComparison (int group, int binding) { }
 }
 
 #pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.

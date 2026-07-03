@@ -58,37 +58,37 @@ public class TextureTypeAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_1d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_1d (int groupIndex, int bindingIndex) { }
+    public texture_1d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_2d (int groupIndex, int bindingIndex) { }
+    public texture_2d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_2d_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_2d_array (int groupIndex, int bindingIndex) { }
+    public texture_2d_array (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_3d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_3d (int groupIndex, int bindingIndex) { }
+    public texture_3d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_cube<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_cube (int groupIndex, int bindingIndex) { }
+    public texture_cube (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_cube_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_cube_array (int groupIndex, int bindingIndex) { }
+    public texture_cube_array (int group, int binding) { }
 }
 #endregion
 
@@ -101,13 +101,13 @@ public sealed class texture_cube_array<ST> : TextureTypeAttribute  where ST : un
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_multisampled_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_multisampled_2d (int groupIndex, int bindingIndex) { }
+    public texture_multisampled_2d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_depth_multisampled_2d : TextureTypeAttribute
 {
-    public texture_depth_multisampled_2d (int groupIndex, int bindingIndex) { }
+    public texture_depth_multisampled_2d (int group, int binding) { }
 }
 #endregion
 
@@ -120,25 +120,25 @@ public sealed class texture_depth_multisampled_2d : TextureTypeAttribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_storage_1d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_storage_1d (int groupIndex, int bindingIndex) { }
+    public texture_storage_1d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_storage_2d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_storage_2d (int groupIndex, int bindingIndex) { }
+    public texture_storage_2d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_storage_2d_array<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_storage_2d_array (int groupIndex, int bindingIndex) { }
+    public texture_storage_2d_array (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_storage_3d<ST> : TextureTypeAttribute  where ST : unmanaged, ISampleType
 {
-    public texture_storage_3d (int groupIndex, int bindingIndex) { }
+    public texture_storage_3d (int group, int binding) { }
 }
 #endregion
 
@@ -151,25 +151,25 @@ public sealed class texture_storage_3d<ST> : TextureTypeAttribute  where ST : un
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_depth_2d : TextureTypeAttribute
 {
-    public texture_depth_2d (int groupIndex, int bindingIndex) { }
+    public texture_depth_2d (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_depth_2d_array : TextureTypeAttribute
 {
-    public texture_depth_2d_array (int groupIndex, int bindingIndex) { }
+    public texture_depth_2d_array (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_depth_cube : TextureTypeAttribute
 {
-    public texture_depth_cube (int groupIndex, int bindingIndex) { }
+    public texture_depth_cube (int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_depth_cube_array : TextureTypeAttribute
 {
-    public texture_depth_cube_array (int groupIndex, int bindingIndex) { }
+    public texture_depth_cube_array (int group, int binding) { }
 }
 
 #endregion

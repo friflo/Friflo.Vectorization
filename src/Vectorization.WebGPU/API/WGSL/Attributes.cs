@@ -93,7 +93,7 @@ public sealed class VertexBufferAttribute : Attribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindStorageAttribute : Attribute
 {
-    public BindStorageAttribute (int groupIndex, int bindingIndex) { }
+    public BindStorageAttribute (int group, int binding) { }
 }
 
 /// <summary> Annotates a shader method parameter passing a uniform. </summary>
@@ -117,14 +117,14 @@ public sealed class BindStorageAttribute : Attribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindUniformAttribute : Attribute
 {
-    public BindUniformAttribute (int groupIndex, int bindingIndex) { }
+    public BindUniformAttribute (int group, int binding) { }
 }
 
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class BindIndexAttribute : Attribute
 {
-    public BindIndexAttribute (int groupIndex, int bindingIndex) { }
+    public BindIndexAttribute (int group, int binding) { }
 }
 
 
