@@ -52,10 +52,10 @@ public readonly struct CsAttribute
 
 public readonly struct CsAttributeArg
 {
-    public required     string                  Name        { get; init; }
-    public required     string                  Value       { get; init; } // string or int
+    public required     string  Name        { get; init; }
+    public required     string  Value       { get; init; } // string or int
 
-    public override     string                  ToString()  => $"{Value} ({Name})";
+    public override     string  ToString()  => $"{Value} ({Name})";
 
     public CsAttributeArg() { }
 }
@@ -68,7 +68,7 @@ public enum CsSampleType
     f32
 }
 
-public enum CsParameterType
+public enum CsParamAttribute
 {
     None,
     //
@@ -102,14 +102,14 @@ public enum CsParameterType
 
 public readonly struct CsParameter
 {
-    public required     CsParameterType         ParameterType   { get; init; }
-    public required     CsType                  Type            { get; init; }
-    public required     string                  Name            { get; init; }
-    public required     int                     GroupIndex      { get; init; }
-    public required     int                     BindingIndex    { get; init; }
-    public required     CsSampleType            SampleType      { get; init; }
+    public required     CsParamAttribute    ParamAttribute  { get; init; }
+    public required     CsType              Type            { get; init; }
+    public required     string              Name            { get; init; }
+    public required     int                 GroupIndex      { get; init; }
+    public required     int                 BindingIndex    { get; init; }
+    public required     CsSampleType        SampleType      { get; init; }
     
-    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
+    public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
     public StringBuilder AppendString(StringBuilder sb)
     {
@@ -173,10 +173,10 @@ public enum CsTypeKind
 
 public readonly struct CsTypeIdentifier
 {
-    public required     string              Name        { get; init; }
-    public required     string              Namespace   { get; init; }
+    public required     string  Name        { get; init; }
+    public required     string  Namespace   { get; init; }
 
-    public override     string              ToString() => $"{Namespace}.{Name}";
+    public override     string  ToString() => $"{Namespace}.{Name}";
 }
 
 
