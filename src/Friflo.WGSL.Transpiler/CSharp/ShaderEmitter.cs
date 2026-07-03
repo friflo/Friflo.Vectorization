@@ -106,6 +106,7 @@ public static class ShaderEmitter
             bindGroupLayouts.Append("        \n");
         }
         
+        // language=csharp
         var code =
 $$"""
 using System;

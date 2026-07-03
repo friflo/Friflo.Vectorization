@@ -51,6 +51,7 @@ public sealed partial class Gen
         {
             var avxMethod       = query.CustomMethod ?? $"_{methodName}_Avx{query.Hash}";
             
+            // language=csharp
             var shadowMethodSource =
             $$""""
 
@@ -71,6 +72,7 @@ public sealed partial class Gen
             """";
             return shadowMethodSource;
         }
+        // language=csharp
         var source =
         $$""""
 

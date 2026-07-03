@@ -176,6 +176,7 @@ public sealed partial class Gen
         var wgslHash            = GeneratorUtils.GetMd5Hash(query.wgslBody.Replace("\r\n", "\n")).Substring(16).ToLowerInvariant();
         
         // ----------------- generate method
+        // language=csharp
         var shadowMethodSource =
 $$""""
 

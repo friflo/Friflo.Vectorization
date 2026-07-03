@@ -68,6 +68,7 @@ public sealed partial class Gen
         
         if (query.Spans.Length == 0)
         {
+            // language=csharp
             shadowMethodSource =   
             $$"""
             
@@ -84,6 +85,7 @@ public sealed partial class Gen
                     }
             """;
         } else {
+            // language=csharp
             shadowMethodSource =
             $$"""
             
@@ -106,6 +108,7 @@ public sealed partial class Gen
             """;
         }
         
+        // language=csharp
         privateSource =
         $$"""
         
