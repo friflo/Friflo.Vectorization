@@ -58,7 +58,7 @@ public partial class ShaderExample
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
             device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            
+            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
         }
         layouts[0] = layout_0;

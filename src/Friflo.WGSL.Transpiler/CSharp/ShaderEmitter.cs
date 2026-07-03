@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
@@ -176,7 +177,38 @@ public partial class {{className}}
             case CsParamAttribute.SamplerNonFiltering:  sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.NonFiltering);");   return;
             case CsParamAttribute.SamplerComparison:    sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.Comparison);");     return;
             //
+            case CsParamAttribute.texture_1d:                       AppendTexture(sb, binding.SampleType, "D1D");           return;
+            case CsParamAttribute.texture_2d:                       AppendTexture(sb, binding.SampleType, "D2D");           return;
+            case CsParamAttribute.texture_2d_array:                 AppendTexture(sb, binding.SampleType, "D2DArray");      return;
+            case CsParamAttribute.texture_3d:                       AppendTexture(sb, binding.SampleType, "D3D");           return;
+            case CsParamAttribute.texture_cube:                     AppendTexture(sb, binding.SampleType, "Cube");          return;
+            case CsParamAttribute.texture_cube_array:               AppendTexture(sb, binding.SampleType, "CubeArray");     return;
+            //
+            case CsParamAttribute.texture_multisampled_2d:          AppendTexture(sb, binding.SampleType, "D2D", true);     return;
+            case CsParamAttribute.texture_depth_multisampled_2d:    AppendTexture(sb, default,            "D2D", true);     return;
+            //
+            case CsParamAttribute.texture_storage_1d:               AppendTexture(sb, binding.SampleType, "D1D");           return;
+            case CsParamAttribute.texture_storage_2d:               AppendTexture(sb, binding.SampleType, "D2D");           return;
+            case CsParamAttribute.texture_storage_2d_array:         AppendTexture(sb, binding.SampleType, "D2DArray");      return;
+            case CsParamAttribute.texture_storage_3d:               AppendTexture(sb, binding.SampleType, "D3D");           return;
+            //
+            case CsParamAttribute.texture_depth_2d:                 AppendTexture(sb, default,            "D2D");           return;
+            case CsParamAttribute.texture_depth_2d_array:           AppendTexture(sb, default,            "D2DArray");      return;
+            case CsParamAttribute.texture_depth_cube:               AppendTexture(sb, default,            "Cube");          return;
+            case CsParamAttribute.texture_depth_cube_array:         AppendTexture(sb, default,            "CubeArray");     return;
         }
+    }
+    
+    private static void AppendTexture(StringBuilder sb, CsSampleType sampleType, string dimension, bool multisampled = false)
+    {
+        var type = sampleType switch {
+            CsSampleType.i32    => "Sint",
+            CsSampleType.u32    => "Uint",
+            CsSampleType.f32    => "Float",
+            _                   => "None"
+        };
+        var multi = multisampled ? "true" : "false";
+        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
     }
     
     private static StringBuilder GetSignature(CsParameter[] parameters)
