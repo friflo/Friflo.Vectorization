@@ -24,24 +24,26 @@ public partial class ShaderExample
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(_DrawTriangles_GPU_ShaderId, "DrawTriangles_encoder"u8);
-        
-        // recorder.RequireRead(vertices); TODO
 
+        recorder.RequireRead     (triangles);
+        
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref _DrawTriangles_GPU_CreatePipelineCache(recorder.Device, config);
         }
-        
         pass_.SetPipeline(pipelineCache.renderPipeline);
+        
+        var bindGroupCache = (_DrawTriangles_GPU_Cache)pipelineCache.bindGroupCache;
+
+        
     }
 
 
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
-        // internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
-        
+
         protected override void Clear() {
-            // ReleaseBindGroups(bindGroup0);
+
         }
     }
 

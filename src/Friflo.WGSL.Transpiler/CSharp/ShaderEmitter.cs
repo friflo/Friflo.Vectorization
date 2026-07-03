@@ -53,11 +53,14 @@ public static class ShaderEmitter
             return result;
         });
 
-        var buffers = new StringBuilder();
-        var layouts = new List<BindGroupLayout>();
+        var buffers     = new StringBuilder();
+        var bufferInit  = new StringBuilder();
+        var layouts     = new List<BindGroupLayout>();
         BindGroupLayout curBindGroupLayout = null;
         
-        foreach (var bindGroup in bindGroups) {
+        foreach (var bindGroup in bindGroups)
+        {
+            var name = bindGroup.Name;
             if (curBindGroupLayout == null ||
                 curBindGroupLayout.groupIndex != bindGroup.GroupIndex)
             {
@@ -68,20 +71,26 @@ public static class ShaderEmitter
             var typeName = bindGroup.Type.Identifier.Name;
             if (typeName == "InBuffer" || typeName == "InOutBuffer") {
                 if (buffers.Length == 0) {
-                    buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({bindGroup.Name}, nameof({bindGroup.Name}));");
+                    buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));");
                 } else {
-                    // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({bindGroup.Name}, nameof({bindGroup.Name}));"); // TODO
+                    // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));"); // TODO
                 }
+                var requireType         = typeName == "InOutBuffer" ? "RequireReadWrite" : "RequireRead     ";
+                bufferInit.Append($"\n        recorder.{requireType}({name});");
             }
         }
         
-        var bindGroupCaches  = new StringBuilder();
+        var bindGroupMembers = new StringBuilder();
+        var bindGroupClear   = new StringBuilder();
         var layoutKeys       = new StringBuilder();
         var bindGroupLayouts = new StringBuilder();
 
         foreach (var layout in layouts)
         {
             var groupIndex = layout.groupIndex;
+            // --- bind group creation
+            
+            // --- bind group layout creation
             layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{groupIndex}_Key        =  0x4755;  // TODO\n");
             bindGroupLayouts.Append($"        var layout_{groupIndex} = device.GetBindGroupLayout({methodName_GPU}_layout_{groupIndex}_Key);\n");
             bindGroupLayouts.Append($"        if (!layout_{groupIndex}.IsCreated) {{\n");
@@ -95,8 +104,6 @@ public static class ShaderEmitter
             bindGroupLayouts.Append($"        layouts[{groupIndex}] = layout_{groupIndex};\n");
             bindGroupLayouts.Append("        \n");
         }
-
-
         
         var code =
 $$"""
@@ -120,24 +127,25 @@ public partial class {{className}}
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init({{methodName_GPU}}_ShaderId, "{{methodName}}_encoder"u8);
+{{bufferInit}}
         
-        // recorder.RequireRead(vertices); TODO
-
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash);
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref {{methodName_GPU}}_CreatePipelineCache(recorder.Device, config);
         }
-        
         pass_.SetPipeline(pipelineCache.renderPipeline);
+        
+        var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
+
+        
     }
 
 
     private sealed class {{methodName_GPU}}_Cache : BindGroupCache
     {
-        // internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
-        
+{{bindGroupMembers}}
         protected override void Clear() {
-            // ReleaseBindGroups(bindGroup0);
+{{bindGroupClear}}
         }
     }
 
