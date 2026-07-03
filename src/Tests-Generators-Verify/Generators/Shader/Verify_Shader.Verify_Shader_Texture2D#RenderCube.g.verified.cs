@@ -68,8 +68,13 @@ public partial class ShaderExample
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
+        
+        using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);
+        using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "RenderCube_FragmentShader"u8);
+
         throw new  NotImplementedException();
     }
-    // private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    // private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
+    private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/basic.vert.wgsl");
+    private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/sampleTextureMixColor.frag.wgsl");
+
 }

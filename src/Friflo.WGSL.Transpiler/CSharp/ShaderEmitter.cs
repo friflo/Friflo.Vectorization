@@ -18,6 +18,24 @@ public static class ShaderEmitter
 {
     public static string EmitShader(bool staticMethod, CsMethod method, string hash)
     {
+        var methodName      = method.Name;
+        var signature       = GetSignature(method.Parameters);
+        var methodName_GPU  = "_" + methodName + "_GPU";
+        var className       = method.DeclaringType.Identifier.Name;
+        
+        var shaderModules   = new StringBuilder();
+        var shaderResources = new StringBuilder();
+        if (method.Shader != null) {
+            shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Shader}\");\n");
+        } else {
+            shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
+            shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.VertexShader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.FragmentShader}\");\n");
+        }
+        
+        
         // filter / sort parameters use to create bind group layouts & bind groups
         var bindGroups = method.Parameters.Where(p => p.HasBindGroup).ToArray();
         Array.Sort(bindGroups,  (x, y) => {
@@ -61,9 +79,7 @@ public static class ShaderEmitter
             }
         }
 
-        var methodName      = method.Name;
-        var signature       = GetSignature(method.Parameters);
-        var methodName_GPU  = "_" + methodName + "_GPU";
+
         
         var code =
 $$"""
@@ -77,7 +93,7 @@ using Friflo.Vectorization.WebGPU;
 
 namespace {{method.DeclaringType.Identifier.Namespace}};
 
-public partial class {{method.DeclaringType.Identifier.Name}}
+public partial class {{className}}
 {
     public {{(staticMethod ? "static " : "")}}partial void {{methodName}}(
 {{signature}})
@@ -131,10 +147,11 @@ public partial class {{method.DeclaringType.Identifier.Name}}
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache); */
+        
+{{shaderModules}}
         throw new  NotImplementedException();
     }
-    // private static ReadOnlySpan<byte> {{methodName_GPU}}_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    // private static ReadOnlySpan<byte> {{methodName_GPU}}_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
+{{shaderResources}}
 }
 """;
         return code;

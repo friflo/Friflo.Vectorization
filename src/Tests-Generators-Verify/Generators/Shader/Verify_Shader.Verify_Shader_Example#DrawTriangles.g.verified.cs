@@ -68,8 +68,11 @@ public partial class ShaderExample
 
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
+        
+        using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
+
         throw new  NotImplementedException();
     }
-    // private static ReadOnlySpan<byte> _DrawTriangles_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
-    // private static ReadOnlySpan<byte> _DrawTriangles_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
+    private static ReadOnlySpan<byte> _DrawTriangles_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/triangle.wgsl");
+
 }
