@@ -76,6 +76,7 @@ public partial class ShaderExample
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
+    
     private static ReadOnlySpan<byte> _DrawTriangles_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/triangle.wgsl");
 
 }

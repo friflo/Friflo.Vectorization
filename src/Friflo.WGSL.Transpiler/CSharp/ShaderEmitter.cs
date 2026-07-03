@@ -155,6 +155,7 @@ public partial class {{className}}
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
     }
+    
 {{shaderResources}}
 }
 """;
