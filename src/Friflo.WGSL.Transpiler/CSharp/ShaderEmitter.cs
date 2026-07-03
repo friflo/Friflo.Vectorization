@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace Friflo.WGSL.Transpiler.CSharp;
 
@@ -26,6 +28,18 @@ public static class ShaderEmitter
             signature.Append(",\n");
         }
         signature.Length -= 2;
+        
+        // filter / sort parameters use to create bind group layouts & bind groups
+        var layouts = method.Parameters.Where(p =>  p.ParamAttribute != CsParamAttribute.None && 
+                                                    p.ParamAttribute != CsParamAttribute.VertexBuffer).ToArray();
+        Array.Sort(layouts,  (x, y) => {
+            int result = x.GroupIndex.CompareTo(y.GroupIndex);
+            if (result == 0) {
+                result = x.BindingIndex.CompareTo(y.BindingIndex);
+            }
+            return result;
+        });
+        
         
         var code =
 $$"""
