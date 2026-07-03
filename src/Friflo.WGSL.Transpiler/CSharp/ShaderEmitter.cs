@@ -8,27 +8,6 @@ public static class ShaderEmitter
 {
     public static string EmitShader(bool staticMethod, CsMethod method, string hash)
     {
-        var signature = new StringBuilder();
-        foreach (var parameter in method.Parameters)
-        {
-            signature.Append("        ");        
-            signature.Append(parameter.Type.Identifier.Name);
-            var generics = parameter.Type.Generics;
-            if (generics.Count > 0) {
-                signature.Append("<");
-                foreach (var generic in generics) {
-                    signature.Append(generic.Name);
-                    signature.Append(", ");
-                }
-                signature.Length -= 2;
-                signature.Append(">");
-            }
-            signature.Append(" ");
-            signature.Append(parameter.Name);
-            signature.Append(",\n");
-        }
-        signature.Length -= 2;
-        
         // filter / sort parameters use to create bind group layouts & bind groups
         var layouts = method.Parameters.Where(p => p.HasBindGroup).ToArray();
         Array.Sort(layouts,  (x, y) => {
@@ -39,6 +18,7 @@ public static class ShaderEmitter
             return result;
         });
         
+        var signature = GetSignature(method.Parameters);
         
         var code =
 $$"""
@@ -60,5 +40,30 @@ public partial class {{method.DeclaringType.Identifier.Name}}
 }
 """;
         return code;
+    }
+    
+    private static StringBuilder GetSignature(CsParameter[] parameters)
+    {
+        var signature = new StringBuilder();
+        foreach (var parameter in parameters)
+        {
+            signature.Append("        ");        
+            signature.Append(parameter.Type.Identifier.Name);
+            var generics = parameter.Type.Generics;
+            if (generics.Count > 0) {
+                signature.Append("<");
+                foreach (var generic in generics) {
+                    signature.Append(generic.Name);
+                    signature.Append(", ");
+                }
+                signature.Length -= 2;
+                signature.Append(">");
+            }
+            signature.Append(" ");
+            signature.Append(parameter.Name);
+            signature.Append(",\n");
+        }
+        signature.Length -= 2;
+        return signature;
     }
 }
