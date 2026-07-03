@@ -12,12 +12,12 @@ using Microsoft.CodeAnalysis;
 // ReSharper disable once CheckNamespace
 namespace Friflo;
 
-public sealed partial class Gen
+public sealed partial class ShaderGen
 {
     private static bool GenerateShaderMethod(
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol,
-        GenerateTrigger                 trigger,
+        ShaderTrigger                   trigger,
         Diagnostics                     diagnostics,
         out EmissionResult              emissionResult)
     {
@@ -29,19 +29,19 @@ public sealed partial class Gen
 
         switch (trigger)
         {
-            case  GenerateTrigger.ShaderAttribute:
+            case  ShaderTrigger.ShaderAttribute:
                 if (vertexShader != null || fragmentShader != null) {
                     diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader!.AttributeClass, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
                     return true;
                 }
                 break;
-            case  GenerateTrigger.VertexShaderAttribute:
+            case  ShaderTrigger.VertexShaderAttribute:
                 if (fragmentShader == null) {
                     diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, vertexShader!.AttributeClass, "[VertexShader] requires also a [FragmentShader]");
                     return true;
                 }
                 break;
-            case  GenerateTrigger.FragmentShaderAttribute:
+            case  ShaderTrigger.FragmentShaderAttribute:
                 if (vertexShader == null) {
                     diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, fragmentShader!.AttributeClass, "[FragmentShader] requires also a [VertexShader]");
                 }
@@ -60,7 +60,7 @@ public sealed partial class Gen
         
         var code = ShaderEmitter.EmitShader(methodSymbol.IsStatic, method, hash);
 
-        var fileName = CreateFileName(methodSymbol, hash);
+        var fileName = Gen.CreateFileName(methodSymbol, hash);
         emissionResult = new EmissionResult(fileName, code, diagnostics.List);
         return true;
     }

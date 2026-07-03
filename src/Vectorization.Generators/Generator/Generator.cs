@@ -40,56 +40,36 @@ public sealed partial class Gen : IIncrementalGenerator
     // In algorithmic context this code generator is a "Recursive Descent Streaming Transpiler"
     private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
     {
-        {
-            // Filter for methods with the attribute
-            var queryMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-                "Friflo.Engine.ECS.QueryAttribute",
-                predicate: (node, _) => node is MethodDeclarationSyntax,
-                transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.QueryAttribute));
-            context.RegisterSourceOutput(queryMethod, EmitResult);
-            
-            var vectorizeMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-                "Friflo.Vectorization.VectorizeAttribute",
-                predicate: (node, _) => node is MethodDeclarationSyntax,
-                transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
-            context.RegisterSourceOutput(vectorizeMethod, EmitResult);
-            
-            var hasVectorize = vectorizeMethod.Collect().Select((list, _) => !list.IsEmpty);
-            context.RegisterSourceOutput(hasVectorize, (spc, found) => {
-                if (!found) {
-                    return;
-                }
-                GeneratorUtils.AddSource(spc, "AvxVector2.g.cs");
-                GeneratorUtils.AddSource(spc, "AvxVector3.g.cs");
-                GeneratorUtils.AddSource(spc, "AvxVector4.g.cs");
-                GeneratorUtils.AddSource(spc, "MathUtils.g.cs");
-                GeneratorUtils.AddSource(spc, "VectorUtils.g.cs");
-            });
-            
-            var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-                "Friflo.Vectorization.GPU.KernelAttribute",
-                predicate: (node, _) => node is MethodDeclarationSyntax,
-                transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
-            context.RegisterSourceOutput(kernelMethod, EmitResult);
-        }
-        // ------ [Shader] [VertexShader] [FragmentShader]
-        var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.ShaderAttribute",
+        // Filter for methods with the attribute
+        var queryMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.ShaderAttribute));
-        context.RegisterSourceOutput(shaderMethod, EmitResult);
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.QueryAttribute));
+        context.RegisterSourceOutput(queryMethod, EmitResult);
         
-        var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
+        var vectorizeMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Vectorization.VectorizeAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VertexShaderAttribute));
-        context.RegisterSourceOutput(vertexShaderMethod, EmitResult);
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
+        context.RegisterSourceOutput(vectorizeMethod, EmitResult);
         
-        var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
+        var hasVectorize = vectorizeMethod.Collect().Select((list, _) => !list.IsEmpty);
+        context.RegisterSourceOutput(hasVectorize, (spc, found) => {
+            if (!found) {
+                return;
+            }
+            GeneratorUtils.AddSource(spc, "AvxVector2.g.cs");
+            GeneratorUtils.AddSource(spc, "AvxVector3.g.cs");
+            GeneratorUtils.AddSource(spc, "AvxVector4.g.cs");
+            GeneratorUtils.AddSource(spc, "MathUtils.g.cs");
+            GeneratorUtils.AddSource(spc, "VectorUtils.g.cs");
+        });
+        
+        var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
+            "Friflo.Vectorization.GPU.KernelAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.FragmentShaderAttribute));
-        context.RegisterSourceOutput(fragmentShaderMethod, EmitResult);
+            transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
+        context.RegisterSourceOutput(kernelMethod, EmitResult);
     }
     
     // ReSharper disable once UnusedMember.Local
@@ -113,7 +93,7 @@ public sealed partial class Gen : IIncrementalGenerator
 
     
     
-    private static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
+    internal static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
     {
         if (emissionResult.exceptionMessage != null) {
             emissionResult.ReportException(productionContext);
@@ -156,9 +136,6 @@ public sealed partial class Gen : IIncrementalGenerator
         var diagnostics = new Diagnostics { BlueprintMethod = blueprintMethod };
         var attributes  = blueprintMethod.GetAttributes();
         
-        if (GenerateShaderMethod(attributes, blueprintMethod, trigger, diagnostics, out var result)) {
-            return result;
-        }
         bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
         var  vectorizeData      = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
         bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.Vectorization.GPU.KernelAttribute");
@@ -279,7 +256,7 @@ public sealed partial class Gen : IIncrementalGenerator
         return "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
     }
     
-    private static string CreateFileName(IMethodSymbol methodSymbol, string hash)
+    internal static string CreateFileName(IMethodSymbol methodSymbol, string hash)
     {
         // path format: <namespace>/<class name>/<method name>
         // this format simplifies navigation in generated files

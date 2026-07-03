@@ -18,11 +18,11 @@ public static class Verify_Shader
     {
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);
-        var generator = new Gen();
+        var generator = new ShaderGen();
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // 2. Run
-        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
         
         VerifyUtils.CheckOutputCompilation(outputCompilation);
 
