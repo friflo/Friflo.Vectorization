@@ -17,4 +17,44 @@ public partial class ShaderExample
     {
         // hello shader
     }
+
+    /*
+    private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        
+        protected override void Clear() {
+            ReleaseBindGroups(bindGroup0);
+        }
+    }
+
+    private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
+    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator
+    private static ulong        _DrawTriangles_GPU_WgslHash            => 0x1255;  // support Hot-Relead
+
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
+    {
+        var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
+        if (!layout_0.IsCreated) {
+            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
+            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
+            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "TextureTest_layout_0"u8);
+        }
+        using var vsModule = device.CreateShaderModule(_DrawTriangles_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
+        using var fsModule = device.CreateShaderModule(_DrawTriangles_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
+        
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        layouts[0] = layout_0;
+
+        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
+
+        var bindGroupCache = new _DrawTriangles_GPU_Cache();
+        return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
+    }
+    private static ReadOnlySpan<byte> _DrawTriangles_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.basic.vert.wgsl");
+    private static ReadOnlySpan<byte> _DrawTriangles_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
+    */
 }
