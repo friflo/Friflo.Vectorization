@@ -20,6 +20,18 @@ public partial class ShaderExample
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));
 
+        var pass_       = pass.Internal;
+		var recorder	= pass_.Recorder;
+		recorder.Init(_DrawTriangles_GPU_ShaderId, "DrawTriangles_encoder"u8);
+        
+        // recorder.RequireRead(vertices); TODO
+
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _DrawTriangles_GPU_CreatePipelineCache(recorder.Device, config);
+        }
+        
+        pass_.SetPipeline(pipelineCache.renderPipeline);
     }
 
 

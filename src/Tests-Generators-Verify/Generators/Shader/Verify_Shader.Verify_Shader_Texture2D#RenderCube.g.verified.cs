@@ -20,6 +20,18 @@ public partial class ShaderExample
         GpuTextureView material)
     {
 
+        var pass_       = pass.Internal;
+		var recorder	= pass_.Recorder;
+		recorder.Init(_RenderCube_GPU_ShaderId, "RenderCube_encoder"u8);
+        
+        // recorder.RequireRead(vertices); TODO
+
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _RenderCube_GPU_CreatePipelineCache(recorder.Device, config);
+        }
+        
+        pass_.SetPipeline(pipelineCache.renderPipeline);
     }
 
 
