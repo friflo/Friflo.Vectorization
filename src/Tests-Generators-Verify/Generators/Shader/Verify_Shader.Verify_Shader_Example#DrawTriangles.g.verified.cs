@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 
 namespace VerifyShader;
 
@@ -44,23 +45,27 @@ public partial class ShaderExample
         }
     }
 
-    private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator   TODO calculate key
+    private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("_DrawTriangles_GPU");
+    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x4755;  // TODO
+    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0x4755;  // TODO
+
     private static ulong        _DrawTriangles_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-    /*  var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
+        var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutUniform();
-            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
-            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "TextureTest_layout_0"u8);
+        layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "DrawTriangles_layout_0"u8);
         }
-        using var vsModule = device.CreateShaderModule(_DrawTriangles_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(_DrawTriangles_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
-        
+        var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
+        if (!layout_1.IsCreated) {
+        layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
+        }
+
+        using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
+
+        /*
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = layout_0;
 
@@ -69,8 +74,6 @@ public partial class ShaderExample
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
         
-        using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
-
         throw new  NotImplementedException();
     }
     private static ReadOnlySpan<byte> _DrawTriangles_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/triangle.wgsl");

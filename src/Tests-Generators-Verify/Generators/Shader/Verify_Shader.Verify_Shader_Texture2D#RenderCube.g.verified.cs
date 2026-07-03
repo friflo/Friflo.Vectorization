@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 
 namespace VerifyShader;
 
@@ -44,23 +45,23 @@ public partial class ShaderExample
         }
     }
 
-    private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x4755;  // unique key set by Generator   TODO calculate key
+    private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("_RenderCube_GPU");
+    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x4755;  // TODO
+
     private static ulong        _RenderCube_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderCube_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-    /*  var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
+        var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutUniform();
-            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
-            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "TextureTest_layout_0"u8);
+        layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
         }
-        using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
-        
+
+        using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);
+        using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "RenderCube_FragmentShader"u8);
+
+        /*
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = layout_0;
 
@@ -69,9 +70,6 @@ public partial class ShaderExample
         var bindGroupCache = new _RenderCube_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
         
-        using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "RenderCube_FragmentShader"u8);
-
         throw new  NotImplementedException();
     }
     private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/basic.vert.wgsl");

@@ -68,15 +68,21 @@ public static class ShaderEmitter
             }
         }
         
-        var bindGroupCaches = new StringBuilder();
+        var bindGroupCaches  = new StringBuilder();
+        var layoutKeys       = new StringBuilder();
+        var bindGroupLayouts = new StringBuilder();
 
         foreach (var layout in layouts)
         {
-            foreach (var binding in layout.bindings)
-            {
-                
+            var groupIndex = layout.groupIndex;
+            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{groupIndex}_Key        =  0x4755;  // TODO\n");
+            bindGroupLayouts.Append($"        var layout_{groupIndex} = device.GetBindGroupLayout({methodName_GPU}_layout_{groupIndex}_Key);\n");
+            bindGroupLayouts.Append($"        if (!layout_{groupIndex}.IsCreated) {{\n");
+            foreach (var binding in layout.bindings) {
                 
             }
+            bindGroupLayouts.Append($"        layout_{groupIndex} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{groupIndex}_Key, \"{methodName}_layout_{groupIndex}\"u8);\n");
+            bindGroupLayouts.Append("        }\n");
         }
 
 
@@ -90,6 +96,7 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
 
 namespace {{method.DeclaringType.Identifier.Namespace}};
 
@@ -123,23 +130,16 @@ public partial class {{className}}
         }
     }
 
-    private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
-    private const  ulong        {{methodName_GPU}}_layout_0_Key        =  0x4755;  // unique key set by Generator   TODO calculate key
+    private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName_GPU}}");
+{{layoutKeys}}
     private static ulong        {{methodName_GPU}}_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-    /*  var layout_0 = device.GetBindGroupLayout({{methodName_GPU}}_layout_0_Key);
-        if (!layout_0.IsCreated) {
-            device.BindGroupLayoutUniform();
-            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
-            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {{methodName_GPU}}_layout_0_Key, "TextureTest_layout_0"u8);
-        }
-        using var vsModule = device.CreateShaderModule({{methodName_GPU}}_VertexShader(),   "TextureTest_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule({{methodName_GPU}}_FragmentShader(), "TextureTest_FragmentShader"u8);
-        
+{{bindGroupLayouts}}
+{{shaderModules}}
+        /*
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = layout_0;
 
@@ -148,7 +148,6 @@ public partial class {{className}}
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache); */
         
-{{shaderModules}}
         throw new  NotImplementedException();
     }
 {{shaderResources}}
