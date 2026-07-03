@@ -220,14 +220,6 @@ public sealed partial class Gen
                 Value   = constructorArg.Value?.ToString() ?? "null"
             });
         }
-
-        foreach (var namedArg in attributeData.NamedArguments)
-        {
-            args.Add(new CsAttributeArg {
-                Name    = namedArg.Key,
-                Value   = namedArg.Value.Value?.ToString() ?? "null"
-            });
-        }
         return new CsAttribute {
             Identifier = GetIdentifier(attributeData.AttributeClass),
             Args = args
