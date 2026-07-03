@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Vector4
     [Test]
     public static async Task  Verify_Vectorize_Cross()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -47,8 +47,7 @@ public partial class MyExample
         result = Vector4.Cross(vec1, vec2);
     }
 }
-""";
-        await Verify(code);
+""");
     }
 
 }

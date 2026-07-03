@@ -34,7 +34,7 @@ public static class Verify_Kernel_Vector2
     [Test]
     public static async Task  Verify_Kernel_Multiply()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -49,8 +49,7 @@ public partial class MyExample
         position += velocity * deltaTime;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
 

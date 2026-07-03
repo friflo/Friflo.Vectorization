@@ -21,7 +21,7 @@ public class Verify_CodeAnalysis
     // [Test]
     public static async Task  Verify_Query_MovePosition_xxx()
     {
-        var code =
+        await Verify(
             """
             using Friflo.Engine.ECS;
 

@@ -34,7 +34,7 @@ public static class Verify_Query
     public static async Task  Verify_Query_MovePosition()
     {
         // 1. Your Input Source
-        var code =
+        await Verify(
 """
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
@@ -48,14 +48,13 @@ public partial class MyExample
         position.x = 1;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_NoComponentParameter()
     {
-        var code =
+        await Verify(
             """
             using Friflo.Engine.ECS;
             using Friflo.Vectorization;
@@ -67,7 +66,6 @@ public partial class MyExample
                 [Query][OmitHash]
                 private static void NoComponentParameter() { }
             }
-            """;
-        await Verify(code);
+            """);
     }
 }

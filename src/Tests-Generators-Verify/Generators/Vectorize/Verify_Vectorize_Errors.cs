@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Errors
     [Test]
     public static async Task  Verify_MissingSpanParameter()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -47,14 +47,13 @@ public partial class MyExample
         result = Vector4.Cross(vec1, vec2);
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_InternalError()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -73,8 +72,7 @@ internal static class Err
 {
     internal static float _IE_() { return 123; }
 }
-""";
-        await Verify(code);
+""");
     }
  
 }

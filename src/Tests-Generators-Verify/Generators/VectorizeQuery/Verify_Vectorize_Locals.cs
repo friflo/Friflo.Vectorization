@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Locals
     [Test]
     public static async Task  Verify_Query_EmptyBody()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -48,14 +48,13 @@ public static class Verify_Vectorize_Locals
                 [Vectorize][Query][OmitHash]
                 void EmptyBody(ref Position1 position) { }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_LocalVariable()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -75,14 +74,13 @@ public static class Verify_Vectorize_Locals
                     position.value = localVar;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_MixedLocals()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -102,8 +100,7 @@ public static class Verify_Vectorize_Locals
                     position.value = vec * vec2 * scalar2;
                 } 
             }
-            """;
-        await Verify(code);
+            """);
     }
 
 }

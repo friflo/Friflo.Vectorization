@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Float_Methods
     [Test]
     public static async Task  Verify_Query_Sin()
     {
-        var code =
+        await Verify(
 """
 using System;
 using System.Numerics;
@@ -52,14 +52,13 @@ public partial class MyExample
         position.value = MathF.Sin(velocity.value);
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Query_ReciprocalSqrt()
     {
-        var code =
+        await Verify(
             """
             using System;
             using System.Numerics;
@@ -79,8 +78,7 @@ public partial class MyExample
                     position.value = value / MathF.Sqrt(abs);
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
 
 }

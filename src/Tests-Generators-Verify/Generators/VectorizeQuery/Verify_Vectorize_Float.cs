@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Float
     [Test]
     public static async Task  Verify_Query_MovePosition()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Engine.ECS;
@@ -51,14 +51,13 @@ public partial class MyExample
         position.value *= velocity.value;
     }
 }
-""";
-        await Verify(code);
+""");
     }
 
     [Test]
     public static async Task  Verify_Query_MovePosition_deltaTime()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -76,14 +75,13 @@ public partial class MyExample
                     position.value *= velocity.value * deltaTime;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_AssignVector()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -101,15 +99,14 @@ public partial class MyExample
                     position.value = vector;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_MultiplyAdd_Assignment()
     {
 
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -127,14 +124,13 @@ public partial class MyExample
                     position.value += velocity.value * deltaTime;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_MultiplyAdd()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -152,14 +148,13 @@ public partial class MyExample
                     position.value = velocity.value * deltaTime + position.value;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_scalar_component()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -177,14 +172,13 @@ public partial class MyExample
                     position.value = position.value * factor.value;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_Min()
     {
-        var code =
+        await Verify(
             """
             using System;
             using System.Numerics;
@@ -202,14 +196,13 @@ public partial class MyExample
                     position.value = MathF.Min(position.value, max);
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_Clamp()
     {
-        var code =
+        await Verify(
             """
             using System;
             using System.Numerics;
@@ -227,14 +220,13 @@ public partial class MyExample
                     position.value = Math.Clamp(position.value, min, max);
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_Query_Const()
     {
-        var code =
+        await Verify(
             """
             using System;
             using System.Numerics;
@@ -252,7 +244,6 @@ public partial class MyExample
                     position.value = 1;
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
 }

@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Vector3
     [Test]
     public static async Task  Verify_Vectorize_Dot()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Engine.ECS;
@@ -48,8 +48,7 @@ public partial class MyExample
         // result = Vector3.Dot(vec1, vec2);
     }
 }
-""";
-        await Verify(code);
+""");
     }
 
 }

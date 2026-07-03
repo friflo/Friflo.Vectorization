@@ -34,7 +34,7 @@ public static class Verify_Kernel_Vector4
     // [Test]
     public static async Task  Verify_Kernel_AssignScalar()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -49,7 +49,6 @@ public partial class MyExample
         float   sum  = dist;
     }
 }
-""";
-        await Verify(code);
+""");
     }
 }

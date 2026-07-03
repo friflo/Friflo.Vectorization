@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Errors
     [Test]
     public static async Task  Verify_InvalidComponent()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Engine.ECS;
@@ -50,14 +50,13 @@ public partial class MyExample
         component.a = value;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_OperationUnsupported()
     {
-        var code =
+        await Verify(
         """
         using System;
         using System.Numerics;
@@ -75,14 +74,13 @@ public partial class MyExample
                 comp.value = (float)Math.Sin(value);
             }
         }
-        """;
-        await Verify(code);
+        """);
     }
     
     [Test]
     public static async Task  Verify_IncompatibleParameterTypes()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -99,14 +97,13 @@ public partial class MyExample
                 private static void IncompatibleParameterTypesError(ref Position2 pos1, ref Position3 pos3) {
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_InvalidParameterType()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -122,14 +119,13 @@ public partial class MyExample
                 private static void IncompatibleParameterTypesError(ref Position2 pos1, Entity entity) {
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
     
     [Test]
     public static async Task  Verify_InvalidStatement()
     {
-        var code =
+        await Verify(
             """
             using System.Numerics;
             using Friflo.Engine.ECS;
@@ -147,8 +143,7 @@ public partial class MyExample
                     }
                 }
             }
-            """;
-        await Verify(code);
+            """);
     }
 
 }

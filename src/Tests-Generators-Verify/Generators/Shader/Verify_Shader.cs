@@ -34,7 +34,7 @@ public static class Verify_Shader
     [Test]
     public static async Task  Verify_Shader_Example()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -63,14 +63,13 @@ public partial class ShaderExample
         public Vector4 	color       = color;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Shader_Texture2D()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -94,8 +93,7 @@ public partial class ShaderExample
         public Matrix4x4   modelViewProjectionMatrix;
     }
 }
-""";
-        await Verify(code);
+""");
     }
 
 }

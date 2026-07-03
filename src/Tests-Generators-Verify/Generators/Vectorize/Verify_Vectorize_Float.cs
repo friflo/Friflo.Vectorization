@@ -33,7 +33,7 @@ public static class Verify_Vectorize_Float
     [Test]
     public static async Task  Verify_Vectorize_Multiply()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Engine.ECS;
@@ -48,14 +48,13 @@ public partial class MyExample
         position += velocity * deltaTime;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Vectorize_CustomMethod()
     {
-        var code =
+        await Verify(
 """
 using System;
 using System.Numerics;
@@ -73,14 +72,13 @@ public partial class MyExample
     
     private static unsafe int MyMethod(int count, Span<float> position, ReadOnlySpan<float> velocity, float deltaTime) { return 0; }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Vectorize_InverseSqrt()
     {
-        var code =
+        await Verify(
 """
 using System;
 using System.Numerics;
@@ -95,14 +93,13 @@ public partial class MyExample
     private static void InverseSqrt([Span] ref float position) {
         position = 5 / MathF.Sqrt(position);
     }}
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Vectorize_using_static()
     {
-        var code =
+        await Verify(
 """
 using System;
 using Friflo.Vectorization;
@@ -116,8 +113,7 @@ public partial class MyExample
     private static void UsingStatic([Span] ref float position) {
         position = Sin(position);
     }}
-""";
-        await Verify(code);
+""");
     }
     
     
