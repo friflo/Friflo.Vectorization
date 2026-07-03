@@ -53,6 +53,7 @@ public partial class ShaderExample
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderCube_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
@@ -60,20 +61,15 @@ public partial class ShaderExample
             
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
         }
-
+        layouts[0] = layout_0;
+        
         using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);
         using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "RenderCube_FragmentShader"u8);
 
-        /*
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "RenderCube_pipeline"u8);
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
-        return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
-        
-        throw new  NotImplementedException();
+        return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/basic.vert.wgsl");
     private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/sampleTextureMixColor.frag.wgsl");

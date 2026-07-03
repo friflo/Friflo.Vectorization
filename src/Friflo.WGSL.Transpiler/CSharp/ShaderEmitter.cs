@@ -25,10 +25,16 @@ public static class ShaderEmitter
         
         var shaderModules   = new StringBuilder();
         var shaderResources = new StringBuilder();
+        string vsModule;
+        string fsModule;
         if (method.Shader != null) {
+            vsModule = "module";
+            fsModule = "module";
             shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
             shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Shader}\");\n");
         } else {
+            vsModule = "vsModule";
+            fsModule = "fsModule";
             shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
             shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
             shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.VertexShader}\");\n");
@@ -85,6 +91,8 @@ public static class ShaderEmitter
             }
             bindGroupLayouts.Append($"            layout_{groupIndex} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{groupIndex}_Key, \"{methodName}_layout_{groupIndex}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
+            bindGroupLayouts.Append($"        layouts[{groupIndex}] = layout_{groupIndex};\n");
+            bindGroupLayouts.Append("        \n");
         }
 
 
@@ -139,18 +147,12 @@ public partial class {{className}}
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-{{bindGroupLayouts}}
-{{shaderModules}}
-        /*
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
+{{bindGroupLayouts}}{{shaderModules}}
+        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{method.VertexEntry}}"u8, {{fsModule}}, "{{method.FragmentEntry}}"u8, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
-        return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache); */
-        
-        throw new  NotImplementedException();
+        return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
     }
 {{shaderResources}}
 }

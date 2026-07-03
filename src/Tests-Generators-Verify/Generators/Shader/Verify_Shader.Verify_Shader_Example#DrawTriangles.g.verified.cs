@@ -54,29 +54,27 @@ public partial class ShaderExample
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "DrawTriangles_layout_0"u8);
         }
+        layouts[0] = layout_0;
+        
         var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
         if (!layout_1.IsCreated) {
             device.BindGroupLayoutUniform();
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
         }
-
+        layouts[1] = layout_1;
+        
         using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
 
-        /*
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "DrawTriangles_pipeline"u8);
 
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
-        return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache); */
-        
-        throw new  NotImplementedException();
+        return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     private static ReadOnlySpan<byte> _DrawTriangles_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/triangle.wgsl");
 
