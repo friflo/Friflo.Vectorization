@@ -173,36 +173,38 @@ public partial class {{className}}
     
     private static void AppendLayout(StringBuilder sb, in CsParameter binding)
     {
+        var sampleType = binding.SampleType;
+        
         switch (binding.ParamAttribute) {
             case BindStorage:
                 var readOnly = binding.Type.Identifier.Name == "InBuffer";
                                                 AppendBuffer(sb, readOnly ? "ReadOnlyStorage" : "Storage");
                 return;
-            case BindUniform:                   AppendBuffer(sb, "Uniform");                        return;
+            case BindUniform:                   AppendBuffer(sb, "Uniform");                return;
             //
-            case SamplerFiltering:              AppendSampler(sb, "Filtering");                     return;
-            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");                  return;
-            case SamplerComparison:             AppendSampler(sb, "Comparison");                    return;
+            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return;
+            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return;
+            case SamplerComparison:             AppendSampler(sb, "Comparison");            return;
             //
-            case texture_1d:                    AppendTexture(sb, binding.SampleType, "D1D");       return;
-            case texture_2d:                    AppendTexture(sb, binding.SampleType, "D2D");       return;
-            case texture_2d_array:              AppendTexture(sb, binding.SampleType, "D2DArray");  return;
-            case texture_3d:                    AppendTexture(sb, binding.SampleType, "D3D");       return;
-            case texture_cube:                  AppendTexture(sb, binding.SampleType, "Cube");      return;
-            case texture_cube_array:            AppendTexture(sb, binding.SampleType, "CubeArray"); return;
+            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return;
+            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return;
+            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return;
+            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return;
+            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return;
+            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return;
             //
-            case texture_multisampled_2d:       AppendTexture(sb, binding.SampleType, "D2D", true); return;
-            case texture_depth_multisampled_2d: AppendTexture(sb, default,            "D2D", true); return;
+            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return;
+            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return;
             //
-            case texture_storage_1d:            AppendTexture(sb, binding.SampleType, "D1D");       return;
-            case texture_storage_2d:            AppendTexture(sb, binding.SampleType, "D2D");       return;
-            case texture_storage_2d_array:      AppendTexture(sb, binding.SampleType, "D2DArray");  return;
-            case texture_storage_3d:            AppendTexture(sb, binding.SampleType, "D3D");       return;
+            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return;
+            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return;
+            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return;
+            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return;
             //
-            case texture_depth_2d:              AppendTexture(sb, default,            "D2D");       return;
-            case texture_depth_2d_array:        AppendTexture(sb, default,            "D2DArray");  return;
-            case texture_depth_cube:            AppendTexture(sb, default,            "Cube");      return;
-            case texture_depth_cube_array:      AppendTexture(sb, default,            "CubeArray"); return;
+            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return;
+            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return;
+            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return;
+            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return;
         }
     }
     
