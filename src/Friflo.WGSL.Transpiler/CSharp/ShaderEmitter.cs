@@ -30,8 +30,7 @@ public static class ShaderEmitter
         signature.Length -= 2;
         
         // filter / sort parameters use to create bind group layouts & bind groups
-        var layouts = method.Parameters.Where(p =>  p.ParamAttribute != CsParamAttribute.None && 
-                                                    p.ParamAttribute != CsParamAttribute.VertexBuffer).ToArray();
+        var layouts = method.Parameters.Where(p => p.HasBindGroup).ToArray();
         Array.Sort(layouts,  (x, y) => {
             int result = x.GroupIndex.CompareTo(y.GroupIndex);
             if (result == 0) {

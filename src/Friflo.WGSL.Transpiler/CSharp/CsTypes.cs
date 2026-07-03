@@ -111,6 +111,9 @@ public readonly struct CsParameter
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
+    public  bool HasBindGroup =>    ParamAttribute != CsParamAttribute.None && 
+                                    ParamAttribute != CsParamAttribute.VertexBuffer;
+
     public StringBuilder AppendString(StringBuilder sb)
     {
         sb.Append(Name);
