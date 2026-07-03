@@ -172,32 +172,37 @@ public partial class {{className}}
                     sb.Append("device.BindGroupLayoutBuffer(BufferBindingType.Storage);");
                 }
                 return;
-            case CsParamAttribute.BindUniform:          sb.Append("device.BindGroupLayoutUniform();");                                  return;
+            case CsParamAttribute.BindUniform:                  sb.Append("device.BindGroupLayoutUniform();");      return;
             //
-            case CsParamAttribute.SamplerFiltering:     sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.Filtering);");      return;
-            case CsParamAttribute.SamplerNonFiltering:  sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.NonFiltering);");   return;
-            case CsParamAttribute.SamplerComparison:    sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.Comparison);");     return;
+            case CsParamAttribute.SamplerFiltering:             AppendSampler(sb, "Filtering");                     return;
+            case CsParamAttribute.SamplerNonFiltering:          AppendSampler(sb, "NonFiltering");                  return;
+            case CsParamAttribute.SamplerComparison:            AppendSampler(sb, "Comparison");                    return;
             //
-            case CsParamAttribute.texture_1d:                       AppendTexture(sb, binding.SampleType, "D1D");           return;
-            case CsParamAttribute.texture_2d:                       AppendTexture(sb, binding.SampleType, "D2D");           return;
-            case CsParamAttribute.texture_2d_array:                 AppendTexture(sb, binding.SampleType, "D2DArray");      return;
-            case CsParamAttribute.texture_3d:                       AppendTexture(sb, binding.SampleType, "D3D");           return;
-            case CsParamAttribute.texture_cube:                     AppendTexture(sb, binding.SampleType, "Cube");          return;
-            case CsParamAttribute.texture_cube_array:               AppendTexture(sb, binding.SampleType, "CubeArray");     return;
+            case CsParamAttribute.texture_1d:                   AppendTexture(sb, binding.SampleType, "D1D");       return;
+            case CsParamAttribute.texture_2d:                   AppendTexture(sb, binding.SampleType, "D2D");       return;
+            case CsParamAttribute.texture_2d_array:             AppendTexture(sb, binding.SampleType, "D2DArray");  return;
+            case CsParamAttribute.texture_3d:                   AppendTexture(sb, binding.SampleType, "D3D");       return;
+            case CsParamAttribute.texture_cube:                 AppendTexture(sb, binding.SampleType, "Cube");      return;
+            case CsParamAttribute.texture_cube_array:           AppendTexture(sb, binding.SampleType, "CubeArray"); return;
             //
-            case CsParamAttribute.texture_multisampled_2d:          AppendTexture(sb, binding.SampleType, "D2D", true);     return;
-            case CsParamAttribute.texture_depth_multisampled_2d:    AppendTexture(sb, default,            "D2D", true);     return;
+            case CsParamAttribute.texture_multisampled_2d:      AppendTexture(sb, binding.SampleType, "D2D", true); return;
+            case CsParamAttribute.texture_depth_multisampled_2d:AppendTexture(sb, default,            "D2D", true); return;
             //
-            case CsParamAttribute.texture_storage_1d:               AppendTexture(sb, binding.SampleType, "D1D");           return;
-            case CsParamAttribute.texture_storage_2d:               AppendTexture(sb, binding.SampleType, "D2D");           return;
-            case CsParamAttribute.texture_storage_2d_array:         AppendTexture(sb, binding.SampleType, "D2DArray");      return;
-            case CsParamAttribute.texture_storage_3d:               AppendTexture(sb, binding.SampleType, "D3D");           return;
+            case CsParamAttribute.texture_storage_1d:           AppendTexture(sb, binding.SampleType, "D1D");       return;
+            case CsParamAttribute.texture_storage_2d:           AppendTexture(sb, binding.SampleType, "D2D");       return;
+            case CsParamAttribute.texture_storage_2d_array:     AppendTexture(sb, binding.SampleType, "D2DArray");  return;
+            case CsParamAttribute.texture_storage_3d:           AppendTexture(sb, binding.SampleType, "D3D");       return;
             //
-            case CsParamAttribute.texture_depth_2d:                 AppendTexture(sb, default,            "D2D");           return;
-            case CsParamAttribute.texture_depth_2d_array:           AppendTexture(sb, default,            "D2DArray");      return;
-            case CsParamAttribute.texture_depth_cube:               AppendTexture(sb, default,            "Cube");          return;
-            case CsParamAttribute.texture_depth_cube_array:         AppendTexture(sb, default,            "CubeArray");     return;
+            case CsParamAttribute.texture_depth_2d:             AppendTexture(sb, default,            "D2D");       return;
+            case CsParamAttribute.texture_depth_2d_array:       AppendTexture(sb, default,            "D2DArray");  return;
+            case CsParamAttribute.texture_depth_cube:           AppendTexture(sb, default,            "Cube");      return;
+            case CsParamAttribute.texture_depth_cube_array:     AppendTexture(sb, default,            "CubeArray"); return;
         }
+    }
+    
+    private static void AppendSampler(StringBuilder sb, string sampleType)
+    {
+        sb.Append($"device.BindGroupLayoutSampler(SamplerBindingType.{sampleType});");
     }
     
     private static void AppendTexture(StringBuilder sb, CsSampleType sampleType, string dimension, bool multisampled = false)
