@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoLogicalPattern
@@ -173,35 +174,35 @@ public partial class {{className}}
     private static void AppendLayout(StringBuilder sb, in CsParameter binding)
     {
         switch (binding.ParamAttribute) {
-            case CsParamAttribute.BindStorage:
+            case BindStorage:
                 var readOnly = binding.Type.Identifier.Name == "InBuffer";
-                                                                AppendBuffer(sb, readOnly ? "ReadOnlyStorage" : "Storage");
+                                                AppendBuffer(sb, readOnly ? "ReadOnlyStorage" : "Storage");
                 return;
-            case CsParamAttribute.BindUniform:                  AppendBuffer(sb, "Uniform");                        return;
+            case BindUniform:                   AppendBuffer(sb, "Uniform");                        return;
             //
-            case CsParamAttribute.SamplerFiltering:             AppendSampler(sb, "Filtering");                     return;
-            case CsParamAttribute.SamplerNonFiltering:          AppendSampler(sb, "NonFiltering");                  return;
-            case CsParamAttribute.SamplerComparison:            AppendSampler(sb, "Comparison");                    return;
+            case SamplerFiltering:              AppendSampler(sb, "Filtering");                     return;
+            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");                  return;
+            case SamplerComparison:             AppendSampler(sb, "Comparison");                    return;
             //
-            case CsParamAttribute.texture_1d:                   AppendTexture(sb, binding.SampleType, "D1D");       return;
-            case CsParamAttribute.texture_2d:                   AppendTexture(sb, binding.SampleType, "D2D");       return;
-            case CsParamAttribute.texture_2d_array:             AppendTexture(sb, binding.SampleType, "D2DArray");  return;
-            case CsParamAttribute.texture_3d:                   AppendTexture(sb, binding.SampleType, "D3D");       return;
-            case CsParamAttribute.texture_cube:                 AppendTexture(sb, binding.SampleType, "Cube");      return;
-            case CsParamAttribute.texture_cube_array:           AppendTexture(sb, binding.SampleType, "CubeArray"); return;
+            case texture_1d:                    AppendTexture(sb, binding.SampleType, "D1D");       return;
+            case texture_2d:                    AppendTexture(sb, binding.SampleType, "D2D");       return;
+            case texture_2d_array:              AppendTexture(sb, binding.SampleType, "D2DArray");  return;
+            case texture_3d:                    AppendTexture(sb, binding.SampleType, "D3D");       return;
+            case texture_cube:                  AppendTexture(sb, binding.SampleType, "Cube");      return;
+            case texture_cube_array:            AppendTexture(sb, binding.SampleType, "CubeArray"); return;
             //
-            case CsParamAttribute.texture_multisampled_2d:      AppendTexture(sb, binding.SampleType, "D2D", true); return;
-            case CsParamAttribute.texture_depth_multisampled_2d:AppendTexture(sb, default,            "D2D", true); return;
+            case texture_multisampled_2d:       AppendTexture(sb, binding.SampleType, "D2D", true); return;
+            case texture_depth_multisampled_2d: AppendTexture(sb, default,            "D2D", true); return;
             //
-            case CsParamAttribute.texture_storage_1d:           AppendTexture(sb, binding.SampleType, "D1D");       return;
-            case CsParamAttribute.texture_storage_2d:           AppendTexture(sb, binding.SampleType, "D2D");       return;
-            case CsParamAttribute.texture_storage_2d_array:     AppendTexture(sb, binding.SampleType, "D2DArray");  return;
-            case CsParamAttribute.texture_storage_3d:           AppendTexture(sb, binding.SampleType, "D3D");       return;
+            case texture_storage_1d:            AppendTexture(sb, binding.SampleType, "D1D");       return;
+            case texture_storage_2d:            AppendTexture(sb, binding.SampleType, "D2D");       return;
+            case texture_storage_2d_array:      AppendTexture(sb, binding.SampleType, "D2DArray");  return;
+            case texture_storage_3d:            AppendTexture(sb, binding.SampleType, "D3D");       return;
             //
-            case CsParamAttribute.texture_depth_2d:             AppendTexture(sb, default,            "D2D");       return;
-            case CsParamAttribute.texture_depth_2d_array:       AppendTexture(sb, default,            "D2DArray");  return;
-            case CsParamAttribute.texture_depth_cube:           AppendTexture(sb, default,            "Cube");      return;
-            case CsParamAttribute.texture_depth_cube_array:     AppendTexture(sb, default,            "CubeArray"); return;
+            case texture_depth_2d:              AppendTexture(sb, default,            "D2D");       return;
+            case texture_depth_2d_array:        AppendTexture(sb, default,            "D2DArray");  return;
+            case texture_depth_cube:            AppendTexture(sb, default,            "Cube");      return;
+            case texture_depth_cube_array:      AppendTexture(sb, default,            "CubeArray"); return;
         }
     }
     
