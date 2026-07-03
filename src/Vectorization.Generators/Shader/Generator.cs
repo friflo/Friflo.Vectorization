@@ -38,19 +38,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.ShaderAttribute));
-        context.RegisterSourceOutput(shaderMethod, Gen.EmitResult);
+        context.RegisterSourceOutput(shaderMethod, GeneratorUtils.EmitResult);
         
         var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.VertexShaderAttribute));
-        context.RegisterSourceOutput(vertexShaderMethod, Gen.EmitResult);
+        context.RegisterSourceOutput(vertexShaderMethod, GeneratorUtils.EmitResult);
         
         var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.FragmentShaderAttribute));
-        context.RegisterSourceOutput(fragmentShaderMethod, Gen.EmitResult);
+        context.RegisterSourceOutput(fragmentShaderMethod, GeneratorUtils.EmitResult);
     }
     
     private static EmissionResult TransformShader(GeneratorAttributeSyntaxContext ctx, CancellationToken _, ShaderTrigger trigger)
@@ -83,7 +83,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             return new EmissionResult("", "", diagnostics.List);
         }
         
-        var fileName = Gen.CreateFileName(blueprintMethod, hash);
+        var fileName = GeneratorUtils.CreateFileName(blueprintMethod, hash);
         return new EmissionResult(fileName, code, diagnostics.List);
     }
 }

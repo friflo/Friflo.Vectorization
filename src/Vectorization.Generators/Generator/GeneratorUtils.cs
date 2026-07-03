@@ -8,14 +8,62 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using Microsoft.CodeAnalysis;
 using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
+
 public static class GeneratorUtils
 {
+    private static readonly SymbolDisplayFormat FullNameFormat = new(
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameOnly,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+        // memberOptions: SymbolDisplayMemberOptions.IncludeContainingType,
+        parameterOptions: SymbolDisplayParameterOptions.IncludeType // Include this if you want (string x, int y)
+    );
+    
+    internal static string CreateFileName(IMethodSymbol methodSymbol, string hash)
+    {
+        // path format: <namespace>/<class name>/<method name>
+        // this format simplifies navigation in generated files
+        var path  = methodSymbol.ContainingType.ToDisplayString();
+        var index = path.LastIndexOf('.');
+        if (index != -1) {
+            path = string.Concat(path.Substring(0, index), "/", path.Substring(index + 1));
+        }
+        path = $"{path}/{methodSymbol.ToDisplayString(FullNameFormat)}";
+        path = path.Replace('<', '{').Replace('>', '}');
+        // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
+        return $"{path}{hash}.g.cs";
+    }
+    
+    internal static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
+    {
+        if (emissionResult.exceptionMessage != null) {
+            emissionResult.ReportException(productionContext);
+            return;
+        }
+        foreach (var data in emissionResult.diagnostics) {
+            var start       = new LinePosition(data.StartLine, data.StartColumn);
+            var end         = new LinePosition(data.EndLine, data.EndColumn);
+            var lineSpan    = new LinePositionSpan(start, end);
+            var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
+            var diagnostic  = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
+            productionContext.ReportDiagnostic(diagnostic);
+        }
+        if (emissionResult.code == "") {
+            return;
+        }
+        var source = emissionResult.code.Replace("\r\n", "\n");
+        var text = SourceText.From(source, new UTF8Encoding(false), SourceHashAlgorithm.Sha256);
+        productionContext.AddSource(emissionResult.name, text);
+    }
+    
     public static void AppendRefKind(StringBuilder sb, RefKind refKind)
     {
         switch (refKind) {
@@ -68,12 +116,10 @@ public static class GeneratorUtils
     
     public static string GetMd5Hash(string input)
     {
-        using (MD5 md5 = MD5.Create())
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
-            return BitConverter.ToString(hashBytes).Replace("-", "");
-        }
+        using var md5       = MD5.Create();
+        byte[] inputBytes   = Encoding.UTF8.GetBytes(input);
+        byte[] hashBytes    = md5.ComputeHash(inputBytes);
+        return BitConverter.ToString(hashBytes).Replace("-", "");
     }
 
     // Method was called in:

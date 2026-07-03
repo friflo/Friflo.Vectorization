@@ -11,7 +11,7 @@ using Friflo.Vectorization.Generators.AVX;
 using Friflo.Vectorization.Generators.WGSL;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
+
 
 // ReSharper disable UseCollectionExpression
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -45,13 +45,13 @@ public sealed partial class Gen : IIncrementalGenerator
             "Friflo.Engine.ECS.QueryAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.QueryAttribute));
-        context.RegisterSourceOutput(queryMethod, EmitResult);
+        context.RegisterSourceOutput(queryMethod, GeneratorUtils.EmitResult);
         
         var vectorizeMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.VectorizeAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.VectorizeAttribute));
-        context.RegisterSourceOutput(vectorizeMethod, EmitResult);
+        context.RegisterSourceOutput(vectorizeMethod, GeneratorUtils.EmitResult);
         
         var hasVectorize = vectorizeMethod.Collect().Select((list, _) => !list.IsEmpty);
         context.RegisterSourceOutput(hasVectorize, (spc, found) => {
@@ -69,7 +69,7 @@ public sealed partial class Gen : IIncrementalGenerator
             "Friflo.Vectorization.GPU.KernelAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
-        context.RegisterSourceOutput(kernelMethod, EmitResult);
+        context.RegisterSourceOutput(kernelMethod, GeneratorUtils.EmitResult);
     }
     
     // ReSharper disable once UnusedMember.Local
@@ -87,32 +87,8 @@ public sealed partial class Gen : IIncrementalGenerator
         
             context.RegisterSourceOutput(methodDeclarations, (productionContext, syntaxContext) => {
             var result = GenerateMethod(syntaxContext.SemanticModel, syntaxContext.TargetSymbol, GenerateTrigger.QueryAttribute);
-            EmitResult(productionContext, result);
+            GeneratorUtils.EmitResult(productionContext, result);
         });
-    }
-
-    
-    
-    internal static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
-    {
-        if (emissionResult.exceptionMessage != null) {
-            emissionResult.ReportException(productionContext);
-            return;
-        }
-        foreach (var data in emissionResult.diagnostics) {
-            var start       = new LinePosition(data.StartLine, data.StartColumn);
-            var end         = new LinePosition(data.EndLine, data.EndColumn);
-            var lineSpan    = new LinePositionSpan(start, end);
-            var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
-            var diagnostic  = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
-            productionContext.ReportDiagnostic(diagnostic);
-        }
-        if (emissionResult.code == "") {
-            return;
-        }
-        var source = emissionResult.code.Replace("\r\n", "\n");
-        var text = SourceText.From(source, new UTF8Encoding(false), SourceHashAlgorithm.Sha256);
-        productionContext.AddSource(emissionResult.name, text);
     }
     
     private static EmissionResult TransformAttribute(GeneratorAttributeSyntaxContext ctx, CancellationToken _, GenerateTrigger trigger)
@@ -219,25 +195,17 @@ public sealed partial class Gen : IIncrementalGenerator
     }}
 {(isGlobalNamespace ? "" : "}")}
 ";
-        var fileName = CreateFileName(blueprintMethod, hash);
+        var fileName = GeneratorUtils.CreateFileName(blueprintMethod, hash);
 
         return new EmissionResult(fileName, source, query.Diagnostics.List);
     }
     
     
-    
-    
-    
-    private static readonly SymbolDisplayFormat ClassNameFormat = new SymbolDisplayFormat(
+    private static readonly SymbolDisplayFormat ClassNameFormat = new(
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
     );
-    private static readonly SymbolDisplayFormat FullNameFormat = new SymbolDisplayFormat(
-        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameOnly,
-        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
-        // memberOptions: SymbolDisplayMemberOptions.IncludeContainingType,
-        parameterOptions: SymbolDisplayParameterOptions.IncludeType // Include this if you want (string x, int y)
-    );
+
     
     // made required static symbols unique to prevent duplicate symbol names
     private static string GetHash(IMethodSymbol methodSymbol, ImmutableArray<AttributeData> attributes, Compilation compilation)
@@ -256,20 +224,7 @@ public sealed partial class Gen : IIncrementalGenerator
         return "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
     }
     
-    internal static string CreateFileName(IMethodSymbol methodSymbol, string hash)
-    {
-        // path format: <namespace>/<class name>/<method name>
-        // this format simplifies navigation in generated files
-        var path  = methodSymbol.ContainingType.ToDisplayString();
-        var index = path.LastIndexOf('.');
-        if (index != -1) {
-            path = string.Concat(path.Substring(0, index), "/", path.Substring(index + 1));
-        }
-        path = $"{path}/{methodSymbol.ToDisplayString(FullNameFormat)}";
-        path = path.Replace('<', '{').Replace('>', '}');
-        // using hash instead of method signature for file name. Signature would lead to long file names not supported by the OS
-        return $"{path}{hash}.g.cs";
-    }
+
     
     private static string EmitNamespaces(Query query, bool hasKernelAttribute, bool hasVectorizeAttribute)
     {
