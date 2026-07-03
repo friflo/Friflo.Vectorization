@@ -174,13 +174,10 @@ public partial class {{className}}
     {
         switch (binding.ParamAttribute) {
             case CsParamAttribute.BindStorage:
-                if (binding.Type.Identifier.Name == "InBuffer") {
-                    sb.Append("device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);");
-                } else {
-                    sb.Append("device.BindGroupLayoutBuffer(BufferBindingType.Storage);");
-                }
+                var readOnly = binding.Type.Identifier.Name == "InBuffer";
+                                                                AppendBuffer(sb, readOnly ? "ReadOnlyStorage" : "Storage");
                 return;
-            case CsParamAttribute.BindUniform:                  sb.Append("device.BindGroupLayoutUniform();");      return;
+            case CsParamAttribute.BindUniform:                  AppendBuffer(sb, "Uniform");                        return;
             //
             case CsParamAttribute.SamplerFiltering:             AppendSampler(sb, "Filtering");                     return;
             case CsParamAttribute.SamplerNonFiltering:          AppendSampler(sb, "NonFiltering");                  return;
@@ -206,6 +203,11 @@ public partial class {{className}}
             case CsParamAttribute.texture_depth_cube:           AppendTexture(sb, default,            "Cube");      return;
             case CsParamAttribute.texture_depth_cube_array:     AppendTexture(sb, default,            "CubeArray"); return;
         }
+    }
+    
+    private static void AppendBuffer(StringBuilder sb, string bindingType)
+    {
+        sb.Append($"device.BindGroupLayoutBuffer(BufferBindingType.{bindingType});");
     }
     
     private static void AppendSampler(StringBuilder sb, string sampleType)

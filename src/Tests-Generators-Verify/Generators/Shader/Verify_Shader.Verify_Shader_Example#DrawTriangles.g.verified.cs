@@ -66,7 +66,7 @@ public partial class ShaderExample
         
         var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
         if (!layout_1.IsCreated) {
-            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutBuffer(BufferBindingType.Uniform);
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
         }
         layouts[1] = layout_1;
