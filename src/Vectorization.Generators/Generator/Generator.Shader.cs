@@ -79,8 +79,9 @@ public sealed partial class Gen
         {
             var paramSymbol     = methodParameters[n];
             var parameterType   = GetParameterType(paramSymbol, out var attributeData);
-            int arg0 = -1;
-            int arg1 = -1;
+            var arg0 = -1;
+            var arg1 = -1;
+            var sampleType = CsSampleType.None;
             if (attributeData != null) {
                 var args = attributeData.ConstructorArguments;
                 switch (parameterType) {
@@ -92,13 +93,22 @@ public sealed partial class Gen
                         arg1 = (int)args[1].Value!;
                         break;
                 }
+                var attrTypeArgs = attributeData.AttributeClass!.TypeArguments;
+                if (attrTypeArgs.Length > 0) {
+                    switch (attrTypeArgs[0].Name) {
+                        case "i32": sampleType =  CsSampleType.i32; break;
+                        case "u32": sampleType =  CsSampleType.u32; break;
+                        case "f32": sampleType =  CsSampleType.f32; break;
+                    }
+                }
             }
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 Type            = MapType(paramSymbol.Type, parameterType != CsParameterType.None),
                 ParameterType   = parameterType,
                 GroupIndex      = arg0,
-                BindingIndex    = arg1
+                BindingIndex    = arg1,
+                SampleType      = sampleType
             };
         }
         return new CsMethod {
@@ -115,8 +125,8 @@ public sealed partial class Gen
         foreach (var attribute in attributes)
         {
             attributeData = attribute;
-            var fullName = attribute.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            switch (fullName)
+            var originalDefinition = attribute.AttributeClass!.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            switch (originalDefinition)
             {
                 case "global::Friflo.Vectorization.WebGPU.VertexBufferAttribute":           return CsParameterType.VertexBuffer;
                 //
@@ -128,18 +138,21 @@ public sealed partial class Gen
                 case "global::Friflo.Vectorization.WebGPU.SamplerNonFiltering":             return CsParameterType.SamplerNonFiltering;
                 case "global::Friflo.Vectorization.WebGPU.SamplerComparison":               return CsParameterType.SamplerComparison;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_1d":                      return CsParameterType.texture_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d":                      return CsParameterType.texture_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d_array":                return CsParameterType.texture_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_3d":                      return CsParameterType.texture_3d;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube":                    return CsParameterType.texture_cube;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube_array":              return CsParameterType.texture_cube_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d":         return CsParameterType.texture_multisampled_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_1d<ST>":                  return CsParameterType.texture_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d<ST>":                  return CsParameterType.texture_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d_array<ST>":            return CsParameterType.texture_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_3d<ST>":                  return CsParameterType.texture_3d;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube<ST>":                return CsParameterType.texture_cube;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube_array<ST>":          return CsParameterType.texture_cube_array;
+                //
+                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d<ST>":     return CsParameterType.texture_multisampled_2d;
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_multisampled_2d":   return CsParameterType.texture_depth_multisampled_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d":              return CsParameterType.texture_storage_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d":              return CsParameterType.texture_storage_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array":        return CsParameterType.texture_storage_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d":              return CsParameterType.texture_storage_3d;
+                //
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d<ST>":          return CsParameterType.texture_storage_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d<ST>":          return CsParameterType.texture_storage_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array<ST>":    return CsParameterType.texture_storage_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d<ST>":          return CsParameterType.texture_storage_3d;
+                //
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_2d":                return CsParameterType.texture_depth_2d;
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_2d_array":          return CsParameterType.texture_depth_2d_array;
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_cube":              return CsParameterType.texture_depth_cube;

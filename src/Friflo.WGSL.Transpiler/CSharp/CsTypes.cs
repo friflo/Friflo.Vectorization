@@ -56,6 +56,14 @@ public readonly struct CsAttributeArg
     public CsAttributeArg() { }
 }
 
+public enum CsSampleType
+{
+    None,
+    i32,
+    u32,
+    f32
+}
+
 public enum CsParameterType
 {
     None,
@@ -95,6 +103,7 @@ public readonly struct CsParameter
     public required     string                  Name            { get; init; }
     public required     int                     GroupIndex      { get; init; }
     public required     int                     BindingIndex    { get; init; }
+    public required     CsSampleType            SampleType      { get; init; }
     
     public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     
