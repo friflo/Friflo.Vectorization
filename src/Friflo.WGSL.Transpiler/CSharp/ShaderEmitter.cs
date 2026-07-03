@@ -79,9 +79,11 @@ public static class ShaderEmitter
             bindGroupLayouts.Append($"        var layout_{groupIndex} = device.GetBindGroupLayout({methodName_GPU}_layout_{groupIndex}_Key);\n");
             bindGroupLayouts.Append($"        if (!layout_{groupIndex}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {
-                
+                bindGroupLayouts.Append("            ");
+                AppendLayout(bindGroupLayouts, binding);
+                bindGroupLayouts.Append("\n");
             }
-            bindGroupLayouts.Append($"        layout_{groupIndex} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{groupIndex}_Key, \"{methodName}_layout_{groupIndex}\"u8);\n");
+            bindGroupLayouts.Append($"            layout_{groupIndex} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{groupIndex}_Key, \"{methodName}_layout_{groupIndex}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
         }
 
@@ -154,6 +156,25 @@ public partial class {{className}}
 }
 """;
         return code;
+    }
+    
+    private static void AppendLayout(StringBuilder sb, in CsParameter binding)
+    {
+        switch (binding.ParamAttribute) {
+            case CsParamAttribute.BindStorage:
+                if (binding.Type.Identifier.Name == "InBuffer") {
+                    sb.Append("device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);");
+                } else {
+                    sb.Append("device.BindGroupLayoutBuffer(BufferBindingType.Storage);");
+                }
+                return;
+            case CsParamAttribute.BindUniform:          sb.Append("device.BindGroupLayoutUniform();");                                  return;
+            //
+            case CsParamAttribute.SamplerFiltering:     sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.Filtering);");      return;
+            case CsParamAttribute.SamplerNonFiltering:  sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.NonFiltering);");   return;
+            case CsParamAttribute.SamplerComparison:    sb.Append("device.BindGroupLayoutSampler(SamplerBindingType.Comparison);");     return;
+            //
+        }
     }
     
     private static StringBuilder GetSignature(CsParameter[] parameters)

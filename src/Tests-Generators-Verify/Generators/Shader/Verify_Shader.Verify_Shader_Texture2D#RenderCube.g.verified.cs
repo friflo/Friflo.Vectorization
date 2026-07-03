@@ -55,7 +55,10 @@ public partial class ShaderExample
     {
         var layout_0 = device.GetBindGroupLayout(_RenderCube_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-        layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
+            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
+            
+            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
         }
 
         using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);

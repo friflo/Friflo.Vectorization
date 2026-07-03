@@ -56,11 +56,13 @@ public partial class ShaderExample
     {
         var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-        layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "DrawTriangles_layout_0"u8);
+            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
+            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "DrawTriangles_layout_0"u8);
         }
         var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
         if (!layout_1.IsCreated) {
-        layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
+            device.BindGroupLayoutUniform();
+            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
         }
 
         using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
