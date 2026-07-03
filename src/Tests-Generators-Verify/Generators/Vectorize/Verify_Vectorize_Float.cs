@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Friflo;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 using VerifyNUnit;
@@ -13,7 +14,7 @@ namespace Tests.Generators.Vectorize;
 
 public static class Verify_Vectorize_Float
 {
-    private static async Task Verify(string code)
+    private static async Task Verify([LanguageInjection("csharp")] string code)
     {
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);

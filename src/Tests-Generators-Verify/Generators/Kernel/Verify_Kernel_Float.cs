@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Friflo;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 using Tests.Generators;
@@ -14,7 +15,7 @@ namespace Kernel;
 
 public static class Verify_Kernel_Float
 {
-    private static async Task Verify(string code)
+    private static async Task Verify([LanguageInjection("csharp")] string code)
     {
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);
@@ -33,7 +34,7 @@ public static class Verify_Kernel_Float
     [Test]
     public static async Task  Verify_Kernel_Multiply()
     {
-        var code =
+        await Verify(
 """
 using System.Numerics;
 using Friflo.Vectorization;
@@ -48,15 +49,14 @@ public partial class MyExample
         position += velocity * deltaTime;
     }
 }
-""";
-        await Verify(code);
+""");
+
     }
     
     [Test]
     public static async Task  Verify_Kernel_Local_Var()
     {
-        var code =
-"""
+        await Verify("""
 using System.Numerics;
 using Friflo.Vectorization;
 using Friflo.Vectorization.GPU;
@@ -71,15 +71,13 @@ public partial class MyExample
         position = local;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Kernel_Sign()
     {
-        var code =
-"""
+        await Verify("""
 using System;
 using System.Numerics;
 using Friflo.Vectorization;
@@ -95,15 +93,13 @@ public partial class Kernel_Sign_Example
         position = sign;
     }
 }
-""";
-        await Verify(code);
+""");
     }
     
     [Test]
     public static async Task  Verify_Kernel_KernelOnly()
     {
-        var code =
-"""
+        await Verify("""
 using System;
 using System.Numerics;
 using Friflo.Vectorization;
@@ -119,8 +115,7 @@ public partial class Kernel_Sign_Example
         position = sign;
     }
 }
-""";
-        await Verify(code);
+""");
     }    
 
 }
