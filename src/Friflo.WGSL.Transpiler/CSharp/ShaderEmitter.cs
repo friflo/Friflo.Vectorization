@@ -29,6 +29,7 @@ public static class ShaderEmitter
         
         var code =
 $$"""
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;

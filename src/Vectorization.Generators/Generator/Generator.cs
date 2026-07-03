@@ -153,8 +153,10 @@ public sealed partial class Gen : IIncrementalGenerator
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new EmissionResult("", "", []);
         }
-        var  attributes         = blueprintMethod.GetAttributes();
-        if (GenerateShaderMethod(attributes, blueprintMethod, trigger, out var result)) {
+        var diagnostics = new Diagnostics { BlueprintMethod = blueprintMethod };
+        var attributes  = blueprintMethod.GetAttributes();
+        
+        if (GenerateShaderMethod(attributes, blueprintMethod, trigger, diagnostics, out var result)) {
             return result;
         }
         bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
@@ -185,7 +187,6 @@ public sealed partial class Gen : IIncrementalGenerator
         var namespaceName       = blueprintMethod.ContainingType.ContainingNamespace.ToDisplayString();
         var parameters          = blueprintMethod.Parameters;
         var hash                = GetHash(blueprintMethod, attributes, compilation);
-        var diagnostics         = new Diagnostics { BlueprintMethod = blueprintMethod };
         var blueprintParameters = BlueprintParameter.CreateBlueprintParameters(parameters, vectorMode, compilation);
         var vectorTypes         = VectorType.GetVectorTypes(diagnostics, blueprintParameters);
         var spans               = BlueprintParameter.GetVectorSpans(blueprintParameters);

@@ -65,5 +65,36 @@ public partial class ShaderExample
 """;
         await Verify(code);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Texture2D()
+    {
+        var code =
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
+	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
+    public static partial void RenderCube(RenderPass pass, RenderConfig config,
+        [VertexBuffer(0)]           InBuffer<float> vertices,
+        [BindUniform     (0, 0)]    Uniforms        uniforms,
+        [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
+        [texture_2d<f32> (0, 2)]    GpuTextureView  material);
+        
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Uniforms {
+        public Matrix4x4   modelViewProjectionMatrix;
+    }
+}
+""";
+        await Verify(code);
+    }
 
 }

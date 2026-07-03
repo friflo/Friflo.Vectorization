@@ -18,24 +18,40 @@ public sealed partial class Gen
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol,
         GenerateTrigger                 trigger,
+        Diagnostics                     diagnostics,
         out EmissionResult              emissionResult)
     {
+        emissionResult = new EmissionResult("", "", diagnostics.List);
         var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
         var fragmentShader  = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.FragmentShaderAttribute");
-        
-        if (shader == null && vertexShader == null && fragmentShader == null) {
-            emissionResult = default;
-            return false;
-        }
-        var diagnostics = new Diagnostics { BlueprintMethod = methodSymbol };
-        if (shader != null) {
-            if (vertexShader != null || fragmentShader != null) {
-                diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader.AttributeClass, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
-                emissionResult = new EmissionResult("", "", diagnostics.List);
+
+        switch (trigger)
+        {
+            case  GenerateTrigger.ShaderAttribute:
+                if (vertexShader != null || fragmentShader != null) {
+                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader!.AttributeClass, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
+                    return true;
+                }
+                break;
+            case  GenerateTrigger.VertexShaderAttribute:
+                if (fragmentShader == null) {
+                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, vertexShader!.AttributeClass, "[VertexShader] requires also a [FragmentShader]");
+                    return true;
+                }
+                break;
+            case  GenerateTrigger.FragmentShaderAttribute:
+                if (vertexShader == null) {
+                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, fragmentShader!.AttributeClass, "[FragmentShader] requires also a [VertexShader]");
+                }
+                return true;
+            default:
+                emissionResult = default;
                 return false;
-            }
+        }
+        if (noEmit) {
+            return true;
         }
         var method = CreateCsMethod(methodAttributes, methodSymbol);
         var hash = "";
@@ -43,11 +59,7 @@ public sealed partial class Gen
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
         var code = ShaderEmitter.EmitShader(methodSymbol.IsStatic, method, hash);
-        
-        if (noEmit) {
-            emissionResult = default;
-            return false;
-        }
+
         var fileName = CreateFileName(methodSymbol, hash);
         emissionResult = new EmissionResult(fileName, code, diagnostics.List);
         return true;

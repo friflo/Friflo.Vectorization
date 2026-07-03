@@ -1,4 +1,4 @@
-﻿//HintName: VerifyShader/ShaderExample/DrawTriangles.g.cs
+﻿//HintName: VerifyShader/ShaderExample/RenderCube.g.cs
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -9,11 +9,13 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void DrawTriangles(
+    public static partial void RenderCube(
         RenderPass pass,
         RenderConfig config,
-        InBuffer<VertexData> triangles,
-        MyUniform myUniform)
+        InBuffer<Single> vertices,
+        Uniforms uniforms,
+        GpuSampler smoothFilter,
+        GpuTextureView material)
     {
         // hello shader
     }
