@@ -74,8 +74,17 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var diagnostics = new Diagnostics { BlueprintMethod = blueprintMethod };
         var attributes  = blueprintMethod.GetAttributes();
         
-        GenerateShaderMethod(attributes, blueprintMethod, trigger, diagnostics, out var result);
-        return result;
+        var hash = "";
+        // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
+        // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
+        
+        var code = GenerateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
+        if (code == null) {
+            return new EmissionResult("", "", diagnostics.List);
+        }
+        
+        var fileName = Gen.CreateFileName(blueprintMethod, hash);
+        return new EmissionResult(fileName, code, diagnostics.List);
     }
 }
 
