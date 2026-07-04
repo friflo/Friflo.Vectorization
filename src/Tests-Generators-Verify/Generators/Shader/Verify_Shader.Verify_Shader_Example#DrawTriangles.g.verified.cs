@@ -14,10 +14,10 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     public static partial void DrawTriangles(
-        RenderPass pass,
-        RenderConfig config,
-        InBuffer<VertexData> triangles,
-        MyUniform myUniform)
+        RenderPass                  pass,
+        RenderConfig                config,
+        InBuffer<VertexData>        triangles,
+        MyUniform                   myUniform)
     {
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));

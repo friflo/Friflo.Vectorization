@@ -14,12 +14,12 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     public static partial void RenderCube(
-        RenderPass pass,
-        RenderConfig config,
-        InBuffer<Single> vertices,
-        Uniforms uniforms,
-        GpuSampler smoothFilter,
-        GpuTextureView material)
+        RenderPass                  pass,
+        RenderConfig                config,
+        InBuffer<Single>            vertices,
+        Uniforms                    uniforms,
+        GpuSampler                  smoothFilter,
+        GpuTextureView              material)
     {
 
         var pass_       = pass.Internal;

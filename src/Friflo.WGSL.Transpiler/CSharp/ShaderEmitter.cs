@@ -350,7 +350,8 @@ public partial class {{className}}
         var signature = new StringBuilder();
         foreach (var parameter in parameters)
         {
-            signature.Append("        ");        
+            signature.Append("        ");
+            var startPos = signature.Length;
             signature.Append(parameter.Type.Identifier.Name);
             var generics = parameter.Type.Generics;
             if (generics.Count > 0) {
@@ -363,6 +364,8 @@ public partial class {{className}}
                 signature.Append(">");
             }
             signature.Append(" ");
+            var indent = Math.Max(0, 28 - (signature.Length - startPos)); 
+            signature.Append(' ', indent);
             signature.Append(parameter.Name);
             signature.Append(",\n");
         }
