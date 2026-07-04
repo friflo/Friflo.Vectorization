@@ -108,12 +108,14 @@ public sealed partial class ShaderGen
                 };
             }
             parameters[n] = new CsParameter {
-                Draw            = draw,
                 Name            = paramSymbol.Name,
+                Draw            = draw,
                 Type            = MapType(paramSymbol.Type, paramAttribute != CsParamAttribute.None),
                 ParamAttribute  = paramAttribute,
-                GroupIndex      = arg0,
-                BindingIndex    = arg1,
+                BindGroup       = new CsBindGroup {
+                    group           = arg0,
+                    binding         = arg1
+                },
                 SampleType      = sampleType
             };
         }

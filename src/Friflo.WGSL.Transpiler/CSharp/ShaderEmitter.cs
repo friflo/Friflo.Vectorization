@@ -49,9 +49,9 @@ public static class ShaderEmitter
         // filter / sort parameters use to create bind group layouts & bind groups
         var bindGroups = method.Parameters.Where(p => p.HasBindGroup).ToArray();
         Array.Sort(bindGroups,  (x, y) => {
-            int result = x.GroupIndex.CompareTo(y.GroupIndex);
+            int result = x.BindGroup.group.CompareTo(y.BindGroup.group);
             if (result == 0) {
-                result = x.BindingIndex.CompareTo(y.BindingIndex);
+                result = x.BindGroup.binding.CompareTo(y.BindGroup.binding);
             }
             return result;
         });
@@ -65,9 +65,9 @@ public static class ShaderEmitter
         {
             var name = bindGroup.Name;
             if (curBindGroupLayout == null ||
-                curBindGroupLayout.groupIndex != bindGroup.GroupIndex)
+                curBindGroupLayout.groupIndex != bindGroup.BindGroup.group)
             {
-                curBindGroupLayout = new BindGroupLayout(bindGroup.GroupIndex); 
+                curBindGroupLayout = new BindGroupLayout(bindGroup.BindGroup.group); 
                 layouts.Add(curBindGroupLayout);
             }
             curBindGroupLayout.bindings.Add(bindGroup);

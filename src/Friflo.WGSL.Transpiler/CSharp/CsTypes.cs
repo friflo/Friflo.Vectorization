@@ -13,19 +13,19 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 public readonly struct CsShaderSource
 {
-    public required     string          Shader          { get; init; }
-    public required     string          VertexShader    { get; init; }
-    public required     string          FragmentShader  { get; init; }
-    public required     string          VertexEntry     { get; init; }
-    public required     string          FragmentEntry   { get; init; }
+    public required     string  Shader          { get; init; }
+    public required     string  VertexShader    { get; init; }
+    public required     string  FragmentShader  { get; init; }
+    public required     string  VertexEntry     { get; init; }
+    public required     string  FragmentEntry   { get; init; }
 }
 
 public readonly struct CsDrawVertexIndex
 {
-    public required uint vertexCount    { get; init; }
-    public required uint instanceCount  { get; init; }
-    public required uint firstVertex    { get; init; }
-    public required uint firstInstance  { get; init; }
+    public required     uint    vertexCount     { get; init; }
+    public required     uint    instanceCount   { get; init; }
+    public required     uint    firstVertex     { get; init; }
+    public required     uint    firstInstance   { get; init; }
 }
 
 
@@ -117,18 +117,23 @@ public enum CsParamAttribute
 
 public readonly struct CsDraw
 {
-    public required uint instanceCount  { get; init; }
-    public required uint firstInstance  { get; init; }
+    public required     uint    instanceCount   { get; init; }
+    public required     uint    firstInstance   { get; init; }
+}
+
+public readonly struct CsBindGroup
+{
+    public required     int     group           { get; init; }
+    public required     int     binding         { get; init; }
 }
 
 public readonly struct CsParameter
 {
+    public required     string              Name            { get; init; }
     public required     CsDraw?             Draw            { get; init; }
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
-    public required     string              Name            { get; init; }
-    public required     int                 GroupIndex      { get; init; }
-    public required     int                 BindingIndex    { get; init; }
+    public required     CsBindGroup         BindGroup       { get; init; }
     public required     CsSampleType        SampleType      { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
