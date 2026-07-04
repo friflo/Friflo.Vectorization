@@ -71,11 +71,11 @@ public static class ShaderEmitter
                 layouts.Add(curBindGroupLayout);
             }
             curBindGroupLayout.bindings.Add(bindGroup);
-            if (bindGroup.IsBuffer) {
-                if (buffers.Length == 0) {
+            if (bindGroup.IsBuffer) {           // TODO  1. remove var buffers (GpuBuffers)
+                if (buffers.Length == 0) {      // TODO  2. only validate buffer parameters
                     buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));");
                 } else {
-                    // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));"); // TODO
+                    // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));");
                 }
                 var requireType = bindGroup.IsReadOnlyBuffer ? "RequireRead     " : "RequireReadWrite";
                 bufferInit.Append($"\n        recorder.{requireType}({name});");
