@@ -35,7 +35,13 @@ public partial class ShaderExample
         
         var bindGroupCache = (_RenderCube_GPU_Cache)pipelineCache.bindGroupCache;
 
-        
+        var key_0 = (smoothFilter.Handle, material.Handle);
+        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "RenderCube_bindGroup0"u8);
+            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+        }
+        pass_.SetBindGroup(0, bindGroup0);
+
     }
 
 
