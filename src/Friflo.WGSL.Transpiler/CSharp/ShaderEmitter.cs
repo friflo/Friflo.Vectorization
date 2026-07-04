@@ -157,17 +157,19 @@ public static class ShaderEmitter
         }
         
         // --- set vertex buffers
+        bool hasVertexBuffer = false;
         foreach (var parameter in method.Parameters) {
             if (parameter.ParamAttribute != VertexBuffer) continue;
             bindGroupBlock.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
-        }        
+            hasVertexBuffer = true;
+        }
+        if (hasVertexBuffer) bindGroupBlock.Append("        \n");
         
         // --- draw
-        var drawBlock = new StringBuilder();
-        drawBlock.Append("        // --- draw\n");
+        bindGroupBlock.Append("        // --- draw\n");
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;
-            drawBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+            bindGroupBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
         }
 
         var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Vertex);
@@ -179,12 +181,12 @@ public static class ShaderEmitter
                 if (instanceParam.DrawType == CsDrawType.Instance) {
                     instanceCount = $"{instanceParam.Name}.Length";
                 }
-                drawBlock.Append($"        pass_.DrawVertexBuffer({vertexParam.Name}, 0, config, {instanceCount}, 0, 0);\n");
+                bindGroupBlock.Append($"        pass_.DrawVertexBuffer({vertexParam.Name}, 0, config, {instanceCount}, 0, 0);\n");
             } else {
                 var instanceCount = 1;  // TODO   use instanceCount as above?
                 var firstInstance = 0;  // TODO   use [DrawFirstInstanceAttribute] parameter
                 var name = vertexParam.Name;
-                drawBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
+                bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
             }
         }
         
@@ -223,8 +225,7 @@ public partial class {{className}}
         
         var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
 
-{{bindGroupBlock}}
-{{drawBlock}}    }
+{{bindGroupBlock}}    }
 
 
     private sealed class {{methodName_GPU}}_Cache : BindGroupCache

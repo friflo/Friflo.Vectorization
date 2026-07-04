@@ -47,7 +47,7 @@ public partial class ShaderExample
         pass_.SetBindGroup(0, bindGroup0);
         
         pass_.SetVertexBuffer(vertices, 0);
-
+        
         // --- draw
         pass_.DrawVertexBuffer(vertices, 0, config, 1, 0, 0);
     }
