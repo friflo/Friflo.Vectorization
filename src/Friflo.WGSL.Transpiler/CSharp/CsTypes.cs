@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable UnusedType.Global
@@ -111,8 +112,26 @@ public readonly struct CsParameter
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
-    public  bool HasBindGroup =>    ParamAttribute != CsParamAttribute.None && 
-                                    ParamAttribute != CsParamAttribute.VertexBuffer;
+    public  bool HasBindGroup {
+        get {
+            return ParamAttribute switch {
+                CsParamAttribute.None           => false, 
+                CsParamAttribute.VertexBuffer   => false,
+                CsParamAttribute.BindUniform    => IsBuffer,
+                _                               => true
+            };
+        }
+    }
+
+    public bool IsReadOnlyBuffer => Type.Identifier.Name == "InBuffer";
+
+    public bool IsBuffer {
+        get {
+            var typeName = Type.Identifier.Name;
+            return typeName == "InBuffer" || typeName == "InOutBuffer";
+        }
+    }
+    
 
     public StringBuilder AppendString(StringBuilder sb)
     {

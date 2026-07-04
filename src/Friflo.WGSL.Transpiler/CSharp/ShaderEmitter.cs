@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable InvertIf
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InconsistentNaming
@@ -69,20 +70,23 @@ public static class ShaderEmitter
                 layouts.Add(curBindGroupLayout);
             }
             curBindGroupLayout.bindings.Add(bindGroup);
-            var typeName = bindGroup.Type.Identifier.Name;
-            if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+            if (bindGroup.IsBuffer) {
                 if (buffers.Length == 0) {
                     buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));");
                 } else {
                     // buffers.AppendLine($"        var buffers =\n        GpuBuffers.Create({name}, nameof({name}));"); // TODO
                 }
-                var requireType         = typeName == "InOutBuffer" ? "RequireReadWrite" : "RequireRead     ";
+                var requireType = bindGroup.IsReadOnlyBuffer ? "RequireRead     " : "RequireReadWrite";
                 bufferInit.Append($"\n        recorder.{requireType}({name});");
             }
         }
         
+        // --- bind group creation
+        
+        // --- BindGroupCache class definition
         var bindGroupMembers = new StringBuilder();
         var bindGroupClear   = new StringBuilder();
+        // --- bind group layout creation
         var layoutKeys       = new StringBuilder();
         var bindGroupLayouts = new StringBuilder();
 
@@ -90,6 +94,9 @@ public static class ShaderEmitter
         {
             var groupIndex = layout.groupIndex;
             // --- bind group creation
+            
+            // --- BindGroupCache class definition
+            
             
             // --- bind group layout creation
             layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{groupIndex}_Key        =  0x4755;  // TODO\n");
@@ -178,8 +185,7 @@ public partial class {{className}}
         
         switch (binding.ParamAttribute) {
             case BindStorage:
-                var readOnly = binding.Type.Identifier.Name == "InBuffer";
-                                                AppendBuffer(sb, readOnly ? "ReadOnlyStorage" : "Storage");
+                                                AppendBuffer(sb, binding.IsReadOnlyBuffer ? "ReadOnlyStorage" : "Storage");
                 return;
             case BindUniform:                   AppendBuffer(sb, "Uniform");                return;
             //
