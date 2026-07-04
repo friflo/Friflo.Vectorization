@@ -32,6 +32,9 @@ public partial class ShaderExample
         
         var bindGroupCache = (_RenderTunnel_GPU_Cache)pipelineCache.bindGroupCache;
 
+        // --- bind group 0
+        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache,"RenderTunnel_bindGroup0"u8);
+        
 
     }
 

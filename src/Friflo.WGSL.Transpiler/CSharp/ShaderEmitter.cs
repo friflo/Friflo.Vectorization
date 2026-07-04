@@ -93,11 +93,17 @@ public static class ShaderEmitter
         foreach (var layout in layouts)
         {
             var index       = layout.groupIndex;
-            var bindings    = layout.bindings.Where(binding => binding.HasHandle).ToArray();
+            var bindings    = layout.bindings.Where(binding =>  binding.HasHandle).ToArray();
+            var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
             
             // --- bind group creation
+            bindGroupBlock.Append($"        // --- bind group {index}\n");
             if (bindings.Length == 0)
             {
+                foreach (var uniform in uniforms) {
+                    bindGroupBlock.Append($"        pass_.SetBindGroupUniform({index}, ref bindGroupCache.bindGroup{index}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{index}\"u8);\n");
+                }
+                //
                 bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{index};\n");
                 bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{index});\n");
             } else {
@@ -128,6 +134,7 @@ public static class ShaderEmitter
                 bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{index} = new ();\n");
                 bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{index});\n");
             }
+            bindGroupBlock.Append($"        \n");
             
             // --- bind group layout creation
             var layoutKey = index;                                                                         // TODO  implement key calculation
