@@ -49,19 +49,27 @@ public partial class ShaderExample
 
     private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("_DrawTriangles_GPU");
     private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x4755;  // TODO
+    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0x4755;  // TODO
 
     private static ulong        _DrawTriangles_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_0_Key, "DrawTriangles_layout_0"u8);
         }
         layouts[0] = layout_0;
+        
+        var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
+        if (!layout_1.IsCreated) {
+            device.BindGroupLayoutUniform();
+            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
+        }
+        layouts[1] = layout_1;
         
         using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
 

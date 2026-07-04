@@ -184,10 +184,8 @@ public partial class {{className}}
         var sampleType = binding.SampleType;
         
         switch (binding.ParamAttribute) {
-            case BindStorage:
-                                                AppendBuffer(sb, binding.IsReadOnlyBuffer ? "ReadOnlyStorage" : "Storage");
-                return;
-            case BindUniform:                   AppendBuffer(sb, "Uniform");                return;
+            case BindStorage:   AppendStorage(sb, binding.IsReadOnlyBuffer ? "ReadOnlyStorage" : "Storage");    return;
+            case BindUniform:   AppendUniform(sb, binding.IsBuffer);                                            return;
             //
             case SamplerFiltering:              AppendSampler(sb, "Filtering");             return;
             case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return;
@@ -215,9 +213,18 @@ public partial class {{className}}
         }
     }
     
-    private static void AppendBuffer(StringBuilder sb, string bindingType)
+    private static void AppendStorage(StringBuilder sb, string bindingType)
     {
         sb.Append($"device.BindGroupLayoutBuffer(BufferBindingType.{bindingType});");
+    }
+    
+    private static void AppendUniform(StringBuilder sb, bool isBuffer)
+    {
+        if (isBuffer) {
+            AppendStorage(sb, "Uniform");
+        } else {
+            sb.Append($"device.BindGroupLayoutUniform();");
+        }
     }
     
     private static void AppendSampler(StringBuilder sb, string sampleType)

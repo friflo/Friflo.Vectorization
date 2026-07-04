@@ -112,18 +112,10 @@ public readonly struct CsParameter
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
-    public  bool HasBindGroup {
-        get {
-            return ParamAttribute switch {
-                CsParamAttribute.None           => false, 
-                CsParamAttribute.VertexBuffer   => false,
-                CsParamAttribute.BindUniform    => IsBuffer,
-                _                               => true
-            };
-        }
-    }
-
-    public bool IsReadOnlyBuffer => Type.Identifier.Name == "InBuffer";
+    public bool HasBindGroup        => ParamAttribute != CsParamAttribute.None &&
+                                       ParamAttribute != CsParamAttribute.VertexBuffer;
+    
+    public bool IsReadOnlyBuffer    => Type.Identifier.Name == "InBuffer";
 
     public bool IsBuffer {
         get {
@@ -131,7 +123,6 @@ public readonly struct CsParameter
             return typeName == "InBuffer" || typeName == "InOutBuffer";
         }
     }
-    
 
     public StringBuilder AppendString(StringBuilder sb)
     {
