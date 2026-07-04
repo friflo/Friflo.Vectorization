@@ -67,26 +67,26 @@ public partial class RenderTest
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache Triangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(Triangles_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_0_key, "Triangles_layout_0"u8);
         }
+        layouts[0] = layout_0;
+        
         var layout_1 = device.GetBindGroupLayout(Triangles_GPU_layout_1_key);
         if (!layout_1.IsCreated) {
             device.BindGroupLayoutUniform();
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
         }
-        using var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
-        
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
-        layouts[0] = layout_0;
         layouts[1] = layout_1;
+        
+        using var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Triangles_pipeline"u8);
         
         var bindGroupCache = new Triangles_GPU_Cache();
-        
         return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     

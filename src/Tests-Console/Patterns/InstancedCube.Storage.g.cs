@@ -66,16 +66,16 @@ public partial class InstancedCube
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache InstancedCube_Storage_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(InstancedCube_Storage_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, InstancedCube_Storage_GPU_layout_0_Key, "InstancedCube_Storage_layout_0"u8);
         }
+        layouts[0] = layout_0;
+        
         using var vsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_VertexShader(),   "InstancedCube_Storage_VertexShader"u8);
         using var fsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_FragmentShader(), "InstancedCube_Storage_FragmentShader"u8);
-        
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;
 
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "InstancedCube_Storage_pipeline"u8);
 

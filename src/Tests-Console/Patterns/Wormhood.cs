@@ -48,15 +48,15 @@ public static partial class Wormhood
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache Wormhood_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(Wormhood_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Fragment, Wormhood_GPU_layout_0_key, "Wormhood_layout_0"u8);
         }
-        using var module = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood_shader"u8);
-        
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         layouts[0] = layout_0;
+        
+        using var module = device.CreateShaderModule(Wormhood_GPU_Shader(), "Wormhood_shader"u8);
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Wormhood_pipeline"u8);
         

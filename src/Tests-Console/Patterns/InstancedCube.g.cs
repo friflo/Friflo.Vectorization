@@ -66,16 +66,16 @@ public partial class InstancedCube
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache TextureTest_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.Uniform);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
+        layouts[0] = layout_0;
+        
         using var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
         using var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
-        
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
-        layouts[0] = layout_0;
 
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
 
