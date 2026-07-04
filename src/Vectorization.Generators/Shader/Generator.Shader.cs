@@ -73,7 +73,8 @@ public sealed partial class ShaderGen
         for (int n = 0; n <  methodParameters.Length; n++)
         {
             var paramSymbol     = methodParameters[n];
-            var paramAttribute  = GetParamAttribute(paramSymbol, out var attributeData);
+            var attributes      = paramSymbol.GetAttributes();
+            var paramAttribute  = GetParamAttribute(attributes, out var attributeData);
             var arg0 = -1;
             var arg1 = -1;
             var sampleType = CsSampleType.None;
@@ -97,7 +98,17 @@ public sealed partial class ShaderGen
                     }
                 }
             }
+            var drawAttr = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute");
+            CsDraw? draw = null;
+            if (drawAttr != null) {
+                var args = drawAttr.ConstructorArguments;
+                draw = new CsDraw {
+                    instanceCount = (uint)args[0].Value!,
+                    firstInstance = (uint)args[1].Value!
+                };
+            }
             parameters[n] = new CsParameter {
+                Draw            = draw,
                 Name            = paramSymbol.Name,
                 Type            = MapType(paramSymbol.Type, paramAttribute != CsParamAttribute.None),
                 ParamAttribute  = paramAttribute,
@@ -134,9 +145,8 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static CsParamAttribute GetParamAttribute(IParameterSymbol paramSymbol, out AttributeData? attributeData)
+    private static CsParamAttribute GetParamAttribute(ImmutableArray<AttributeData> attributes, out AttributeData? attributeData)
     {
-        var attributes = paramSymbol.GetAttributes();
         foreach (var attribute in attributes)
         {
             attributeData = attribute;

@@ -115,8 +115,15 @@ public enum CsParamAttribute
     texture_depth_cube_array
 }
 
+public readonly struct CsDraw
+{
+    public required uint instanceCount  { get; init; }
+    public required uint firstInstance  { get; init; }
+}
+
 public readonly struct CsParameter
 {
+    public required     CsDraw?             Draw            { get; init; }
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
     public required     string              Name            { get; init; }
