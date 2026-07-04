@@ -99,7 +99,8 @@ public static class ShaderEmitter
             
             
             // --- bind group layout creation
-            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{groupIndex}_Key        =  0x4755;  // TODO\n");
+            var layoutKey = groupIndex;                                                                         // TODO  implement key calculation
+            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{groupIndex}_Key        =  0x0{layoutKey};  // TODO\n");
             bindGroupLayouts.Append($"        var layout_{groupIndex} = device.GetBindGroupLayout({methodName_GPU}_layout_{groupIndex}_Key);\n");
             bindGroupLayouts.Append($"        if (!layout_{groupIndex}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {
