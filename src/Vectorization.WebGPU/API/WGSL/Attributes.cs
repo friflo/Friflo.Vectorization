@@ -12,11 +12,11 @@ using JetBrains.Annotations;
 namespace Friflo.Vectorization.WebGPU;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class NoEmitAttribute : Attribute
-{
-    public NoEmitAttribute() { }
-}
+public sealed class NoEmitAttribute : Attribute;
 
+
+
+// -------------------------------------------- Shader Attributes
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
 {
@@ -35,6 +35,28 @@ public sealed class FragmentShaderAttribute : Attribute
     public FragmentShaderAttribute([PathReference] string wgsl, string frag = null) { }
 }
 
+
+
+// -------------------------------------------- Draw Attributes
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class DrawVertexIndexAttribute : Attribute
+{
+    public DrawVertexIndexAttribute(
+        uint vertexCount    = 3, 
+        uint instanceCount  = 1, 
+        uint firstVertex    = 0, 
+        uint firstInstance  = 0) { }
+}
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class DrawAttribute : Attribute;
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class DrawInstanceAttribute : Attribute;
+
+
+
+// -------------------------------------------- Parameter Attributes
 /// <summary> Specifies that the parameter binds a vertex buffer to the designated GPU input slot. </summary>
 /// <remarks>
 /// <para>
@@ -68,11 +90,6 @@ public sealed class VertexBufferAttribute : Attribute
     /// <param name="slot">Maps to the <see cref="WgpuVertexState.buffers"/> element index. </param>
     public VertexBufferAttribute (int slot) { }
 }
-
-// --- Generator Draw Call Rules ---
-// 1. [BindIndex]   present              -> pass.DrawIndexed(indices.Length, [BindInstance] ?? 1, 0, 0, 0);
-// 2. [BindStorage] only                 -> pass.Draw(vertices.Length, [BindInstance] ?? 1, 0, 0);
-// 3. No geometry (Fullscreen/Compute)   -> pass.Draw(3, 1, 0, 0);
 
 /// <summary>
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>
