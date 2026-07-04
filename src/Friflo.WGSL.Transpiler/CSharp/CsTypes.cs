@@ -117,7 +117,7 @@ public readonly struct CsParameter
     
     public bool IsReadOnlyBuffer    => Type.Identifier.Name == "InBuffer";
     
-    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.BindUniform && IsBuffer);
+    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.BindUniform && !IsBuffer);
 
     public bool IsBuffer {
         get {

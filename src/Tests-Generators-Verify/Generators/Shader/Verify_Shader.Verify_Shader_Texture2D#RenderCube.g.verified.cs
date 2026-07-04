@@ -41,7 +41,7 @@ public partial class ShaderExample
 
     private sealed class _RenderCube_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint, nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup0 = new ();
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup0);
