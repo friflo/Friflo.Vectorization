@@ -44,6 +44,8 @@ public partial class ShaderExample
         pass_.SetBindGroup(0, bindGroup0);
         
 
+        // --- draw
+        pass_.Draw(vertices.Length, 1, vertices.Offset, 0);
     }
 
 

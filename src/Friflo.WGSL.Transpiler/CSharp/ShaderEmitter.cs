@@ -152,6 +152,23 @@ public static class ShaderEmitter
             bindGroupLayouts.Append("        \n");
         }
         
+        // --- draw
+        var drawBlock = new StringBuilder();
+        drawBlock.Append("        // --- draw\n");
+        foreach (var parameter in method.Parameters)
+        {
+            if (parameter.Draw == null) continue;
+            var draw = parameter.Draw.Value;
+            var name = parameter.Name;
+            
+            drawBlock.Append($"        pass_.Draw({name}.Length, {draw.instanceCount}, {name}.Offset, {draw.firstInstance});\n");
+        }
+        if (method.DrawVertexIndex != null) {
+            var dvi = method.DrawVertexIndex.Value;
+            drawBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+        }
+        
+        
         // language=csharp
         var code =
 $$"""
@@ -187,7 +204,7 @@ public partial class {{className}}
         var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
 
 {{bindGroupBlock}}
-    }
+{{drawBlock}}    }
 
 
     private sealed class {{methodName_GPU}}_Cache : BindGroupCache

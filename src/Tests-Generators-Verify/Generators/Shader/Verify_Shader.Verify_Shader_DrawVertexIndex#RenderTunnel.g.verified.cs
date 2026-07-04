@@ -36,6 +36,8 @@ public partial class ShaderExample
         pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache,"RenderTunnel_bindGroup0"u8);
         
 
+        // --- draw
+        pass_.Draw(3, 1, 0, 0);
     }
 
 

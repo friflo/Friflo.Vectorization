@@ -48,6 +48,8 @@ public partial class ShaderExample
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
         
 
+        // --- draw
+        pass_.Draw(triangles.Length, 1, triangles.Offset, 0);
     }
 
 
