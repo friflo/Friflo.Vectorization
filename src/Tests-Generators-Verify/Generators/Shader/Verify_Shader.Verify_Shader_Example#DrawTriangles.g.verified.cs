@@ -39,6 +39,7 @@ public partial class ShaderExample
         // --- bind group 0
         var key_0 = triangles.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+            recorder.BindGroupEntryBuffer(triangles.Buffer);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawTriangles_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable MergeIntoPattern
 // ReSharper disable InvertIf
 // ReSharper disable RedundantSwitchExpressionArms
@@ -125,6 +126,9 @@ public static class ShaderEmitter
                 }
                 bindGroupBlock.Append(";\n");
                 bindGroupBlock.Append($"        if (!bindGroupCache.bindGroup{index}.TryGetValue(key_{index}, out var bindGroup{index})) {{\n");
+                foreach (var binding in bindings) {
+                    AppendBinding(bindGroupBlock, binding);
+                }
                 bindGroupBlock.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
                 bindGroupBlock.Append($"            bindGroupCache.bindGroup{index}.Add(key_{index}, bindGroup{index});\n");
                 bindGroupBlock.Append( "        }\n");
@@ -233,6 +237,43 @@ public partial class {{className}}
 }
 """;
         return code;
+    }
+    
+    private static void AppendBinding(StringBuilder sb, in CsParameter binding)
+    {
+        switch (binding.ParamAttribute)
+        {
+            case BindStorage:
+                sb.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                return;
+            case BindUniform:
+                var uniformType = binding.Type.Identifier.Name;
+                sb.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
+                return;
+            case SamplerFiltering:
+            case SamplerNonFiltering:
+            case SamplerComparison:
+                sb.Append($"            recorder.BindGroupEntrySampler({binding.Name});\n");
+                return;
+            case texture_1d:
+            case texture_2d:
+            case texture_2d_array:
+            case texture_3d:
+            case texture_cube:
+            case texture_cube_array:
+            case texture_multisampled_2d:
+            case texture_depth_multisampled_2d:
+            case texture_storage_1d:
+            case texture_storage_2d:
+            case texture_storage_2d_array:
+            case texture_storage_3d:
+            case texture_depth_2d:
+            case texture_depth_2d_array:
+            case texture_depth_cube:
+            case texture_depth_cube_array:
+                sb.Append($"            recorder.BindGroupEntryTexture({binding.Name});\n");
+                return;
+        }
     }
     
     private static void AppendLayout(StringBuilder sb, in CsParameter binding)
