@@ -156,6 +156,12 @@ public static class ShaderEmitter
             bindGroupLayouts.Append("        \n");
         }
         
+        // --- set vertex buffers
+        foreach (var parameter in method.Parameters) {
+            if (parameter.ParamAttribute != VertexBuffer) continue;
+            bindGroupBlock.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
+        }        
+        
         // --- draw
         var drawBlock = new StringBuilder();
         drawBlock.Append("        // --- draw\n");
