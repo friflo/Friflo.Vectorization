@@ -38,6 +38,7 @@ public partial class ShaderExample
         // --- bind group 0
         var key_0 = (smoothFilter.Handle, material.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+            recorder.BindGroupEntryUniform<Uniforms>();
             recorder.BindGroupEntrySampler(smoothFilter);
             recorder.BindGroupEntryTexture(material);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "RenderCube_bindGroup0"u8);

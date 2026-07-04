@@ -126,7 +126,7 @@ public static class ShaderEmitter
                 }
                 bindGroupBlock.Append(";\n");
                 bindGroupBlock.Append($"        if (!bindGroupCache.bindGroup{index}.TryGetValue(key_{index}, out var bindGroup{index})) {{\n");
-                foreach (var binding in bindings) {
+                foreach (var binding in layout.bindings) {
                     AppendBinding(bindGroupBlock, binding);
                 }
                 bindGroupBlock.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
@@ -247,6 +247,10 @@ public partial class {{className}}
                 sb.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                 return;
             case BindUniform:
+                if (binding.HasHandle) {
+                    sb.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                    return;
+                }
                 var uniformType = binding.Type.Identifier.Name;
                 sb.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
                 return;
