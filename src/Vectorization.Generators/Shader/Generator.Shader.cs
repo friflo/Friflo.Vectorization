@@ -109,11 +109,13 @@ public sealed partial class ShaderGen
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
             Parameters      = parameters,
-            Shader          = (string)shader?        .ConstructorArguments[0].Value!,
-            VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
-            FragmentShader  = (string)fragmentShader?.ConstructorArguments[0].Value!,
-            VertexEntry     = vertexEntry,
-            FragmentEntry   = fragmentEntry
+            Source          = new CsShaderSource {
+                Shader          = (string)shader?        .ConstructorArguments[0].Value!,
+                VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
+                FragmentShader  = (string)fragmentShader?.ConstructorArguments[0].Value!,
+                VertexEntry     = vertexEntry,
+                FragmentEntry   = fragmentEntry
+            }
         };
     }
     

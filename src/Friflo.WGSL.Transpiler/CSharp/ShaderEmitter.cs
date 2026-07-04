@@ -31,18 +31,18 @@ public static class ShaderEmitter
         var shaderResources = new StringBuilder();
         string vsModule;
         string fsModule;
-        if (method.Shader != null) {
+        if (method.Source.Shader != null) {
             vsModule = "module";
             fsModule = "module";
             shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Shader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.Shader}\");\n");
         } else {
             vsModule = "vsModule";
             fsModule = "fsModule";
             shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
             shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.VertexShader}\");\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.FragmentShader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.VertexShader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.FragmentShader}\");\n");
         }
         
         
@@ -199,7 +199,7 @@ public partial class {{className}}
     {
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
 {{bindGroupLayouts}}{{shaderModules}}
-        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{method.VertexEntry}}"u8, {{fsModule}}, "{{method.FragmentEntry}}"u8, "{{methodName}}_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{method.Source.VertexEntry}}"u8, {{fsModule}}, "{{method.Source.FragmentEntry}}"u8, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);

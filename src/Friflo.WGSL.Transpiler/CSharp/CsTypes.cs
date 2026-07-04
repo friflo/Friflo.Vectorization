@@ -11,16 +11,21 @@ using System.Text;
 // ReSharper disable ClassNeverInstantiated.Global
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-
-public class CsMethod
+public readonly struct CsShaderSource
 {
-    public required     string          Name            { get; init; }
-    public required     CsType          DeclaringType   { get; init; }
     public required     string          Shader          { get; init; }
     public required     string          VertexShader    { get; init; }
     public required     string          FragmentShader  { get; init; }
     public required     string          VertexEntry     { get; init; }
     public required     string          FragmentEntry   { get; init; }
+}
+
+
+public class CsMethod
+{
+    public required     string          Name            { get; init; }
+    public required     CsShaderSource  Source          { get; init; }
+    public required     CsType          DeclaringType   { get; init; }
     public required     CsParameter[]   Parameters      { get; init; }
     
     public override string ToString()
