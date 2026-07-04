@@ -44,9 +44,9 @@ public partial class InstancedCube
         }
         pass_.SetBindGroup(0, bindGroup0);
         
-        int verticesBufferCount = pass_.SetVertexBuffer(config, 0, verticesBuffer); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
+        pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
-        pass_.Draw(verticesBufferCount, mvpMatrices.Length, 0, 0);
+        pass_.DrawVertexBuffer(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
 	}
     
     private sealed class InstancedCube_Storage_GPU_Cache : BindGroupCache

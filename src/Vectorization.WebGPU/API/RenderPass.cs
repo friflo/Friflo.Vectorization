@@ -257,14 +257,19 @@ public readonly unsafe ref struct RenderPassInternal
     /// <summary>
     /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="WgpuVertexBufferLayout"/>.  
     /// </summary>
-    public int SetVertexBuffer<T>(RenderConfig config, int slot, in InBuffer<T> buffer) where T : unmanaged
+    public void SetVertexBuffer<T>(in InBuffer<T> buffer, int slot) where T : unmanaged
     {
         ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
         ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
-        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride); // arrayStride == 0 should result in DivideByZeroException  
         
         wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
-        return vertexCount;
+    }
+    
+    public void DrawVertexBuffer<T>(in InBuffer<T> buffer, int slot, RenderConfig config, int instanceCount, int firstVertex, int firstInstance) where T : unmanaged
+    {
+        ulong size      = (ulong)(buffer.Length * sizeof(T)); // size in bytes
+        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride); // arrayStride == 0 should result in DivideByZeroException 
+        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
     }
 
     public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance)
