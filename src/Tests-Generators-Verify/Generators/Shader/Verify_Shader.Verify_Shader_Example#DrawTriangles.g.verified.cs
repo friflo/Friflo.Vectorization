@@ -1,5 +1,6 @@
 ﻿//HintName: VerifyShader/ShaderExample/DrawTriangles.g.cs
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -41,9 +42,12 @@ public partial class ShaderExample
 
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
+        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup1 = new ();
 
         protected override void Clear() {
-
+            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroups(bindGroup1);
         }
     }
 

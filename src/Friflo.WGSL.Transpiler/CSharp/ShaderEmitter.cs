@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable InvertIf
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoLogicalPattern
@@ -81,22 +82,43 @@ public static class ShaderEmitter
             }
         }
         
-        // --- bind group creation
-        
-        // --- BindGroupCache class definition
-        var bindGroupMembers = new StringBuilder();
-        var bindGroupClear   = new StringBuilder();
-        // --- bind group layout creation
-        var layoutKeys       = new StringBuilder();
-        var bindGroupLayouts = new StringBuilder();
+        // - bind group creation
+        var bindGroupKeys       = new StringBuilder();
+        var bindGroupMembers    = new StringBuilder();
+        var bindGroupClear      = new StringBuilder();
+        // - bind group layout creation
+        var layoutKeys          = new StringBuilder();
+        var bindGroupLayouts    = new StringBuilder();
 
         foreach (var layout in layouts)
         {
-            var groupIndex = layout.groupIndex;
+            var groupIndex  = layout.groupIndex;
+            var bindings    = layout.bindings.Where(binding => binding.HasHandle).ToArray();
+            
             // --- bind group creation
-            
-            // --- BindGroupCache class definition
-            
+            if (bindings.Length == 0)
+            {
+                bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{groupIndex};\n");
+                bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{groupIndex});\n");
+            } else {
+                bindGroupMembers.Append("        internal readonly   Dictionary<");
+                if (bindings.Length > 1) {
+                    bindGroupKeys.Append("(");
+                    bindGroupMembers.Append("(");
+                }
+                foreach (var binding in bindings) {
+                    bindGroupKeys.Append($"{binding.Name}.Handle, ");
+                    bindGroupMembers.Append("nint, ");
+                }
+                bindGroupKeys.Length -= 2;
+                bindGroupMembers.Length -= 2;
+                if (bindings.Length > 1) {
+                    bindGroupKeys.Append(")");
+                    bindGroupMembers.Append(")");
+                }
+                bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{groupIndex} = new ();\n");
+                bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{groupIndex});\n");
+            }
             
             // --- bind group layout creation
             var layoutKey = groupIndex;                                                                         // TODO  implement key calculation
@@ -118,6 +140,7 @@ public static class ShaderEmitter
         var code =
 $$"""
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -155,8 +178,7 @@ public partial class {{className}}
     {
 {{bindGroupMembers}}
         protected override void Clear() {
-{{bindGroupClear}}
-        }
+{{bindGroupClear}}        }
     }
 
     private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName_GPU}}");

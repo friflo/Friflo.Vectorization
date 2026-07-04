@@ -116,6 +116,8 @@ public readonly struct CsParameter
                                        ParamAttribute != CsParamAttribute.VertexBuffer;
     
     public bool IsReadOnlyBuffer    => Type.Identifier.Name == "InBuffer";
+    
+    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.BindUniform && IsBuffer);
 
     public bool IsBuffer {
         get {
