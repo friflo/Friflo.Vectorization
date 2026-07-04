@@ -119,7 +119,9 @@ public enum CsDrawType
 {
     None,
     Vertex,
-    Index
+    Instance,
+    FirstInstance,
+    // Index
 }
 
 public readonly struct CsBindGroup

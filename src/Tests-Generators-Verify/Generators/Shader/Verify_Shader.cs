@@ -97,6 +97,29 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_DrawInstanced()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
+	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
+    public static partial void DrawInstanced(RenderPass pass, RenderConfig config,
+        [DrawVertex]    [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_DrawVertexIndex()
     {
         await Verify(

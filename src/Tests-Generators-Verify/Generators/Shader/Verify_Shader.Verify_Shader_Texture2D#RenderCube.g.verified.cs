@@ -49,7 +49,7 @@ public partial class ShaderExample
         pass_.SetVertexBuffer(vertices, 0);
 
         // --- draw
-        pass_.Draw(vertices.Length, 1, vertices.Offset, 0);
+        pass_.DrawVertexBuffer(vertices, 0, config, 1, 0, 0);
     }
 
 

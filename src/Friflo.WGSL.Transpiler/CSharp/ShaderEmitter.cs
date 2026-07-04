@@ -165,18 +165,27 @@ public static class ShaderEmitter
         // --- draw
         var drawBlock = new StringBuilder();
         drawBlock.Append("        // --- draw\n");
-        foreach (var parameter in method.Parameters)
-        {
-            if (parameter.DrawType == CsDrawType.Vertex) {
-                var instanceCount = 1;  // TODO   set from method.CsMethod.DrawVertexIndex
-                var firstInstance = 0;  // TODO   set from method.CsMethod.DrawVertexIndex
-                var name = parameter.Name;
-                drawBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
-            }
-        }
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;
             drawBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+        }
+
+        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Vertex);
+        if (vertexParam.DrawType == CsDrawType.Vertex)
+        {
+            if (vertexParam.ParamAttribute == VertexBuffer) {
+                var instanceParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Instance);
+                var instanceCount = "1";
+                if (instanceParam.DrawType == CsDrawType.Instance) {
+                    instanceCount = $"{instanceParam.Name}.Length";
+                }
+                drawBlock.Append($"        pass_.DrawVertexBuffer({vertexParam.Name}, 0, config, {instanceCount}, 0, 0);\n");
+            } else {
+                var instanceCount = 1;  // TODO   use instanceCount as above?
+                var firstInstance = 0;  // TODO   use [DrawFirstInstanceAttribute] parameter
+                var name = vertexParam.Name;
+                drawBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
+            }
         }
         
         
