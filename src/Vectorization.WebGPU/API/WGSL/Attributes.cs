@@ -49,10 +49,10 @@ public sealed class DrawVertexIndexAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawAttribute : Attribute;
-
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawInstanceAttribute : Attribute;
+public sealed class DrawAttribute : Attribute
+{
+    public DrawAttribute(uint instanceCount = 1, uint firstInstance = 0) { }
+}
 
 
 
