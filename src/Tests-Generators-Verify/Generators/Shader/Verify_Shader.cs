@@ -95,5 +95,37 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_DrawVertexIndex()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("shaders/raymarcher_no_texture.wgsl")]
+    [DrawVertexIndex(3, 1)]
+    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
+        [BindUniform(0, 0)] Uniforms    uniforms);
+        
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Uniforms
+    {
+        public  Vector3     IResolution;
+        private float       _pad;       // 16-Byte Alignment for Vector3
+        public  float       ITime;
+        private Vector3     _pad2;      // fill block for 16 byte alignment
+    }
+}
+""");
+    }
+
 
 }

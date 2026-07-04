@@ -20,13 +20,22 @@ public readonly struct CsShaderSource
     public required     string          FragmentEntry   { get; init; }
 }
 
+public readonly struct CsDrawVertexIndex
+{
+    public required uint vertexCount    { get; init; }
+    public required uint instanceCount  { get; init; }
+    public required uint firstVertex    { get; init; }
+    public required uint firstInstance  { get; init; }
+}
+
 
 public class CsMethod
 {
-    public required     string          Name            { get; init; }
-    public required     CsShaderSource  Source          { get; init; }
-    public required     CsType          DeclaringType   { get; init; }
-    public required     CsParameter[]   Parameters      { get; init; }
+    public required     string              Name            { get; init; }
+    public required     CsShaderSource      Source          { get; init; }
+    public required     CsDrawVertexIndex?  DrawVertexIndex { get; init; }
+    public required     CsType              DeclaringType   { get; init; }
+    public required     CsParameter[]       Parameters      { get; init; }
     
     public override string ToString()
     {

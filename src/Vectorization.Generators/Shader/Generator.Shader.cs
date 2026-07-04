@@ -25,6 +25,8 @@ public sealed partial class ShaderGen
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
         var fragmentShader  = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.FragmentShaderAttribute");
+        //
+        var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
 
         switch (trigger)
         {
@@ -49,7 +51,7 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader);
+        var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
         
         var code = ShaderEmitter.EmitShader(methodSymbol.IsStatic, method, hash);
 
@@ -58,10 +60,11 @@ public sealed partial class ShaderGen
 
 
     private static CsMethod CreateCsMethod(
-        IMethodSymbol                   methodSymbol,
-        AttributeData?                  shader,
-        AttributeData?                  vertexShader,
-        AttributeData?                  fragmentShader)
+        IMethodSymbol   methodSymbol,
+        AttributeData?  shader,
+        AttributeData?  vertexShader,
+        AttributeData?  fragmentShader,
+        AttributeData?  drawVertexIndexAttr)
     {
         var declaringType       = MapType(methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
@@ -105,6 +108,17 @@ public sealed partial class ShaderGen
         }
         var vertexEntry   = (string?)(shader != null ? shader.ConstructorArguments[1].Value : vertexShader!  .ConstructorArguments[1].Value);
         var fragmentEntry = (string?)(shader != null ? shader.ConstructorArguments[2].Value : fragmentShader!.ConstructorArguments[1].Value);
+        
+        CsDrawVertexIndex?  drawVertexIndex = null;
+        if (drawVertexIndexAttr != null) {
+            var args = drawVertexIndexAttr.ConstructorArguments;
+            drawVertexIndex = new CsDrawVertexIndex {
+                vertexCount     = (uint)args[0].Value!,
+                instanceCount   = (uint)args[1].Value!,
+                firstVertex     = (uint)args[2].Value!,
+                firstInstance   = (uint)args[3].Value!
+            };
+        }
         return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
@@ -115,7 +129,8 @@ public sealed partial class ShaderGen
                 FragmentShader  = (string)fragmentShader?.ConstructorArguments[0].Value!,
                 VertexEntry     = vertexEntry,
                 FragmentEntry   = fragmentEntry
-            }
+            },
+            DrawVertexIndex = drawVertexIndex
         };
     }
     
