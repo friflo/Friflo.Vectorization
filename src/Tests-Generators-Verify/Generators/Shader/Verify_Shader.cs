@@ -47,8 +47,8 @@ public partial class ShaderExample
 {
     [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
-        [DrawVertex][BindStorage(0, 0)] InBuffer<VertexData>    triangles,
-                    [BindUniform(1, 0)] MyUniform               myUniform);
+        [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
+                [BindUniform(1, 0)] MyUniform               myUniform);
         
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform
@@ -83,10 +83,10 @@ public partial class ShaderExample
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     public static partial void RenderCube(RenderPass pass, RenderConfig config,
-        [DrawVertex][VertexBuffer(0)]           InBuffer<float> vertices,
-                    [BindUniform     (0, 0)]    Uniforms        uniforms,
-                    [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
-                    [texture_2d<f32> (0, 2)]    GpuTextureView  material);
+        [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
+                [BindUniform     (0, 0)]    Uniforms        uniforms,
+                [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
+                [texture_2d<f32> (0, 2)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
@@ -113,7 +113,7 @@ public partial class ShaderExample
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void DrawInstanced(RenderPass pass, RenderConfig config,
-        [DrawVertex]    [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [Draw]          [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
         [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
 }
 """);

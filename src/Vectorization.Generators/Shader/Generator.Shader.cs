@@ -99,7 +99,7 @@ public sealed partial class ShaderGen
                 }
             }
             var drawType = CsDrawType.None;
-            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawVertexAttribute")) {
+            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
                 drawType = CsDrawType.Vertex;
             }
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {

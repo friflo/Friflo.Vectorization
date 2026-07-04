@@ -91,8 +91,8 @@ public partial class RenderTest : IRenderer
     [NoEmit]
 	[Shader("shaders/triangle.wgsl")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
-        [DrawVertex][BindStorage(0, 0)] InBuffer<VertexData>    triangles,
-                    [BindUniform(1, 0)] MyUniform               myUniform);
+        [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
+                [BindUniform(1, 0)] MyUniform               myUniform);
 }
 
 

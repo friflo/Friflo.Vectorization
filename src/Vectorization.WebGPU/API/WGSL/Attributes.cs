@@ -53,18 +53,18 @@ public sealed class DrawVertexIndexAttribute : Attribute
 /// Use <see cref="DrawInstanceAttribute"/> or <see cref="DrawFirstInstanceAttribute"/> to set additional Draw() parameters.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawVertexAttribute : Attribute;
+public sealed class DrawAttribute : Attribute;
 
 /// <summary>
 /// Optional - set <b>instanceCount</b> by the <c>Length</c> of the annotated <c>InBuffer&lt;&gt;</c> parameter
-/// in Draw() when <see cref="DrawVertexAttribute"/> is used.<br/>
+/// in Draw() when <see cref="DrawAttribute"/> is used.<br/>
 /// If missing <b>instanceCount</b> defaults to 1.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawInstanceAttribute : Attribute;
 
 /// <summary>
-/// Optional - set <c>firstInstance</c> via an <c>int</c> parameter in Draw() when <see cref="DrawVertexAttribute"/> is used.<br/>
+/// Optional - set <c>firstInstance</c> via an <c>int</c> parameter in Draw() when <see cref="DrawAttribute"/> is used.<br/>
 /// If missing <b>firstInstance</b> defaults to 0.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
