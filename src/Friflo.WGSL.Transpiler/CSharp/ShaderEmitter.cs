@@ -167,11 +167,12 @@ public static class ShaderEmitter
         drawBlock.Append("        // --- draw\n");
         foreach (var parameter in method.Parameters)
         {
-            if (parameter.Draw == null) continue;
-            var draw = parameter.Draw.Value;
-            var name = parameter.Name;
-            
-            drawBlock.Append($"        pass_.Draw({name}.Length, {draw.instanceCount}, {name}.Offset, {draw.firstInstance});\n");
+            if (parameter.DrawType == CsDrawType.Vertex) {
+                var instanceCount = 1;  // TODO   set from method.CsMethod.DrawVertexIndex
+                var firstInstance = 0;  // TODO   set from method.CsMethod.DrawVertexIndex
+                var name = parameter.Name;
+                drawBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
+            }
         }
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;

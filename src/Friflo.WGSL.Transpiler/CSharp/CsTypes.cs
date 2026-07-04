@@ -115,10 +115,11 @@ public enum CsParamAttribute
     texture_depth_cube_array
 }
 
-public readonly struct CsDraw
+public enum CsDrawType
 {
-    public required     uint    instanceCount   { get; init; }
-    public required     uint    firstInstance   { get; init; }
+    None,
+    Vertex,
+    Index
 }
 
 public readonly struct CsBindGroup
@@ -131,7 +132,7 @@ public readonly struct CsBindGroup
 public readonly struct CsParameter
 {
     public required     string              Name            { get; init; }
-    public required     CsDraw?             Draw            { get; init; }
+    public required     CsDrawType          DrawType        { get; init; }
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }

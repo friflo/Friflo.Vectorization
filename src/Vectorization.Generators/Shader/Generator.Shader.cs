@@ -98,18 +98,14 @@ public sealed partial class ShaderGen
                     }
                 }
             }
-            var drawAttr = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute");
-            CsDraw? draw = null;
-            if (drawAttr != null) {
-                var args = drawAttr.ConstructorArguments;
-                draw = new CsDraw {
-                    instanceCount = (uint)args[0].Value!,
-                    firstInstance = (uint)args[1].Value!
-                };
+            var drawType    = CsDrawType.None;
+            var drawVertex  = GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawVertexAttribute");
+            if (drawVertex) {
+                drawType = CsDrawType.Vertex;
             }
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
-                Draw            = draw,
+                DrawType        = drawType,
                 Type            = MapType(paramSymbol.Type, paramAttribute != CsParamAttribute.None),
                 ParamAttribute  = paramAttribute,
                 BindGroup       = new CsBindGroup {

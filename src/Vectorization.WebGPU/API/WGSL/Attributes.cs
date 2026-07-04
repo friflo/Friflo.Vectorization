@@ -48,11 +48,27 @@ public sealed class DrawVertexIndexAttribute : Attribute
         uint firstInstance  = 0) { }
 }
 
+/// <summary>Draw() the vertex buffer annotated with <see cref="VertexBufferAttribute"/> </summary>
+/// <remarks>
+/// Use <see cref="DrawInstanceAttribute"/> or <see cref="DrawFirstInstanceAttribute"/> to set additional Draw() parameters.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawAttribute : Attribute
-{
-    public DrawAttribute(uint instanceCount = 1, uint firstInstance = 0) { }
-}
+public sealed class DrawVertexAttribute : Attribute;
+
+/// <summary>
+/// Optional - set <b>instanceCount</b> by the <c>Length</c> of the annotated <c>InBuffer&lt;&gt;</c> parameter
+/// in Draw() when <see cref="DrawVertexAttribute"/> is used.<br/>
+/// If missing <b>instanceCount</b> defaults to 1.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class DrawInstanceAttribute : Attribute;
+
+/// <summary>
+/// Optional - set <c>firstInstance</c> via an <c>int</c> parameter in Draw() when <see cref="DrawVertexAttribute"/> is used.<br/>
+/// If missing <b>firstInstance</b> defaults to 0.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class DrawFirstInstanceAttribute : Attribute;
 
 
 
