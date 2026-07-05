@@ -41,7 +41,6 @@ public sealed class ShaderEmitter
         methodName_GPU  = $"_{methodName}_GPU{hash}"; 
     }
     
-    private static string GetResourcePath(string path) => path.Replace('/', '.');
     
     public string Emit(bool staticMethod)
     {
@@ -55,18 +54,18 @@ public sealed class ShaderEmitter
         if (method.Source.Shader != null) {
             vsModule = "module";
             fsModule = "module";
-            var path = GetResourcePath(method.Source.Shader);
+            var path = method.Source.Shader;
             shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{path}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"{path}\");\n");
         } else {
             vsModule = "vsModule";
             fsModule = "fsModule";
-            var vsPath = GetResourcePath(method.Source.VertexShader);
-            var fsPath = GetResourcePath(method.Source.FragmentShader);
+            var vsPath = method.Source.VertexShader;
+            var fsPath = method.Source.FragmentShader;
             shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
             shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{vsPath}\");\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{fsPath}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"{vsPath}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"{fsPath}\");\n");
         }
         
         

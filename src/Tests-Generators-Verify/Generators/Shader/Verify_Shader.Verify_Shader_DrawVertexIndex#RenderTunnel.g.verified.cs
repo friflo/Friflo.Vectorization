@@ -73,6 +73,6 @@ public partial class ShaderExample
         return ref device.CreatePipelineCache(_RenderTunnel_GPU_ShaderId, config, _RenderTunnel_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _RenderTunnel_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.raymarcher_no_texture.wgsl");
+    private static ReadOnlySpan<byte> _RenderTunnel_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "shaders/raymarcher_no_texture.wgsl");
 
 }

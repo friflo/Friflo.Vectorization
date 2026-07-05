@@ -82,6 +82,6 @@ public partial class InstancedCube
         var bindGroupCache = new InstancedCube_Storage_GPU_Cache();
         return ref device.CreatePipelineCache(InstancedCube_Storage_GPU_ShaderId, config, InstancedCube_Storage_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
-    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.instanced.storage.vert.wgsl");
-    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "Tests-Console.shaders.vertexPositionColor.frag.wgsl");
+    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders.instanced.storage.vert.wgsl");
+    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders.vertexPositionColor.frag.wgsl");
 }

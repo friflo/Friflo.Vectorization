@@ -292,13 +292,22 @@ public readonly unsafe struct WgpuRenderPipeline
 public static class WgpuResource
 {
      
-    public static ReadOnlySpan<byte> GetResource(Type type, string resourceName)
+    public static ReadOnlySpan<byte> GetResource(Type type, string resourcePath)
     {
-        return GetResource(type.Assembly, resourceName);
+        return GetResource(type.Assembly, resourcePath);
     }
      
-    private static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourceName)
+    private static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourcePath)
     {
+#if DEBUG
+        /* var res = GetResourceFromFile(assembly, resourcePath);
+        if (res.Length != 0) {
+            return res;
+        } */
+#endif
+        var assemblyName = assembly.GetName().Name;
+        var resourceName = $"{assemblyName}.{resourcePath.Replace('/', '.')}";
+        
         var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream == null) { 
             throw new FileNotFoundException($"Resource '{resourceName}' not found");
@@ -314,6 +323,22 @@ public static class WgpuResource
             return span;
         }
         throw new InvalidOperationException($"Resource '{resourceName}' not found");
+    }
+    
+    private static ReadOnlySpan<byte> GetResourceFromFile(Assembly assembly, string resourceName)
+    {
+        var cleanPath       = resourceName.Replace(assembly.GetName().Name + ".", "");
+        int lastDot         = cleanPath.LastIndexOf('.');
+        var relativePath    = cleanPath.Substring(0, lastDot).Replace('.', '/') + cleanPath.Substring(lastDot);
+        var fullPath        = Path.Combine(AppContext.BaseDirectory, "../../../", relativePath);
+
+        if (File.Exists(fullPath))
+        {
+            var bytes = File.ReadAllBytes(fullPath);
+            return (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) 
+                ? bytes.AsSpan(3) : bytes;
+        }
+        return default;
     }
 }
 

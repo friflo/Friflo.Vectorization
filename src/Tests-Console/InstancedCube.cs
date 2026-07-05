@@ -156,7 +156,7 @@ public partial class InstancedCube : IRenderer
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
             if (useUniformBuffer) {
-                RenderCubes2(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+                RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             } else {
                 RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             }

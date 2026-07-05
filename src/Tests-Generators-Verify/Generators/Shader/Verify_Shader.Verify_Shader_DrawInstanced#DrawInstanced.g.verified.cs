@@ -86,7 +86,7 @@ public partial class ShaderExample
         return ref device.CreatePipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.instanced.vert.wgsl");
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.vertexPositionColor.frag.wgsl");
+    private static ReadOnlySpan<byte> _DrawInstanced_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "shaders/instanced.vert.wgsl");
+    private static ReadOnlySpan<byte> _DrawInstanced_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "shaders/vertexPositionColor.frag.wgsl");
 
 }
