@@ -9,9 +9,9 @@ using Friflo.Vectorization.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable CheckNamespace
@@ -40,8 +40,10 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
         .Select((text, cancellationToken) =>
         {
-            var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
-            return (FilePath: text.Path, Content: content);
+            var content             = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
+            ulong   hash            = ComputeFnv1A64(content);
+            var     normalizedPath  = text.Path.Replace("\\", "/");
+            return (FilePath: normalizedPath, Hash: hash);
         }).Collect();
         
         // ------ [Shader] [VertexShader] [FragmentShader]
@@ -71,9 +73,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void EmitWithHash(
         SourceProductionContext spc,
-        (EmissionResult EmissionResult, ImmutableArray<(string FilePath, string Content)> Files) source)
+        (EmissionResult EmissionResult, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
     {
-        (EmissionResult emissionResult, ImmutableArray<(string FilePath, string Content)> files) = source;
+        (EmissionResult emissionResult, ImmutableArray<(string FilePath, ulong Hash)> files) = source;
         
         if (string.IsNullOrEmpty(emissionResult.code)) return;
         
@@ -84,12 +86,12 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ulong wgslHash = 0;
         
         foreach (var file in files) {
-            var normalizedPath = file.FilePath.Replace("\\", "/");
-            if (targetFile1 != null && normalizedPath.EndsWith(targetFile1)) {
-                wgslHash = ComputeFnv1A64(file.Content);
+            var filePath = file.FilePath;
+            if (targetFile1 != null && filePath.EndsWith(targetFile1)) {
+                wgslHash = file.Hash;
             }
-            if (targetFile2 != null && normalizedPath.EndsWith(targetFile2)) {
-                wgslHash ^= ComputeFnv1A64(file.Content);
+            if (targetFile2 != null && filePath.EndsWith(targetFile2)) {
+                wgslHash ^= file.Hash;
             }
         }
         var finalSourceCode = emissionResult.code.Replace("__WGSL_HASH_PLACEHOLDER__", $"0x{wgslHash:x}UL");
