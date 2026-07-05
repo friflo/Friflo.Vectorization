@@ -84,7 +84,7 @@ public static class ShaderEmitter
         }
         
         // - bind group creation
-        var bindGroupBlock      = new StringBuilder();
+        var body                = new StringBuilder();
         var bindGroupMembers    = new StringBuilder();
         var bindGroupClear      = new StringBuilder();
         // - bind group layout creation
@@ -98,47 +98,47 @@ public static class ShaderEmitter
             var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
             
             // --- bind group creation
-            bindGroupBlock.Append($"        // --- bind group {index}\n");
+            body.Append($"        // --- bind group {index}\n");
             if (bindings.Length == 0)
             {
                 foreach (var uniform in uniforms) {
-                    bindGroupBlock.Append($"        pass_.SetBindGroupUniform({index}, ref bindGroupCache.bindGroup{index}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{index}\"u8);\n");
+                    body.Append($"        pass_.SetBindGroupUniform({index}, ref bindGroupCache.bindGroup{index}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{index}\"u8);\n");
                 }
                 //
                 bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{index};\n");
                 bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{index});\n");
             } else {
-                bindGroupBlock.Append($"        var key_{index} = ");
+                body.Append($"        var key_{index} = ");
                 bindGroupMembers.Append("        internal readonly   Dictionary<");
                 if (bindings.Length > 1) {
-                    bindGroupBlock.Append("(");
+                    body.Append("(");
                     bindGroupMembers.Append("(");
                 }
                 foreach (var binding in bindings) {
-                    bindGroupBlock.Append($"{binding.Name}.Handle, ");
+                    body.Append($"{binding.Name}.Handle, ");
                     bindGroupMembers.Append("nint, ");
                 }
-                bindGroupBlock.Length -= 2;
+                body.Length -= 2;
                 bindGroupMembers.Length -= 2;
                 if (bindings.Length > 1) {
-                    bindGroupBlock.Append(")");
+                    body.Append(")");
                     bindGroupMembers.Append(")");
                 }
-                bindGroupBlock.Append(";\n");
-                bindGroupBlock.Append($"        if (!bindGroupCache.bindGroup{index}.TryGetValue(key_{index}, out var bindGroup{index})) {{\n");
+                body.Append(";\n");
+                body.Append($"        if (!bindGroupCache.bindGroup{index}.TryGetValue(key_{index}, out var bindGroup{index})) {{\n");
                 foreach (var binding in layout.bindings) {
-                    AppendBinding(bindGroupBlock, binding);
+                    EmitBinding(body, binding);
                 }
-                bindGroupBlock.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
-                bindGroupBlock.Append($"            bindGroupCache.bindGroup{index}.Add(key_{index}, bindGroup{index});\n");
-                bindGroupBlock.Append( "        }\n");
-                bindGroupBlock.Append($"        pass_.SetBindGroup({index}, bindGroup{index});\n");
+                body.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
+                body.Append($"            bindGroupCache.bindGroup{index}.Add(key_{index}, bindGroup{index});\n");
+                body.Append( "        }\n");
+                body.Append($"        pass_.SetBindGroup({index}, bindGroup{index});\n");
                 
                 //
                 bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{index} = new ();\n");
                 bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{index});\n");
             }
-            bindGroupBlock.Append($"        \n");
+            body.Append($"        \n");
             
             // --- bind group layout creation
             var layoutKey = index;                                                                         // TODO  implement key calculation
@@ -160,13 +160,13 @@ public static class ShaderEmitter
         bool hasVertexBuffer = false;
         foreach (var parameter in method.Parameters) {
             if (parameter.ParamAttribute != VertexBuffer) continue;
-            bindGroupBlock.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
+            body.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
             hasVertexBuffer = true;
         }
-        if (hasVertexBuffer) bindGroupBlock.Append("        \n");
+        if (hasVertexBuffer) body.Append("        \n");
         
         // --- draw
-        AppendDraw(bindGroupBlock, method);
+        EmitDraw(body, method);
         
         
         // language=csharp
@@ -203,7 +203,7 @@ public partial class {{className}}
         
         var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
 
-{{bindGroupBlock}}    }
+{{body}}    }
 
 
     private sealed class {{methodName_GPU}}_Cache : BindGroupCache
@@ -234,25 +234,25 @@ public partial class {{className}}
         return code;
     }
     
-    private static void AppendBinding(StringBuilder sb, in CsParameter binding)
+    private static void EmitBinding(StringBuilder body, in CsParameter binding)
     {
         switch (binding.ParamAttribute)
         {
             case BindStorage:
-                sb.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                 return;
             case BindUniform:
                 if (binding.HasHandle) {
-                    sb.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                    body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                     return;
                 }
                 var uniformType = binding.Type.Identifier.Name;
-                sb.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
+                body.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
                 return;
             case SamplerFiltering:
             case SamplerNonFiltering:
             case SamplerComparison:
-                sb.Append($"            recorder.BindGroupEntrySampler({binding.Name});\n");
+                body.Append($"            recorder.BindGroupEntrySampler({binding.Name});\n");
                 return;
             case texture_1d:
             case texture_2d:
@@ -270,17 +270,17 @@ public partial class {{className}}
             case texture_depth_2d_array:
             case texture_depth_cube:
             case texture_depth_cube_array:
-                sb.Append($"            recorder.BindGroupEntryTexture({binding.Name});\n");
+                body.Append($"            recorder.BindGroupEntryTexture({binding.Name});\n");
                 return;
         }
     }
     
-    private static void AppendDraw(StringBuilder sb, in CsMethod method)
+    private static void EmitDraw(StringBuilder body, in CsMethod method)
     {
-        sb.Append("        // --- draw\n");
+        body.Append("        // --- draw\n");
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;
-            sb.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+            body.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
         }
 
         // attribute: DrawAttribute
@@ -307,10 +307,10 @@ public partial class {{className}}
             }
             if (vertexParam.ParamAttribute == VertexBuffer) {
                 var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                sb.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
+                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
             } else {
                 var name = vertexParam.Name;
-                sb.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
+                body.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
             }
         }
     }
