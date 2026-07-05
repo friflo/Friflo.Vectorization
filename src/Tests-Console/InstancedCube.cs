@@ -156,7 +156,7 @@ public partial class InstancedCube : IRenderer
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
             if (useUniformBuffer) {
-                RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+                RenderCubes2(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             } else {
                 RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             }
@@ -164,6 +164,12 @@ public partial class InstancedCube : IRenderer
         context.Queue.Submit();    
         wgpu.Surface.Present();
     }
+    
+	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
+	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
+    public static partial void RenderCubes2(RenderPass pass, RenderConfig config,
+        [Draw]          [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
     
     [NoEmit]
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]

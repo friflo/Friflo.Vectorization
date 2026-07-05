@@ -52,7 +52,7 @@ public partial class ShaderExample
     private static readonly int _RenderTunnel_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderTunnel");
     private const  ulong        _RenderTunnel_GPU_layout_0_Key        =  0xad2eca77479f2364;
 
-    private static ulong        _RenderTunnel_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
+    private static ulong        _RenderTunnel_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderTunnel_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -73,6 +73,6 @@ public partial class ShaderExample
         return ref device.CreatePipelineCache(_RenderTunnel_GPU_ShaderId, config, _RenderTunnel_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _RenderTunnel_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/raymarcher_no_texture.wgsl");
+    private static ReadOnlySpan<byte> _RenderTunnel_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.raymarcher_no_texture.wgsl");
 
 }

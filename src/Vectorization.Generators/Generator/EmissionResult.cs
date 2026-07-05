@@ -16,6 +16,9 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     public  readonly string                 code;
     public  readonly List<DiagnosticData>   diagnostics;
     private readonly int                    cachedHash;
+    public  readonly string?                wgslFileName1;
+    public  readonly string?                wgslFileName2;
+    
     // --- exception
     public  readonly string?                exceptionMessage;
     private readonly string?                exceptionStacktrace;
@@ -31,7 +34,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
         diagnostics = [];
     }
 
-    public EmissionResult(string name, string code, List<DiagnosticData> diagnostics)
+    public EmissionResult(string name, string code, List<DiagnosticData> diagnostics, string? wgslFileName1 = null , string? wgslFileName2 = null)
     {
         this.name = name;
         this.code = code;
@@ -40,6 +43,8 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
         hash = hash * 23 + (name?.GetHashCode() ?? 0);
         hash = hash * 23 + (code?.GetHashCode() ?? 0);
         cachedHash = hash;
+        this.wgslFileName1  = wgslFileName1;
+        this.wgslFileName2  = wgslFileName2;
     }
 
     // Direct call, no boxing

@@ -19,8 +19,10 @@ public sealed partial class ShaderGen
         IMethodSymbol                   methodSymbol,
         ShaderTrigger                   trigger,
         string                          hash,
-        Diagnostics                     diagnostics)
+        Diagnostics                     diagnostics,
+        out CsMethod?                   method)
     {
+        method              = null;
         var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
@@ -51,7 +53,7 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
+        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
         
         var emitShader = new ShaderEmitter(method, hash);
         var code = emitShader.Emit(methodSymbol.IsStatic);

@@ -41,6 +41,8 @@ public sealed class ShaderEmitter
         methodName_GPU  = $"_{methodName}_GPU{hash}"; 
     }
     
+    private static string GetResourcePath(string path) => path.Replace('/', '.');
+    
     public string Emit(bool staticMethod)
     {
         var signature       = GetSignature(method.Parameters);
@@ -53,15 +55,18 @@ public sealed class ShaderEmitter
         if (method.Source.Shader != null) {
             vsModule = "module";
             fsModule = "module";
+            var path = GetResourcePath(method.Source.Shader);
             shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.Shader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{path}\");\n");
         } else {
             vsModule = "vsModule";
             fsModule = "fsModule";
+            var vsPath = GetResourcePath(method.Source.VertexShader);
+            var fsPath = GetResourcePath(method.Source.FragmentShader);
             shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
             shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.VertexShader}\");\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{method.Source.FragmentShader}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{vsPath}\");\n");
+            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"Tests-Console.{fsPath}\");\n");
         }
         
         
@@ -165,7 +170,7 @@ public partial class {{className}}
 
     private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName}}");
 {{layoutKeys}}
-    private static ulong        {{methodName_GPU}}_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
+    private static ulong        {{methodName_GPU}}_WgslHash            => __WGSL_HASH_PLACEHOLDER__;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)

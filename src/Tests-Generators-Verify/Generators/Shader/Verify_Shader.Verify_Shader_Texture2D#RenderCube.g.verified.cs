@@ -65,7 +65,7 @@ public partial class ShaderExample
     private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderCube");
     private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x7cdb547530a9203a;
 
-    private static ulong        _RenderCube_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
+    private static ulong        _RenderCube_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderCube_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -89,7 +89,7 @@ public partial class ShaderExample
         return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/basic.vert.wgsl");
-    private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/sampleTextureMixColor.frag.wgsl");
+    private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.basic.vert.wgsl");
+    private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.sampleTextureMixColor.frag.wgsl");
 
 }

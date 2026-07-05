@@ -64,7 +64,7 @@ public partial class ShaderExample
     private static readonly int _DrawInstanced_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawInstanced");
     private const  ulong        _DrawInstanced_GPU_layout_0_Key        =  0xad2bca77479a0a64;
 
-    private static ulong        _DrawInstanced_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
+    private static ulong        _DrawInstanced_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawInstanced_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -86,7 +86,7 @@ public partial class ShaderExample
         return ref device.CreatePipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/instanced.vert.wgsl");
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders/vertexPositionColor.frag.wgsl");
+    private static ReadOnlySpan<byte> _DrawInstanced_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.instanced.vert.wgsl");
+    private static ReadOnlySpan<byte> _DrawInstanced_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "Tests-Console.shaders.vertexPositionColor.frag.wgsl");
 
 }
