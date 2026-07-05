@@ -13,7 +13,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 
 
-#region ---------- Shader methode Attributes
+#region ---------- Shader method Attributes
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
