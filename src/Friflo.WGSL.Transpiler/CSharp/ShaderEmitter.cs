@@ -183,6 +183,12 @@ public static class ShaderEmitter
                 instanceCount = $"{instanceName}.Length";
             }
             // attribute: DrawFirstInstanceAttribute
+            var firstVertex = "0";
+            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.FirstVertex).Name;
+            if (firstVertexName != null) {
+                firstVertex = firstVertexName;
+            }
+            // attribute: DrawFirstInstanceAttribute
             var firstInstance = "0";
             var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.FirstInstance).Name;
             if (firstInstanceName != null) {
@@ -190,10 +196,10 @@ public static class ShaderEmitter
             }
             if (vertexParam.ParamAttribute == VertexBuffer) {
                 var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                bindGroupBlock.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, 0, {firstInstance});\n");
+                bindGroupBlock.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
             } else {
                 var name = vertexParam.Name;
-                bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
+                bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
             }
         }
         

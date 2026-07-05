@@ -105,6 +105,9 @@ public sealed partial class ShaderGen
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
                 drawType = CsDrawType.Instance;
             }
+            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawFirstVertexAttribute")) {
+                drawType = CsDrawType.FirstVertex;
+            }
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawFirstInstanceAttribute")) {
                 drawType = CsDrawType.FirstInstance;
             }

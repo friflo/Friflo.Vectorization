@@ -120,6 +120,7 @@ public enum CsDrawType
     None,
     Vertex,         // see: DrawAttribute
     Instance,       // see: DrawInstanceAttribute
+    FirstVertex,    // see: DrawFirstVertexAttribute
     FirstInstance,  // see: DrawFirstInstanceAttribute
     // Index
 }
