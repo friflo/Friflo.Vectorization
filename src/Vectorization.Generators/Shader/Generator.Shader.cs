@@ -53,7 +53,8 @@ public sealed partial class ShaderGen
         }
         var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
         
-        var code = ShaderEmitter.EmitShader(methodSymbol.IsStatic, method, hash);
+        var emitShader = new ShaderEmitter(method, hash);
+        var code = emitShader.Emit(methodSymbol.IsStatic);
 
         return code;
     }
