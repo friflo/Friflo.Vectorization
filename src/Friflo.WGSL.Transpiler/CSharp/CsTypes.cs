@@ -13,13 +13,14 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 public readonly struct CsShaderSource
 {
-    public required     string  Shader          { get; init; }
-    public required     string  VertexShader    { get; init; }
-    public required     string  FragmentShader  { get; init; }
-    public required     string  VertexEntry     { get; init; }
-    public required     string  FragmentEntry   { get; init; }
+    public required     string  Shader          { get; init; }  // WGPU attribute:      ShaderAttribute
+    public required     string  VertexShader    { get; init; }  // WGPU attribute:      VertexShaderAttribute
+    public required     string  FragmentShader  { get; init; }  // WGPU attribute:      FragmentShaderAttribute
+    public required     string  VertexEntry     { get; init; }  // attribute parameter: vert
+    public required     string  FragmentEntry   { get; init; }  // attribute parameter: frag
 }
 
+// WGPU attribute:  DrawVertexIndexAttribute
 public readonly struct CsDrawVertexIndex
 {
     public required     uint    vertexCount     { get; init; }
@@ -75,53 +76,58 @@ public readonly struct CsAttributeArg
     public CsAttributeArg() { }
 }
 
+// WGPU interface:  ISampleType
 public enum CsSampleType
 {
     None,
-    i32,
-    u32,
-    f32
+    i32,    // WGPU type:  i32
+    u32,    // WGPU type:  u32
+    f32     // WGPU type:  f32
 }
 
 public enum CsParamAttribute
 {
     None,
+    // --- GpuBuffer<>
+    VertexBuffer,   // WGPU attribute:  VertexBufferAttribute
+    BindStorage,    // WGPU attribute:  BindStorageAttribute
+    BindUniform,    // WGPU attribute:  BindUniformAttribute
+    BindIndex,      // WGPU attribute:  BindIndexAttribute
+    
+    // --- GpuSampler
+    SamplerFiltering,       // WGPU attribute:  SamplerFiltering
+    SamplerNonFiltering,    // WGPU attribute:  SamplerNonFiltering
+    SamplerComparison,      // WGPU attribute:  SamplerComparison
+    
+    // --- GpuTextureView
+    texture_1d,                     // WGPU attribute:  texture_1d<ST>
+    texture_2d,                     // WGPU attribute:  texture_2d<ST>
+    texture_2d_array,               // WGPU attribute:  texture_2d_array<ST>
+    texture_3d,                     // WGPU attribute:  texture_3d<ST>
+    texture_cube,                   // WGPU attribute:  texture_cube<ST>
+    texture_cube_array,             // WGPU attribute:  texture_cube_array<ST>
     //
-    VertexBuffer,
+    texture_multisampled_2d,        // WGPU attribute:  texture_multisampled_2d<ST>
+    texture_depth_multisampled_2d,  // WGPU attribute:  texture_depth_multisampled_2d
     //
-    BindStorage,
-    BindUniform,
-    BindIndex,
+    texture_storage_1d,             // WGPU attribute:  texture_storage_1d<ST>
+    texture_storage_2d,             // WGPU attribute:  texture_storage_2d<ST>
+    texture_storage_2d_array,       // WGPU attribute:  texture_storage_2d_array<ST>
+    texture_storage_3d,             // WGPU attribute:  texture_storage_3d<ST>
     //
-    SamplerFiltering,
-    SamplerNonFiltering,
-    SamplerComparison,
-    //
-    texture_1d,
-    texture_2d,
-    texture_2d_array,
-    texture_3d,
-    texture_cube,
-    texture_cube_array,
-    texture_multisampled_2d,
-    texture_depth_multisampled_2d,
-    texture_storage_1d,
-    texture_storage_2d,
-    texture_storage_2d_array,
-    texture_storage_3d,
-    texture_depth_2d,
-    texture_depth_2d_array,
-    texture_depth_cube,
-    texture_depth_cube_array
+    texture_depth_2d,               // WGPU attribute:  texture_depth_2d
+    texture_depth_2d_array,         // WGPU attribute:  texture_depth_2d_array
+    texture_depth_cube,             // WGPU attribute:  texture_depth_cube
+    texture_depth_cube_array        // WGPU attribute:  texture_depth_cube_array
 }
 
 public enum CsDrawType
 {
     None,
-    Draw,               // see: DrawAttribute
-    DrawInstance,       // see: DrawInstanceAttribute
-    DrawFirstVertex,    // see: DrawFirstVertexAttribute
-    DrawFirstInstance,  // see: DrawFirstInstanceAttribute
+    Draw,               // WGPU attribute:  DrawAttribute
+    DrawInstance,       // WGPU attribute:  DrawInstanceAttribute
+    DrawFirstVertex,    // WGPU attribute:  DrawFirstVertexAttribute
+    DrawFirstInstance,  // WGPU attribute:  DrawFirstInstanceAttribute
     // Index
 }
 
