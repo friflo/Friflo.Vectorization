@@ -172,8 +172,9 @@ public static class ShaderEmitter
             bindGroupBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
         }
 
+        // attribute: DrawAttribute
         var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Vertex);
-        if (vertexParam.DrawType == CsDrawType.Vertex)
+        if (vertexParam.Name != null)
         {
             // attribute: DrawInstanceAttribute
             var instanceCount = "1";
