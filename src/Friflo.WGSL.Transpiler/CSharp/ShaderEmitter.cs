@@ -182,7 +182,7 @@ public static class ShaderEmitter
             if (instanceName != null) {
                 instanceCount = $"{instanceName}.Length";
             }
-            // attribute: DrawFirstInstanceAttribute
+            // attribute: DrawFirstVertexAttribute
             var firstVertex = "0";
             var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstVertex).Name;
             if (firstVertexName != null) {
