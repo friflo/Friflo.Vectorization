@@ -37,7 +37,7 @@ public sealed class ShaderEmitter
     {
         this.method     = method;
         methodName      = method.Name;
-        methodName_GPU  = "_" + methodName + "_GPU";
+        methodName_GPU  = $"_{methodName}_GPU{hash}"; 
     }
     
     public string Emit(bool staticMethod)
