@@ -115,6 +115,9 @@ public sealed class ShaderEmitter
         EmitDraw(body, method);
         
         
+        var vsEntry = method.Source.VertexEntry;
+        var fsEntry = method.Source.FragmentEntry;
+        
         // language=csharp
         var code =
 $$"""
@@ -168,7 +171,7 @@ public partial class {{className}}
     {
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
 {{bindGroupLayouts}}{{shaderModules}}
-        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{method.Source.VertexEntry}}"u8, {{fsModule}}, "{{method.Source.FragmentEntry}}"u8, "{{methodName}}_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{vsEntry}}"u8, {{fsModule}}, "{{fsEntry}}"u8, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
