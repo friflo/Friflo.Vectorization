@@ -175,16 +175,21 @@ public static class ShaderEmitter
         var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Vertex);
         if (vertexParam.DrawType == CsDrawType.Vertex)
         {
+            // attribute: DrawInstanceAttribute
+            var instanceCount = "1";
+            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Instance).Name;
+            if (instanceName != null) {
+                instanceCount = $"{instanceName}.Length";
+            }
+            // attribute: DrawFirstInstanceAttribute
+            var firstInstance = "0";
+            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.FirstInstance).Name;
+            if (firstInstanceName != null) {
+                firstInstance = firstInstanceName;
+            }
             if (vertexParam.ParamAttribute == VertexBuffer) {
-                var instanceParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Instance);
-                var instanceCount = "1";
-                if (instanceParam.DrawType == CsDrawType.Instance) {
-                    instanceCount = $"{instanceParam.Name}.Length";
-                }
-                bindGroupBlock.Append($"        pass_.DrawVertexBuffer({vertexParam.Name}, 0, config, {instanceCount}, 0, 0);\n");
+                bindGroupBlock.Append($"        pass_.DrawVertexBuffer({vertexParam.Name}, 0, config, {instanceCount}, 0, {firstInstance});\n");
             } else {
-                var instanceCount = 1;  // TODO   use instanceCount as above?
-                var firstInstance = 0;  // TODO   use [DrawFirstInstanceAttribute] parameter
                 var name = vertexParam.Name;
                 bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
             }
