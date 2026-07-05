@@ -62,7 +62,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _DrawInstanced_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawInstanced");
-    private const  ulong        _DrawInstanced_GPU_layout_0_Key        =  0xd0a4bb1867292138;
+    private const  ulong        _DrawInstanced_GPU_layout_0_Key        =  0xad2bca77479a0a64;
 
     private static ulong        _DrawInstanced_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 

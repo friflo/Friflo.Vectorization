@@ -63,7 +63,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderCube");
-    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0xb950b7b16bec76a5;
+    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x7cdb547530a9203a;
 
     private static ulong        _RenderCube_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 

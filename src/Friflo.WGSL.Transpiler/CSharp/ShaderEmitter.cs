@@ -244,8 +244,8 @@ public partial class {{className}}
             bindGroupLayouts.Append($"        if (!layout_{index}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {
                 bindGroupLayouts.Append("            ");
-                layoutKey ^= AddLayout(bindGroupLayouts, binding);
-                layoutKey *= Prime;
+                layoutKey ^= (ulong)binding.BindGroup.binding;      layoutKey *= Prime;
+                layoutKey ^= AddLayout(bindGroupLayouts, binding);  layoutKey *= Prime;
                 bindGroupLayouts.Append("\n");
             }
             bindGroupLayouts.Append($"            layout_{index} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{index}_Key, \"{methodName}_layout_{index}\"u8);\n");
@@ -257,45 +257,45 @@ public partial class {{className}}
         }
     }
     
-    private const ulong LayoutStartHash = 14695981039346656037UL; // TODO create different start hash
+    private const ulong LayoutStartHash = 14695981039346656037UL;
     private const ulong Prime           = 1099511628211UL;
     
     private static ulong AddLayout(StringBuilder sb, in CsParameter binding)
     {
-        var sampleType = binding.SampleType;
+        var sampleType = binding.SampleType; // 1 2 3
         
         switch (binding.ParamAttribute) {
             case BindStorage:
                 bool isReadonly = binding.IsReadOnlyBuffer;
                                                 AppendStorage(sb, isReadonly ? "ReadOnlyStorage" : "Storage");
-                                                                                            return isReadonly ? 100u : 200u;
+                                                                                            return isReadonly ? 0x100u : 0x200u;
             case BindUniform:
                 bool isBuffer = binding.IsBuffer;
-                                                AppendUniform(sb, isBuffer);                return isBuffer ? 300u : 400u;
+                                                AppendUniform(sb, isBuffer);                return isBuffer   ? 0x300u : 0x400u;
             //
-            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return 1000;
-            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return 2000;
-            case SamplerComparison:             AppendSampler(sb, "Comparison");            return 3000;
+            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return 0x01000;
+            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return 0x02000;
+            case SamplerComparison:             AppendSampler(sb, "Comparison");            return 0x03000;
             //
-            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 10000 + (ulong)sampleType;
-            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 11000 + (ulong)sampleType;
-            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 12000 + (ulong)sampleType;
-            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 13000 + (ulong)sampleType;
-            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 14000 + (ulong)sampleType;
-            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 15000 + (ulong)sampleType;
+            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 0x04000 + (ulong)sampleType;
+            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 0x05000 + (ulong)sampleType;
+            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 0x06000 + (ulong)sampleType;
+            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 0x07000 + (ulong)sampleType;
+            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 0x08000 + (ulong)sampleType;
+            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + (ulong)sampleType;
             //
-            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 16000 + (ulong)sampleType;
-            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return 17000;
+            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 0x0a000 + (ulong)sampleType;
+            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return 0x0b000;
             //
-            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return 18000 + (ulong)sampleType;
-            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return 19000 + (ulong)sampleType;
-            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return 20000 + (ulong)sampleType;
-            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return 21000 + (ulong)sampleType;
+            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return 0x0c000 + (ulong)sampleType;
+            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return 0x0d000 + (ulong)sampleType;
+            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return 0x0e000 + (ulong)sampleType;
+            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return 0x0f000 + (ulong)sampleType;
             //
-            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return 22000;
-            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return 23000;
-            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return 24000;
-            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return 25000;
+            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return 0x10000;
+            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return 0x11000;
+            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return 0x12000;
+            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return 0x13000;
         }
         return 0;
     }
