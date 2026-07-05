@@ -300,10 +300,10 @@ public static class WgpuResource
     private static unsafe ReadOnlySpan<byte> GetResource(Assembly assembly, string resourcePath)
     {
 #if DEBUG
-        /* var res = GetResourceFromFile(assembly, resourcePath);
+        var res = GetResourceFromFile(assembly, resourcePath);
         if (res.Length != 0) {
             return res;
-        } */
+        }
 #endif
         var assemblyName = assembly.GetName().Name;
         var resourceName = $"{assemblyName}.{resourcePath.Replace('/', '.')}";
@@ -327,10 +327,10 @@ public static class WgpuResource
     
     private static ReadOnlySpan<byte> GetResourceFromFile(Assembly assembly, string resourceName)
     {
-        var cleanPath       = resourceName.Replace(assembly.GetName().Name + ".", "");
-        int lastDot         = cleanPath.LastIndexOf('.');
-        var relativePath    = cleanPath.Substring(0, lastDot).Replace('.', '/') + cleanPath.Substring(lastDot);
-        var fullPath        = Path.Combine(AppContext.BaseDirectory, "../../../", relativePath);
+        // var cleanPath       = resourceName.Replace(assembly.GetName().Name + ".", "");
+        // int lastDot         = cleanPath.LastIndexOf('.');
+        // var relativePath    = cleanPath.Substring(0, lastDot).Replace('.', '/') + cleanPath.Substring(lastDot);
+        var fullPath = Path.Combine(AppContext.BaseDirectory, "../../../", resourceName);
 
         if (File.Exists(fullPath))
         {
