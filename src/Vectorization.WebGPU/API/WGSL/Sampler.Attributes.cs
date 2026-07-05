@@ -22,11 +22,9 @@ namespace Friflo.Vectorization.WebGPU;
 /// <b><c>sampler_comparison</c></b><br/>
 /// - <see cref="SamplerComparison"/><br/>
 /// </remarks>
-public class SamplerTypeAttribute : Attribute;
+[AttributeUsage(AttributeTargets.Parameter)]
+public abstract class SamplerTypeAttribute : Attribute;
 
-
-
-#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
@@ -49,4 +47,3 @@ public sealed class SamplerComparison : SamplerTypeAttribute
     public SamplerComparison (int group, int binding) { }
 }
 
-#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.

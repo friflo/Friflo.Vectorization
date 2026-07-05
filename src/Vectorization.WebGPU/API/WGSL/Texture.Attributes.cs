@@ -47,8 +47,8 @@ namespace Friflo.Vectorization.WebGPU;
 /// - <see cref="texture_depth_cube"/><br/>
 /// - <see cref="texture_depth_cube_array"/><br/>
 /// </remarks>
-public class TextureTypeAttribute : Attribute;
-
+[AttributeUsage(AttributeTargets.Parameter)]
+public abstract class TextureTypeAttribute : Attribute;
 
 
 
