@@ -48,25 +48,33 @@ public sealed class DrawVertexIndexAttribute : Attribute
         uint firstInstance  = 0) { }
 }
 
-/// <summary>Draw() the vertex buffer annotated with <see cref="VertexBufferAttribute"/> </summary>
+/// <summary><a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
+/// the annotated storage, uniform or vertex buffer. </summary>
 /// <remarks>
+/// Buffer types are annotated by either:<br/>
+/// - <see cref="BindStorageAttribute"/><br/>
+/// - <see cref="BindUniformAttribute"/><br/>
+/// - <see cref="VertexBufferAttribute"/><br/>
 /// Use <see cref="DrawInstanceAttribute"/> or <see cref="DrawFirstInstanceAttribute"/> to set additional Draw() parameters.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawAttribute : Attribute;
 
 /// <summary>
-/// Optional - set <b>instanceCount</b> by the <c>Length</c> of the annotated <c>InBuffer&lt;&gt;</c> parameter
-/// in Draw() when <see cref="DrawAttribute"/> is used.<br/>
+/// Optional - set <b>instanceCount</b> in <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
+/// by the <c>Length</c> of the annotated <c>InBuffer&lt;&gt;</c> parameter.<br/>
 /// If missing <b>instanceCount</b> defaults to 1.
 /// </summary>
+/// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawInstanceAttribute : Attribute;
 
 /// <summary>
-/// Optional - set <c>firstInstance</c> via an <c>int</c> parameter in Draw() when <see cref="DrawAttribute"/> is used.<br/>
+/// Optional - set <b>firstInstance</b> in <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
+/// with an <c>int</c> parameter.<br/>
 /// If missing <b>firstInstance</b> defaults to 0.
 /// </summary>
+/// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawFirstInstanceAttribute : Attribute;
 
