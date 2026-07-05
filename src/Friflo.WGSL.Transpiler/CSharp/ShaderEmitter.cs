@@ -189,7 +189,8 @@ public static class ShaderEmitter
                 firstInstance = firstInstanceName;
             }
             if (vertexParam.ParamAttribute == VertexBuffer) {
-                bindGroupBlock.Append($"        pass_.Draw({vertexParam.Name}, 0, config, {instanceCount}, 0, {firstInstance});\n");
+                var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
+                bindGroupBlock.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, 0, {firstInstance});\n");
             } else {
                 var name = vertexParam.Name;
                 bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {name}.Offset, {firstInstance});\n");
