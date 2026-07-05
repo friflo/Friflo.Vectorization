@@ -11,12 +11,10 @@ using JetBrains.Annotations;
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
 
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class NoEmitAttribute : Attribute;
 
 
+#region ---------- Shader methode Attributes
 
-// -------------------------------------------- Shader Attributes
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
 {
@@ -34,10 +32,12 @@ public sealed class FragmentShaderAttribute : Attribute
 {
     public FragmentShaderAttribute([PathReference] string wgsl, string frag = null) { }
 }
+#endregion
 
 
 
-// -------------------------------------------- Draw Attributes
+#region ---------- Draw method / parameter Attributes
+
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class DrawVertexIndexAttribute : Attribute
 {
@@ -89,9 +89,12 @@ public sealed class DrawFirstVertexAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawFirstInstanceAttribute : Attribute;
 
+#endregion
 
 
-// -------------------------------------------- Parameter Attributes
+
+#region ---------- GpuBuffer<> parameter Attributes
+
 /// <summary> Specifies that the parameter binds a vertex buffer to the designated GPU input slot. </summary>
 /// <remarks>
 /// <para>
@@ -178,6 +181,9 @@ public sealed class BindIndexAttribute : Attribute
 {
     public BindIndexAttribute (int group, int binding) { }
 }
+#endregion
 
 
 
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class NoEmitAttribute : Attribute;
