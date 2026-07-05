@@ -159,7 +159,7 @@ public partial class {{className}}
 {{bindGroupClear}}        }
     }
 
-    private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName_GPU}}");
+    private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName}}");
 {{layoutKeys}}
     private static ulong        {{methodName_GPU}}_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
