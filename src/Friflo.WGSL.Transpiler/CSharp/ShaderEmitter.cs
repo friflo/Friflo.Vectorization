@@ -166,42 +166,7 @@ public static class ShaderEmitter
         if (hasVertexBuffer) bindGroupBlock.Append("        \n");
         
         // --- draw
-        bindGroupBlock.Append("        // --- draw\n");
-        if (method.DrawVertexIndex != null) {
-            var dvi = method.DrawVertexIndex.Value;
-            bindGroupBlock.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
-        }
-
-        // attribute: DrawAttribute
-        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Draw);
-        if (vertexParam.Name != null)
-        {
-            // attribute: DrawInstanceAttribute
-            var instanceCount = "1";
-            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
-            if (instanceName != null) {
-                instanceCount = $"{instanceName}.Length";
-            }
-            // attribute: DrawFirstVertexAttribute
-            var firstVertex = "0";
-            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstVertex).Name;
-            if (firstVertexName != null) {
-                firstVertex = firstVertexName;
-            }
-            // attribute: DrawFirstInstanceAttribute
-            var firstInstance = "0";
-            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstInstance).Name;
-            if (firstInstanceName != null) {
-                firstInstance = firstInstanceName;
-            }
-            if (vertexParam.ParamAttribute == VertexBuffer) {
-                var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                bindGroupBlock.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
-            } else {
-                var name = vertexParam.Name;
-                bindGroupBlock.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
-            }
-        }
+        AppendDraw(bindGroupBlock, method);
         
         
         // language=csharp
@@ -307,6 +272,46 @@ public partial class {{className}}
             case texture_depth_cube_array:
                 sb.Append($"            recorder.BindGroupEntryTexture({binding.Name});\n");
                 return;
+        }
+    }
+    
+    private static void AppendDraw(StringBuilder sb, in CsMethod method)
+    {
+        sb.Append("        // --- draw\n");
+        if (method.DrawVertexIndex != null) {
+            var dvi = method.DrawVertexIndex.Value;
+            sb.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+        }
+
+        // attribute: DrawAttribute
+        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Draw);
+        if (vertexParam.Name != null)
+        {
+            // attribute: DrawInstanceAttribute
+            var instanceCount = "1";
+            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
+            if (instanceName != null) {
+                instanceCount = $"{instanceName}.Length";
+            }
+            // attribute: DrawFirstVertexAttribute
+            var firstVertex = "0";
+            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstVertex).Name;
+            if (firstVertexName != null) {
+                firstVertex = firstVertexName;
+            }
+            // attribute: DrawFirstInstanceAttribute
+            var firstInstance = "0";
+            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstInstance).Name;
+            if (firstInstanceName != null) {
+                firstInstance = firstInstanceName;
+            }
+            if (vertexParam.ParamAttribute == VertexBuffer) {
+                var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
+                sb.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
+            } else {
+                var name = vertexParam.Name;
+                sb.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
+            }
         }
     }
     
