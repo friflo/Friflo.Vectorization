@@ -44,7 +44,7 @@ public partial class RenderTest
         
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
-        pass_.Draw(triangles.Length, 1, triangles.Offset, 0);
+        pass_.Draw(triangles.Length, 1, 0, 0);
 	}
     
     private sealed class Triangles_GPU_Cache : BindGroupCache
