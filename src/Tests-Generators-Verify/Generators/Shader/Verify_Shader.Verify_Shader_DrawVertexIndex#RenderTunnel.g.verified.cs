@@ -50,7 +50,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _RenderTunnel_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderTunnel");
-    private const  ulong        _RenderTunnel_GPU_layout_0_Key        =  0x00;  // TODO
+    private const  ulong        _RenderTunnel_GPU_layout_0_Key        =  0xd0a42718672825bc;
 
     private static ulong        _RenderTunnel_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 

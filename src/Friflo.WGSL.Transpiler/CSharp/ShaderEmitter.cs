@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable MergeIntoPattern
@@ -191,6 +192,10 @@ public partial class {{className}}
             var bindings    = layout.bindings.Where(binding =>  binding.HasHandle).ToArray();
             var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
             
+            ulong layoutKey = LayoutStartHash;
+            layoutKey      ^= (ulong)layouts.Count; layoutKey *= Prime;
+            layoutKey      ^= (ulong)index;         layoutKey *= Prime;
+            
             // --- bind group creation
             body.Append($"        // --- bind group {index}\n");
             if (bindings.Length == 0)
@@ -235,20 +240,64 @@ public partial class {{className}}
             body.Append($"        \n");
             
             // --- bind group layout creation
-            var layoutKey = index;                                                                         // TODO  implement key calculation
-            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{index}_Key        =  0x0{layoutKey};  // TODO\n");
             bindGroupLayouts.Append($"        var layout_{index} = device.GetBindGroupLayout({methodName_GPU}_layout_{index}_Key);\n");
             bindGroupLayouts.Append($"        if (!layout_{index}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {
                 bindGroupLayouts.Append("            ");
-                AppendLayout(bindGroupLayouts, binding);
+                layoutKey ^= AddLayout(bindGroupLayouts, binding);
+                layoutKey *= Prime;
                 bindGroupLayouts.Append("\n");
             }
             bindGroupLayouts.Append($"            layout_{index} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{index}_Key, \"{methodName}_layout_{index}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
             bindGroupLayouts.Append($"        layouts[{index}] = layout_{index};\n");
             bindGroupLayouts.Append("        \n");
+            
+            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{index}_Key        =  0x{layoutKey:x};\n");
         }
+    }
+    
+    private const ulong LayoutStartHash = 14695981039346656037UL; // TODO create different start hash
+    private const ulong Prime           = 1099511628211UL;
+    
+    private static ulong AddLayout(StringBuilder sb, in CsParameter binding)
+    {
+        var sampleType = binding.SampleType;
+        
+        switch (binding.ParamAttribute) {
+            case BindStorage:
+                bool isReadonly = binding.IsReadOnlyBuffer;
+                                                AppendStorage(sb, isReadonly ? "ReadOnlyStorage" : "Storage");
+                                                                                            return isReadonly ? 100u : 200u;
+            case BindUniform:
+                bool isBuffer = binding.IsBuffer;
+                                                AppendUniform(sb, isBuffer);                return isBuffer ? 300u : 400u;
+            //
+            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return 1000;
+            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return 2000;
+            case SamplerComparison:             AppendSampler(sb, "Comparison");            return 3000;
+            //
+            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 10000 + (ulong)sampleType;
+            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 11000 + (ulong)sampleType;
+            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 12000 + (ulong)sampleType;
+            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 13000 + (ulong)sampleType;
+            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 14000 + (ulong)sampleType;
+            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 15000 + (ulong)sampleType;
+            //
+            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 16000 + (ulong)sampleType;
+            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return 17000;
+            //
+            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return 18000 + (ulong)sampleType;
+            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return 19000 + (ulong)sampleType;
+            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return 20000 + (ulong)sampleType;
+            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return 21000 + (ulong)sampleType;
+            //
+            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return 22000;
+            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return 23000;
+            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return 24000;
+            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return 25000;
+        }
+        return 0;
     }
     
     private static void EmitBinding(StringBuilder body, in CsParameter binding)
@@ -332,39 +381,7 @@ public partial class {{className}}
         }
     }
     
-    private static void AppendLayout(StringBuilder sb, in CsParameter binding)
-    {
-        var sampleType = binding.SampleType;
-        
-        switch (binding.ParamAttribute) {
-            case BindStorage:   AppendStorage(sb, binding.IsReadOnlyBuffer ? "ReadOnlyStorage" : "Storage");    return;
-            case BindUniform:   AppendUniform(sb, binding.IsBuffer);                                            return;
-            //
-            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return;
-            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return;
-            case SamplerComparison:             AppendSampler(sb, "Comparison");            return;
-            //
-            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return;
-            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return;
-            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return;
-            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return;
-            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return;
-            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return;
-            //
-            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return;
-            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return;
-            //
-            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return;
-            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return;
-            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return;
-            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return;
-            //
-            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return;
-            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return;
-            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return;
-            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return;
-        }
-    }
+
     
     private static void AppendStorage(StringBuilder sb, string bindingType)
     {

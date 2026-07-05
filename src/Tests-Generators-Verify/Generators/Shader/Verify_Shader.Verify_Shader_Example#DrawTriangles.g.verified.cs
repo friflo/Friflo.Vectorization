@@ -65,8 +65,8 @@ public partial class ShaderExample
     }
 
     private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawTriangles");
-    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x00;  // TODO
-    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0x01;  // TODO
+    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0xeaa0241875df5ca1;
+    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0xea9d321875dd3e94;
 
     private static ulong        _DrawTriangles_GPU_WgslHash            => 0x1255;  // support Hot-Reload            TODO calculate hash
 
