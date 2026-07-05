@@ -39,7 +39,7 @@ public partial class TwoCubes
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
-        pass_.DrawVertexBuffer(verticesBuffer, 0, config, 1, 0, 0);
+        pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache

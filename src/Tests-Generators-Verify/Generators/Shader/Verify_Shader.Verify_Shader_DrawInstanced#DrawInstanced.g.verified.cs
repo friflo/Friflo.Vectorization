@@ -48,7 +48,7 @@ public partial class ShaderExample
         pass_.SetVertexBuffer(verticesBuffer, 0);
         
         // --- draw
-        pass_.DrawVertexBuffer(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
+        pass_.Draw(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
     }
 
 
