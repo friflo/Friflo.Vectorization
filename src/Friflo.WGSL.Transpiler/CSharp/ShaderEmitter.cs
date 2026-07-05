@@ -173,24 +173,24 @@ public static class ShaderEmitter
         }
 
         // attribute: DrawAttribute
-        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Vertex);
+        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Draw);
         if (vertexParam.Name != null)
         {
             // attribute: DrawInstanceAttribute
             var instanceCount = "1";
-            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Instance).Name;
+            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
             if (instanceName != null) {
                 instanceCount = $"{instanceName}.Length";
             }
             // attribute: DrawFirstInstanceAttribute
             var firstVertex = "0";
-            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.FirstVertex).Name;
+            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstVertex).Name;
             if (firstVertexName != null) {
                 firstVertex = firstVertexName;
             }
             // attribute: DrawFirstInstanceAttribute
             var firstInstance = "0";
-            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.FirstInstance).Name;
+            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstInstance).Name;
             if (firstInstanceName != null) {
                 firstInstance = firstInstanceName;
             }

@@ -118,10 +118,10 @@ public enum CsParamAttribute
 public enum CsDrawType
 {
     None,
-    Vertex,         // see: DrawAttribute
-    Instance,       // see: DrawInstanceAttribute
-    FirstVertex,    // see: DrawFirstVertexAttribute
-    FirstInstance,  // see: DrawFirstInstanceAttribute
+    Draw,               // see: DrawAttribute
+    DrawInstance,       // see: DrawInstanceAttribute
+    DrawFirstVertex,    // see: DrawFirstVertexAttribute
+    DrawFirstInstance,  // see: DrawFirstInstanceAttribute
     // Index
 }
 
