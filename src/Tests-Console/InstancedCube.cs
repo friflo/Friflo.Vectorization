@@ -156,22 +156,15 @@ public partial class InstancedCube : IRenderer
         using (var pass = frame.BeginRenderPass(renderPassDescriptor))
         {
             if (useUniformBuffer) {
-                RenderCubes2(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+                RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             } else {
                 RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
             }
         }
-        context.Queue.Submit();    
+        context.Queue.Submit();
         wgpu.Surface.Present();
     }
     
-	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
-	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void RenderCubes2(RenderPass pass, RenderConfig config,
-        [Draw]          [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
-        [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
-    
-    [NoEmit]
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubes(RenderPass pass, RenderConfig config,
@@ -179,7 +172,6 @@ public partial class InstancedCube : IRenderer
         [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
     
     // Alternative Shader method with [BindStorage(0, 0)] to use a Storage Buffer
-    [NoEmit]
 	[VertexShader  ("shaders/instanced.storage.vert.wgsl",      vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,

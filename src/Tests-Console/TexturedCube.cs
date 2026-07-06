@@ -150,15 +150,15 @@ public partial class TexturedCube : IRenderer
     [NoEmit]
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
-    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
+    public static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
-                [BindUniform     (0, 0)]    in Uniforms     uniforms,
+                [BindUniform     (0, 0)]    Uniforms        uniforms,
                 [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
                 [texture_2d<f32> (0, 2)]    GpuTextureView  material);
 
 
     [StructLayout(LayoutKind.Sequential)]
-    protected struct Uniforms {
+    public struct Uniforms {
         public Matrix4x4   modelViewProjectionMatrix;
     }
 }
