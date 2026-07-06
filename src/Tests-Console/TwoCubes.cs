@@ -135,5 +135,5 @@ public partial class TwoCubes : IRenderer
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     public static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]   InBuffer<float> verticesBuffer,
-                [BindUniform(0, 0)] Matrix4x4    	modelViewProjectionMatrix);
+                [BindUniform(0, 0)] in Matrix4x4    modelViewProjectionMatrix);
 }
