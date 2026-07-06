@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class TwoCubes
 {
-    public static partial void RenderCube(
+    public static void RenderCube_Pattern(
         RenderPass      pass,
         RenderConfig    config,
         InBuffer<float> verticesBuffer,
