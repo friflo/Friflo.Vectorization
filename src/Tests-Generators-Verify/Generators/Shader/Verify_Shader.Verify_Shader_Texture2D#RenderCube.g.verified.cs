@@ -26,6 +26,7 @@ public partial class ShaderExample
 		var recorder	= pass_.Recorder;
 		recorder.Init(_RenderCube_GPU_ShaderId, "RenderCube_encoder"u8);
 
+        recorder.RequireRead     (vertices);
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {

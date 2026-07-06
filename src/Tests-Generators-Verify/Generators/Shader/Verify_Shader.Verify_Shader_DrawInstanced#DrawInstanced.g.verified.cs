@@ -19,13 +19,12 @@ public partial class ShaderExample
         InBuffer<Single>            verticesBuffer,
         InBuffer<Matrix4x4>         mvpMatrices)
     {
-        var buffers =
-        GpuBuffers.Create(mvpMatrices, nameof(mvpMatrices));
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(_DrawInstanced_GPU_ShaderId, "DrawInstanced_encoder"u8);
 
+        recorder.RequireRead     (verticesBuffer);
         recorder.RequireRead     (mvpMatrices);
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash);

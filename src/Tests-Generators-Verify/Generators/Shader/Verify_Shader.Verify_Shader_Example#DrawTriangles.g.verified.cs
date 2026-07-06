@@ -19,8 +19,6 @@ public partial class ShaderExample
         InBuffer<VertexData>        triangles,
         MyUniform                   myUniform)
     {
-        var buffers =
-        GpuBuffers.Create(triangles, nameof(triangles));
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
