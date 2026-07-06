@@ -17,8 +17,8 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 
 internal sealed class BindGroupLayout(int bindGroupGroupIndex)
 {
-    internal readonly   int                 groupIndex = bindGroupGroupIndex;
-    internal readonly   List<CsParameter>   bindings    = new();
+    internal readonly   int                 groupIndex  = bindGroupGroupIndex;
+    internal readonly   List<CsParameter>   bindings    = [];
 }
 
 public sealed class ShaderEmitter
