@@ -48,7 +48,7 @@ public partial class ShaderExample
     [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
-                [BindUniform(1, 0)] MyUniform               myUniform);
+                [BindUniform(1, 0)] in MyUniform            myUniform);
         
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform
@@ -84,7 +84,7 @@ public partial class ShaderExample
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
-                [BindUniform     (0, 0)]    Uniforms        uniforms,
+                [BindUniform     (0, 0)]    in Uniforms     uniforms,
                 [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
                 [texture_2d<f32> (0, 2)]    GpuTextureView  material);
         
@@ -136,7 +136,7 @@ public partial struct ShaderExample
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [BindUniform(0, 0)] Uniforms    uniforms);
+        [BindUniform(0, 0)] in Uniforms    uniforms);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms

@@ -45,7 +45,7 @@ public sealed class ShaderEmitter
     
     public string Emit(in CsModifier modifier)
     {
-        var signature       = GetSignature(method.Parameters);
+        var signature       = GetSignature(method.Parameters, modifier.ParamModifiers);
         var className       = method.DeclaringType.Identifier.Name;
         
         var shaderModules   = new StringBuilder();
@@ -432,13 +432,16 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
     }
     
-    private static StringBuilder GetSignature(CsParameter[] parameters)
+    private static StringBuilder GetSignature(CsParameter[] parameters, CsParamModifier[] modifiers)
     {
         var signature = new StringBuilder();
-        foreach (var parameter in parameters)
+        
+        for (int n = 0; n < parameters.Length; n++)
         {
+            var parameter = parameters[n];
             signature.Append("        ");
             var startPos = signature.Length;
+            signature.Append(modifiers[n].type);
             signature.Append(parameter.Type.Identifier.Name);
             var generics = parameter.Type.Generics;
             if (generics.Count > 0) {

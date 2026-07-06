@@ -17,7 +17,7 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         InBuffer<Single>            vertices,
-        Uniforms                    uniforms,
+        in Uniforms                 uniforms,
         GpuSampler                  smoothFilter,
         GpuTextureView              material)
     {

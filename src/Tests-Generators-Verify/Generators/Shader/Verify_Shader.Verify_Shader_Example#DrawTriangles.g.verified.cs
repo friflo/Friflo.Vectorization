@@ -17,7 +17,7 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         InBuffer<VertexData>        triangles,
-        MyUniform                   myUniform)
+        in MyUniform                myUniform)
     {
 
         var pass_       = pass.Internal;

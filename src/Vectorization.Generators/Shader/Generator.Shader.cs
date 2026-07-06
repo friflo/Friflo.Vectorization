@@ -72,7 +72,8 @@ public sealed partial class ShaderGen
     {
         var declaringType       = MapType(methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
-        var parameters          = new CsParameter[methodParameters.Length];
+        var parameters          = new CsParameter    [methodParameters.Length];
+        var paramModifiers      = new CsParamModifier[methodParameters.Length];
         
         for (int n = 0; n <  methodParameters.Length; n++)
         {
@@ -126,6 +127,13 @@ public sealed partial class ShaderGen
                 },
                 SampleType      = sampleType
             };
+            var modifierType = paramSymbol.RefKind switch {
+                RefKind.In  => "in ",
+                RefKind.Out => "out ",
+                RefKind.Ref => "ref ",
+                _ => ""
+            };
+            paramModifiers[n] = new CsParamModifier { type = modifierType };
         }
         var vertexEntry   = (string?)(shader != null ? shader.ConstructorArguments[1].Value : vertexShader!  .ConstructorArguments[1].Value);
         var fragmentEntry = (string?)(shader != null ? shader.ConstructorArguments[2].Value : fragmentShader!.ConstructorArguments[1].Value);
@@ -140,7 +148,7 @@ public sealed partial class ShaderGen
                 firstInstance   = (uint)args[3].Value!
             };
         }
-        modifier = CreateMethodModifier(methodSymbol);
+        modifier = CreateMethodModifier(methodSymbol, paramModifiers);
         
         return new CsMethod {
             Name            = methodSymbol.Name,
@@ -273,7 +281,7 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static CsModifier CreateMethodModifier(IMethodSymbol methodSymbol)
+    private static CsModifier CreateMethodModifier(IMethodSymbol methodSymbol, CsParamModifier[] paramModifiers)
     {
         var containingType  = methodSymbol.ContainingType;
         var visibility      = methodSymbol.DeclaredAccessibility switch {
@@ -287,7 +295,8 @@ public sealed partial class ShaderGen
         return new CsModifier {
             IsClass             = !containingType.IsValueType,
             IsMethodStatic      = methodSymbol.IsStatic,
-            MethodVisibility    = visibility
+            MethodVisibility    = visibility,
+            ParamModifiers      = paramModifiers
         };
     }
 }

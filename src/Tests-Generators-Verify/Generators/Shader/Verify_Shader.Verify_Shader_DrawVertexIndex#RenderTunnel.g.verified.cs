@@ -16,7 +16,7 @@ public partial struct ShaderExample
     public static partial void RenderTunnel(
         RenderPass                  pass,
         RenderConfig                config,
-        Uniforms                    uniforms)
+        in Uniforms                 uniforms)
     {
 
         var pass_       = pass.Internal;

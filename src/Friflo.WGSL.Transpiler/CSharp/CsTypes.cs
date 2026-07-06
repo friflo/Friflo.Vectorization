@@ -227,9 +227,14 @@ public readonly struct CsTypeIdentifier
 // --- modifier - not relevant for wgpu specific code
 public readonly struct CsModifier
 {
-    public required     string	MethodVisibility	{ get; init; }
-    public required     bool    IsMethodStatic    	{ get; init; }
-    public required     bool    IsClass     		{ get; init; }
+    public required     string	            MethodVisibility	{ get; init; }
+    public required     bool                IsMethodStatic    	{ get; init; }
+    public required     bool                IsClass             { get; init; }
+    public required     CsParamModifier[]   ParamModifiers      { get; init; }
 }
 
+public readonly struct CsParamModifier
+{
+    public required     string	type	{ get; init; }
+}
 
