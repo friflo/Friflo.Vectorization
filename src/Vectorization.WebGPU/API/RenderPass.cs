@@ -7,6 +7,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -242,9 +244,12 @@ public readonly unsafe ref struct RenderPassInternal
         rec.uniformOffset   = offset + alignedSize;
         rec.uniformOffsets[rec.uniformOffsetsCount++] = offset;
         
+        ref byte dst = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rec.stagingBuffer), offset);
+        Unsafe.As<byte, T>(ref dst) = uniform;
+        /* fixed version
         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
-        }
+        } */
     }
     
     /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
