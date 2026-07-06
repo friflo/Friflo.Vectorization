@@ -37,15 +37,16 @@ public sealed class PerfLog
         if (FrameCount == 0) {
             MemoryAllocated = GC.GetAllocatedBytesForCurrentThread();
         }
-        if (++FrameCount % lapCount == 0) {
+        if (FrameCount % lapCount == 0) {
             Builder.Append("frame: ");
             Builder.Append(FrameCount);
             Builder.AppendLine();
         }
         var cur = GC.GetAllocatedBytesForCurrentThread();
         if (cur != MemoryAllocated) {
-            Builder.AppendLine($"memory allocations: {cur - MemoryAllocated} ");
+            Builder.AppendLine($"frame: {FrameCount} - memory allocations: {cur - MemoryAllocated} ");
         }
+        FrameCount++;
         Flush();
         MemoryAllocated = GC.GetAllocatedBytesForCurrentThread();
     }
