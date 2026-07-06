@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -71,13 +72,15 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         uint offset         = rec.uniformOffset;
+        rec.uniformOffset   = offset + alignedSize;
         
+        ref byte dst = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rec.stagingBuffer), offset);
+        Unsafe.As<byte, T>(ref dst) = uniform;
+        /* fixed version
         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
-        }
+        } */
         wgpuComputePassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
-        
-        rec.uniformOffset = offset + alignedSize;
     }
 }
 
