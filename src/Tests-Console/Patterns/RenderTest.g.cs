@@ -42,6 +42,7 @@ public partial class RenderTest
         }
         pass_.SetBindGroup(0, bindGroup0);
         
+        // --- bind group 1
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
         // --- draw
