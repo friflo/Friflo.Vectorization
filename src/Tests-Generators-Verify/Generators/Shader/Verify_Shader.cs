@@ -168,8 +168,15 @@ namespace VerifyShader {
         [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
         public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
             [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
-                    [BindUniform(1, 0)] in MyUniform            myUniform);
+                    [BindUniform(1, 0)] in MyUniform            myUniform,
+                    [BindUniform(2, 0)] in GlobalUniform        globalUniform);
     }
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 4)]
+public struct GlobalUniform
+{
+    public int 	value;
 }
 
 namespace Other.Namespace {

@@ -493,6 +493,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
     {
         var ns = identifier.Namespace;
         switch (ns) {
+            case "":    // global namespace
             case "System":
             case "System.Numerics":
             case "Friflo.Vectorization.GPU":
