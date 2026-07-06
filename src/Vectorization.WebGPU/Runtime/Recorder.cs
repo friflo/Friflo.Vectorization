@@ -31,6 +31,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     private             int                     bindGroupEntriesCount;
     
     private             WgpuBuffer<byte>        uniformBuffer;
+    internal readonly   uint[]                  uniformOffsets      = new uint[100];
+    internal            uint                    uniformOffsetsCount;
     internal            uint                    uniformOffset;              // cursor in pool slice used as a ring buffer
     internal const      uint                    UniformAlignment    = 256;
     private  readonly   int                     uniformBufferSize;
@@ -159,7 +161,8 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
         if (encoderHandle == null) {
             return;
         }
-        uniformOffset       =  0;
+        uniformOffset       = 0;
+        uniformOffsetsCount = 0;
         
         // TODO  Ultimate performance upgrade
         // If batch upload gets a bottleneck globalUniformPool must be created as "Persistent Mapped Buffer" (Host Visible).

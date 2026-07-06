@@ -147,7 +147,6 @@ public partial class TexturedCube : IRenderer
         wgpu.Surface.Present();
     }
     
-    [NoEmit]
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     public static partial void RenderCube(RenderPass pass, RenderConfig config,

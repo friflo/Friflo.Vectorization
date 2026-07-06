@@ -44,7 +44,8 @@ public partial class ShaderExample
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "RenderCube_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
-        pass_.SetBindGroup(0, bindGroup0);
+        pass_.AddUniform(uniforms);
+        pass_.SetBindGroupUniforms(0, bindGroup0);
         
         pass_.SetVertexBuffer(vertices, 0);
         

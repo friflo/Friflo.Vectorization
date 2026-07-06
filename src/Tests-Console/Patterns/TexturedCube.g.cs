@@ -9,7 +9,7 @@ namespace TestConsole;
 
 public partial class TexturedCube
 {
-    public static partial void RenderCube(
+    public static void RenderCube_Pattern(
         RenderPass      pass,
         RenderConfig    config,
         InBuffer<float> vertices,
@@ -43,7 +43,8 @@ public partial class TexturedCube
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
-        pass_.SetBindGroupUniform(0, bindGroup0, uniforms);
+        pass_.AddUniform(uniforms);
+        pass_.SetBindGroupUniforms(0, bindGroup0);
         
         pass_.SetVertexBuffer(vertices, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    

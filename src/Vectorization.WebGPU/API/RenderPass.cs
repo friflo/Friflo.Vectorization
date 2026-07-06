@@ -217,23 +217,34 @@ public readonly unsafe ref struct RenderPassInternal
         wgpuRenderPassEncoderSetPipeline(handle, renderPipeline.handle);
     }
 
+    /// <summary>Used without preceding <see cref="AddUniform"/> call. </summary>
     public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup)
     {
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
     }
+
+    /// <summary>Used with preceding <see cref="AddUniform"/> calls. </summary>
+    public void SetBindGroupUniforms(uint groupIndex, WgpuBindGroup bindGroup)
+    {
+        var rec     = Recorder;
+        var count   = rec.uniformOffsetsCount;
+        rec.uniformOffsetsCount = 0;
+        fixed(uint* offsets = rec.uniformOffsets) {
+            wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, count, offsets);
+        }
+    }
     
-    /// <summary> Set bind group with a uniform for a group layout with multiple layout single entries. </summary>
-    public void SetBindGroupUniform<T>(uint groupIndex, WgpuBindGroup bindGroup, T uniform) where T : unmanaged
+    public void AddUniform<T>(in T uniform) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         var rec             = Recorder;
         uint offset         = rec.uniformOffset;
+        rec.uniformOffset   = offset + alignedSize;
+        rec.uniformOffsets[rec.uniformOffsetsCount++] = offset;
         
         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
         }
-        wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
-        rec.uniformOffset = offset + alignedSize;
     }
     
     /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>

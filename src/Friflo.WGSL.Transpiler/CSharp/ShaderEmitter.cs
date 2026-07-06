@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
-// ReSharper disable SuggestVarOrType_BuiltInTypes
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable MergeIntoPattern
 // ReSharper disable InvertIf
@@ -235,7 +236,14 @@ public partial class {{className}}
                 body.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
                 body.Append($"            bindGroupCache.bindGroup{index}.Add(key_{index}, bindGroup{index});\n");
                 body.Append( "        }\n");
-                body.Append($"        pass_.SetBindGroup({index}, bindGroup{index});\n");
+                foreach (var uniform in uniforms) {
+                    body.Append($"        pass_.AddUniform({uniform.Name});\n");    
+                }
+                if (uniforms.Length > 0) {
+                    body.Append($"        pass_.SetBindGroupUniforms({index}, bindGroup{index});\n");
+                } else {
+                    body.Append($"        pass_.SetBindGroup({index}, bindGroup{index});\n");
+                }
                 
                 //
                 bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{index} = new ();\n");
