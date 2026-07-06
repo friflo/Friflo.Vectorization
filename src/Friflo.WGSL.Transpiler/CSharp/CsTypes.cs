@@ -177,9 +177,9 @@ public readonly struct CsParameter
 public class CsType
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
+    public required     List<CsTypeIdentifier>  Generics    { get; init; } // generic type arguments
     public required     CsAttribute[]           Attributes  { get; init; }
-    public required     CsField[]               Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
+    public required     CsField[]               Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
     
     public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     
