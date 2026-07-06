@@ -6,6 +6,8 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using TestConsole;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
+
 SdlWindow.Main("InstancedCube",  1280, 720, wgpu => new InstancedCube(wgpu));
 SdlWindow.Main("TwoCubes",       1280, 720, wgpu => new TwoCubes(wgpu));
 SdlWindow.Main("TexturedCube",   1280, 720, wgpu => new TexturedCube(wgpu));
