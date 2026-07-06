@@ -112,7 +112,8 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-    [Shader("shaders/raymarcher_no_texture.wgsl")]
+    [VertexShader  ("shaders/full_screen_triangle.wgsl",    vert: "vs_main")]
+    [FragmentShader("shaders/raymarcher_no_texture.wgsl",   frag: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [BindUniform(0, 0)] Uniforms    uniforms);
