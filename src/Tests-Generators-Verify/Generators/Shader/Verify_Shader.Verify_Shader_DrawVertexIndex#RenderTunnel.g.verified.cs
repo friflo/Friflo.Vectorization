@@ -67,7 +67,7 @@ public partial class ShaderExample
         
         using var module = device.CreateShaderModule(_RenderTunnel_GPU_Shader(), "RenderTunnel_Shader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, module, ""u8, module, ""u8, "RenderTunnel_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "RenderTunnel_pipeline"u8);
 
         var bindGroupCache = new _RenderTunnel_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderTunnel_GPU_ShaderId, config, _RenderTunnel_GPU_WgslHash, pipeline, layouts, bindGroupCache);

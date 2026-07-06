@@ -18,19 +18,19 @@ namespace Friflo.Vectorization.WebGPU;
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ShaderAttribute : Attribute
 {
-    public ShaderAttribute([PathReference] string wgsl, string vert = null, string frag = null) { }
+    public ShaderAttribute([PathReference] string wgsl, string vert = "vs_main", string frag = "fs_main") { }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class VertexShaderAttribute : Attribute
 {
-    public VertexShaderAttribute([PathReference] string wgsl, string vert = null) { }
+    public VertexShaderAttribute([PathReference] string wgsl, string vert = "main") { }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class FragmentShaderAttribute : Attribute
 {
-    public FragmentShaderAttribute([PathReference] string wgsl, string frag = null) { }
+    public FragmentShaderAttribute([PathReference] string wgsl, string frag = "main") { }
 }
 #endregion
 

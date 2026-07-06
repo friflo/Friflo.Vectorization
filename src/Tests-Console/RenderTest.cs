@@ -88,7 +88,6 @@ public partial class RenderTest : IRenderer
         wgpu.Surface.Present();
     }
 
-    [NoEmit]
 	[Shader("shaders/triangle.wgsl")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
@@ -113,7 +112,6 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-    [NoEmit]
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,

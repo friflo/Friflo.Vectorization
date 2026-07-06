@@ -8,7 +8,7 @@ namespace TestConsole;
 
 public static partial class Wormhood
 {
-    public static partial void RenderTunnel(
+    public static void RenderTunnel_Pattern(
         RenderPass      pass,
         RenderConfig    config,
         Uniforms       	uniforms)
