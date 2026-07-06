@@ -43,7 +43,7 @@ public sealed class ShaderEmitter
     }
     
     
-    public string Emit(bool staticMethod)
+    public string Emit(in CsModifier modifier)
     {
         var signature       = GetSignature(method.Parameters);
         var className       = method.DeclaringType.Identifier.Name;
@@ -148,7 +148,7 @@ namespace {{method.DeclaringType.Identifier.Namespace}};
 
 public partial class {{className}}
 {
-    public {{(staticMethod ? "static " : "")}}partial void {{methodName}}(
+    {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}(
 {{signature}})
     {
 {{buffers}}

@@ -231,4 +231,12 @@ public readonly struct CsTypeIdentifier
     public override     string  ToString() => $"{Namespace}.{Name}";
 }
 
+// --- modifier types
+public readonly struct CsModifier
+{
+    public required     string	MethodVisibility	{ get; init; }
+    public required     bool    IsMethodStatic    	{ get; init; }
+    public required     bool    IsClass     		{ get; init; }
+}
+
 

@@ -13,7 +13,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void DrawInstanced(
+    private static partial void DrawInstanced(
         RenderPass                  pass,
         RenderConfig                config,
         InBuffer<Single>            verticesBuffer,

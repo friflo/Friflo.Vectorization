@@ -53,10 +53,10 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
+        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex, out var modifier);
         
         var emitShader = new ShaderEmitter(method, hash);
-        var code = emitShader.Emit(methodSymbol.IsStatic);
+        var code = emitShader.Emit(modifier);
 
         return code;
     }
@@ -67,7 +67,8 @@ public sealed partial class ShaderGen
         AttributeData?  shader,
         AttributeData?  vertexShader,
         AttributeData?  fragmentShader,
-        AttributeData?  drawVertexIndexAttr)
+        AttributeData?  drawVertexIndexAttr,
+        out CsModifier  modifier)
     {
         var declaringType       = MapType(methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
@@ -139,6 +140,8 @@ public sealed partial class ShaderGen
                 firstInstance   = (uint)args[3].Value!
             };
         }
+        modifier = CreateMethodModifier(methodSymbol);
+        
         return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
@@ -268,6 +271,24 @@ public sealed partial class ShaderGen
         return new CsTypeIdentifier {
             Name        = symbol?.Name ?? "UnknownType",
             Namespace   = ns
+        };
+    }
+    
+    private static CsModifier CreateMethodModifier(IMethodSymbol methodSymbol)
+    {
+        var containingType  = methodSymbol.ContainingType;
+        var visibility      = methodSymbol.DeclaredAccessibility switch {
+            Accessibility.Private               => "private",
+            Accessibility.Protected             => "protected",
+            Accessibility.Public                => "public",
+            Accessibility.Internal              => "internal",
+            Accessibility.ProtectedAndInternal  => "protected internal",
+            _                                   => ""
+        };
+        return new CsModifier {
+            IsClass             = true,
+            IsMethodStatic      = methodSymbol.IsStatic,
+            MethodVisibility    = visibility
         };
     }
 }

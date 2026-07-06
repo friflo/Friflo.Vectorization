@@ -13,7 +13,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void RenderTunnel(
+    protected static partial void RenderTunnel(
         RenderPass                  pass,
         RenderConfig                config,
         Uniforms                    uniforms)

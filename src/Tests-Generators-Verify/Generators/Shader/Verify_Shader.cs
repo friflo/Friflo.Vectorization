@@ -112,7 +112,7 @@ public partial class ShaderExample
 {
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void DrawInstanced(RenderPass pass, RenderConfig config,
+    private static partial void DrawInstanced(RenderPass pass, RenderConfig config,
         [Draw]          [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
         [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
 }
@@ -135,7 +135,7 @@ public partial class ShaderExample
 {
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
-    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
+    protected static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [BindUniform(0, 0)] Uniforms    uniforms);
         
     [StructLayout(LayoutKind.Sequential)]
