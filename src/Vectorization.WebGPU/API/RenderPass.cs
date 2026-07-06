@@ -253,7 +253,7 @@ public readonly unsafe ref struct RenderPassInternal
     }
     
     /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
-    public void SetBindGroupUniform<T>(uint groupIndex, ref WgpuBindGroup bindGroup, T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetBindGroupUniform<T>(uint groupIndex, ref WgpuBindGroup bindGroup, in T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = Recorder;
         if (!bindGroup.IsCreated) {
@@ -262,12 +262,15 @@ public readonly unsafe ref struct RenderPassInternal
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         uint offset         = rec.uniformOffset;
+        rec.uniformOffset   = offset + alignedSize;
         
-        fixed (byte* pStaging = rec.stagingBuffer) {
+        ref byte dst = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rec.stagingBuffer), (nint)offset);
+        Unsafe.As<byte, T>(ref dst) = uniform;
+        /* fixed version
+         fixed (byte* pStaging = rec.stagingBuffer) {
             *(T*)(pStaging + offset) = uniform;
-        }
+        } */
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
-        rec.uniformOffset = offset + alignedSize;
     }
 
     /// <summary>
