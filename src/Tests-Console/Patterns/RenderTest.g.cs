@@ -93,5 +93,5 @@ public partial class RenderTest
         return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest), "shaders.triangle.wgsl");
+    private static ReadOnlySpan<byte> Triangles_GPU_Shader() => WgpuResource.GetResource(typeof(RenderTest), "shaders/triangle.wgsl");
 }
