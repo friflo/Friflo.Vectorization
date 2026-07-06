@@ -127,7 +127,7 @@ public sealed class ShaderEmitter
         // --- draw
         EmitDraw(body, method);
         
-        
+        var foreignUsingNamespaces = GetForeignUsingNamespaces(method);
         var vsEntry = method.Source.VertexEntry;
         var fsEntry = method.Source.FragmentEntry;
         
@@ -143,7 +143,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
-
+{{foreignUsingNamespaces}}
 namespace {{method.DeclaringType.Identifier.Namespace}};
 
 public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
@@ -461,5 +461,51 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         }
         signature.Length -= 2;
         return signature;
+    }
+    
+    private static string GetForeignUsingNamespaces(CsMethod method)
+    {
+        var declaringNamespace  = method.DeclaringType.Identifier.Namespace;
+        var namespaces          = new HashSet<string>();
+        
+        foreach (var parameter in method.Parameters)
+        {
+            AddNamespace(parameter.Type.Identifier, namespaces, declaringNamespace);
+            foreach (var generic in parameter.Type.Generics) {
+                AddNamespace(generic, namespaces, declaringNamespace);
+            }
+        }
+        if (namespaces.Count == 0) {
+            return "";
+        }
+        var sb = new StringBuilder();
+        var array = namespaces.ToArray();
+        Array.Sort(array);
+        foreach (var ns in array) {
+            sb.Append("using ");
+            sb.Append(ns);
+            sb.Append(";\n");
+        }
+        return sb.ToString();
+    }
+    
+    private static void AddNamespace(CsTypeIdentifier identifier, HashSet<string> namespaces, string declaringNamespace)
+    {
+        var ns = identifier.Namespace;
+        switch (ns) {
+            case "System":
+            case "System.Numerics":
+            case "Friflo.Vectorization.GPU":
+            case "Friflo.Vectorization.GPU.Runtime":
+            case "Friflo.Vectorization.WebGPU":
+            case "Friflo.Vectorization.WebGPU.Runtime":
+                return;
+            default:
+                if (ns == declaringNamespace) {
+                    return;
+                }
+                namespaces.Add(ns);
+                break;
+        }
     }
 }

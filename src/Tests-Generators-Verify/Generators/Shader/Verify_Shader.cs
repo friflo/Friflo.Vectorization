@@ -150,5 +150,45 @@ public partial struct ShaderExample
 """);
     }
 
+    [Test]
+    public static async Task  Verify_Shader_ForeignNamespace()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+using ForeignNamespace;
+using Other.Namespace;
+
+namespace VerifyShader {
+    public partial class ShaderExample
+    {
+        [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
+        public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
+            [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
+                    [BindUniform(1, 0)] in MyUniform            myUniform);
+    }
+}
+
+namespace Other.Namespace {
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
+    public struct MyUniform
+    {
+        public Vector4 	tint_color;
+    }
+}
+
+namespace ForeignNamespace {
+    [StructLayout(LayoutKind.Sequential, Size = 32)]
+    public struct VertexData(Vector4 position, Vector4 color)
+    {
+        public Vector4 	position    = position;
+        public Vector4 	color       = color;
+    }
+}
+""");
+    }
 
 }
