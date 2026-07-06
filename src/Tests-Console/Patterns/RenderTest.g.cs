@@ -14,7 +14,7 @@ public partial class RenderTest
         RenderPass              pass,
         RenderConfig            config,
         InBuffer<VertexData>    triangles,
-        MyUniform               myUniform)
+        in MyUniform            myUniform)
 	{
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));

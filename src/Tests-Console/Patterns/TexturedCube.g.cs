@@ -13,7 +13,7 @@ public partial class TexturedCube
         RenderPass      pass,
         RenderConfig    config,
         InBuffer<float> vertices,
-        Uniforms     	uniforms,
+        in Uniforms   	uniforms,
         GpuSampler      smoothFilter,
         GpuTextureView  material)
 	{

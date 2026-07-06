@@ -14,7 +14,7 @@ public partial class TwoCubes
         RenderPass      pass,
         RenderConfig    config,
         InBuffer<float> verticesBuffer,
-        Matrix4x4       modelViewProjectionMatrix)
+        in Matrix4x4    modelViewProjectionMatrix)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));

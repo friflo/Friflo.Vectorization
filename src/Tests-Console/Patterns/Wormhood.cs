@@ -11,7 +11,7 @@ public static partial class Wormhood
     public static void RenderTunnel_Pattern(
         RenderPass      pass,
         RenderConfig    config,
-        Uniforms       	uniforms)
+        in Uniforms   	uniforms)
 	{
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
