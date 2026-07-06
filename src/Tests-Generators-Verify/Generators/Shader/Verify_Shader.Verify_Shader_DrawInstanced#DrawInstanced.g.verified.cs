@@ -51,7 +51,6 @@ public partial class ShaderExample
         pass_.Draw(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
     }
 
-
     private sealed class _DrawInstanced_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();

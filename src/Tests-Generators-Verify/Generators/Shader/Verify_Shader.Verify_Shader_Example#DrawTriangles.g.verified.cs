@@ -52,7 +52,6 @@ public partial class ShaderExample
         pass_.Draw(triangles.Length, 1, 0, 0);
     }
 
-
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();

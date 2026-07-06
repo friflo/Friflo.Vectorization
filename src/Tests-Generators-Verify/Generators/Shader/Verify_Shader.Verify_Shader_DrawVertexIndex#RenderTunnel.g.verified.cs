@@ -39,7 +39,6 @@ public partial class ShaderExample
         pass_.Draw(3, 1, 0, 0);
     }
 
-
     private sealed class _RenderTunnel_GPU_Cache : BindGroupCache
     {
         internal            WgpuBindGroup bindGroup0;

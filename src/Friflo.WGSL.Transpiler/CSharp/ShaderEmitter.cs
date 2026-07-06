@@ -160,7 +160,6 @@ public partial class {{className}}
 
 {{body}}    }
 
-
     private sealed class {{methodName_GPU}}_Cache : BindGroupCache
     {
 {{bindGroupMembers}}

@@ -53,7 +53,6 @@ public partial class ShaderExample
         pass_.Draw(vertices, 0, config, 1, 0, 0);
     }
 
-
     private sealed class _RenderCube_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup0 = new ();
