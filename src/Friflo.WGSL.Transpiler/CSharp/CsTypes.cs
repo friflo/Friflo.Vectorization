@@ -177,7 +177,6 @@ public readonly struct CsParameter
 public class CsType
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     CsTypeKind              Kind        { get; init; }
     public required     List<CsTypeIdentifier>  Generics    { get; init; }  // generic type arguments
     public required     CsAttribute[]           Attributes  { get; init; }
     public required     CsField[]               Fields      { get; set; } // only set for CsTypeKind.Struct -> no cyclic dependencies
@@ -217,12 +216,6 @@ public readonly struct CsField
     public CsField() { }
 }
 
-public enum CsTypeKind
-{
-    Class,
-    Struct
-}
-
 public readonly struct CsTypeIdentifier
 {
     public required     string  Name        { get; init; }
@@ -231,7 +224,7 @@ public readonly struct CsTypeIdentifier
     public override     string  ToString() => $"{Namespace}.{Name}";
 }
 
-// --- modifier types
+// --- modifier - not relevant for wgpu specific code
 public readonly struct CsModifier
 {
     public required     string	MethodVisibility	{ get; init; }

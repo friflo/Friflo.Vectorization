@@ -82,7 +82,7 @@ public partial class ShaderExample
 {
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
-    public static partial void RenderCube(RenderPass pass, RenderConfig config,
+    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
                 [BindUniform     (0, 0)]    Uniforms        uniforms,
                 [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
@@ -131,11 +131,11 @@ using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
 
-public partial class ShaderExample
+public partial struct ShaderExample
 {
     [Shader("shaders/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
-    protected static partial void RenderTunnel(RenderPass pass, RenderConfig config,
+    public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [BindUniform(0, 0)] Uniforms    uniforms);
         
     [StructLayout(LayoutKind.Sequential)]

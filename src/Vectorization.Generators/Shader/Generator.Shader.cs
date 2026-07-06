@@ -213,7 +213,6 @@ public sealed partial class ShaderGen
         var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
         var csType = new CsType {
             Identifier  = GetIdentifier(typeSymbol),
-            Kind        = typeSymbol.IsValueType ? CsTypeKind.Struct : CsTypeKind.Class,
             Generics    = genericIdentifiers,
             Attributes  = attributes,
             Fields      = []
@@ -223,7 +222,7 @@ public sealed partial class ShaderGen
         }
 
         // recursion only for struct types
-        if (csType.Kind == CsTypeKind.Struct && typeSymbol is INamedTypeSymbol structSymbol)
+        if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol structSymbol)
         {
             csType.Fields = structSymbol.GetMembers()
                 .OfType<IFieldSymbol>()
@@ -286,7 +285,7 @@ public sealed partial class ShaderGen
             _                                   => ""
         };
         return new CsModifier {
-            IsClass             = true,
+            IsClass             = !containingType.IsValueType,
             IsMethodStatic      = methodSymbol.IsStatic,
             MethodVisibility    = visibility
         };

@@ -11,9 +11,9 @@ using Friflo.Vectorization.WebGPU.Runtime;
 
 namespace VerifyShader;
 
-public partial class ShaderExample
+public partial struct ShaderExample
 {
-    protected static partial void RenderTunnel(
+    public static partial void RenderTunnel(
         RenderPass                  pass,
         RenderConfig                config,
         Uniforms                    uniforms)

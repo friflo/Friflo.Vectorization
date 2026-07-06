@@ -146,7 +146,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 
 namespace {{method.DeclaringType.Identifier.Namespace}};
 
-public partial class {{className}}
+public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
 {
     {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}(
 {{signature}})

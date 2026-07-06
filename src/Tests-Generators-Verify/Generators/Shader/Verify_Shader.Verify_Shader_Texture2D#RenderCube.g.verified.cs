@@ -13,7 +13,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void RenderCube(
+    protected static partial void RenderCube(
         RenderPass                  pass,
         RenderConfig                config,
         InBuffer<Single>            vertices,
