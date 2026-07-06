@@ -17,7 +17,7 @@ internal interface INativeSource<out TTarget>
 }
 
 
-internal unsafe class NativeAllocator : IDisposable
+internal sealed unsafe class NativeAllocator : IDisposable
 {
     private readonly    byte*       nativeMemory;
     private             int         nativeMemoryPos;

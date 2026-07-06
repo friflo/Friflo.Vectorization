@@ -139,7 +139,7 @@ internal readonly unsafe struct StagingReadBuffer
     }
 }
 
-internal class StagingPool
+internal sealed class StagingPool
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
     private readonly ConcurrentQueue<StagingReadBuffer> pooled = [];

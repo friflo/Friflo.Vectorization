@@ -25,7 +25,7 @@ internal readonly struct CommandList
 
 /// ConcurrentQueue is lock-free. Spin-Wait's on failed operations, but does not lock. <br/>
 /// Check alternative for multi threading <see cref="CommandListPoolTLS"/>
-internal class CommandListPool
+internal sealed class CommandListPool
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
     private readonly ConcurrentQueue<CommandList> pooled = [];
@@ -55,7 +55,7 @@ internal class CommandListPool
 /// cache-hot local thread access (95% hot path) with a <see cref="ConcurrentQueue{T}"/> fallback for cross-thread recycling.
 /// Eliminates boxing, avoids atomic intercore CPU stalls (Interlocked), and preserves list capacities to prevent runtime heap allocations.
 /// </summary>
-internal class CommandListPoolTLS
+internal sealed class CommandListPoolTLS
 {
     // used ConcurrentQueue<T> in favor of ConcurrentStack<T>
     private readonly    ConcurrentQueue<CommandList>    globalPool = [];
