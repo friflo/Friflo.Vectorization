@@ -15,7 +15,7 @@ public sealed class PerfLog
     public              long            MemoryAllocated { get; private set; }
     public              int             FrameCount      { get; private set; }
     public  readonly    StringBuilder   Builder         = new(256);
-    private readonly    StreamWriter    writer          = new(Console.OpenStandardOutput(), Encoding.UTF8, 256);
+    private readonly    StreamWriter    writer          = new(Console.OpenStandardOutput(), new UTF8Encoding(false), 256); // false -> no BOM
     
     
     public PerfLog() { }
