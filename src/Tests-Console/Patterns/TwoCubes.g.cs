@@ -29,15 +29,16 @@ public partial class TwoCubes
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref TextureTest_GPU_CreatePipelineCache(recorder.Device, config);
         }
-        
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
+        // --- bind group 0
         pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "TextureTest_bindGroup0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
+        // --- draw
         pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
 	}
     
@@ -52,6 +53,7 @@ public partial class TwoCubes
     
     private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
     private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4766;  // unique key set by Generator
+    
     private static ulong        TextureTest_GPU_WgslHash            => 0x1266;  // support Hot-Relead
     
     
@@ -74,6 +76,7 @@ public partial class TwoCubes
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
+    
     private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders.basic.vert.wgsl");
     private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders.vertexPositionColor.frag.wgsl");
 }

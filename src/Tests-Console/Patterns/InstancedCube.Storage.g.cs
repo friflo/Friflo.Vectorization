@@ -31,11 +31,11 @@ public partial class InstancedCube
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref InstancedCube_Storage_GPU_CreatePipelineCache(recorder.Device, config);
         }
-        
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
         var bindGroupCache = (InstancedCube_Storage_GPU_Cache)pipelineCache.bindGroupCache;
         
+        // --- bind group 0
         var key_0 = mvpMatrices.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryBuffer(mvpMatrices.Buffer);
@@ -46,6 +46,7 @@ public partial class InstancedCube
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
+        // --- draw
         pass_.Draw(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
 	}
     
@@ -60,6 +61,7 @@ public partial class InstancedCube
     
     private static readonly int InstancedCube_Storage_GPU_ShaderId            =  ShaderRegistry.NewShaderId("InstancedCube_StorageShader");
     private const  ulong        InstancedCube_Storage_GPU_layout_0_Key        =  0x4777;  // unique key set by Generator
+    
     private static ulong        InstancedCube_Storage_GPU_WgslHash            => 0x1277;  // support Hot-Relead
     
     
@@ -82,6 +84,7 @@ public partial class InstancedCube
         var bindGroupCache = new InstancedCube_Storage_GPU_Cache();
         return ref device.CreatePipelineCache(InstancedCube_Storage_GPU_ShaderId, config, InstancedCube_Storage_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
+    
     private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders.instanced.storage.vert.wgsl");
     private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders.vertexPositionColor.frag.wgsl");
 }

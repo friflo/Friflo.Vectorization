@@ -25,8 +25,10 @@ public static partial class Wormhood
         
         var bindGroupCache = (Wormhood_GPU_Cache)pipelineCache.bindGroupCache;
         
+        // --- bind group 0
         pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache, "Wormhood_bindGroup0"u8);
         
+        // --- draw
         pass_.Draw(3, 1, 0, 0);
 	}
     
@@ -41,6 +43,7 @@ public static partial class Wormhood
     
     private static readonly int Wormhood_GPU_ShaderId       =  ShaderRegistry.NewShaderId("WormhoodShader");
     private const  ulong        Wormhood_GPU_layout_0_key   =  0x1144;  // unique key set by Generator
+    
     private static ulong        Wormhood_GPU_WgslHash       => 0x1244; // support Hot-Relead
     
     

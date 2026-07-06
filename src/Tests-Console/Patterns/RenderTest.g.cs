@@ -33,6 +33,7 @@ public partial class RenderTest
         
         var bindGroupCache = (Triangles_GPU_Cache)pipelineCache.bindGroupCache;
         
+        // --- bind group 0
         var key_0 = triangles.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryBuffer(triangles.Buffer);
@@ -43,6 +44,7 @@ public partial class RenderTest
         
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
+        // --- draw
         pass_.Draw(triangles.Length, 1, 0, 0);
 	}
     
@@ -60,6 +62,7 @@ public partial class RenderTest
     private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("TrianglesShader");
     private const  ulong        Triangles_GPU_layout_0_key  =  0x47;  // unique key set by Generator
     private const  ulong        Triangles_GPU_layout_1_key  =  0x11;  // unique key set by Generator
+    
     private static ulong        Triangles_GPU_WgslHash      => 0x123; // support Hot-Relead
     
     
