@@ -238,10 +238,10 @@ public struct WgpuVertexState
 /// <summary> managed type for:  <see cref="ColorTargetState"/> </summary>
 public struct WgpuColorTargetState : INativeSource<ColorTargetState>
 {
-    public  nint                        nextInChain;
-    public  TextureFormat               format              = TextureFormat.BGRA8Unorm;
-    public  ValueNullable<BlendState>   blend;
-    public  ulong                       writeMask           = ColorWriteMask_All;
+    public  nint                            nextInChain;
+    public  TextureFormat                   format              = TextureFormat.BGRA8Unorm;
+    public  ValueNullable<WgpuBlendState>   blend;
+    public  ulong                           writeMask           = ColorWriteMask_All;
     
     public WgpuColorTargetState() { }
     
@@ -251,7 +251,18 @@ public struct WgpuColorTargetState : INativeSource<ColorTargetState>
             nextInChain = (ChainedStruct*)nextInChain,
             format      = format,
             writeMask   = writeMask,
-            blend       = allocator.NullableToNative(blend, static value => value)
+            blend       = allocator.NullableToNative(blend, static value => new BlendState {
+                color = new BlendComponent {
+                    operation = value.color.operation,
+                    srcFactor = value.color.srcFactor,
+                    dstFactor = value.color.dstFactor
+                },
+                alpha = new BlendComponent {
+                    operation = value.alpha.operation,
+                    srcFactor = value.alpha.srcFactor,
+                    dstFactor = value.alpha.dstFactor
+                }
+            })
         };
     }
 }
@@ -313,7 +324,6 @@ public struct WgpuVertexAttribute : INativeSource<VertexAttribute>
 }
 
 /// <summary> managed type for:  <see cref="StencilFaceState"/> </summary>
-// Added extra type to avoid using inefficient runtime-provided implementation
 public struct WgpuStencilFaceState
 {
     public  CompareFunction     compare;
@@ -330,4 +340,19 @@ public struct WgpuStencilFaceState
             passOp      = passOp,
         };
     }
+}
+
+/// <summary> managed type for:  <see cref="BlendState"/> </summary>
+public struct WgpuBlendState
+{
+  public    WgpuBlendComponent  color;
+  public    WgpuBlendComponent  alpha;
+}
+
+/// <summary> managed type for:  <see cref="BlendComponent"/> </summary>
+public struct WgpuBlendComponent
+{
+  public    BlendOperation  operation;
+  public    BlendFactor     srcFactor;
+  public    BlendFactor     dstFactor;
 }
