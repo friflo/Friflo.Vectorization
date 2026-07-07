@@ -34,7 +34,7 @@ public class Wgpu
     {
         Instance    = WgpuInstance.CreateInstance();
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
-        Adapter     = Instance.RequestAdapter(default); // specific backend: (new RequestAdapterOptions { backendType = BackendType.D3D12 });
+        Adapter     = Instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         Device      = Adapter.CreateDevice("Wgpu.Device");
         
         var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);

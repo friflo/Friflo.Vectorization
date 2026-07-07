@@ -48,6 +48,16 @@ namespace Friflo.Vectorization.WebGPU;
  */
 
 
+public struct GpuRequestAdapterOptions
+{
+    public  nint            nextInChain;
+    public  FeatureLevel    featureLevel;
+    public  PowerPreference powerPreference;
+    public  uint            forceFallbackAdapter;
+    public  BackendType     backendType;
+    public  WgpuSurface     compatibleSurface;
+}
+
 public sealed unsafe class WgpuInstance : GpuInstance
 {
     internal readonly   Instance*   instance;
@@ -108,7 +118,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         *adapterPtr = adapter;
     }
     
-    public WgpuAdapter RequestAdapter(RequestAdapterOptions options)
+    public WgpuAdapter RequestAdapter(in GpuRequestAdapterOptions options)
     {
 		Adapter* adapter = null;
         var callbackInfo = new RequestAdapterCallbackInfo {
@@ -116,7 +126,15 @@ public sealed unsafe class WgpuInstance : GpuInstance
             callback    = &RequestAdapter_callback,
             userdata1   = &adapter
         };
-		var future = wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
+        var opt = new RequestAdapterOptions {
+            nextInChain             = (ChainedStruct*)options.nextInChain,
+            featureLevel            = options.featureLevel,
+            powerPreference         = options.powerPreference,
+            forceFallbackAdapter    = options.forceFallbackAdapter,
+            backendType             = options.backendType,
+            compatibleSurface       = options.compatibleSurface.handle
+        };
+		var future = wgpuInstanceRequestAdapter(instance, &opt, callbackInfo);
         if (future.id != 0) {
             var waitInfo = new FutureWaitInfo { future = future, completed = 0 };
             wgpuInstanceWaitAny(instance, 1, &waitInfo, 2000);

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
@@ -16,7 +15,7 @@ public static partial class Test_GPU
     [Test]
     public static void Test_GPU_DetectHazard()
     {
-        using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
+        using var instance    = WgpuInstance.CreateInstance();
         using var adapter     = instance.RequestAdapter(default);
         using var device      = adapter.CreateDevice("test");
         

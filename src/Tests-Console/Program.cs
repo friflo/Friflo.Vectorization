@@ -3,7 +3,6 @@ using Friflo.Vectorization;
 using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
 using TestConsole;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
@@ -16,8 +15,8 @@ return SdlWindow.Main("RenderTest",     1280, 720, wgpu => new RenderTest(wgpu))
 
 // using var instance    = CpuInstance.CreateInstance();
 // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
-using var instance    = WgpuInstance.CreateInstance(new InstanceExtras());
-using var adapter     = instance.RequestAdapter(default);
+using var instance    = WgpuInstance.CreateInstance();
+using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
 using var device      = adapter.CreateDevice("test");
 
 var size = 1024;
