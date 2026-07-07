@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -62,12 +63,12 @@ public struct GpuTextureDescriptor
     public GpuTextureDescriptor() { }
 }
 
-public sealed unsafe partial class WgpuDevice
+public static unsafe partial class WgpuExtensions
 {
     /// <remarks>
     /// <remarks>Same behavior as: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createTexture">MDN: GPUDevice.createTexture()</a></remarks>
     /// </remarks>
-    public GpuTexture CreateTexture(in GpuTextureDescriptor? descriptor = null)
+    public static GpuTexture CreateTexture(this GpuDevice device, in GpuTextureDescriptor? descriptor = null)
     {
         var native  = new TextureDescriptor();
         var src     = descriptor ?? new GpuTextureDescriptor();
@@ -86,10 +87,11 @@ public sealed unsafe partial class WgpuDevice
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
         native.label              = WgpuUtils.CopyToStringView(src.label, labelBuffer, labelMaxCount);
         
+        var wgpuDevice = (WgpuDevice)device;
         fixed(TextureFormat* ptr = src.viewFormats) {
             native.viewFormats = ptr;
-            Texture* texture = wgpuDeviceCreateTexture(DevicePtr, &native);
-            return new GpuTexture(this, src, texture);
+            Texture* texture = wgpuDeviceCreateTexture(wgpuDevice.DevicePtr, &native);
+            return new GpuTexture(wgpuDevice, src, texture);
         }
     }
 }

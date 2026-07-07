@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -16,7 +17,7 @@ namespace Friflo.Vectorization.WebGPU;
 public struct WgpuSurfaceConfiguration
 {
     public  nint                nextInChain;
-    public  WgpuDevice          device;
+    public  GpuDevice           device;
     public  TextureFormat       format;
     public  TextureUsage        usage;
     public  int                 width;
@@ -78,10 +79,11 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     /// </code>
     /// Use <c>swapChainFormat</c> in the <c>SurfaceConfiguration</c> passed to <see cref="Configure"/>.
     /// </remarks>
-	public GpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb, out CompositeAlphaMode alphaMode)
+	public GpuFragmentState GetPreferredFragmentState(GpuAdapter adapter, bool useNonSrgb, out CompositeAlphaMode alphaMode)
     {
         var capabilities = new SurfaceCapabilities();
-        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
+        var wgpuAdapter = (WgpuAdapter)adapter;
+        wgpuSurfaceGetCapabilities(handle, wgpuAdapter.adapter, &capabilities);
         var format = capabilities.formatCount > 0 ? capabilities.formats[0] : TextureFormat.BGRA8Unorm;
         if (useNonSrgb) {
             format = ToNonSrgb(format);
@@ -149,9 +151,10 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     /// </remarks>
     public void Configure(in WgpuSurfaceConfiguration surfaceConfig)
     {
+        var wgpuDevice = (WgpuDevice)surfaceConfig.device;
         var config = new SurfaceConfiguration {
             nextInChain     = (ChainedStruct*)surfaceConfig.nextInChain,
-            device          = surfaceConfig.device.DevicePtr,
+            device          = wgpuDevice.DevicePtr,
             format          = surfaceConfig.format,
             usage           = (ulong)surfaceConfig.usage,
             width           = (uint)surfaceConfig.width,

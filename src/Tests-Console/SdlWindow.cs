@@ -1,8 +1,10 @@
 ﻿using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using SDL3;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 namespace TestConsole;
 
@@ -21,8 +23,8 @@ public interface IRenderer
 public class Wgpu
 {
     public  readonly    WgpuInstance        Instance;
-    public  readonly    WgpuAdapter         Adapter;
-    public  readonly    WgpuDevice          Device;
+    public  readonly    GpuAdapter          Adapter;
+    public  readonly    GpuDevice           Device;
     public  readonly    WgpuSurface         Surface;
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;

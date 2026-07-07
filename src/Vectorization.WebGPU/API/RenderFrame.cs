@@ -21,7 +21,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public static class WgpuExtensions
+public static partial class WgpuExtensions
 {
     public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
     {

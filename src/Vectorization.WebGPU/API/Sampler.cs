@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -17,9 +18,9 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public sealed unsafe partial class WgpuDevice
+public static unsafe partial class WgpuExtensions
 {
-    public GpuSampler CreateSampler(in GpuSamplerDescriptor descriptor)
+    public static GpuSampler CreateSampler(this GpuDevice device, in GpuSamplerDescriptor descriptor)
     {
         var desc = new SamplerDescriptor {
             nextInChain     = (ChainedStruct*)descriptor.nextInChain,
@@ -37,8 +38,8 @@ public sealed unsafe partial class WgpuDevice
         int labelMaxCount   = WgpuUtils.GetMaxCount(descriptor.label);
         byte* labelBuffer   = stackalloc byte[labelMaxCount];
         desc.label          = WgpuUtils.CopyToStringView(descriptor.label, labelBuffer, labelMaxCount);
-
-        var sampler = wgpuDeviceCreateSampler(DevicePtr, &desc);
+        var wgpuDevice = (WgpuDevice)device;
+        var sampler = wgpuDeviceCreateSampler(wgpuDevice.DevicePtr, &desc);
         
         return new GpuSampler(sampler, descriptor);
     }
