@@ -41,7 +41,7 @@ public static partial class Wormhood
         }
     }
     
-    private static readonly int Wormhood_GPU_ShaderId       =  ShaderRegistry.NewShaderId("WormhoodShader");
+    private static readonly int Wormhood_GPU_ShaderId       =  ShaderRegistry.NewShaderId("Wormhood");
     private const  ulong        Wormhood_GPU_layout_0_key   =  0x1144;  // unique key set by Generator
     
     private static ulong        Wormhood_GPU_WgslHash       => 0x1244; // support Hot-Relead
@@ -58,8 +58,8 @@ public static partial class Wormhood
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(Wormhood_GPU_GPU_VertexShader(), "RenderTunnel_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(Wormhood_GPU_Shader(),           "RenderTunnel_FragmentShader"u8);
+        using var vsModule = device.CreateShaderModule(Wormhood_GPU_GPU_VertexShader(), "Wormhood_VertexShader"u8);
+        using var fsModule = device.CreateShaderModule(Wormhood_GPU_Shader(),           "Wormhood_FragmentShader"u8);
 
         var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "vs_main"u8, fsModule, "fs_main"u8, "Wormhood_pipeline"u8);
         

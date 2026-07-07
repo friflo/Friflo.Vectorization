@@ -58,7 +58,7 @@ public partial class InstancedCube
         }
     }
     
-    private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTestShader");
+    private static readonly int TextureTest_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TextureTest");
     private const  ulong        TextureTest_GPU_layout_0_Key        =  0x4766;  // unique key set by Generator
     
     private static ulong        TextureTest_GPU_WgslHash            => 0x1266;  // support Hot-Relead

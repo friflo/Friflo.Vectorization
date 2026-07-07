@@ -60,7 +60,7 @@ public partial class RenderTest
         }
     }
     
-    private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("TrianglesShader");
+    private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("Triangles");
     private const  ulong        Triangles_GPU_layout_0_key  =  0x47;  // unique key set by Generator
     private const  ulong        Triangles_GPU_layout_1_key  =  0x11;  // unique key set by Generator
     
@@ -85,7 +85,7 @@ public partial class RenderTest
         }
         layouts[1] = layout_1;
         
-        using var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_shader"u8);
+        using var module = device.CreateShaderModule(Triangles_GPU_Shader(), "Triangles_Shader"u8);
 
         var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "Triangles_pipeline"u8);
         

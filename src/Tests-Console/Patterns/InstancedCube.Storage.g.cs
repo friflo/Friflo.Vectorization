@@ -23,7 +23,7 @@ public partial class InstancedCube
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(InstancedCube_Storage_GPU_ShaderId, "InstancedCube_Storage_encoder"u8);
+		recorder.Init(InstancedCube_Storage_GPU_ShaderId, "InstancedCube_encoder"u8);
         recorder.RequireRead(verticesBuffer);
         recorder.RequireRead(mvpMatrices);
 
@@ -39,7 +39,7 @@ public partial class InstancedCube
         var key_0 = mvpMatrices.Handle;
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryBuffer(mvpMatrices.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "InstancedCube_Storage_bindGroup0"u8);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "InstancedCube_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
         pass_.SetBindGroup(0, bindGroup0);
@@ -59,7 +59,7 @@ public partial class InstancedCube
         }
     }
     
-    private static readonly int InstancedCube_Storage_GPU_ShaderId            =  ShaderRegistry.NewShaderId("InstancedCube_StorageShader");
+    private static readonly int InstancedCube_Storage_GPU_ShaderId            =  ShaderRegistry.NewShaderId("InstancedCube");
     private const  ulong        InstancedCube_Storage_GPU_layout_0_Key        =  0x4777;  // unique key set by Generator
     
     private static ulong        InstancedCube_Storage_GPU_WgslHash            => 0x1277;  // support Hot-Relead
@@ -72,14 +72,14 @@ public partial class InstancedCube
         var layout_0 = device.GetBindGroupLayout(InstancedCube_Storage_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
-            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, InstancedCube_Storage_GPU_layout_0_Key, "InstancedCube_Storage_layout_0"u8);
+            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, InstancedCube_Storage_GPU_layout_0_Key, "InstancedCube_layout_0"u8);
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_VertexShader(),   "InstancedCube_Storage_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_FragmentShader(), "InstancedCube_Storage_FragmentShader"u8);
+        using var vsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_VertexShader(),   "InstancedCube_VertexShader"u8);
+        using var fsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_FragmentShader(), "InstancedCube_FragmentShader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "InstancedCube_Storage_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "InstancedCube_pipeline"u8);
 
         var bindGroupCache = new InstancedCube_Storage_GPU_Cache();
         return ref device.CreatePipelineCache(InstancedCube_Storage_GPU_ShaderId, config, InstancedCube_Storage_GPU_WgslHash, pipeline, layouts, bindGroupCache);
