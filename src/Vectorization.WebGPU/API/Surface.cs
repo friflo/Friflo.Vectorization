@@ -238,12 +238,20 @@ public readonly unsafe struct WgpuSurface : IDisposable
 }
 
 /// <summary> Managed type for <see cref="SurfaceCapabilities"/> </summary>
-public readonly struct WgpuSurfaceCapabilities(ulong usages, TextureFormat[] formats, PresentMode[] presentModes, CompositeAlphaMode[] alphaModes)
+public readonly struct WgpuSurfaceCapabilities
 {
-    public readonly ulong                   usages = usages;
-    public readonly TextureFormat[]         formats = formats;
-    public readonly PresentMode[]           presentModes = presentModes;
-    public readonly CompositeAlphaMode[]    alphaModes = alphaModes;
+    public readonly ulong                   usages;
+    public readonly TextureFormat[]         formats;
+    public readonly PresentMode[]           presentModes;
+    public readonly CompositeAlphaMode[]    alphaModes;
+    
+    internal WgpuSurfaceCapabilities(ulong usages, TextureFormat[] formats, PresentMode[] presentModes, CompositeAlphaMode[] alphaModes)
+    {
+        this.usages         = usages;
+        this.formats        = formats;
+        this.presentModes   = presentModes;
+        this.alphaModes     = alphaModes;
+    }
 }
 
 
