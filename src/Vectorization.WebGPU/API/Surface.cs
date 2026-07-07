@@ -43,9 +43,13 @@ public unsafe struct WgpuSurfaceDescriptorFromMetalLayer {
     public void*            layer; // CAMetalLayer (metalLayer)
 }
 
-public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
+public readonly unsafe struct WgpuSurface : IDisposable
 {
-    internal readonly   Surface*  handle = handle;
+    internal readonly   Surface*  handle;
+    
+    internal WgpuSurface(Surface* handle) {
+        this.handle = handle;
+    }
 
     public void Dispose()
     {
