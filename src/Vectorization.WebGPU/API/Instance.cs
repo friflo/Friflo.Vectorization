@@ -158,13 +158,8 @@ public sealed unsafe class WgpuInstance : GpuInstance
         wgpuAdapterInfoFreeMembers(props);
         return new WgpuAdapter(adapter, instance, info);
     }
-    
-    public GlobalReport GenerateReport () {
-        var report = new GlobalReport();
-        wgpuGenerateReport(instance, &report);
-        return report;
-    }
-    
+
+    // obsolete - kept for reference
     internal static void PumpEvents(Instance* instance)
     {
         wgpuInstanceProcessEvents(instance);   // not relevant
