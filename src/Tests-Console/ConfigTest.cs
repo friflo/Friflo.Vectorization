@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;

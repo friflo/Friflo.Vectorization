@@ -2,7 +2,7 @@
 using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -112,7 +112,7 @@ public partial class InstancedCube : IRenderer
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L173
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
-            clearValue  = new Color{ r = 0.5, g = 0.5, b = 0.5, a = 1 },
+            clearValue  = [0.5, 0.5, 0.5, 1],
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store
         };

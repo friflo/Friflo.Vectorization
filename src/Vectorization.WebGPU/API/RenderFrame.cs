@@ -3,8 +3,11 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
@@ -54,7 +57,7 @@ public struct WgpuRenderPassColorAttachment
     public  GpuTextureView  resolveTarget;
     public  LoadOp          loadOp;
     public  StoreOp         storeOp;
-    public  Color           clearValue;
+    public  WgpuColor       clearValue;
     
     public WgpuRenderPassColorAttachment() { } 
     
@@ -67,7 +70,12 @@ public struct WgpuRenderPassColorAttachment
             resolveTarget   = resolveTarget.handle,
             loadOp          = loadOp,
             storeOp         = storeOp,
-            clearValue      = clearValue
+            clearValue      = new Color {
+                r   = clearValue.r,
+                g   = clearValue.g,
+                b   = clearValue.b,
+                a   = clearValue.a
+            }
         };
     }
 }
@@ -101,6 +109,36 @@ public struct WgpuRenderPassDepthStencilAttachment
             stencilClearValue   =  stencilClearValue,
             stencilReadOnly     =  stencilReadOnly
         };
+    }
+}
+
+[CollectionBuilder(typeof(WgpuColorBuilder), nameof(WgpuColorBuilder.Create))]
+public struct WgpuColor : IEnumerable<double>
+{
+    public  double  r;
+    public  double  g;
+    public  double  b;
+    public  double  a;
+    
+    public IEnumerator<double> GetEnumerator() => throw new NotImplementedException();
+    IEnumerator    IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+/// <summary>
+/// Compiler helper to enable the [...] collection expression for <see cref="WgpuColor"/>.
+/// </summary>
+public static class WgpuColorBuilder
+{
+    public static WgpuColor Create(ReadOnlySpan<double> items)
+    {
+        if (items.Length != 4) throw new ArgumentException("WgpuColor expects 4 elements: [r,g,b,a]");
+        var color = new WgpuColor {
+            r = items[0],
+            g = items[1],
+            b = items[2],
+            a = items[3]
+        };
+        return color;
     }
 }
 

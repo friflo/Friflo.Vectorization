@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -61,7 +60,7 @@ public partial class RenderTest : IRenderer
         renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = new Color{ r = 0.1, g = 0.1, b = 0.1, a = 1 }
+            clearValue  = [0.1, 0.1, 0.1, 1]
         };
     }
     
