@@ -21,27 +21,20 @@ public class ConfigTest : RenderTest
     private readonly RenderConfig testConfig;
     
     
-    public override void OnFrame(int width, int height)
+    public override void OnFrame(in RenderFrame frame, int width, int height)
     {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
         
-        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
-        {
-            myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-            wormhood.IResolution    = new Vector3(width, height, 1.0f);
-            wormhood.ITime          = time;
-            
-            // Wormhood.RenderTunnel(pass, wormhood);
-            DrawTriangles(pass, config, rectangle, myUniform);
-        }
-        context.Queue.Submit();
-        wgpu.Surface.Present();
+        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        
+        myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
+        wormhood.IResolution    = new Vector3(width, height, 1.0f);
+        wormhood.ITime          = time;
+        
+        // Wormhood.RenderTunnel(pass, wormhood);
+        DrawTriangles(pass, config, rectangle, myUniform);
     }
 }

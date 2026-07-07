@@ -16,7 +16,7 @@ namespace TestConsole;
 public interface IRenderer
 {
     public void OnWindowChanged(int width, int height) { }
-    public void OnFrame        (int width, int height);
+    public void OnFrame        (in RenderFrame frame, int width, int height);
     public void OnShutdown();
 }
 
@@ -25,6 +25,7 @@ public class Wgpu
     public  readonly    WgpuInstance        Instance;
     public  readonly    GpuAdapter          Adapter;
     public  readonly    GpuDevice           Device;
+    public  readonly    PipelineContext     Context;
     public  readonly    WgpuSurface         Surface;
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;
@@ -38,6 +39,7 @@ public class Wgpu
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
         Adapter     = Instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         Device      = Adapter.CreateDevice("Wgpu.Device");
+        Context     = Device.BeginContext();
         
         var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
         SwapChainFormat     = fragmentState.targets[0].format;
@@ -48,6 +50,7 @@ public class Wgpu
     public void Shutdown()
     {
         Surface.Unconfigure();
+        Context.Dispose();
         Device.Dispose();
         Adapter.Dispose();
         Surface.Dispose();
@@ -90,7 +93,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult AppIterate(IntPtr appState)
     {
-        try { renderer?.OnFrame(wgpu!.Width, wgpu.Height);    return SDL.AppResult.Continue; }
+        try { return IterateSdl3(); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
@@ -187,6 +190,20 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             presentMode = PresentMode.Immediate // Fifo = VSync
         };
         wgpu.Surface.Configure(surfaceConfig);
+    }
+    
+    private SDL.AppResult IterateSdl3()
+    {
+        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface);
+        if (frame.IsNull) {     // window minimized?
+            return SDL.AppResult.Continue;
+        }
+        renderer?.OnFrame(frame, wgpu!.Width, wgpu.Height);
+        
+        wgpu.Context.Queue.Submit();
+        wgpu.Surface.Present();
+        
+        return SDL.AppResult.Continue;
     }
     
     private SDL.AppResult AppEvent(ref SDL.Event ev)

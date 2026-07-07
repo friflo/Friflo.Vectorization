@@ -18,11 +18,9 @@ public partial class RenderTest : IRenderer
 {
     // --- IDisposable fields
     protected readonly  GpuBuffer<VertexData>   data;
-    protected readonly  PipelineContext         context;
     
     public void OnShutdown()
     {
-        context.Dispose();
         data.Dispose();
     }
     
@@ -30,7 +28,6 @@ public partial class RenderTest : IRenderer
     {
         this.wgpu = wgpu;
         data        = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
-        context     = wgpu.Device.BeginContext();
         rectangle   = data.In(0, 6); // two triangles
     }
 
@@ -64,27 +61,20 @@ public partial class RenderTest : IRenderer
         };
     }
     
-    public virtual void OnFrame(int width, int height)
+    public virtual void OnFrame(in RenderFrame frame, int width, int height)
     {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
-        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
-        {
-            myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-            wormhood.IResolution    = new Vector3(width, height, 1.0f);
-            wormhood.ITime          = time;
-            
-            Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
-            DrawTriangles(pass, wgpu.Config, rectangle, myUniform);
-        }
-        context.Queue.Submit();
-        wgpu.Surface.Present();
+        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        
+        myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
+        wormhood.IResolution    = new Vector3(width, height, 1.0f);
+        wormhood.ITime          = time;
+        
+        Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
+        DrawTriangles(pass, wgpu.Config, rectangle, myUniform);
     }
 
 	[Shader("shaders/triangle.wgsl")]

@@ -12,7 +12,6 @@ namespace TestConsole;
 public partial class InstancedCube : IRenderer
 {
     // --- IDisposable fields
-    private readonly    PipelineContext         context;
     private readonly    GpuBuffer<float>        verticesBuffer;
     private             GpuTexture?             depthTexture;
     private readonly    GpuBuffer<Matrix4x4>    mvpMatricesData;
@@ -27,18 +26,15 @@ public partial class InstancedCube : IRenderer
         mvpMatricesData.Dispose();
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
-        context.Dispose();
     }
     
     public InstancedCube(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
-        var device  = wgpu.Device;
-        context     = device.BeginContext();
         
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
-        verticesBuffer.In().Write(context);
+        verticesBuffer.In().Write();
         
         var bufferType  = useUniformBuffer ? BufferType.Uniform : BufferType.Storage;
         mvpMatricesData = wgpu.Device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, bufferType);
@@ -142,27 +138,20 @@ public partial class InstancedCube : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L192
-    public void OnFrame(int width, int height)
+    public void OnFrame(in RenderFrame frame, int width, int height)
     {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         UpdateTransformationMatrix(width, height, time);
         
-        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
-        {
-            if (useUniformBuffer) {
-                RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
-            } else {
-                RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
-            }
+        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        
+        if (useUniformBuffer) {
+            RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+        } else {
+            RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
         }
-        context.Queue.Submit();
-        wgpu.Surface.Present();
     }
     
 	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]

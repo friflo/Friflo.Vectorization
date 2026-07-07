@@ -11,7 +11,6 @@ namespace TestConsole;
 public partial class TexturedCube : IRenderer
 {
     // --- IDisposable fields
-    private readonly    PipelineContext     context;
     private readonly    GpuTexture          cubeTexture;
     private readonly    GpuSampler          sampler;
     private readonly    GpuBuffer<float>    verticesBuffer;
@@ -23,14 +22,12 @@ public partial class TexturedCube : IRenderer
         verticesBuffer.Dispose();
         sampler.Dispose();
         cubeTexture.Dispose();
-        context.Dispose();
     }
     
     public TexturedCube(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;
-        context     = device.BeginContext();
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L112
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream( "Tests-Console.Assets.img.Di-3d.png");
@@ -51,7 +48,7 @@ public partial class TexturedCube : IRenderer
         
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
-        verticesBuffer.In().Write(context);
+        verticesBuffer.In().Write();
         
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
@@ -127,23 +124,16 @@ public partial class TexturedCube : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L179
-    public void OnFrame(int width, int height)
+    public void OnFrame(in RenderFrame frame, int width, int height)
     {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
         
-        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
-        {
-            RenderCube(pass, config, verticesBuffer.In(), uniforms, sampler, textureView);
-        }
-        context.Queue.Submit();
-        wgpu.Surface.Present();
+        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        
+        RenderCube(pass, config, verticesBuffer.In(), uniforms, sampler, textureView);
     }
     
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]

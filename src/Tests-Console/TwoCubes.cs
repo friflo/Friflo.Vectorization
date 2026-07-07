@@ -9,7 +9,6 @@ namespace TestConsole;
 public partial class TwoCubes : IRenderer
 {
     // --- IDisposable fields
-    private readonly    PipelineContext     context;
     private readonly    GpuBuffer<float>    verticesBuffer;
     private             GpuTexture?         depthTexture;
     
@@ -17,18 +16,15 @@ public partial class TwoCubes : IRenderer
     {
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
-        context.Dispose();
     }
     
     public TwoCubes(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
-        var device  = wgpu.Device;
-        context     = device.BeginContext();
         
         // --- Cube Vertex Buffer Config
         verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
-        verticesBuffer.In().Write(context);
+        verticesBuffer.In().Write();
         
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L49
@@ -110,24 +106,17 @@ public partial class TwoCubes : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L191
-    public void OnFrame(int width, int height)
+    public void OnFrame(in RenderFrame frame, int width, int height)
     {
-        using var frame = context.BeginFrame(wgpu.Surface);
-        if (frame.IsNull) {     // window minimized?
-            return;
-        }
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         UpdateTransformationMatrix(width, height, time);
         
-        using (var pass = frame.BeginRenderPass(renderPassDescriptor))
-        {
-            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
-            RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
-        }
-        context.Queue.Submit();
-        wgpu.Surface.Present();
+        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        
+        RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
+        RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
     }
     
 	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
