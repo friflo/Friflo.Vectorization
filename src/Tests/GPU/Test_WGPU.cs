@@ -12,9 +12,9 @@ public static class Test_WGPU
     [Test]
     public static void Test_WGPU_RenderConfig()
     {
-        var descSrc = new WgpuRenderPipelineDescriptor {
-            FragmentState = new WgpuFragmentState {
-                constants = [new WgpuConstantEntry { key = "test", value = 123 }] // add test entry    
+        var descSrc = new GpuRenderPipelineDescriptor {
+            FragmentState = new GpuFragmentState {
+                constants = [new GpuConstantEntry { key = "test", value = 123 }] // add test entry    
             }
         };
         Assert.IsFalse(descSrc.MultisampleState.alphaToCoverageEnabled);

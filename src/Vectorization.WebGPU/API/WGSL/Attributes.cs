@@ -100,7 +100,7 @@ public sealed class DrawFirstInstanceAttribute : Attribute;
 /// <para>
 /// Vertex buffers are created with buffer type <see cref="BufferType.Vertex"/> using <c>GpuDevice.CreateBuffer()</c>.
 /// </para>
-/// <para> A vertex buffer requires a <see cref="WgpuVertexBufferLayout"/>. </para>
+/// <para> A vertex buffer requires a <see cref="GpuVertexBufferLayout"/>. </para>
 /// Example using a vertex buffer parameter:<br/>
 /// <c>[VertexBuffer(0)] InBuffer&lt;float&gt; vertexBuffer, // slot = 0</c>
 /// <code>
@@ -125,7 +125,7 @@ public sealed class DrawFirstInstanceAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class VertexBufferAttribute : Attribute
 {
-    /// <param name="slot">Maps to the <see cref="WgpuVertexState.buffers"/> element index. </param>
+    /// <param name="slot">Maps to the <see cref="GpuVertexState.buffers"/> element index. </param>
     public VertexBufferAttribute (int slot) { }
 }
 

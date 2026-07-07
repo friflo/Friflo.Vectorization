@@ -42,14 +42,14 @@ public static class WgpuExtensions
 }
 
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
-public struct WgpuRenderPassDescriptor
+public struct GpuRenderPassDescriptor
 {
-    public  WgpuRenderPassColorAttachment[]         colorAttachments;
-    public  WgpuRenderPassDepthStencilAttachment?   depthStencilAttachment;
+    public  GpuRenderPassColorAttachment[]          colorAttachments;
+    public  GpuRenderPassDepthStencilAttachment?	depthStencilAttachment;
 }
 
 /// <summary> see: <see cref="RenderPassColorAttachment"/> </summary>
-public struct WgpuRenderPassColorAttachment
+public struct GpuRenderPassColorAttachment
 {
     public  nint            nextInChain;
     public  GpuTextureView  view;
@@ -57,9 +57,9 @@ public struct WgpuRenderPassColorAttachment
     public  GpuTextureView  resolveTarget;
     public  LoadOp          loadOp;
     public  StoreOp         storeOp;
-    public  WgpuColor       clearValue;
+    public  GpuColor        clearValue;
     
-    public WgpuRenderPassColorAttachment() { } 
+    public GpuRenderPassColorAttachment() { } 
     
     public unsafe RenderPassColorAttachment GetNative()
     {
@@ -82,7 +82,7 @@ public struct WgpuRenderPassColorAttachment
 
 
 /// <summary> see: <see cref="RenderPassDepthStencilAttachment"/> </summary>
-public struct WgpuRenderPassDepthStencilAttachment
+public struct GpuRenderPassDepthStencilAttachment
 {
     public  nint            nextInChain;
     public  GpuTextureView  view;
@@ -112,8 +112,8 @@ public struct WgpuRenderPassDepthStencilAttachment
     }
 }
 
-[CollectionBuilder(typeof(WgpuColorBuilder), nameof(WgpuColorBuilder.Create))]
-public struct WgpuColor : IEnumerable<double>
+[CollectionBuilder(typeof(GpuColorBuilder), nameof(GpuColorBuilder.Create))]
+public struct GpuColor : IEnumerable<double>
 {
     public  double  r;
     public  double  g;
@@ -125,14 +125,14 @@ public struct WgpuColor : IEnumerable<double>
 }
 
 /// <summary>
-/// Compiler helper to enable the [...] collection expression for <see cref="WgpuColor"/>.
+/// Compiler helper to enable the [...] collection expression for <see cref="GpuColor"/>.
 /// </summary>
-public static class WgpuColorBuilder
+public static class GpuColorBuilder
 {
-    public static WgpuColor Create(ReadOnlySpan<double> items)
+    public static GpuColor Create(ReadOnlySpan<double> items)
     {
-        if (items.Length != 4) throw new ArgumentException("WgpuColor expects 4 elements: [r,g,b,a]");
-        var color = new WgpuColor {
+        if (items.Length != 4) throw new ArgumentException("GpuColor expects 4 elements: [r,g,b,a]");
+        var color = new GpuColor {
             r = items[0],
             g = items[1],
             b = items[2],
@@ -165,7 +165,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     // BindGroup 1 = Shader-specifics (Textures, Materials) - swapped per draw.
     // Minimizes CPU-to-GPU state change overhead dramatically.
     // GPU IMPACT: Guarantees L1/L2 cache residency for global uniform data across the entire pass and eliminates costly hardware pipeline stalls.
-    public RenderPass BeginRenderPass(in WgpuRenderPassDescriptor descriptor)
+    public RenderPass BeginRenderPass(in GpuRenderPassDescriptor descriptor)
     {
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");

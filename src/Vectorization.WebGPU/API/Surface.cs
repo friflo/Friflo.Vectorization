@@ -67,7 +67,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
         return capabilities;
     }
     
-    /// <summary> Used to return the optimal <see cref="WgpuFragmentState"/> for your adapter. </summary>
+    /// <summary> Used to return the optimal <see cref="GpuFragmentState"/> for your adapter. </summary>
     /// <remarks>
     /// Intended usage
     /// <code>
@@ -78,7 +78,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     /// </code>
     /// Use <c>swapChainFormat</c> in the <c>SurfaceConfiguration</c> passed to <see cref="Configure"/>.
     /// </remarks>
-	public WgpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb, out CompositeAlphaMode alphaMode)
+	public GpuFragmentState GetPreferredFragmentState(WgpuAdapter adapter, bool useNonSrgb, out CompositeAlphaMode alphaMode)
     {
         var capabilities = new SurfaceCapabilities();
         wgpuSurfaceGetCapabilities(handle, adapter.adapter, &capabilities);
@@ -88,7 +88,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
         }
         alphaMode = capabilities.alphaModeCount > 0 ? capabilities.alphaModes[0] : CompositeAlphaMode.Opaque;
         wgpuSurfaceCapabilitiesFreeMembers(capabilities);
-        return new WgpuFragmentState { targets = [new WgpuColorTargetState { format = format }] };
+        return new GpuFragmentState { targets = [new GpuColorTargetState { format = format }] };
     }
     
     private static TextureFormat ToNonSrgb(TextureFormat format)

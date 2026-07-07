@@ -83,7 +83,7 @@ public readonly unsafe ref struct RenderPassInternal
     }
 
     /// <summary>
-    /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="WgpuVertexBufferLayout"/>.  
+    /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="GpuVertexBufferLayout"/>.  
     /// </summary>
     public void SetVertexBuffer<T>(in InBuffer<T> buffer, int slot) where T : unmanaged
     {

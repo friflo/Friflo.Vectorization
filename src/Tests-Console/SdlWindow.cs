@@ -39,7 +39,7 @@ public class Wgpu
         
         var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
         SwapChainFormat     = fragmentState.targets[0].format;
-        var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+        var desc            = new GpuRenderPipelineDescriptor { FragmentState = fragmentState };
         Config              = desc.CreateConfig("Wgpu.Config");
     }
     

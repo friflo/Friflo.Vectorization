@@ -46,18 +46,18 @@ public partial class RenderTest : IRenderer
     ];
 
     // --- non-disposable fields
-    protected readonly  Wgpu                        wgpu;
-    protected readonly  PerfLog                     perfLog             = new();
-    protected readonly  InView<VertexData>          rectangle;
-    protected           MyUniform                   myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
-    protected           Wormhood.Uniforms           wormhood;
-    protected readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
-    protected           WgpuRenderPassDescriptor    renderPassDescriptor= new () { colorAttachments = [ default ] };
+    protected readonly  Wgpu                    wgpu;
+    protected readonly  PerfLog                 perfLog             = new();
+    protected readonly  InView<VertexData>      rectangle;
+    protected           MyUniform               myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected           Wormhood.Uniforms       wormhood;
+    protected readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
+    protected           GpuRenderPassDescriptor renderPassDescriptor= new () { colorAttachments = [ default ] };
     
     
     public void OnWindowChanged(int width, int height)
     {
-        renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
+        renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
             clearValue  = [0.1, 0.1, 0.1, 1]

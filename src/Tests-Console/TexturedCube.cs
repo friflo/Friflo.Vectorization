@@ -56,26 +56,26 @@ public partial class TexturedCube : IRenderer
         var desc = wgpu.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L49
         desc.VertexState.buffers = [
-            new WgpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
+            new GpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
                 arrayStride = Cube.cubeVertexSize,
                 attributes = [
-                    new WgpuVertexAttribute {
+                    new GpuVertexAttribute {
                         shaderLocation = 0, // basic.vert.wgsl:  @location(0) position : vec4f
                         offset = Cube.cubePositionOffset,
                         format = VertexFormat.Float32x4
                     },
-                    new WgpuVertexAttribute {
+                    new GpuVertexAttribute {
                         shaderLocation = 1, // basic.vert.wgsl:  @location(1) uv : vec2f
                         offset = Cube.cubeUVOffset,
                         format = VertexFormat.Float32x2
                     },
                 ]
         }];
-        desc.PrimitiveState = new WgpuPrimitiveState {
+        desc.PrimitiveState = new GpuPrimitiveState {
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.Back
         };
-        desc.DepthStencilState = new WgpuDepthStencilState {
+        desc.DepthStencilState = new GpuDepthStencilState {
             depthWriteEnabled   = true,
             depthCompare        = CompareFunction.Less,
             format              = TextureFormat.Depth24Plus
@@ -84,13 +84,13 @@ public partial class TexturedCube : IRenderer
     }
 
     // --- non-disposable fields
-    private   readonly  Wgpu                        wgpu;
-    private   readonly  RenderConfig                config;
-    private   readonly  GpuTextureView              textureView;
-    private   readonly  PerfLog                     perfLog             = new();
-    private             Uniforms                    uniforms;
-    private   readonly  Stopwatch                   stopwatch           = Stopwatch.StartNew();
-    private             WgpuRenderPassDescriptor    renderPassDescriptor= new() { colorAttachments = [ default ] };
+    private   readonly  Wgpu                    wgpu;
+    private   readonly  RenderConfig            config;
+    private   readonly  GpuTextureView          textureView;
+    private   readonly  PerfLog                 perfLog             = new();
+    private             Uniforms                uniforms;
+    private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
+    private             GpuRenderPassDescriptor renderPassDescriptor= new() { colorAttachments = [ default ] };
 
     
     public void OnWindowChanged(int width, int height)
@@ -103,13 +103,13 @@ public partial class TexturedCube : IRenderer
         });
         
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
-        renderPassDescriptor.colorAttachments[0] = new WgpuRenderPassColorAttachment {
+        renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
             clearValue  = [0.5, 0.5, 0.5, 1],
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store
         };
-        renderPassDescriptor.depthStencilAttachment = new WgpuRenderPassDepthStencilAttachment {
+        renderPassDescriptor.depthStencilAttachment = new GpuRenderPassDepthStencilAttachment {
             view            = depthTexture.CreateView(),
             depthClearValue = 1,
             depthLoadOp     = LoadOp.Clear,
