@@ -17,27 +17,27 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-[CollectionBuilder(typeof(TextureSizeBuilder), nameof(TextureSizeBuilder.Create))]
-public struct TextureSize : IEnumerable<int>
+[CollectionBuilder(typeof(GpuExtent3DBuilder), nameof(GpuExtent3DBuilder.Create))]
+public struct GpuExtent3D : IEnumerable<int>
 {
     public  int     width;
     public  int     height              = 1;
     public  int     depthOrArrayLayers  = 1;
     
-    public TextureSize() { }
+    public GpuExtent3D() { }
     
     public IEnumerator<int> GetEnumerator() => throw new NotImplementedException();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 /// <summary>
-/// Internal compiler helper to enable the [...] collection expression for <see cref="TextureSize"/>.
+/// Internal compiler helper to enable the [...] collection expression for <see cref="GpuExtent3D"/>.
 /// </summary>
-public static class TextureSizeBuilder
+public static class GpuExtent3DBuilder
 {
-    public static TextureSize Create(ReadOnlySpan<int> items)
+    public static GpuExtent3D Create(ReadOnlySpan<int> items)
     {
-        var size = new TextureSize();
+        var size = new GpuExtent3D();
         if (items.Length > 0) size.width                = items[0];
         if (items.Length > 1) size.height               = items[1];
         if (items.Length > 2) size.depthOrArrayLayers   = items[2];
@@ -53,7 +53,7 @@ public struct GpuTextureDescriptor
     public  string              label;
     public  TextureUsage        usage;
     public  TextureDimension    dimension       = TextureDimension.D2D;
-    public  TextureSize         size;
+    public  GpuExtent3D         size;
     public  TextureFormat       format;
     public  int                 mipLevelCount   = 1;
     public  int                 sampleCount     = 1;

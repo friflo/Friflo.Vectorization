@@ -48,7 +48,7 @@ public sealed unsafe class GpuTexture : IDisposable
         int                 offset      = 0,
         Origin3D            origin      = default,
         TextureAspect       aspect      = TextureAspect.All,
-        TextureSize?        writeSize   = null)
+        GpuExtent3D?        writeSize   = null)
     {
         var destination = new TexelCopyTextureInfo {
             texture         = handle,
