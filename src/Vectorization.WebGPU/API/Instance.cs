@@ -80,7 +80,7 @@ public sealed unsafe class WgpuInstance : GpuInstance
         isDisposed = true;
     }
 
-    public static WgpuInstance CreateInstance(InstanceExtras instanceExtras)
+    public static WgpuInstance CreateInstance(InstanceExtras instanceExtras = default)
     {
         var extras  = instanceExtras;
         

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
 using SDL3;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -33,7 +32,7 @@ public class Wgpu
     
     public Wgpu(nint osHandle, nint osInstance)
     {
-        Instance    = WgpuInstance.CreateInstance(new InstanceExtras());
+        Instance    = WgpuInstance.CreateInstance();
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
         Adapter     = Instance.RequestAdapter(default); // specific backend: (new RequestAdapterOptions { backendType = BackendType.D3D12 });
         Device      = Adapter.CreateDevice("Wgpu.Device");
