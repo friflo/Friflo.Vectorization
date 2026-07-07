@@ -3,14 +3,28 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable UnassignedField.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
+
+
+public struct WgpuSurfaceConfiguration
+{
+    public  nint                nextInChain;
+    public  WgpuDevice          device;
+    public  TextureFormat       format;
+    public  TextureUsage        usage;
+    public  int                 width;
+    public  int                 height;
+    public  TextureFormat[]     viewFormats;
+    public  CompositeAlphaMode  alphaMode;
+    public  PresentMode         presentMode;
+}
 
 // --- Windows
 [StructLayout(LayoutKind.Sequential)]
@@ -133,14 +147,27 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     /// </code>
     /// Get <c>swapChainFormat</c> via <see cref="GetPreferredFragmentState"/>.
     /// </remarks>
-    public void Configure(GpuDevice device, SurfaceConfiguration surfaceConfig)
+    public void Configure(in WgpuSurfaceConfiguration surfaceConfig)
     {
-        var wgpuDevice = (WgpuDevice)device;
-        surfaceConfig.device = wgpuDevice.DevicePtr;
+        var config = new SurfaceConfiguration {
+            nextInChain     = (ChainedStruct*)surfaceConfig.nextInChain,
+            device          = surfaceConfig.device.DevicePtr,
+            format          = surfaceConfig.format,
+            usage           = (ulong)surfaceConfig.usage,
+            width           = (uint)surfaceConfig.width,
+            height          = (uint)surfaceConfig.height,
+            viewFormatCount = (uint)(surfaceConfig.viewFormats?.Length ?? 0),
+            alphaMode       = surfaceConfig.alphaMode,
+            presentMode     = surfaceConfig.presentMode
+        };
         // surfaceConfig.format = TextureFormat.BGRA8Unorm;    - standard supported by most devices
         // or: retrieve TextureFormat via   wgpuSurfaceGetCapabilities(surface.handle, adapter.handle, ...)
         
-        wgpuSurfaceConfigure(handle, &surfaceConfig);
+        fixed(TextureFormat* textureFormats = surfaceConfig.viewFormats)
+        {
+            config.viewFormats = textureFormats;
+            wgpuSurfaceConfigure(handle, &config);    
+        }
     }
     
     public void Unconfigure()

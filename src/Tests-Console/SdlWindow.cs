@@ -176,15 +176,16 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private void ConfigureSurface(int pixelWidth, int pixelHeight)
     {
-        var surfaceConfig = new SurfaceConfiguration {
-            format      = wgpu!.SwapChainFormat,
-            usage       = WebGPU_native.TextureUsage_RenderAttachment,
+        var surfaceConfig = new WgpuSurfaceConfiguration {
+            device      = wgpu!.Device,
+            format      = wgpu.SwapChainFormat,
+            usage       = TextureUsage.RenderAttachment,
             alphaMode   = wgpu.AlphaMode,  // or CompositeAlphaMode.Opaque
-            width       = (uint)pixelWidth,
-            height      = (uint)pixelHeight,
+            width       = pixelWidth,
+            height      = pixelHeight,
             presentMode = PresentMode.Immediate // Fifo = VSync
-        }; 
-        wgpu.Surface.Configure(wgpu.Device, surfaceConfig);
+        };
+        wgpu.Surface.Configure(surfaceConfig);
     }
     
     private SDL.AppResult AppEvent(ref SDL.Event ev)
