@@ -183,8 +183,6 @@ public struct GpuDepthStencilState
     public  float               depthBiasSlopeScale;
     public  float               depthBiasClamp;
     
-    public GpuDepthStencilState() { }
-    
     internal readonly unsafe DepthStencilState GetNative() {
         var depthWrite = depthWriteEnabled.HasValue ? (depthWriteEnabled.Value ? OptionalBool.True : OptionalBool.False) : OptionalBool.Undefined;
         return new DepthStencilState {
@@ -215,8 +213,6 @@ public struct GpuVertexState
     /// so all compatible vertex buffers conform to the same structural layout contract.
     /// </summary>
     public  ValueArray<GpuVertexBufferLayout>  	buffers;
-    
-    public GpuVertexState() { }
     
     internal readonly unsafe VertexState GetNative(NativeAllocator allocator)
     {
