@@ -42,15 +42,6 @@ internal sealed class WgpuErrorHandler
     {
         var error = errorType;
         errorType = ErrorType.NoError;
-        throw new WgpuException (error, message);
-    }
-}
-
-public sealed class WgpuException : Exception
-{
-    public readonly ErrorType errorType;
-    
-    internal WgpuException (ErrorType errorType, string message) : base(message) {
-        this.errorType = errorType;
+        throw new GpuException (error, message);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Friflo.Vectorization.CPU;
 using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.Vectorization.WebGPU;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -139,7 +139,7 @@ public class Test_GPU_Exceptions : KernelBase
         context.PassBatching = PassBatching.None;
         Pattern.MultiplyAddKernel(inputSlice, outputSlice1, 42, outputSlice2);
 
-        var e = Assert.Throws<WgpuException>(() => {
+        var e = Assert.Throws<GpuException>(() => {
             ExpectedCommandBuffers++; // Symptom of root cause error
             context.Queue.ReadBuffers();
         })!;
