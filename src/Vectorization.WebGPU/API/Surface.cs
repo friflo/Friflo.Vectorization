@@ -28,7 +28,7 @@ public struct WgpuSurfaceConfiguration
 
 // --- Windows
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct SurfaceDescriptorFromWindowsHWND
+public unsafe struct WgpuSurfaceDescriptorFromWindowsHWND
 {
     public ChainedStruct    chain;
     public void*            hinstance;
@@ -37,7 +37,7 @@ public unsafe struct SurfaceDescriptorFromWindowsHWND
 
 // --- macOS
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct SurfaceDescriptorFromMetalLayer {
+public unsafe struct WgpuSurfaceDescriptorFromMetalLayer {
     public ChainedStruct    chain;
     public void*            layer; // CAMetalLayer (metalLayer)
 }
@@ -189,7 +189,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
     
     public static WgpuSurface CreateFromHwnd(WgpuInstance instance, nint hwnd, nint hInstance)
     {
-        var winDesc = new SurfaceDescriptorFromWindowsHWND {
+        var winDesc = new WgpuSurfaceDescriptorFromWindowsHWND {
             chain = new ChainedStruct {
                 next  = null,
                 sType = SType.SurfaceSourceWindowsHWND
@@ -212,7 +212,7 @@ public readonly unsafe struct WgpuSurface(Surface* handle) : IDisposable
         nint nsView                 = MacNative.ObjCMsgSend(nsWindow, contentViewSelector);
         nint metalLayer             = MacNative.PrepareNsViewForWgpu(nsView);
         
-        var macDesc = new SurfaceDescriptorFromMetalLayer {
+        var macDesc = new WgpuSurfaceDescriptorFromMetalLayer {
             chain = new ChainedStruct {
                 next  = null,
                 sType = SType.SurfaceSourceMetalLayer
