@@ -47,7 +47,7 @@ public partial class TexturedCube : IRenderer
 
         
         // --- Cube Vertex Buffer Config
-        verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
+        verticesBuffer = device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write();
         
         var desc = wgpu.Config.Descriptor;

@@ -31,13 +31,14 @@ public partial class InstancedCube : IRenderer
     public InstancedCube(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
+        var device  = wgpu.Device;
         
         // --- Cube Vertex Buffer Config
-        verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
+        verticesBuffer = device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write();
         
         var bufferType  = useUniformBuffer ? BufferType.Uniform : BufferType.Storage;
-        mvpMatricesData = wgpu.Device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, bufferType);
+        mvpMatricesData = device.CreateBuffer<Matrix4x4>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, bufferType);
         const float step = 4.0f;
 
         // Initialize the matrix data for every instance.
