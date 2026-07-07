@@ -10,8 +10,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
-
+namespace Friflo.Vectorization.WebGPU.Runtime {
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal struct PipelineCaches
@@ -85,6 +84,11 @@ public abstract class BindGroupCache
     }
 }
 
+}
+
+
+namespace Friflo.Vectorization.WebGPU {
+
 public sealed partial  class WgpuDevice
 {
     // --------------------- shaderEffectSlots ---------------------
@@ -139,3 +143,4 @@ public sealed partial  class WgpuDevice
     }
 }
 
+}

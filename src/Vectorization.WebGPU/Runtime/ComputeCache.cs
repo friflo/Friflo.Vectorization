@@ -6,7 +6,7 @@ using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.Vectorization.WebGPU.Runtime {
 
 
 /// <summary>
@@ -40,7 +40,11 @@ public readonly unsafe struct ComputeCache
     }
 }
 
+}
 
+
+
+namespace Friflo.Vectorization.WebGPU {
 
 public sealed partial  class WgpuDevice
 {
@@ -58,7 +62,7 @@ public sealed partial  class WgpuDevice
         return ref MissingComputeCache;
     }
     
-    private static ComputeCache MissingComputeCache;
+    private static readonly ComputeCache MissingComputeCache = default;
     
     public ref readonly ComputeCache CreatePipelineCache(
         int                 kernelId,
@@ -78,3 +82,4 @@ public sealed partial  class WgpuDevice
     }
 }
 
+}
