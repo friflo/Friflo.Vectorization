@@ -16,7 +16,7 @@ namespace TestConsole;
 public interface IRenderer
 {
     public void OnWindowChanged(int width, int height) { }
-    public void OnFrame        (in RenderFrame frame, int width, int height);
+    public void OnFrame        (in RenderFrame frame);
     public void OnShutdown();
 }
 
@@ -194,11 +194,11 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult IterateSdl3()
     {
-        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface);
+        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface, wgpu.Width, wgpu.Height);
         if (frame.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
-        renderer?.OnFrame(frame, wgpu!.Width, wgpu.Height);
+        renderer?.OnFrame(frame);
         
         wgpu.Context.Queue.Submit();
         wgpu.Surface.Present();

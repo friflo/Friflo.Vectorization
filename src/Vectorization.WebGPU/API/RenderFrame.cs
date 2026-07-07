@@ -23,7 +23,7 @@ namespace Friflo.Vectorization.WebGPU;
 
 public static partial class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, int width, int height)
     {
         if (surface.handle == null) {
             throw new InvalidOperationException("WgpuSurface is null");
@@ -32,12 +32,12 @@ public static partial class WgpuExtensions
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
         if (surfaceTexture.texture == null) {
-            return new RenderFrame(default, null, surfaceTexture.status, null);  //   surfaceTexture.texture == null   if window minimized
+            return new RenderFrame(default, null, surfaceTexture.status, null, width, height);  //   surfaceTexture.texture == null   if window minimized
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new GpuTextureView(handle, null);
         
-        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder);
+        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, width, height);
     }
 }
 
@@ -147,6 +147,8 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
     public   readonly   GpuTextureView                  View;
+    public   readonly   int                             Width;
+    public   readonly   int                             Height;
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
@@ -154,11 +156,13 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 
     public   override   string                          ToString()  => TextureStatus.ToString(); 
 
-    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder) {
+    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, int width, int height) {
         View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;
         this.recorder       = recorder;
+        Width               = width;
+        Height              = height;
     }
 
     // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.

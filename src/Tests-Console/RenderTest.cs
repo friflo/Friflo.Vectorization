@@ -61,7 +61,7 @@ public partial class RenderTest : IRenderer
         };
     }
     
-    public virtual void OnFrame(in RenderFrame frame, int width, int height)
+    public virtual void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
@@ -70,7 +70,7 @@ public partial class RenderTest : IRenderer
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-        wormhood.IResolution    = new Vector3(width, height, 1.0f);
+        wormhood.IResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
         wormhood.ITime          = time;
         
         Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);

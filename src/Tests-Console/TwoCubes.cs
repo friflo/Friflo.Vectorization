@@ -106,12 +106,12 @@ public partial class TwoCubes : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L191
-    public void OnFrame(in RenderFrame frame, int width, int height)
+    public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        UpdateTransformationMatrix(width, height, time);
+        UpdateTransformationMatrix(frame.Width, frame.Height, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         

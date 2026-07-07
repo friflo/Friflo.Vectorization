@@ -124,12 +124,12 @@ public partial class TexturedCube : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L179
-    public void OnFrame(in RenderFrame frame, int width, int height)
+    public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(width, height, time);
+        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
