@@ -20,6 +20,7 @@ public partial class ShadowMapping : IRenderer
     public void OnShutdown()
     {
         depthTexture?.Dispose();
+        sampler.Dispose();
         shadowDepthTexture.Dispose();
         indexBuffer.Dispose();
         vertexBuffer.Dispose();
@@ -139,7 +140,7 @@ public partial class ShadowMapping : IRenderer
     private   readonly  RenderConfig            renderConfig;
     private   readonly  GpuTextureView          shadowDepthTextureView;              
     private   readonly  PerfLog                 perfLog             = new();
-    private   readonly  Scene                   scene;
+    private             Scene                   scene;
     private   readonly  Model                   model = new() { modelMatrix = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0)) };
     
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
@@ -197,6 +198,7 @@ public partial class ShadowMapping : IRenderer
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         var cameraViewProj = GetCameraViewProjMatrix(frame.Width, frame.Height, time);
+        scene.cameraViewProjMatrix = cameraViewProj;
 
         using (var pass = frame.BeginRenderPass(shadowPassDescriptor)) {
             Shadow(pass, shadowConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
