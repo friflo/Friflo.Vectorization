@@ -105,15 +105,15 @@ public sealed class DrawFirstInstanceAttribute : Attribute;
 /// <c>[VertexBuffer(0)] InBuffer&lt;float&gt; vertexBuffer, // slot = 0</c>
 /// <code>
 /// desc.VertexState.buffers = [
-///     new WgpuVertexBufferLayout {  // buffers[0]  ->  slot = 0
+///     new GpuVertexBufferLayout {  // buffers[0]  ->  slot = 0
 ///         arrayStride = Cube.cubeVertexSize,
 ///         attributes = [
-///             new WgpuVertexAttribute {
+///             new GpuVertexAttribute {
 ///                 shaderLocation = 0,     // WGSL: @location(0) position : vec4f (Im Shader)
 ///                 offset = Cube.cubePositionOffset,
 ///                 format = VertexFormat.Float32x4
 ///             },
-///             new WgpuVertexAttribute {
+///             new GpuVertexAttribute {
 ///                 shaderLocation = 1,     // WGSL: @location(1) uv       : vec2f (Im Shader)
 ///                 offset = Cube.cubeUVOffset,
 ///                 format = VertexFormat.Float32x2

@@ -192,9 +192,9 @@ public sealed partial class ShaderGen
                 case "global::Friflo.Vectorization.WebGPU.BindUniformAttribute":            return CsParamAttribute.BindUniform;
                 case "global::Friflo.Vectorization.WebGPU.BindIndexAttribute":              return CsParamAttribute.BindIndex;
                 //
-                case "global::Friflo.Vectorization.WebGPU.SamplerFiltering":                return CsParamAttribute.SamplerFiltering;
-                case "global::Friflo.Vectorization.WebGPU.SamplerNonFiltering":             return CsParamAttribute.SamplerNonFiltering;
-                case "global::Friflo.Vectorization.WebGPU.SamplerComparison":               return CsParamAttribute.SamplerComparison;
+                case "global::Friflo.Vectorization.WebGPU.SamplerFilteringAttribute":       return CsParamAttribute.SamplerFiltering;
+                case "global::Friflo.Vectorization.WebGPU.SamplerNonFilteringAttribute":    return CsParamAttribute.SamplerNonFiltering;
+                case "global::Friflo.Vectorization.WebGPU.SamplerComparisonAttribute":      return CsParamAttribute.SamplerComparison;
                 //
                 case "global::Friflo.Vectorization.WebGPU.texture_1d":                      return CsParamAttribute.texture_1d;
                 case "global::Friflo.Vectorization.WebGPU.texture_2d":                      return CsParamAttribute.texture_2d;

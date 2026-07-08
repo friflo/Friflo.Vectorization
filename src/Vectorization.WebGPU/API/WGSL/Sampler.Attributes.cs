@@ -17,10 +17,10 @@ namespace Friflo.Vectorization.WebGPU;
 /// WGSL: Sampler Types
 /// </a></b><br/>
 /// <b><c>sampler</c></b><br/>
-/// - <see cref="SamplerFiltering"/><br/>
-/// - <see cref="SamplerNonFiltering"/><br/>
+/// - <see cref="SamplerFilteringAttribute"/><br/>
+/// - <see cref="SamplerNonFilteringAttribute"/><br/>
 /// <b><c>sampler_comparison</c></b><br/>
-/// - <see cref="SamplerComparison"/><br/>
+/// - <see cref="SamplerComparisonAttribute"/><br/>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public abstract class SamplerTypeAttribute : Attribute;
@@ -28,22 +28,22 @@ public abstract class SamplerTypeAttribute : Attribute;
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerFiltering : SamplerTypeAttribute
+public sealed class SamplerFilteringAttribute : SamplerTypeAttribute
 {
-    public SamplerFiltering (int group, int binding) { }
+    public SamplerFilteringAttribute (int group, int binding) { }
 }
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerNonFiltering : SamplerTypeAttribute
+public sealed class SamplerNonFilteringAttribute : SamplerTypeAttribute
 {
-    public SamplerNonFiltering (int group, int binding) { }
+    public SamplerNonFilteringAttribute (int group, int binding) { }
 }
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler_comparison</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerComparison : SamplerTypeAttribute
+public sealed class SamplerComparisonAttribute : SamplerTypeAttribute
 {
-    public SamplerComparison (int group, int binding) { }
+    public SamplerComparisonAttribute (int group, int binding) { }
 }
 
