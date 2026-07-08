@@ -183,7 +183,7 @@ public sealed unsafe partial  class WgpuDevice
         bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
             binding = (uint)bindGroupLayoutEntriesCount++,
             texture = new TextureBindingLayout {
-                sampleType      =  sampleType,
+                sampleType      = sampleType,
                 viewDimension   = viewDimension,
                 multisampled    = multisampled ? 1u : 0 
             }

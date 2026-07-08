@@ -144,7 +144,7 @@ public partial class ShadowMapping : IRenderer
     private   readonly  Model                   model = new() { modelMatrix = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0)) };
     
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
-    private             GpuRenderPassDescriptor shadowPassDescriptor= new() { colorAttachments = [ default ] };
+    private   readonly  GpuRenderPassDescriptor shadowPassDescriptor;
     private             GpuRenderPassDescriptor renderPassDescriptor= new() { colorAttachments = [ default ] };
 
     
@@ -176,15 +176,15 @@ public partial class ShadowMapping : IRenderer
     }
     
     // JS example:  ...
-    private Matrix4x4 GetCameraViewProjMatrix(float width, float height, float now)
+    private static Matrix4x4 GetCameraViewProjMatrix(float width, float height, float now)
     {
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(2f * MathF.PI / 5f, width / height, 1f, 2000f);
 
         var eyePosition = new Vector3(0, 50, -100);
         
-        var rad = MathF.PI * (now / 2000f);
-        var rotation = Matrix4x4.CreateRotationY(rad);
-        eyePosition = Vector3.Transform(eyePosition, rotation);
+        var rad         = MathF.PI * (now / 2000f); 
+        var rotation    = Matrix4x4.CreateRotationY(rad);
+        eyePosition     = Vector3.Transform(eyePosition, rotation);
 
         var viewMatrix = Matrix4x4.CreateLookAt(eyePosition, Vector3.Zero, Vector3.UnitY);
 
@@ -196,7 +196,7 @@ public partial class ShadowMapping : IRenderer
     {
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
-        var time = (float)stopwatch.Elapsed.TotalSeconds;
+        var time = (float)stopwatch.Elapsed.TotalMilliseconds;
         var cameraViewProj = GetCameraViewProjMatrix(frame.Width, frame.Height, time);
         scene.cameraViewProjMatrix = cameraViewProj;
 
@@ -211,22 +211,22 @@ public partial class ShadowMapping : IRenderer
     [NoEmit]
     [VertexShader  ("shaders/shadowMapping/vertexShadow.wgsl",  vert: "main")]
     public static partial void Shadow(RenderPass pass, RenderConfig config,
-                [BindUniform        (0, 0)]         in Scene            scene,
-                [BindUniform        (1, 0)]         in Model            model,
-                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
+                [BindUniform(0, 0)]     in Scene            scene,
+                [BindUniform(1, 0)]     in Model            model,
+                [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer]           InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
 
 	[VertexShader  ("shaders/shadowMapping/vertex.wgsl",    vert: "main")]
 	[FragmentShader("shaders/shadowMapping/fragment.wgsl",  frag: "main")]
     public static partial void Render(RenderPass pass, RenderConfig config,
-                [BindUniform        (0, 0)]         in Scene            scene,
-                [texture_depth_2d   (0, 1)]         GpuTextureView      textureView,
-                [SamplerComparison  (0, 2)]         GpuSampler          sampler,
-                [BindUniform        (1, 0)]         in Model            model,
-                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
+                [BindUniform      (0, 0)]   in Scene            scene,
+                [texture_depth_2d (0, 1)]   GpuTextureView      textureView,
+                [SamplerComparison(0, 2)]   GpuSampler          sampler,
+                [BindUniform      (1, 0)]   in Model            model,
+                [VertexBuffer(0)]           InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer]               InBuffer<ushort>    indexBuffer);
     
 
     [StructLayout(LayoutKind.Sequential)]

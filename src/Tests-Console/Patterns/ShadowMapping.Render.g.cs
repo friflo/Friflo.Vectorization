@@ -28,6 +28,7 @@ public partial class ShadowMapping
 		recorder.Init(Render_GPU_ShaderId, "Render_encoder"u8);
         
         recorder.RequireRead(verticesBuffer);
+        recorder.RequireRead(indexBuffer);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(Render_GPU_ShaderId, config, Render_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
