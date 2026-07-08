@@ -32,15 +32,15 @@ public struct WgpuSurfaceConfiguration
 public unsafe struct WgpuSurfaceDescriptorFromWindowsHWND
 {
     public ChainedStruct    chain;
-    public void*            hinstance;
-    public void*            hwnd;
+    public nint             hinstance;
+    public nint             hwnd;
 }
 
 // --- macOS
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct WgpuSurfaceDescriptorFromMetalLayer {
     public ChainedStruct    chain;
-    public void*            layer; // CAMetalLayer (metalLayer)
+    public nint             layer; // CAMetalLayer (metalLayer)
 }
 
 public readonly unsafe struct WgpuSurface : IDisposable
@@ -201,8 +201,8 @@ public readonly unsafe struct WgpuSurface : IDisposable
                 next  = null,
                 sType = SType.SurfaceSourceWindowsHWND
             },
-            hinstance = (void*)hInstance,
-            hwnd      = (void*)hwnd
+            hinstance = hInstance,
+            hwnd      = hwnd
         };
         var surfaceDesc = new SurfaceDescriptor {
             label       = default,
@@ -224,7 +224,7 @@ public readonly unsafe struct WgpuSurface : IDisposable
                 next  = null,
                 sType = SType.SurfaceSourceMetalLayer
             },
-            layer    = (void*)metalLayer,
+            layer = metalLayer,
         };
         var surfaceDesc = new SurfaceDescriptor {
             label       = default,
