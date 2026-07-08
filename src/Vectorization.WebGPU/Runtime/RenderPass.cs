@@ -95,8 +95,8 @@ public readonly unsafe ref struct RenderPassInternal
     
     public void Draw<T>(in InBuffer<T> buffer, int slot, RenderConfig config, int instanceCount, int firstVertex, int firstInstance) where T : unmanaged
     {
-        ulong size      = (ulong)(buffer.Length * sizeof(T)); // size in bytes
-        int vertexCount = (int)(size / config.Descriptor.VertexState.buffers[slot].arrayStride); // arrayStride == 0 should result in DivideByZeroException 
+        int size        = buffer.Length * sizeof(T); // size in bytes
+        int vertexCount = size / config.Descriptor.VertexState.buffers[slot].arrayStride; // arrayStride == 0 should result in DivideByZeroException 
         wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
     }
 

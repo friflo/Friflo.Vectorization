@@ -285,14 +285,14 @@ public struct GpuVertexBufferLayout : INativeSource<VertexBufferLayout>
 {
     public  nint                            nextInChain;
     public  VertexStepMode                  stepMode;
-    public  ulong                           arrayStride;
+    public  int                             arrayStride;
     public  ValueArray<GpuVertexAttribute> 	attributes;
     
     readonly unsafe VertexBufferLayout INativeSource<VertexBufferLayout>.GetNative(NativeAllocator allocator)
     {
         return new VertexBufferLayout {
             nextInChain     = (ChainedStruct*)nextInChain,
-            arrayStride     = arrayStride,
+            arrayStride     = (ulong)arrayStride,
             stepMode        = stepMode,
             attributeCount  = (uint)attributes.Length,
             attributes      = allocator.ArrayToNative<GpuVertexAttribute, VertexAttribute>(attributes)
@@ -305,16 +305,16 @@ public struct GpuVertexAttribute : INativeSource<VertexAttribute>
 {
     public  nint            nextInChain;
     public  VertexFormat    format;
-    public  ulong           offset;
-    public  uint            shaderLocation;
+    public  int             offset;
+    public  int             shaderLocation;
   
     readonly unsafe VertexAttribute INativeSource<VertexAttribute>.GetNative(NativeAllocator allocator)
     {
         return new VertexAttribute {
             nextInChain     = (ChainedStruct*)nextInChain,
             format          = format,
-            offset          = offset,
-            shaderLocation  = shaderLocation,
+            offset          = (ulong)offset,
+            shaderLocation  = (uint)shaderLocation,
         };
     }
 }

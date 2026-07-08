@@ -33,7 +33,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Assets/img/Di-3d.png" />      
+      <EmbeddedResource Include="Assets/img/Di-3d.png" />
+      <EmbeddedResource Include="Assets/**/*.bin" />
     </ItemGroup>
     
     <ItemGroup>

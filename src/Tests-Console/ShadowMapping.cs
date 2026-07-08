@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
@@ -9,38 +10,73 @@ namespace TestConsole;
 public partial class ShadowMapping : IRenderer
 {
     // --- IDisposable fields
-    private readonly    GpuBuffer<float>    verticesBuffer;
+    private readonly    GpuBuffer<Vector3>  vertexBuffer;
+    private readonly    GpuBuffer<ushort>   indexBuffer;
+    private readonly    GpuTexture          shadowDepthTexture;
+    
     private             GpuTexture?         depthTexture;
     
     public void OnShutdown()
     {
         depthTexture?.Dispose();
-        verticesBuffer.Dispose();
+        shadowDepthTexture.Dispose();
+        indexBuffer.Dispose();
+        vertexBuffer.Dispose();
     }
     
     public ShadowMapping(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
+        var device  = wgpu.Device;
         
-        // --- Cube Vertex Buffer Config
-        verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
-        verticesBuffer.In().Write();
+        var mesh = StanfordDragon.LoadMeshAsync().Result;
+        
+        // JS example:  https://github.com/EmilSV/Webgpusharp-examples/blob/main/GraphicsTechniques/ShadowMapping/Program.cs#L78
+        // Create the model vertex buffer.
+        vertexBuffer = device.CreateBuffer<Vector3>(2 * mesh.positions.Length, default, "vertexBuffer", BufferProfile.StaticIn, BufferType.Vertex);
+        var vertexMapping = vertexBuffer.In().Write().Span;
+        for (int i = 0; i < mesh.positions.Length; ++i) {
+            vertexMapping[2 * i]      = mesh.positions[i];
+            vertexMapping[2 * i + 1]  = mesh.normals[i];
+        }
+        
+        // Create the model index buffer.
+        indexBuffer = device.CreateBuffer<ushort>(3 * mesh.triangles.Length, 0, "indexBuffer", BufferProfile.StaticIn, BufferType.Index);
+        var indexMapping = indexBuffer.In().Write().Span;
+        for (int i = 0; i < mesh.triangles.Length; i++) {
+            indexMapping[3 * i + 0] = (ushort)mesh.triangles[i].X;
+            indexMapping[3 * i + 1] = (ushort)mesh.triangles[i].Y;
+            indexMapping[3 * i + 2] = (ushort)mesh.triangles[i].Z;
+        }
+        
+        // Create the depth texture for rendering/sampling the shadow map.
+        const int shadowDepthTextureSize = 1024;
+        shadowDepthTexture = device.CreateTexture(new GpuTextureDescriptor {
+          size      = [shadowDepthTextureSize, shadowDepthTextureSize, 1],
+          usage     = TextureUsage.RenderAttachment | TextureUsage.TextureBinding,
+          format    = TextureFormat.Depth32Float
+        });
+        shadowDepthTextureView = shadowDepthTexture.CreateView();
+        
         
         var desc = wgpu.Config.Descriptor;
-        // JS example:  ...
+        // Create some common descriptors used for both the shadow pipeline
+        // and the color rendering pipeline.
         desc.VertexState.buffers = [
-            new GpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
-                arrayStride = Cube.cubeVertexSize,
+            new GpuVertexBufferLayout {
+                arrayStride = Marshal.SizeOf<Vector3>() * 2,
                 attributes = [
                     new GpuVertexAttribute {
-                        shaderLocation = 0, // basic.vert.wgsl:  @location(0) position : vec4f
-                        offset = Cube.cubePositionOffset,
-                        format = VertexFormat.Float32x4
+                        // position
+                        shaderLocation  = 0,
+                        offset          = 0,
+                        format          = VertexFormat.Float32x4
                     },
                     new GpuVertexAttribute {
-                        shaderLocation = 1, // basic.vert.wgsl:  @location(1) uv : vec2f
-                        offset = Cube.cubeUVOffset,
-                        format = VertexFormat.Float32x2
+                        // normal
+                        shaderLocation  = 1,
+                        offset          = Marshal.SizeOf<Vector3>(),
+                        format          = VertexFormat.Float32x2
                     },
                 ]
         }];
@@ -48,15 +84,12 @@ public partial class ShadowMapping : IRenderer
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.Back
         };
-        desc.DepthStencilState = new GpuDepthStencilState {
-            depthWriteEnabled   = true,
-            depthCompare        = CompareFunction.Less,
-            format              = TextureFormat.Depth24Plus
-        };
-        config = desc.CreateConfig("Cube Vertex Config");
+
+        config = desc.CreateConfig("ShadowMapping Config");
     }
 
     // --- non-disposable fields
+    private   readonly  GpuTextureView          shadowDepthTextureView;
     private   readonly  Wgpu                    wgpu;
     private   readonly  RenderConfig            config;
     private   readonly  PerfLog                 perfLog             = new();
@@ -115,8 +148,8 @@ public partial class ShadowMapping : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
-        Render(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
-        Render(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
+        // Render(pass, config, vertexBuffer.In(), modelViewProjectionMatrix1);
+        // Render(pass, config, vertexBuffer.In(), modelViewProjectionMatrix2);
     }
     
     [NoEmit]
