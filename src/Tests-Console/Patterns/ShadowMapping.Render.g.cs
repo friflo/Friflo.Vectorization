@@ -11,10 +11,12 @@ namespace TestConsole;
 public partial class ShadowMapping
 {
     public static partial void Render(
-        RenderPass      pass,
-        RenderConfig    config,
-        InBuffer<float> verticesBuffer,
-        in Matrix4x4    modelViewProjectionMatrix)
+        RenderPass          pass,
+        RenderConfig        config,
+        in Scene            scene,
+        in Model            model,
+        InBuffer<Vector3>   verticesBuffer,
+        InBuffer<ushort>    indexBuffer)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));
@@ -29,12 +31,13 @@ public partial class ShadowMapping
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref Render_GPU_CreatePipelineCache(recorder.Device, config);
         }
+        return;
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
         var bindGroupCache = (Render_GPU_Cache)pipelineCache.bindGroupCache;
         
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "Render_bindGroup0"u8);
+    //  pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "Render_bindGroup0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
@@ -52,7 +55,8 @@ public partial class ShadowMapping
     }
     
     private static readonly int Render_GPU_ShaderId            =  ShaderRegistry.NewShaderId("Render");
-    private const  ulong        Render_GPU_layout_0_Key        =  0x4766;  // unique key set by Generator
+    private const  ulong        Render_GPU_layout_0_Key        =  0x2000;
+    private const  ulong        Render_GPU_layout_1_Key        =  0x2001;
     
     private static ulong        Render_GPU_WgslHash            => 0x1266;  // support Hot-Relead
     

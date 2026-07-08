@@ -99,7 +99,7 @@ public partial class InstancedCube : IRenderer
     
     public void OnWindowChanged(int width, int height)
     {
-        depthTexture?.Dispose(); // create new depthTexture with different width & height
+        depthTexture?.Dispose();
         depthTexture = wgpu.Device.CreateTexture(new GpuTextureDescriptor {
             size    = [width, height],
             format  = TextureFormat.Depth24Plus,

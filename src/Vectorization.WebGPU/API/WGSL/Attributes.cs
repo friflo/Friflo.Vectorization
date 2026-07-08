@@ -129,6 +129,12 @@ public sealed class VertexBufferAttribute : Attribute
     public VertexBufferAttribute (int slot) { }
 }
 
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class IndexBufferAttribute : Attribute
+{
+    public IndexBufferAttribute (int slot) { }
+}
+
 /// <summary>
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>
 /// Vertices are fetched directly from an indexed buffer range, driven by the Draw() offset.

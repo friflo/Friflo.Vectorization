@@ -13,6 +13,7 @@ public partial class ShadowMapping : IRenderer
     private readonly    GpuBuffer<Vector3>  vertexBuffer;
     private readonly    GpuBuffer<ushort>   indexBuffer;
     private readonly    GpuTexture          shadowDepthTexture;
+    private readonly    GpuSampler          sampler;
     
     private             GpuTexture?         depthTexture;
     
@@ -56,13 +57,14 @@ public partial class ShadowMapping : IRenderer
           usage     = TextureUsage.RenderAttachment | TextureUsage.TextureBinding,
           format    = TextureFormat.Depth32Float
         });
-        shadowDepthTextureView = shadowDepthTexture.CreateView();
+        var shadowDepthTextureView = shadowDepthTexture.CreateView();
+        
+        sampler = device.CreateSampler(new GpuSamplerDescriptor { compare = CompareFunction.Less });
         
         
-        var desc = wgpu.Config.Descriptor;
         // Create some common descriptors used for both the shadow pipeline
         // and the color rendering pipeline.
-        desc.VertexState.buffers = [
+        var vertexBuffers = new[] {
             new GpuVertexBufferLayout {
                 arrayStride = Marshal.SizeOf<Vector3>() * 2,
                 attributes = [
@@ -79,35 +81,67 @@ public partial class ShadowMapping : IRenderer
                         format          = VertexFormat.Float32x2
                     },
                 ]
-        }];
-        desc.PrimitiveState = new GpuPrimitiveState {
+        }};
+        var primitive = new GpuPrimitiveState {
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.Back
         };
-
-        config = desc.CreateConfig("ShadowMapping Config");
+        
+        var shadowDesc = wgpu.Config.Descriptor;
+        shadowDesc.VertexState.buffers = vertexBuffers;
+        shadowDesc.DepthStencilState = new GpuDepthStencilState {
+            depthWriteEnabled   = true,
+            depthCompare        = CompareFunction.Less,
+            format              = TextureFormat.Depth32Float
+        };
+        shadowDesc.PrimitiveState = primitive;
+        shadowConfig = shadowDesc.CreateConfig("Shadow Config");
+        
+        var renderDesc = wgpu.Config.Descriptor;
+        renderDesc.VertexState.buffers = vertexBuffers;
+        renderDesc.FragmentState = new GpuFragmentState {
+            constants = [new GpuConstantEntry { key = "shadowDepthTextureSize", value = shadowDepthTextureSize }]
+        };
+        renderDesc.DepthStencilState = new GpuDepthStencilState {
+            depthWriteEnabled   = true,
+            depthCompare        = CompareFunction.Less,
+            format              = TextureFormat.Depth24PlusStencil8
+        };
+        renderDesc.PrimitiveState = primitive;
+        renderConfig = renderDesc.CreateConfig("Render Config");
+        
+        
+        shadowPassDescriptor = new GpuRenderPassDescriptor {
+            colorAttachments = [],
+            depthStencilAttachment = new GpuRenderPassDepthStencilAttachment {
+                view            = shadowDepthTextureView,
+                depthClearValue = 1.0f,
+                depthLoadOp     = LoadOp.Clear,
+                depthStoreOp    = StoreOp.Store
+            },
+        };
     }
 
     // --- non-disposable fields
-    private   readonly  GpuTextureView          shadowDepthTextureView;
     private   readonly  Wgpu                    wgpu;
-    private   readonly  RenderConfig            config;
+    private   readonly  RenderConfig            shadowConfig;
+    private   readonly  RenderConfig            renderConfig;
     private   readonly  PerfLog                 perfLog             = new();
-    private   readonly  Matrix4x4               modelMatrix1        = Matrix4x4.CreateTranslation(new Vector3(-2, 0, 0));
-    private   readonly  Matrix4x4               modelMatrix2        = Matrix4x4.CreateTranslation(new Vector3( 2, 0, 0));
-    private             Matrix4x4               modelViewProjectionMatrix1;
-    private             Matrix4x4               modelViewProjectionMatrix2;
-    private   readonly  Matrix4x4               viewMatrix          = Matrix4x4.CreateTranslation(new Vector3(0, 0, -7));
+    private   readonly  Matrix4x4               modelMatrix         = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0));
+    private             Scene                   scene;
+    private             Model                   model;
+    
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
+    private             GpuRenderPassDescriptor shadowPassDescriptor= new() { colorAttachments = [ default ] };
     private             GpuRenderPassDescriptor renderPassDescriptor= new() { colorAttachments = [ default ] };
 
     
     public void OnWindowChanged(int width, int height)
     {
-        depthTexture?.Dispose(); // create new depthTexture with different width & height
+        depthTexture?.Dispose();
         depthTexture = wgpu.Device.CreateTexture(new GpuTextureDescriptor {
             size    = [width, height],
-            format  = TextureFormat.Depth24Plus,
+            format  = TextureFormat.Depth24PlusStencil8,
             usage   = TextureUsage.RenderAttachment
         });
         
@@ -119,23 +153,30 @@ public partial class ShadowMapping : IRenderer
             storeOp     = StoreOp.Store
         };
         renderPassDescriptor.depthStencilAttachment = new GpuRenderPassDepthStencilAttachment {
-            view            = depthTexture.CreateView(),
-            depthClearValue = 1,
-            depthLoadOp     = LoadOp.Clear,
-            depthStoreOp    = StoreOp.Store
+            view                = depthTexture.CreateView(),
+            depthClearValue     = 1,
+            depthLoadOp         = LoadOp.Clear,
+            depthStoreOp        = StoreOp.Store,
+            stencilClearValue   = 0,
+            stencilLoadOp       = LoadOp.Clear,
+            stencilStoreOp      = StoreOp.Store
         };
     }
     
     // JS example:  ...
-    private void UpdateTransformationMatrix(float width, float height, float now)
+    private Matrix4x4 GetCameraViewProjMatrix(float width, float height, float now)
     {
-        var tmpMat41 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now), MathF.Cos(now), 0), 1f) * modelMatrix1;
-        var tmpMat42 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Cos(now), MathF.Sin(now), 0), 1f) * modelMatrix2;
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(2f * MathF.PI / 5f, width / height, 1f, 2000f);
+
+        var eyePosition = new Vector3(0, 50, -100);
         
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
-        
-        modelViewProjectionMatrix1 = tmpMat41 * viewMatrix * projectionMatrix;
-        modelViewProjectionMatrix2 = tmpMat42 * viewMatrix * projectionMatrix;
+        var rad = MathF.PI * (now / 2000f);
+        var rotation = Matrix4x4.CreateRotationY(rad);
+        eyePosition = Vector3.Transform(eyePosition, rotation);
+
+        var viewMatrix = Matrix4x4.CreateLookAt(eyePosition, Vector3.Zero, Vector3.UnitY);
+
+        return Matrix4x4.Multiply(viewMatrix, projectionMatrix);
     }
     
     // JS example:  ...
@@ -144,25 +185,44 @@ public partial class ShadowMapping : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        UpdateTransformationMatrix(frame.Width, frame.Height, time);
-        
-        using var pass = frame.BeginRenderPass(renderPassDescriptor);
-        
-        // Render(pass, config, vertexBuffer.In(), modelViewProjectionMatrix1);
-        // Render(pass, config, vertexBuffer.In(), modelViewProjectionMatrix2);
+        var cameraViewProj = GetCameraViewProjMatrix(frame.Width, frame.Height, time);
+
+        using (var pass = frame.BeginRenderPass(shadowPassDescriptor)) {
+            Shadow(pass, shadowConfig, scene, default, null!, model, vertexBuffer.In(), indexBuffer.In());
+        }
+        using (var pass = frame.BeginRenderPass(renderPassDescriptor)) {
+            Render(pass, renderConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
+        }
     }
     
     [NoEmit]
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
-	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void Render(RenderPass pass, RenderConfig config,
-        [Draw]  [VertexBuffer(0)]   InBuffer<float> verticesBuffer,
-                [BindUniform(0, 0)] in Matrix4x4    modelViewProjectionMatrix);
+	[VertexShader  ("shaders/shadowMapping/vertex.wgsl",    vert: "main")]
+	[FragmentShader("shaders/shadowMapping/fragment.wgsl",  frag: "main")]
+    public static partial void Shadow(RenderPass pass, RenderConfig config,
+                [BindUniform        (0, 0)]         in Scene            scene,
+                [texture_depth_2d   (0, 1)]         GpuTextureView      textureView,
+                [SamplerComparison  (0, 2)]         GpuSampler          sampler,
+                [BindUniform        (1, 0)]         in Model            model,
+                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer (0)]                   InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
-	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void Shadow(RenderPass pass, RenderConfig config,
-        [Draw]  [VertexBuffer(0)]   InBuffer<float> verticesBuffer,
-                [BindUniform(0, 0)] in Matrix4x4    modelViewProjectionMatrix);
+	[VertexShader  ("shaders/shadowMapping/vertexShadow.wgsl",  vert: "main")]
+    public static partial void Render(RenderPass pass, RenderConfig config,
+                [BindUniform        (0, 0)]         in Scene            scene,
+
+                [BindUniform        (1, 0)]         in Model            model,
+                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer(0)]                    InBuffer<ushort>    indexBuffer);
+    
+
+    public struct Scene {
+        Matrix4x4   lightViewProjMatrix;
+        Matrix4x4   cameraViewProjMatrix;
+        Vector3     lightPos;
+    }
+    
+    public struct Model {
+        Matrix4x4   modelMatrix;
+    }
 }
