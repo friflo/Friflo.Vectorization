@@ -27,23 +27,8 @@ public struct WgpuSurfaceConfiguration
     public  PresentMode         presentMode;
 }
 
-// --- Windows
-[StructLayout(LayoutKind.Sequential)]
-public unsafe struct WgpuSurfaceDescriptorFromWindowsHWND
-{
-    public ChainedStruct    chain;
-    public nint             hinstance;
-    public nint             hwnd;
-}
 
-// --- macOS
-[StructLayout(LayoutKind.Sequential)]
-public unsafe struct WgpuSurfaceDescriptorFromMetalLayer {
-    public ChainedStruct    chain;
-    public nint             layer; // CAMetalLayer (metalLayer)
-}
-
-public readonly unsafe struct WgpuSurface : IDisposable
+public readonly unsafe partial struct WgpuSurface : IDisposable
 {
     internal readonly   Surface*  handle;
     
@@ -60,25 +45,13 @@ public readonly unsafe struct WgpuSurface : IDisposable
         wgpuSurfacePresent(handle);
     }
     
-    public WgpuSurfaceCapabilities GetSurfaceCapabilities(WgpuAdapter adapter)
-    {
-        var cap = new SurfaceCapabilities();
-        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &cap);
-        var capabilities = new WgpuSurfaceCapabilities( cap.usages,
-            ToArray(cap.formatCount,        cap.formats),
-            ToArray(cap.presentModeCount,   cap.presentModes),
-            ToArray(cap.alphaModeCount,     cap.alphaModes));
-        wgpuSurfaceCapabilitiesFreeMembers(cap);
-        return capabilities;
-    }
-    
     /// <summary> Used to return the optimal <see cref="GpuFragmentState"/> for your adapter. </summary>
     /// <remarks>
     /// Intended usage
     /// <code>
-    ///     var fragmentState   = surface.GetPreferredFragmentState(adapter, true);
+    ///     var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
     ///     var swapChainFormat = fragmentState.targets[0].format; 
-    ///     var desc            = new WgpuRenderPipelineDescriptor { FragmentState = fragmentState };
+    ///     var desc            = new GpuRenderPipelineDescriptor { FragmentState = fragmentState };
     ///     var config          = desc.CreateConfig("render config");
     /// </code>
     /// Use <c>swapChainFormat</c> in the <c>SurfaceConfiguration</c> passed to <see cref="Configure"/>.
@@ -128,22 +101,11 @@ public readonly unsafe struct WgpuSurface : IDisposable
         };
     }
     
-    private static T[] ToArray<T>(nuint count, T* ptr) where T : unmanaged {
-        if (count == 0) {
-            return [];
-        }
-        var arr = new T[count];
-        for (int i = 0; i < (int)count; i++) {
-            arr[i] = ptr[i];
-        }
-        return arr;
-    }
-    
     /// <remarks>
     /// Typical configuration
     /// <code>
     ///     var surfaceConfig = new SurfaceConfiguration {
-    ///         format      = swapChainFormat,      // see: WgpuSurface.GetPreferredFragmentState()
+    ///         format      = swapChainFormat,      // see: GpuSurface.GetPreferredFragmentState()
     ///         usage       = WebGPU_native.TextureUsage_RenderAttachment,
     ///         alphaMode   = CompositeAlphaMode.Opaque,
     ///         width       = (uint)pixelWidth,
@@ -182,7 +144,6 @@ public readonly unsafe struct WgpuSurface : IDisposable
         wgpuSurfaceUnconfigure(handle);
     }
     
-    
     public static WgpuSurface CreateFromNativeWindow(WgpuInstance instance, nint hwnd, nint hInstance)
     {
         if (OperatingSystem.IsWindows()) {
@@ -194,48 +155,30 @@ public readonly unsafe struct WgpuSurface : IDisposable
         throw new NotImplementedException($"no code to get WgpuSurface for OS: {RuntimeInformation.OSDescription}");
     }
     
-    public static WgpuSurface CreateFromHwnd(WgpuInstance instance, nint hwnd, nint hInstance)
-    {
-        var winDesc = new WgpuSurfaceDescriptorFromWindowsHWND {
-            chain = new ChainedStruct {
-                next  = null,
-                sType = SType.SurfaceSourceWindowsHWND
-            },
-            hinstance = hInstance,
-            hwnd      = hwnd
-        };
-        var surfaceDesc = new SurfaceDescriptor {
-            label       = default,
-            nextInChain = (ChainedStruct*)&winDesc
-        };
-        var surfaceHandle = wgpuInstanceCreateSurface(instance.instance, &surfaceDesc);
-        
-        return new WgpuSurface(surfaceHandle);
+    private static T[] ToArray<T>(nuint count, T* ptr) where T : unmanaged {
+        if (count == 0) {
+            return [];
+        }
+        var arr = new T[count];
+        for (int i = 0; i < (int)count; i++) {
+            arr[i] = ptr[i];
+        }
+        return arr;
     }
     
-    public static WgpuSurface SurfaceDescriptorFromCocoaWindow(WgpuInstance instance, nint nsWindow)
+    public WgpuSurfaceCapabilities GetSurfaceCapabilities(WgpuAdapter adapter)
     {
-        nint contentViewSelector    = MacNative.SelRegisterName("contentView");
-        nint nsView                 = MacNative.ObjCMsgSend(nsWindow, contentViewSelector);
-        nint metalLayer             = MacNative.PrepareNsViewForWgpu(nsView);
-        
-        var macDesc = new WgpuSurfaceDescriptorFromMetalLayer {
-            chain = new ChainedStruct {
-                next  = null,
-                sType = SType.SurfaceSourceMetalLayer
-            },
-            layer = metalLayer,
-        };
-        var surfaceDesc = new SurfaceDescriptor {
-            label       = default,
-            nextInChain = (ChainedStruct*)&macDesc
-        };
-    
-        var surfaceHandle = wgpuInstanceCreateSurface(instance.instance, &surfaceDesc);
-    
-        return new WgpuSurface(surfaceHandle);
+        var cap = new SurfaceCapabilities();
+        wgpuSurfaceGetCapabilities(handle, adapter.adapter, &cap);
+        var capabilities = new WgpuSurfaceCapabilities( cap.usages,
+            ToArray(cap.formatCount,        cap.formats),
+            ToArray(cap.presentModeCount,   cap.presentModes),
+            ToArray(cap.alphaModeCount,     cap.alphaModes));
+        wgpuSurfaceCapabilitiesFreeMembers(cap);
+        return capabilities;
     }
 }
+
 
 /// <summary> Managed type for <see cref="SurfaceCapabilities"/> </summary>
 public readonly struct WgpuSurfaceCapabilities
@@ -253,87 +196,3 @@ public readonly struct WgpuSurfaceCapabilities
         this.alphaModes     = alphaModes;
     }
 }
-
-
-internal static class MacNative
-{
-    internal static IntPtr PrepareNsViewForWgpu(IntPtr nsView)
-    {
-        if (nsView == IntPtr.Zero) return IntPtr.Zero;
-
-        nint setWantsLayerSel = SelRegisterName("setWantsLayer:");
-        ObjCMsgSend_Bool(nsView, setWantsLayerSel, true);
-
-        nint caMetalLayerClass = ObjCGetClass("CAMetalLayer");
-        /* if (caMetalLayerClass == IntPtr.Zero) {
-            nint dl = dlopen("/System/Library/Frameworks/QuartzCore.framework/QuartzCore", 1);
-            caMetalLayerClass = ObjCGetClass("CAMetalLayer");
-        } */
-        nint allocSel   = SelRegisterName("alloc");
-        nint initSel    = SelRegisterName("init");
-    
-        nint metalLayerAlloc    = ObjCMsgSend(caMetalLayerClass, allocSel);
-        nint metalLayer         = ObjCMsgSend(metalLayerAlloc, initSel);
-
-        if (metalLayer == IntPtr.Zero) {
-            throw new Exception("failed to initialize CAMetalLayer");
-        }
-        nint setLayerSel = SelRegisterName("setLayer:");
-        ObjCMsgSend_IntPtr(nsView, setLayerSel, metalLayer);
-
-        return metalLayer; 
-    }
-    
-    
-    private const string ObjCRuntime = "/usr/lib/libobjc.A.dylib";
-    
-    [DllImport(ObjCRuntime, EntryPoint = "sel_registerName")]
-    internal static extern IntPtr SelRegisterName(string name);
-
-    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
-    internal static extern IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector);
-    
-    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
-    internal static extern void ObjCMsgSend_IntPtr(IntPtr receiver, IntPtr selector, IntPtr argument);
-    
-    // overload for boolean parameter (required for setWantsLayer:)
-    [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
-    internal static extern void ObjCMsgSend_Bool(IntPtr receiver, IntPtr selector, bool value);
-
-    // used to find CAMetalLayer class
-    [DllImport(ObjCRuntime, EntryPoint = "objc_getClass")]
-    internal static extern IntPtr ObjCGetClass(string name);
-    
-    [DllImport("libdl.dylib")]
-    internal static extern IntPtr dlopen(string filename, int flags);
-}
-
-/*
-//  Usage:
-// var hInstance   = Windowing.GetModuleHandleW(null);
-// var hwnd        = Windowing.CreateWindowExW(0, "Static", "wgpu", 0x10CF0000, 100, 100, width, height, 0, 0, hInstance, 0);
-
-public static unsafe class Windowing
-{
-    public static nint CreateWindowExW(
-        uint dwExStyle, string lpClassName, string lpWindowName, uint dwStyle, int x, int y, int nWidth, int nHeight, 
-        nint hWndParent, nint hMenu, nint hInstance, nint lpParam)
-    {
-        return (nint)Win32Native.CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight,
-            (void*)hWndParent, (void*)hMenu, (void*)hInstance, (void*)lpParam);
-    }
-
-    public static nint GetModuleHandleW(string lpModuleName) => (nint)Win32Native.GetModuleHandleW(lpModuleName);
-}
-
-internal static unsafe class Win32Native
-{
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern void* CreateWindowExW(
-        uint dwExStyle, string lpClassName, string lpWindowName, uint dwStyle, int x, int y, int nWidth, int nHeight, 
-        void* hWndParent, void* hMenu, void* hInstance, void* lpParam);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    public static extern void* GetModuleHandleW(string lpModuleName);
-}
-*/
