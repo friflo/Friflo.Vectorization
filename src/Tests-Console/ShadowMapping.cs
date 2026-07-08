@@ -79,7 +79,7 @@ public partial class ShadowMapping : IRenderer
                         // normal
                         shaderLocation  = 1,
                         offset          = Marshal.SizeOf<Vector3>(),
-                        format          = VertexFormat.Float32x2
+                        format          = VertexFormat.Float32x3
                     },
                 ]
         }};
