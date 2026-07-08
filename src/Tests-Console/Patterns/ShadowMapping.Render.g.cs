@@ -53,10 +53,12 @@ public partial class ShadowMapping
         // --- bind group 1
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, model, pipelineCache, "Render_bindGroup0"u8);
         
-        pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
-   
+        pass_.SetVertexBuffer(verticesBuffer, 0);
+        
+        pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
+        
         // --- draw
-        // pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
+        pass_.DrawIndexed(indexBuffer.Length, 0, 0, 0, 0);
 	}
     
     private sealed class Render_GPU_Cache : BindGroupCache

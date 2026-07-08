@@ -93,6 +93,20 @@ public readonly unsafe ref struct RenderPassInternal
         wgpuRenderPassEncoderSetVertexBuffer(handle, (uint)slot, (Buffer*)buffer.Buffer.NativeHandle, offset, size);
     }
     
+    public void SetIndexBuffer<T>(in InBuffer<T> buffer, IndexFormat format) where T : unmanaged
+    {
+        ulong offset = (ulong)(buffer.Offset * sizeof(T)); // size in bytes
+        ulong size   = (ulong)(buffer.Length * sizeof(T)); // size in bytes
+        
+        wgpuRenderPassEncoderSetIndexBuffer(handle, (Buffer*)buffer.Buffer.NativeHandle, format, offset, size);
+    }
+    
+    public void DrawIndexed(int indexCount, int instanceCount, int firstIndex, int baseVertex, int firstInstance)
+    {
+        wgpuRenderPassEncoderDrawIndexed(handle, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, baseVertex, (uint)firstInstance);
+    }
+    
+    
     public void Draw<T>(in InBuffer<T> buffer, int slot, RenderConfig config, int instanceCount, int firstVertex, int firstInstance) where T : unmanaged
     {
         int size        = buffer.Length * sizeof(T); // size in bytes
