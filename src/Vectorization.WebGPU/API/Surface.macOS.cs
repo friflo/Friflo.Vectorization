@@ -84,15 +84,15 @@ internal static class MacNative
     internal static extern IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector);
     
     [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
-    internal static extern void ObjCMsgSend_IntPtr(IntPtr receiver, IntPtr selector, IntPtr argument);
+    private static extern void ObjCMsgSend_IntPtr(IntPtr receiver, IntPtr selector, IntPtr argument);
     
     // overload for boolean parameter (required for setWantsLayer:)
     [DllImport(ObjCRuntime, EntryPoint = "objc_msgSend")]
-    internal static extern void ObjCMsgSend_Bool(IntPtr receiver, IntPtr selector, bool value);
+    private static extern void ObjCMsgSend_Bool(IntPtr receiver, IntPtr selector, bool value);
 
     // used to find CAMetalLayer class
     [DllImport(ObjCRuntime, EntryPoint = "objc_getClass")]
-    internal static extern IntPtr ObjCGetClass(string name);
+    private static extern IntPtr ObjCGetClass(string name);
     
     [DllImport("libdl.dylib")]
     internal static extern IntPtr dlopen(string filename, int flags);
