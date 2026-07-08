@@ -14,6 +14,8 @@ public partial class ShadowMapping
         RenderPass          pass,
         RenderConfig        config,
         in Scene            scene,
+        GpuTextureView      textureView,
+        GpuSampler          sampler,
         in Model            model,
         InBuffer<Vector3>   verticesBuffer,
         InBuffer<ushort>    indexBuffer)
@@ -64,13 +66,22 @@ public partial class ShadowMapping
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache Render_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(Render_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
+            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, false);
+            device.BindGroupLayoutSampler(SamplerBindingType.Comparison);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, Render_GPU_layout_0_Key, "Render_layout_0"u8);
         }
         layouts[0] = layout_0;
+        
+        var layout_1 = device.GetBindGroupLayout(Render_GPU_layout_1_Key);
+        if (!layout_1.IsCreated) {
+            device.BindGroupLayoutUniform();
+            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, Render_GPU_layout_1_Key, "Render_layout_1"u8);
+        }
+        layouts[1] = layout_1;
         
         using var vsModule = device.CreateShaderModule(Render_GPU_VertexShader(),   "Render_VertexShader"u8);
         using var fsModule = device.CreateShaderModule(Render_GPU_FragmentShader(), "Render_FragmentShader"u8);
@@ -81,6 +92,6 @@ public partial class ShadowMapping
         return ref device.CreatePipelineCache(Render_GPU_ShaderId, config, Render_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> Render_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/basic.vert.wgsl");
-    private static ReadOnlySpan<byte> Render_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/vertexPositionColor.frag.wgsl");
+    private static ReadOnlySpan<byte> Render_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/shadowMapping/vertex.wgsl");
+    private static ReadOnlySpan<byte> Render_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/shadowMapping/fragment.wgsl");
 }

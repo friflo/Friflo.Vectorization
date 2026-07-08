@@ -87,7 +87,7 @@ public partial class ShadowMapping : IRenderer
             cullMode    = CullMode.Back
         };
         
-        var shadowDesc = wgpu.Config.Descriptor;
+        var shadowDesc = new GpuRenderPipelineDescriptor();
         shadowDesc.VertexState.buffers = vertexBuffers;
         shadowDesc.DepthStencilState = new GpuDepthStencilState {
             depthWriteEnabled   = true,
@@ -188,29 +188,29 @@ public partial class ShadowMapping : IRenderer
         var cameraViewProj = GetCameraViewProjMatrix(frame.Width, frame.Height, time);
 
         using (var pass = frame.BeginRenderPass(shadowPassDescriptor)) {
-            Shadow(pass, shadowConfig, scene, default, null!, model, vertexBuffer.In(), indexBuffer.In());
+            Shadow(pass, shadowConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
         }
         using (var pass = frame.BeginRenderPass(renderPassDescriptor)) {
-            Render(pass, renderConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
+            Render(pass, renderConfig, scene, default, null!, model, vertexBuffer.In(), indexBuffer.In());
         }
     }
     
     [NoEmit]
-	[VertexShader  ("shaders/shadowMapping/vertex.wgsl",    vert: "main")]
-	[FragmentShader("shaders/shadowMapping/fragment.wgsl",  frag: "main")]
+    [VertexShader  ("shaders/shadowMapping/vertexShadow.wgsl",  vert: "main")]
     public static partial void Shadow(RenderPass pass, RenderConfig config,
                 [BindUniform        (0, 0)]         in Scene            scene,
-                [texture_depth_2d   (0, 1)]         GpuTextureView      textureView,
-                [SamplerComparison  (0, 2)]         GpuSampler          sampler,
                 [BindUniform        (1, 0)]         in Model            model,
                 [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
         [Draw]  [IndexBuffer (0)]                   InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
-	[VertexShader  ("shaders/shadowMapping/vertexShadow.wgsl",  vert: "main")]
+
+	[VertexShader  ("shaders/shadowMapping/vertex.wgsl",    vert: "main")]
+	[FragmentShader("shaders/shadowMapping/fragment.wgsl",  frag: "main")]
     public static partial void Render(RenderPass pass, RenderConfig config,
                 [BindUniform        (0, 0)]         in Scene            scene,
-
+                [texture_depth_2d   (0, 1)]         GpuTextureView      textureView,
+                [SamplerComparison  (0, 2)]         GpuSampler          sampler,
                 [BindUniform        (1, 0)]         in Model            model,
                 [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
         [Draw]  [IndexBuffer(0)]                    InBuffer<ushort>    indexBuffer);
