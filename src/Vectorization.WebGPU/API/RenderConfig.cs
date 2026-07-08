@@ -109,7 +109,7 @@ public struct GpuPrimitiveState
     public  IndexFormat         stripIndexFormat;
     public  FrontFace           frontFace;
     public  CullMode            cullMode;
-    public  uint                unclippedDepth;
+    public  int                 unclippedDepth;
     
     public GpuPrimitiveState() { }
     
@@ -120,7 +120,7 @@ public struct GpuPrimitiveState
             stripIndexFormat    = stripIndexFormat,
             frontFace           = frontFace,
             cullMode            = cullMode,
-            unclippedDepth      = unclippedDepth
+            unclippedDepth      = (uint)unclippedDepth
         };
     }
 }
@@ -152,7 +152,7 @@ public struct GpuFragmentState
 public struct GpuMultisampleState
 {
     public  nint    nextInChain;
-    public  uint    count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
+    public  int     count                   = 1;            // 1 = normal rendering (no MSAA), >1  for Anti-Aliasing
     public  uint    mask                    = 0xFFFFFFFF;   // (Standard)
     public  bool    alphaToCoverageEnabled;
     
@@ -161,7 +161,7 @@ public struct GpuMultisampleState
     internal readonly unsafe MultisampleState GetNative() {
         return new MultisampleState {
             nextInChain             = (ChainedStruct*)nextInChain,
-            count                   = count,
+            count                   = (uint)count,
             mask                    = mask,
             alphaToCoverageEnabled  = alphaToCoverageEnabled ? 1u : 0
         };
