@@ -157,7 +157,7 @@ public partial class ShadowMapping : IRenderer
             usage   = TextureUsage.RenderAttachment
         });
         
-        // JS example:  ...
+        // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/shadowMapping/main.ts#L194
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
             clearValue  = [0.5, 0.5, 0.5, 1],
@@ -175,7 +175,7 @@ public partial class ShadowMapping : IRenderer
         };
     }
     
-    // JS example:  ...
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/shadowMapping/main.ts#L300
     private static Matrix4x4 GetCameraViewProjMatrix(float width, float height, float now)
     {
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(2f * MathF.PI / 5f, width / height, 1f, 2000f);
@@ -191,7 +191,7 @@ public partial class ShadowMapping : IRenderer
         return Matrix4x4.Multiply(viewMatrix, projectionMatrix);
     }
     
-    // JS example:  ...
+    // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/shadowMapping/main.ts#L324
     public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
