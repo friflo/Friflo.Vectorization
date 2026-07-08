@@ -85,7 +85,7 @@ public static unsafe partial class WgpuExtensions
         
         int     labelMaxCount   = WgpuUtils.GetMaxCount(src.label);
         byte*   labelBuffer     = stackalloc byte[labelMaxCount];
-        native.label              = WgpuUtils.CopyToStringView(src.label, labelBuffer, labelMaxCount);
+        native.label            = WgpuUtils.CopyToStringView(src.label, labelBuffer, labelMaxCount);
         
         var wgpuDevice = (WgpuDevice)device;
         fixed(TextureFormat* ptr = src.viewFormats) {

@@ -12,6 +12,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -44,6 +45,8 @@ public static partial class WgpuExtensions
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>
 public struct GpuRenderPassDescriptor
 {
+    public  nint                                    nextInChain;
+    public  string                                  label;
     public  GpuRenderPassColorAttachment[]          colorAttachments;
     public  GpuRenderPassDepthStencilAttachment?	depthStencilAttachment;
 }
@@ -190,12 +193,18 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             depthStencilAttachment  = descriptor.depthStencilAttachment.Value.GetNative();
             pDepthStencilAttachment = &depthStencilAttachment;
         }
+        int     labelMaxCount   = WgpuUtils.GetMaxCount(descriptor.label);
+        byte*   labelBuffer     = stackalloc byte[labelMaxCount];
+        var     label           = WgpuUtils.CopyToStringView(descriptor.label, labelBuffer, labelMaxCount);
+        
+        var renderPassDesc = new RenderPassDescriptor {
+            nextInChain             = (ChainedStruct*)descriptor.nextInChain,
+            label                   = label,
+            colorAttachmentCount    = (uint)colorAttachments.Length,
+            depthStencilAttachment  = pDepthStencilAttachment
+        };
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
-            var renderPassDesc = new RenderPassDescriptor {
-                colorAttachmentCount    = (uint)colorAttachments.Length,
-                colorAttachments        = pAttachments,
-                depthStencilAttachment  = pDepthStencilAttachment
-            };
+            renderPassDesc.colorAttachments = pAttachments;
             var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
             return new RenderPass(passEncoder, recorder);
         }
