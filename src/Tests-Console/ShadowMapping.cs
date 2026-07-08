@@ -229,12 +229,14 @@ public partial class ShadowMapping : IRenderer
         [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
     
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct Scene {
         public Matrix4x4   lightViewProjMatrix;
         public Matrix4x4   cameraViewProjMatrix;
         public Vector3     lightPos;
     }
     
+    [StructLayout(LayoutKind.Sequential)]
     public struct Model {
         public Matrix4x4   modelMatrix;
     }
