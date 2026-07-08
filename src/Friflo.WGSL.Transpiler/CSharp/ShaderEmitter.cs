@@ -282,7 +282,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
     {
         var sampleType  = binding.AttrEnum.enum1; // WGSL enum:  ST    1 2 3
         var format      = binding.AttrEnum.enum1; // WGPU enum:  TextureFormat
-        var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA
+        var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA   1 2 3
         
         switch (binding.ParamAttribute) {
             case BindStorage:
