@@ -14,6 +14,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
+/// <summary> managed type for:  <see cref="SurfaceConfiguration"/>. </summary>
 public struct WgpuSurfaceConfiguration
 {
     public  nint                nextInChain;
@@ -28,6 +29,7 @@ public struct WgpuSurfaceConfiguration
 }
 
 
+/// <summary> Managed handle for: <see cref="Surface"/>. </summary>
 public readonly unsafe partial struct WgpuSurface : IDisposable
 {
     internal readonly   Surface*  handle;
@@ -170,7 +172,8 @@ public readonly unsafe partial struct WgpuSurface : IDisposable
     {
         var cap = new SurfaceCapabilities();
         wgpuSurfaceGetCapabilities(handle, adapter.adapter, &cap);
-        var capabilities = new WgpuSurfaceCapabilities( cap.usages,
+        var capabilities = new WgpuSurfaceCapabilities(
+            cap.usages,
             ToArray(cap.formatCount,        cap.formats),
             ToArray(cap.presentModeCount,   cap.presentModes),
             ToArray(cap.alphaModeCount,     cap.alphaModes));
@@ -183,14 +186,14 @@ public readonly unsafe partial struct WgpuSurface : IDisposable
 /// <summary> Managed type for <see cref="SurfaceCapabilities"/> </summary>
 public readonly struct WgpuSurfaceCapabilities
 {
-    public readonly ulong                   usages;
+    public readonly TextureUsage            usages;
     public readonly TextureFormat[]         formats;
     public readonly PresentMode[]           presentModes;
     public readonly CompositeAlphaMode[]    alphaModes;
     
     internal WgpuSurfaceCapabilities(ulong usages, TextureFormat[] formats, PresentMode[] presentModes, CompositeAlphaMode[] alphaModes)
     {
-        this.usages         = usages;
+        this.usages         = (TextureUsage)usages;
         this.formats        = formats;
         this.presentModes   = presentModes;
         this.alphaModes     = alphaModes;
