@@ -280,7 +280,9 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
     
     private static ulong AddLayout(StringBuilder sb, in CsParameter binding)
     {
-        var sampleType = binding.SampleType; // 1 2 3
+        var sampleType  = binding.AttrEnum.enum1; // WGSL enum:  ST    1 2 3
+        var format      = binding.AttrEnum.enum1; // WGPU enum:  TextureFormat
+        var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA
         
         switch (binding.ParamAttribute) {
             case BindStorage:
@@ -295,20 +297,20 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return 0x02000;
             case SamplerComparison:             AppendSampler(sb, "Comparison");            return 0x03000;
             //
-            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 0x04000 + (ulong)sampleType;
-            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 0x05000 + (ulong)sampleType;
-            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 0x06000 + (ulong)sampleType;
-            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 0x07000 + (ulong)sampleType;
-            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 0x08000 + (ulong)sampleType;
-            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + (ulong)sampleType;
+            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 0x04000 + sampleType.Value;
+            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 0x05000 + sampleType.Value;
+            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 0x06000 + sampleType.Value;
+            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 0x07000 + sampleType.Value;
+            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 0x08000 + sampleType.Value;
+            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + sampleType.Value;
             //
-            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 0x0a000 + (ulong)sampleType;
+            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 0x0a000 + sampleType.Value;
             case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return 0x0b000;
             //
-            case texture_storage_1d:            AppendTexture(sb, sampleType, "D1D");       return 0x0c000 + (ulong)sampleType;
-            case texture_storage_2d:            AppendTexture(sb, sampleType, "D2D");       return 0x0d000 + (ulong)sampleType;
-            case texture_storage_2d_array:      AppendTexture(sb, sampleType, "D2DArray");  return 0x0e000 + (ulong)sampleType;
-            case texture_storage_3d:            AppendTexture(sb, sampleType, "D3D");       return 0x0f000 + (ulong)sampleType;
+            case texture_storage_1d:        AppendStorageTexture(sb, format, access, "D1D");       return 0x0c000 + format.Value + (access.Value << 8);
+            case texture_storage_2d:        AppendStorageTexture(sb, format, access, "D2D");       return 0x0d000 + format.Value + (access.Value << 8);
+            case texture_storage_2d_array:  AppendStorageTexture(sb, format, access, "D2DArray");  return 0x0e000 + format.Value + (access.Value << 8);
+            case texture_storage_3d:        AppendStorageTexture(sb, format, access, "D3D");       return 0x0f000 + format.Value + (access.Value << 8);
             //
             case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return 0x10000;
             case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return 0x11000;
@@ -420,16 +422,29 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         sb.Append($"device.BindGroupLayoutSampler(SamplerBindingType.{sampleType});");
     }
     
-    private static void AppendTexture(StringBuilder sb, CsSampleType sampleType, string dimension, bool multisampled = false)
+    private static void AppendTexture(StringBuilder sb, CsEnum sampleType, string dimension, bool multisampled = false)
     {
-        var type = sampleType switch {
-            CsSampleType.i32    => "Sint",
-            CsSampleType.u32    => "Uint",
-            CsSampleType.f32    => "Float",
-            _                   => "None"
+        // WGSL enum:  ST
+        var type = sampleType.Name switch {
+            "i32"   => "Sint",
+            "u32"   => "Uint",
+            "f32"   => "Float",
+            _       => "None"
         };
         var multi = multisampled ? "true" : "false";
         sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
+    }
+    
+    private static void AppendStorageTexture(StringBuilder sb, CsEnum format, CsEnum access, string dimension)
+    {
+        // WGSL enum:  TSA
+        var tsa = access.Name switch  {
+            "read"          => "ReadOnly",
+            "write"         => "WriteOnly",
+            "read_write"    => "ReadWrite",
+            _               => "BindingNotUsed"
+        };
+        sb.Append($"device.BindGroupLayoutStorageTexture(TextureFormat.{format}, StorageTextureAccess.{tsa}, TextureViewDimension.{dimension});");
     }
     
     private static StringBuilder GetSignature(CsParameter[] parameters, CsParamModifier[] modifiers)

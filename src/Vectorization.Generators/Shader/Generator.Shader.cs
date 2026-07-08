@@ -82,7 +82,8 @@ public sealed partial class ShaderGen
             var paramAttribute  = GetParamAttribute(attributes, out var attributeData);
             var arg0 = -1;
             var arg1 = -1;
-            var sampleType = CsSampleType.None;
+            CsEnum enum1 = default;
+            CsEnum enum2 = default;
             if (attributeData != null) {
                 var args = attributeData.ConstructorArguments;
                 switch (paramAttribute) {
@@ -94,13 +95,11 @@ public sealed partial class ShaderGen
                         arg1 = (int)args[1].Value!;
                         break;
                 }
-                var attrTypeArgs = attributeData.AttributeClass!.TypeArguments;
-                if (attrTypeArgs.Length > 0) {
-                    switch (attrTypeArgs[0].Name) {
-                        case "i32": sampleType =  CsSampleType.i32; break;
-                        case "u32": sampleType =  CsSampleType.u32; break;
-                        case "f32": sampleType =  CsSampleType.f32; break;
-                    }
+                if (args.Length > 2) {
+                    enum1 = GetEnumValue(args[2]);
+                }
+                if (args.Length > 3) {
+                    enum2 = GetEnumValue(args[3]);
                 }
             }
             var drawType = CsDrawType.None;
@@ -125,7 +124,10 @@ public sealed partial class ShaderGen
                     group           = arg0,
                     binding         = arg1
                 },
-                SampleType      = sampleType
+                AttrEnum = new CsAttrEnum {
+                    enum1           = enum1,
+                    enum2           = enum2,
+                }
             };
             var modifierType = paramSymbol.RefKind switch {
                 RefKind.In  => "in ",
@@ -165,6 +167,17 @@ public sealed partial class ShaderGen
         };
     }
     
+    private static CsEnum GetEnumValue(TypedConstant typedConstant)
+    {
+        if (typedConstant.Kind == TypedConstantKind.Enum && typedConstant.Type is INamedTypeSymbol enumType) {
+            var field = enumType.GetMembers()
+                .OfType<IFieldSymbol>()
+                .FirstOrDefault(f => f.HasConstantValue && f.ConstantValue.Equals(typedConstant.Value));
+            if (field != null) return new CsEnum { Name = field.Name, Value = (ulong)(int)typedConstant.Value! };
+        }
+        return new CsEnum { Name = "NoName", Value = (ulong)(int)typedConstant.Value! };
+    }
+    
     private static CsParamAttribute GetParamAttribute(ImmutableArray<AttributeData> attributes, out AttributeData? attributeData)
     {
         foreach (var attribute in attributes)
@@ -183,20 +196,20 @@ public sealed partial class ShaderGen
                 case "global::Friflo.Vectorization.WebGPU.SamplerNonFiltering":             return CsParamAttribute.SamplerNonFiltering;
                 case "global::Friflo.Vectorization.WebGPU.SamplerComparison":               return CsParamAttribute.SamplerComparison;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_1d<ST>":                  return CsParamAttribute.texture_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d<ST>":                  return CsParamAttribute.texture_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d_array<ST>":            return CsParamAttribute.texture_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_3d<ST>":                  return CsParamAttribute.texture_3d;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube<ST>":                return CsParamAttribute.texture_cube;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube_array<ST>":          return CsParamAttribute.texture_cube_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_1d":                      return CsParamAttribute.texture_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d":                      return CsParamAttribute.texture_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_2d_array":                return CsParamAttribute.texture_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_3d":                      return CsParamAttribute.texture_3d;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube":                    return CsParamAttribute.texture_cube;
+                case "global::Friflo.Vectorization.WebGPU.texture_cube_array":              return CsParamAttribute.texture_cube_array;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d<ST>":     return CsParamAttribute.texture_multisampled_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d":         return CsParamAttribute.texture_multisampled_2d;
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_multisampled_2d":   return CsParamAttribute.texture_depth_multisampled_2d;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d<ST>":          return CsParamAttribute.texture_storage_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d<ST>":          return CsParamAttribute.texture_storage_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array<ST>":    return CsParamAttribute.texture_storage_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d<ST>":          return CsParamAttribute.texture_storage_3d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d":              return CsParamAttribute.texture_storage_1d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d":              return CsParamAttribute.texture_storage_2d;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array":        return CsParamAttribute.texture_storage_2d_array;
+                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d":              return CsParamAttribute.texture_storage_3d;
                 //
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_2d":                return CsParamAttribute.texture_depth_2d;
                 case "global::Friflo.Vectorization.WebGPU.texture_depth_2d_array":          return CsParamAttribute.texture_depth_2d_array;

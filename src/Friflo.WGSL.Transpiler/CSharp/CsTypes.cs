@@ -76,13 +76,17 @@ public readonly struct CsAttributeArg
     public CsAttributeArg() { }
 }
 
-// WGPU interface:  ISampleType
-public enum CsSampleType
+public readonly struct CsEnum {
+    public required     string  Name   { get; init; }
+    public required     ulong   Value  { get; init; }
+    
+    public override     string  ToString() => Name;
+}
+
+public readonly struct CsAttrEnum
 {
-    None,
-    i32,    // WGPU type:  i32
-    u32,    // WGPU type:  u32
-    f32     // WGPU type:  f32
+    public required     CsEnum  enum1   { get; init; } // WGSL enum:  ST,    WGPU enum:  TextureFormat
+    public required     CsEnum  enum2   { get; init; } // WGSL enum:  TSA
 }
 
 public enum CsParamAttribute
@@ -110,10 +114,10 @@ public enum CsParamAttribute
     texture_multisampled_2d,        // WGPU attribute:  texture_multisampled_2d<ST>
     texture_depth_multisampled_2d,  // WGPU attribute:  texture_depth_multisampled_2d
     //
-    texture_storage_1d,             // WGPU attribute:  texture_storage_1d<ST>
-    texture_storage_2d,             // WGPU attribute:  texture_storage_2d<ST>
-    texture_storage_2d_array,       // WGPU attribute:  texture_storage_2d_array<ST>
-    texture_storage_3d,             // WGPU attribute:  texture_storage_3d<ST>
+    texture_storage_1d,             // WGPU attribute:  texture_storage_1d<F,A>
+    texture_storage_2d,             // WGPU attribute:  texture_storage_2d<F,A>
+    texture_storage_2d_array,       // WGPU attribute:  texture_storage_2d_array<F,A>
+    texture_storage_3d,             // WGPU attribute:  texture_storage_3d<F,A>
     //
     texture_depth_2d,               // WGPU attribute:  texture_depth_2d
     texture_depth_2d_array,         // WGPU attribute:  texture_depth_2d_array
@@ -145,7 +149,7 @@ public readonly struct CsParameter
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
-    public required     CsSampleType        SampleType      { get; init; }
+    public required     CsAttrEnum          AttrEnum        { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     

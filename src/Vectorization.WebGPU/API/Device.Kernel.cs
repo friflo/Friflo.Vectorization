@@ -190,6 +190,18 @@ public sealed unsafe partial  class WgpuDevice
         };
     }
     
+    public void BindGroupLayoutStorageTexture(TextureFormat format, StorageTextureAccess access, TextureViewDimension viewDimension)
+    {
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
+            binding = (uint)bindGroupLayoutEntriesCount++,
+            storageTexture = new StorageTextureBindingLayout {
+                format          = format,
+                access          = access,
+                viewDimension   = viewDimension
+            }
+        };
+    }
+    
     public void BindGroupLayoutUniform()
     {
         bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
