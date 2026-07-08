@@ -73,14 +73,14 @@ public partial class ShadowMapping : IRenderer
                         // position
                         shaderLocation  = 0,
                         offset          = 0,
-                        format          = VertexFormat.Float32x4
+                        format          = VertexFormat.Float32x3
                     },
                     new GpuVertexAttribute {
                         // normal
                         shaderLocation  = 1,
                         offset          = Marshal.SizeOf<Vector3>(),
                         format          = VertexFormat.Float32x3
-                    },
+                    }
                 ]
         }};
         var primitive = new GpuPrimitiveState {
