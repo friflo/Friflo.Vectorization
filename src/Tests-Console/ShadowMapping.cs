@@ -53,11 +53,11 @@ public partial class ShadowMapping : IRenderer
         // Create the depth texture for rendering/sampling the shadow map.
         const int shadowDepthTextureSize = 1024;
         shadowDepthTexture = device.CreateTexture(new GpuTextureDescriptor {
-          size      = [shadowDepthTextureSize, shadowDepthTextureSize, 1],
-          usage     = TextureUsage.RenderAttachment | TextureUsage.TextureBinding,
-          format    = TextureFormat.Depth32Float
+            size    = [shadowDepthTextureSize, shadowDepthTextureSize, 1],
+            usage   = TextureUsage.RenderAttachment | TextureUsage.TextureBinding,
+            format  = TextureFormat.Depth32Float
         });
-        var shadowDepthTextureView = shadowDepthTexture.CreateView();
+        shadowDepthTextureView = shadowDepthTexture.CreateView();
         
         sampler = device.CreateSampler(new GpuSamplerDescriptor { compare = CompareFunction.Less });
         
@@ -120,16 +120,27 @@ public partial class ShadowMapping : IRenderer
                 depthStoreOp    = StoreOp.Store
             },
         };
+        
+        var lightPosition = new Vector3(50f, 100f, -100f);
+        var lightViewMatrix = Matrix4x4.CreateLookAt(lightPosition, Vector3.Zero, Vector3.UnitY);
+
+        // orthographic projection (Left, Right, Bottom, Top, Near, Far)
+        var lightProjMatrix = Matrix4x4.CreateOrthographicOffCenter(-80f, 80f, -80f, 80f, -200f, 300f);
+
+        var lightViewProjMatrix     = lightViewMatrix * lightProjMatrix;
+        scene.lightViewProjMatrix   = lightViewProjMatrix;
+        scene.cameraViewProjMatrix  = lightViewProjMatrix;
+        scene.lightPos              = lightPosition;
     }
 
     // --- non-disposable fields
     private   readonly  Wgpu                    wgpu;
     private   readonly  RenderConfig            shadowConfig;
     private   readonly  RenderConfig            renderConfig;
+    private   readonly  GpuTextureView          shadowDepthTextureView;              
     private   readonly  PerfLog                 perfLog             = new();
-    private   readonly  Matrix4x4               modelMatrix         = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0));
-    private             Scene                   scene;
-    private             Model                   model;
+    private   readonly  Scene                   scene;
+    private   readonly  Model                   model = new() { modelMatrix = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0)) };
     
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
     private             GpuRenderPassDescriptor shadowPassDescriptor= new() { colorAttachments = [ default ] };
@@ -191,7 +202,7 @@ public partial class ShadowMapping : IRenderer
             Shadow(pass, shadowConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
         }
         using (var pass = frame.BeginRenderPass(renderPassDescriptor)) {
-            Render(pass, renderConfig, scene, default, null!, model, vertexBuffer.In(), indexBuffer.In());
+            Render(pass, renderConfig, scene, shadowDepthTextureView, sampler, model, vertexBuffer.In(), indexBuffer.In());
         }
     }
     
@@ -217,12 +228,12 @@ public partial class ShadowMapping : IRenderer
     
 
     public struct Scene {
-        Matrix4x4   lightViewProjMatrix;
-        Matrix4x4   cameraViewProjMatrix;
-        Vector3     lightPos;
+        public Matrix4x4   lightViewProjMatrix;
+        public Matrix4x4   cameraViewProjMatrix;
+        public Vector3     lightPos;
     }
     
     public struct Model {
-        Matrix4x4   modelMatrix;
+        public Matrix4x4   modelMatrix;
     }
 }

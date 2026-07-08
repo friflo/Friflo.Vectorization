@@ -31,26 +31,32 @@ public partial class ShadowMapping
         if (!pipelineCache.IsCreated) {
             pipelineCache = ref Shadow_GPU_CreatePipelineCache(recorder.Device, config);
         }
-        return;
+
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
         var bindGroupCache = (Shadow_GPU_Cache)pipelineCache.bindGroupCache;
         
         // --- bind group 0
-    //  pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "Shadow_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, scene, pipelineCache, "Shadow_bindGroup0"u8);
+        
+        // --- bind group 1
+        pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, model, pipelineCache, "Shadow_bindGroup1"u8);
+        
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
+        // pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
 	}
     
     private sealed class Shadow_GPU_Cache : BindGroupCache
     {
         internal WgpuBindGroup    bindGroup0 = new ();
+        internal WgpuBindGroup    bindGroup1 = new ();
         
         protected override void Clear() {
             ReleaseBindGroup(ref bindGroup0);
+            ReleaseBindGroup(ref bindGroup1);
         }
     }
     
