@@ -131,9 +131,7 @@ public sealed class VertexBufferAttribute : Attribute
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class IndexBufferAttribute : Attribute
-{
-    public IndexBufferAttribute (int slot) { }
-}
+{ }
 
 /// <summary>
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>

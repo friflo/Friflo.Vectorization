@@ -214,7 +214,7 @@ public partial class ShadowMapping : IRenderer
                 [BindUniform        (0, 0)]         in Scene            scene,
                 [BindUniform        (1, 0)]         in Model            model,
                 [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer (0)]                   InBuffer<ushort>    indexBuffer);
+        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
 
@@ -226,7 +226,7 @@ public partial class ShadowMapping : IRenderer
                 [SamplerComparison  (0, 2)]         GpuSampler          sampler,
                 [BindUniform        (1, 0)]         in Model            model,
                 [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer(0)]                    InBuffer<ushort>    indexBuffer);
+        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
     
 
     public struct Scene {
