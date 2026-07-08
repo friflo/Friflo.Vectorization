@@ -180,37 +180,3 @@ public struct i32 : ISampleType;
 public struct u32 : ISampleType;
 public struct f32 : ISampleType;
 
-
-/// <remarks>
-/// <b><a href="https://www.w3.org/TR/WGSL/#sampled-texture-type">
-/// WGSL: Sampled Texture Types
-/// </a></b><br/>
-/// - <see cref="texture_1d{ST}"/>                  - <see cref="TextureViewDimension.D1D"/><br/>
-/// - <see cref="texture_2d{ST}"/>                  - <see cref="TextureViewDimension.D2D"/><br/>
-/// - <see cref="texture_2d_array{ST}"/>            - <see cref="TextureViewDimension.D2DArray"/><br/>
-/// - <see cref="texture_3d{ST}"/>                  - <see cref="TextureViewDimension.D3D"/><br/>
-/// - <see cref="texture_cube{ST}"/>                - <see cref="TextureViewDimension.Cube"/><br/>
-/// - <see cref="texture_cube_array{ST}"/>          - <see cref="TextureViewDimension.CubeArray"/><br/>
-/// <br/>
-/// <b><a href="https://www.w3.org/TR/WGSL/#multisampled-texture-type">
-/// WGSL: Multisampled Texture Types
-/// </a></b><br/>
-/// - <see cref="texture_multisampled_2d{ST}"/>     - <see cref="TextureViewDimension.D2D"/><br/>
-/// - <see cref="texture_depth_multisampled_2d"/>   - <see cref="TextureViewDimension.D2D"/><br/>
-/// <br/>
-/// <b><a href="https://www.w3.org/TR/WGSL/#texture-storage">
-/// WGSL: Storage Texture Types
-/// </a></b><br/>
-/// - <see cref="texture_storage_1d{ST}"/>          - <see cref="TextureViewDimension.D1D"/><br/>
-/// - <see cref="texture_storage_2d{ST}"/>          - <see cref="TextureViewDimension.D2D"/><br/>
-/// - <see cref="texture_storage_2d_array{ST}"/>    - <see cref="TextureViewDimension.D2DArray"/><br/>
-/// - <see cref="texture_storage_3d{ST}"/>          - <see cref="TextureViewDimension.D3D"/><br/>
-/// <br/>
-/// <b><a href="https://www.w3.org/TR/WGSL/#texture-depth">
-/// WGSL: Depth Texture Types</a></b><br/>
-/// - <see cref="texture_depth_2d"/>                - <see cref="TextureViewDimension.D2D"/><br/>
-/// - <see cref="texture_depth_2d_array"/>          - <see cref="TextureViewDimension.D2DArray"/><br/>
-/// - <see cref="texture_depth_cube"/>              - <see cref="TextureViewDimension.Cube"/><br/>
-/// - <see cref="texture_depth_cube_array"/>        - <see cref="TextureViewDimension.CubeArray"/><br/>
-/// </remarks>
-internal interface ITextureViewDocs;
