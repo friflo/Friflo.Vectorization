@@ -195,27 +195,49 @@ public static class WgslSuperpowerParser
         from close in Token.EqualTo(WgslToken.RBrace)
         select new WgslStruct { Name = name, Fields = fields.ToList() };
 
+    // @group(X)
+    private static readonly TokenListParser<WgslToken, int> GroupAttrParser =
+        Token.EqualTo(WgslToken.At)
+            .Then(_ => Id).Where(id => id == "group")
+            .Then(_ => Token.EqualTo(WgslToken.LParen))
+            .Then(_ => Num)
+            .Then(n => Token.EqualTo(WgslToken.RParen).Value(n));
+
+    // @binding(Y)
+    private static readonly TokenListParser<WgslToken, int> BindingAttrParser =
+        Token.EqualTo(WgslToken.At)
+            .Then(_ => Id).Where(id => id == "binding")
+            .Then(_ => Token.EqualTo(WgslToken.LParen))
+            .Then(_ => Num)
+            .Then(n => Token.EqualTo(WgslToken.RParen).Value(n));
+
+    // any combination  @group(X)  @binding(Y)
     private static readonly TokenListParser<WgslToken, WgslBinding> BindingParser =
-        from gAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "group").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
-        from bAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "binding").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
-        from varKeyword in Token.EqualTo(WgslToken.Var)
-        
-        from details in AccessDetailsParser.OptionalOrDefault((AddressSpace: string.Empty, AccessMode: string.Empty))
-        
-        from name in Id
-        from colon in Token.EqualTo(WgslToken.Colon)
-        from type in WgslType
-        from semi in Token.EqualTo(WgslToken.Semicolon)
-        
-        select new WgslBinding 
-        { 
-            Group = gAttr, 
-            Binding = bAttr, 
-            Name = name, 
-            WgslType = type,
-            AddressSpace = details.AddressSpace,
-            AccessMode = details.AccessMode
-        };
+        (from first in GroupAttrParser
+         from second in BindingAttrParser
+         select (Group: first, Binding: second))
+        .Or(
+         from first in BindingAttrParser
+         from second in GroupAttrParser
+         select (Group: second, Binding: first))
+        .Then(attrs => 
+            from varKeyword in Token.EqualTo(WgslToken.Var)
+            from details in AccessDetailsParser.OptionalOrDefault((AddressSpace: string.Empty, AccessMode: string.Empty))
+            from name in Id
+            from colon in Token.EqualTo(WgslToken.Colon)
+            from type in WgslType
+            from semi in Token.EqualTo(WgslToken.Semicolon)
+            
+            select new WgslBinding 
+            { 
+                Group = attrs.Group, 
+                Binding = attrs.Binding, 
+                Name = name, 
+                WgslType = type,
+                AddressSpace = details.AddressSpace,
+                AccessMode = details.AccessMode
+            }
+        );
     
     // Hilfs-Parser für den Inhalt von <...>
     private static readonly TokenListParser<WgslToken, (string AddressSpace, string AccessMode)> AccessDetailsParser =
