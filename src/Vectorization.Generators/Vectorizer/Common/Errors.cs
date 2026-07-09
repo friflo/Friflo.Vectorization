@@ -81,5 +81,13 @@ public static class Errors
         defaultSeverity: DiagnosticSeverity.Error, 
         isEnabledByDefault: true
     );
+    
+    public static readonly DiagnosticDescriptor MissingParameters = new(
+        id: "WGPU003",
+        title: "Shader-Methode has no parameters",
+        messageFormat: "Shader-Methode '{0}' has no parameters. Generate parameters from wgsl.",
+        category: "WGPU",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
 
 }

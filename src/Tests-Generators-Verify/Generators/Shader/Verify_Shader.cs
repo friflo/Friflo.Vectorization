@@ -257,5 +257,25 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_NoParameters()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")]
+    public static partial void DrawTriangles();
+}
+""");
+    }
 
 }

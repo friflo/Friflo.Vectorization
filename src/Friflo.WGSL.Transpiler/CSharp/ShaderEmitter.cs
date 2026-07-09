@@ -43,9 +43,13 @@ public sealed class ShaderEmitter
     }
     
     
-    public string Emit(in CsModifier modifier)
+    public string Emit()
     {
-        var signature       = GetSignature(method);
+        var header = GetMethodHeader();
+        if (method.Parameters.Length == 0) {
+            return header + "{ }\n}\n";
+        }
+
         var className       = method.DeclaringType.Identifier.Name;
         
         var shaderModules   = new StringBuilder();
@@ -127,29 +131,13 @@ public sealed class ShaderEmitter
         // --- draw
         EmitDraw(body, method);
         
-        var foreignUsingNamespaces = GetForeignUsingNamespaces(method);
         var vsEntry = method.Source.VertexEntry;
         var fsEntry = method.Source.FragmentEntry;
         
         // language=csharp
         var code =
 $$"""
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
-{{foreignUsingNamespaces}}
-namespace {{method.DeclaringType.Identifier.Namespace}};
-
-public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
-{
-    {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}(
-{{signature}})
+{{header}}
     {
 {{buffers}}
         var pass_       = pass.Internal;
@@ -447,8 +435,41 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         sb.Append($"device.BindGroupLayoutStorageTexture(TextureFormat.{format}, StorageTextureAccess.{tsa}, TextureViewDimension.{dimension});");
     }
     
-    private static StringBuilder GetSignature(CsMethod method)
+    private string GetMethodHeader()
     {
+        var signature   = GetSignature(method);
+        var modifier    = method.Modifier;
+        var className   = method.DeclaringType.Identifier.Name;
+        var foreignUsingNamespaces = GetForeignUsingNamespaces(method);
+        
+        // language=csharp
+        var code =
+$$"""
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.GPU.Runtime;
+using Friflo.Vectorization.WebGPU;
+using Friflo.Vectorization.WebGPU.Runtime;
+{{foreignUsingNamespaces}}
+namespace {{method.DeclaringType.Identifier.Namespace}};
+
+public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
+{
+    {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}(
+{{signature}})
+""";
+        return code;
+    }
+    
+    private static string GetSignature(CsMethod method)
+    {
+        if (method.Parameters.Length == 0) {
+            return "";
+        }
         var signature = new StringBuilder();
         
         for (int n = 0; n < method.Parameters.Length; n++)
@@ -475,7 +496,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             signature.Append(",\n");
         }
         signature.Length -= 2;
-        return signature;
+        return signature.ToString();
     }
     
     private static string GetForeignUsingNamespaces(CsMethod method)

@@ -115,7 +115,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         
         var method      = result.method;
         var emitShader  = new ShaderEmitter(method);
-        var code        = emitShader.Emit(method.Modifier);
+        var code        = emitShader.Emit();
 
         var finalSourceCode = code.Replace("__WGSL_HASH_PLACEHOLDER__", $"0x{wgslHash:x}UL");
 
@@ -165,6 +165,10 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var result = CreateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
+        }
+        if (result.method!.Parameters.Length == 0) {
+            var location = targetSymbol.Locations.FirstOrDefault();
+            diagnostics.AddDiagnostic(Errors.MissingParameters, location, result.method.Name);
         }
         return result;
     }
