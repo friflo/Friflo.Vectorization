@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
+
+
 
 public readonly struct EmissionResult : IEquatable<EmissionResult>
 {
@@ -20,15 +23,11 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     public  readonly string?                wgslFileName2;
     
     // --- exception
-    public  readonly string?                exceptionMessage;
-    private readonly string?                exceptionStacktrace;
-    private readonly Location?              methodLocation;
+    public readonly GeneratorError          error;
     
-    public EmissionResult(string? message, string? stacktrace, Location? methodLocation)
+    public EmissionResult(GeneratorError error)
     {
-        exceptionMessage    = message;
-        exceptionStacktrace = stacktrace;
-        this.methodLocation = methodLocation;
+        this.error  = error;
         name        = "";
         code        = "";
         diagnostics = [];
@@ -63,6 +62,23 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     // Required overrides (just in case)
     public override bool Equals(object obj) => obj is EmissionResult other && Equals(other);
     public override int GetHashCode() => cachedHash;
+    
+}
+
+
+
+public readonly struct GeneratorError
+{
+    public  readonly string?                exceptionMessage;
+    private readonly string?                exceptionStacktrace;
+    private readonly Location?              methodLocation;
+    
+    public GeneratorError(string? message, string? stacktrace, Location? methodLocation)
+    {
+        exceptionMessage    = message;
+        exceptionStacktrace = stacktrace;
+        this.methodLocation = methodLocation;
+    }
     
     public void ReportException (SourceProductionContext productionContext)
     {

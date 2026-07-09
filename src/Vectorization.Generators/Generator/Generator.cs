@@ -100,7 +100,8 @@ public sealed partial class Gen : IIncrementalGenerator
             return GenerateMethod(ctx.SemanticModel, targetSymbol, trigger);
         } catch (Exception exception) {
             var exceptionMessage = $"{exception.GetType()} : {exception.Message}";
-            return new EmissionResult(exceptionMessage, exception.StackTrace, methodLocation);
+            var error = new GeneratorError(exceptionMessage, exceptionMessage, methodLocation);
+            return new EmissionResult(error);
         }
     }
     

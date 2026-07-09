@@ -44,8 +44,8 @@ public static class GeneratorUtils
     
     internal static void EmitResult(SourceProductionContext productionContext, EmissionResult emissionResult)
     {
-        if (emissionResult.exceptionMessage != null) {
-            emissionResult.ReportException(productionContext);
+        if (emissionResult.error.exceptionMessage != null) {
+            emissionResult.error.ReportException(productionContext);
             return;
         }
         foreach (var data in emissionResult.diagnostics) {
