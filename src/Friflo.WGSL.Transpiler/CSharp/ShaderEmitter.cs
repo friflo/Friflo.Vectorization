@@ -47,7 +47,7 @@ public sealed class ShaderEmitter
     {
         var header = GetMethodHeader();
         if (method.Parameters.Length == 0) {
-            return header + "{ }\n}\n";
+            return header + " { }\n}\n";
         }
 
         var className       = method.DeclaringType.Identifier.Name;
@@ -459,8 +459,7 @@ namespace {{method.DeclaringType.Identifier.Namespace}};
 
 public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
 {
-    {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}(
-{{signature}})
+    {{modifier.MethodVisibility}} {{(modifier.IsMethodStatic ? "static " : "")}}partial void {{methodName}}{{signature}}
 """;
         return code;
     }
@@ -468,9 +467,10 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
     private static string GetSignature(CsMethod method)
     {
         if (method.Parameters.Length == 0) {
-            return "";
+            return "()";
         }
         var signature = new StringBuilder();
+        signature.Append("(");
         
         for (int n = 0; n < method.Parameters.Length; n++)
         {
@@ -496,6 +496,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             signature.Append(",\n");
         }
         signature.Length -= 2;
+        signature.Append(")");
         return signature.ToString();
     }
     
