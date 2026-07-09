@@ -227,5 +227,35 @@ namespace ForeignNamespace {
 }
 """);
     }
+    
+    
+    [Test]
+    public static async Task  Verify_Shader_Error()
+    {
+        await Verify(           //   TODO  support having only a [VertexShader]
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
+    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
+        [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
+                [BindUniform     (0, 0)]    in Uniforms     uniforms,
+                [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
+                [texture_2d(0, 2, ST.f32)]  GpuTextureView  material);
+        
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Uniforms {
+        public Matrix4x4   modelViewProjectionMatrix;
+    }
+}
+""");
+    }
 
 }

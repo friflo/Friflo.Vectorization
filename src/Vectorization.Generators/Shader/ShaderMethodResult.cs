@@ -15,8 +15,8 @@ public class ShaderMethodResult : IEquatable<ShaderMethodResult>
     public  readonly    string?                 fileName; 
     public  readonly    CsMethod?               method;
     private readonly    int                     hashCode;
-    private readonly    List<DiagnosticData>    diagnostics;
-    private readonly    GeneratorError          error;
+    public  readonly    List<DiagnosticData>    diagnostics;
+    public  readonly    GeneratorError          error;
     
     public ShaderMethodResult(string fileName, CsMethod method, List<DiagnosticData> diagnostics) {
         this.fileName       = fileName;

@@ -74,9 +74,17 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void EmitWithHash(
         SourceProductionContext spc,
-        (ShaderMethodResult EmissionResult, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
+        (ShaderMethodResult Result, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
     {
         (ShaderMethodResult result, ImmutableArray<(string FilePath, ulong Hash)> files) = source;
+        
+        if (result.error.exceptionMessage != null) {
+            result.error.ReportException(spc);
+            return;
+        }
+        foreach (var diagnostic in result.diagnostics) {
+            diagnostic.ReportDiagnostic(spc);
+        }
         
         if (result.method == null) return;
         
@@ -149,19 +157,6 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
         }
-        /*
-        var method = result.method;
-        
-        var emitShader  = new ShaderEmitter(method, hash);
-        var code        = emitShader.Emit(method.Modifier);
-        
-        var source      = method!.Source;
-        var wgslFile1   = source.Shader;
-        wgslFile1     ??= source.VertexShader;
-        var wgslFile2   = source.FragmentShader;
-        
-        var fileName = GeneratorUtils.CreateFileName(blueprintMethod, hash);
-        */
         return result;
     }
 }

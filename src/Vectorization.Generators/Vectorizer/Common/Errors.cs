@@ -78,7 +78,7 @@ public static class Errors
         title: "Shader Error",
         messageFormat: "Shader Error - {0}",
         category: "Syntax",
-        defaultSeverity: DiagnosticSeverity.Warning, 
+        defaultSeverity: DiagnosticSeverity.Error, 
         isEnabledByDefault: true
     );
 

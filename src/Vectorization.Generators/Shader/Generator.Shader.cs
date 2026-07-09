@@ -25,6 +25,9 @@ public sealed partial class ShaderGen
         Diagnostics                     diagnostics)
     {
         var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
+        if (noEmit) {
+            return null;
+        }
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
         var fragmentShader  = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.FragmentShaderAttribute");
@@ -35,25 +38,19 @@ public sealed partial class ShaderGen
         {
             case  ShaderTrigger.ShaderAttribute:
                 if (vertexShader != null || fragmentShader != null) {
-                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader!.AttributeClass, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
+                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, methodSymbol, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
                     return null;
                 }
                 break;
             case  ShaderTrigger.VertexShaderAttribute:
-                if (fragmentShader == null) {
-                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, vertexShader!.AttributeClass, "[VertexShader] requires also a [FragmentShader]");
-                    return null;
-                }
                 break;
             case  ShaderTrigger.FragmentShaderAttribute:
-                if (vertexShader == null) {
-                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, fragmentShader!.AttributeClass, "[FragmentShader] requires also a [VertexShader]");
+                if (vertexShader != null) {
+                    return null; // only handled by:  ShaderTrigger.VertexShaderAttribute
                 }
-                return null; // only handled by:  ShaderTrigger.VertexShaderAttribute
+                break;
         }
-        if (noEmit) {
-            return null;
-        }
+
         var method = CreateCsMethod(methodSymbol, hash, shader, vertexShader, fragmentShader, drawVertexIndex);
         var fileName = GeneratorUtils.CreateFileName(methodSymbol, hash);
 
@@ -136,8 +133,8 @@ public sealed partial class ShaderGen
             };
             paramModifiers[n] = new CsParamModifier { type = modifierType };
         }
-        var vertexEntry   = (string?)(shader != null ? shader.ConstructorArguments[1].Value : vertexShader!  .ConstructorArguments[1].Value);
-        var fragmentEntry = (string?)(shader != null ? shader.ConstructorArguments[2].Value : fragmentShader!.ConstructorArguments[1].Value);
+        var vertexEntry   = (string?)(shader?.ConstructorArguments[1].Value ?? vertexShader?  .ConstructorArguments[1].Value);
+        var fragmentEntry = (string?)(shader?.ConstructorArguments[2].Value ?? fragmentShader?.ConstructorArguments[1].Value);
         
         CsDrawVertexIndex?  drawVertexIndex = null;
         if (drawVertexIndexAttr != null) {
