@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Friflo.Vectorization.Generators;
+using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -138,10 +139,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
-        var code = GenerateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics, out var method);
-        if (code == null) {
+        var result = CreateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
+        if (result == null) {
             return new EmissionResult("", "", diagnostics.List);
         }
+        var method = result.method;
+        
+        var emitShader  = new ShaderEmitter(method, hash);
+        var code        = emitShader.Emit(method.Modifier);
         
         var source      = method!.Source;
         var wgslFile1   = source.Shader;

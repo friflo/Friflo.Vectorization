@@ -7,23 +7,23 @@ using System.Linq;
 using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
-// ReSharper disable UseCollectionExpression
 
+// ReSharper disable UseCollectionExpression
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
 namespace Friflo;
 
+    
 public sealed partial class ShaderGen
 {
-    private static string? GenerateShaderMethod(
+
+    private static ShaderMethodResult? CreateShaderMethod(
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol,
         ShaderTrigger                   trigger,
         string                          hash,
-        Diagnostics                     diagnostics,
-        out CsMethod?                   method)
+        Diagnostics                     diagnostics)
     {
-        method              = null;
         var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
@@ -54,12 +54,9 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
-        
-        var emitShader = new ShaderEmitter(method, hash);
-        var code = emitShader.Emit(method.Modifier);
+        var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
 
-        return code;
+        return new ShaderMethodResult(method);
     }
 
 
