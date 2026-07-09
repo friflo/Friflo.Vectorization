@@ -40,7 +40,9 @@ public class WgslBinding
     public int Binding { get; set; }
     public string Name { get; set; } = string.Empty;
     public string WgslType { get; set; } = string.Empty;
-    public string AccessMode { get; set; } = string.Empty;
+    
+    public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
+    public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
 }
 
 public class WgslEntryPoint
@@ -197,17 +199,35 @@ public static class WgslSuperpowerParser
         from gAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "group").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
         from bAttr in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "binding").Then(_ => Token.EqualTo(WgslToken.LParen)).Then(_ => Num).Then(n => Token.EqualTo(WgslToken.RParen).Value(n))
         from varKeyword in Token.EqualTo(WgslToken.Var)
-        from access in (
-            from open in Token.EqualTo(WgslToken.LAngle)
-            from mode in Id.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
-            from close in Token.EqualTo(WgslToken.RAngle)
-            select $"<{string.Join(", ", mode)}>"
-        ).OptionalOrDefault(string.Empty)
+        
+        from details in AccessDetailsParser.OptionalOrDefault((AddressSpace: string.Empty, AccessMode: string.Empty))
+        
         from name in Id
         from colon in Token.EqualTo(WgslToken.Colon)
         from type in WgslType
         from semi in Token.EqualTo(WgslToken.Semicolon)
-        select new WgslBinding { Group = gAttr, Binding = bAttr, AccessMode = access, Name = name, WgslType = type };
+        
+        select new WgslBinding 
+        { 
+            Group = gAttr, 
+            Binding = bAttr, 
+            Name = name, 
+            WgslType = type,
+            AddressSpace = details.AddressSpace,
+            AccessMode = details.AccessMode
+        };
+    
+    // Hilfs-Parser für den Inhalt von <...>
+    private static readonly TokenListParser<WgslToken, (string AddressSpace, string AccessMode)> AccessDetailsParser =
+        from open in Token.EqualTo(WgslToken.LAngle)
+        from parts in Id.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
+        from close in Token.EqualTo(WgslToken.RAngle)
+        select parts.Length switch
+        {
+            >= 2    => (AddressSpace: parts[0], AccessMode: parts[1]),          // <storage, read>
+            1       => (AddressSpace: parts[0], AccessMode: string.Empty),      // <uniform>
+            _       => (AddressSpace: string.Empty, AccessMode: string.Empty)   // <>
+        };
 
     private static readonly TokenListParser<WgslToken, WgslParam> ParamParser =
         from attr in (
