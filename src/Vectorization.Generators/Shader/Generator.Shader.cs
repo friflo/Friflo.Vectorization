@@ -54,14 +54,16 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        var method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
+        var method = CreateCsMethod(methodSymbol, hash, shader, vertexShader, fragmentShader, drawVertexIndex);
+        var fileName = GeneratorUtils.CreateFileName(methodSymbol, hash);
 
-        return new ShaderMethodResult(method);
+        return new ShaderMethodResult(fileName, method, diagnostics.List);
     }
 
 
     private static CsMethod CreateCsMethod(
         IMethodSymbol   methodSymbol,
+        string          hash,
         AttributeData?  shader,
         AttributeData?  vertexShader,
         AttributeData?  fragmentShader,
@@ -151,6 +153,7 @@ public sealed partial class ShaderGen
         
         return new CsMethod {
             Name            = methodSymbol.Name,
+            Hash            = hash, 
             DeclaringType   = declaringType,
             Parameters      = parameters.ToImmutableArray(),
             Source          = new CsShaderSource {

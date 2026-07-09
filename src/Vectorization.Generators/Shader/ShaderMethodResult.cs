@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 // ReSharper disable ConvertToPrimaryConstructor
@@ -11,12 +12,27 @@ namespace Friflo;
 
 public class ShaderMethodResult : IEquatable<ShaderMethodResult>
 {
-    public  readonly    CsMethod        method;
-    private readonly    int             hashCode;
+    public  readonly    string?                 fileName; 
+    public  readonly    CsMethod?               method;
+    private readonly    int                     hashCode;
+    private readonly    List<DiagnosticData>    diagnostics;
+    private readonly    GeneratorError          error;
     
-    public ShaderMethodResult(CsMethod method) {
-        this.method = method;
-        hashCode    = method.GetHashCode();
+    public ShaderMethodResult(string fileName, CsMethod method, List<DiagnosticData> diagnostics) {
+        this.fileName       = fileName;
+        this.method         = method;
+        hashCode            = method.GetHashCode();
+        this.diagnostics    = diagnostics;
+    }
+    
+    public ShaderMethodResult(List<DiagnosticData> diagnostics) {
+        this.diagnostics    = diagnostics;
+    }
+    
+    public ShaderMethodResult(GeneratorError error)
+    {
+        diagnostics = [];
+        this.error  = error;
     }
 
     public override int GetHashCode() => hashCode;
@@ -28,8 +44,11 @@ public class ShaderMethodResult : IEquatable<ShaderMethodResult>
         
         if (hashCode != other.hashCode)     return false;
         
-        // deep tree equals check
-        return method.Equals(other.method);
+        if (method != null) {
+            // deep tree equals check
+            return method.Equals(other.method);
+        }
+        return other.method != null;
     }
 
     public override bool Equals(object? obj) {

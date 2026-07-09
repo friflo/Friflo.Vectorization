@@ -33,6 +33,7 @@ public readonly record struct CsDrawVertexIndex
 public record CsMethod
 {
     public required     string                      Name            { get; init; }
+    public required     string                      Hash            { get; init; }
     public required     CsShaderSource              Source          { get; init; }
     public required     CsDrawVertexIndex?          DrawVertexIndex { get; init; }
     public required     CsType                      DeclaringType   { get; init; }

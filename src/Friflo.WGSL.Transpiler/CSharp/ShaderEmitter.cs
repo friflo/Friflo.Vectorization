@@ -35,11 +35,11 @@ public sealed class ShaderEmitter
     private readonly    StringBuilder   layoutKeys          = new ();
     private readonly    StringBuilder   bindGroupLayouts    = new ();
     
-    public ShaderEmitter(CsMethod method, string hash)
+    public ShaderEmitter(CsMethod method)
     {
         this.method     = method;
         methodName      = method.Name;
-        methodName_GPU  = $"_{methodName}_GPU{hash}"; 
+        methodName_GPU  = $"_{methodName}_GPU{method.Hash}"; 
     }
     
     

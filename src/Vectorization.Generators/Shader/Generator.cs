@@ -74,16 +74,16 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void EmitWithHash(
         SourceProductionContext spc,
-        (EmissionResult EmissionResult, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
+        (ShaderMethodResult EmissionResult, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
     {
-        (EmissionResult emissionResult, ImmutableArray<(string FilePath, ulong Hash)> files) = source;
+        (ShaderMethodResult result, ImmutableArray<(string FilePath, ulong Hash)> files) = source;
         
-        if (string.IsNullOrEmpty(emissionResult.code)) return;
+        if (result.method == null) return;
         
         // spc.AddSource(emissionResult.name, emissionResult.code);  // test without WGSL hash replacement
 
-        var targetFile1 = emissionResult.wgslFileName1;
-        var targetFile2 = emissionResult.wgslFileName2;
+        var targetFile1 = result.method.Source.Shader ?? result.method.Source.VertexShader;
+        var targetFile2 = result.method.Source.FragmentShader;
         ulong wgslHash = 0;
         
         foreach (var file in files) {
@@ -95,9 +95,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
                 wgslHash ^= file.Hash;
             }
         }
-        var finalSourceCode = emissionResult.code.Replace("__WGSL_HASH_PLACEHOLDER__", $"0x{wgslHash:x}UL");
+        
+        var method      = result.method;
+        var emitShader  = new ShaderEmitter(method);
+        var code        = emitShader.Emit(method.Modifier);
 
-        spc.AddSource(emissionResult.name, finalSourceCode);
+        var finalSourceCode = code.Replace("__WGSL_HASH_PLACEHOLDER__", $"0x{wgslHash:x}UL");
+
+        spc.AddSource(result.fileName!, finalSourceCode);
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
@@ -114,7 +119,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return hash;
     }
     
-    private static EmissionResult TransformShader(GeneratorAttributeSyntaxContext ctx, CancellationToken _, ShaderTrigger trigger)
+    private static ShaderMethodResult TransformShader(GeneratorAttributeSyntaxContext ctx, CancellationToken _, ShaderTrigger trigger)
     {
         Location? methodLocation = null;
         try {
@@ -124,14 +129,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         } catch (Exception exception) {
             var exceptionMessage = $"{exception.GetType()} : {exception.Message}";
             var error = new GeneratorError(exceptionMessage, exceptionMessage, methodLocation);
-            return new EmissionResult(error);
+            return new ShaderMethodResult(error);
         }
     }
     
-    private static EmissionResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol, ShaderTrigger trigger)
+    private static ShaderMethodResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol, ShaderTrigger trigger)
     {
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
-            return new EmissionResult("", "", []);
+            return new ShaderMethodResult([]);
         }
         var diagnostics = new Diagnostics { BlueprintMethod = blueprintMethod };
         var attributes  = blueprintMethod.GetAttributes();
@@ -142,8 +147,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         
         var result = CreateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
         if (result == null) {
-            return new EmissionResult("", "", diagnostics.List);
+            return new ShaderMethodResult(diagnostics.List);
         }
+        /*
         var method = result.method;
         
         var emitShader  = new ShaderEmitter(method, hash);
@@ -155,7 +161,8 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var wgslFile2   = source.FragmentShader;
         
         var fileName = GeneratorUtils.CreateFileName(blueprintMethod, hash);
-        return new EmissionResult(fileName, code, diagnostics.List, wgslFile1, wgslFile2);
+        */
+        return result;
     }
 }
 
