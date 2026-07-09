@@ -51,10 +51,12 @@ public sealed partial class ShaderGen
                 break;
         }
 
-        var method = CreateCsMethod(methodSymbol, hash, shader, vertexShader, fragmentShader, drawVertexIndex);
-        var fileName = GeneratorUtils.CreateFileName(methodSymbol, hash);
+        var method      = CreateCsMethod(methodSymbol, hash, shader, vertexShader, fragmentShader, drawVertexIndex);
+        
+        var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
+        var location    = methodSymbol.Locations.FirstOrDefault();
 
-        return new ShaderMethodResult(fileName, method, diagnostics.List);
+        return new ShaderMethodResult(fileName, method, location, diagnostics.List);
     }
 
 

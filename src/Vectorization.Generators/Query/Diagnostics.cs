@@ -33,7 +33,7 @@ public sealed class Diagnostics
         AddDiagnostic(descriptor, location, messageArgs);
     }
     
-    public void AddDiagnostic(DiagnosticDescriptor descriptor, Location? location, params object?[]? messageArgs)
+    private void AddDiagnostic(DiagnosticDescriptor descriptor, Location? location, params object?[]? messageArgs)
     {
         var lineSpan = location.GetLineSpan();
         var data = new DiagnosticData(

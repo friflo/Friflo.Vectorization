@@ -114,6 +114,10 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         }
         
         var method      = result.method;
+        if (method.Parameters.Length == 0) {
+            var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, method.Name);
+            spc.ReportDiagnostic(diagnostic);
+        }
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
 
@@ -165,10 +169,6 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var result = CreateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
-        }
-        if (result.method!.Parameters.Length == 0) {
-            var location = targetSymbol.Locations.FirstOrDefault();
-            diagnostics.AddDiagnostic(Errors.MissingParameters, location, result.method.Name);
         }
         return result;
     }
