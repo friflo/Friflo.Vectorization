@@ -23,7 +23,7 @@ public static class CodeFixer
                 sb.Append($"        [BindStorage({b.Group}, {b.Binding})] {bufferType}<{b.WgslType}> {b.Name},\n");
                 break;
             case "uniform":
-                sb.Append($"        [BindUniform({b.Group}, {b.Binding})] InBuffer<{b.WgslType}> {b.Name},\n");
+                sb.Append($"        [BindUniform({b.Group}, {b.Binding})] in {b.WgslType} {b.Name},\n");
                 break;
             }
         }

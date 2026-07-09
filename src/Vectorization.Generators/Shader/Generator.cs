@@ -62,19 +62,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.ShaderAttribute))
-            .Combine(wgslFiles);
+            .Combine(wgslFiles).Combine(context.CompilationProvider);
         
         var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.VertexShaderAttribute))
-            .Combine(wgslFiles);
+            .Combine(wgslFiles).Combine(context.CompilationProvider);
 
         var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.FragmentShaderAttribute))
-            .Combine(wgslFiles);
+            .Combine(wgslFiles).Combine(context.CompilationProvider);
 
         // Register outputs individually - zero interference, maximum Roslyn-native caching
         context.RegisterSourceOutput(shaderMethod,         EmitWithHash);
@@ -84,9 +84,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void EmitWithHash(
         SourceProductionContext spc,
-        (ShaderMethodResult Result, ImmutableArray<WgslFile> Files) source)
+        ((ShaderMethodResult Result, ImmutableArray<WgslFile> Files), Compilation Compilation) source)
     {
-        (ShaderMethodResult result, ImmutableArray<WgslFile> files) = source;
+        ((ShaderMethodResult result, ImmutableArray<WgslFile> files), Compilation compilation) = source;
         
         if (result.error.exceptionMessage != null) {
             result.error.ReportException(spc);
@@ -119,7 +119,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         
         var method      = result.method;
         if (method.Parameters.Length == 0 && wgslContent != null) {
-            AddShaderParameterDiagnostic(spc, result, wgslContent);
+            AddShaderParameterDiagnostic(spc, compilation, result, wgslContent);
         }
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
@@ -176,12 +176,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return result;
     }
     
-    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, ShaderMethodResult result, string wgslContent)
+    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, Compilation compilation, ShaderMethodResult result, string wgslContent)
     {
         var parameters = CodeFixer.CreateShaderParams(wgslContent);
         var properties = ImmutableDictionary<string, string?>.Empty
             .Add($"ShaderParams", parameters);
-        var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, messageArgs: result.method!.Name, properties: properties);
+            
+        var location 	= result.GetFreshLocation(compilation);
+        var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
         spc.ReportDiagnostic(diagnostic);
     }
 }

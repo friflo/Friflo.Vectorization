@@ -17,7 +17,7 @@ public class MissingParametersCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU003"];
 
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public override FixAllProvider? GetFixAllProvider() => null; // null -> fix only specific method - was: WellKnownFixAllProviders.BatchFixer; 
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {

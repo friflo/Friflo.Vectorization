@@ -55,7 +55,7 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
-                    [BindUniform(1, 0)] InBuffer<MyUniforms> myUniforms)
+                    [BindUniform(1, 0)] in MyUniforms myUniforms)
             """));
         
     }
