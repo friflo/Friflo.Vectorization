@@ -27,8 +27,6 @@ public class MissingParametersCodeFixProvider : CodeFixProvider
         var diagnostic = context.Diagnostics.First();
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-        // 💡 ÄNDERUNG: Nutzt 'FindToken' statt 'FindNode' und wandert dann hoch zur Methode.
-        // Das findet die Methode verlässlich, selbst wenn das Diagnostic nur auf dem Namen liegt!
         var token = root.FindToken(diagnosticSpan.Start);
         var methodNode = token.Parent?.FirstAncestorOrSelf<MethodDeclarationSyntax>();
         
@@ -37,30 +35,24 @@ public class MissingParametersCodeFixProvider : CodeFixProvider
         context.RegisterCodeFix(
             CodeAction.Create(
                 "Generate parameters from wgsl",
-                c => InsertParametersAsync(context.Document, methodNode.ParameterList, c),
+                c => InsertParametersAsync(context.Document, methodNode.ParameterList, diagnostic, c),
                 "GenWgsl"),
             diagnostic);
     }
 
-    private async Task<Document> InsertParametersAsync(Document document, ParameterListSyntax oldParams, CancellationToken cancellationToken)
+    private async Task<Document> InsertParametersAsync(
+        Document            document,
+        ParameterListSyntax oldParams,
+        Diagnostic          diagnostic,
+        CancellationToken   cancellationToken)
     {
-        // 1. HIER würdest du normalerweise deine WGSL-Datei parsen.
-        // Für diesen simplen Beispiel-Code tun wir so, als hätten wir zwei Parameter gefunden:
-        var newParamsList = SyntaxFactory.ParameterList(
-            SyntaxFactory.SeparatedList<ParameterSyntax>(new[]
-            {
-                SyntaxFactory.Parameter(SyntaxFactory.Identifier("buffer"))
-                    .WithType(SyntaxFactory.ParseTypeName("GpuBuffer<float>")),
-                SyntaxFactory.Parameter(SyntaxFactory.Identifier("texture"))
-                    .WithType(SyntaxFactory.ParseTypeName("GpuTextureView"))
-            }));
+        if (!diagnostic.Properties.TryGetValue("ShaderParams", out var paramString) || string.IsNullOrEmpty(paramString)) {
+            return document;
+        }
+        var newParams = SyntaxFactory.ParseParameterList(paramString);
 
-        // 2. Ersetze die alte leere Parameterliste mit den neuen Parametern
-        var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        var newRoot = root?.ReplaceNode(oldParams, newParamsList);
-
-        // 3. Gib das modifizierte Dokument zurück. Die IDE updatet den Quellcode sofort!
-        return document.WithSyntaxRoot(newRoot!);
+        var root = await document.GetSyntaxRootAsync(cancellationToken);
+        return document.WithSyntaxRoot(root!.ReplaceNode(oldParams, newParams));
     }
 }
 

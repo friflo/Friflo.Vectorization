@@ -128,5 +128,5 @@ public partial class TwoCubes : IRenderer
     
     [VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
 	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
-    public static partial void RenderCubeEmpty(); 
+    public static partial void RenderCubeEmpty();
 }

@@ -102,21 +102,23 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var targetFile1 = result.method.Source.Shader ?? result.method.Source.VertexShader;
         var targetFile2 = result.method.Source.FragmentShader;
         ulong wgslHash = 0;
+        string? wgslContent = null;
         
         foreach (var file in files) {
             var filePath = file.NormalizedPath;
             if (targetFile1 != null && filePath.EndsWith(targetFile1)) {
                 wgslHash = file.Hash;
+                wgslContent = file.Content;
             }
             if (targetFile2 != null && filePath.EndsWith(targetFile2)) {
                 wgslHash ^= file.Hash;
+                wgslContent = file.Content;
             }
         }
         
         var method      = result.method;
-        if (method.Parameters.Length == 0) {
-            var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, method.Name);
-            spc.ReportDiagnostic(diagnostic);
+        if (method.Parameters.Length == 0 && wgslContent != null) {
+            AddShaderParameterDiagnostic(spc, result, wgslContent);
         }
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
@@ -171,6 +173,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             return new ShaderMethodResult(diagnostics.List);
         }
         return result;
+    }
+    
+    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, ShaderMethodResult result, string wgslContent)
+    {
+        var properties = ImmutableDictionary<string, string?>.Empty
+            .Add("ShaderParams", "(RenderPass pass, RenderConfig config)");
+        var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, properties: properties);
+        spc.ReportDiagnostic(diagnostic);
     }
 }
 
