@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -97,31 +98,34 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         foreach (var diagnostic in result.diagnostics) {
             diagnostic.ReportDiagnostic(spc);
         }
-        
-        if (result.method == null) return;
+        var method      = result.method;
+        if (method == null) return;
         
         // spc.AddSource(emissionResult.name, emissionResult.code);  // test without WGSL hash replacement
 
-        var targetFile1 = result.method.Source.Shader ?? result.method.Source.VertexShader;
-        var targetFile2 = result.method.Source.FragmentShader;
+        var targetFile1 = method.Source.Shader ?? method.Source.VertexShader;
+        var targetFile2 = method.Source.FragmentShader;
         ulong wgslHash = 0;
-        string? wgslContent = null;
+
+        var wgslContents = new List<string>();
         
         foreach (var file in files) {
-            var filePath = file.NormalizedPath;
+            var filePath    = file.NormalizedPath;
+            string? wgsl = null;
             if (targetFile1 != null && filePath.EndsWith(targetFile1)) {
-                wgslHash = file.Hash;
-                wgslContent = file.Content;
+                wgslHash    = file.Hash;
+                wgsl        = file.Content;
             }
             if (targetFile2 != null && filePath.EndsWith(targetFile2)) {
-                wgslHash ^= file.Hash;
-                wgslContent = file.Content;
+                wgslHash   ^= file.Hash;
+                wgsl        = file.Content;
+            }
+            if (wgsl != null) {
+                wgslContents.Add(wgsl);
             }
         }
-        
-        var method      = result.method;
-        if (method.Parameters.Length == 0 && wgslContent != null) {
-            AddShaderParameterDiagnostic(spc, compilation, result, wgslContent);
+        if (method.Parameters.Length == 0) {
+            AddShaderParameterDiagnostic(spc, compilation, result, wgslContents);
         }
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
@@ -178,9 +182,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return result;
     }
     
-    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, Compilation compilation, ShaderMethodResult result, string wgslContent)
+    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, Compilation compilation, ShaderMethodResult result, List<string> wgslContents)
     {
-        var parameters = CodeFixer.CreateShaderParams(wgslContent);
+        var parameters = CodeFixer.CreateShaderParams(wgslContents);
         var properties = ImmutableDictionary<string, string?>.Empty
             .Add($"ShaderParams", parameters);
             

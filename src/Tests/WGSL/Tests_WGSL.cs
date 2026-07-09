@@ -50,7 +50,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_GenerateParameters()
     {
         var wgsl = ReadWgslResource("Tests.shaders.triangle.wgsl");
-        var shaderParams = CodeFixer.CreateShaderParams(wgsl);
+        var shaderParams = CodeFixer.CreateShaderParams([wgsl]);
         Assert.That(shaderParams, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
