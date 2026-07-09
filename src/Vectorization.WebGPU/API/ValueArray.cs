@@ -47,7 +47,7 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
         }
     }    
 
-    public bool Equals(ValueArray<T> other)
+    public bool Equals(ValueArray<T> other)             // TODO  use same Equals() as in Transpiler
     {
         if (_array == other._array) return true;
         if (_array == null || other._array == null) return false;
@@ -58,7 +58,7 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
 
     public override bool Equals(object obj) => obj is ValueArray<T> other && Equals(other);
 
-    public override int GetHashCode()
+    public override int GetHashCode()                   // TODO  use same GetHashCode() as in Transpiler
     {
         if (_array == null) return 0;
         return ((IStructuralEquatable)_array).GetHashCode(StructuralComparisons.StructuralEqualityComparer);

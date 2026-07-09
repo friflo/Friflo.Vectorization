@@ -155,7 +155,7 @@ public sealed partial class ShaderGen
             Name            = methodSymbol.Name,
             Hash            = hash, 
             DeclaringType   = declaringType,
-            Parameters      = parameters.ToImmutableArray(),
+            Parameters      = parameters.ToValueArray(),
             Source          = new CsShaderSource {
                 Shader          = (string)shader?        .ConstructorArguments[0].Value!,
                 VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
@@ -235,8 +235,8 @@ public sealed partial class ShaderGen
         var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
         var csType = new CsType {
             Identifier  = GetIdentifier(typeSymbol),
-            Generics    = genericIdentifiers.ToImmutableArray(),
-            Attributes  = attributes.ToImmutableArray(),
+            Generics    = genericIdentifiers.ToValueArray(),
+            Attributes  = attributes.ToValueArray(),
             Fields      = []
         };
         if (!getFields) {
@@ -253,8 +253,8 @@ public sealed partial class ShaderGen
                 {
                     Name        = fieldSymbol.Name,
                     Type        = MapType(fieldSymbol.Type, true), // recursive call
-                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToImmutableArray()
-                }).ToImmutableArray();
+                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
+                }).ToValueArray();
         }
         return csType;
     }
@@ -280,7 +280,7 @@ public sealed partial class ShaderGen
         }
         return new CsAttribute {
             Identifier = GetIdentifier(attributeData.AttributeClass),
-            Args = args.ToImmutableArray()
+            Args = args.ToValueArray()
         };
     }
     
@@ -310,7 +310,7 @@ public sealed partial class ShaderGen
             IsClass             = !containingType.IsValueType,
             IsMethodStatic      = methodSymbol.IsStatic,
             MethodVisibility    = visibility,
-            ParamModifiers      = paramModifiers.ToImmutableArray()
+            ParamModifiers      = paramModifiers.ToValueArray()
         };
     }
 }
