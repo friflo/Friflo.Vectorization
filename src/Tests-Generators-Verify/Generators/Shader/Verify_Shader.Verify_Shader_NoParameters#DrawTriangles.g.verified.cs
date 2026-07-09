@@ -13,6 +13,5 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void DrawTriangles(
-){ }
+    public static partial void DrawTriangles() { }
 }

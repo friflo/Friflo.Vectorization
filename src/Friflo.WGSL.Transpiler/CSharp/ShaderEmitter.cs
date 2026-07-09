@@ -470,7 +470,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             return "()";
         }
         var signature = new StringBuilder();
-        signature.Append("(");
+        signature.Append("(\n");
         
         for (int n = 0; n < method.Parameters.Length; n++)
         {
