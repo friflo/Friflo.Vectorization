@@ -37,6 +37,7 @@ public class CsMethod
     public required     CsDrawVertexIndex?  DrawVertexIndex { get; init; }
     public required     CsType              DeclaringType   { get; init; }
     public required     CsParameter[]       Parameters      { get; init; }
+    public required     CsModifier          Modifier        { get; init; }
     
     public override string ToString()
     {

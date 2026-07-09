@@ -53,10 +53,10 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex, out var modifier);
+        method = CreateCsMethod(methodSymbol, shader, vertexShader, fragmentShader, drawVertexIndex);
         
         var emitShader = new ShaderEmitter(method, hash);
-        var code = emitShader.Emit(modifier);
+        var code = emitShader.Emit(method.Modifier);
 
         return code;
     }
@@ -67,8 +67,7 @@ public sealed partial class ShaderGen
         AttributeData?  shader,
         AttributeData?  vertexShader,
         AttributeData?  fragmentShader,
-        AttributeData?  drawVertexIndexAttr,
-        out CsModifier  modifier)
+        AttributeData?  drawVertexIndexAttr)
     {
         var declaringType       = MapType(methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
@@ -150,7 +149,7 @@ public sealed partial class ShaderGen
                 firstInstance   = (uint)args[3].Value!
             };
         }
-        modifier = CreateMethodModifier(methodSymbol, paramModifiers);
+        var modifier = CreateMethodModifier(methodSymbol, paramModifiers);
         
         return new CsMethod {
             Name            = methodSymbol.Name,
@@ -163,7 +162,8 @@ public sealed partial class ShaderGen
                 VertexEntry     = vertexEntry,
                 FragmentEntry   = fragmentEntry
             },
-            DrawVertexIndex = drawVertexIndex
+            DrawVertexIndex = drawVertexIndex,
+            Modifier        = modifier
         };
     }
     
