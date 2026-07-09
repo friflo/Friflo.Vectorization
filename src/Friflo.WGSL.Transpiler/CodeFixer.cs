@@ -13,10 +13,19 @@ public static class CodeFixer
     {
         WgslShaderMetadata shader = WgslSuperpowerParser.ParseShader(wgsl);
         var sb = new StringBuilder();
-        sb.Append("(RenderPass pass, RenderConfig config, ");
+        sb.Append("(RenderPass pass, RenderConfig config,\n");
 
-        foreach (var binding in shader.Bindings) {
-            var b = binding;
+        foreach (var b in shader.Bindings) {
+            switch (b.AddressSpace)
+            {
+            case "storage":
+                var bufferType = b.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
+                sb.Append($"        [BindStorage({b.Group}, {b.Binding})] {bufferType}<{b.WgslType}> {b.Name},\n");
+                break;
+            case "uniform":
+                sb.Append($"        [BindUniform({b.Group}, {b.Binding})] InBuffer<{b.WgslType}> {b.Name},\n");
+                break;
+            }
         }
         sb.Length -= 2;
         sb.Append(")");

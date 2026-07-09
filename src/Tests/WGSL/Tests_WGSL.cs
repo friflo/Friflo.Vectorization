@@ -51,6 +51,13 @@ public static class Tests_WGSL
     {
         var wgsl = ReadWgslResource("Tests.shaders.triangle.wgsl");
         var shaderParams = CodeFixer.CreateShaderParams(wgsl);
+        Assert.That(shaderParams, Is.EqualTo(
+            """
+            (RenderPass pass, RenderConfig config,
+                    [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
+                    [BindUniform(1, 0)] InBuffer<MyUniforms> myUniforms)
+            """));
+        
     }
     
 }
