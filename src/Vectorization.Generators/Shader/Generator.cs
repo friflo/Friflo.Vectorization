@@ -62,24 +62,26 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.ShaderAttribute))
-            .Combine(wgslFiles).Combine(context.CompilationProvider);
+            .Combine(wgslFiles);
         
         var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.VertexShaderAttribute))
-            .Combine(wgslFiles).Combine(context.CompilationProvider);
+            .Combine(wgslFiles);
 
         var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.FragmentShaderAttribute))
-            .Combine(wgslFiles).Combine(context.CompilationProvider);
+            .Combine(wgslFiles);
 
-        // Register outputs individually - zero interference, maximum Roslyn-native caching
-        context.RegisterSourceOutput(shaderMethod,         EmitWithHash);
-        context.RegisterSourceOutput(vertexShaderMethod,   EmitWithHash);
-        context.RegisterSourceOutput(fragmentShaderMethod, EmitWithHash);
+
+        // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
+        // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
+        context.RegisterSourceOutput(shaderMethod.        Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
+        context.RegisterSourceOutput(vertexShaderMethod.  Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
+        context.RegisterSourceOutput(fragmentShaderMethod.Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
     }
     
     private static void EmitWithHash(
