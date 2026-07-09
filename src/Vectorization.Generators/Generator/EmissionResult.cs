@@ -117,7 +117,7 @@ public readonly struct EmissionResult : IEquatable<EmissionResult>
     }
 }
 
-public record struct DiagnosticData(
+public readonly record struct DiagnosticData(
     DiagnosticDescriptor    Descriptor,
     string                  FilePath,
     // Location?              Location, // has reference to SyntaxTree. Too heavy in memory use. 
@@ -128,4 +128,14 @@ public record struct DiagnosticData(
     int                     EndLine,        // Just an int
     int                     EndColumn,      // Just an int
     object?[]?              MessageArgs
-);
+) {
+    internal void ReportDiagnostic(SourceProductionContext productionContext)
+    {
+        var start       = new LinePosition(StartLine, StartColumn);
+        var end         = new LinePosition(EndLine, EndColumn);
+        var lineSpan    = new LinePositionSpan(start, end);
+        var location    = Location.Create(FilePath, new TextSpan(StartOffset, Length), lineSpan);
+        var diagnostic  = Diagnostic.Create(Descriptor, location, MessageArgs);
+        productionContext.ReportDiagnostic(diagnostic);
+    }   
+};

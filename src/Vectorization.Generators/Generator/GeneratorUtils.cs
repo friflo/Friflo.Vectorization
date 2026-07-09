@@ -49,12 +49,7 @@ public static class GeneratorUtils
             return;
         }
         foreach (var data in emissionResult.diagnostics) {
-            var start       = new LinePosition(data.StartLine, data.StartColumn);
-            var end         = new LinePosition(data.EndLine, data.EndColumn);
-            var lineSpan    = new LinePositionSpan(start, end);
-            var location    = Location.Create(data.FilePath, new TextSpan(data.StartOffset, data.Length), lineSpan);
-            var diagnostic  = Diagnostic.Create(data.Descriptor, location, data.MessageArgs);
-            productionContext.ReportDiagnostic(diagnostic);
+            data.ReportDiagnostic(productionContext);
         }
         if (emissionResult.code == "") {
             return;

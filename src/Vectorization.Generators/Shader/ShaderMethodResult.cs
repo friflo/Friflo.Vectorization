@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 // ReSharper disable ConvertToPrimaryConstructor
 
@@ -10,8 +11,8 @@ namespace Friflo;
 
 public class ShaderMethodResult : IEquatable<ShaderMethodResult>
 {
-    public  readonly    CsMethod    method;
-    private readonly    int         hashCode;
+    public  readonly    CsMethod        method;
+    private readonly    int             hashCode;
     
     public ShaderMethodResult(CsMethod method) {
         this.method = method;
