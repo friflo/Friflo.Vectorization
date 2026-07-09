@@ -11,7 +11,7 @@ using System.Text;
 // ReSharper disable ClassNeverInstantiated.Global
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-public readonly struct CsShaderSource
+public readonly record struct CsShaderSource
 {
     public required     string  Shader          { get; init; }  // WGPU attribute:      ShaderAttribute
     public required     string  VertexShader    { get; init; }  // WGPU attribute:      VertexShaderAttribute
@@ -21,7 +21,7 @@ public readonly struct CsShaderSource
 }
 
 // WGPU attribute:  DrawVertexIndexAttribute
-public readonly struct CsDrawVertexIndex
+public readonly record struct CsDrawVertexIndex
 {
     public required     uint    vertexCount     { get; init; }
     public required     uint    instanceCount   { get; init; }
@@ -30,7 +30,7 @@ public readonly struct CsDrawVertexIndex
 }
 
 
-public class CsMethod
+public record CsMethod
 {
     public required     string                      Name            { get; init; }
     public required     CsShaderSource              Source          { get; init; }
@@ -57,7 +57,7 @@ public class CsMethod
     }
 }
 
-public readonly struct CsAttribute
+public readonly record struct CsAttribute
 {
     public required     CsTypeIdentifier                Identifier  { get; init; }
     public required     ImmutableArray<CsAttributeArg>  Args        { get; init; }
@@ -67,7 +67,7 @@ public readonly struct CsAttribute
     public CsAttribute() { }
 }
 
-public readonly struct CsAttributeArg
+public readonly record struct CsAttributeArg
 {
     public required     string  Name        { get; init; }
     public required     string  Value       { get; init; } // string or int
@@ -77,14 +77,14 @@ public readonly struct CsAttributeArg
     public CsAttributeArg() { }
 }
 
-public readonly struct CsEnum {
+public readonly record struct CsEnum {
     public required     string  Name   { get; init; }
     public required     ulong   Value  { get; init; }
     
     public override     string  ToString() => Name;
 }
 
-public readonly struct CsAttrEnum
+public readonly record struct CsAttrEnum
 {
     public required     CsEnum  enum1   { get; init; } // WGSL enum:  ST,    WGPU enum:  TextureFormat
     public required     CsEnum  enum2   { get; init; } // WGSL enum:  TSA
@@ -136,14 +136,14 @@ public enum CsDrawType
     // Index
 }
 
-public readonly struct CsBindGroup
+public readonly record struct CsBindGroup
 {
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
     public required     int     group           { get; init; }
     public required     int     binding         { get; init; }
 }
 
-public readonly struct CsParameter
+public readonly record struct CsParameter
 {
     public required     string              Name            { get; init; }
     public required     CsDrawType          DrawType        { get; init; }
@@ -178,8 +178,8 @@ public readonly struct CsParameter
     public CsParameter() { }
 }
 
-/// Is a class - it has an identity
-public class CsType
+/// Is a record - it has an identity
+public record CsType
 {
     public required     CsTypeIdentifier                    Identifier  { get; init; }
     public required     ImmutableArray<CsTypeIdentifier>    Generics    { get; init; } // generic type arguments
@@ -203,7 +203,7 @@ public class CsType
     }
 }
 
-public readonly struct CsField
+public readonly record struct CsField
 {
     public required     ImmutableArray<CsAttribute> Attributes  { get; init; }
     public required     CsType                      Type        { get; init; }
@@ -221,7 +221,7 @@ public readonly struct CsField
     public CsField() { }
 }
 
-public readonly struct CsTypeIdentifier
+public readonly record struct CsTypeIdentifier
 {
     public required     string  Name        { get; init; }
     public required     string  Namespace   { get; init; }
@@ -230,7 +230,7 @@ public readonly struct CsTypeIdentifier
 }
 
 // --- modifier - not relevant for wgpu specific code
-public readonly struct CsModifier
+public readonly record struct CsModifier
 {
     public required     string	                        MethodVisibility	{ get; init; }
     public required     bool                            IsMethodStatic    	{ get; init; }
@@ -238,7 +238,7 @@ public readonly struct CsModifier
     public required     ImmutableArray<CsParamModifier> ParamModifiers      { get; init; }
 }
 
-public readonly struct CsParamModifier
+public readonly record struct CsParamModifier
 {
     public required     string	type	{ get; init; }
 }
