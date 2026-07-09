@@ -25,6 +25,13 @@ public enum ShaderTrigger
     FragmentShaderAttribute,
 }
 
+public readonly struct WgslFile
+{
+    public required string  NormalizedPath  { get; init; }
+    public required ulong   Hash            { get; init; }
+    public required string  Content         { get; init; }
+}
+
 [Generator]
 public sealed partial class ShaderGen : IIncrementalGenerator
 {
@@ -37,14 +44,16 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     // In algorithmic context this code generator is a "Recursive Descent Streaming Transpiler"
     private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
     {
-        var wgslHashes = context.AdditionalTextsProvider
+        var wgslFiles = context.AdditionalTextsProvider
         .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
         .Select((text, cancellationToken) =>
         {
             var content             = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
-            ulong   hash            = ComputeFnv1A64(content);
-            var     normalizedPath  = text.Path.Replace("\\", "/");
-            return (FilePath: normalizedPath, Hash: hash);
+            return new WgslFile {
+                NormalizedPath  = text.Path.Replace("\\", "/"),
+                Hash            = ComputeFnv1A64(content),
+                Content         = content
+            };
         }).Collect();
         
         // ------ [Shader] [VertexShader] [FragmentShader]
@@ -52,19 +61,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.ShaderAttribute))
-            .Combine(wgslHashes);
+            .Combine(wgslFiles);
         
         var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.VertexShaderAttribute))
-            .Combine(wgslHashes);
+            .Combine(wgslFiles);
 
         var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.FragmentShaderAttribute))
-            .Combine(wgslHashes);
+            .Combine(wgslFiles);
 
         // Register outputs individually - zero interference, maximum Roslyn-native caching
         context.RegisterSourceOutput(shaderMethod,         EmitWithHash);
@@ -74,9 +83,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void EmitWithHash(
         SourceProductionContext spc,
-        (ShaderMethodResult Result, ImmutableArray<(string FilePath, ulong Hash)> Files) source)
+        (ShaderMethodResult Result, ImmutableArray<WgslFile> Files) source)
     {
-        (ShaderMethodResult result, ImmutableArray<(string FilePath, ulong Hash)> files) = source;
+        (ShaderMethodResult result, ImmutableArray<WgslFile> files) = source;
         
         if (result.error.exceptionMessage != null) {
             result.error.ReportException(spc);
@@ -95,7 +104,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ulong wgslHash = 0;
         
         foreach (var file in files) {
-            var filePath = file.FilePath;
+            var filePath = file.NormalizedPath;
             if (targetFile1 != null && filePath.EndsWith(targetFile1)) {
                 wgslHash = file.Hash;
             }
