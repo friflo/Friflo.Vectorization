@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Friflo.Vectorization.Generators;
+using Friflo.WGSL.Transpiler;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -177,8 +178,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     
     private static void AddShaderParameterDiagnostic(SourceProductionContext spc, ShaderMethodResult result, string wgslContent)
     {
+        var parameters = CodeFixer.CreateShaderParams(wgslContent);
         var properties = ImmutableDictionary<string, string?>.Empty
-            .Add("ShaderParams", "(RenderPass pass, RenderConfig config)");
+            .Add($"ShaderParams", parameters);
         var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, properties: properties);
         spc.ReportDiagnostic(diagnostic);
     }

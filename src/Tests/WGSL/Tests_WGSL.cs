@@ -46,4 +46,11 @@ public static class Tests_WGSL
         Assert.AreEqual(1, metadata.Bindings.Count);
     }
     
+    [Test]
+    public static void Tests_WGSL_GenerateParameters()
+    {
+        var wgsl = ReadWgslResource("Tests.shaders.triangle.wgsl");
+        var shaderParams = CodeFixer.CreateShaderParams(wgsl);
+    }
+    
 }
