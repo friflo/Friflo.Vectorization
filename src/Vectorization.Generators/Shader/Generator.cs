@@ -181,7 +181,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var parameters = CodeFixer.CreateShaderParams(wgslContent);
         var properties = ImmutableDictionary<string, string?>.Empty
             .Add($"ShaderParams", parameters);
-        var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, properties: properties);
+        var diagnostic = Diagnostic.Create(Errors.MissingParameters, result.location, messageArgs: result.method!.Name, properties: properties);
         spc.ReportDiagnostic(diagnostic);
     }
 }
