@@ -7,6 +7,7 @@ using System.Linq;
 using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
+// ReSharper disable UseCollectionExpression
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
@@ -154,7 +155,7 @@ public sealed partial class ShaderGen
         return new CsMethod {
             Name            = methodSymbol.Name,
             DeclaringType   = declaringType,
-            Parameters      = parameters,
+            Parameters      = parameters.ToImmutableArray(),
             Source          = new CsShaderSource {
                 Shader          = (string)shader?        .ConstructorArguments[0].Value!,
                 VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
@@ -234,8 +235,8 @@ public sealed partial class ShaderGen
         var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
         var csType = new CsType {
             Identifier  = GetIdentifier(typeSymbol),
-            Generics    = genericIdentifiers,
-            Attributes  = attributes,
+            Generics    = genericIdentifiers.ToImmutableArray(),
+            Attributes  = attributes.ToImmutableArray(),
             Fields      = []
         };
         if (!getFields) {
@@ -252,8 +253,8 @@ public sealed partial class ShaderGen
                 {
                     Name        = fieldSymbol.Name,
                     Type        = MapType(fieldSymbol.Type, true), // recursive call
-                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToArray()
-                }).ToArray();
+                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToImmutableArray()
+                }).ToImmutableArray();
         }
         return csType;
     }
@@ -279,7 +280,7 @@ public sealed partial class ShaderGen
         }
         return new CsAttribute {
             Identifier = GetIdentifier(attributeData.AttributeClass),
-            Args = args
+            Args = args.ToImmutableArray()
         };
     }
     
@@ -309,7 +310,7 @@ public sealed partial class ShaderGen
             IsClass             = !containingType.IsValueType,
             IsMethodStatic      = methodSymbol.IsStatic,
             MethodVisibility    = visibility,
-            ParamModifiers      = paramModifiers
+            ParamModifiers      = paramModifiers.ToImmutableArray()
         };
     }
 }

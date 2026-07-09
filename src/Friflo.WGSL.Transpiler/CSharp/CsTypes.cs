@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 
 // ReSharper disable MergeIntoLogicalPattern
@@ -32,12 +32,12 @@ public readonly struct CsDrawVertexIndex
 
 public class CsMethod
 {
-    public required     string              Name            { get; init; }
-    public required     CsShaderSource      Source          { get; init; }
-    public required     CsDrawVertexIndex?  DrawVertexIndex { get; init; }
-    public required     CsType              DeclaringType   { get; init; }
-    public required     CsParameter[]       Parameters      { get; init; }
-    public required     CsModifier          Modifier        { get; init; }
+    public required     string                      Name            { get; init; }
+    public required     CsShaderSource              Source          { get; init; }
+    public required     CsDrawVertexIndex?          DrawVertexIndex { get; init; }
+    public required     CsType                      DeclaringType   { get; init; }
+    public required     ImmutableArray<CsParameter> Parameters      { get; init; }
+    public required     CsModifier                  Modifier        { get; init; }
     
     public override string ToString()
     {
@@ -59,10 +59,10 @@ public class CsMethod
 
 public readonly struct CsAttribute
 {
-    public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     List<CsAttributeArg>    Args        { get; init; }
+    public required     CsTypeIdentifier                Identifier  { get; init; }
+    public required     ImmutableArray<CsAttributeArg>  Args        { get; init; }
     
-    public override     string                  ToString() => Identifier.ToString();
+    public override     string                          ToString() => Identifier.ToString();
     
     public CsAttribute() { }
 }
@@ -181,17 +181,17 @@ public readonly struct CsParameter
 /// Is a class - it has an identity
 public class CsType
 {
-    public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     List<CsTypeIdentifier>  Generics    { get; init; } // generic type arguments
-    public required     CsAttribute[]           Attributes  { get; init; }
-    public required     CsField[]               Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
+    public required     CsTypeIdentifier                    Identifier  { get; init; }
+    public required     ImmutableArray<CsTypeIdentifier>    Generics    { get; init; } // generic type arguments
+    public required     ImmutableArray<CsAttribute>         Attributes  { get; init; }
+    public required     ImmutableArray<CsField>             Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
     
-    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
+    public override     string                              ToString() => AppendString(new StringBuilder()).ToString();
     
     public StringBuilder AppendString(StringBuilder sb)
     {
         sb.Append($"{Identifier.Name}");
-        if (Generics.Count == 0) return sb;
+        if (Generics.Length == 0) return sb;
         sb.Append("<");
         foreach (var generic in Generics) {
             sb.Append(generic.Name);
@@ -205,9 +205,9 @@ public class CsType
 
 public readonly struct CsField
 {
-    public required     CsAttribute[]   Attributes  { get; init; }
-    public required     CsType          Type        { get; init; }
-    public required     string          Name        { get; init; }
+    public required     ImmutableArray<CsAttribute> Attributes  { get; init; }
+    public required     CsType                      Type        { get; init; }
+    public required     string                      Name        { get; init; }
 
     public override string ToString()
     {
@@ -232,10 +232,10 @@ public readonly struct CsTypeIdentifier
 // --- modifier - not relevant for wgpu specific code
 public readonly struct CsModifier
 {
-    public required     string	            MethodVisibility	{ get; init; }
-    public required     bool                IsMethodStatic    	{ get; init; }
-    public required     bool                IsClass             { get; init; }
-    public required     CsParamModifier[]   ParamModifiers      { get; init; }
+    public required     string	                        MethodVisibility	{ get; init; }
+    public required     bool                            IsMethodStatic    	{ get; init; }
+    public required     bool                            IsClass             { get; init; }
+    public required     ImmutableArray<CsParamModifier> ParamModifiers      { get; init; }
 }
 
 public readonly struct CsParamModifier
