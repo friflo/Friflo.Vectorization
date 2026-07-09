@@ -12,8 +12,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MissingParametersCodeFixProvider)), Shared]
-public class MissingParametersCodeFixProvider : CodeFixProvider
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ShaderCodeFixProvider)), Shared]
+public class ShaderCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU003"];
 
@@ -34,9 +34,9 @@ public class MissingParametersCodeFixProvider : CodeFixProvider
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                "Generate parameters from wgsl",
+                $"Add parameters from wgsl for: {methodNode.Identifier.Text}()",
                 c => InsertParametersAsync(context.Document, methodNode.ParameterList, diagnostic, c),
-                "GenWgsl"),
+                equivalenceKey: "GenWgsl"),
             diagnostic);
     }
 

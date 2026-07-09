@@ -75,7 +75,7 @@ public class ShaderMethodResult : IEquatable<ShaderMethodResult>
     /// <b>Note:</b> Essential for Incremental Generators to prevent "SyntaxTree is not part of the compilation"  exceptions.
     /// It discards the obsolete syntax tree reference from previous compilation cycles and 
     /// maps the raw text span onto the current, active syntax tree matching the file path.<br/>
-    /// <b>Important:</b> Required for <see cref="MissingParametersCodeFixProvider"/> 
+    /// <b>Important:</b> Required for <see cref="ShaderCodeFixProvider"/> 
     /// </remarks>
     public Location GetFreshLocation(Compilation compilation)
     {
