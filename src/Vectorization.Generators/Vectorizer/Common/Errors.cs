@@ -6,6 +6,8 @@ using Microsoft.CodeAnalysis;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
+#pragma warning disable RS2008 // Enable analyzer release tracking for the analyzer project containing rule
+
 public static class Errors
 {
     public static readonly DiagnosticDescriptor InvalidComponentType = new (
