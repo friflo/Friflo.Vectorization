@@ -52,7 +52,7 @@ public class ShaderCodeFixProvider : CodeFixProvider
         Diagnostic          diagnostic,
         CancellationToken   cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("ShaderParams", out var paramString) || string.IsNullOrEmpty(paramString)) {
+        if (!diagnostic.Properties.TryGetValue("ShaderParams", out var paramString) || paramString == null || paramString == "") {
             return document;
         }
         var newParams = SyntaxFactory.ParseParameterList(paramString);
