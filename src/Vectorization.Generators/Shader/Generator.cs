@@ -80,12 +80,12 @@ public sealed partial class ShaderGen : IIncrementalGenerator
 
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
         // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
-        context.RegisterSourceOutput(shaderMethod.        Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
-        context.RegisterSourceOutput(vertexShaderMethod.  Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
-        context.RegisterSourceOutput(fragmentShaderMethod.Combine(context.CompilationProvider), (spc, source) => EmitWithHash(spc, (source.Left, source.Right)));
+        context.RegisterSourceOutput(shaderMethod.        Combine(context.CompilationProvider), EmitShader);
+        context.RegisterSourceOutput(vertexShaderMethod.  Combine(context.CompilationProvider), EmitShader);
+        context.RegisterSourceOutput(fragmentShaderMethod.Combine(context.CompilationProvider), EmitShader);
     }
     
-    private static void EmitWithHash(
+    private static void EmitShader(
         SourceProductionContext spc,
         ((ShaderMethodResult Result, ImmutableArray<WgslFile> Files), Compilation Compilation) source)
     {
