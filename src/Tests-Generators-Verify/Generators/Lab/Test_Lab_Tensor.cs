@@ -1,11 +1,10 @@
 using System;
 using System.Runtime.Intrinsics.X86;
-using Friflo.Engine.ECS;
 using Friflo.Vectorization;
 using NUnit.Framework;
 
+// ReSharper disable InconsistentNaming
 namespace Tests.Generators.Lab;
-
 
 
 public static class Test_Lab_Tensor
@@ -18,7 +17,6 @@ public static class Test_Lab_Tensor
     
     public static void MultiplyAddVector(Span<float> a, ReadOnlySpan<float> b, float c, bool vectorized = true)
     {
-        int n = 0;
         if (vectorized) {
             if (Avx.IsSupported) {
                 // n = MultiplyAddVector_Avx(a, b, c);
