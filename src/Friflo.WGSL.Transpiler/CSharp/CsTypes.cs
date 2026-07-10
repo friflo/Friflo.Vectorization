@@ -3,11 +3,8 @@
 
 using System.Text;
 
-// ReSharper disable MergeIntoLogicalPattern
-// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Global
-// ReSharper disable UnusedType.Global
-// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
 
 // WGPU attribute:  ShaderAttribute
@@ -186,13 +183,7 @@ public record CsTypeInfo
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
     
-    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
-    
-    public StringBuilder AppendString(StringBuilder sb)
-    {
-        sb.Append($"{Identifier.Name}");
-        return sb;
-    }
+    public override     string                  ToString() => Identifier.Name;
 }
 
 public readonly record struct CsField
