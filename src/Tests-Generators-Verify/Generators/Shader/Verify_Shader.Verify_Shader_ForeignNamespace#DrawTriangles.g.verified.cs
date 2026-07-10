@@ -101,7 +101,6 @@ public partial class ShaderExample
         }
         layouts[2] = layout_2;
         
-
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawTriangles_GPU_Shaders(), "DrawTriangles_pipeline"u8);
 
         var bindGroupCache = new _DrawTriangles_GPU_Cache();

@@ -75,7 +75,6 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawInstanced_GPU_Shaders(), "DrawInstanced_pipeline"u8);
 
         var bindGroupCache = new _DrawInstanced_GPU_Cache();

@@ -64,7 +64,6 @@ public partial struct ShaderExample
         }
         layouts[0] = layout_0;
         
-
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderTunnel_GPU_Shaders(), "RenderTunnel_pipeline"u8);
 
         var bindGroupCache = new _RenderTunnel_GPU_Cache();

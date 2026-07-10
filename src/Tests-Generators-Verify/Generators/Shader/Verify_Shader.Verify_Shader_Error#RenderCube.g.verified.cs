@@ -81,7 +81,6 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderCube_GPU_Shaders(), "RenderCube_pipeline"u8);
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
