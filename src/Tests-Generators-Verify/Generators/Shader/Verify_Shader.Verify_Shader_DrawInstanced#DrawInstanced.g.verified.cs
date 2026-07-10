@@ -16,7 +16,7 @@ public partial class ShaderExample
     private static partial void DrawInstanced(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Single>            verticesBuffer,
+        InBuffer<float>             verticesBuffer,
         InBuffer<Matrix4x4>         mvpMatrices)
     {
 

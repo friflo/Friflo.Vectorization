@@ -16,7 +16,7 @@ public partial class ShaderExample
     protected static partial void RenderCube(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Single>            vertices,
+        InBuffer<float>             vertices,
         in Uniforms                 uniforms,
         GpuSampler                  smoothFilter,
         GpuTextureView              material)

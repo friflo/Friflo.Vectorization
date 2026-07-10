@@ -282,6 +282,32 @@ public sealed partial class ShaderGen
     
     private static CsTypeIdentifier GetIdentifier(ITypeSymbol? symbol)
     {
+        if (symbol != null)
+        {
+            var knownType = symbol.SpecialType switch {
+                SpecialType.System_Boolean  => "bool",
+                SpecialType.System_Char     => "char",
+                //
+                SpecialType.System_Byte     => "byte",
+                SpecialType.System_SByte    => "sbyte",
+                SpecialType.System_Int16    => "short",
+                SpecialType.System_UInt16   => "ushort",
+                SpecialType.System_Int32    => "int",
+                SpecialType.System_UInt32   => "uint",
+                SpecialType.System_Int64    => "long",
+                SpecialType.System_UInt64   => "ulong",
+                //
+                SpecialType.System_Single   => "float",
+                SpecialType.System_Double   => "double",
+                _                           => null
+            };
+            if (knownType != null) {
+                return new CsTypeIdentifier {
+                    Name        = knownType,
+                    Namespace   = ""
+                };
+            }
+        }
         var ns = symbol?.ContainingNamespace?.IsGlobalNamespace == false
                     ? symbol.ContainingNamespace.ToDisplayString()
                     : string.Empty;
