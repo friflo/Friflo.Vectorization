@@ -101,13 +101,13 @@ public partial class ShaderExample
         }
         layouts[2] = layout_2;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawTriangles_GPU_Shaders(), "DrawTriangles_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawTriangles_GPU_Shaders, "DrawTriangles_pipeline"u8);
 
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] _DrawTriangles_GPU_Shaders() => [
+    private static readonly WgpuShader[] _DrawTriangles_GPU_Shaders = [
         new WgpuShader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main"),
     ];
 

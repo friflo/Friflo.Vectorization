@@ -85,13 +85,13 @@ public partial class RenderTest
         }
         layouts[1] = layout_1;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(RenderTest), Triangles_GPU_Shaders(), "Triangles_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(RenderTest), Triangles_GPU_Shaders, "Triangles_pipeline"u8);
         
         var bindGroupCache = new Triangles_GPU_Cache();
         return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] Triangles_GPU_Shaders() => [
+    private static readonly WgpuShader[] Triangles_GPU_Shaders = [
         new WgpuShader("shaders/triangle.wgsl")
     ];
 }

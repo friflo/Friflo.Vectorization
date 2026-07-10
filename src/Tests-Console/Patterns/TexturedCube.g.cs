@@ -80,7 +80,7 @@ public partial class TexturedCube
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(TexturedCube), TextureTest_GPU_Shaders(), "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(TexturedCube), TextureTest_GPU_Shaders, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
@@ -89,7 +89,7 @@ public partial class TexturedCube
     private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/basic.vert.wgsl");
     private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/sampleTextureMixColor.frag.wgsl");
     
-    private static WgpuShader[] TextureTest_GPU_Shaders() => [
+    private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
         new WgpuShader("shaders/basic.vert.wgsl",                   vert: "main"),
         new WgpuShader("shaders/sampleTextureMixColor.frag.wgsl",   frag: "main")
     ];

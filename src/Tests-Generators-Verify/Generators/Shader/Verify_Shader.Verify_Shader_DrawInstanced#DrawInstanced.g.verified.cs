@@ -75,13 +75,13 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawInstanced_GPU_Shaders(), "DrawInstanced_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawInstanced_GPU_Shaders, "DrawInstanced_pipeline"u8);
 
         var bindGroupCache = new _DrawInstanced_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] _DrawInstanced_GPU_Shaders() => [
+    private static readonly WgpuShader[] _DrawInstanced_GPU_Shaders = [
         new WgpuShader("shaders/instanced.vert.wgsl", vert: "main"),
         new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];

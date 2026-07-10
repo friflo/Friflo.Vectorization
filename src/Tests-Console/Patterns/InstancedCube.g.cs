@@ -75,13 +75,13 @@ public partial class InstancedCube
         }
         layouts[0] = layout_0;
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(InstancedCube), TextureTest_GPU_Shaders(), "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(InstancedCube), TextureTest_GPU_Shaders, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] TextureTest_GPU_Shaders() => [
+    private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
         new WgpuShader("shaders/instanced.vert.wgsl",           vert: "main"),
         new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];

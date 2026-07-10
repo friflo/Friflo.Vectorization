@@ -81,13 +81,13 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderCube_GPU_Shaders(), "RenderCube_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderCube_GPU_Shaders, "RenderCube_pipeline"u8);
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] _RenderCube_GPU_Shaders() => [
+    private static readonly WgpuShader[] _RenderCube_GPU_Shaders = [
         new WgpuShader("shaders/basic.vert.wgsl", vert: "main"),
     ];
 

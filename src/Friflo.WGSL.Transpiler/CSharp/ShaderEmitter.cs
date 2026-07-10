@@ -54,7 +54,7 @@ public sealed class ShaderEmitter
         
         var shaderResources = new StringBuilder();
         
-        shaderResources.Append($"    private static WgpuShader[] {methodName_GPU}_Shaders() => [\n");
+        shaderResources.Append($"    private static readonly WgpuShader[] {methodName_GPU}_Shaders = [\n");
         foreach (var shader in method.Shaders) {
             shaderResources.Append($"        new WgpuShader(\"{shader.path}\"");
             if (shader.vert != null) shaderResources.Append($", vert: \"{shader.vert}\"");
@@ -155,7 +155,7 @@ $$"""
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
-{{bindGroupLayouts}}        var pipeline = device.CreateRenderPipeline(layouts, config, typeof({{className}}), {{methodName_GPU}}_Shaders(), "{{methodName}}_pipeline"u8);
+{{bindGroupLayouts}}        var pipeline = device.CreateRenderPipeline(layouts, config, typeof({{className}}), {{methodName_GPU}}_Shaders, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);

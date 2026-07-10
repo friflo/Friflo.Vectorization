@@ -87,13 +87,13 @@ public partial class ShadowMapping
         }
         layouts[1] = layout_1;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShadowMapping), Shadow_GPU_Shaders(), "Shadow_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShadowMapping), Shadow_GPU_Shaders, "Shadow_pipeline"u8);
 
         var bindGroupCache = new Shadow_GPU_Cache();
         return ref device.CreatePipelineCache(Shadow_GPU_ShaderId, config, Shadow_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] Shadow_GPU_Shaders() => [
+    private static readonly WgpuShader[] Shadow_GPU_Shaders = [
         new WgpuShader("shaders/shadowMapping/vertexShadow.wgsl", vert: "main")
     ];
 }

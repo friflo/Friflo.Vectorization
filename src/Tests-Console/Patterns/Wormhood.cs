@@ -58,13 +58,13 @@ public static partial class Wormhood
         }
         layouts[0] = layout_0;
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Wormhood), Wormhood_GPU_Shaders(), "Wormhood_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Wormhood), Wormhood_GPU_Shaders, "Wormhood_pipeline"u8);
         
         var bindGroupCache = new Wormhood_GPU_Cache();
         return ref device.CreatePipelineCache(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static WgpuShader[] Wormhood_GPU_Shaders() => [
+    private static readonly WgpuShader[] Wormhood_GPU_Shaders = [
         new WgpuShader("shaders/full_screen_triangle.wgsl",  vert: "vs_main"),
         new WgpuShader("shaders/raymarcher_no_texture.wgsl", frag: "fs_main")
     ];
