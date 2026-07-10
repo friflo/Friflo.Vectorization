@@ -70,7 +70,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
     
-    public static int Main(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
+    public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
         var sdl = new SdlWindow(title + " - friflo GPU", width, height, createRenderer);
         SDL.SetMainReady();

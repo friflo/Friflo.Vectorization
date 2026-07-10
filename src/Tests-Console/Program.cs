@@ -5,14 +5,19 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using TestConsole;
 
+// ReSharper disable HeuristicUnreachableCode
+#pragma warning disable CS0162 // Unreachable code detected
+
 Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 🙂
 
-SdlWindow.Main("ShadowMapping",  1280, 720, wgpu => new ShadowMapping(wgpu));
-SdlWindow.Main("InstancedCube",  1280, 720, wgpu => new InstancedCube(wgpu));
-SdlWindow.Main("TwoCubes",       1280, 720, wgpu => new TwoCubes(wgpu));
-SdlWindow.Main("TexturedCube",   1280, 720, wgpu => new TexturedCube(wgpu));
-SdlWindow.Main("ConfigTest",     1280, 720, wgpu => new ConfigTest(wgpu));
-return SdlWindow.Main("RenderTest",     1280, 720, wgpu => new RenderTest(wgpu));
+
+SdlWindow.Run("ShadowMapping",  1280, 720, wgpu => new ShadowMapping(wgpu));
+SdlWindow.Run("InstancedCube",  1280, 720, wgpu => new InstancedCube(wgpu));
+SdlWindow.Run("TwoCubes",       1280, 720, wgpu => new TwoCubes(wgpu));
+SdlWindow.Run("TexturedCube",   1280, 720, wgpu => new TexturedCube(wgpu));
+SdlWindow.Run("ConfigTest",     1280, 720, wgpu => new ConfigTest(wgpu));
+return SdlWindow.Run("RenderTest",     1280, 720, wgpu => new RenderTest(wgpu));
+
 
 // using var instance    = CpuInstance.CreateInstance();
 // using var adapter     = instance.CreateAdapter(GpuBackendType.SIMD);
