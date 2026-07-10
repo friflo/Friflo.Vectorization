@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using Friflo.Vectorization.GPU;
 
 // ReSharper disable once CheckNamespace
@@ -23,7 +24,8 @@ public sealed class CpuInstance : GpuInstance
     public CpuAdapter CreateAdapter(GpuBackendType backendType) {
         var info = backendType switch {
             GpuBackendType.SIMD     => CpuAdapterInfo.Simd,
-            GpuBackendType.Scalar   => CpuAdapterInfo.Scalar
+            GpuBackendType.Scalar   => CpuAdapterInfo.Scalar,
+            _                       => throw new NotSupportedException($"backendType: {backendType} not supported by CpuInstance")
         };
         return new CpuAdapter(this, info);
     }

@@ -34,7 +34,7 @@ public readonly struct InOutView<T> where T : unmanaged
     
     /// <summary> Queues the view data for transfer from GPU to host memory. </summary>
     /// <remarks>
-    /// Note: Data is not available until <see cref="PipelineContext.ReadBuffers"/> has been 
+    /// Note: Data is not available until <see cref="GpuQueue.ReadBuffers"/> has been 
     /// called and synchronization is complete. This call is non-blocking.
     /// </remarks>
     public InOutView<T> Read() {
@@ -44,7 +44,7 @@ public readonly struct InOutView<T> where T : unmanaged
     
     /// <summary> Queues the view data for transfer from GPU to host memory. </summary>
     /// <remarks>
-    /// Note: Data is not available until <see cref="PipelineContext.ReadBuffers"/> has been 
+    /// Note: Data is not available until <see cref="GpuQueue.ReadBuffers"/> has been 
     /// called and synchronization is complete. This call is non-blocking.
     /// </remarks>
     public InOutView<T> Read(PipelineContext context) {
