@@ -24,7 +24,7 @@ public sealed partial class ShaderGen
         string                          hash,
         Diagnostics                     diagnostics)
     {
-        var noEmit          = GeneratorUtils.HasAttribute    (methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
+        var noEmit = GeneratorUtils.HasAttribute(methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         if (noEmit) {
             return null;
         }

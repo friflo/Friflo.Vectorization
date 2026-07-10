@@ -61,7 +61,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
 
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
         // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
-        context.RegisterSourceOutput(shaderMethod.        Combine(context.CompilationProvider), EmitShader);
+        context.RegisterSourceOutput(shaderMethod.Combine(context.CompilationProvider), EmitShader);
     }
     
     private static void EmitShader(
@@ -77,19 +77,17 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         foreach (var diagnostic in result.diagnostics) {
             diagnostic.ReportDiagnostic(spc);
         }
-        var method      = result.method;
-        if (method == null) return;
-        
-        // spc.AddSource(emissionResult.name, emissionResult.code);  // test without WGSL hash replacement
-
-        var shaders = method.Shaders;
+        var method = result.method;
+        if (method == null) {
+            return;
+        }
         ulong wgslHash = 0;
 
         // only used for CodeFixProvider to generate method parameters based on wgsl
         var wgslContents = new List<string>();
         
         foreach (var file in files) {
-            foreach (var shader in shaders)
+            foreach (var shader in  method.Shaders)
             {
                 if (file.NormalizedPath.EndsWith(shader.path)) {
                     wgslHash ^= file.Hash;
@@ -137,7 +135,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         }
     }
     
-    private static ShaderMethodResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol)
+    private static ShaderMethodResult GenerateShader(SemanticModel _, ISymbol targetSymbol)
     {
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new ShaderMethodResult([]);
