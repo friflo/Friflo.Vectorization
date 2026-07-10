@@ -8,6 +8,7 @@ using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable InvertIf
 // ReSharper disable UseCollectionExpression
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
@@ -46,7 +47,8 @@ public sealed partial class ShaderGen
         List<AttributeData> shaderAttributes,
         AttributeData?      drawVertexIndexAttr)
     {
-        var declaringType       = MapType(methodSymbol.ContainingType, false);
+        var types               = new Dictionary<CsTypeIdentifier, CsTypeInfo>();
+        var declaringType       = MapType(types, methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
         var parameters          = new CsParameter    [methodParameters.Length];
         var paramModifiers      = new CsParamModifier[methodParameters.Length];
@@ -94,7 +96,7 @@ public sealed partial class ShaderGen
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawType        = drawType,
-                Type            = MapType(paramSymbol.Type, paramAttribute != CsParamAttribute.None),
+                Type            = MapType(types, paramSymbol.Type, paramAttribute != CsParamAttribute.None),
                 ParamAttribute  = paramAttribute,
                 BindGroup       = new CsBindGroup {
                     group           = arg0,
@@ -145,6 +147,7 @@ public sealed partial class ShaderGen
             Parameters      = parameters.ToValueArray(),
             Shaders         = shaders.ToValueArray(),
             DrawVertexIndex = drawVertexIndex,
+            TypeInfos       = types.Values.ToValueArray(), 
             Modifier        = modifier
         };
     }
@@ -203,41 +206,53 @@ public sealed partial class ShaderGen
         return CsParamAttribute.None;
     }
 
-    private static CsType MapType(ITypeSymbol typeSymbol, bool getFields)
+    private static CsType MapType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
     {
-        var genericIdentifiers = new List<CsTypeIdentifier>();
+        var type = GetIdentifier(typeSymbol);
+        if (getFields)
+        {
+            if (!types.ContainsKey(type))
+            {
+                var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
+                var typeInfo = new CsTypeInfo {
+                    Identifier  = GetIdentifier(typeSymbol),
+                    Attributes  = attributes.ToValueArray(),
+                    Fields      = []
+                };
+                // recursion only for struct types
+                if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol structSymbol)
+                {
+                    typeInfo.Fields = structSymbol.GetMembers()
+                        .OfType<IFieldSymbol>()
+                        .Where(fieldSymbol => !fieldSymbol.IsStatic)
+                        .Select(fieldSymbol => new CsField
+                        {
+                            Name        = fieldSymbol.Name,
+                            Type        = MapType(types, fieldSymbol.Type, true), // recursive call
+                            Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
+                        }).ToValueArray();
+                }
+                types.Add(type, typeInfo);
+            }
+        }
+        
+        var genericIdentifiers = new List<CsType>();
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
             foreach (var typeArg in namedType.TypeArguments) {
-                genericIdentifiers.Add(GetIdentifier(typeArg));
+                var identifier = GetIdentifier(typeArg);
+                genericIdentifiers.Add(new CsType {
+                    Name        = identifier.Name,
+                    Namespace   = identifier.Namespace,
+                    Generics    = default
+                });
             }
         }
-
-        var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
-        var csType = new CsType {
-            Identifier  = GetIdentifier(typeSymbol),
-            Generics    = genericIdentifiers.ToValueArray(),
-            Attributes  = attributes.ToValueArray(),
-            Fields      = []
+        return new CsType {
+            Name        = type.Name,
+            Namespace   = type.Namespace,
+            Generics    = genericIdentifiers.ToValueArray()
         };
-        if (!getFields) {
-            return csType;
-        }
-
-        // recursion only for struct types
-        if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol structSymbol)
-        {
-            csType.Fields = structSymbol.GetMembers()
-                .OfType<IFieldSymbol>()
-                .Where(fieldSymbol => !fieldSymbol.IsStatic)
-                .Select(fieldSymbol => new CsField
-                {
-                    Name        = fieldSymbol.Name,
-                    Type        = MapType(fieldSymbol.Type, true), // recursive call
-                    Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
-                }).ToValueArray();
-        }
-        return csType;
     }
 
     private static CsAttribute MapAttribute(AttributeData attributeData)
@@ -260,7 +275,7 @@ public sealed partial class ShaderGen
             });
         }
         return new CsAttribute {
-            Identifier = GetIdentifier(attributeData.AttributeClass),
+            Type = GetIdentifier(attributeData.AttributeClass),
             Args = args.ToValueArray()
         };
     }

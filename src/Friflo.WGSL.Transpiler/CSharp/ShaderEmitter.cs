@@ -50,7 +50,7 @@ public sealed class ShaderEmitter
             return header + " { }\n}\n";
         }
 
-        var className       = method.DeclaringType.Identifier.Name;
+        var className       = method.DeclaringType.Name;
         
         var shaderModules   = new StringBuilder();
         var shaderResources = new StringBuilder();
@@ -81,7 +81,6 @@ public sealed class ShaderEmitter
         
         foreach (var bindGroup in bindGroups)
         {
-            var name = bindGroup.Name;
             if (curBindGroupLayout == null ||
                 curBindGroupLayout.groupIndex != bindGroup.BindGroup.group)
             {
@@ -307,7 +306,7 @@ $$"""
                     body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                     return;
                 }
-                var uniformType = binding.Type.Identifier.Name;
+                var uniformType = binding.Type.Name;
                 body.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
                 return;
             case SamplerFiltering:
@@ -426,7 +425,7 @@ $$"""
     {
         var signature   = GetSignature(method);
         var modifier    = method.Modifier;
-        var className   = method.DeclaringType.Identifier.Name;
+        var className   = method.DeclaringType.Name;
         var foreignUsingNamespaces = GetForeignUsingNamespaces(method);
         
         // language=csharp
@@ -442,7 +441,7 @@ using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 {{foreignUsingNamespaces}}
-namespace {{method.DeclaringType.Identifier.Namespace}};
+namespace {{method.DeclaringType.Namespace}};
 
 public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
 {
@@ -465,7 +464,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             signature.Append("        ");
             var startPos = signature.Length;
             signature.Append(method.Modifier.ParamModifiers[n].type);
-            signature.Append(parameter.Type.Identifier.Name);
+            signature.Append(parameter.Type.Name);
             var generics = parameter.Type.Generics;
             if (generics.Length > 0) {
                 signature.Append("<");
@@ -489,12 +488,12 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
     
     private static string GetForeignUsingNamespaces(CsMethod method)
     {
-        var declaringNamespace  = method.DeclaringType.Identifier.Namespace;
+        var declaringNamespace  = method.DeclaringType.Namespace;
         var namespaces          = new HashSet<string>();
         
         foreach (var parameter in method.Parameters)
         {
-            AddNamespace(parameter.Type.Identifier, namespaces, declaringNamespace);
+            AddNamespace(parameter.Type, namespaces, declaringNamespace);
             foreach (var generic in parameter.Type.Generics) {
                 AddNamespace(generic, namespaces, declaringNamespace);
             }
@@ -513,7 +512,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         return sb.ToString();
     }
     
-    private static void AddNamespace(CsTypeIdentifier identifier, HashSet<string> namespaces, string declaringNamespace)
+    private static void AddNamespace(CsType identifier, HashSet<string> namespaces, string declaringNamespace)
     {
         var ns = identifier.Namespace;
         switch (ns) {

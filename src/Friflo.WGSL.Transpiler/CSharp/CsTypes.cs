@@ -37,6 +37,7 @@ public record CsMethod
     public required     CsDrawVertexIndex?      DrawVertexIndex { get; init; }
     public required     CsType                  DeclaringType   { get; init; }
     public required     ValueArray<CsParameter> Parameters      { get; init; }
+    public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
     
     public override string ToString()
@@ -59,10 +60,10 @@ public record CsMethod
 
 public readonly record struct CsAttribute
 {
-    public required     CsTypeIdentifier            Identifier  { get; init; }
-    public required     ValueArray<CsAttributeArg>  Args        { get; init; }
+    public required     CsTypeIdentifier            Type    { get; init; }
+    public required     ValueArray<CsAttributeArg>  Args    { get; init; }
     
-    public override     string                      ToString() => Identifier.ToString();
+    public override     string                      ToString() => Type.ToString();
     
     public CsAttribute() { }
 }
@@ -157,13 +158,13 @@ public readonly record struct CsParameter
     public bool HasBindGroup        => ParamAttribute != CsParamAttribute.None &&
                                        ParamAttribute != CsParamAttribute.VertexBuffer;
     
-    public bool IsReadOnlyBuffer    => Type.Identifier.Name == "InBuffer";
+    public bool IsReadOnlyBuffer    => Type.Name == "InBuffer";
     
     public bool HasHandle           => !(ParamAttribute == CsParamAttribute.BindUniform && !IsBuffer);
 
     public bool IsBuffer {
         get {
-            var typeName = Type.Identifier.Name;
+            var typeName = Type.Name;
             return typeName == "InBuffer" || typeName == "InOutBuffer";
         }
     }
@@ -179,26 +180,17 @@ public readonly record struct CsParameter
 }
 
 /// Is a record - it has an identity
-public record CsType
+public record CsTypeInfo
 {
-    public required     CsTypeIdentifier                Identifier  { get; init; }
-    public required     ValueArray<CsTypeIdentifier>    Generics    { get; init; } // generic type arguments
-    public required     ValueArray<CsAttribute>         Attributes  { get; init; }
-    public required     ValueArray<CsField>             Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
+    public required     CsTypeIdentifier        Identifier  { get; init; }
+    public required     ValueArray<CsAttribute> Attributes  { get; init; }
+    public required     ValueArray<CsField>     Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
     
-    public override     string                          ToString() => AppendString(new StringBuilder()).ToString();
+    public override     string                  ToString() => AppendString(new StringBuilder()).ToString();
     
     public StringBuilder AppendString(StringBuilder sb)
     {
         sb.Append($"{Identifier.Name}");
-        if (Generics.Length == 0) return sb;
-        sb.Append("<");
-        foreach (var generic in Generics) {
-            sb.Append(generic.Name);
-            sb.Append(", ");
-        }
-        sb.Length -= 2;
-        sb.Append(">");
         return sb;
     }
 }
@@ -223,10 +215,33 @@ public readonly record struct CsField
 
 public readonly record struct CsTypeIdentifier
 {
-    public required     string  Name        { get; init; }
-    public required     string  Namespace   { get; init; }
+    public required     string              Name        { get; init; }
+    public required     string              Namespace   { get; init; }
 
-    public override     string  ToString() => $"{Namespace}.{Name}";
+    public override     string              ToString()  => $"{Name}";
+}
+
+public readonly record struct CsType
+{
+    public required     string              Name        { get; init; }
+    public required     string              Namespace   { get; init; }
+    public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
+
+    public override     string              ToString() => AppendString(new StringBuilder()).ToString();
+    
+    public StringBuilder AppendString(StringBuilder sb)
+    {
+        sb.Append(Name);
+        if (Generics.Length == 0) return sb;
+        sb.Append("<");
+        foreach (var generic in Generics) {
+            sb.Append(generic.Name);
+            sb.Append(", ");
+        }
+        sb.Length -= 2;
+        sb.Append(">");
+        return sb;
+    }
 }
 
 // --- modifier - not relevant for wgpu specific code
