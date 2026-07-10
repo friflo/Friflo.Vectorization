@@ -68,15 +68,14 @@ public partial class TwoCubes
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(TextureTest_GPU_VertexShader(),   "TextureTest_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(TextureTest_GPU_FragmentShader(), "TextureTest_FragmentShader"u8);
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(TwoCubes), TextureTest_GPU_Shaders(), "TextureTest_pipeline"u8);
 
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> TextureTest_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/basic.vert.wgsl");
-    private static ReadOnlySpan<byte> TextureTest_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/vertexPositionColor.frag.wgsl");
+    private static WgpuShader[] TextureTest_GPU_Shaders() => [
+        new WgpuShader("shaders/basic.vert.wgsl",               vert: "main"),
+        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main")
+    ];
 }

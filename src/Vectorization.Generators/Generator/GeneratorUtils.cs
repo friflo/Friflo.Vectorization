@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -107,6 +108,18 @@ public static class GeneratorUtils
             }
         }
         return null;
+    }
+    
+    public static List<AttributeData> GetAttributeDatas(ImmutableArray<AttributeData> attributes, string attributeName)
+    {
+        var result = new List<AttributeData>();
+        attributeName = "global::" + attributeName;
+        foreach (var attributeData in attributes) {
+            if (attributeData.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == attributeName) {
+                result.Add(attributeData);
+            }
+        }
+        return result;
     }
     
     public static string GetMd5Hash(string input)

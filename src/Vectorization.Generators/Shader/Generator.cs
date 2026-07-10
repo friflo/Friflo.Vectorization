@@ -20,12 +20,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo;
 
-public enum ShaderTrigger
-{
-    ShaderAttribute,
-    VertexShaderAttribute,
-    FragmentShaderAttribute,
-}
 
 public readonly struct WgslFile
 {
@@ -58,31 +52,16 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             };
         }).Collect();
         
-        // ------ [Shader] [VertexShader] [FragmentShader]
+        // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.ShaderAttribute))
+            transform: TransformShader)
             .Combine(wgslFiles);
-        
-        var vertexShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.VertexShaderAttribute",
-            predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.VertexShaderAttribute))
-            .Combine(wgslFiles);
-
-        var fragmentShaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.FragmentShaderAttribute",
-            predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: (ctx, ct) => TransformShader(ctx, ct, ShaderTrigger.FragmentShaderAttribute))
-            .Combine(wgslFiles);
-
 
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
         // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
         context.RegisterSourceOutput(shaderMethod.        Combine(context.CompilationProvider), EmitShader);
-        context.RegisterSourceOutput(vertexShaderMethod.  Combine(context.CompilationProvider), EmitShader);
-        context.RegisterSourceOutput(fragmentShaderMethod.Combine(context.CompilationProvider), EmitShader);
     }
     
     private static void EmitShader(
@@ -103,25 +82,18 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         
         // spc.AddSource(emissionResult.name, emissionResult.code);  // test without WGSL hash replacement
 
-        var targetFile1 = method.Source.Shader ?? method.Source.VertexShader;
-        var targetFile2 = method.Source.FragmentShader;
+        var shaders = method.Shaders;
         ulong wgslHash = 0;
 
         var wgslContents = new List<string>();
         
         foreach (var file in files) {
-            var filePath    = file.NormalizedPath;
-            string? wgsl = null;
-            if (targetFile1 != null && filePath.EndsWith(targetFile1)) {
-                wgslHash    = file.Hash;
-                wgsl        = file.Content;
-            }
-            if (targetFile2 != null && filePath.EndsWith(targetFile2)) {
-                wgslHash   ^= file.Hash;
-                wgsl        = file.Content;
-            }
-            if (wgsl != null) {
-                wgslContents.Add(wgsl);
+            foreach (var shader in shaders)
+            {
+                if (file.NormalizedPath.EndsWith(shader.path)) {
+                    wgslHash   ^= file.Hash;
+                    wgslContents.Add(file.Content);
+                }
             }
         }
         if (method.Parameters.Length == 0) {
@@ -149,13 +121,13 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return hash;
     }
     
-    private static ShaderMethodResult TransformShader(GeneratorAttributeSyntaxContext ctx, CancellationToken _, ShaderTrigger trigger)
+    private static ShaderMethodResult TransformShader(GeneratorAttributeSyntaxContext ctx, CancellationToken _)
     {
         Location? methodLocation = null;
         try {
             var targetSymbol = ctx.TargetSymbol;
             methodLocation = targetSymbol.Locations.FirstOrDefault();
-            return GenerateShader(ctx.SemanticModel, targetSymbol, trigger);
+            return GenerateShader(ctx.SemanticModel, targetSymbol);
         } catch (Exception exception) {
             var exceptionMessage = $"{exception.GetType()} : {exception.Message}";
             var error = new GeneratorError(exceptionMessage, exceptionMessage, methodLocation);
@@ -163,7 +135,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         }
     }
     
-    private static ShaderMethodResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol, ShaderTrigger trigger)
+    private static ShaderMethodResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol)
     {
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new ShaderMethodResult([]);
@@ -175,7 +147,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
-        var result = CreateShaderMethod(attributes, blueprintMethod, trigger, hash, diagnostics);
+        var result = CreateShaderMethod(attributes, blueprintMethod, hash, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
         }

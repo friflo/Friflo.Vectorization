@@ -64,14 +64,15 @@ public partial struct ShaderExample
         }
         layouts[0] = layout_0;
         
-        using var module = device.CreateShaderModule(_RenderTunnel_GPU_Shader(), "RenderTunnel_Shader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "RenderTunnel_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderTunnel_GPU_Shaders(), "RenderTunnel_pipeline"u8);
 
         var bindGroupCache = new _RenderTunnel_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderTunnel_GPU_ShaderId, config, _RenderTunnel_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _RenderTunnel_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "shaders/raymarcher_no_texture.wgsl");
+    private static WgpuShader[] _RenderTunnel_GPU_Shaders() => [
+        new WgpuShader("shaders/raymarcher_no_texture.wgsl"),
+    ];
 
 }

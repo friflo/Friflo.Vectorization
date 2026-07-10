@@ -54,25 +54,15 @@ public sealed class ShaderEmitter
         
         var shaderModules   = new StringBuilder();
         var shaderResources = new StringBuilder();
-        string vsModule;
-        string fsModule;
-        if (method.Source.Shader != null) {
-            vsModule = "module";
-            fsModule = "module";
-            var path = method.Source.Shader;
-            shaderModules.Append($"        using var module = device.CreateShaderModule({methodName_GPU}_Shader(), \"{methodName}_Shader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_Shader() => WgpuResource.GetResource(typeof({className}), \"{path}\");\n");
-        } else {
-            vsModule = "vsModule";
-            fsModule = "fsModule";
-            var vsPath = method.Source.VertexShader;
-            var fsPath = method.Source.FragmentShader;
-            shaderModules.Append($"        using var vsModule = device.CreateShaderModule({methodName_GPU}_VertexShader(),   \"{methodName}_VertexShader\"u8);\n");
-            shaderModules.Append($"        using var fsModule = device.CreateShaderModule({methodName_GPU}_FragmentShader(), \"{methodName}_FragmentShader\"u8);\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_VertexShader()   => WgpuResource.GetResource(typeof({className}), \"{vsPath}\");\n");
-            shaderResources.Append($"    private static ReadOnlySpan<byte> {methodName_GPU}_FragmentShader() => WgpuResource.GetResource(typeof({className}), \"{fsPath}\");\n");
-        }
         
+        shaderResources.Append($"    private static WgpuShader[] {methodName_GPU}_Shaders() => [\n");
+        foreach (var shader in method.Shaders) {
+            shaderResources.Append($"        new WgpuShader(\"{shader.path}\"");
+            if (shader.vert != null) shaderResources.Append($", vert: \"{shader.vert}\"");
+            if (shader.frag != null) shaderResources.Append($", frag: \"{shader.frag}\"");
+            shaderResources.Append("),\n");
+        }
+        shaderResources.Append($"    ];\n");
         
         // filter / sort parameters use to create bind group layouts & bind groups
         var bindGroups = method.Parameters.Where(p => p.HasBindGroup).ToArray();
@@ -131,9 +121,6 @@ public sealed class ShaderEmitter
         // --- draw
         EmitDraw(body, method);
         
-        var vsEntry = method.Source.VertexEntry;
-        var fsEntry = method.Source.FragmentEntry;
-        
         // language=csharp
         var code =
 $$"""
@@ -171,7 +158,7 @@ $$"""
     {
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
 {{bindGroupLayouts}}{{shaderModules}}
-        var pipeline = device.CreateRenderPipeline(layouts, config, {{vsModule}}, "{{vsEntry}}"u8, {{fsModule}}, "{{fsEntry}}"u8, "{{methodName}}_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof({{className}}), {{methodName_GPU}}_Shaders(), "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
         return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);

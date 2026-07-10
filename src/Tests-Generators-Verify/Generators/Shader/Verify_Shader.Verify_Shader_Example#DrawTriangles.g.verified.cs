@@ -85,14 +85,15 @@ public partial class ShaderExample
         }
         layouts[1] = layout_1;
         
-        using var module = device.CreateShaderModule(_DrawTriangles_GPU_Shader(), "DrawTriangles_Shader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, module, "vs_main"u8, module, "fs_main"u8, "DrawTriangles_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawTriangles_GPU_Shaders(), "DrawTriangles_pipeline"u8);
 
         var bindGroupCache = new _DrawTriangles_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawTriangles_GPU_ShaderId, config, _DrawTriangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _DrawTriangles_GPU_Shader() => WgpuResource.GetResource(typeof(ShaderExample), "shaders/triangle.wgsl");
+    private static WgpuShader[] _DrawTriangles_GPU_Shaders() => [
+        new WgpuShader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main"),
+    ];
 
 }

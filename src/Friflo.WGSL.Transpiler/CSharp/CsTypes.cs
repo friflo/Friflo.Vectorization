@@ -10,14 +10,14 @@ using System.Text;
 // ReSharper disable ClassNeverInstantiated.Global
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-public readonly record struct CsShaderSource
+// WGPU attribute:  ShaderAttribute
+public readonly record struct CsShader
 {
-    public required     string  Shader          { get; init; }  // WGPU attribute:      ShaderAttribute
-    public required     string  VertexShader    { get; init; }  // WGPU attribute:      VertexShaderAttribute
-    public required     string  FragmentShader  { get; init; }  // WGPU attribute:      FragmentShaderAttribute
-    public required     string  VertexEntry     { get; init; }  // attribute parameter: vert
-    public required     string  FragmentEntry   { get; init; }  // attribute parameter: frag
+    public required     string  path     { get; init; }
+    public required     string  vert     { get; init; }
+    public required     string  frag     { get; init; }
 }
+
 
 // WGPU attribute:  DrawVertexIndexAttribute
 public readonly record struct CsDrawVertexIndex
@@ -33,7 +33,7 @@ public record CsMethod
 {
     public required     string                  Name            { get; init; }
     public required     string                  Hash            { get; init; }
-    public required     CsShaderSource          Source          { get; init; }
+    public required     ValueArray<CsShader>    Shaders         { get; init; }
     public required     CsDrawVertexIndex?      DrawVertexIndex { get; init; }
     public required     CsType                  DeclaringType   { get; init; }
     public required     ValueArray<CsParameter> Parameters      { get; init; }

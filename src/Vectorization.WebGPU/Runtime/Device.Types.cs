@@ -111,6 +111,21 @@ public readonly unsafe struct WgpuComputePipeline
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
+public readonly struct WgpuShader
+{
+    public readonly string path;
+    public readonly string vert;
+    public readonly string frag;
+    
+    public WgpuShader(string path, string vert = null, string frag = null)
+    {
+        this.path = path;
+        this.vert = vert;
+        this.frag = frag;
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct WgpuShaderModule : IDisposable
 {
     internal readonly   ShaderModule*   handle;

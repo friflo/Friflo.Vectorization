@@ -2,9 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
@@ -57,6 +59,78 @@ public sealed unsafe partial  class WgpuDevice
         }
     }
     
+    private WgpuShaderModule CreateShaderModule(
+        Type                type,
+        WgpuShader[]        shaders,
+        ShaderType          shaderType,
+        out string          entry,
+        ReadOnlySpan<byte>  shaderLabel)
+    {
+        entry= null;
+        foreach (var shader in shaders) {
+            switch (shaderType) {
+                case ShaderType.Vertex:     if (shader.vert != null) entry = shader.vert;  break;
+                case ShaderType.Fragment:   if (shader.frag != null) entry = shader.frag;  break;
+            }
+        }
+        var wgslSource = GetFullWgsl(type, shaders, shaderType);
+        fixed (byte* pShaderBytes = wgslSource)
+        fixed (byte* labelPtr = shaderLabel)
+        {
+            // create descriptor
+            var wgslDesc = new ShaderSourceWGSL {
+                code    = WgpuUtils.FromPtrSpan(pShaderBytes, wgslSource),
+                chain   = new ChainedStruct {
+                    sType   = SType.ShaderSourceWGSL
+                }
+            };
+            var desc = new ShaderModuleDescriptor {
+                label       = WgpuUtils.FromPtrSpan(labelPtr, shaderLabel),
+                nextInChain = (ChainedStruct*)&wgslDesc,
+            };
+            // Compile shader in driver
+            var handle = wgpuDeviceCreateShaderModule(DevicePtr, &desc);
+            errorHandler.ThrowOnError();
+            return new WgpuShaderModule(handle);
+        }
+    }
+
+    private struct Memory{
+        internal byte* ptr;
+        internal int   len;
+    }
+    
+    private static ReadOnlySpan<byte> GetFullWgsl(Type type, WgpuShader[] shaders, ShaderType shaderType)
+    {
+        if (shaders.Length == 1) {
+            return WgpuResource.GetResource(type, shaders[0].path);
+        }
+        var memories = new List<Memory>();
+        var len = 0;
+        foreach (var shader in shaders)
+        {
+            switch (shaderType) {
+                case ShaderType.Vertex:     if (shader.frag != null) continue;  break;
+                case ShaderType.Fragment:   if (shader.vert != null) continue;  break;
+            }
+            var resource = WgpuResource.GetResource(type, shader.path);
+            memories.Add(new Memory {
+                ptr = (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(resource)),
+                len = resource.Length
+            });
+            len += resource.Length;
+        }
+        var full = new byte[len];
+        int pos = 0;
+        foreach (var memory in memories) {
+            var src = new ReadOnlySpan<byte>(memory.ptr, memory.len);
+            var dst = new Span<byte>(full, pos, src.Length);
+            src.CopyTo(dst);
+            pos     += src.Length;
+        }
+        return new ReadOnlySpan<byte>(full);
+    }
+    
     public WgpuComputePipeline CreateComputePipeline(
         WgpuShaderModule    module,
         WgpuBindGroupLayout bufferLayout,
@@ -95,21 +169,27 @@ public sealed unsafe partial  class WgpuDevice
         }
     }
     
+    enum ShaderType {
+        Vertex,
+        Fragment
+    }
+    
     public WgpuRenderPipeline CreateRenderPipeline(
         Span<WgpuBindGroupLayout>   layouts,
         RenderConfig        		config,
-        WgpuShaderModule            vsModule,
-        ReadOnlySpan<byte>          vertexEntryPoint,
-        WgpuShaderModule            fsModule,
-        ReadOnlySpan<byte>          fragmentEntryPoint,
+        Type                        type,
+        WgpuShader[]                shader,
         ReadOnlySpan<byte>          labelName)
     {
         ref readonly var desc   = ref config.Descriptor;
         nativeAllocator.Clear();
+        var vsModule = CreateShaderModule(type, shader, ShaderType.Vertex,   out var vsEntry, labelName);
+        var fsModule = CreateShaderModule(type, shader, ShaderType.Fragment, out var fsEntry, labelName);
+        
+        var vsEntryPtr= nativeAllocator.StringToNative(vsEntry);
+        var fsEntryPtr= nativeAllocator.StringToNative(fsEntry);
         
         fixed (byte*                pLabelName      = labelName)
-        fixed (byte*                pVertexEntry    = vertexEntryPoint)
-        fixed (byte*                pFragmentEntry  = fragmentEntryPoint)
         fixed (WgpuBindGroupLayout* layoutsPtr      = layouts)
         {
             var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
@@ -126,7 +206,7 @@ public sealed unsafe partial  class WgpuDevice
             if (desc.FragmentState.HasValue) {
                 fragmentState               = desc.FragmentState.Value.GetNative(nativeAllocator);
                 fragmentState.module        = fsModule.handle;
-                fragmentState.entryPoint    = WgpuUtils.FromPtrSpan(pFragmentEntry, fragmentEntryPoint);
+                fragmentState.entryPoint    = fsEntryPtr;
                 pFragmentState = &fragmentState;
             }
             
@@ -139,7 +219,7 @@ public sealed unsafe partial  class WgpuDevice
             
             var vertexState = desc.VertexState.GetNative(nativeAllocator);
             vertexState.module      = vsModule.handle;
-            vertexState.entryPoint  = WgpuUtils.FromPtrSpan(pVertexEntry, vertexEntryPoint);
+            vertexState.entryPoint  = vsEntryPtr;
             
             var renderDesc = new RenderPipelineDescriptor {
                 label       = label,
@@ -156,6 +236,8 @@ public sealed unsafe partial  class WgpuDevice
             } finally {
                 nativeAllocator.Clear();
                 if (pipelineLayout != null)     wgpuPipelineLayoutRelease(pipelineLayout);
+                vsModule.Dispose();
+                fsModule.Dispose();
             }
         }
     }

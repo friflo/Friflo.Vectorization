@@ -80,8 +80,8 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
-	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
+	[Shader("shaders/basic.vert.wgsl",                  vert: "main")]
+	[Shader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
                 [BindUniform     (0, 0)]    in Uniforms     uniforms,
@@ -110,8 +110,8 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
-	[FragmentShader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
+	[Shader("shaders/basic.vert.wgsl",                  vert: "main")]
+	[Shader("shaders/sampleTextureMixColor.frag.wgsl",  frag: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                                               InBuffer<float> vertices,
                 [BindUniform     (0, 0)]                                        in Uniforms     uniforms,
@@ -140,8 +140,8 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[VertexShader  ("shaders/instanced.vert.wgsl",              vert: "main")]
-	[FragmentShader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
+	[Shader("shaders/instanced.vert.wgsl",              vert: "main")]
+	[Shader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
     private static partial void DrawInstanced(RenderPass pass, RenderConfig config,
         [Draw]          [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
         [DrawInstance]  [BindUniform(0, 0)] InBuffer<Matrix4x4> mvpMatrices);
@@ -243,7 +243,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[VertexShader  ("shaders/basic.vert.wgsl",                  vert: "main")]
+	[Shader("shaders/basic.vert.wgsl",                  vert: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
                 [BindUniform     (0, 0)]    in Uniforms     uniforms,

@@ -76,15 +76,14 @@ public partial class InstancedCube
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_VertexShader(),   "InstancedCube_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(InstancedCube_Storage_GPU_FragmentShader(), "InstancedCube_FragmentShader"u8);
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "InstancedCube_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(InstancedCube), InstancedCube_Storage_GPU_Shaders(), "TextureTest_pipeline"u8);
 
         var bindGroupCache = new InstancedCube_Storage_GPU_Cache();
         return ref device.CreatePipelineCache(InstancedCube_Storage_GPU_ShaderId, config, InstancedCube_Storage_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/instanced.storage.vert.wgsl");
-    private static ReadOnlySpan<byte> InstancedCube_Storage_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/vertexPositionColor.frag.wgsl");
+    private static WgpuShader[] InstancedCube_Storage_GPU_Shaders() => [
+        new WgpuShader("shaders/instanced.storage.vert.wgsl",   vert: "main"),
+        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+    ];
 }

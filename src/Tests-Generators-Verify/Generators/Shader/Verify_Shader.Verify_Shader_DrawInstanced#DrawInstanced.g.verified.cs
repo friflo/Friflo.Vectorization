@@ -75,16 +75,16 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(_DrawInstanced_GPU_VertexShader(),   "DrawInstanced_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(_DrawInstanced_GPU_FragmentShader(), "DrawInstanced_FragmentShader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "DrawInstanced_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawInstanced_GPU_Shaders(), "DrawInstanced_pipeline"u8);
 
         var bindGroupCache = new _DrawInstanced_GPU_Cache();
         return ref device.CreatePipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "shaders/instanced.vert.wgsl");
-    private static ReadOnlySpan<byte> _DrawInstanced_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "shaders/vertexPositionColor.frag.wgsl");
+    private static WgpuShader[] _DrawInstanced_GPU_Shaders() => [
+        new WgpuShader("shaders/instanced.vert.wgsl", vert: "main"),
+        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+    ];
 
 }

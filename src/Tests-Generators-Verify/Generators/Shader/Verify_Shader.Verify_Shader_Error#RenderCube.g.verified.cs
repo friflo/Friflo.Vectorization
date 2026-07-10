@@ -81,16 +81,15 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        using var vsModule = device.CreateShaderModule(_RenderCube_GPU_VertexShader(),   "RenderCube_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(_RenderCube_GPU_FragmentShader(), "RenderCube_FragmentShader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, ""u8, "RenderCube_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _RenderCube_GPU_Shaders(), "RenderCube_pipeline"u8);
 
         var bindGroupCache = new _RenderCube_GPU_Cache();
         return ref device.CreatePipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> _RenderCube_GPU_VertexShader()   => WgpuResource.GetResource(typeof(ShaderExample), "shaders/basic.vert.wgsl");
-    private static ReadOnlySpan<byte> _RenderCube_GPU_FragmentShader() => WgpuResource.GetResource(typeof(ShaderExample), "");
+    private static WgpuShader[] _RenderCube_GPU_Shaders() => [
+        new WgpuShader("shaders/basic.vert.wgsl", vert: "main"),
+    ];
 
 }

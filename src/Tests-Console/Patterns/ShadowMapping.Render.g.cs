@@ -100,15 +100,14 @@ public partial class ShadowMapping
         }
         layouts[1] = layout_1;
         
-        using var vsModule = device.CreateShaderModule(Render_GPU_VertexShader(),   "Render_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(Render_GPU_FragmentShader(), "Render_FragmentShader"u8);
-
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "main"u8, fsModule, "main"u8, "Render_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShadowMapping), Render_GPU_Shaders(), "Render_pipeline"u8);
 
         var bindGroupCache = new Render_GPU_Cache();
         return ref device.CreatePipelineCache(Render_GPU_ShaderId, config, Render_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> Render_GPU_VertexShader()   => WgpuResource.GetResource(typeof(TexturedCube), "shaders/shadowMapping/vertex.wgsl");
-    private static ReadOnlySpan<byte> Render_GPU_FragmentShader() => WgpuResource.GetResource(typeof(TexturedCube), "shaders/shadowMapping/fragment.wgsl");
+    private static WgpuShader[] Render_GPU_Shaders() => [
+        new WgpuShader("shaders/shadowMapping/vertex.wgsl",  vert: "main"),
+        new WgpuShader("shaders/shadowMapping/fragment.wgsl",frag: "main"),
+    ];
 }

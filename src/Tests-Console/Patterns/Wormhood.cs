@@ -57,16 +57,15 @@ public static partial class Wormhood
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Fragment, Wormhood_GPU_layout_0_key, "Wormhood_layout_0"u8);
         }
         layouts[0] = layout_0;
-        
-        using var vsModule = device.CreateShaderModule(Wormhood_GPU_GPU_VertexShader(), "Wormhood_VertexShader"u8);
-        using var fsModule = device.CreateShaderModule(Wormhood_GPU_Shader(),           "Wormhood_FragmentShader"u8);
 
-        var pipeline = device.CreateRenderPipeline(layouts, config, vsModule, "vs_main"u8, fsModule, "fs_main"u8, "Wormhood_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Wormhood), Wormhood_GPU_Shaders(), "Wormhood_pipeline"u8);
         
         var bindGroupCache = new Wormhood_GPU_Cache();
         return ref device.CreatePipelineCache(Wormhood_GPU_ShaderId, config, Wormhood_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
-    private static ReadOnlySpan<byte> Wormhood_GPU_GPU_VertexShader()   => WgpuResource.GetResource(typeof(Wormhood), "shaders/full_screen_triangle.wgsl");
-    private static ReadOnlySpan<byte> Wormhood_GPU_Shader()             => WgpuResource.GetResource(typeof(Wormhood), "shaders/raymarcher_no_texture.wgsl");
+    private static WgpuShader[] Wormhood_GPU_Shaders() => [
+        new WgpuShader("shaders/full_screen_triangle.wgsl",  vert: "vs_main"),
+        new WgpuShader("shaders/raymarcher_no_texture.wgsl", frag: "fs_main")
+    ];
 }

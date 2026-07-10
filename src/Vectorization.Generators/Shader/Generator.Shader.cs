@@ -20,7 +20,6 @@ public sealed partial class ShaderGen
     private static ShaderMethodResult? CreateShaderMethod(
         ImmutableArray<AttributeData>   methodAttributes,
         IMethodSymbol                   methodSymbol,
-        ShaderTrigger                   trigger,
         string                          hash,
         Diagnostics                     diagnostics)
     {
@@ -28,30 +27,11 @@ public sealed partial class ShaderGen
         if (noEmit) {
             return null;
         }
-        var shader          = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
-        var vertexShader    = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.VertexShaderAttribute");
-        var fragmentShader  = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.FragmentShaderAttribute");
+        var shaderAttributes = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         //
         var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
 
-        switch (trigger)
-        {
-            case  ShaderTrigger.ShaderAttribute:
-                if (vertexShader != null || fragmentShader != null) {
-                    diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, methodSymbol, "[Shader] cannot be combined with [VertexShader] or [FragmentShader]");
-                    return null;
-                }
-                break;
-            case  ShaderTrigger.VertexShaderAttribute:
-                break;
-            case  ShaderTrigger.FragmentShaderAttribute:
-                if (vertexShader != null) {
-                    return null; // only handled by:  ShaderTrigger.VertexShaderAttribute
-                }
-                break;
-        }
-
-        var method      = CreateCsMethod(methodSymbol, hash, shader, vertexShader, fragmentShader, drawVertexIndex);
+        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
         var location    = methodSymbol.Locations.FirstOrDefault();
@@ -61,12 +41,10 @@ public sealed partial class ShaderGen
 
 
     private static CsMethod CreateCsMethod(
-        IMethodSymbol   methodSymbol,
-        string          hash,
-        AttributeData?  shader,
-        AttributeData?  vertexShader,
-        AttributeData?  fragmentShader,
-        AttributeData?  drawVertexIndexAttr)
+        IMethodSymbol       methodSymbol,
+        string              hash,
+        List<AttributeData> shaderAttributes,
+        AttributeData?      drawVertexIndexAttr)
     {
         var declaringType       = MapType(methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
@@ -135,8 +113,6 @@ public sealed partial class ShaderGen
             };
             paramModifiers[n] = new CsParamModifier { type = modifierType };
         }
-        var vertexEntry   = (string?)(shader?.ConstructorArguments[1].Value ?? vertexShader?  .ConstructorArguments[1].Value);
-        var fragmentEntry = (string?)(shader?.ConstructorArguments[2].Value ?? fragmentShader?.ConstructorArguments[1].Value);
         
         CsDrawVertexIndex?  drawVertexIndex = null;
         if (drawVertexIndexAttr != null) {
@@ -150,18 +126,24 @@ public sealed partial class ShaderGen
         }
         var modifier = CreateMethodModifier(methodSymbol, paramModifiers);
         
+        var shaders = new CsShader[shaderAttributes.Count];
+        for (int i = 0; i < shaderAttributes.Count; i++)
+        {
+            var shader = shaderAttributes[i];
+            var args = shader.ConstructorArguments;
+            shaders[i] = new CsShader {
+                path = (string)args[0].Value!,
+                vert = (string)args[1].Value!,
+                frag = (string)args[2].Value!,
+            };
+        }
+        
         return new CsMethod {
             Name            = methodSymbol.Name,
             Hash            = hash, 
             DeclaringType   = declaringType,
             Parameters      = parameters.ToValueArray(),
-            Source          = new CsShaderSource {
-                Shader          = (string)shader?        .ConstructorArguments[0].Value!,
-                VertexShader    = (string)vertexShader?  .ConstructorArguments[0].Value!,
-                FragmentShader  = (string)fragmentShader?.ConstructorArguments[0].Value!,
-                VertexEntry     = vertexEntry,
-                FragmentEntry   = fragmentEntry
-            },
+            Shaders         = shaders.ToValueArray(),
             DrawVertexIndex = drawVertexIndex,
             Modifier        = modifier
         };
