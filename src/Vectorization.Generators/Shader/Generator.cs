@@ -44,9 +44,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
         .Select((text, cancellationToken) =>
         {
-            var content             = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
+            var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
             return new WgslFile {
-                NormalizedPath  = text.Path.Replace("\\", "/"),
+                NormalizedPath  = text.Path.Replace('\\', '/'),
                 Hash            = ComputeFnv1A64(content),
                 Content         = content
             };
