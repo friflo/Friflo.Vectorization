@@ -12,6 +12,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo.CodeFixes;
 
+// Important: CodeFixProvider requires its own project
+// If integrated in Generator it results in compiler warning: 
+//   RS1038: This compiler extension should not be implemented in an assembly containing a reference to Microsoft.CodeAnalysis.Workspaces.
+//     The Microsoft.CodeAnalysis.Workspaces assembly is not provided during command line compilation scenarios,
+//     so references to it could cause the compiler extension to behave unpredictably.
+// Note: A CodeFixProvider only runs in IDEs / language servers
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ShaderCodeFixProvider)), Shared]
 public class ShaderCodeFixProvider : CodeFixProvider
 {

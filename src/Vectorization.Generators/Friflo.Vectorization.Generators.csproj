@@ -52,6 +52,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all" />
+    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj" PrivateAssets="all" />
   </ItemGroup>
   <PropertyGroup>
     <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
@@ -85,13 +86,17 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"             Version="4.14.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  Version="4.14.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers"          Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
+  <Target Name="_AddAnalyzersToPackage" BeforeTargets="_GetPackageFiles">
+    <ItemGroup >
+      <None Include="$(OutputPath)\$(AssemblyName).dll"           Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+      <None Include="$(OutputPath)\$(AssemblyName).CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+      <None Include="$(OutputPath)\Superpower.dll"                Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+      <None Include="$(OutputPath)\Friflo.WGSL.Transpiler.dll"    Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+  </Target>
   
   <ItemGroup>
     <EmbeddedResource Include="..\Tests-Generators-Verify\Generators\Static\AvxVector2.cs">  <Link>Files\AvxVector2.g.cs</Link> </EmbeddedResource>

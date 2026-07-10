@@ -45,7 +45,8 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\Vectorization.Generators\Friflo.Vectorization.Generators.csproj" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\Vectorization.Generators\Friflo.Vectorization.Generators.csproj"                     OutputItemType="Analyzer" />
+        <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
     
     <ItemGroup>
