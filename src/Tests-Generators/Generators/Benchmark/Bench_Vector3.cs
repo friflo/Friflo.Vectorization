@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Bench.Lab;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
@@ -166,8 +165,6 @@ public partial class Bench_Vector3
         }
     }
    
-    private bool logLanePtr = true;
-    
     private  static unsafe void LogLanePtr(float* ptr)
     {
         long address = (long)ptr;
