@@ -9,7 +9,7 @@ public static partial class GenerateParams
     public static partial void DrawTrianglesEmpty();
     
     
-    [Shader("shaders/basic.vert.wgsl",                  vert: "main")]
-	[Shader("shaders/vertexPositionColor.frag.wgsl",    frag: "main")]
+    [Shader("shaders/basic.vert.wgsl",                  vertex:   "main")]
+	[Shader("shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static partial void RenderCubeEmpty();
 }

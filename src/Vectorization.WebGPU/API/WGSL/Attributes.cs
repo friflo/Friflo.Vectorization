@@ -13,12 +13,12 @@ namespace Friflo.Vectorization.WebGPU;
 
 
 
-#region ---------- Shader method Attributes
+#region ---------- Shader method Attribute
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple =  true)]
 public sealed class ShaderAttribute : Attribute
 {
-    public ShaderAttribute([PathReference] string wgsl, string vert = null, string frag = null) { }
+    public ShaderAttribute([PathReference] string wgsl, string vertex = null, string fragment = null) { }
 }
 
 #endregion
