@@ -85,14 +85,16 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         var shaders = method.Shaders;
         ulong wgslHash = 0;
 
+        // only used for CodeFixProvider to generate method parameters based on wgsl
         var wgslContents = new List<string>();
         
         foreach (var file in files) {
             foreach (var shader in shaders)
             {
                 if (file.NormalizedPath.EndsWith(shader.path)) {
-                    wgslHash   ^= file.Hash;
+                    wgslHash ^= file.Hash;
                     wgslContents.Add(file.Content);
+                    break;
                 }
             }
         }
