@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable CheckNamespace
-namespace Friflo;
+namespace Friflo.CodeFixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ShaderCodeFixProvider)), Shared]
 public class ShaderCodeFixProvider : CodeFixProvider
