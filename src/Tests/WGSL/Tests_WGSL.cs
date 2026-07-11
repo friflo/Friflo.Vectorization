@@ -90,7 +90,7 @@ public static class Tests_WGSL
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
                     [BindUniform(0, 0)]         in Uniforms uniforms,
                     [SamplerFiltering(0, 1)]    GpuSampler mySampler,
-                    [texture_2d(0, 2, ST.f32)]    GpuTextureView myTexture)
+                    [texture_2d(ST.f32, 0, 2)]    GpuTextureView myTexture)
             """));
     }
     
@@ -108,13 +108,13 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [texture_1d(0, 0, ST.f32)]    GpuTextureView texture0,
-                    [texture_2d(0, 1, ST.f32)]    GpuTextureView texture1,
-                    [texture_2d_array(0, 2, ST.i32)]    GpuTextureView texture2,
-                    [texture_3d(0, 3, ST.i32)]    GpuTextureView texture3,
-                    [texture_cube(0, 4, ST.u32)]    GpuTextureView texture4,
-                    [texture_cube_array(0, 5, ST.u32)]    GpuTextureView texture5,
-                    [texture_multisampled_2d(0, 6, ST.i32)]    GpuTextureView texture6,
+                    [texture_1d(ST.f32, 0, 0)]    GpuTextureView texture0,
+                    [texture_2d(ST.f32, 0, 1)]    GpuTextureView texture1,
+                    [texture_2d_array(ST.i32, 0, 2)]    GpuTextureView texture2,
+                    [texture_3d(ST.i32, 0, 3)]    GpuTextureView texture3,
+                    [texture_cube(ST.u32, 0, 4)]    GpuTextureView texture4,
+                    [texture_cube_array(ST.u32, 0, 5)]    GpuTextureView texture5,
+                    [texture_multisampled_2d(ST.i32, 0, 6)]    GpuTextureView texture6,
                     [texture_depth_multisampled_2d(0, 7)]    GpuTextureView texture7,
                     [texture_depth_2d(0, 12)]    GpuTextureView texture12,
                     [texture_depth_2d_array(0, 13)]    GpuTextureView texture12,

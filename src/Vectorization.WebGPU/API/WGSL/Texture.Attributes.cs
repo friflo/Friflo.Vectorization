@@ -57,37 +57,37 @@ public abstract class TextureTypeAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_1d : TextureTypeAttribute
 {
-    public texture_1d           (int group, int binding, ST sampleType) { }
+    public texture_1d           (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_2d : TextureTypeAttribute
 {
-    public texture_2d           (int group, int binding, ST sampleType) { }
+    public texture_2d           (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_2d_array : TextureTypeAttribute
 {
-    public texture_2d_array     (int group, int binding, ST sampleType) { }
+    public texture_2d_array     (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_3d : TextureTypeAttribute
 {
-    public texture_3d           (int group, int binding, ST sampleType) { }
+    public texture_3d           (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_cube : TextureTypeAttribute
 {
-    public texture_cube         (int group, int binding, ST sampleType) { }
+    public texture_cube         (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_cube_array : TextureTypeAttribute
 {
-    public texture_cube_array   (int group, int binding, ST sampleType) { }
+    public texture_cube_array   (ST sampleType, int group, int binding) { }
 }
 #endregion
 
@@ -100,7 +100,7 @@ public sealed class texture_cube_array : TextureTypeAttribute
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class texture_multisampled_2d : TextureTypeAttribute
 {
-    public texture_multisampled_2d      (int group, int binding, ST sampleType) { }
+    public texture_multisampled_2d      (ST sampleType, int group, int binding) { }
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]

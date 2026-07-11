@@ -123,9 +123,9 @@ public partial class ShaderExample
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
-                [BindUniform     (0, 0)]    in Uniforms     uniforms,
-                [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
-                [texture_2d(0, 2, ST.f32)]  GpuTextureView  material);
+                [BindUniform       (0, 0)]  in Uniforms     uniforms,
+                [SamplerFiltering  (0, 1)]  GpuSampler      smoothFilter,
+                [texture_2d(ST.f32, 0, 2)]  GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
@@ -285,9 +285,9 @@ public partial class ShaderExample
 	[Shader("~/no-file.wgsl",                  vertex: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
-                [BindUniform     (0, 0)]    in Uniforms     uniforms,
-                [SamplerFiltering(0, 1)]    GpuSampler      smoothFilter,
-                [texture_2d(0, 2, ST.f32)]  GpuTextureView  material);
+                [BindUniform       (0, 0)]  in Uniforms     uniforms,
+                [SamplerFiltering  (0, 1)]  GpuSampler      smoothFilter,
+                [texture_2d(ST.f32, 0, 2)]  GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {

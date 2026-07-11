@@ -149,13 +149,13 @@ public static class CodeFixer
             case "texture_cube":
             case "texture_cube_array":
                 var sampleType = arg0 ?? "f32";
-                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [{name}(ST.{sampleType}, {binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
             case "texture_multisampled_2d":
                 sampleType = arg0 ?? "f32";
-                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [{name}(ST.{sampleType}, {binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
             case "texture_depth_multisampled_2d":
                 sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");

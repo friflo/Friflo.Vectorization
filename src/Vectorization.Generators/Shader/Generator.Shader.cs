@@ -197,14 +197,14 @@ public sealed partial class ShaderGen
                 case "SamplerNonFilteringAttribute":            bg = Bg(args, 0);   return SamplerNonFiltering;
                 case "SamplerComparisonAttribute":              bg = Bg(args, 0);   return SamplerComparison;
                 //
-                case "texture_1d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_1d;
-                case "texture_2d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_2d;
-                case "texture_2d_array":    e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_2d_array;
-                case "texture_3d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_3d;
-                case "texture_cube":        e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_cube;
-                case "texture_cube_array":  e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_cube_array;
+                case "texture_1d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_1d;
+                case "texture_2d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_2d;
+                case "texture_2d_array":                e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_2d_array;
+                case "texture_3d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_3d;
+                case "texture_cube":                    e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_cube;
+                case "texture_cube_array":              e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_cube_array;
                 //
-                case "texture_multisampled_2d":         e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_multisampled_2d;
+                case "texture_multisampled_2d":         e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_multisampled_2d;
                 case "texture_depth_multisampled_2d":                       bg = Bg(args, 0);   return texture_depth_multisampled_2d;
                 //
                 case "texture_storage_1d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_1d;
