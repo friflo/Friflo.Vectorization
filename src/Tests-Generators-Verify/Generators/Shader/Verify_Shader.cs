@@ -32,6 +32,9 @@ public static class Verify_Shader
     
 public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
 {
+    if (Environment.CurrentDirectory.EndsWith("/linux-x64")) {
+        srcFolder = "../" + srcFolder; // use a specific bin folder on GitHub.  See: https://github.com/friflo/Friflo.Vectorization/blob/main/.github/workflows/generators-ci.yml#L55
+    }
     var searchPath  = Path.GetFullPath(srcFolder);
     if (!Directory.Exists(searchPath)) {
         throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
