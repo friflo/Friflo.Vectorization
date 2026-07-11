@@ -55,8 +55,10 @@ public static class CodeFixer
         switch (wgslType)
         {
             case "sampler":
+                sb.Append($"        [SamplerFilteringAttribute({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                break;
             case "sampler_comparison":
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [SamplerComparison({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
                 break;
             case "texture_depth_2d":
                 sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");

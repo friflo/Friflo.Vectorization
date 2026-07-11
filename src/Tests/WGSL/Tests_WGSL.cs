@@ -122,7 +122,7 @@ public static class Tests_WGSL
                     [BindUniform(1, 0)]         in Model model,
                     [BindUniform(0, 0)]         in Scene scene,
                     [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
-                    [sampler_comparison(0, 2)]    GpuSampler shadowSampler)
+                    [SamplerComparison(0, 2)]    GpuSampler shadowSampler)
             """));
     }
     
