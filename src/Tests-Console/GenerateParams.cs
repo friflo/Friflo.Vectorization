@@ -5,7 +5,7 @@ namespace TestConsole;
 
 public static partial class GenerateParams
 {
-	[Shader("~/shaders/triangle.wgsl")]
+	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTrianglesEmpty();
     
     

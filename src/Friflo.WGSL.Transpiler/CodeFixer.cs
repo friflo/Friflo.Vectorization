@@ -17,7 +17,7 @@ public static class CodeFixer
         foreach (var file in files)
         {
             foreach (var shader in method.Shaders) {
-                if (!file.NormalizedPath.StartsWith(shader.path)) continue;
+                if (!file.NormalizedPath.EndsWith(shader.path)) continue;
                 sb.Append(file.Content);
                 break;
             }
