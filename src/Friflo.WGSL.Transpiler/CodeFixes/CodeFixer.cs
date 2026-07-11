@@ -73,9 +73,9 @@ public static class CodeFixer
                 {
                     if (parameter.Attribute.StartsWith("@location")) {
                         if (foundVertexBuffers == 0) {
-                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // {parameter.Attribute}");
+                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,");
                         } else {
-                            sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
+                            // sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
                         }
                         foundVertexBuffers++;
                     }
