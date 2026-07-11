@@ -316,5 +316,25 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_TextureTypes()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
+    public static partial void TestTextureTypes();
+}
+""");
+    }
 
 }

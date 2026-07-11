@@ -93,4 +93,35 @@ public static class Tests_WGSL
                     [texture_2d(0, 2, ST.f32)]    GpuTextureView myTexture)
             """));
     }
+    
+    
+    [Test]
+	[Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
+    public static void Tests_WGSL_Generate_textures()
+    {
+        var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var result = CodeFixer.CreateShaderParams(method, files);
+        
+        
+        Assert.That(result.Metadata.EntryPoints.Count,  Is.EqualTo(1));
+        Assert.That(result.Errors.Length,               Is.EqualTo(0));
+        Assert.That(result.Parameters, Is.EqualTo(
+            """
+            (RenderPass pass, RenderConfig config,
+                    [SamplerFiltering(1, 0)]    GpuSampler sampler0,
+                    [SamplerFiltering(1, 1)]    GpuSampler sampler1,
+                    [texture_1d(0, 0, ST.f32)]    GpuTextureView texture0,
+                    [texture_2d(0, 1, ST.f32)]    GpuTextureView texture1,
+                    [texture_2d_array(0, 2, ST.i32)]    GpuTextureView texture2,
+                    [texture_3d(0, 3, ST.i32)]    GpuTextureView texture3,
+                    [texture_cube(0, 4, ST.u32)]    GpuTextureView texture4,
+                    [texture_cube_array(0, 5, ST.u32)]    GpuTextureView texture5,
+                    [texture_multisampled_2d(0, 6, ST.i32)]    GpuTextureView texture6,
+                    [texture_depth_multisampled_2d(0, 7)]    GpuTextureView texture7,
+                    [texture_depth_2d(0, 12)]    GpuTextureView texture12,
+                    [texture_depth_2d_array(0, 13)]    GpuTextureView texture12,
+                    [texture_depth_cube(0, 14)]    GpuTextureView texture12,
+                    [texture_depth_cube_array(0, 15)]    GpuTextureView texture12)
+            """));
+    }
 }
