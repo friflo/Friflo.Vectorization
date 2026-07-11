@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Collections.Immutable;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo;
@@ -27,17 +29,31 @@ public static class Verify_Shader
         public override SourceText GetText(CancellationToken cancellationToken = default) => Text;
     }
     
+    public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
+    {
+        var builder = ImmutableArray.CreateBuilder<AdditionalText>();
+        if (!Directory.Exists(srcFolder)) return builder.ToImmutable();
+
+        var fullBaseDir = Path.GetFullPath(srcFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        // iterate recursive all *.wgsl files
+        foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
+        {
+            var relativePath = baseFolder + Path.GetRelativePath(fullBaseDir, fullFilePath);
+            var content = File.ReadAllText(fullFilePath);
+            builder.Add(new InMemoryAdditionalText(relativePath, content));
+        }
+        return builder.ToImmutable();
+    }
+    
     private static async Task Verify([LanguageInjection("csharp")] string code)
     {
-        AdditionalText wgslFile = new InMemoryAdditionalText(
-            "shaders/triangle.wgsl", 
-            "@vertex fn vs_main() -> ... {}"
-        );
+        var wgslFiles = LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
         
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);
         var generator = new ShaderGen();
-        var driver = CSharpGeneratorDriver.Create(generator).AddAdditionalTexts([wgslFile]);
+        var driver = CSharpGeneratorDriver.Create(generator).AddAdditionalTexts(wgslFiles);
 
         // 2. Run
         var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
@@ -62,7 +78,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/no-file.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
                 [BindUniform(1, 0)] in MyUniform            myUniform);
@@ -289,7 +305,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/no-file.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles();
 }
 """);

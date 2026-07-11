@@ -74,7 +74,7 @@ public partial class ShaderExample
     private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0xf5cd9d87f8f29b31;
     private const  ulong        _DrawTriangles_GPU_layout_2_Key        =  0xdbd12c87ea3a9f30;
 
-    private static ulong        _DrawTriangles_GPU_WgslHash            => 0x58e35c484412eceUL;  // support Hot-Reload
+    private static ulong        _DrawTriangles_GPU_WgslHash            => 0x690fb60ab3b0790UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)

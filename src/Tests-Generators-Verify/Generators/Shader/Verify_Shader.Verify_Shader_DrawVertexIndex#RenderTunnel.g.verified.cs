@@ -51,7 +51,7 @@ public partial struct ShaderExample
     private static readonly int _RenderTunnel_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderTunnel");
     private const  ulong        _RenderTunnel_GPU_layout_0_Key        =  0xad2eca77479f2364;
 
-    private static ulong        _RenderTunnel_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
+    private static ulong        _RenderTunnel_GPU_WgslHash            => 0xb9adf04a9a105ab0UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderTunnel_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
