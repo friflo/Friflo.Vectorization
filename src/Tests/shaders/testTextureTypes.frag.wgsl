@@ -1,5 +1,5 @@
 @group(1) @binding(0) var sampler0: sampler;
-@group(1) @binding(1) var sampler1: sampler;
+@group(1) @binding(1) var sampler1: sampler_comparison;
 
 // Sampled Texture Types
 @group(0) @binding(0) var texture0: texture_1d<f32>;

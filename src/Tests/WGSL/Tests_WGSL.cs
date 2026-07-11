@@ -109,7 +109,7 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [SamplerFiltering(1, 0)]    GpuSampler sampler0,
-                    [SamplerFiltering(1, 1)]    GpuSampler sampler1,
+                    [SamplerComparison(1, 1)]    GpuSampler sampler1,
                     [texture_1d(0, 0, ST.f32)]    GpuTextureView texture0,
                     [texture_2d(0, 1, ST.f32)]    GpuTextureView texture1,
                     [texture_2d_array(0, 2, ST.i32)]    GpuTextureView texture2,
