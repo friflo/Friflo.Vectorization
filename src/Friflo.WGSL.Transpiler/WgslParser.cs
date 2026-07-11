@@ -26,12 +26,16 @@ public class WgslStruct
 {
     public string Name { get; set; } = string.Empty;
     public List<WgslField> Fields { get; set; } = new();
+    
+    public override string ToString() => Name;
 }
 
 public class WgslField
 {
     public string Name { get; set; } = string.Empty;
     public string WgslType { get; set; } = string.Empty;
+    
+    public override string ToString() => Name;
 }
 
 public class WgslBinding
@@ -43,6 +47,8 @@ public class WgslBinding
     
     public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
     public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
+    
+    public override string ToString() => Name;
 }
 
 public class WgslEntryPoint
@@ -51,6 +57,8 @@ public class WgslEntryPoint
     public string Name { get; set; } = string.Empty;
     public List<WgslParam> Parameters { get; set; } = new();
     public string ReturnType { get; set; } = string.Empty;
+
+    public override string ToString() => $"{Name}  @{Stage}";
 }
 
 public class WgslParam
@@ -58,6 +66,8 @@ public class WgslParam
     public string Attribute { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string WgslType { get; set; } = string.Empty;
+    
+    public override string ToString() => Name;
 }
 
 // ==========================================

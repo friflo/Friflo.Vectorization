@@ -57,7 +57,22 @@ public static class Tests_WGSL
                     [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
                     [BindUniform(1, 0)] in MyUniforms myUniforms)
             """));
+    }
+    
+    [Test]
+    public static void Tests_WGSL_GenerateSamplerTextureView()
+    {
+        var wgslFrag = ReadWgslResource("Tests.shaders.shadowMapping.fragment.wgsl");
+        var wgslVert = ReadWgslResource("Tests.shaders.shadowMapping.vertex.wgsl");
+        var shaderParams = CodeFixer.CreateShaderParams([wgslFrag, wgslVert]);
         
+        return;
+        Assert.That(shaderParams, Is.EqualTo(
+            """
+            (RenderPass pass, RenderConfig config,
+                    [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
+                    [BindUniform(1, 0)] in MyUniforms myUniforms)
+            """));
     }
     
 }
