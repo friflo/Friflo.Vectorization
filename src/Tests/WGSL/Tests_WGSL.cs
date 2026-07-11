@@ -64,6 +64,7 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
+                    [VertexBuffer(0)]           InBuffer<float> position, // @location(0)  |  normal @location(1)
                     [BindUniform(0, 0)]         in Scene scene,
                     [BindUniform(1, 0)]         in Model model,
                     [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
@@ -86,6 +87,7 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
+                    [VertexBuffer(0)]           InBuffer<float> position, // @location(0)  |  uv @location(1)
                     [BindUniform(0, 0)]         in Uniforms uniforms,
                     [SamplerFiltering(0, 1)]    GpuSampler mySampler,
                     [texture_2d(0, 2, ST.f32)]    GpuTextureView myTexture)

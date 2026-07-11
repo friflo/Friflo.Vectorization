@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_SimpleTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;
 
@@ -61,9 +62,27 @@ public static class CodeFixer
                 bindings.Add(binding);
             }
         }
-        
-        
         sb.Append("(RenderPass pass, RenderConfig config,\n");
+        
+        foreach (var entryPoint in shaderMeta.EntryPoints)
+        {
+            if (entryPoint.Stage == "vertex")
+            {
+                var foundVertexBuffers = 0;
+                foreach (var parameter in entryPoint.Parameters)
+                {
+                    if (parameter.Attribute.StartsWith("@location")) {
+                        if (foundVertexBuffers == 0) {
+                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // {parameter.Attribute}");
+                        } else {
+                            sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
+                        }
+                        foundVertexBuffers++;
+                    }
+                }
+                if (foundVertexBuffers > 0) sb.Append("\n");
+            }
+        }
 
         foreach (var binding in bindings) {
             switch (binding.AddressSpace)
