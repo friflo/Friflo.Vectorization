@@ -102,10 +102,10 @@ public static class CodeFixer
             {
             case "storage":
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                sb.Append($"        [BindStorage({binding.Group}, {binding.Binding})]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [Storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
                 break;
             case "uniform":
-                sb.Append($"        [BindUniform({binding.Group}, {binding.Binding})]         in {binding.WgslType} {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [Uniform]         in {binding.WgslType} {binding.Name},\n");
                 break;
             case "":
                 AppendWgslType(sb, binding);
@@ -133,10 +133,10 @@ public static class CodeFixer
         {
             // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
-                sb.Append($"        [SamplerFiltering({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [SamplerFiltering]    GpuSampler {binding.Name},\n");
                 break;
             case "sampler_comparison":
-                sb.Append($"        [SamplerComparison({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [SamplerComparison]    GpuSampler {binding.Name},\n");
                 break;
             
             // ------ WGSL texture types
@@ -149,16 +149,16 @@ public static class CodeFixer
             case "texture_cube":
             case "texture_cube_array":
                 var sampleType = arg0 ?? "f32";
-                sb.Append($"        [{name}(ST.{sampleType}, {binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [{name}(ST.{sampleType})]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
             case "texture_multisampled_2d":
                 sampleType = arg0 ?? "f32";
-                sb.Append($"        [{name}(ST.{sampleType}, {binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [{name}(ST.{sampleType})]    GpuTextureView {binding.Name},\n");
                 break;
             case "texture_depth_multisampled_2d":
-                sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [{name}]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Storage Texture Types        See:  https://www.w3.org/TR/WGSL/#texture-storage
@@ -168,7 +168,7 @@ public static class CodeFixer
             case "texture_storage_3d":
                 var format = arg0 ?? "read";
                 var access = arg1 ?? "RGBA8Unorm";
-                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, TextureFormat.{format}, TSA.{access})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [{name}(TextureFormat.{format}, TSA.{access})]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Depth Texture Types          See:  https://www.w3.org/TR/WGSL/#texture-depth
@@ -176,7 +176,7 @@ public static class CodeFixer
             case "texture_depth_2d_array":
             case "texture_depth_cube":
             case "texture_depth_cube_array":
-                sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [Bind({binding.Group}, {binding.Binding})] [{name}]    GpuTextureView {binding.Name},\n");
                 break;
         }
     }

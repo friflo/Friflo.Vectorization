@@ -46,8 +46,8 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [BindStorage(0, 0)]         InBuffer<TriangleStorage> mesh_data,
-                    [BindUniform(1, 0)]         in MyUniforms myUniforms)
+                    [Bind(0, 0)] [Storage]         InBuffer<TriangleStorage> mesh_data,
+                    [Bind(1, 0)] [Uniform]         in MyUniforms myUniforms)
             """));
     }
     
@@ -65,10 +65,10 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
-                    [BindUniform(0, 0)]         in Scene scene,
-                    [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
-                    [SamplerComparison(0, 2)]    GpuSampler shadowSampler,
-                    [BindUniform(1, 0)]         in Model model)
+                    [Bind(0, 0)] [Uniform]         in Scene scene,
+                    [Bind(0, 1)] [texture_depth_2d]    GpuTextureView shadowMap,
+                    [Bind(0, 2)] [SamplerComparison]    GpuSampler shadowSampler,
+                    [Bind(1, 0)] [Uniform]         in Model model)
             """));
     }
     
@@ -88,9 +88,9 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
-                    [BindUniform(0, 0)]         in Uniforms uniforms,
-                    [SamplerFiltering(0, 1)]    GpuSampler mySampler,
-                    [texture_2d(ST.f32, 0, 2)]    GpuTextureView myTexture)
+                    [Bind(0, 0)] [Uniform]         in Uniforms uniforms,
+                    [Bind(0, 1)] [SamplerFiltering]    GpuSampler mySampler,
+                    [Bind(0, 2)] [texture_2d(ST.f32)]    GpuTextureView myTexture)
             """));
     }
     
@@ -108,20 +108,20 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [texture_1d(ST.f32, 0, 0)]    GpuTextureView texture0,
-                    [texture_2d(ST.f32, 0, 1)]    GpuTextureView texture1,
-                    [texture_2d_array(ST.i32, 0, 2)]    GpuTextureView texture2,
-                    [texture_3d(ST.i32, 0, 3)]    GpuTextureView texture3,
-                    [texture_cube(ST.u32, 0, 4)]    GpuTextureView texture4,
-                    [texture_cube_array(ST.u32, 0, 5)]    GpuTextureView texture5,
-                    [texture_multisampled_2d(ST.i32, 0, 6)]    GpuTextureView texture6,
-                    [texture_depth_multisampled_2d(0, 7)]    GpuTextureView texture7,
-                    [texture_depth_2d(0, 12)]    GpuTextureView texture12,
-                    [texture_depth_2d_array(0, 13)]    GpuTextureView texture12,
-                    [texture_depth_cube(0, 14)]    GpuTextureView texture12,
-                    [texture_depth_cube_array(0, 15)]    GpuTextureView texture12,
-                    [SamplerFiltering(1, 0)]    GpuSampler sampler0,
-                    [SamplerComparison(1, 1)]    GpuSampler sampler1)
+                    [Bind(0, 0)] [texture_1d(ST.f32)]    GpuTextureView texture0,
+                    [Bind(0, 1)] [texture_2d(ST.f32)]    GpuTextureView texture1,
+                    [Bind(0, 2)] [texture_2d_array(ST.i32)]    GpuTextureView texture2,
+                    [Bind(0, 3)] [texture_3d(ST.i32)]    GpuTextureView texture3,
+                    [Bind(0, 4)] [texture_cube(ST.u32)]    GpuTextureView texture4,
+                    [Bind(0, 5)] [texture_cube_array(ST.u32)]    GpuTextureView texture5,
+                    [Bind(0, 6)] [texture_multisampled_2d(ST.i32)]    GpuTextureView texture6,
+                    [Bind(0, 7)] [texture_depth_multisampled_2d]    GpuTextureView texture7,
+                    [Bind(0, 12)] [texture_depth_2d]    GpuTextureView texture12,
+                    [Bind(0, 13)] [texture_depth_2d_array]    GpuTextureView texture12,
+                    [Bind(0, 14)] [texture_depth_cube]    GpuTextureView texture12,
+                    [Bind(0, 15)] [texture_depth_cube_array]    GpuTextureView texture12,
+                    [Bind(1, 0)] [SamplerFiltering]    GpuSampler sampler0,
+                    [Bind(1, 1)] [SamplerComparison]    GpuSampler sampler1)
             """));
     }
 }
