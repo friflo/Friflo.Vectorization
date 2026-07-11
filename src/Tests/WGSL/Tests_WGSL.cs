@@ -120,7 +120,6 @@ public static class Tests_WGSL
             (RenderPass pass, RenderConfig config,
                     [BindUniform(0, 0)]         in Scene scene,
                     [BindUniform(1, 0)]         in Model model,
-                    [BindUniform(0, 0)]         in Scene scene,
                     [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
                     [SamplerComparison(0, 2)]    GpuSampler shadowSampler)
             """));

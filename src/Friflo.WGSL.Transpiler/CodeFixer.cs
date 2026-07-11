@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
@@ -42,9 +43,28 @@ public static class CodeFixer
 
         WgslShaderMetadata shaderMeta = WgslSuperpowerParser.ParseShader(wgsl);
         
+        var errors      = new List<WgslValidationError>();
+        var bindings    = new List<WgslBinding>();
+        var bindingMap  = new Dictionary<(int, int), WgslBinding>();
+
+        // --- remove duplicate binding
+        foreach (var binding in shaderMeta.Bindings)
+        {
+            var key = (binding.Group, binding.Binding);
+            if (bindingMap.TryGetValue(key, out var value)) {
+                if (!value.Equals(binding)) { 
+                    errors.Add(new WgslValidationError { Message = $"inconsistent binding for: @group({binding.Group}) @binding({binding.Binding})" });
+                }
+            } else {
+                bindingMap.Add(key, binding);
+                bindings.Add(binding);
+            }
+        }
+        
+        
         sb.Append("(RenderPass pass, RenderConfig config,\n");
 
-        foreach (var binding in shaderMeta.Bindings) {
+        foreach (var binding in bindings) {
             switch (binding.AddressSpace)
             {
             case "storage":
@@ -64,7 +84,7 @@ public static class CodeFixer
         
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
-            Errors      = [] // new WgslValidationError { Message = "XXX Test some WGSL message" }]
+            Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
         };
     }
     

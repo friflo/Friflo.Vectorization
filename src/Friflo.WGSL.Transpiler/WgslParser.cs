@@ -38,7 +38,7 @@ public class WgslField
     public override string ToString() => Name;
 }
 
-public class WgslBinding
+public record WgslBinding
 {
     public int Group { get; set; }
     public int Binding { get; set; }
