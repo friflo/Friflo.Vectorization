@@ -28,22 +28,13 @@ public abstract class SamplerTypeAttribute : Attribute;
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerFilteringAttribute : SamplerTypeAttribute
-{
-    public SamplerFilteringAttribute (int group, int binding) { }
-}
+public sealed class SamplerFilteringAttribute : SamplerTypeAttribute;
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerNonFilteringAttribute : SamplerTypeAttribute
-{
-    public SamplerNonFilteringAttribute (int group, int binding) { }
-}
+public sealed class SamplerNonFilteringAttribute : SamplerTypeAttribute;
 
 /// <summary> WGSL Sampler Type:  <b><c>sampler_comparison</c></b><br/> </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SamplerComparisonAttribute : SamplerTypeAttribute
-{
-    public SamplerComparisonAttribute (int group, int binding) { }
-}
+public sealed class SamplerComparisonAttribute : SamplerTypeAttribute;
 

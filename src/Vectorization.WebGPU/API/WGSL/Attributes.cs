@@ -41,8 +41,8 @@ public sealed class DrawVertexIndexAttribute : Attribute
 /// the annotated storage, uniform or vertex buffer. </summary>
 /// <remarks>
 /// Buffer types are annotated by either:<br/>
-/// - <see cref="BindStorageAttribute"/><br/>
-/// - <see cref="BindUniformAttribute"/><br/>
+/// - <see cref="StorageAttribute"/><br/>
+/// - <see cref="UniformAttribute"/><br/>
 /// - <see cref="VertexBufferAttribute"/><br/>
 /// <br/>
 /// Use <see cref="DrawInstanceAttribute"/>, <see cref="DrawFirstVertexAttribute"/>
@@ -122,6 +122,13 @@ public sealed class VertexBufferAttribute : Attribute
 public sealed class IndexBufferAttribute : Attribute
 { }
 
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class BindingAttribute : Attribute
+{
+    public BindingAttribute (int group, int binding) { }
+}
+
 /// <summary>
 /// Uses programmable vertex pulling via storage buffers instead of the fixed vertex input pipeline.<br/>
 /// Vertices are fetched directly from an indexed buffer range, driven by the Draw() offset.
@@ -139,10 +146,7 @@ public sealed class IndexBufferAttribute : Attribute
 /// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindStorageAttribute : Attribute
-{
-    public BindStorageAttribute (int group, int binding) { }
-}
+public sealed class StorageAttribute : Attribute;
 
 /// <summary> Annotates a shader method parameter passing a uniform. </summary>
 /// <remarks>
@@ -163,10 +167,7 @@ public sealed class BindStorageAttribute : Attribute
 /// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindUniformAttribute : Attribute
-{
-    public BindUniformAttribute (int group, int binding) { }
-}
+public sealed class UniformAttribute : Attribute;
 
 
 [AttributeUsage(AttributeTargets.Parameter)]

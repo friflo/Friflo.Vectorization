@@ -100,10 +100,12 @@ public readonly record struct CsAttrEnum
 public enum CsParamAttribute
 {
     None,
+    
+    // BindGroup,      // WGPU attribute:  BindingAttribute
     // --- GpuBuffer<>
     VertexBuffer,   // WGPU attribute:  VertexBufferAttribute
-    BindStorage,    // WGPU attribute:  BindStorageAttribute
-    BindUniform,    // WGPU attribute:  BindUniformAttribute
+    BindStorage,    // WGPU attribute:  StorageAttribute
+    BindUniform,    // WGPU attribute:  UniformAttribute
     BindIndex,      // WGPU attribute:  BindIndexAttribute
     
     // --- GpuSampler

@@ -211,22 +211,22 @@ public partial class ShadowMapping : IRenderer
     [NoEmit]
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void Shadow(RenderPass pass, RenderConfig config,
-                [BindUniform(0, 0)]     in Scene            scene,
-                [BindUniform(1, 0)]     in Model            model,
-                [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]           InBuffer<ushort>    indexBuffer);
+                [Uniform][Binding(0, 0)]    in Scene            scene,
+                [Uniform][Binding(1, 0)]    in Model            model,
+                [VertexBuffer(0)]           InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer]               InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
 
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     private static partial void Render(RenderPass pass, RenderConfig config,
-                [BindUniform      (0, 0)]   in Scene            scene,
-                [texture_depth_2d (0, 1)]   GpuTextureView      textureView,
-                [SamplerComparison(0, 2)]   GpuSampler          sampler,
-                [BindUniform      (1, 0)]   in Model            model,
-                [VertexBuffer(0)]           InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]               InBuffer<ushort>    indexBuffer);
+                [Uniform]           [Binding(0, 0)] in Scene            scene,
+                [texture_depth_2d]  [Binding(0, 1)] GpuTextureView      textureView,
+                [SamplerComparison] [Binding(0, 2)] GpuSampler          sampler,
+                [Uniform]           [Binding(1, 0)] in Model            model,
+                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
+        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
     
 
     [StructLayout(LayoutKind.Sequential)]

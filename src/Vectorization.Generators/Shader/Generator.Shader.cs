@@ -170,6 +170,11 @@ public sealed partial class ShaderGen
         out CsEnum                      e1,
         out CsEnum                      e2)
     {
+        bg = default;
+        e1 = default;
+        e2 = default;
+        CsParamAttribute attr = default;
+        
         foreach (var attribute in attributes)
         {
             var symbol = attribute.AttributeClass!.OriginalDefinition;
@@ -181,47 +186,46 @@ public sealed partial class ShaderGen
                 continue;   
             }
             var args    = attribute.ConstructorArguments;
-            bg = default;
-            e1 = default;
-            e2 = default;
                 
             switch (symbol.Name)
             {
-                case "VertexBufferAttribute":                   bg = Int(args[0]);  return VertexBuffer;
+                case "BindingAttribute":        bg = Bg(args, 0);                           continue;
                 //
-                case "BindStorageAttribute":                    bg = Bg(args, 0);   return BindStorage;
-                case "BindUniformAttribute":                    bg = Bg(args, 0);   return BindUniform;
-                case "BindIndexAttribute":                      bg = Bg(args, 0);   return BindIndex;
+                case "VertexBufferAttribute":   bg = Int(args[0]);  attr = VertexBuffer;    continue;
                 //
-                case "SamplerFilteringAttribute":               bg = Bg(args, 0);   return SamplerFiltering;
-                case "SamplerNonFilteringAttribute":            bg = Bg(args, 0);   return SamplerNonFiltering;
-                case "SamplerComparisonAttribute":              bg = Bg(args, 0);   return SamplerComparison;
+                case "StorageAttribute":                attr = BindStorage;         continue;
+                case "UniformAttribute":                attr = BindUniform;         continue;
+                case "BindIndexAttribute":              attr = BindIndex;           continue;
                 //
-                case "texture_1d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_1d;
-                case "texture_2d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_2d;
-                case "texture_2d_array":                e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_2d_array;
-                case "texture_3d":                      e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_3d;
-                case "texture_cube":                    e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_cube;
-                case "texture_cube_array":              e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_cube_array;
+                case "SamplerFilteringAttribute":       attr = SamplerFiltering;    continue;
+                case "SamplerNonFilteringAttribute":    attr = SamplerNonFiltering; continue;
+                case "SamplerComparisonAttribute":      attr = SamplerComparison;   continue;
                 //
-                case "texture_multisampled_2d":         e1 = Enum(args[0]); bg = Bg(args, 1);   return texture_multisampled_2d;
-                case "texture_depth_multisampled_2d":                       bg = Bg(args, 0);   return texture_depth_multisampled_2d;
+                case "texture_1d":                  e1 = Enum(args[0]);     attr = texture_1d;          continue;
+                case "texture_2d":                  e1 = Enum(args[0]);     attr = texture_2d;          continue;
+                case "texture_2d_array":            e1 = Enum(args[0]);     attr = texture_2d_array;    continue;
+                case "texture_3d":                  e1 = Enum(args[0]);     attr = texture_3d;          continue;
+                case "texture_cube":                e1 = Enum(args[0]);     attr = texture_cube;        continue;
+                case "texture_cube_array":          e1 = Enum(args[0]);     attr = texture_cube_array;  continue;
                 //
-                case "texture_storage_1d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_1d;
-                case "texture_storage_2d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_2d;
-                case "texture_storage_2d_array":    e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_2d_array;
-                case "texture_storage_3d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_3d;
+                case "texture_multisampled_2d":     e1 = Enum(args[0]);     attr = texture_multisampled_2d;         continue;
+                case "texture_depth_multisampled_2d":                       attr = texture_depth_multisampled_2d;   continue;
                 //
-                case "texture_depth_2d":            bg = Bg(args, 0);   return texture_depth_2d;
-                case "texture_depth_2d_array":      bg = Bg(args, 0);   return texture_depth_2d_array;
-                case "texture_depth_cube":          bg = Bg(args, 0);   return texture_depth_cube;
-                case "texture_depth_cube_array":    bg = Bg(args, 0);   return texture_depth_cube_array;
+                case "texture_storage_1d":          e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_1d;      continue;
+                case "texture_storage_2d":          e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d;      continue;
+                case "texture_storage_2d_array":    e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d_array;continue;
+                case "texture_storage_3d":          e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_3d;      continue;
+                //
+                case "texture_depth_2d":            attr = texture_depth_2d;            continue;
+                case "texture_depth_2d_array":      attr = texture_depth_2d_array;      continue;
+                case "texture_depth_cube":          attr = texture_depth_cube;          continue;
+                case "texture_depth_cube_array":    attr = texture_depth_cube_array;    continue;
+                default:
+                    int i = 111;
+                    break;
             }
         }
-        bg = default;
-        e1 = default;
-        e2 = default;
-        return None;
+        return attr;
     }
 
     private static CsType MapType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
