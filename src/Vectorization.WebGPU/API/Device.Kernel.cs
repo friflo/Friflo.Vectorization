@@ -102,7 +102,7 @@ public sealed unsafe partial  class WgpuDevice
     
     private static ReadOnlySpan<byte> GetFullWgsl(Type type, WgpuShader[] shaders, ShaderType shaderType)
     {
-        var memories = new List<Memory>();
+        var resources = new List<Memory>();
         var len = 0;
         foreach (var shader in shaders)
         {
@@ -116,7 +116,7 @@ public sealed unsafe partial  class WgpuDevice
                 return WgpuResource.GetResource(type, shader.path);
             }
             var resource = WgpuResource.GetResource(type, shader.path);
-            memories.Add(new Memory {
+            resources.Add(new Memory {
                 ptr = (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(resource)),
                 len = resource.Length
             });
@@ -124,8 +124,8 @@ public sealed unsafe partial  class WgpuDevice
         }
         var full = new byte[len];
         int pos = 0;
-        foreach (var memory in memories) {
-            var src = new ReadOnlySpan<byte>(memory.ptr, memory.len);
+        foreach (var resource in resources) {
+            var src = new ReadOnlySpan<byte>(resource.ptr, resource.len);
             var dst = new Span<byte>(full, pos, src.Length);
             src.CopyTo(dst);
             pos     += src.Length;
