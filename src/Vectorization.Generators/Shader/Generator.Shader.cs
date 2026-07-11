@@ -32,7 +32,7 @@ public sealed partial class ShaderGen
         //
         var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
 
-        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex);
+        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex, diagnostics);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
         var location    = methodSymbol.Locations.FirstOrDefault();
@@ -45,7 +45,8 @@ public sealed partial class ShaderGen
         IMethodSymbol       methodSymbol,
         string              hash,
         List<AttributeData> shaderAttributes,
-        AttributeData?      drawVertexIndexAttr)
+        AttributeData?      drawVertexIndexAttr,
+        Diagnostics         diagnostics)
     {
         var types               = new Dictionary<CsTypeIdentifier, CsTypeInfo>();
         var declaringType       = MapType(types, methodSymbol.ContainingType, false);
@@ -133,8 +134,15 @@ public sealed partial class ShaderGen
         {
             var shader = shaderAttributes[i];
             var args = shader.ConstructorArguments;
+            var path = (string?)args[0].Value;
+            if (path != null) {
+                if (path.StartsWith("~/")) path = path.Substring(2);    
+            } else {
+                diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader.AttributeClass, "Expect shader path");
+                path = "";
+            }
             shaders[i] = new CsShader {
-                path = (string)args[0].Value!,
+                path = path,
                 vert = (string)args[1].Value!,
                 frag = (string)args[2].Value!,
             };

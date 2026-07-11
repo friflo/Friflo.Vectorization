@@ -5,11 +5,11 @@ namespace TestConsole;
 
 public static partial class GenerateParams
 {
-	[Shader("shaders/triangle.wgsl")]
+	[Shader("~/shaders/triangle.wgsl")]
     public static partial void DrawTrianglesEmpty();
     
     
-    [Shader("shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    [Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static partial void RenderCubeEmpty();
 }

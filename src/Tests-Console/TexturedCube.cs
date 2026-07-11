@@ -136,8 +136,8 @@ public partial class TexturedCube : IRenderer
         RenderCube(pass, config, verticesBuffer.In(), uniforms, sampler, textureView);
     }
     
-	[Shader("shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
+	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]           InBuffer<float> vertices,
                 [BindUniform     (0, 0)]    in Uniforms     uniforms,

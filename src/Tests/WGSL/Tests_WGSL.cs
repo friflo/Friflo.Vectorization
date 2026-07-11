@@ -1,5 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler;
 using NUnit.Framework;
 
@@ -19,6 +23,27 @@ public static class Tests_WGSL
 
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
+    }
+    
+    public static List<string> GetShaders(Type type, [CallerMemberName] string callerName = "")
+    {
+        var methodInfo = type.GetMethod(callerName);
+        if (methodInfo == null) throw new InvalidOperationException("Could not find method " + callerName);
+        
+        var files = new List<string>();
+        var attributesData = methodInfo.GetCustomAttributesData();
+        foreach (var data in attributesData) {
+            if (data.AttributeType != typeof(ShaderAttribute)) continue;
+            var args = data.ConstructorArguments;
+            var path = (string)args[0].Value;
+            if (!path!.StartsWith("~/")) throw new InvalidOperationException("expect path starts with ~/ - path:" + path);
+            
+            path = path.Substring(2);
+            path = "Tests." + path.Replace('/', '.'); 
+            var wgsl = ReadWgslResource(path);
+            files.Add(wgsl);
+        }
+        return files;
     }
     
     
@@ -47,10 +72,11 @@ public static class Tests_WGSL
     }
     
     [Test]
+	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateParameters()
     {
-        var wgsl = ReadWgslResource("Tests.shaders.triangle.wgsl");
-        var shaderParams = CodeFixer.CreateShaderParams([wgsl]);
+        var files = GetShaders(typeof(Tests_WGSL));
+        var shaderParams = CodeFixer.CreateShaderParams(files);
         Assert.That(shaderParams, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
@@ -60,11 +86,12 @@ public static class Tests_WGSL
     }
     
     [Test]
+	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
+	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
-        var wgslFrag = ReadWgslResource("Tests.shaders.shadowMapping.fragment.wgsl");
-        var wgslVert = ReadWgslResource("Tests.shaders.shadowMapping.vertex.wgsl");
-        var shaderParams = CodeFixer.CreateShaderParams([wgslFrag, wgslVert]);
+        var files = GetShaders(typeof(Tests_WGSL));
+        var shaderParams = CodeFixer.CreateShaderParams(files);
         
         return;
         Assert.That(shaderParams, Is.EqualTo(

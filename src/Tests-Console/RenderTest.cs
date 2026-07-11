@@ -77,7 +77,7 @@ public partial class RenderTest : IRenderer
         DrawTriangles(pass, wgpu.Config, rectangle, myUniform);
     }
 
-	[Shader("shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Draw]  [BindStorage(0, 0)] InBuffer<VertexData>    triangles,
                 [BindUniform(1, 0)] in MyUniform            myUniform);
@@ -101,8 +101,8 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-    [Shader("shaders/full_screen_triangle.wgsl",    vertex:   "vs_main")]
-    [Shader("shaders/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
+    [Shader("~/shaders/full_screen_triangle.wgsl",    vertex:   "vs_main")]
+    [Shader("~/shaders/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [BindUniform(0, 0)] in Uniforms uniforms);
