@@ -9,9 +9,24 @@ using Friflo.WGSL.Transpiler.CSharp;
 // ReSharper disable SuggestVarOrType_SimpleTypes
 namespace Friflo.WGSL.Transpiler;
 
+
+
+public readonly struct WgslValidationError
+{
+    public required string                  Message  { get; init; }
+}
+
+
+public readonly struct CodeFixerResult
+{
+    public required string                  Parameters  { get; init; }
+    public required WgslValidationError[]   Errors      { get; init; }
+}
+
+
 public static class CodeFixer
 {
-    public static string CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
+    public static CodeFixerResult CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var sb = new StringBuilder();
         foreach (var file in files)
@@ -46,7 +61,11 @@ public static class CodeFixer
         }
         sb.Length -= 2;
         sb.Append(")");
-        return sb.ToString();
+        
+        return new CodeFixerResult {
+            Parameters  = sb.ToString(),
+            Errors      = [] // new WgslValidationError { Message = "XXX Test some WGSL message" }]
+        };
     }
     
     private static void AppendWgslType(StringBuilder sb, WgslBinding binding)
@@ -63,8 +82,6 @@ public static class CodeFixer
             case "texture_depth_2d":
                 sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
-            
         }
-        
     }
 }

@@ -84,6 +84,15 @@ public static class Errors
         isEnabledByDefault: true
     );
     
+    public static readonly DiagnosticDescriptor WgslValidationError = new (
+        id: "WGPU001",
+        title: "WGSL Validation Error",
+        messageFormat: "WGSL Validation Error - {0}",
+        category: "Syntax",
+        defaultSeverity: DiagnosticSeverity.Warning, 
+        isEnabledByDefault: true
+    );
+    
     public static readonly DiagnosticDescriptor MissingParameters = new(
         id: "WGPU003",
         title: "Shader-Methode has no parameters",

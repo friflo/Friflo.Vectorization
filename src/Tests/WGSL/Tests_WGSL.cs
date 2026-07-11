@@ -97,8 +97,8 @@ public static class Tests_WGSL
     public static void Tests_WGSL_GenerateParameters()
     {
         var (method, files) = GetShaders(typeof(Tests_WGSL));
-        var shaderParams = CodeFixer.CreateShaderParams(method, files);
-        Assert.That(shaderParams, Is.EqualTo(
+        var result = CodeFixer.CreateShaderParams(method, files);
+        Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
                     [BindStorage(0, 0)]         InBuffer<TriangleStorage> mesh_data,
@@ -112,10 +112,10 @@ public static class Tests_WGSL
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
         var (method, files) = GetShaders(typeof(Tests_WGSL));
-        var shaderParams = CodeFixer.CreateShaderParams(method, files);
+        var result = CodeFixer.CreateShaderParams(method, files);
         
 
-        Assert.That(shaderParams, Is.EqualTo(
+        Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
                     [BindUniform(0, 0)]         in Scene scene,
