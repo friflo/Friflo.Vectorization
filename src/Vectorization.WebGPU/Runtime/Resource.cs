@@ -10,10 +10,10 @@ using System.Reflection;
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
 
-public static class WgpuResource
+internal static class WgpuResource
 {
      
-    public static ReadOnlySpan<byte> GetResource(Type type, string resourcePath)
+    internal static ReadOnlySpan<byte> GetResource(Type type, string resourcePath)
     {
         return GetResource(type.Assembly, resourcePath);
     }

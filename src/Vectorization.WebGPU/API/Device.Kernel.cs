@@ -102,16 +102,18 @@ public sealed unsafe partial  class WgpuDevice
     
     private static ReadOnlySpan<byte> GetFullWgsl(Type type, WgpuShader[] shaders, ShaderType shaderType)
     {
-        if (shaders.Length == 1) {
-            return WgpuResource.GetResource(type, shaders[0].path);
-        }
         var memories = new List<Memory>();
         var len = 0;
         foreach (var shader in shaders)
         {
-            switch (shaderType) {
-                case ShaderType.Vertex:     if (shader.frag != null) continue;  break;
-                case ShaderType.Fragment:   if (shader.vert != null) continue;  break;
+            var addWgsl = shader.frag == null && shader.vert == null               ||
+                          shaderType == ShaderType.Vertex   && shader.vert != null ||
+                          shaderType == ShaderType.Fragment && shader.frag != null;
+            if(!addWgsl) {
+                continue;
+            }
+            if (shaders.Length == 1) {
+                return WgpuResource.GetResource(type, shader.path);
             }
             var resource = WgpuResource.GetResource(type, shader.path);
             memories.Add(new Memory {
