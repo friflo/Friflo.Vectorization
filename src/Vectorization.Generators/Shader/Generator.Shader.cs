@@ -189,7 +189,7 @@ public sealed partial class ShaderGen
                 
             switch (symbol.Name)
             {
-                case "BindAttribute":           bg = Bg(args, 0);                           continue;
+                case "MapAttribute":            bg = Bg(args, 0);                           continue;
                 //
                 case "VertexBufferAttribute":   bg = Int(args[0]);  attr = VertexBuffer;    continue;
                 //

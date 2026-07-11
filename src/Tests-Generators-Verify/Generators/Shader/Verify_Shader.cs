@@ -86,8 +86,8 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
-        [Draw]  [Bind(0, 0)] [Storage] InBuffer<VertexData>    triangles,
-                [Bind(1, 0)] [Uniform] in MyUniform            myUniform);
+        [Draw]  [Map(0, 0)] [Storage]   InBuffer<VertexData>    triangles,
+                [Map(1, 0)] [Uniform]   in MyUniform            myUniform);
         
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform
@@ -123,9 +123,9 @@ public partial class ShaderExample
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                   InBuffer<float> vertices,
-                [Bind(0, 0)] [Uniform]              in Uniforms     uniforms,
-                [Bind(0, 1)] [SamplerFiltering]     GpuSampler      smoothFilter,
-                [Bind(0, 2)] [texture_2d(ST.f32)]   GpuTextureView  material);
+                [Map(0, 0)] [Uniform]               in Uniforms     uniforms,
+                [Map(0, 1)] [SamplerFiltering]      GpuSampler      smoothFilter,
+                [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
@@ -153,9 +153,9 @@ public partial class ShaderExample
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                                                       InBuffer<float> vertices,
-                [Bind(0, 0)] [Uniform]                                                  in Uniforms     uniforms,
-                [Bind(0, 1)] [SamplerFiltering]                                         GpuSampler      smoothFilter,
-                [Bind(0, 2)] [texture_storage_2d(TextureFormat.RGBA8Unorm, TSA.read)]   GpuTextureView  material);
+                [Map(0, 0)] [Uniform]                                                   in Uniforms     uniforms,
+                [Map(0, 1)] [SamplerFiltering]                                          GpuSampler      smoothFilter,
+                [Map(0, 2)] [texture_storage_2d(TextureFormat.RGBA8Unorm, TSA.read)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
@@ -182,8 +182,8 @@ public partial class ShaderExample
 	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void DrawInstanced(RenderPass pass, RenderConfig config,
-        [Draw]          [VertexBuffer(0)]       InBuffer<float>     verticesBuffer,
-        [DrawInstance]  [Bind(0, 0)] [Uniform]  InBuffer<Matrix4x4> mvpMatrices);
+        [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
+        [DrawInstance]  [Map(0, 0)] [Uniform]           InBuffer<Matrix4x4> mvpMatrices);
 }
 """);
     }
@@ -205,7 +205,7 @@ public partial struct ShaderExample
     [Shader("~/shaders/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [Bind(0, 0)] [Uniform] in Uniforms    uniforms);
+        [Map(0, 0)] [Uniform] in Uniforms    uniforms);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms
@@ -236,9 +236,9 @@ namespace VerifyShader {
     {
         [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
         public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
-            [Draw]  [Bind(0, 0)] [Storage] InBuffer<VertexData>    triangles,
-                    [Bind(1, 0)] [Uniform] in MyUniform            myUniform,
-                    [Bind(2, 0)] [Uniform] in GlobalUniform        globalUniform);
+            [Draw]  [Map(0, 0)] [Storage] InBuffer<VertexData>  triangles,
+                    [Map(1, 0)] [Uniform] in MyUniform          myUniform,
+                    [Map(2, 0)] [Uniform] in GlobalUniform      globalUniform);
     }
 }
 
@@ -285,9 +285,9 @@ public partial class ShaderExample
 	[Shader("~/no-file.wgsl",                  vertex: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                   InBuffer<float> vertices,
-                [Bind(0, 0)] [Uniform]              in Uniforms     uniforms,
-                [Bind(0, 1)] [SamplerFiltering]     GpuSampler      smoothFilter,
-                [Bind(0, 2)] [texture_2d(ST.f32)]   GpuTextureView  material);
+                [Map(0, 0)] [Uniform]               in Uniforms     uniforms,
+                [Map(0, 1)] [SamplerFiltering]      GpuSampler      smoothFilter,
+                [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
