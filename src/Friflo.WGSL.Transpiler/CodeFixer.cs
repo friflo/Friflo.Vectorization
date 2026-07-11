@@ -29,20 +29,40 @@ public static class CodeFixer
         
         sb.Append("(RenderPass pass, RenderConfig config,\n");
 
-        foreach (var b in shaderMeta.Bindings) {
-            switch (b.AddressSpace)
+        foreach (var binding in shaderMeta.Bindings) {
+            switch (binding.AddressSpace)
             {
             case "storage":
-                var bufferType = b.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                sb.Append($"        [BindStorage({b.Group}, {b.Binding})] {bufferType}<{b.WgslType}> {b.Name},\n");
+                var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
+                sb.Append($"        [BindStorage({binding.Group}, {binding.Binding})]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
                 break;
             case "uniform":
-                sb.Append($"        [BindUniform({b.Group}, {b.Binding})] in {b.WgslType} {b.Name},\n");
+                sb.Append($"        [BindUniform({binding.Group}, {binding.Binding})]         in {binding.WgslType} {binding.Name},\n");
+                break;
+            case "":
+                AppendWgslType(sb, binding);
                 break;
             }
         }
         sb.Length -= 2;
         sb.Append(")");
         return sb.ToString();
+    }
+    
+    private static void AppendWgslType(StringBuilder sb, WgslBinding binding)
+    {
+        var wgslType = binding.WgslType;
+        switch (wgslType)
+        {
+            case "sampler":
+            case "sampler_comparison":
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                break;
+            case "texture_depth_2d":
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                break;
+            
+        }
+        
     }
 }

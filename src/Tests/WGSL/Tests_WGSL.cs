@@ -101,8 +101,8 @@ public static class Tests_WGSL
         Assert.That(shaderParams, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
-                    [BindUniform(1, 0)] in MyUniforms myUniforms)
+                    [BindStorage(0, 0)]         InBuffer<TriangleStorage> mesh_data,
+                    [BindUniform(1, 0)]         in MyUniforms myUniforms)
             """));
     }
     
@@ -114,12 +114,15 @@ public static class Tests_WGSL
         var (method, files) = GetShaders(typeof(Tests_WGSL));
         var shaderParams = CodeFixer.CreateShaderParams(method, files);
         
-        return;
+
         Assert.That(shaderParams, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [BindStorage(0, 0)] InBuffer<TriangleStorage> mesh_data,
-                    [BindUniform(1, 0)] in MyUniforms myUniforms)
+                    [BindUniform(0, 0)]         in Scene scene,
+                    [BindUniform(1, 0)]         in Model model,
+                    [BindUniform(0, 0)]         in Scene scene,
+                    [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
+                    [sampler_comparison(0, 2)]    GpuSampler shadowSampler)
             """));
     }
     
