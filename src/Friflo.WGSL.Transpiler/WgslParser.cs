@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using Friflo.WGSL.Transpiler.CSharp;
+
 namespace Friflo.WGSL.Transpiler;
 
 using System.Collections.Generic;
@@ -22,14 +24,14 @@ public class WgslShaderMetadata
     public List<WgslEntryPoint> EntryPoints { get; set; } = new();
 }
 
-public class WgslType
+public record WgslType
 {
     public string Name { get; set; } = string.Empty;
-    public List<WgslType> Generics { get; set; } = new();
+    public ValueArray<WgslType> Generics { get; set; } = new();
 
     public override string ToString()
     {
-        if (Generics.Count == 0) return Name;
+        if (Generics.Length == 0) return Name;
         return $"{Name}<{string.Join(", ", Generics.Select(g => g.ToString()))}>";
     }
 }
@@ -175,7 +177,7 @@ public static class WgslSuperpowerParser
                 from close in Token.EqualTo(WgslToken.RAngle)
                 select inner.ToList()
             ).OptionalOrDefault(new List<WgslType>())
-            select new WgslType { Name = baseId, Generics = generics }
+            select new WgslType { Name = baseId, Generics = generics.ToValueArray() }
         );
 
     // Discards attribute blocks like @location(0) or @vertex
