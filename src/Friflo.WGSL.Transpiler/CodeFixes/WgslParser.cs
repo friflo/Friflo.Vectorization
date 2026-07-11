@@ -14,7 +14,7 @@ using Superpower.Tokenizers;
 
 
 // ==========================================
-// 1. AST / METADATA TYPES
+// AST / DATA MODELS
 // ==========================================
 
 public class WgslShaderMetadata
@@ -27,7 +27,7 @@ public class WgslShaderMetadata
 public record WgslType
 {
     public string Name { get; set; } = string.Empty;
-    public ValueArray<WgslType> Generics { get; set; } = new();
+    public ValueArray<WgslType> Generics { get; set; } = new(); // Geändert von ValueArray zu List für einfacheres Parsen, falls nötig im Code anpassen
 
     public override string ToString()
     {
@@ -85,11 +85,7 @@ public class WgslParam
 }
 
 // ==========================================
-// 2. TOKENIZER DEFINITION
-// ==========================================
-
-// ==========================================
-// 1. TOKEN ENUM DEFINITION
+// TOKEN ENUM DEFINITION
 // ==========================================
 public enum WgslToken
 {
@@ -113,7 +109,7 @@ public enum WgslToken
 }
 
 // ==========================================
-// 2. WGSL TOKENIZER DEFINITION
+// WGSL TOKENIZER DEFINITION
 // ==========================================
 public static class WgslTokenizer
 {
@@ -146,15 +142,13 @@ public static class WgslTokenizer
             .Then(c => Character.LetterOrDigit.Or(Character.EqualTo('_')).Many().Select(cs => c + new string(cs))), WgslToken.Identifier)
         
         // 5. Fallback für alles andere (=, +, *, [, ], etc.)
-        // Verhindert ParseException bei Zuweisungen oder arithmetischen Operationen im Shader
         .Match(Character.AnyChar, WgslToken.None) 
         .Build();
 }
 
 // ==========================================
-// 3. ROBUST TOKEN PARSER
+// ROBUST TOKEN PARSER
 // ==========================================
-
 public static class WgslSuperpowerParser
 {
     // --- Primitive Token Matchers ---
@@ -164,7 +158,6 @@ public static class WgslSuperpowerParser
     private static readonly TokenListParser<WgslToken, int> Num = 
         Token.EqualTo(WgslToken.Number).Select(t => int.Parse(t.ToStringValue()));
 
-    // FIX: Nutzt Token.Matching, um bedingungslos jedes Token zu akzeptieren
     private static readonly TokenListParser<WgslToken, Token<WgslToken>> AnyToken =
         Token.Matching<WgslToken>(_ => true, "any token");
 
@@ -180,7 +173,7 @@ public static class WgslSuperpowerParser
             select new WgslType { Name = baseId, Generics = generics.ToValueArray() }
         );
 
-    // Discards attribute blocks like @location(0) or @vertex
+    // Discards attribute blocks like @location(0) or @vertex robustly (now allows Numbers inside)
     private static readonly TokenListParser<WgslToken, Unit> SkipAttribute =
         from at in Token.EqualTo(WgslToken.At)
         from name in Id
@@ -192,7 +185,7 @@ public static class WgslSuperpowerParser
         ).OptionalOrDefault()
         select Unit.Value;
 
-    // FIX: Verwendet Token.Matching, um gezielt alle Tokens zu fressen, die keine schließende geschweifte Klammer sind
+    // Skips whole function or struct bodies safely
     private static readonly TokenListParser<WgslToken, Unit> SkipBracedBlock =
         from open in Token.EqualTo(WgslToken.LBrace)
         from content in Token.Matching<WgslToken>(t => t != WgslToken.RBrace, "not RBrace").Value(Unit.Value)
@@ -263,23 +256,28 @@ public static class WgslSuperpowerParser
             }
         );
     
-    // Hilfs-Parser für den Inhalt von <...>
     private static readonly TokenListParser<WgslToken, (string AddressSpace, string AccessMode)> AccessDetailsParser =
         from open in Token.EqualTo(WgslToken.LAngle)
         from parts in Id.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
         from close in Token.EqualTo(WgslToken.RAngle)
         select parts.Length switch
         {
-            >= 2    => (AddressSpace: parts[0], AccessMode: parts[1]),          // <storage, read>
-            1       => (AddressSpace: parts[0], AccessMode: string.Empty),      // <uniform>
-            _       => (AddressSpace: string.Empty, AccessMode: string.Empty)   // <>
+            >= 2    => (AddressSpace: parts[0], AccessMode: parts[1]),
+            1       => (AddressSpace: parts[0], AccessMode: string.Empty),
+            _       => (AddressSpace: string.Empty, AccessMode: string.Empty)
         };
 
+    // Parses function arguments, e.g., @location(0) fragUV: vec2f
     private static readonly TokenListParser<WgslToken, WgslParam> ParamParser =
         from attr in (
             from at in Token.EqualTo(WgslToken.At)
             from attrName in Id
-            from inner in (from o in Token.EqualTo(WgslToken.LParen) from innerId in Id from c in Token.EqualTo(WgslToken.RParen) select innerId).OptionalOrDefault()
+            from inner in (
+                from o in Token.EqualTo(WgslToken.LParen) 
+                from innerVal in Token.EqualTo(WgslToken.Identifier).Or(Token.EqualTo(WgslToken.Number)).Select(t => t.ToStringValue()) 
+                from c in Token.EqualTo(WgslToken.RParen) 
+                select innerVal
+            ).OptionalOrDefault()
             select inner != null ? $"@{attrName}({inner})" : $"@{attrName}"
         ).OptionalOrDefault(string.Empty)
         from name in Id
@@ -287,6 +285,12 @@ public static class WgslSuperpowerParser
         from type in WgslTypeParser
         select new WgslParam { Attribute = attr, Name = name, WgslType = type };
 
+    // Consumes everything between the parameter list close ')' and the body open '{'
+    private static readonly TokenListParser<WgslToken, Unit> SkipUntilLBrace =
+        Token.Matching<WgslToken>(t => t != WgslToken.LBrace, "anything before body")
+            .Many().Value(Unit.Value);
+
+    // The core EntryPoint parser for @vertex, @fragment, @compute
     private static readonly TokenListParser<WgslToken, WgslEntryPoint> EntryPointParser =
         from stage in Token.EqualTo(WgslToken.At).Then(_ => Id).Where(id => id == "vertex" || id == "fragment" || id == "compute")
         from intermediateAttrs in SkipAttribute.Many()
@@ -295,14 +299,14 @@ public static class WgslSuperpowerParser
         from open in Token.EqualTo(WgslToken.LParen)
         from parameters in ParamParser.ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
         from close in Token.EqualTo(WgslToken.RParen)
-        from retType in (
-            from arrow in Token.EqualTo(WgslToken.ReturnArrow)
-            from retAttrs in SkipAttribute.Many()
-            from type in WgslTypeParser
-            select type
-        ).OptionalOrDefault(null)
+        from returnTrivia in SkipUntilLBrace
         from body in SkipBracedBlock
-        select new WgslEntryPoint { Stage = stage, Name = name, Parameters = parameters.ToList(), ReturnType = retType ?? new WgslType() };
+        select new WgslEntryPoint { 
+            Stage = stage, 
+            Name = name, 
+            Parameters = parameters.ToList(), 
+            ReturnType = new WgslType() 
+        };
 
     // --- Global Top-Level Parser ---
     private static readonly TokenListParser<WgslToken, WgslShaderMetadata> GlobalShaderParser =

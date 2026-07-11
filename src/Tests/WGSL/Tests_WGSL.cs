@@ -80,7 +80,9 @@ public static class Tests_WGSL
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var result = CodeFixer.CreateShaderParams(method, files);
         
-        Assert.That(result.Errors.Length, Is.EqualTo(0));
+        
+        Assert.That(result.Metadata.EntryPoints.Count,  Is.EqualTo(2));
+        Assert.That(result.Errors.Length,               Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,

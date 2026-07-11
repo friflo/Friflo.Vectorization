@@ -22,6 +22,7 @@ public readonly struct CodeFixerResult
 {
     public required string                  Parameters  { get; init; }
     public required WgslValidationError[]   Errors      { get; init; }
+    public required WgslShaderMetadata      Metadata    { get; init; }
 }
 
 
@@ -84,7 +85,8 @@ public static class CodeFixer
         
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
-            Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
+            Errors      = errors.ToArray(), // new WgslValidationError { Message = "XXX Test some WGSL message" }]
+            Metadata    = shaderMeta
         };
     }
     
