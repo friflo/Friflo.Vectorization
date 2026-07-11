@@ -29,8 +29,17 @@ public readonly struct CodeFixerResult
 
 public static class CodeFixer
 {
+    private static (string vsEntry, string fsEntry) GetEntryPoints(CsMethod method, ImmutableArray<WgslFile> files)
+    {
+        foreach (var shader in method.Shaders) {
+            
+        }
+        return default;
+    }
+    
     public static CodeFixerResult CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
     {
+        // var (vsEntry, fsEntry) = GetEntryPoints(method, files);
         var sb = new StringBuilder();
         foreach (var file in files)
         {
