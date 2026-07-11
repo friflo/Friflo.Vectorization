@@ -101,7 +101,6 @@ public enum CsParamAttribute
 {
     None,
     
-    // BindGroup,      // WGPU attribute:  BindingAttribute
     // --- GpuBuffer<>
     VertexBuffer,   // WGPU attribute:  VertexBufferAttribute
     BindStorage,    // WGPU attribute:  StorageAttribute

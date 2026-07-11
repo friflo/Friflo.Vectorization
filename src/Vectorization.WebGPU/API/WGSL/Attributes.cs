@@ -124,9 +124,9 @@ public sealed class IndexBufferAttribute : Attribute
 
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindingAttribute : Attribute
+public sealed class BindAttribute : Attribute
 {
-    public BindingAttribute (int group, int binding) { }
+    public BindAttribute (int group, int binding) { }
 }
 
 /// <summary>
