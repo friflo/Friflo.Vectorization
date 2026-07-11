@@ -93,13 +93,52 @@ public static class CodeFixer
         var wgslType = binding.WgslType;
         switch (wgslType)
         {
+            // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
-                sb.Append($"        [SamplerFilteringAttribute({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [SamplerFiltering({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
                 break;
             case "sampler_comparison":
                 sb.Append($"        [SamplerComparison({binding.Group}, {binding.Binding})]    GpuSampler {binding.Name},\n");
                 break;
+            
+            // ------ WGSL texture types
+            
+            // --- Sampled Texture Types        See:  https://www.w3.org/TR/WGSL/#sampled-texture-type
+            case "texture_1d":
+            case "texture_2d":
+            case "texture_2d_array":
+            case "texture_3d":
+            case "texture_cube":
+            case "texture_cube_array":
+                var sampleType = "f32";                 // TODO  implement mapping
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                break;
+            
+            // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
+            case "texture_multisampled_2d":
+                var sampleType2 = "f32";                // TODO  implement mapping
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, ST.{sampleType2})]    GpuTextureView {binding.Name},\n");
+                break;
+            case "texture_depth_multisampled_2d":
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                break;
+
+            
+            // --- Storage Texture Types        See:  https://www.w3.org/TR/WGSL/#texture-storage
+            case "texture_storage_1d":
+            case "texture_storage_2d":
+            case "texture_storage_2d_array":
+            case "texture_storage_3d":
+                var access = "RGBA8Unorm";              // TODO  implement mapping
+                var format = "read";                    // TODO  implement mapping
+                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, TextureFormat.{access}, TSA.{format})]    GpuTextureView {binding.Name},\n");
+                break;
+            
+            // --- Depth Texture Types          See:  https://www.w3.org/TR/WGSL/#texture-depth
             case "texture_depth_2d":
+            case "texture_depth_2d_array":
+            case "texture_depth_cube":
+            case "texture_depth_cube_array":
                 sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
         }
