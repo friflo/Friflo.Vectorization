@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Friflo.Vectorization.Generators;
-using Friflo.WGSL.Transpiler;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

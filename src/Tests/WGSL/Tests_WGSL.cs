@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
-using Friflo.WGSL.Transpiler;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.CSharp;
 using NUnit.Framework;
 

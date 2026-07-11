@@ -3,7 +3,7 @@
 
 using Friflo.WGSL.Transpiler.CSharp;
 
-namespace Friflo.WGSL.Transpiler;
+namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 using System.Collections.Generic;
 using System.Linq;

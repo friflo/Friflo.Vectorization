@@ -8,7 +8,7 @@ using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
-namespace Friflo.WGSL.Transpiler;
+namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 
 
