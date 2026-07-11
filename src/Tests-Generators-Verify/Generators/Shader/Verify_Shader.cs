@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading;
@@ -29,22 +30,24 @@ public static class Verify_Shader
         public override SourceText GetText(CancellationToken cancellationToken = default) => Text;
     }
     
-    public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
+public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
+{
+    var searchPath  = Path.GetFullPath(srcFolder);
+    if (!Directory.Exists(searchPath)) {
+        throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
+    } 
+    var fullBaseDir = searchPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+    var builder     = ImmutableArray.CreateBuilder<AdditionalText>();
+
+    // iterate recursive all *.wgsl files
+    foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
     {
-        var builder = ImmutableArray.CreateBuilder<AdditionalText>();
-        if (!Directory.Exists(srcFolder)) return builder.ToImmutable();
-
-        var fullBaseDir = Path.GetFullPath(srcFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        // iterate recursive all *.wgsl files
-        foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
-        {
-            var relativePath = baseFolder + Path.GetRelativePath(fullBaseDir, fullFilePath);
-            var content = File.ReadAllText(fullFilePath);
-            builder.Add(new InMemoryAdditionalText(relativePath, content));
-        }
-        return builder.ToImmutable();
+        var relativePath = baseFolder + Path.GetRelativePath(fullBaseDir, fullFilePath);
+        var content = File.ReadAllText(fullFilePath);
+        builder.Add(new InMemoryAdditionalText(relativePath, content));
     }
+    return builder.ToImmutable();
+}
     
     private static async Task Verify([LanguageInjection("csharp")] string code)
     {
