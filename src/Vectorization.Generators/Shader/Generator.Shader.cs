@@ -7,6 +7,7 @@ using System.Linq;
 using Friflo.Vectorization.Generators;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
+using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
 // ReSharper disable InvertIf
 // ReSharper disable UseCollectionExpression
@@ -66,7 +67,7 @@ public sealed partial class ShaderGen
             if (attributeData != null) {
                 var args = attributeData.ConstructorArguments;
                 switch (paramAttribute) {
-                    case CsParamAttribute.VertexBuffer:
+                    case VertexBuffer:
                         arg0 = (int)args[0].Value!;
                         break;
                     default:
@@ -97,7 +98,7 @@ public sealed partial class ShaderGen
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawType        = drawType,
-                Type            = MapType(types, paramSymbol.Type, paramAttribute != CsParamAttribute.None),
+                Type            = MapType(types, paramSymbol.Type, paramAttribute != None),
                 ParamAttribute  = paramAttribute,
                 BindGroup       = new CsBindGroup {
                     group           = arg0,
@@ -175,43 +176,50 @@ public sealed partial class ShaderGen
     {
         foreach (var attribute in attributes)
         {
+            var symbol = attribute.AttributeClass!.OriginalDefinition;
+            if (symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace) {
+                continue;
+            }
+            var ns = symbol.ContainingNamespace.ToDisplayString();
+            if (ns != "Friflo.Vectorization.WebGPU") {
+                continue;   
+            }
             attributeData = attribute;
-            var originalDefinition = attribute.AttributeClass!.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            switch (originalDefinition)
+            switch (symbol.Name)
             {
-                case "global::Friflo.Vectorization.WebGPU.VertexBufferAttribute":           return CsParamAttribute.VertexBuffer;
+                case "VertexBufferAttribute":           return VertexBuffer;
                 //
-                case "global::Friflo.Vectorization.WebGPU.BindStorageAttribute":            return CsParamAttribute.BindStorage;
-                case "global::Friflo.Vectorization.WebGPU.BindUniformAttribute":            return CsParamAttribute.BindUniform;
-                case "global::Friflo.Vectorization.WebGPU.BindIndexAttribute":              return CsParamAttribute.BindIndex;
+                case "BindStorageAttribute":            return BindStorage;
+                case "BindUniformAttribute":            return BindUniform;
+                case "BindIndexAttribute":              return BindIndex;
                 //
-                case "global::Friflo.Vectorization.WebGPU.SamplerFilteringAttribute":       return CsParamAttribute.SamplerFiltering;
-                case "global::Friflo.Vectorization.WebGPU.SamplerNonFilteringAttribute":    return CsParamAttribute.SamplerNonFiltering;
-                case "global::Friflo.Vectorization.WebGPU.SamplerComparisonAttribute":      return CsParamAttribute.SamplerComparison;
+                case "SamplerFilteringAttribute":       return SamplerFiltering;
+                case "SamplerNonFilteringAttribute":    return SamplerNonFiltering;
+                case "SamplerComparisonAttribute":      return SamplerComparison;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_1d":                      return CsParamAttribute.texture_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d":                      return CsParamAttribute.texture_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_2d_array":                return CsParamAttribute.texture_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_3d":                      return CsParamAttribute.texture_3d;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube":                    return CsParamAttribute.texture_cube;
-                case "global::Friflo.Vectorization.WebGPU.texture_cube_array":              return CsParamAttribute.texture_cube_array;
+                case "texture_1d":                      return texture_1d;
+                case "texture_2d":                      return texture_2d;
+                case "texture_2d_array":                return texture_2d_array;
+                case "texture_3d":                      return texture_3d;
+                case "texture_cube":                    return texture_cube;
+                case "texture_cube_array":              return texture_cube_array;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_multisampled_2d":         return CsParamAttribute.texture_multisampled_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_depth_multisampled_2d":   return CsParamAttribute.texture_depth_multisampled_2d;
+                case "texture_multisampled_2d":         return texture_multisampled_2d;
+                case "texture_depth_multisampled_2d":   return texture_depth_multisampled_2d;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_1d":              return CsParamAttribute.texture_storage_1d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d":              return CsParamAttribute.texture_storage_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_2d_array":        return CsParamAttribute.texture_storage_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_storage_3d":              return CsParamAttribute.texture_storage_3d;
+                case "texture_storage_1d":              return texture_storage_1d;
+                case "texture_storage_2d":              return texture_storage_2d;
+                case "texture_storage_2d_array":        return texture_storage_2d_array;
+                case "texture_storage_3d":              return texture_storage_3d;
                 //
-                case "global::Friflo.Vectorization.WebGPU.texture_depth_2d":                return CsParamAttribute.texture_depth_2d;
-                case "global::Friflo.Vectorization.WebGPU.texture_depth_2d_array":          return CsParamAttribute.texture_depth_2d_array;
-                case "global::Friflo.Vectorization.WebGPU.texture_depth_cube":              return CsParamAttribute.texture_depth_cube;
-                case "global::Friflo.Vectorization.WebGPU.texture_depth_cube_array":        return CsParamAttribute.texture_depth_cube_array;
+                case "texture_depth_2d":                return texture_depth_2d;
+                case "texture_depth_2d_array":          return texture_depth_2d_array;
+                case "texture_depth_cube":              return texture_depth_cube;
+                case "texture_depth_cube_array":        return texture_depth_cube_array;
             }
         }
         attributeData = null;
-        return CsParamAttribute.None;
+        return None;
     }
 
     private static CsType MapType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
