@@ -66,7 +66,7 @@ public partial class ShaderExample
     private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderCube");
     private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x7d5a41753180ccf1;
 
-    private static ulong        _RenderCube_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
+    private static ulong        _RenderCube_GPU_WgslHash            => 0x7d9a5dec1e37d625UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _RenderCube_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
