@@ -211,10 +211,10 @@ public partial class ShadowMapping : IRenderer
     [NoEmit]
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void Shadow(RenderPass pass, RenderConfig config,
-                [Bind(0, 0)] [Uniform]  in Scene            scene,
-                [Bind(1, 0)] [Uniform]  in Model            model,
-                [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]           InBuffer<ushort>    indexBuffer);
+                [Bind(0, 0)] [Uniform]          in Scene            scene,
+                [Bind(1, 0)] [Uniform]          in Model            model,
+                             [VertexBuffer(0)]  InBuffer<Vector3>   verticesBuffer,
+        [Draw]               [IndexBuffer]      InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
 
@@ -225,8 +225,8 @@ public partial class ShadowMapping : IRenderer
                 [Bind(0, 1)] [texture_depth_2d]     GpuTextureView      textureView,
                 [Bind(0, 2)] [SamplerComparison]    GpuSampler          sampler,
                 [Bind(1, 0)] [Uniform]              in Model            model,
-                [VertexBuffer(0)]                   InBuffer<Vector3>   verticesBuffer,
-        [Draw]  [IndexBuffer]                       InBuffer<ushort>    indexBuffer);
+                             [VertexBuffer(0)]      InBuffer<Vector3>   verticesBuffer,
+        [Draw]               [IndexBuffer]          InBuffer<ushort>    indexBuffer);
     
 
     [StructLayout(LayoutKind.Sequential)]
