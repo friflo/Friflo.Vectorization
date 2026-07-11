@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 
@@ -10,6 +11,7 @@ using Friflo.Vectorization.GPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo
 {
     internal static WgpuAdapterInfo CreateAdapterInfo(AdapterInfo props)

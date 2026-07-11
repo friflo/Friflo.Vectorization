@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
@@ -17,6 +18,7 @@ internal interface IWgpuBuffer {
     internal Span<byte>                 GetHostMemorySpan();
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class WgpuBuffer<T> : GpuBuffer<T>, IWgpuBuffer where T : unmanaged
 {
     internal            Buffer*     handle { get; private set; }

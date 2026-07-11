@@ -23,6 +23,7 @@ internal struct PipelineCaches
 }
 
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 [InlineArray(4)]
 public struct WgpuBindGroupLayout4
 {
@@ -33,6 +34,7 @@ public struct WgpuBindGroupLayout4
 /// Caches the <see cref="renderPipeline"/>, the <see cref="layouts"/> and the <see cref="WgpuBindGroup"/>'s
 /// for a specific <see cref="RenderConfig"/>.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct PipelineCache
 {
     public   readonly   BindGroupCache          bindGroupCache;     //  8
@@ -61,6 +63,7 @@ public readonly unsafe struct PipelineCache
     }
 }
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class BindGroupCache
 {
     protected internal abstract void Clear();

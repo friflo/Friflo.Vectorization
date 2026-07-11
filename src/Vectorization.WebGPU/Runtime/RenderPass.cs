@@ -13,6 +13,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct RenderPassInternal
 {
     public   readonly   CommandRecorder       Recorder;

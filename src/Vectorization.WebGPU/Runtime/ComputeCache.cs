@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU.Runtime;
 
@@ -14,6 +15,7 @@ namespace Friflo.Vectorization.WebGPU.Runtime {
 /// and the <see cref="WgpuBindGroup"/>'s.
 /// for a specific <see cref="RenderConfig"/>.
 /// </summary>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe struct ComputeCache
 {
     public   readonly   BindGroupCache          bindGroupCache;     //  8
