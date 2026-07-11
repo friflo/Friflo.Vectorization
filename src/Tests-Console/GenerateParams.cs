@@ -12,4 +12,9 @@ public static partial class GenerateParams
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static partial void RenderCubeEmpty();
+    
+    
+	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
+	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+    private static partial void RenderCube();
 }
