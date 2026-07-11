@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
 // ReSharper disable UseCollectionExpression
 // ReSharper disable MergeIntoPattern
@@ -59,29 +60,7 @@ public sealed partial class ShaderGen
         {
             var paramSymbol     = methodParameters[n];
             var attributes      = paramSymbol.GetAttributes();
-            var paramAttribute  = GetParamAttribute(attributes, out var attributeData);
-            var arg0 = -1;
-            var arg1 = -1;
-            CsEnum enum1 = default;
-            CsEnum enum2 = default;
-            if (attributeData != null) {
-                var args = attributeData.ConstructorArguments;
-                switch (paramAttribute) {
-                    case VertexBuffer:
-                        arg0 = (int)args[0].Value!;
-                        break;
-                    default:
-                        arg0 = (int)args[0].Value!;
-                        arg1 = (int)args[1].Value!;
-                        break;
-                }
-                if (args.Length > 2) {
-                    enum1 = GetEnumValue(args[2]);
-                }
-                if (args.Length > 3) {
-                    enum2 = GetEnumValue(args[3]);
-                }
-            }
+            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out var e1, out var e2);
             var drawType = CsDrawType.None;
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
                 drawType = CsDrawType.Draw;
@@ -100,13 +79,10 @@ public sealed partial class ShaderGen
                 DrawType        = drawType,
                 Type            = MapType(types, paramSymbol.Type, paramAttribute != None),
                 ParamAttribute  = paramAttribute,
-                BindGroup       = new CsBindGroup {
-                    group           = arg0,
-                    binding         = arg1
-                },
+                BindGroup       = bindGroup,
                 AttrEnum = new CsAttrEnum {
-                    enum1           = enum1,
-                    enum2           = enum2,
+                    enum1           = e1,
+                    enum2           = e2,
                 }
             };
             var modifierType = paramSymbol.RefKind switch {
@@ -161,7 +137,9 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static CsEnum GetEnumValue(TypedConstant typedConstant)
+
+    
+    private static CsEnum Enum(TypedConstant typedConstant)
     {
         if (typedConstant.Kind == TypedConstantKind.Enum && typedConstant.Type is INamedTypeSymbol enumType) {
             var field = enumType.GetMembers()
@@ -172,7 +150,25 @@ public sealed partial class ShaderGen
         return new CsEnum { Name = "NoName", Value = (ulong)(int)typedConstant.Value! };
     }
     
-    private static CsParamAttribute GetParamAttribute(ImmutableArray<AttributeData> attributes, out AttributeData? attributeData)
+    private static CsBindGroup Int(TypedConstant arg) {
+        return new CsBindGroup {
+            group   = (int)arg.Value!,
+            binding = 0
+        };
+    }
+    
+    private static CsBindGroup Bg(ImmutableArray<TypedConstant> args, int pos) {
+        return new CsBindGroup {
+            group   = (int)args[pos + 0].Value!,
+            binding = (int)args[pos + 1].Value!
+        };
+    }
+    
+    private static CsParamAttribute GetParamAttribute(
+        ImmutableArray<AttributeData>   attributes,
+        out CsBindGroup                 bg,
+        out CsEnum                      e1,
+        out CsEnum                      e2)
     {
         foreach (var attribute in attributes)
         {
@@ -184,41 +180,47 @@ public sealed partial class ShaderGen
             if (ns != "Friflo.Vectorization.WebGPU") {
                 continue;   
             }
-            attributeData = attribute;
+            var args    = attribute.ConstructorArguments;
+            bg = default;
+            e1 = default;
+            e2 = default;
+                
             switch (symbol.Name)
             {
-                case "VertexBufferAttribute":           return VertexBuffer;
+                case "VertexBufferAttribute":                   bg = Int(args[0]);  return VertexBuffer;
                 //
-                case "BindStorageAttribute":            return BindStorage;
-                case "BindUniformAttribute":            return BindUniform;
-                case "BindIndexAttribute":              return BindIndex;
+                case "BindStorageAttribute":                    bg = Bg(args, 0);   return BindStorage;
+                case "BindUniformAttribute":                    bg = Bg(args, 0);   return BindUniform;
+                case "BindIndexAttribute":                      bg = Bg(args, 0);   return BindIndex;
                 //
-                case "SamplerFilteringAttribute":       return SamplerFiltering;
-                case "SamplerNonFilteringAttribute":    return SamplerNonFiltering;
-                case "SamplerComparisonAttribute":      return SamplerComparison;
+                case "SamplerFilteringAttribute":               bg = Bg(args, 0);   return SamplerFiltering;
+                case "SamplerNonFilteringAttribute":            bg = Bg(args, 0);   return SamplerNonFiltering;
+                case "SamplerComparisonAttribute":              bg = Bg(args, 0);   return SamplerComparison;
                 //
-                case "texture_1d":                      return texture_1d;
-                case "texture_2d":                      return texture_2d;
-                case "texture_2d_array":                return texture_2d_array;
-                case "texture_3d":                      return texture_3d;
-                case "texture_cube":                    return texture_cube;
-                case "texture_cube_array":              return texture_cube_array;
+                case "texture_1d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_1d;
+                case "texture_2d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_2d;
+                case "texture_2d_array":    e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_2d_array;
+                case "texture_3d":          e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_3d;
+                case "texture_cube":        e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_cube;
+                case "texture_cube_array":  e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_cube_array;
                 //
-                case "texture_multisampled_2d":         return texture_multisampled_2d;
-                case "texture_depth_multisampled_2d":   return texture_depth_multisampled_2d;
+                case "texture_multisampled_2d":         e1 = Enum(args[2]); bg = Bg(args, 0);   return texture_multisampled_2d;
+                case "texture_depth_multisampled_2d":                       bg = Bg(args, 0);   return texture_depth_multisampled_2d;
                 //
-                case "texture_storage_1d":              return texture_storage_1d;
-                case "texture_storage_2d":              return texture_storage_2d;
-                case "texture_storage_2d_array":        return texture_storage_2d_array;
-                case "texture_storage_3d":              return texture_storage_3d;
+                case "texture_storage_1d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_1d;
+                case "texture_storage_2d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_2d;
+                case "texture_storage_2d_array":    e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_2d_array;
+                case "texture_storage_3d":          e1 = Enum(args[2]); e2 = Enum(args[3]); bg = Bg(args, 0);   return texture_storage_3d;
                 //
-                case "texture_depth_2d":                return texture_depth_2d;
-                case "texture_depth_2d_array":          return texture_depth_2d_array;
-                case "texture_depth_cube":              return texture_depth_cube;
-                case "texture_depth_cube_array":        return texture_depth_cube_array;
+                case "texture_depth_2d":            bg = Bg(args, 0);   return texture_depth_2d;
+                case "texture_depth_2d_array":      bg = Bg(args, 0);   return texture_depth_2d_array;
+                case "texture_depth_cube":          bg = Bg(args, 0);   return texture_depth_cube;
+                case "texture_depth_cube_array":    bg = Bg(args, 0);   return texture_depth_cube_array;
             }
         }
-        attributeData = null;
+        bg = default;
+        e1 = default;
+        e2 = default;
         return None;
     }
 
