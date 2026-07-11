@@ -7,6 +7,8 @@ using System.Collections.Immutable;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_SimpleTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;
@@ -71,6 +73,8 @@ public static class CodeFixer
                 bindings.Add(binding);
             }
         }
+        SortBindings(bindings);
+        
         sb.Append("(RenderPass pass, RenderConfig config,\n");
         
         foreach (var entryPoint in shaderMeta.EntryPoints)
@@ -92,7 +96,7 @@ public static class CodeFixer
                 if (foundVertexBuffers > 0) sb.Append("\n");
             }
         }
-
+        
         foreach (var binding in bindings) {
             switch (binding.AddressSpace)
             {
@@ -175,5 +179,16 @@ public static class CodeFixer
                 sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
         }
+    }
+    
+    private static void SortBindings(List<WgslBinding> bindings)
+    {
+        bindings.Sort((a, b) => {
+            int groupComparison = a.Group.CompareTo(b.Group);
+            if (groupComparison != 0) {
+                return groupComparison;
+            }
+            return a.Binding.CompareTo(b.Binding);
+        });
     }
 }
