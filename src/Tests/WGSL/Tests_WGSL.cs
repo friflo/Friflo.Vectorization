@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler;
+using Friflo.WGSL.Transpiler.CSharp;
 using NUnit.Framework;
 
+// ReSharper disable UseCollectionExpression
 namespace Tests.WGSL;
 
 // ReSharper disable once InconsistentNaming
@@ -25,25 +28,43 @@ public static class Tests_WGSL
         return reader.ReadToEnd();
     }
     
-    public static List<string> GetShaders(Type type, [CallerMemberName] string callerName = "")
+    public static (CsMethod, ImmutableArray<WgslFile>) GetShaders(Type type, [CallerMemberName] string callerName = "")
     {
         var methodInfo = type.GetMethod(callerName);
         if (methodInfo == null) throw new InvalidOperationException("Could not find method " + callerName);
         
-        var files = new List<string>();
-        var attributesData = methodInfo.GetCustomAttributesData();
-        foreach (var data in attributesData) {
+        var files           = new List<WgslFile>();
+        var shaders         = new List<CsShader>();
+        var attributesData  = methodInfo.GetCustomAttributesData();
+        
+        foreach (var data in attributesData)
+        {
             if (data.AttributeType != typeof(ShaderAttribute)) continue;
             var args = data.ConstructorArguments;
             var path = (string)args[0].Value;
             if (!path!.StartsWith("~/")) throw new InvalidOperationException("expect path starts with ~/ - path:" + path);
             
             path = path.Substring(2);
-            path = "Tests." + path.Replace('/', '.'); 
-            var wgsl = ReadWgslResource(path);
-            files.Add(wgsl);
+            var resourceName = "Tests." + path.Replace('/', '.'); 
+            var wgsl = ReadWgslResource(resourceName);
+            files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0 });
+            shaders.Add(new CsShader {
+                path = path,
+                frag = args[1].Value as string,
+                vert = args[2].Value as string,
+            });
         }
-        return files;
+        var method = new CsMethod {
+            Name            = "",
+            Hash            = "",
+            DeclaringType   = default,
+            Parameters      = default,
+            DrawVertexIndex = null,
+            Modifier        = default,
+            Shaders         = shaders.ToValueArray(),
+            TypeInfos       = default
+        };
+        return (method, files.ToImmutableArray());
     }
     
     
@@ -75,8 +96,8 @@ public static class Tests_WGSL
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateParameters()
     {
-        var files = GetShaders(typeof(Tests_WGSL));
-        var shaderParams = CodeFixer.CreateShaderParams(files);
+        var (method, files) = GetShaders(typeof(Tests_WGSL));
+        var shaderParams = CodeFixer.CreateShaderParams(method, files);
         Assert.That(shaderParams, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
@@ -90,8 +111,8 @@ public static class Tests_WGSL
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
-        var files = GetShaders(typeof(Tests_WGSL));
-        var shaderParams = CodeFixer.CreateShaderParams(files);
+        var (method, files) = GetShaders(typeof(Tests_WGSL));
+        var shaderParams = CodeFixer.CreateShaderParams(method, files);
         
         return;
         Assert.That(shaderParams, Is.EqualTo(

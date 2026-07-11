@@ -2,28 +2,34 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
+using Friflo.WGSL.Transpiler.CSharp;
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 namespace Friflo.WGSL.Transpiler;
 
 public static class CodeFixer
 {
-    public static string CreateShaderParams(List<string> wgslContents)
+    public static string CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var sb = new StringBuilder();
-        foreach (var wgslContent in wgslContents) {
-            sb.Append(wgslContent);
+        foreach (var file in files)
+        {
+            foreach (var shader in method.Shaders) {
+                if (!file.NormalizedPath.StartsWith(shader.path)) continue;
+                sb.Append(file.Content);
+                break;
+            }
         }
         var wgsl = sb.ToString();
         sb.Clear();
 
-        WgslShaderMetadata shader = WgslSuperpowerParser.ParseShader(wgsl);
+        WgslShaderMetadata shaderMeta = WgslSuperpowerParser.ParseShader(wgsl);
         
         sb.Append("(RenderPass pass, RenderConfig config,\n");
 
-        foreach (var b in shader.Bindings) {
+        foreach (var b in shaderMeta.Bindings) {
             switch (b.AddressSpace)
             {
             case "storage":

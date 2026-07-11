@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -20,13 +19,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo;
 
-
-public readonly struct WgslFile
-{
-    public required string  NormalizedPath  { get; init; }
-    public required ulong   Hash            { get; init; }
-    public required string  Content         { get; init; }
-}
 
 [Generator]
 public sealed partial class ShaderGen : IIncrementalGenerator
@@ -84,20 +76,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ulong wgslHash = 0;
 
         // only used for CodeFixProvider to generate method parameters based on wgsl
-        var wgslContents = new List<string>();
+        var foundWgsl = false;
         
         foreach (var file in files) {
             foreach (var shader in  method.Shaders)
             {
                 if (file.NormalizedPath.EndsWith(shader.path)) {
                     wgslHash ^= file.Hash;
-                    wgslContents.Add(file.Content);
-                    break;
+                    foundWgsl = true;
                 }
             }
         }
-        if (method.Parameters.Length == 0) {
-            AddShaderParameterDiagnostic(spc, compilation, result, wgslContents);
+        if (foundWgsl && method.Parameters.Length == 0) {
+            AddShaderParameterDiagnostic(spc, compilation, result, files);
         }
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
@@ -154,9 +145,13 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return result;
     }
     
-    private static void AddShaderParameterDiagnostic(SourceProductionContext spc, Compilation compilation, ShaderMethodResult result, List<string> wgslContents)
+    private static void AddShaderParameterDiagnostic(
+        SourceProductionContext     spc,
+        Compilation                 compilation,
+        ShaderMethodResult          result,
+        ImmutableArray<WgslFile>    files)
     {
-        var parameters = CodeFixer.CreateShaderParams(wgslContents);
+        var parameters = CodeFixer.CreateShaderParams(result.method, files);
         var properties = ImmutableDictionary<string, string?>.Empty
             .Add($"ShaderParams", parameters);
             

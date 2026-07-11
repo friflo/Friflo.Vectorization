@@ -7,6 +7,13 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
 
+public readonly struct WgslFile
+{
+    public required string  NormalizedPath  { get; init; }
+    public required ulong   Hash            { get; init; }
+    public required string  Content         { get; init; }
+}
+
 // WGPU attribute:  ShaderAttribute
 public readonly record struct CsShader
 {
