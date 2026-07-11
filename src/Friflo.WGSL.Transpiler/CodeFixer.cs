@@ -90,8 +90,12 @@ public static class CodeFixer
     
     private static void AppendWgslType(StringBuilder sb, WgslBinding binding)
     {
-        var wgslType = binding.WgslType;
-        switch (wgslType)
+        var wgslType    = binding.WgslType;
+        var name        = wgslType.Name;
+        var generics    = wgslType.Generics;
+        var arg0        = generics.Count > 0 ? generics[0].Name : null;
+        var arg1        = generics.Count > 1 ? generics[1].Name : null;
+        switch (name)
         {
             // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
@@ -110,28 +114,27 @@ public static class CodeFixer
             case "texture_3d":
             case "texture_cube":
             case "texture_cube_array":
-                var sampleType = "f32";                 // TODO  implement mapping
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                var sampleType = arg0 ?? "f32";
+                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
             case "texture_multisampled_2d":
-                var sampleType2 = "f32";                // TODO  implement mapping
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, ST.{sampleType2})]    GpuTextureView {binding.Name},\n");
+                sampleType = arg0 ?? "f32";
+                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, ST.{sampleType})]    GpuTextureView {binding.Name},\n");
                 break;
             case "texture_depth_multisampled_2d":
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
-
             
             // --- Storage Texture Types        See:  https://www.w3.org/TR/WGSL/#texture-storage
             case "texture_storage_1d":
             case "texture_storage_2d":
             case "texture_storage_2d_array":
             case "texture_storage_3d":
-                var access = "RGBA8Unorm";              // TODO  implement mapping
-                var format = "read";                    // TODO  implement mapping
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding}, TextureFormat.{access}, TSA.{format})]    GpuTextureView {binding.Name},\n");
+                var format = arg0 ?? "read";
+                var access = arg1 ?? "RGBA8Unorm";
+                sb.Append($"        [{name}({binding.Group}, {binding.Binding}, TextureFormat.{format}, TSA.{access})]    GpuTextureView {binding.Name},\n");
                 break;
             
             // --- Depth Texture Types          See:  https://www.w3.org/TR/WGSL/#texture-depth
@@ -139,7 +142,7 @@ public static class CodeFixer
             case "texture_depth_2d_array":
             case "texture_depth_cube":
             case "texture_depth_cube_array":
-                sb.Append($"        [{wgslType}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
+                sb.Append($"        [{name}({binding.Group}, {binding.Binding})]    GpuTextureView {binding.Name},\n");
                 break;
         }
     }

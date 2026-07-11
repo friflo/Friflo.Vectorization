@@ -22,6 +22,18 @@ public class WgslShaderMetadata
     public List<WgslEntryPoint> EntryPoints { get; set; } = new();
 }
 
+public class WgslType
+{
+    public string Name { get; set; } = string.Empty;
+    public List<WgslType> Generics { get; set; } = new();
+
+    public override string ToString()
+    {
+        if (Generics.Count == 0) return Name;
+        return $"{Name}<{string.Join(", ", Generics.Select(g => g.ToString()))}>";
+    }
+}
+
 public class WgslStruct
 {
     public string Name { get; set; } = string.Empty;
@@ -33,7 +45,7 @@ public class WgslStruct
 public class WgslField
 {
     public string Name { get; set; } = string.Empty;
-    public string WgslType { get; set; } = string.Empty;
+    public WgslType WgslType { get; set; } = new();
     
     public override string ToString() => Name;
 }
@@ -43,7 +55,7 @@ public record WgslBinding
     public int Group { get; set; }
     public int Binding { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string WgslType { get; set; } = string.Empty;
+    public WgslType WgslType { get; set; } = new();
     
     public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
     public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
@@ -56,7 +68,7 @@ public class WgslEntryPoint
     public string Stage { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public List<WgslParam> Parameters { get; set; } = new();
-    public string ReturnType { get; set; } = string.Empty;
+    public WgslType ReturnType { get; set; } = new();
 
     public override string ToString() => $"{Name}  @{Stage}";
 }
@@ -65,7 +77,7 @@ public class WgslParam
 {
     public string Attribute { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string WgslType { get; set; } = string.Empty;
+    public WgslType WgslType { get; set; } = new();
     
     public override string ToString() => Name;
 }
@@ -154,16 +166,16 @@ public static class WgslSuperpowerParser
     private static readonly TokenListParser<WgslToken, Token<WgslToken>> AnyToken =
         Token.Matching<WgslToken>(_ => true, "any token");
 
-    private static readonly TokenListParser<WgslToken, string> WgslType = 
+    private static readonly TokenListParser<WgslToken, WgslType> WgslTypeParser = 
         Parse.Ref(() =>
             from baseId in Id
             from generics in (
                 from open in Token.EqualTo(WgslToken.LAngle)
-                from inner in Parse.Ref(() => WgslType).ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
+                from inner in Parse.Ref(() => WgslTypeParser).ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
                 from close in Token.EqualTo(WgslToken.RAngle)
-                select $"<{string.Join(", ", inner)}>"
-            ).OptionalOrDefault(string.Empty)
-            select baseId + generics
+                select inner.ToList()
+            ).OptionalOrDefault(new List<WgslType>())
+            select new WgslType { Name = baseId, Generics = generics }
         );
 
     // Discards attribute blocks like @location(0) or @vertex
@@ -193,7 +205,7 @@ public static class WgslSuperpowerParser
         from attrs in SkipAttribute.Many()
         from name in Id
         from colon in Token.EqualTo(WgslToken.Colon)
-        from type in WgslType
+        from type in WgslTypeParser
         from comma in Token.EqualTo(WgslToken.Comma).Or(Token.EqualTo(WgslToken.Semicolon)).OptionalOrDefault()
         select new WgslField { Name = name, WgslType = type };
 
@@ -235,7 +247,7 @@ public static class WgslSuperpowerParser
             from details in AccessDetailsParser.OptionalOrDefault((AddressSpace: string.Empty, AccessMode: string.Empty))
             from name in Id
             from colon in Token.EqualTo(WgslToken.Colon)
-            from type in WgslType
+            from type in WgslTypeParser
             from semi in Token.EqualTo(WgslToken.Semicolon)
             
             select new WgslBinding 
@@ -270,7 +282,7 @@ public static class WgslSuperpowerParser
         ).OptionalOrDefault(string.Empty)
         from name in Id
         from colon in Token.EqualTo(WgslToken.Colon)
-        from type in WgslType
+        from type in WgslTypeParser
         select new WgslParam { Attribute = attr, Name = name, WgslType = type };
 
     private static readonly TokenListParser<WgslToken, WgslEntryPoint> EntryPointParser =
@@ -284,11 +296,11 @@ public static class WgslSuperpowerParser
         from retType in (
             from arrow in Token.EqualTo(WgslToken.ReturnArrow)
             from retAttrs in SkipAttribute.Many()
-            from type in WgslType
+            from type in WgslTypeParser
             select type
-        ).OptionalOrDefault(string.Empty)
+        ).OptionalOrDefault(null)
         from body in SkipBracedBlock
-        select new WgslEntryPoint { Stage = stage, Name = name, Parameters = parameters.ToList(), ReturnType = retType };
+        select new WgslEntryPoint { Stage = stage, Name = name, Parameters = parameters.ToList(), ReturnType = retType ?? new WgslType() };
 
     // --- Global Top-Level Parser ---
     private static readonly TokenListParser<WgslToken, WgslShaderMetadata> GlobalShaderParser =

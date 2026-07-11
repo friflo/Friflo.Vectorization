@@ -134,14 +134,13 @@ public static class Tests_WGSL
         var (method, files) = GetShaders(typeof(Tests_WGSL));
         var result = CodeFixer.CreateShaderParams(method, files);
         
-        return;
+
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [BindUniform(0, 0)]         in Scene scene,
-                    [BindUniform(1, 0)]         in Model model,
-                    [texture_depth_2d(0, 1)]    GpuTextureView shadowMap,
-                    [SamplerComparison(0, 2)]    GpuSampler shadowSampler)
+                    [BindUniform(0, 0)]         in Uniforms uniforms,
+                    [SamplerFiltering(0, 1)]    GpuSampler mySampler,
+                    [texture_2d(0, 2, ST.f32)]    GpuTextureView myTexture)
             """));
     }
     
