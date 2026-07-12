@@ -77,7 +77,7 @@ public static partial class CodeFixer
             sb.Append(' ');
             sb.Append(parameter.name);
             var last = n == parameters.Count - 1;
-            sb.Append(last ? ")" : ",");
+            sb.Append(last ? ");" : ",");
             if (parameter.comment != null) {
                 sb.Append(parameter.comment);
             }
