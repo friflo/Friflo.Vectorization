@@ -51,7 +51,7 @@ public partial class ShaderExample
         pass_.SetVertexBuffer(vertices, 0);
         
         // --- draw
-        pass_.Draw(vertices, 0, config, 1, 0, 0);
+        pass_.Draw(vertices, 0, config, new DrawArgs());
     }
 
     private sealed class _RenderCube_GPU_Cache : BindGroupCache

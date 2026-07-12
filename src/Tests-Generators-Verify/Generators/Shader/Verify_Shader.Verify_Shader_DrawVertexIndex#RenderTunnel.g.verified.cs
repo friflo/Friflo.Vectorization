@@ -36,7 +36,7 @@ public partial struct ShaderExample
         pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache,"RenderTunnel_bindGroup0"u8);
         
         // --- draw
-        pass_.Draw(3, 1, 0, 0);
+        pass_.Draw(new DrawArgs(3, 1, 0, 0));
     }
 
     private sealed class _RenderTunnel_GPU_Cache : BindGroupCache

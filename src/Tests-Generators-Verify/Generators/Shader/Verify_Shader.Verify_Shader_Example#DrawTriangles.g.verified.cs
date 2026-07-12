@@ -47,7 +47,7 @@ public partial class ShaderExample
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
         
         // --- draw
-        pass_.Draw(triangles.Length, 1, 0, 0);
+        pass_.Draw(triangles, new DrawArgs());
     }
 
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
