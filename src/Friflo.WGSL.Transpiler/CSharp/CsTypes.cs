@@ -139,8 +139,6 @@ public enum CsDrawType
     None,
     Draw,               // WGPU attribute:  DrawAttribute
     DrawInstance,       // WGPU attribute:  DrawInstanceAttribute
-    DrawFirstVertex,    // WGPU attribute:  DrawFirstVertexAttribute
-    DrawFirstInstance,  // WGPU attribute:  DrawFirstInstanceAttribute
     // Index
 }
 

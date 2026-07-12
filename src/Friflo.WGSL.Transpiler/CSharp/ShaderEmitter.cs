@@ -351,24 +351,13 @@ $$"""
             if (instanceName != null) {
                 instanceCount = $"{instanceName}.Length";
             }
-            // attribute: DrawFirstVertexAttribute
-            var firstVertex = "0";
-            var firstVertexName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstVertex).Name;
-            if (firstVertexName != null) {
-                firstVertex = firstVertexName;
-            }
-            // attribute: DrawFirstInstanceAttribute
-            var firstInstance = "0";
-            var firstInstanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawFirstInstance).Name;
-            if (firstInstanceName != null) {
-                firstInstance = firstInstanceName;
-            }
+                                                                                    // TODO use DrawCommand
             if (vertexParam.ParamAttribute == VertexBuffer) {
                 var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, {firstVertex}, {firstInstance});\n");
+                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, 0, 0);\n");
             } else {
                 var name = vertexParam.Name;
-                body.Append($"        pass_.Draw({name}.Length, {instanceCount}, {firstVertex}, {firstInstance});\n");
+                body.Append($"        pass_.Draw({name}.Length, {instanceCount}, 0, 0);\n");
             }
         }
     }

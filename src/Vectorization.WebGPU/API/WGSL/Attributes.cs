@@ -45,8 +45,7 @@ public sealed class DrawVertexIndexAttribute : Attribute
 /// - <see cref="uniformAttribute"/><br/>
 /// - <see cref="VertexBufferAttribute"/><br/>
 /// <br/>
-/// Use <see cref="DrawInstanceAttribute"/>, <see cref="DrawFirstVertexAttribute"/>
-/// or <see cref="DrawFirstInstanceAttribute"/> to set additional Draw() parameters.
+/// Use <see cref="DrawInstanceAttribute"/> to set additional Draw() parameters.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawAttribute : Attribute;
@@ -59,24 +58,6 @@ public sealed class DrawAttribute : Attribute;
 /// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawInstanceAttribute : Attribute;
-
-/// <summary>
-/// Optional - set <b>firstVertex</b> in <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
-/// with an <c>int</c> parameter.<br/>
-/// If missing <b>firstVertex</b> defaults to 0.
-/// </summary>
-/// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawFirstVertexAttribute : Attribute;
-
-/// <summary>
-/// Optional - set <b>firstInstance</b> in <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
-/// with an <c>int</c> parameter.<br/>
-/// If missing <b>firstInstance</b> defaults to 0.
-/// </summary>
-/// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DrawFirstInstanceAttribute : Attribute;
 
 #endregion
 
