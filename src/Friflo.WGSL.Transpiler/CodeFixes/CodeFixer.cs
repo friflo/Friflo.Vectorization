@@ -25,7 +25,7 @@ public readonly struct CodeFixerResult
 {
     public required string                  Parameters  { get; init; }
     public required WgslValidationError[]   Errors      { get; init; }
-    public required WgslShaderMetadata      Metadata    { get; init; }
+    public required WgslModule              Module      { get; init; }
 }
 
 
@@ -39,10 +39,9 @@ public static class CodeFixer
         return default;
     }
     
-    public static CodeFixerResult CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
+    private static string CreateWgsl(StringBuilder sb, CsMethod method, ImmutableArray<WgslFile> files)
     {
         // var (vsEntry, fsEntry) = GetEntryPoints(method, files);
-        var sb = new StringBuilder();
         foreach (var file in files)
         {
             foreach (var shader in method.Shaders) {
@@ -53,19 +52,26 @@ public static class CodeFixer
         }
         var wgsl = sb.ToString();
         sb.Clear();
+        return wgsl;
+    }
+    
+    public static CodeFixerResult CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
+    {
+        var sb      = new StringBuilder();
+        var wgsl    = CreateWgsl(sb, method, files);
         
         sb.Append("(RenderPass pass, RenderConfig config,\n");
 
-        WgslShaderMetadata shaderMeta = WgslSuperpowerParser.ParseShader(wgsl);
+        var module = WgslSuperpowerParser.ParseShader(wgsl);
         
         var errors = new List<WgslValidationError>();
         
         // --- [Map(group, binding)] [...]
-        var bindings = CreateBindings(shaderMeta, errors);
+        var bindings = CreateBindings(module, errors);
         AddBindingParameters(sb, bindings);
         
         // --- [VertexBuffer(0)]
-        AddVertexBufferParameters(sb, shaderMeta.EntryPoints);
+        AddVertexBufferParameters(sb, module.EntryPoints);
         
         sb.Length -= 2;
         sb.Append(")");
@@ -73,17 +79,17 @@ public static class CodeFixer
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
             Errors      = errors.ToArray(), // new WgslValidationError { Message = "XXX Test some WGSL message" }]
-            Metadata    = shaderMeta
+            Module      = module
         };
     }
 
-    private static List<WgslBinding> CreateBindings(WgslShaderMetadata shaderMeta, List<WgslValidationError> errors)
+    private static List<WgslBinding> CreateBindings(WgslModule module, List<WgslValidationError> errors)
     {
         var bindings    = new List<WgslBinding>();
         var bindingMap  = new Dictionary<(int, int), WgslBinding>();
 
         // --- remove duplicate binding
-        foreach (var binding in shaderMeta.Bindings)
+        foreach (var binding in module.Bindings)
         {
             var key = (binding.Group, binding.Binding);
             if (bindingMap.TryGetValue(key, out var value)) {

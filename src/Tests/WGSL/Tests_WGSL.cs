@@ -82,7 +82,7 @@ public static class Tests_WGSL
         var result = CodeFixer.CreateShaderParams(method, files);
         
         
-        Assert.That(result.Metadata.EntryPoints.Count,  Is.EqualTo(2));
+        Assert.That(result.Module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Errors.Length,               Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo(
             """
@@ -103,7 +103,7 @@ public static class Tests_WGSL
         var result = CodeFixer.CreateShaderParams(method, files);
         
         
-        Assert.That(result.Metadata.EntryPoints.Count,  Is.EqualTo(1));
+        Assert.That(result.Module.EntryPoints.Count,    Is.EqualTo(1));
         Assert.That(result.Errors.Length,               Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo(
             """

@@ -17,7 +17,7 @@ using Superpower.Tokenizers;
 // AST / DATA MODELS
 // ==========================================
 
-public class WgslShaderMetadata
+public class WgslModule
 {
     public List<WgslStruct> Structs { get; set; } = new();
     public List<WgslBinding> Bindings { get; set; } = new();
@@ -309,7 +309,7 @@ public static class WgslSuperpowerParser
         };
 
     // --- Global Top-Level Parser ---
-    private static readonly TokenListParser<WgslToken, WgslShaderMetadata> GlobalShaderParser =
+    private static readonly TokenListParser<WgslToken, WgslModule> GlobalShaderParser =
         (
             StructParser.Select(s => (object)s).Try()
             .Or(BindingParser.Select(b => (object)b).Try())
@@ -318,7 +318,7 @@ public static class WgslSuperpowerParser
         ).Many()
         .Select(results =>
         {
-            var metadata = new WgslShaderMetadata();
+            var metadata = new WgslModule();
             foreach (var item in results)
             {
                 if (item is WgslStruct s) metadata.Structs.Add(s);
@@ -329,7 +329,7 @@ public static class WgslSuperpowerParser
         });
 
     // --- Main API Entry Point ---
-    public static WgslShaderMetadata ParseShader(string wgslCode)
+    public static WgslModule ParseShader(string wgslCode)
     {
         TokenList<WgslToken> tokenList = WgslTokenizer.Instance.Tokenize(wgslCode);
         var result = GlobalShaderParser.Parse(tokenList);
