@@ -193,8 +193,8 @@ public sealed partial class ShaderGen
                 //
                 case "VertexBufferAttribute":   bg = Int(args[0]);  attr = VertexBuffer;    continue;
                 //
-                case "StorageAttribute":                attr = BindStorage;         continue;
-                case "UniformAttribute":                attr = BindUniform;         continue;
+                case "storageAttribute":                attr = BindStorage;         continue;
+                case "uniformAttribute":                attr = BindUniform;         continue;
                 case "BindIndexAttribute":              attr = BindIndex;           continue;
                 //
                 case "SamplerFilteringAttribute":       attr = SamplerFiltering;    continue;

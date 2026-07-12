@@ -102,10 +102,10 @@ public static class CodeFixer
             {
             case "storage":
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [Storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
                 break;
             case "uniform":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [Uniform]         in {binding.WgslType} {binding.Name},\n");
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [uniform]         in {binding.WgslType} {binding.Name},\n");
                 break;
             case "":
                 AppendWgslType(sb, binding);

@@ -103,8 +103,8 @@ public enum CsParamAttribute
     
     // --- GpuBuffer<>
     VertexBuffer,   // WGPU attribute:  VertexBufferAttribute
-    BindStorage,    // WGPU attribute:  StorageAttribute
-    BindUniform,    // WGPU attribute:  UniformAttribute
+    BindStorage,    // WGPU attribute:  storageAttribute
+    BindUniform,    // WGPU attribute:  uniformAttribute
     BindIndex,      // WGPU attribute:  BindIndexAttribute
     
     // --- GpuSampler

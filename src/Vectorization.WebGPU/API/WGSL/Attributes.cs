@@ -5,7 +5,7 @@ using System;
 using Friflo.Vectorization.GPU;
 using JetBrains.Annotations;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable CheckNamespace
@@ -41,8 +41,8 @@ public sealed class DrawVertexIndexAttribute : Attribute
 /// the annotated storage, uniform or vertex buffer. </summary>
 /// <remarks>
 /// Buffer types are annotated by either:<br/>
-/// - <see cref="StorageAttribute"/><br/>
-/// - <see cref="UniformAttribute"/><br/>
+/// - <see cref="storageAttribute"/><br/>
+/// - <see cref="uniformAttribute"/><br/>
 /// - <see cref="VertexBufferAttribute"/><br/>
 /// <br/>
 /// Use <see cref="DrawInstanceAttribute"/>, <see cref="DrawFirstVertexAttribute"/>
@@ -146,7 +146,7 @@ public sealed class MapAttribute : Attribute
 /// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class StorageAttribute : Attribute;
+public sealed class storageAttribute : Attribute;
 
 /// <summary> Annotates a shader method parameter passing a uniform. </summary>
 /// <remarks>
@@ -167,7 +167,7 @@ public sealed class StorageAttribute : Attribute;
 /// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class UniformAttribute : Attribute;
+public sealed class uniformAttribute : Attribute;
 
 #endregion
 

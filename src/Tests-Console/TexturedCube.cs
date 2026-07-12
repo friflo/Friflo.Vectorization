@@ -140,7 +140,7 @@ public partial class TexturedCube : IRenderer
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]              [VertexBuffer(0)]       InBuffer<float> vertices,
-                [Map(0, 0)] [Uniform]               in Uniforms     uniforms,
+                [Map(0, 0)] [uniform]               in Uniforms     uniforms,
                 [Map(0, 1)] [SamplerFiltering]      GpuSampler      smoothFilter,
                 [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
 

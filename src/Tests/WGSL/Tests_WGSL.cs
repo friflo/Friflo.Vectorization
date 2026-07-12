@@ -46,8 +46,8 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo(
             """
             (RenderPass pass, RenderConfig config,
-                    [Map(0, 0)] [Storage]         InBuffer<TriangleStorage> mesh_data,
-                    [Map(1, 0)] [Uniform]         in MyUniforms myUniforms)
+                    [Map(0, 0)] [storage]         InBuffer<TriangleStorage> mesh_data,
+                    [Map(1, 0)] [uniform]         in MyUniforms myUniforms)
             """));
     }
     
@@ -65,10 +65,10 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
-                    [Map(0, 0)] [Uniform]         in Scene scene,
+                    [Map(0, 0)] [uniform]         in Scene scene,
                     [Map(0, 1)] [texture_depth_2d]    GpuTextureView shadowMap,
                     [Map(0, 2)] [SamplerComparison]    GpuSampler shadowSampler,
-                    [Map(1, 0)] [Uniform]         in Model model)
+                    [Map(1, 0)] [uniform]         in Model model)
             """));
     }
     
@@ -88,7 +88,7 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
-                    [Map(0, 0)] [Uniform]         in Uniforms uniforms,
+                    [Map(0, 0)] [uniform]         in Uniforms uniforms,
                     [Map(0, 1)] [SamplerFiltering]    GpuSampler mySampler,
                     [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView myTexture)
             """));
