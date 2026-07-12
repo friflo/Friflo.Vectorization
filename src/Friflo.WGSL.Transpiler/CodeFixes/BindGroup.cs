@@ -9,50 +9,55 @@ namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 public static partial class CodeFixer
 {
-    private readonly struct BindGroup
+    internal readonly struct BindGroup(int group, int binding)
     {
-        public readonly int     group;
-        public readonly int     binding;
-        public readonly string  attribute;
-        public readonly string  type;
-        public readonly string  parameter;
+        public readonly int group   = group;
+        public readonly int binding = binding;
+    }
+    
+    private readonly struct MethodParam
+    {
+        public readonly BindGroup   bindGroup;
+        public readonly string      attribute;
+        public readonly string      type;
+        public readonly string      parameter;
 
         public override string ToString() => parameter;
 
-        internal BindGroup(WgslBinding binding, string attribute, string type)
+        internal MethodParam(WgslBinding binding, string attribute, string type)
         {
-            group           = binding.Group;
-            this.binding    = binding.Binding;
+            bindGroup       = new BindGroup(binding.Group, binding.Binding);    
             this.attribute  = attribute;
             this.type       = type;
             parameter       = binding.Name;
         }
     }
     
-    private static void AppendParameters(StringBuilder sb, List<BindGroup> bindGroups)
+    private static void AppendParameters(StringBuilder sb, List<MethodParam> parameters)
     {
-        if (bindGroups.Count == 0) return;
+        if (parameters.Count == 0) return;
 
         int maxMapLength = 0;
         int maxAttrLength = 0;
 
-        var mapStrings = new string[bindGroups.Count];
-        for (int i = 0; i < bindGroups.Count; i++)
+        var mapStrings = new string[parameters.Count];
+        for (int i = 0; i < parameters.Count; i++)
         {
-            var bg = bindGroups[i];
+            var param = parameters[i];
+            var bg = param.bindGroup;
             string mapStr = bg.binding >= 10 ? $"[Map({bg.group},{bg.binding})]" : $"[Map({bg.group}, {bg.binding})]";
             mapStrings[i] = mapStr;
 
             if (mapStr.Length > maxMapLength) maxMapLength = mapStr.Length;
-            if (bg.attribute.Length > maxAttrLength) maxAttrLength = bg.attribute.Length;
+            if (param.attribute.Length > maxAttrLength) maxAttrLength = param.attribute.Length;
         }
 
         int mapTargetWidth  = ((maxMapLength + 3) / 4) * 4;
         int attrTargetWidth = maxAttrLength + 4; 
 
-        for (int i = 0; i < bindGroups.Count; i++)
+        for (int i = 0; i < parameters.Count; i++)
         {
-            var bg = bindGroups[i];
+            var bg = parameters[i];
             string mapStr = mapStrings[i];
 
             sb.Append("        "); 
