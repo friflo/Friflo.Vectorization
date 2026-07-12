@@ -49,7 +49,7 @@ public partial class TexturedCube
         pass_.SetVertexBuffer(vertices, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(vertices, 0, config, new DrawCommand());
+        pass_.Draw(vertices, 0, config, new DrawArgs());
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache

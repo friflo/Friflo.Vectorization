@@ -29,7 +29,7 @@ public static partial class Wormhood
         pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache, "Wormhood_bindGroup0"u8);
         
         // --- draw
-        pass_.Draw(new DrawCommand(3, 1, 0, 0));
+        pass_.Draw(new DrawArgs(3, 1, 0, 0));
 	}
     
     private sealed class Wormhood_GPU_Cache : BindGroupCache

@@ -46,7 +46,7 @@ public partial class RenderTest
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
         // --- draw
-        pass_.Draw(triangles, new DrawCommand());
+        pass_.Draw(triangles, new DrawArgs());
 	}
     
     private sealed class Triangles_GPU_Cache : BindGroupCache

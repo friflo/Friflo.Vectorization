@@ -7,14 +7,14 @@
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace Friflo.Vectorization.WebGPU;
 
-public struct DrawCommand
+public struct DrawArgs
 {
     public int  count;
     public int  instanceCount;
     public int  first;
     public int  firstInstance;
 
-    public DrawCommand(int count = 0, int instanceCount = 1, int first = 0, int firstInstance = 0)
+    public DrawArgs(int count = 0, int instanceCount = 1, int first = 0, int firstInstance = 0)
     {
         this.count          = count;
         this.instanceCount  = instanceCount;
@@ -22,7 +22,7 @@ public struct DrawCommand
         this.firstInstance  = firstInstance;
     }
     
-    public DrawCommand()
+    public DrawArgs()
     {
         instanceCount = 1;
     }

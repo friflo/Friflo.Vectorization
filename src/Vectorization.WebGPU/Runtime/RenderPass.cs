@@ -103,32 +103,32 @@ public readonly unsafe ref struct RenderPassInternal
     }
     
     /// <summary> Draws an <see cref="InBuffer{T}"/> annotated with <see cref="IndexBufferAttribute"/>. </summary>
-    public void DrawIndexed<T>(in InBuffer<T> indexBuffer, DrawCommand command) where T : unmanaged
+    public void DrawIndexed<T>(in InBuffer<T> indexBuffer, DrawArgs args) where T : unmanaged
     {
-        int indexCount = command.count > 0 ? command.count : indexBuffer.Length;
-        wgpuRenderPassEncoderDrawIndexed(handle, (uint)indexCount, (uint)command.instanceCount, (uint)command.first, 0, (uint)command.firstInstance);
+        int indexCount = args.count > 0 ? args.count : indexBuffer.Length;
+        wgpuRenderPassEncoderDrawIndexed(handle, (uint)indexCount, (uint)args.instanceCount, (uint)args.first, 0, (uint)args.firstInstance);
     }
     
     /// <summary>Draws an <see cref="InBuffer{T}"/> annotated with <see cref="VertexBufferAttribute"/>. </summary> 
-    public void Draw<T>(in InBuffer<T> vertexBuffer, int slot, RenderConfig config, DrawCommand command) where T : unmanaged
+    public void Draw<T>(in InBuffer<T> vertexBuffer, int slot, RenderConfig config, DrawArgs args) where T : unmanaged
     {
-        int vertexCount = command.count > 0
-            ? command.count
+        int vertexCount = args.count > 0
+            ? args.count
             : vertexBuffer.Length * sizeof(T) / config.Descriptor.VertexState.buffers[slot].arrayStride; // arrayStride == 0 should result in DivideByZeroException
-        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)command.instanceCount, (uint)command.first, (uint)command.firstInstance);
+        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
 
     /// <summary> Draw a buffer annotated with <see cref="storageAttribute"/> or <see cref="uniformAttribute"/>. </summary>
-    public void Draw<T>(in InBuffer<T> buffer, DrawCommand command) where T : unmanaged
+    public void Draw<T>(in InBuffer<T> buffer, DrawArgs args) where T : unmanaged
     {
-        int vertexCount = command.count > 0 ? command.count : buffer.Length;
-        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)command.instanceCount, (uint)command.first, (uint)command.firstInstance);
+        int vertexCount = args.count > 0 ? args.count : buffer.Length;
+        wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
     
     /// <summary> Used if method is annotated <see cref="DrawVertexIndexAttribute"/>. </summary>
-    public void Draw(DrawCommand command)
+    public void Draw(DrawArgs args)
     {
-        wgpuRenderPassEncoderDraw(handle, (uint)command.count, (uint)command.instanceCount, (uint)command.first, (uint)command.firstInstance);
+        wgpuRenderPassEncoderDraw(handle, (uint)args.count, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
 }
 

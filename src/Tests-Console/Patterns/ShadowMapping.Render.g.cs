@@ -59,7 +59,7 @@ public partial class ShadowMapping
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
         
         // --- draw
-        pass_.DrawIndexed(indexBuffer, new DrawCommand(0, 1, 0, 0));
+        pass_.DrawIndexed(indexBuffer, new DrawArgs(0, 1, 0, 0));
 	}
     
     private sealed class Render_GPU_Cache : BindGroupCache
