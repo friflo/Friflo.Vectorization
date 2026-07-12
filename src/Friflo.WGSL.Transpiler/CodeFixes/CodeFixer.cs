@@ -133,10 +133,10 @@ public static class CodeFixer
         {
             // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [SamplerFiltering]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [sampler]               GpuSampler {binding.Name},\n");
                 break;
             case "sampler_comparison":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [SamplerComparison]    GpuSampler {binding.Name},\n");
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [sampler_comparison]    GpuSampler {binding.Name},\n");
                 break;
             
             // ------ WGSL texture types

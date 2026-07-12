@@ -108,9 +108,9 @@ public enum CsParamAttribute
     BindIndex,      // WGPU attribute:  BindIndexAttribute
     
     // --- GpuSampler
-    SamplerFiltering,       // WGPU attribute:  SamplerFiltering
-    SamplerNonFiltering,    // WGPU attribute:  SamplerNonFiltering
-    SamplerComparison,      // WGPU attribute:  SamplerComparison
+    SamplerFiltering,       // WGPU attribute:  samplerAttribute(filtering: true)
+    SamplerNonFiltering,    // WGPU attribute:  samplerAttribute(filtering: false)
+    SamplerComparison,      // WGPU attribute:  sampler_comparisonAttribute
     
     // --- GpuTextureView
     texture_1d,                     // WGPU attribute:  texture_1d<ST>

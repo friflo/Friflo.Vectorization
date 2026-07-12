@@ -67,7 +67,7 @@ public static class Tests_WGSL
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
                     [Map(0, 0)] [uniform]         in Scene scene,
                     [Map(0, 1)] [texture_depth_2d]    GpuTextureView shadowMap,
-                    [Map(0, 2)] [SamplerComparison]    GpuSampler shadowSampler,
+                    [Map(0, 2)] [sampler_comparison]    GpuSampler shadowSampler,
                     [Map(1, 0)] [uniform]         in Model model)
             """));
     }
@@ -89,7 +89,7 @@ public static class Tests_WGSL
             (RenderPass pass, RenderConfig config,
                     [VertexBuffer(0)]           InBuffer<float> position, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,
                     [Map(0, 0)] [uniform]         in Uniforms uniforms,
-                    [Map(0, 1)] [SamplerFiltering]    GpuSampler mySampler,
+                    [Map(0, 1)] [sampler]               GpuSampler mySampler,
                     [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView myTexture)
             """));
     }
@@ -120,8 +120,8 @@ public static class Tests_WGSL
                     [Map(0, 13)] [texture_depth_2d_array]    GpuTextureView texture12,
                     [Map(0, 14)] [texture_depth_cube]    GpuTextureView texture12,
                     [Map(0, 15)] [texture_depth_cube_array]    GpuTextureView texture12,
-                    [Map(1, 0)] [SamplerFiltering]    GpuSampler sampler0,
-                    [Map(1, 1)] [SamplerComparison]    GpuSampler sampler1)
+                    [Map(1, 0)] [sampler]               GpuSampler sampler0,
+                    [Map(1, 1)] [sampler_comparison]    GpuSampler sampler1)
             """));
     }
 }

@@ -124,7 +124,7 @@ public partial class ShaderExample
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                   InBuffer<float> vertices,
                 [Map(0, 0)] [uniform]               in Uniforms     uniforms,
-                [Map(0, 1)] [SamplerFiltering]      GpuSampler      smoothFilter,
+                [Map(0, 1)] [sampler]               GpuSampler      smoothFilter,
                 [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
@@ -154,7 +154,7 @@ public partial class ShaderExample
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                                                       InBuffer<float> vertices,
                 [Map(0, 0)] [uniform]                                                   in Uniforms     uniforms,
-                [Map(0, 1)] [SamplerFiltering]                                          GpuSampler      smoothFilter,
+                [Map(0, 1)] [sampler]                                                   GpuSampler      smoothFilter,
                 [Map(0, 2)] [texture_storage_2d(TextureFormat.RGBA8Unorm, TSA.read)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]
@@ -286,7 +286,7 @@ public partial class ShaderExample
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Draw]  [VertexBuffer(0)]                   InBuffer<float> vertices,
                 [Map(0, 0)] [uniform]               in Uniforms     uniforms,
-                [Map(0, 1)] [SamplerFiltering]      GpuSampler      smoothFilter,
+                [Map(0, 1)] [sampler]               GpuSampler      smoothFilter,
                 [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
         
     [StructLayout(LayoutKind.Sequential)]

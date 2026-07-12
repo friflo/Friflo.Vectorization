@@ -197,9 +197,10 @@ public sealed partial class ShaderGen
                 case "uniformAttribute":                attr = BindUniform;         continue;
                 case "BindIndexAttribute":              attr = BindIndex;           continue;
                 //
-                case "SamplerFilteringAttribute":       attr = SamplerFiltering;    continue;
-                case "SamplerNonFilteringAttribute":    attr = SamplerNonFiltering; continue;
-                case "SamplerComparisonAttribute":      attr = SamplerComparison;   continue;
+                case "samplerAttribute":
+                    if ((bool)args[0].Value!)           attr = SamplerFiltering;
+                    else                                attr = SamplerNonFiltering; continue;
+                case "sampler_comparisonAttribute":     attr = SamplerComparison;   continue;
                 //
                 case "texture_1d":                  e1 = Enum(args[0]);     attr = texture_1d;          continue;
                 case "texture_2d":                  e1 = Enum(args[0]);     attr = texture_2d;          continue;
