@@ -10,16 +10,16 @@ namespace Friflo.Vectorization.WebGPU;
 
 public struct DrawCommand
 {
-    public int  vertexCount;
+    public int  count;
     public int  instanceCount;
-    public int  firstVertex;
+    public int  first;
     public int  firstInstance;
 
-    public DrawCommand(int vertexCount = 0, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0)
+    public DrawCommand(int count = 0, int instanceCount = 1, int first = 0, int firstInstance = 0)
     {
-        this.vertexCount    = vertexCount;
+        this.count          = count;
         this.instanceCount  = instanceCount;
-        this.firstVertex    = firstVertex;
+        this.first          = first;
         this.firstInstance  = firstInstance;
     }
     
