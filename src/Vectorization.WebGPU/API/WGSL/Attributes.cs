@@ -102,8 +102,7 @@ public sealed class VertexBufferAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class IndexBufferAttribute : Attribute
-{ }
+public sealed class IndexBufferAttribute : Attribute;
 
 
 [AttributeUsage(AttributeTargets.Parameter)]

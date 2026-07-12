@@ -103,9 +103,9 @@ public enum CsParamAttribute
     
     // --- GpuBuffer<>
     VertexBuffer,   // WGPU attribute:  VertexBufferAttribute
-    BindStorage,    // WGPU attribute:  storageAttribute
-    BindUniform,    // WGPU attribute:  uniformAttribute
-    BindIndex,      // WGPU attribute:  BindIndexAttribute
+    Storage,        // WGPU attribute:  storageAttribute
+    Uniform,        // WGPU attribute:  uniformAttribute
+    IndexBuffer,    // WGPU attribute:  IndexBufferAttribute
     
     // --- GpuSampler
     SamplerFiltering,       // WGPU attribute:  samplerAttribute(filtering: true)
@@ -165,7 +165,7 @@ public readonly record struct CsParameter
     
     public bool IsReadOnlyBuffer    => Type.Name == "InBuffer";
     
-    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.BindUniform && !IsBuffer);
+    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.Uniform && !IsBuffer);
 
     public bool IsBuffer {
         get {

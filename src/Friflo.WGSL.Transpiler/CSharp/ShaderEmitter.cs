@@ -257,11 +257,11 @@ $$"""
         var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA   1 2 3
         
         switch (binding.ParamAttribute) {
-            case BindStorage:
+            case Storage:
                 bool isReadonly = binding.IsReadOnlyBuffer;
                                                 AppendStorage(sb, isReadonly ? "ReadOnlyStorage" : "Storage");
                                                                                             return isReadonly ? 0x100u : 0x200u;
-            case BindUniform:
+            case Uniform:
                 bool isBuffer = binding.IsBuffer;
                                                 AppendUniform(sb, isBuffer);                return isBuffer   ? 0x300u : 0x400u;
             //
@@ -296,10 +296,10 @@ $$"""
     {
         switch (binding.ParamAttribute)
         {
-            case BindStorage:
+            case Storage:
                 body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                 return;
-            case BindUniform:
+            case Uniform:
                 if (binding.HasHandle) {
                     body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                     return;
