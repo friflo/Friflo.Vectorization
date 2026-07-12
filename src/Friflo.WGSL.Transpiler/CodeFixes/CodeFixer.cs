@@ -113,38 +113,63 @@ public static class CodeFixer
     
     private static void AddBindingParameters(StringBuilder sb, List<WgslBinding> bindings)
     {
+        var bindGroups  = new List<BindGroup>();
         foreach (var binding in bindings) {
             switch (binding.AddressSpace)
             {
             case "storage":
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, "[storage]", $"{bufferType}<{binding.WgslType}>"));
                 break;
             case "uniform":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [uniform]         in {binding.WgslType} {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, "[uniform]", $"in {binding.WgslType}"));
                 break;
             case "":
-                AppendWgslType(sb, binding);
+                AppendWgslType(bindGroups, binding);
                 break;
             }
         }
+        foreach (var bindGroup in bindGroups) {
+            sb.Append($"        [Map({bindGroup.group}, {bindGroup.binding})] {bindGroup.attribute}         {bindGroup.type} {bindGroup.parameter},\n");
+        }
     }
     
-    private static void AppendWgslType(StringBuilder sb, WgslBinding binding)
+    private readonly struct BindGroup
+    {
+        public readonly int     group;
+        public readonly int     binding;
+        public readonly string  attribute;
+        public readonly string  type;
+        public readonly string  parameter;
+
+        public override string ToString() => parameter;
+
+        internal BindGroup(WgslBinding binding, string attribute, string type)
+        {
+            group           = binding.Group;
+            this.binding    = binding.Binding;
+            this.attribute  = attribute;
+            this.type       = type;
+            parameter       = binding.Name;
+        }
+    };
+    
+    private static void AppendWgslType(List<BindGroup> bindGroups, WgslBinding binding)
     {
         var wgslType    = binding.WgslType;
         var name        = wgslType.Name;
         var generics    = wgslType.Generics;
         var arg0        = generics.Length > 0 ? generics[0].Name : null;
         var arg1        = generics.Length > 1 ? generics[1].Name : null;
+
         switch (name)
         {
             // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [sampler]               GpuSampler {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, "[sampler]",              "GpuSampler"));
                 break;
             case "sampler_comparison":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [sampler_comparison]    GpuSampler {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, "[sampler_comparison]",   "GpuSampler"));
                 break;
             
             // ------ WGSL texture types
@@ -157,16 +182,16 @@ public static class CodeFixer
             case "texture_cube":
             case "texture_cube_array":
                 var sampleType = arg0 ?? "f32";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [{name}(ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
                 break;
             
             // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
             case "texture_multisampled_2d":
                 sampleType = arg0 ?? "f32";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [{name}(ST.{sampleType})]    GpuTextureView {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
                 break;
             case "texture_depth_multisampled_2d":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [{name}]    GpuTextureView {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, $"[{name}]",                      "GpuTextureView"));
                 break;
             
             // --- Storage Texture Types        See:  https://www.w3.org/TR/WGSL/#texture-storage
@@ -176,7 +201,7 @@ public static class CodeFixer
             case "texture_storage_3d":
                 var format = arg0 ?? "read";
                 var access = arg1 ?? "RGBA8Unorm";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [{name}(TextureFormat.{format}, TSA.{access})]    GpuTextureView {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, $"[{name}(TextureFormat.{format}, TSA.{access})]", "GpuTextureView"));
                 break;
             
             // --- Depth Texture Types          See:  https://www.w3.org/TR/WGSL/#texture-depth
@@ -184,7 +209,7 @@ public static class CodeFixer
             case "texture_depth_2d_array":
             case "texture_depth_cube":
             case "texture_depth_cube_array":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [{name}]    GpuTextureView {binding.Name},\n");
+                bindGroups.Add(new BindGroup(binding, $"[{name}]",  "GpuTextureView"));
                 break;
         }
     }
