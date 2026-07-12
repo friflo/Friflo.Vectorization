@@ -155,6 +155,7 @@ public partial class InstancedCube : IRenderer
         }
     }
     
+    [NoEmit]
 	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCubes(RenderPass pass, RenderConfig config,
@@ -162,6 +163,7 @@ public partial class InstancedCube : IRenderer
         [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer);
     
     // Alternative Shader method with [BindStorage(0, 0)] to use a Storage Buffer
+    [NoEmit]
 	[Shader("~/shaders/instanced.storage.vert.wgsl",      vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,

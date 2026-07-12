@@ -9,7 +9,7 @@ namespace TestConsole;
 
 public partial class TexturedCube
 {
-    public static void RenderCube_Pattern(
+    private static partial void RenderCube(
         RenderPass      pass,
         RenderConfig    config,
         in Uniforms   	uniforms,
@@ -49,7 +49,7 @@ public partial class TexturedCube
         pass_.SetVertexBuffer(vertices, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(vertices, 0, config, 1, 0, 0);
+        pass_.Draw(vertices, 0, config, new DrawCommand());
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache

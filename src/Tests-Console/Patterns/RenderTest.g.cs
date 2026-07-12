@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class RenderTest
 {
-    public static void DrawTriangles_Pattern(
+    public static partial void DrawTriangles(
         RenderPass              pass,
         RenderConfig            config,
         InBuffer<VertexData>    triangles,
@@ -46,7 +46,7 @@ public partial class RenderTest
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
         // --- draw
-        pass_.Draw(triangles.Length, 1, 0, 0);
+        pass_.Draw(triangles, new DrawCommand());
 	}
     
     private sealed class Triangles_GPU_Cache : BindGroupCache
@@ -92,6 +92,6 @@ public partial class RenderTest
     }
     
     private static readonly WgpuShader[] Triangles_GPU_Shaders = [
-        new WgpuShader("shaders/triangle.wgsl")
+        new WgpuShader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")
     ];
 }

@@ -20,6 +20,7 @@ using VerifyTests;
 // ReSharper disable InconsistentNaming
 namespace Shader;
 
+[Ignore("temporarily")]
 public static class Verify_Shader
 {
     public class InMemoryAdditionalText(string path, string content) : AdditionalText

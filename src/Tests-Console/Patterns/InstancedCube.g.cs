@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class InstancedCube
 {
-    public static void RenderCubes_Pattern(
+    private static partial void RenderCubes(
         RenderPass          pass,
         RenderConfig        config,
         InBuffer<Matrix4x4> mvpMatrices,
@@ -46,7 +46,7 @@ public partial class InstancedCube
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, mvpMatrices.Length, 0, 0);
+        pass_.Draw(verticesBuffer, 0, config, new DrawCommand(0, mvpMatrices.Length, 0, 0));
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache

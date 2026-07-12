@@ -136,6 +136,7 @@ public partial class TexturedCube : IRenderer
         RenderCube(pass, config, uniforms, sampler, textureView, verticesBuffer.In());
     }
     
+    [NoEmit]
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,

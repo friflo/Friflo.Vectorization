@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class TwoCubes
 {
-    public static void RenderCube_Pattern(
+    private static partial void RenderCube(
         RenderPass      pass,
         RenderConfig    config,
         in Matrix4x4    modelViewProjectionMatrix,
@@ -39,7 +39,7 @@ public partial class TwoCubes
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, 1, 0, 0);
+        pass_.Draw(verticesBuffer, 0, config, new DrawCommand());
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
