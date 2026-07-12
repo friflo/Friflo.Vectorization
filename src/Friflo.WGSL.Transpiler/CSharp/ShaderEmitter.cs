@@ -349,7 +349,7 @@ $$"""
             var drawArgs = "new DrawArgs()";
             var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
             if (instanceName != null) {
-                drawArgs = $"new DrawArgs(0, {instanceName}.Length, 0, 0)";
+                drawArgs = $"DrawArgs.InstanceCount({instanceName})";
             }
                                                                                     // TODO use DrawCommand
             if (vertexParam.ParamAttribute == VertexBuffer) {

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using Friflo.Vectorization.GPU;
+
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
@@ -14,6 +16,11 @@ public struct DrawArgs
     public int  first;
     public int  firstInstance;
 
+    public DrawArgs()
+    {
+        instanceCount = 1;
+    }
+
     public DrawArgs(int count = 0, int instanceCount = 1, int first = 0, int firstInstance = 0)
     {
         this.count          = count;
@@ -22,8 +29,8 @@ public struct DrawArgs
         this.firstInstance  = firstInstance;
     }
     
-    public DrawArgs()
+    public static DrawArgs InstanceCount<T>(InBuffer<T> buffer) where T : unmanaged
     {
-        instanceCount = 1;
+        return new DrawArgs { instanceCount = buffer.Length };
     }
 }
