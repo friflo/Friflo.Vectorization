@@ -43,7 +43,7 @@ public static class Tests_WGSL
         var result = CodeFixer.CreateShaderParams(method, files);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
-        Assert.That(result.Parameters, Is.EqualTo(
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [storage]   InBuffer<TriangleStorage>   mesh_data,
@@ -61,7 +61,7 @@ public static class Tests_WGSL
         var result = CodeFixer.CreateShaderParams(method, files);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
-        Assert.That(result.Parameters, Is.EqualTo(
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [uniform]               in Scene        scene,
@@ -84,7 +84,7 @@ public static class Tests_WGSL
         
         Assert.That(result.Module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Errors.Length,               Is.EqualTo(0));
-        Assert.That(result.Parameters, Is.EqualTo(
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [uniform]               in Uniforms     uniforms,
@@ -105,7 +105,7 @@ public static class Tests_WGSL
         
         Assert.That(result.Module.EntryPoints.Count,    Is.EqualTo(1));
         Assert.That(result.Errors.Length,               Is.EqualTo(0));
-        Assert.That(result.Parameters, Is.EqualTo(
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [texture_1d(ST.f32)]                GpuTextureView  texture0,
