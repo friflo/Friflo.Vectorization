@@ -5,7 +5,6 @@
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable MemberCanBePrivate.Global
 namespace Friflo.Vectorization.WebGPU;
 
 public struct DrawCommand
