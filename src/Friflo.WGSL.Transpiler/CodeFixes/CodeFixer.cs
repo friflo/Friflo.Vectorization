@@ -60,7 +60,7 @@ public static partial class CodeFixer
         var sb      = new StringBuilder();
         var wgsl    = CreateWgsl(sb, method, files);
         
-        sb.Append("(RenderPass pass, RenderConfig config,\n");
+        sb.Append("(RenderPass pass, RenderConfig config,");
 
         var module = WgslSuperpowerParser.ParseShader(wgsl);
         
@@ -70,13 +70,11 @@ public static partial class CodeFixer
         // --- [Map(group, binding)] [...]
         var bindings = CreateBindings(module, errors);
         AddBindingParameters(parameters, bindings);
-        AppendParameters(sb, parameters);
         
         // --- [VertexBuffer(0)]
-        AddVertexBufferParameters(sb, module.EntryPoints);
+        AddVertexBufferParameters(parameters, module.EntryPoints);
         
-        sb.Length -= 2;
-        sb.Append(")");
+        AppendParameters(sb, parameters);
         
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
@@ -193,7 +191,7 @@ public static partial class CodeFixer
         }
     }
 
-    private static void AddVertexBufferParameters(StringBuilder sb, List<WgslEntryPoint> entryPoints)
+    private static void AddVertexBufferParameters(List<MethodParam> parameters, List<WgslEntryPoint> entryPoints)
     {
         foreach (var entryPoint in entryPoints)
         {
@@ -204,14 +202,11 @@ public static partial class CodeFixer
                 {
                     if (parameter.Attribute.StartsWith("@location")) {
                         if (foundVertexBuffers == 0) {
-                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,");
-                        } else {
-                            // sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
+                            parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameter.Name, " // Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
                         }
                         foundVertexBuffers++;
                     }
                 }
-                if (foundVertexBuffers > 0) sb.Append("\n");
             }
         } 
     }

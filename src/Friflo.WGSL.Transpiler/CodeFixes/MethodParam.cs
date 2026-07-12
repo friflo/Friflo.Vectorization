@@ -17,19 +17,28 @@ public static partial class CodeFixer
     
     private readonly struct MethodParam
     {
-        public readonly BindGroup   bindGroup;
+        public readonly BindGroup?  bindGroup;
         public readonly string      attribute;
         public readonly string      type;
-        public readonly string      parameter;
+        public readonly string      name;
+        public readonly string      comment;
 
-        public override string ToString() => parameter;
+        public override string ToString() => name;
 
         internal MethodParam(WgslBinding binding, string attribute, string type)
         {
             bindGroup       = new BindGroup(binding.Group, binding.Binding);    
             this.attribute  = attribute;
             this.type       = type;
-            parameter       = binding.Name;
+            name            = binding.Name;
+        }
+        
+        internal MethodParam(string attribute, string type, string name, string comment)
+        {
+            this.attribute  = attribute;
+            this.type       = type;
+            this.name       = name;
+            this.comment    = comment;
         }
     }
     
@@ -44,14 +53,19 @@ public static partial class CodeFixer
         }
         int attrTargetWidth = maxAttrLength + 4; 
 
-        foreach (var parameter in parameters)
+        for (int n = 0; n < parameters.Count; n++)
         {
-            sb.Append("        "); 
+            var parameter = parameters[n];
+            sb.Append("\n        "); 
 
             // column 1: [Map(0, 1)]
-            var bg = parameter.bindGroup;
-            sb.Append($"[Map({bg.group},{bg.binding,2})] ");
-
+            if (parameter.bindGroup != null) {
+                var bg = parameter.bindGroup.Value;
+                sb.Append($"[Map({bg.group},{bg.binding,2})] ");
+            } else {
+                sb.Append($"            ");
+            }
+            
             // column 2: WGSL-attribute (e.g. [texture_2d(ST.f32)])
             sb.Append(parameter.attribute);
             
@@ -61,8 +75,12 @@ public static partial class CodeFixer
             // column 3 & 4: C#-Type and Name
             sb.Append(parameter.type);
             sb.Append(' ');
-            sb.Append(parameter.parameter);
-            sb.Append(",\n");
+            sb.Append(parameter.name);
+            var last = n == parameters.Count - 1;
+            sb.Append(last ? ")" : ",");
+            if (parameter.comment != null) {
+                sb.Append(parameter.comment);
+            }
         }
     }
 }
