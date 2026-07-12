@@ -117,9 +117,9 @@ public static class Tests_WGSL
                     [Map(0, 6)] [texture_multisampled_2d(ST.i32)]    GpuTextureView texture6,
                     [Map(0, 7)] [texture_depth_multisampled_2d]    GpuTextureView texture7,
                     [Map(0, 12)] [texture_depth_2d]    GpuTextureView texture12,
-                    [Map(0, 13)] [texture_depth_2d_array]    GpuTextureView texture12,
-                    [Map(0, 14)] [texture_depth_cube]    GpuTextureView texture12,
-                    [Map(0, 15)] [texture_depth_cube_array]    GpuTextureView texture12,
+                    [Map(0, 13)] [texture_depth_2d_array]    GpuTextureView texture13,
+                    [Map(0, 14)] [texture_depth_cube]    GpuTextureView texture14,
+                    [Map(0, 15)] [texture_depth_cube_array]    GpuTextureView texture15,
                     [Map(1, 0)] [sampler]               GpuSampler sampler0,
                     [Map(1, 1)] [sampler_comparison]    GpuSampler sampler1)
             """));

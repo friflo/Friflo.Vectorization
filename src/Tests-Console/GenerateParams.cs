@@ -17,4 +17,7 @@ public static partial class GenerateParams
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     private static partial void RenderCube();
+    
+	[Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
+    public static partial void Tests_WGSL_Generate_textures();
 }
