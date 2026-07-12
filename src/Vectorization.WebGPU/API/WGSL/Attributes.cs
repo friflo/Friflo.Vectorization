@@ -52,10 +52,12 @@ public sealed class DrawAttribute : Attribute;
 
 /// <summary>
 /// Optional - set <b>instanceCount</b> in <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
-/// by the <c>Length</c> of the annotated <c>InBuffer&lt;&gt;</c> parameter.<br/>
-/// If missing <b>instanceCount</b> defaults to 1.
+/// by the <see cref="InBuffer{T}.Length"/> of the annotated <see cref="InBuffer{T}"/> parameter.
 /// </summary>
-/// <remarks> Requires another parameter is annotated with <see cref="DrawAttribute"/>. </remarks>
+/// <remarks>
+/// - If <see cref="DrawInstanceAttribute"/> is missing <b>instanceCount</b> defaults to 1.<br/>
+/// - If the method has a <see cref="DrawArgs"/> parameter, <see cref="DrawArgs.instanceCount"/> will be used if greater than 0.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawInstanceAttribute : Attribute;
 
