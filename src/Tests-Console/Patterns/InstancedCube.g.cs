@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class InstancedCube
 {
-    private static partial void RenderCubes(
+    private static void Pattern_RenderCubes(
         RenderPass          pass,
         RenderConfig        config,
         InBuffer<Matrix4x4> mvpMatrices,

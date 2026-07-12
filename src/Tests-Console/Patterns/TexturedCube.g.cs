@@ -9,7 +9,7 @@ namespace TestConsole;
 
 public partial class TexturedCube
 {
-    private static partial void RenderCube(
+    private static void Pattern_RenderCube(
         RenderPass      pass,
         RenderConfig    config,
         in Uniforms   	uniforms,

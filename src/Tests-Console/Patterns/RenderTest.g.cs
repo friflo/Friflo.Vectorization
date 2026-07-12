@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class RenderTest
 {
-    public static partial void DrawTriangles(
+    public static void Pattern_DrawTriangles(
         RenderPass              pass,
         RenderConfig            config,
         InBuffer<VertexData>    triangles,

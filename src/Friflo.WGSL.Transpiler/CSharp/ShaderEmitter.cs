@@ -338,7 +338,7 @@ $$"""
         body.Append("        // --- draw\n");
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;
-            body.Append($"        pass_.Draw({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance});\n");
+            body.Append($"        pass_.Draw(new DrawArgs({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance}));\n");
         }
 
         // attribute: DrawAttribute
@@ -346,18 +346,18 @@ $$"""
         if (vertexParam.Name != null)
         {
             // attribute: DrawInstanceAttribute
-            var instanceCount = "1";
+            var drawArgs = "new DrawArgs()";
             var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
             if (instanceName != null) {
-                instanceCount = $"{instanceName}.Length";
+                drawArgs = $"new DrawArgs(0, {instanceName}.Length, 0, 0)";
             }
                                                                                     // TODO use DrawCommand
             if (vertexParam.ParamAttribute == VertexBuffer) {
                 var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {instanceCount}, 0, 0);\n");
+                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
             } else {
                 var name = vertexParam.Name;
-                body.Append($"        pass_.Draw({name}.Length, {instanceCount}, 0, 0);\n");
+                body.Append($"        pass_.Draw({name}, {drawArgs});\n");
             }
         }
     }

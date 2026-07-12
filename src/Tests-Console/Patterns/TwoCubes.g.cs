@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class TwoCubes
 {
-    private static partial void RenderCube(
+    private static void Pattern_RenderCube(
         RenderPass      pass,
         RenderConfig    config,
         in Matrix4x4    modelViewProjectionMatrix,
