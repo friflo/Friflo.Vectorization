@@ -13,8 +13,8 @@ public partial class InstancedCube
     public static void RenderCubes_Pattern(
         RenderPass          pass,
         RenderConfig        config,
-        InBuffer<float>     verticesBuffer,
-        InBuffer<Matrix4x4> mvpMatrices)
+        InBuffer<Matrix4x4> mvpMatrices,
+        InBuffer<float>     verticesBuffer)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer,   nameof(verticesBuffer));

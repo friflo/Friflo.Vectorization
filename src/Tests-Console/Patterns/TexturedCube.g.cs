@@ -12,10 +12,10 @@ public partial class TexturedCube
     public static void RenderCube_Pattern(
         RenderPass      pass,
         RenderConfig    config,
-        InBuffer<float> vertices,
         in Uniforms   	uniforms,
         GpuSampler      smoothFilter,
-        GpuTextureView  material)
+        GpuTextureView  material,
+        InBuffer<float> vertices)
 	{
         var buffers =
         GpuBuffers.Create(vertices, nameof(vertices));

@@ -149,22 +149,22 @@ public partial class InstancedCube : IRenderer
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
         if (useUniformBuffer) {
-            RenderCubes(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+            RenderCubes(pass, config, mvpMatricesData.In().Write(), verticesBuffer.In());
         } else {
-            RenderCubesStorage(pass, config, verticesBuffer.In(), mvpMatricesData.In().Write());
+            RenderCubesStorage(pass, config, mvpMatricesData.In().Write(), verticesBuffer.In());
         }
     }
     
 	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCubes(RenderPass pass, RenderConfig config,
-        [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
-        [DrawInstance]  [Map(0, 0)] [uniform]           InBuffer<Matrix4x4> mvpMatrices);
+        [DrawInstance]  [Map(0, 0)] [uniform]           InBuffer<Matrix4x4> mvpMatrices,
+        [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer);
     
     // Alternative Shader method with [BindStorage(0, 0)] to use a Storage Buffer
 	[Shader("~/shaders/instanced.storage.vert.wgsl",      vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,
-        [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer,
-        [DrawInstance]  [Map(0, 0)] [storage]           InBuffer<Matrix4x4> mvpMatrices);
+        [DrawInstance]  [Map(0, 0)] [storage]           InBuffer<Matrix4x4> mvpMatrices,
+        [Draw]                      [VertexBuffer(0)]   InBuffer<float>     verticesBuffer);
 }

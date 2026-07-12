@@ -115,13 +115,13 @@ public partial class TwoCubes : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
-        RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix1);
-        RenderCube(pass, config, verticesBuffer.In(), modelViewProjectionMatrix2);
+        RenderCube(pass, config, modelViewProjectionMatrix1, verticesBuffer.In());
+        RenderCube(pass, config, modelViewProjectionMatrix2, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,
-        [Draw]              [VertexBuffer(0)]   InBuffer<float> verticesBuffer,
-                [Map(0, 0)] [uniform]           in Matrix4x4    modelViewProjectionMatrix);
+                [Map(0, 0)] [uniform]           in Matrix4x4    modelViewProjectionMatrix,
+        [Draw]              [VertexBuffer(0)]   InBuffer<float> verticesBuffer);
 }

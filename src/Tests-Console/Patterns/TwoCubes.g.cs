@@ -13,8 +13,8 @@ public partial class TwoCubes
     public static void RenderCube_Pattern(
         RenderPass      pass,
         RenderConfig    config,
-        InBuffer<float> verticesBuffer,
-        in Matrix4x4    modelViewProjectionMatrix)
+        in Matrix4x4    modelViewProjectionMatrix,
+        InBuffer<float> verticesBuffer)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer, nameof(verticesBuffer));

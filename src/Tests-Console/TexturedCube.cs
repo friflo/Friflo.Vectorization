@@ -133,17 +133,16 @@ public partial class TexturedCube : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
-        RenderCube(pass, config, verticesBuffer.In(), uniforms, sampler, textureView);
+        RenderCube(pass, config, uniforms, sampler, textureView, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,
-        [Draw]              [VertexBuffer(0)]       InBuffer<float> vertices,
                 [Map(0, 0)] [uniform]               in Uniforms     uniforms,
                 [Map(0, 1)] [sampler]               GpuSampler      smoothFilter,
-                [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material);
-
+                [Map(0, 2)] [texture_2d(ST.f32)]    GpuTextureView  material,
+        [Draw]              [VertexBuffer(0)]       InBuffer<float> vertices);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms {
