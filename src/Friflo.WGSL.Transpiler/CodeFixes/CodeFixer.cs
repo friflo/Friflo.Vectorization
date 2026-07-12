@@ -111,7 +111,7 @@ public static partial class CodeFixer
         return bindings;
     }
     
-    private static void AddBindingParameters(List<MethodParam> bindGroups, List<WgslBinding> bindings)
+    private static void AddBindingParameters(List<MethodParam> parameters, List<WgslBinding> bindings)
     {
 
         foreach (var binding in bindings) {
@@ -119,19 +119,19 @@ public static partial class CodeFixer
             {
             case "storage":
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                bindGroups.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{binding.WgslType}>"));
+                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{binding.WgslType}>"));
                 break;
             case "uniform":
-                bindGroups.Add(new MethodParam(binding, "[uniform]", $"in {binding.WgslType}"));
+                parameters.Add(new MethodParam(binding, "[uniform]", $"in {binding.WgslType}"));
                 break;
             case "":
-                AppendWgslType(bindGroups, binding);
+                AppendWgslType(parameters, binding);
                 break;
             }
         }
     }
     
-    private static void AppendWgslType(List<MethodParam> bindGroups, WgslBinding binding)
+    private static void AppendWgslType(List<MethodParam> parameters, WgslBinding binding)
     {
         var wgslType    = binding.WgslType;
         var name        = wgslType.Name;
@@ -143,10 +143,10 @@ public static partial class CodeFixer
         {
             // --- WGSL Sampler Types           See:  https://www.w3.org/TR/WGSL/#sampler-type
             case "sampler":
-                bindGroups.Add(new MethodParam(binding, "[sampler]",              "GpuSampler"));
+                parameters.Add(new MethodParam(binding, "[sampler]",              "GpuSampler"));
                 break;
             case "sampler_comparison":
-                bindGroups.Add(new MethodParam(binding, "[sampler_comparison]",   "GpuSampler"));
+                parameters.Add(new MethodParam(binding, "[sampler_comparison]",   "GpuSampler"));
                 break;
             
             // ------ WGSL texture types
@@ -159,16 +159,16 @@ public static partial class CodeFixer
             case "texture_cube":
             case "texture_cube_array":
                 var sampleType = arg0 ?? "f32";
-                bindGroups.Add(new MethodParam(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
+                parameters.Add(new MethodParam(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
                 break;
             
             // --- Multisampled Texture Types   See:  https://www.w3.org/TR/WGSL/#multisampled-texture-type
             case "texture_multisampled_2d":
                 sampleType = arg0 ?? "f32";
-                bindGroups.Add(new MethodParam(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
+                parameters.Add(new MethodParam(binding, $"[{name}(ST.{sampleType})]",     "GpuTextureView"));
                 break;
             case "texture_depth_multisampled_2d":
-                bindGroups.Add(new MethodParam(binding, $"[{name}]",                      "GpuTextureView"));
+                parameters.Add(new MethodParam(binding, $"[{name}]",                      "GpuTextureView"));
                 break;
             
             // --- Storage Texture Types        See:  https://www.w3.org/TR/WGSL/#texture-storage
@@ -178,7 +178,7 @@ public static partial class CodeFixer
             case "texture_storage_3d":
                 var format = arg0 ?? "read";
                 var access = arg1 ?? "RGBA8Unorm";
-                bindGroups.Add(new MethodParam(binding, $"[{name}(TextureFormat.{format}, TSA.{access})]", "GpuTextureView"));
+                parameters.Add(new MethodParam(binding, $"[{name}(TextureFormat.{format}, TSA.{access})]", "GpuTextureView"));
                 break;
             
             // --- Depth Texture Types          See:  https://www.w3.org/TR/WGSL/#texture-depth
@@ -186,7 +186,7 @@ public static partial class CodeFixer
             case "texture_depth_2d_array":
             case "texture_depth_cube":
             case "texture_depth_cube_array":
-                bindGroups.Add(new MethodParam(binding, $"[{name}]",  "GpuTextureView"));
+                parameters.Add(new MethodParam(binding, $"[{name}]",  "GpuTextureView"));
                 break;
         }
     }
