@@ -53,10 +53,32 @@ public static class CodeFixer
         }
         var wgsl = sb.ToString();
         sb.Clear();
+        
+        sb.Append("(RenderPass pass, RenderConfig config,\n");
 
         WgslShaderMetadata shaderMeta = WgslSuperpowerParser.ParseShader(wgsl);
         
-        var errors      = new List<WgslValidationError>();
+        var errors = new List<WgslValidationError>();
+        
+        // --- [Map(group, binding)] [...]
+        var bindings = CreateBindings(shaderMeta, errors);
+        AddBindingParameters(sb, bindings);
+        
+        // --- [VertexBuffer(0)]
+        AddVertexBufferParameters(sb, shaderMeta.EntryPoints);
+        
+        sb.Length -= 2;
+        sb.Append(")");
+        
+        return new CodeFixerResult {
+            Parameters  = sb.ToString(),
+            Errors      = errors.ToArray(), // new WgslValidationError { Message = "XXX Test some WGSL message" }]
+            Metadata    = shaderMeta
+        };
+    }
+
+    private static List<WgslBinding> CreateBindings(WgslShaderMetadata shaderMeta, List<WgslValidationError> errors)
+    {
         var bindings    = new List<WgslBinding>();
         var bindingMap  = new Dictionary<(int, int), WgslBinding>();
 
@@ -73,11 +95,18 @@ public static class CodeFixer
                 bindings.Add(binding);
             }
         }
-        SortBindings(bindings);
-        
-        sb.Append("(RenderPass pass, RenderConfig config,\n");
-        
-        // --- [Map(group, binding)] [...]
+        bindings.Sort((a, b) => {
+            int groupComparison = a.Group.CompareTo(b.Group);
+            if (groupComparison != 0) {
+                return groupComparison;
+            }
+            return a.Binding.CompareTo(b.Binding);
+        });
+        return bindings;
+    }
+    
+    private static void AddBindingParameters(StringBuilder sb, List<WgslBinding> bindings)
+    {
         foreach (var binding in bindings) {
             switch (binding.AddressSpace)
             {
@@ -93,37 +122,6 @@ public static class CodeFixer
                 break;
             }
         }
-        
-        // --- [VertexBuffer(0)]
-        foreach (var entryPoint in shaderMeta.EntryPoints)
-        {
-            if (entryPoint.Stage == "vertex")
-            {
-                var foundVertexBuffers = 0;
-                foreach (var parameter in entryPoint.Parameters)
-                {
-                    if (parameter.Attribute.StartsWith("@location")) {
-                        if (foundVertexBuffers == 0) {
-                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,");
-                        } else {
-                            // sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
-                        }
-                        foundVertexBuffers++;
-                    }
-                }
-                if (foundVertexBuffers > 0) sb.Append("\n");
-            }
-        }        
-        
-        
-        sb.Length -= 2;
-        sb.Append(")");
-        
-        return new CodeFixerResult {
-            Parameters  = sb.ToString(),
-            Errors      = errors.ToArray(), // new WgslValidationError { Message = "XXX Test some WGSL message" }]
-            Metadata    = shaderMeta
-        };
     }
     
     private static void AppendWgslType(StringBuilder sb, WgslBinding binding)
@@ -184,15 +182,27 @@ public static class CodeFixer
                 break;
         }
     }
-    
-    private static void SortBindings(List<WgslBinding> bindings)
+
+    private static void AddVertexBufferParameters(StringBuilder sb, List<WgslEntryPoint> entryPoints)
     {
-        bindings.Sort((a, b) => {
-            int groupComparison = a.Group.CompareTo(b.Group);
-            if (groupComparison != 0) {
-                return groupComparison;
+        foreach (var entryPoint in entryPoints)
+        {
+            if (entryPoint.Stage == "vertex")
+            {
+                var foundVertexBuffers = 0;
+                foreach (var parameter in entryPoint.Parameters)
+                {
+                    if (parameter.Attribute.StartsWith("@location")) {
+                        if (foundVertexBuffers == 0) {
+                            sb.Append($"        [VertexBuffer({0})]           InBuffer<float> {parameter.Name}, // Opt: [IndexBuffer] InBuffer<ushort|uint> indices,");
+                        } else {
+                            // sb.Append($"  |  {parameter.Name} {parameter.Attribute}");
+                        }
+                        foundVertexBuffers++;
+                    }
+                }
+                if (foundVertexBuffers > 0) sb.Append("\n");
             }
-            return a.Binding.CompareTo(b.Binding);
-        });
+        } 
     }
 }
