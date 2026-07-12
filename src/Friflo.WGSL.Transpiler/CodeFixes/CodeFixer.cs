@@ -202,7 +202,7 @@ public static partial class CodeFixer
                 {
                     if (parameter.Attribute.StartsWith("@location")) {
                         if (foundVertexBuffers == 0) {
-                            parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameter.Name, " // Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
+                            parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameter.Name, "Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
                         }
                         foundVertexBuffers++;
                     }

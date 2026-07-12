@@ -76,11 +76,14 @@ public static partial class CodeFixer
             sb.Append(parameter.type);
             sb.Append(' ');
             sb.Append(parameter.name);
-            var last = n == parameters.Count - 1;
-            sb.Append(last ? ");" : ",");
             if (parameter.comment != null) {
+                sb.Append(" /* ");
                 sb.Append(parameter.comment);
+                sb.Append(" */");
             }
+            var last = n == parameters.Count - 1;
+            sb.Append(last ? ")" : ",");
+
         }
     }
 }
