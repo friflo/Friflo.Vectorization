@@ -29,7 +29,7 @@ public readonly struct CodeFixerResult
 }
 
 
-public static class CodeFixer
+public static partial class CodeFixer
 {
     private static (string vsEntry, string fsEntry) GetEntryPoints(CsMethod method, ImmutableArray<WgslFile> files)
     {
@@ -129,30 +129,8 @@ public static class CodeFixer
                 break;
             }
         }
-        foreach (var bindGroup in bindGroups) {
-            sb.Append($"        [Map({bindGroup.group}, {bindGroup.binding})] {bindGroup.attribute}         {bindGroup.type} {bindGroup.parameter},\n");
-        }
+        AppendParameters(sb, bindGroups);
     }
-    
-    private readonly struct BindGroup
-    {
-        public readonly int     group;
-        public readonly int     binding;
-        public readonly string  attribute;
-        public readonly string  type;
-        public readonly string  parameter;
-
-        public override string ToString() => parameter;
-
-        internal BindGroup(WgslBinding binding, string attribute, string type)
-        {
-            group           = binding.Group;
-            this.binding    = binding.Binding;
-            this.attribute  = attribute;
-            this.type       = type;
-            parameter       = binding.Name;
-        }
-    };
     
     private static void AppendWgslType(List<BindGroup> bindGroups, WgslBinding binding)
     {
