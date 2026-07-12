@@ -17,7 +17,7 @@ public static partial class CodeFixer
     
     private readonly struct MethodParam
     {
-        public readonly BindGroup?  bindGroup;
+        public readonly BindGroup?  bindGroup; // always 11 char + space or 12 spaces if null
         public readonly string      attribute;
         public readonly string      type;
         public readonly string      name;
@@ -46,36 +46,44 @@ public static partial class CodeFixer
     {
         if (parameters.Count == 0) return;
 
+        const int attrStartColumn = 20;
+
         int maxAttrLength = 0;
+        int maxTypeLength = 0;
 
         foreach (var param in parameters) {
             if (param.attribute.Length > maxAttrLength) maxAttrLength = param.attribute.Length;
+            if (param.type.Length > maxTypeLength)      maxTypeLength = param.type.Length;
         }
-        int attrTargetWidth = maxAttrLength + 4; 
+
+        int absoluteTypeStart   = attrStartColumn + maxAttrLength + 1;
+        int typeGlobalTabStop   = ((absoluteTypeStart + 3) / 4) * 4;
+        int attrTargetWidth     = typeGlobalTabStop - attrStartColumn;
+        int typeTargetWidth     = ((maxTypeLength + 3) / 4) * 4; 
 
         for (int n = 0; n < parameters.Count; n++)
         {
             var parameter = parameters[n];
-            sb.Append("\n        "); 
+            sb.Append("\n        ");
 
-            // column 1: [Map(0, 1)]
             if (parameter.bindGroup != null) {
                 var bg = parameter.bindGroup.Value;
                 sb.Append($"[Map({bg.group},{bg.binding,2})] ");
             } else {
-                sb.Append($"            ");
+                sb.Append("            "); 
             }
             
-            // column 2: WGSL-attribute (e.g. [texture_2d(ST.f32)])
+            // column 2: WGSL-attribute
             sb.Append(parameter.attribute);
-            
-            // dynamic padding
             sb.Append(' ', attrTargetWidth - parameter.attribute.Length);
 
-            // column 3 & 4: C#-Type and Name
+            // column 3: C#-Type
             sb.Append(parameter.type);
-            sb.Append(' ');
+            sb.Append(' ', typeTargetWidth - parameter.type.Length);
+
+            // column 4: parameter name
             sb.Append(parameter.name);
+            
             if (parameter.comment != null) {
                 sb.Append(" /* ");
                 sb.Append(parameter.comment);
@@ -83,7 +91,6 @@ public static partial class CodeFixer
             }
             var last = n == parameters.Count - 1;
             sb.Append(last ? ")" : ",");
-
         }
     }
 }
