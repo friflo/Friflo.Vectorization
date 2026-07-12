@@ -16,10 +16,10 @@ public partial class ShaderExample
     protected static partial void RenderCube(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<float>             vertices,
         in Uniforms                 uniforms,
         GpuSampler                  smoothFilter,
-        GpuTextureView              material)
+        GpuTextureView              material,
+        InBuffer<float>             vertices)
     {
 
         var pass_       = pass.Internal;

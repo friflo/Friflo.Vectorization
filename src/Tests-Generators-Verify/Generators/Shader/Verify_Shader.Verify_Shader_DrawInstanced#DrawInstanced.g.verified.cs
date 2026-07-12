@@ -16,16 +16,16 @@ public partial class ShaderExample
     private static partial void DrawInstanced(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<float>             verticesBuffer,
-        InBuffer<Matrix4x4>         mvpMatrices)
+        InBuffer<Matrix4x4>         mvpMatrices,
+        InBuffer<float>             verticesBuffer)
     {
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(_DrawInstanced_GPU_ShaderId, "DrawInstanced_encoder"u8);
 
-        recorder.RequireRead     (verticesBuffer);
         recorder.RequireRead     (mvpMatrices);
+        recorder.RequireRead     (verticesBuffer);
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_DrawInstanced_GPU_ShaderId, config, _DrawInstanced_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
