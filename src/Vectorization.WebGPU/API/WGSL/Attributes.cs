@@ -169,12 +169,6 @@ public sealed class StorageAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class UniformAttribute : Attribute;
 
-
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class BindIndexAttribute : Attribute
-{
-    public BindIndexAttribute (int group, int binding) { }
-}
 #endregion
 
 
