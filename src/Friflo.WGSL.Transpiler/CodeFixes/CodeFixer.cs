@@ -77,6 +77,24 @@ public static class CodeFixer
         
         sb.Append("(RenderPass pass, RenderConfig config,\n");
         
+        // --- [Map(group, binding)] [...]
+        foreach (var binding in bindings) {
+            switch (binding.AddressSpace)
+            {
+            case "storage":
+                var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
+                break;
+            case "uniform":
+                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [uniform]         in {binding.WgslType} {binding.Name},\n");
+                break;
+            case "":
+                AppendWgslType(sb, binding);
+                break;
+            }
+        }
+        
+        // --- [VertexBuffer(0)]
         foreach (var entryPoint in shaderMeta.EntryPoints)
         {
             if (entryPoint.Stage == "vertex")
@@ -95,23 +113,9 @@ public static class CodeFixer
                 }
                 if (foundVertexBuffers > 0) sb.Append("\n");
             }
-        }
+        }        
         
-        foreach (var binding in bindings) {
-            switch (binding.AddressSpace)
-            {
-            case "storage":
-                var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [storage]         {bufferType}<{binding.WgslType}> {binding.Name},\n");
-                break;
-            case "uniform":
-                sb.Append($"        [Map({binding.Group}, {binding.Binding})] [uniform]         in {binding.WgslType} {binding.Name},\n");
-                break;
-            case "":
-                AppendWgslType(sb, binding);
-                break;
-            }
-        }
+        
         sb.Length -= 2;
         sb.Append(")");
         
