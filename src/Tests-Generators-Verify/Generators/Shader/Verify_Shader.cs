@@ -189,6 +189,30 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_DrawArgs()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    private static partial void DrawCustomDrawArgs(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer,
+                                                        DrawArgs customArgs = default);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_DrawVertexIndex()
     {
         await Verify(

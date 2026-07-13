@@ -339,25 +339,30 @@ $$"""
         if (method.DrawVertexIndex != null) {
             var dvi = method.DrawVertexIndex.Value;
             body.Append($"        pass_.Draw(new DrawArgs({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance}));\n");
+            return;
         }
 
         // attribute: DrawAttribute
         var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
-        if (vertexParam.Name != null)
-        {
-            // attribute: DrawInstanceAttribute
-            var drawArgs = "new DrawArgs()";
-            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
-            if (instanceName != null) {
-                drawArgs = $"DrawArgs.InstanceCount({instanceName})";
-            }
-            if (vertexParam.ParamAttribute == VertexBuffer) {
-                var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
-                body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
-            } else {
-                var name = vertexParam.Name;
-                body.Append($"        pass_.Draw({name}, {drawArgs});\n");
-            }
+        if (vertexParam.Name == null) {
+            return;
+        }
+        var drawArgs = "new DrawArgs()";
+        var drawArgsParameter = method.Parameters.FirstOrDefault(p => p.Type.Name == "DrawArgs").Name;
+        if (drawArgsParameter != null) {
+            drawArgs = drawArgsParameter;
+        }
+        // attribute: DrawInstanceAttribute
+        var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
+        if (instanceName != null) {
+            drawArgs = $"{drawArgs}.WithInstanceCount({instanceName})";
+        }
+        if (vertexParam.ParamAttribute == VertexBuffer) {
+            var slot = vertexParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
+            body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
+        } else {
+            var name = vertexParam.Name;
+            body.Append($"        pass_.Draw({name}, {drawArgs});\n");
         }
     }
     

@@ -47,7 +47,7 @@ public partial class InstancedCube
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, DrawArgs.InstanceCount(mvpMatrices));
+        pass_.Draw(verticesBuffer, 0, config, new DrawArgs().WithInstanceCount(mvpMatrices));
 	}
     
     private sealed class InstancedCube_Storage_GPU_Cache : BindGroupCache
