@@ -12,8 +12,8 @@ namespace Friflo.Vectorization.WebGPU;
 
 /// <summary>
 /// When used as a <c>[Shader]</c> method parameter, it sets the parameters of<br/>
-/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">GPURenderPassEncoder.draw()</a> or
-/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexed">GPURenderPassEncoder.drawIndexed()</a>.
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw"><c>draw()</c></a> or
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexed"><c>drawIndexed()</c></a>.
 /// </summary>
 /// <remarks>
 /// This structure encapsulates geometry counts and index offsets.<br/>

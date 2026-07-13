@@ -101,6 +101,28 @@ public sealed class VertexBufferAttribute : Attribute
     public VertexBufferAttribute (int slot) { }
 }
 
+/// <summary>
+/// Marks a <c>[Shader]</c> method parameter as the index buffer for a WebGPU draw call.
+/// </summary>
+/// <remarks>
+/// This attribute binds the annotated <see cref="InBuffer{T}"/> parameter before drawing.<br/>
+/// Modern GPU hardware restricts each render pass to a single index slot, which enforces the following architecture:
+/// <list type="bullet">
+///   <item>
+///     <description>
+///       <b>Single Index Buffer Constraint:</b> Only one <c>[IndexBuffer]</c> attribute is allowed per shader method. 
+///       Declaring multiple will trigger a compile-time error.
+///     </description>
+///   </item>
+///   <item>
+///     <description>
+///       <b>Combining with <c>[Draw]</c>:</b> When paired with the <c>[Draw]</c> attribute, the source generator 
+///       automatically invokes <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexed"><c>drawIndexed()</c></a>
+///       and derives the <c>indexCount</c> directly from this buffer's length.
+///     </description>
+///   </item>
+/// </list>
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class IndexBufferAttribute : Attribute;
 
