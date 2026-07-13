@@ -5,7 +5,6 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-// ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace TestConsole;
 
 public partial class RenderTest
