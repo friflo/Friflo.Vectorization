@@ -48,7 +48,7 @@ public partial class ShaderExample
         pass_.SetVertexBuffer(verticesBuffer, 0);
         
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, customArgs.WithInstanceCount(mvpMatrices));
+        pass_.Draw(verticesBuffer, 0, config, customArgs);
     }
 
     private sealed class _DrawCustomDrawArgs_GPU_Cache : BindGroupCache

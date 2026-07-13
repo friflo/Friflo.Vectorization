@@ -29,8 +29,8 @@ public struct DrawArgs
         this.firstInstance  = firstInstance;
     }
     
-    public DrawArgs WithInstanceCount<T>(InBuffer<T> buffer) where T : unmanaged
+    public static DrawArgs InstanceCount<T>(InBuffer<T> buffer) where T : unmanaged
     {
-        return new DrawArgs(count, buffer.Length, first, firstInstance);
+        return new DrawArgs { instanceCount = buffer.Length };
     }
 }

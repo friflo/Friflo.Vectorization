@@ -56,7 +56,7 @@ public sealed class DrawAttribute : Attribute;
 /// </summary>
 /// <remarks>
 /// - If <see cref="DrawInstanceAttribute"/> is missing <b>instanceCount</b> defaults to 1.<br/>
-/// - If the method has a <see cref="DrawArgs"/> parameter, <see cref="DrawArgs.instanceCount"/> will be used if greater than 0.
+/// - If the shader method has a <see cref="DrawArgs"/> parameter, <see cref="DrawInstanceAttribute"/> will be used in any case.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class DrawInstanceAttribute : Attribute;

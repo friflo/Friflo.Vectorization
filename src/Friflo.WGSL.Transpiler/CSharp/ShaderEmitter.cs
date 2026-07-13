@@ -351,11 +351,12 @@ $$"""
         var drawArgsParameter = method.Parameters.FirstOrDefault(p => p.Type.Name == "DrawArgs").Name;
         if (drawArgsParameter != null) {
             drawArgs = drawArgsParameter;
-        }
-        // attribute: DrawInstanceAttribute
-        var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
-        if (instanceName != null) {
-            drawArgs = $"{drawArgs}.WithInstanceCount({instanceName})";
+        } else {
+            // attribute: DrawInstanceAttribute
+            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
+            if (instanceName != null) {
+                drawArgs = $"DrawArgs.InstanceCount({instanceName})";
+            }
         }
         if (vertexParam.ParamAttribute == VertexBuffer) {
             var slot = vertexParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
