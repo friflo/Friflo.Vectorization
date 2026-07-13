@@ -63,7 +63,7 @@ public static partial class CodeFixer
         
         // --- [Map(group, binding)] [...]
         var bindings = CreateBindings(module, errors);
-        AddBindingParameters(parameters, bindings);
+        AddBindingParameters(module, parameters, bindings);
         
         // --- [VertexBuffer(0)]
         AddVertexBufferParameters(parameters, module.EntryPoints);
@@ -104,15 +104,19 @@ public static partial class CodeFixer
         return bindings;
     }
     
-    private static void AddBindingParameters(List<MethodParam> parameters, List<WgslBinding> bindings)
+    private static void AddBindingParameters(WgslModule module, List<MethodParam> parameters, List<WgslBinding> bindings)
     {
 
         foreach (var binding in bindings) {
             switch (binding.AddressSpace)
             {
             case "storage":
+                var type = TypeGenerator.GetStorageType(module, binding);
+                if (type == null) {
+                    continue;
+                } 
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{binding.WgslType}>"));
+                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{type}>"));
                 break;
             case "uniform":
                 parameters.Add(new MethodParam(binding, "[uniform]", $"in {binding.WgslType}"));

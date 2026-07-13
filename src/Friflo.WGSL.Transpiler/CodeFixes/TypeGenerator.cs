@@ -27,13 +27,8 @@ public static class TypeGenerator
                     exportTypes.Add(binding.WgslType.Name);
                     break;
                 case "storage":
-                    var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
-                    if (type != null && type.Fields.Count == 1) {
-                        var fieldType = type.Fields[0].WgslType;
-                        if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
-                            exportTypes.Add(fieldType.Generics[0].Name);
-                        }
-                    }
+                    var type = GetStorageType(module, binding);
+                    exportTypes.Add(type);
                     break;
             }
         }
@@ -104,5 +99,17 @@ public static class TypeGenerator
             
         }
         return field.WgslType.Name;
+    }
+    
+    internal static string GetStorageType(WgslModule module, WgslBinding binding)
+    {
+        var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+        if (type != null && type.Fields.Count == 1) {
+            var fieldType = type.Fields[0].WgslType;
+            if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
+                return fieldType.Generics[0].Name;
+            }
+        }
+        return null;
     }
 }
