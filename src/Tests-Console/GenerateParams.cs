@@ -1,4 +1,5 @@
-﻿using Friflo.Vectorization.GPU;
+﻿using System.Numerics;
+using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace TestConsole;
