@@ -348,7 +348,15 @@ $$"""
             return;
         }
         var drawArgs = "new DrawArgs()";
-        var drawArgsParameter = method.Parameters.FirstOrDefault(p => p.Type.Name == "DrawArgs").Name;
+        var (drawArgsParameter, isArray) = GetDrawArgsParameter(method.Parameters);
+        
+        var indent = "";
+        if (isArray) {
+            // case: Instanced Batching  (aka: MultiDraw oder DrawBatch)
+            indent = "    ";
+            body.Append($"        foreach(var {drawArgsParameter}Item in {drawArgsParameter}) {{\n");
+            drawArgsParameter += "Item";
+        }
         if (drawArgsParameter != null) {
             drawArgs = drawArgsParameter;
         } else {
@@ -360,14 +368,28 @@ $$"""
         }
         if (vertexParam.ParamAttribute == VertexBuffer) {
             var slot = vertexParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
-            body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
+            body.Append($"{indent}        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
         } else {
             var name = vertexParam.Name;
-            body.Append($"        pass_.Draw({name}, {drawArgs});\n");
+            body.Append($"{indent}        pass_.Draw({name}, {drawArgs});\n");
+        }
+        if (isArray) {
+            body.Append("        }\n");
         }
     }
     
-
+    private static (string name, bool isArray) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
+    {
+        foreach (var p in Parameters) {
+            var typeName = p.Type.Name;
+            switch (typeName) {
+                case "DrawArgs":        return (p.Name, false);
+                case "Span":
+                case "ReadOnlySpan":    return (p.Name, true);
+            }
+        }
+        return default;
+    }
     
     private static void AppendStorage(StringBuilder sb, string bindingType)
     {
