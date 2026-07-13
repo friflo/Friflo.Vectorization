@@ -71,21 +71,20 @@ public static class TypeGenerator
     
     internal static bool TryGetKnownCSharpType(WgslType wgslType, out string csType)
     {
-        var sb = new StringBuilder();
-        sb.Append(wgslType.Name);
+        var typeName = wgslType.Name;
         var generics = wgslType.Generics;
-        if (generics.Length > 0)
-        {
-            sb.Append("<");
-            foreach (var generic in generics)
+        if (generics.Length == 1 && generics[0].Name == "f32") {
+            typeName = typeName switch
             {
-                sb.Append(generic.Name);
-                sb.Append(',');
-            }
-            sb.Length -= 1;
-            sb.Append(">");
+                "vec2"      => "vec2<f32>",
+                "vec3"      => "vec3<f32>",
+                "vec4"      => "vec4<f32>",
+                "mat2x2"    => "mat2x2<f32>",
+                "mat3x3"    => "mat3x3<f32>",
+                "mat4x4"    => "mat4x4<f32>",
+                _           => typeName
+            };
         }
-        var typeName = sb.ToString();
         var result = GetCSharpTypeFromWgslType(typeName);
         if (result != null) {
             csType = result;
