@@ -75,4 +75,23 @@ public static class Tests_GenerateTypes
             
             """));
     }
+    
+    // [Test]
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    public static void Tests_WGSL_GenerateTypes_4()
+    {
+        var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var wgsl    = CodeFixer.CreateWgsl(method, files);
+        var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
+        
+        Assert.That(types, Is.EqualTo( // language=csharp
+            """
+                public struct Uniforms {
+                    public Matrix4x4 modelViewProjectionMatrix;
+                }
+                
+            
+            """));
+    }
 }

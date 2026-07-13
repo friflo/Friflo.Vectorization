@@ -111,7 +111,7 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage":
-                var type = TypeGenerator.GetStorageType(module, binding);
+                var type = TypeGenerator.GetBindingType(module, binding);
                 if (type == null) {
                     continue;
                 } 

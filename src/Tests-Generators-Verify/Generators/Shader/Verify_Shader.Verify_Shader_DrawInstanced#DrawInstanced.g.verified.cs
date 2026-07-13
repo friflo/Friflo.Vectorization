@@ -62,7 +62,7 @@ public partial class ShaderExample
     private static readonly int _DrawInstanced_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawInstanced");
     private const  ulong        _DrawInstanced_GPU_layout_0_Key        =  0xad2bca77479a0a64;
 
-    private static ulong        _DrawInstanced_GPU_WgslHash            => 0x0UL;  // support Hot-Reload
+    private static ulong        _DrawInstanced_GPU_WgslHash            => 0x7bea408b45888bf2UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawInstanced_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
