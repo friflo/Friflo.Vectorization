@@ -215,7 +215,6 @@ public partial class ShadowMapping : IRenderer
                     [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
                     [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
     
-    [NoEmit]
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     private static partial void Render(RenderPass pass, RenderConfig config,

@@ -295,10 +295,10 @@ $$"""
             case texture_storage_2d_array:  AppendStorageTexture(sb, format, access, "D2DArray");  return 0x0e000 + format.Value + (access.Value << 8);
             case texture_storage_3d:        AppendStorageTexture(sb, format, access, "D3D");       return 0x0f000 + format.Value + (access.Value << 8);
             //
-            case texture_depth_2d:              AppendTexture(sb, default,    "D2D");       return 0x10000;
-            case texture_depth_2d_array:        AppendTexture(sb, default,    "D2DArray");  return 0x11000;
-            case texture_depth_cube:            AppendTexture(sb, default,    "Cube");      return 0x12000;
-            case texture_depth_cube_array:      AppendTexture(sb, default,    "CubeArray"); return 0x13000;
+            case texture_depth_2d:              AppendDepthTexture(sb, "D2D");              return 0x10000;
+            case texture_depth_2d_array:        AppendDepthTexture(sb, "D2DArray");         return 0x11000;
+            case texture_depth_cube:            AppendDepthTexture(sb, "Cube");             return 0x12000;
+            case texture_depth_cube_array:      AppendDepthTexture(sb, "CubeArray");        return 0x13000;
         }
         return 0;
     }
@@ -440,6 +440,11 @@ $$"""
         };
         var multi = multisampled ? "true" : "false";
         sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
+    }
+    
+    private static void AppendDepthTexture(StringBuilder sb, string dimension)
+    {
+        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.{dimension}, false);");
     }
     
     private static void AppendStorageTexture(StringBuilder sb, CsEnum format, CsEnum access, string dimension)
