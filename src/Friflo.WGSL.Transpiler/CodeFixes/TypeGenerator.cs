@@ -97,23 +97,26 @@ public static class TypeGenerator
     
     private static string GetCSharpTypeFromWgslType(string typeName)
     {
-        switch (typeName)
-        {
-            case "u32":         return "uint";
-            case "i32":         return "int";
-            case "f32":         return "float";
-            
-            case "vec2<f32>":
-            case "vec2f":       return "Vector2";
+        return typeName switch {
+            "bool"  => "bool",
+            "u32"   => "uint",
+            "i32"   => "int",
+            "f32"   => "float",
+            "f16"   => "Half",
 
-            case "vec3<f32>":
-            case "vec3f":       return "Vector3";
-            
-            case "vec4<f32>":
-            case "vec4f":       return "Vector4";
-            
-            case "mat4x4f":     return "Matrix4x4";
-        }
-        return null;
+            "vec2<f32>" or "vec2f"      => "Vector2",
+            "vec3<f32>" or "vec3f"      => "Vector3",
+            "vec4<f32>" or "vec4f"      => "Vector4",
+
+        //  "vec2<i32>" or "vec2i"      => "Vector2i",
+        //  "vec3<i32>" or "vec3i"      => "Vector3i",
+        //  "vec4<i32>" or "vec4i"      => "Vector4i",
+
+            "mat2x2<f32>" or "mat2x2f"  => "Matrix2x2",
+            "mat3x3<f32>" or "mat3x3f"  => "Matrix3x3",
+            "mat4x4<f32>" or "mat4x4f"  => "Matrix4x4",
+
+            _                           => null
+        };
     }
 }
