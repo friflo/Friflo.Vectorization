@@ -24,9 +24,9 @@ namespace Friflo.Vectorization.WebGPU;
 ///     Executes a single draw call using the provided configuration.
 ///   </item>
 ///   <item>
-///     <b><see cref="ReadOnlySpan{T}"/> Parameter:</b><br/>
+///     <b>Collection Parameter (<see cref="ReadOnlySpan{T}"/>, <see cref="Span{T}"/>, or <c>DrawArgs[]</c>):</b><br/>
 ///     Enables <b>CPU-driven Multi-Draw</b> (Batch-Rendering).<br/>
-///     Executes a draw call for each element in the Span.
+///     Executes a draw call for each element in the collection via an allocation-free loop.
 ///   </item>
 /// </list>
 /// </remarks>
