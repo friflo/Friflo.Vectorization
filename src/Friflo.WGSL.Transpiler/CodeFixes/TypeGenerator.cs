@@ -31,9 +31,19 @@ public static class TypeGenerator
     
     private static string GetFieldType(WgslField field)
     {
+        var wgslType = field.WgslType;
+        var generics = wgslType.Generics;
+        if (wgslType.Name == "array")
+        {
+            if (generics.Length > 0) {
+                return $"{generics[0].Name}[]";
+            }
+            return "MissingArrayType";
+        }
+        
         var sb = new StringBuilder();
-        sb.Append(field.WgslType.Name);
-        var generics = field.WgslType.Generics;
+        sb.Append(wgslType.Name);
+
         if (generics.Length > 0)
         {
             sb.Append("<");
