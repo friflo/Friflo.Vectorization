@@ -130,4 +130,24 @@ public static class Tests_WGSL
                     [Map(1, 1)] [sampler_comparison]                GpuSampler      sampler1)
             """));
     }
+    
+    [Test]
+    [Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    public static void Tests_WGSL_Generate_UniformMatrix4x4()
+    {
+        var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var wgsl    = CodeFixer.CreateWgsl(method, files);
+        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var result  = CodeFixer.CreateShaderParams(module);
+        
+        Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
+        Assert.That(result.Errors.Length,               Is.EqualTo(0));
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
+            """
+            (RenderPass pass, RenderConfig config,
+                    [Map(0, 0)] [uniform]           in Matrix4x4    uniforms,
+                                [VertexBuffer(0)]   InBuffer<float> position /* Opt: [IndexBuffer] InBuffer<ushort|uint> indices */)
+            """));
+    }
 }

@@ -26,22 +26,24 @@ public static class TypeGenerator
                 case "uniform":
                 case "storage":
                     var type = GetBindingType(module, binding);
-                    exportTypes.Add(type);
+                    if (!TryGetKnownCSharpType(type, out _)) {
+                        exportTypes.Add(type.Name);
+                    }
                     break;
             }
         }
 
         var sb = new StringBuilder();
-        foreach (var exportType in exportTypes)
+        foreach (var name in exportTypes)
         {
-            var type = module.Structs.FirstOrDefault(s => s.Name == exportType);
+            var type = module.Structs.FirstOrDefault(s => s.Name == name);
             if (type == null) {
                 continue;
             }
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
-                var fieldType = GetFieldType(field);
-                sb.Append($"        public {fieldType} {field.Name};\n");
+                TryGetKnownCSharpType(field.WgslType, out var csType);
+                sb.Append($"        public {csType} {field.Name};\n");
             }
             sb.Append("    }\n");
             sb.Append("    \n");
@@ -49,21 +51,11 @@ public static class TypeGenerator
         return sb.ToString();
     }
     
-    private static string GetFieldType(WgslField field)
+    internal static bool TryGetKnownCSharpType(WgslType wgslType, out string csType)
     {
-        var wgslType = field.WgslType;
-        var generics = wgslType.Generics;
-        if (wgslType.Name == "array")
-        {
-            if (generics.Length > 0) {
-                return $"{generics[0].Name}[]";
-            }
-            return "MissingArrayType";
-        }
-        
         var sb = new StringBuilder();
         sb.Append(wgslType.Name);
-
+        var generics = wgslType.Generics;
         if (generics.Length > 0)
         {
             sb.Append("<");
@@ -75,9 +67,18 @@ public static class TypeGenerator
             sb.Length -= 1;
             sb.Append(">");
         }
-
-        var typeName =sb.ToString();
-        
+        var typeName = sb.ToString();
+        var result = GetCSharpTypeFromWgslType(typeName);
+        if (result != null) {
+            csType = result;
+            return true;
+        }
+        csType = typeName;
+        return false;
+    }
+    
+    private static string GetCSharpTypeFromWgslType(string typeName)
+    {
         switch (typeName)
         {
             case "u32":         return "uint";
@@ -94,12 +95,11 @@ public static class TypeGenerator
             case "vec4f":       return "Vector4";
             
             case "mat4x4f":     return "Matrix4x4";
-            
         }
-        return field.WgslType.Name;
+        return null;
     }
     
-    internal static string GetBindingType(WgslModule module, WgslBinding binding)
+    internal static WgslType GetBindingType(WgslModule module, WgslBinding binding)
     {
         switch (binding.AddressSpace)
         {
@@ -108,11 +108,11 @@ public static class TypeGenerator
                 var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
                 if (type != null && type.Fields.Count == 1) {
                     var fieldType = type.Fields[0].WgslType;
-                    if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
-                        return fieldType.Generics[0].Name;
+                    if (fieldType.Name == "array" && fieldType.Generics.Length >= 1) {
+                        return fieldType.Generics[0];
                     }
                 }
-                return binding.WgslType.Name;
+                return binding.WgslType;
         }
         return null;
     }

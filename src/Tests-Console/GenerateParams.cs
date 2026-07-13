@@ -25,4 +25,9 @@ public static partial class GenerateParams
     
 	[Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
     public static partial void Tests_WGSL_Generate_textures();
+    
+    
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    public static partial void Tests_WGSL_GenerateTypes_4();
 }

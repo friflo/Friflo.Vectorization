@@ -106,20 +106,26 @@ public static partial class CodeFixer
     
     private static void AddBindingParameters(WgslModule module, List<MethodParam> parameters, List<WgslBinding> bindings)
     {
-
-        foreach (var binding in bindings) {
+        foreach (var binding in bindings)
+        {
             switch (binding.AddressSpace)
             {
             case "storage":
                 var type = TypeGenerator.GetBindingType(module, binding);
                 if (type == null) {
                     continue;
-                } 
+                }
+                TypeGenerator.TryGetKnownCSharpType(type, out var csType);
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{type}>"));
+                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{csType}>"));
                 break;
             case "uniform":
-                parameters.Add(new MethodParam(binding, "[uniform]", $"in {binding.WgslType}"));
+                type = TypeGenerator.GetBindingType(module, binding);
+                if (type == null) {
+                    continue;
+                }
+                TypeGenerator.TryGetKnownCSharpType(type, out csType);
+                parameters.Add(new MethodParam(binding, "[uniform]", $"in {csType}"));
                 break;
             case "":
                 AppendWgslType(parameters, binding);

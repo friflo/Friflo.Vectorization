@@ -151,19 +151,25 @@ public static class WgslTokenizer
 // ==========================================
 public static class WgslSuperpowerParser
 {
-    // --- Primitive Token Matchers ---
+// --- Primitive Token Matchers ---
     private static readonly TokenListParser<WgslToken, string> Id = 
         Token.EqualTo(WgslToken.Identifier).Select(t => t.ToStringValue());
 
     private static readonly TokenListParser<WgslToken, int> Num = 
         Token.EqualTo(WgslToken.Number).Select(t => int.Parse(t.ToStringValue()));
 
+    // allow symbols and numbers
+    private static readonly TokenListParser<WgslToken, string> TypeNameOrNumber = 
+        Token.EqualTo(WgslToken.Identifier)
+             .Or(Token.EqualTo(WgslToken.Number))
+             .Select(t => t.ToStringValue());
+
     private static readonly TokenListParser<WgslToken, Token<WgslToken>> AnyToken =
         Token.Matching<WgslToken>(_ => true, "any token");
 
     private static readonly TokenListParser<WgslToken, WgslType> WgslTypeParser = 
         Parse.Ref(() =>
-            from baseId in Id
+            from baseId in TypeNameOrNumber 
             from generics in (
                 from open in Token.EqualTo(WgslToken.LAngle)
                 from inner in Parse.Ref(() => WgslTypeParser).ManyDelimitedBy(Token.EqualTo(WgslToken.Comma))
