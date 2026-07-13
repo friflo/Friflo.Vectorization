@@ -30,4 +30,8 @@ public static partial class GenerateParams
 	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static partial void Tests_WGSL_GenerateTypes_4();
+
+    
+    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
+    private static partial void Shadow();
 }
