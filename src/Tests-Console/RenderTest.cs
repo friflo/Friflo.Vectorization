@@ -105,7 +105,7 @@ public static partial class Wormhood
     [Shader("~/shaders/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-    [Map(0, 0)] [uniform] in Uniforms uniforms);
+        [Map(0, 0)] [uniform] in Uniforms uniforms);
      
     [StructLayout(LayoutKind.Sequential)]
     public struct Uniforms
