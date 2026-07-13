@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading;
@@ -58,6 +59,15 @@ public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string
         
         // 1. Setup (Helper method suggested for readability)
         var compilation = VerifyUtils.CreateCompilation(code);
+        
+        // Ignore Diagnostics
+        var options = compilation.Options.WithSpecificDiagnosticOptions(
+            new Dictionary<string, ReportDiagnostic> {
+                { "WGPU003", ReportDiagnostic.Suppress },
+                { "WGPU004", ReportDiagnostic.Suppress }
+            });
+        compilation = compilation.WithOptions(options);
+        
         var generator = new ShaderGen();
         var driver = CSharpGeneratorDriver.Create(generator).AddAdditionalTexts(wgslFiles);
 

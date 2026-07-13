@@ -88,9 +88,8 @@ public sealed partial class ShaderGen : IIncrementalGenerator
                 }
             }
         }
-        if (foundWgsl && method.Parameters.Length == 0) {
-            AddShaderParameterDiagnostic(spc, compilation, result, files);
-        }
+        AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
+        
         var emitShader  = new ShaderEmitter(method);
         var code        = emitShader.Emit();
 
@@ -146,24 +145,36 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         return result;
     }
     
-    private static void AddShaderParameterDiagnostic(
+    private static void AddShaderCodeFixes(
         SourceProductionContext     spc,
         Compilation                 compilation,
         ShaderMethodResult          result,
-        ImmutableArray<WgslFile>    files)
+        ImmutableArray<WgslFile>    files,
+        bool                        generateParameters)
     {
-        var module      = CodeFixer.CreateWgslModel(result.method, files);
-        var fixerResult = CodeFixer.CreateShaderParams(module);
-        
-        var properties  = ImmutableDictionary<string, string?>.Empty
-            .Add($"ShaderParams", fixerResult.Parameters);
-            
         var location 	= result.GetFreshLocation(compilation);
-        var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
-        spc.ReportDiagnostic(diagnostic);
+        var module      = CodeFixer.CreateWgslModel(result.method, files);
+        
+        if (generateParameters && result.method!.Parameters.Length == 0)
+        {
+            var fixerResult = CodeFixer.CreateShaderParams(module);
+            
+            var properties  = ImmutableDictionary<string, string?>.Empty
+                .Add($"ShaderParams", fixerResult.Parameters);
+                
+            var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
+            spc.ReportDiagnostic(diagnostic);
 
-        foreach (var error in fixerResult.Errors) {
-            diagnostic = Diagnostic.Create(Errors.WgslValidationError, location, messageArgs: error.Message);
+            foreach (var error in fixerResult.Errors) {
+                diagnostic = Diagnostic.Create(Errors.WgslValidationError, location, messageArgs: error.Message);
+                spc.ReportDiagnostic(diagnostic);
+            }
+        } {
+            var types = "\n    struct MyStruct { int value; }";
+            var properties  = ImmutableDictionary<string, string?>.Empty
+                .Add($"ShaderTypes", types);
+                
+            var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
         }
     }
