@@ -351,7 +351,6 @@ $$"""
             if (instanceName != null) {
                 drawArgs = $"DrawArgs.InstanceCount({instanceName})";
             }
-                                                                                    // TODO use DrawCommand
             if (vertexParam.ParamAttribute == VertexBuffer) {
                 var slot = vertexParam.BindGroup.group; // group is used for slot in [VertexBuffer(slot)]
                 body.Append($"        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
