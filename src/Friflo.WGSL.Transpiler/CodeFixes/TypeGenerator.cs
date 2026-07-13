@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;
 
@@ -13,9 +16,35 @@ public static class TypeGenerator
     {
         var module = WgslSuperpowerParser.ParseShader(wgsl);
         
-        var sb = new StringBuilder();
-        foreach (var type in module.Structs)
+        var exportTypes = new HashSet<string>();
+
+        foreach (WgslBinding binding in module.Bindings)
         {
+            // Generate on C# types used in bindings
+            switch (binding.AddressSpace)
+            {
+                case "uniform":
+                    exportTypes.Add(binding.WgslType.Name);
+                    break;
+                case "storage":
+                    var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+                    if (type != null && type.Fields.Count == 1) {
+                        var fieldType = type.Fields[0].WgslType;
+                        if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
+                            exportTypes.Add(fieldType.Generics[0].Name);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        var sb = new StringBuilder();
+        foreach (var exportType in exportTypes)
+        {
+            var type = module.Structs.FirstOrDefault(s => s.Name == exportType);
+            if (type == null) {
+                continue;
+            }
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
                 var fieldType = GetFieldType(field);
