@@ -12,6 +12,24 @@ namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 public static class TypeGenerator
 {
+    internal static WgslType GetBindingType(WgslModule module, WgslBinding binding)
+    {
+        switch (binding.AddressSpace)
+        {
+            case "uniform":
+            case "storage":
+                var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+                if (type != null && type.Fields.Count == 1) {
+                    var fieldType = type.Fields[0].WgslType;
+                    if (fieldType.Name == "array" && fieldType.Generics.Length >= 1) {
+                        return fieldType.Generics[0];
+                    }
+                }
+                return binding.WgslType;
+        }
+        return null;
+    }
+    
     public static string GenerateCSharpTypes(string wgsl)
     {
         var module = WgslSuperpowerParser.ParseShader(wgsl);
@@ -95,24 +113,6 @@ public static class TypeGenerator
             case "vec4f":       return "Vector4";
             
             case "mat4x4f":     return "Matrix4x4";
-        }
-        return null;
-    }
-    
-    internal static WgslType GetBindingType(WgslModule module, WgslBinding binding)
-    {
-        switch (binding.AddressSpace)
-        {
-            case "uniform":
-            case "storage":
-                var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
-                if (type != null && type.Fields.Count == 1) {
-                    var fieldType = type.Fields[0].WgslType;
-                    if (fieldType.Name == "array" && fieldType.Generics.Length >= 1) {
-                        return fieldType.Generics[0];
-                    }
-                }
-                return binding.WgslType;
         }
         return null;
     }
