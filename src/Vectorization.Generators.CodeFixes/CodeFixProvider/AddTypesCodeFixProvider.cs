@@ -48,8 +48,10 @@ public class AddTypesCodeFixProvider : CodeFixProvider
             return document;
         }
         var types = TypeGenerator.GenerateCSharpTypes(wgsl);
+        types =  "    \n" + types;
 
         var newTypes = SyntaxFactory.ParseCompilationUnit(types).Members;
+        
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         
         // add new types in syntax tree directly after the method

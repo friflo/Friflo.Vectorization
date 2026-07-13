@@ -14,8 +14,6 @@ public static class TypeGenerator
         var module = WgslSuperpowerParser.ParseShader(wgsl);
         
         var sb = new StringBuilder();
-        sb.Append("    \n");
-
         foreach (var type in module.Structs)
         {
             sb.Append($"    public struct {type.Name} {{\n");
