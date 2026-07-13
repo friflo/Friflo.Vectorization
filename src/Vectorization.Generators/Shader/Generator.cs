@@ -158,7 +158,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         if (generateParameters && result.method!.Parameters.Length == 0)
         {
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add($"WGSL", wgsl);
+                .Add("WGSL", wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
@@ -169,7 +169,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             }*/
         } {
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add($"WGSL", wgsl);
+                .Add("WGSL", wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
