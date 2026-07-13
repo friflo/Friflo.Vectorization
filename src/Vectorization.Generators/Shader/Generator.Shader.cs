@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
 // ReSharper disable UseCollectionExpression
@@ -255,12 +256,12 @@ public sealed partial class ShaderGen
             }
         }
         
-        var genericIdentifiers = new List<CsType>();
+        var genericTypes = new List<CsType>();
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
             foreach (var typeArg in namedType.TypeArguments) {
                 var identifier = GetIdentifier(typeArg);
-                genericIdentifiers.Add(new CsType {
+                genericTypes.Add(new CsType {
                     Name        = identifier.Name,
                     Namespace   = identifier.Namespace,
                     Generics    = default
@@ -270,7 +271,7 @@ public sealed partial class ShaderGen
         return new CsType {
             Name        = type.Name,
             Namespace   = type.Namespace,
-            Generics    = genericIdentifiers.ToValueArray()
+            Generics    = genericTypes.ToValueArray()
         };
     }
 
