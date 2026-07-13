@@ -157,19 +157,16 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         
         if (generateParameters && result.method!.Parameters.Length == 0)
         {
-            var module      = WgslSuperpowerParser.ParseShader(wgsl);
-            var fixerResult = CodeFixer.CreateShaderParams(module);
-            
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add($"ShaderParams", fixerResult.Parameters);
+                .Add($"WGSL", wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
 
-            foreach (var error in fixerResult.Errors) {
+            /* foreach (var error in fixerResult.Errors) {
                 diagnostic = Diagnostic.Create(Errors.WgslValidationError, location, messageArgs: error.Message);
                 spc.ReportDiagnostic(diagnostic);
-            }
+            }*/
         } {
             var properties  = ImmutableDictionary<string, string?>.Empty
                 .Add($"WGSL", wgsl);

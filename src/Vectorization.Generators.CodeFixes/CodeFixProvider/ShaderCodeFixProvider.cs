@@ -3,6 +3,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -52,10 +53,12 @@ public class ShaderCodeFixProvider : CodeFixProvider
         Diagnostic          diagnostic,
         CancellationToken   cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("ShaderParams", out var paramString) || paramString == null || paramString == "") {
+        if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
             return document;
         }
-        var newParams = SyntaxFactory.ParseParameterList(paramString);
+        var module      = WgslSuperpowerParser.ParseShader(wgsl);
+        var fixerResult = CodeFixer.CreateShaderParams(module);
+        var newParams   = SyntaxFactory.ParseParameterList(fixerResult.Parameters);
 
         var root = await document.GetSyntaxRootAsync(cancellationToken);
         return document.WithSyntaxRoot(root!.ReplaceNode(oldParams, newParams));
