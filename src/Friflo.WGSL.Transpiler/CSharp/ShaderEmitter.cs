@@ -352,7 +352,7 @@ $$"""
         
         var indent = "";
         if (isArray) {
-            // case: Instanced Batching  (aka: MultiDraw oder DrawBatch)
+            // case: Instanced Batching  (aka: CPU-driven Multi-Draw or Batch-Rendering)
             indent = "    ";
             body.Append($"        foreach(var {drawArgsParameter}Item in {drawArgsParameter}) {{\n");
             drawArgsParameter += "Item";
