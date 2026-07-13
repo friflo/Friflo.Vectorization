@@ -1,7 +1,10 @@
-﻿using System.Numerics;
+﻿// ReSharper disable RedundantUsingDirective
+using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
 namespace TestConsole;
 
 public static partial class GenerateParams
