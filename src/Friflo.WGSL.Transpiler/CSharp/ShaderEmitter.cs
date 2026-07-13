@@ -383,7 +383,7 @@ $$"""
         foreach (var p in Parameters) {
             var typeName = p.Type.Name;
             switch (typeName) {
-                case "DrawArgs":        return (p.Name, false);
+                case "DrawArgs":        return (p.Name, p.Type.IsArray);
                 case "Span":
                 case "ReadOnlySpan":    return (p.Name, true);
             }
@@ -488,6 +488,9 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
                 }
                 signature.Length -= 2;
                 signature.Append(">");
+            }
+            if (parameter.Type.IsArray) {
+                signature.Append("[]");    
             }
             signature.Append(" ");
             var indent = Math.Max(0, 28 - (signature.Length - startPos)); 

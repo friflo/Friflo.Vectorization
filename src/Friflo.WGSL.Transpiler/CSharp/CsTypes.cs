@@ -225,6 +225,7 @@ public readonly record struct CsType
     public required     string              Name        { get; init; }
     public required     string              Namespace   { get; init; }
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
+    public required     bool                IsArray     { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();
     
@@ -239,6 +240,7 @@ public readonly record struct CsType
         }
         sb.Length -= 2;
         sb.Append(">");
+        if (IsArray) sb.Append("[]");
         return sb;
     }
 }

@@ -69,10 +69,11 @@ public sealed partial class ShaderGen
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
                 drawAttribute = CsDrawAttribute.DrawInstance;
             }
+            var type = MapType(types, paramSymbol.Type, paramAttribute != None);
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawAttribute   = drawAttribute,
-                Type            = MapType(types, paramSymbol.Type, paramAttribute != None),
+                Type            = type,
                 ParamAttribute  = paramAttribute,
                 BindGroup       = bindGroup,
                 AttrEnum = new CsAttrEnum {
@@ -228,6 +229,11 @@ public sealed partial class ShaderGen
 
     private static CsType MapType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
     {
+        bool isArray = false;
+        if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol) {
+            isArray = true;
+            typeSymbol = arrayTypeSymbol.ElementType;
+        }
         var type = GetIdentifier(typeSymbol);
         if (getFields)
         {
@@ -264,14 +270,16 @@ public sealed partial class ShaderGen
                 genericTypes.Add(new CsType {
                     Name        = identifier.Name,
                     Namespace   = identifier.Namespace,
-                    Generics    = default
+                    Generics    = default,
+                    IsArray     = false
                 });
             }
         }
         return new CsType {
             Name        = type.Name,
             Namespace   = type.Namespace,
-            Generics    = genericTypes.ToValueArray()
+            Generics    = genericTypes.ToValueArray(),
+            IsArray     = isArray
         };
     }
 
