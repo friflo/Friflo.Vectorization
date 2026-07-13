@@ -38,7 +38,7 @@ public static class TypeGenerator
 
         foreach (WgslBinding binding in module.Bindings)
         {
-            // Generate on C# types used in bindings
+            // Generate only custom C# types used in bindings
             switch (binding.AddressSpace)
             {
                 case "uniform":
