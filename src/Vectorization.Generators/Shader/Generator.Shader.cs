@@ -62,16 +62,16 @@ public sealed partial class ShaderGen
             var paramSymbol     = methodParameters[n];
             var attributes      = paramSymbol.GetAttributes();
             var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out var e1, out var e2);
-            var drawType = CsDrawType.None;
+            var drawAttribute   = CsDrawAttribute.None;
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
-                drawType = CsDrawType.Draw;
+                drawAttribute = CsDrawAttribute.Draw;
             }
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
-                drawType = CsDrawType.DrawInstance;
+                drawAttribute = CsDrawAttribute.DrawInstance;
             }
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
-                DrawType        = drawType,
+                DrawAttribute   = drawAttribute,
                 Type            = MapType(types, paramSymbol.Type, paramAttribute != None),
                 ParamAttribute  = paramAttribute,
                 BindGroup       = bindGroup,

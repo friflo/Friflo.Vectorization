@@ -342,12 +342,12 @@ $$"""
         }
 
         // attribute: DrawAttribute
-        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.Draw);
+        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
         if (vertexParam.Name != null)
         {
             // attribute: DrawInstanceAttribute
             var drawArgs = "new DrawArgs()";
-            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawType == CsDrawType.DrawInstance).Name;
+            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
             if (instanceName != null) {
                 drawArgs = $"DrawArgs.InstanceCount({instanceName})";
             }

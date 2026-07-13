@@ -134,7 +134,7 @@ public enum CsParamAttribute
     texture_depth_cube_array        // WGPU attribute:  texture_depth_cube_array
 }
 
-public enum CsDrawType
+public enum CsDrawAttribute
 {
     None,
     Draw,               // WGPU attribute:  DrawAttribute
@@ -152,7 +152,7 @@ public readonly record struct CsBindGroup
 public readonly record struct CsParameter
 {
     public required     string              Name            { get; init; }
-    public required     CsDrawType          DrawType        { get; init; }
+    public required     CsDrawAttribute     DrawAttribute   { get; init; }
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
