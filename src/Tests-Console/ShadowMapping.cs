@@ -208,7 +208,6 @@ public partial class ShadowMapping : IRenderer
         }
     }
     
-    [NoEmit]
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void Shadow(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]               in Scene            scene,

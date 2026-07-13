@@ -10,7 +10,7 @@ namespace TestConsole;
 
 public partial class ShadowMapping
 {
-    private static partial void Shadow(
+    private static void Pattern_Shadow(
         RenderPass          pass,
         RenderConfig        config,
         in Scene            scene,

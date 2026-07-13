@@ -107,14 +107,25 @@ public sealed class ShaderEmitter
         
         EmitBindGroups(layouts);
         
-        // --- set vertex buffers
-        bool hasVertexBuffer = false;
+        // --- set index / vertex buffers
+        bool addedBuffer = false;
         foreach (var parameter in method.Parameters) {
-            if (parameter.ParamAttribute != VertexBuffer) continue;
-            body.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
-            hasVertexBuffer = true;
+            switch (parameter.ParamAttribute) {
+                case VertexBuffer:
+                    body.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
+                    addedBuffer = true;
+                    break;
+                case IndexBuffer:
+                    var generics = parameter.Type.Generics;
+                    if (generics.Length == 1) {
+                        var indexFormat = generics[0].Name == "ushort" ? "Uint16" : "Uint32";
+                        body.Append($"        pass_.SetIndexBuffer({parameter.Name}, IndexFormat.{indexFormat});\n");
+                        addedBuffer = true;
+                    }
+                    break;
+            }
         }
-        if (hasVertexBuffer) body.Append("        \n");
+        if (addedBuffer) body.Append("        \n");
         
         // --- draw
         EmitDraw(body, method);
@@ -343,8 +354,8 @@ $$"""
         }
 
         // attribute: DrawAttribute
-        var vertexParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
-        if (vertexParam.Name == null) {
+        var drawParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
+        if (drawParam.Name == null) {
             return;
         }
         var drawArgs = "new DrawArgs()";
@@ -366,12 +377,20 @@ $$"""
                 drawArgs = $"DrawArgs.InstanceCount({instanceName})";
             }
         }
-        if (vertexParam.ParamAttribute == VertexBuffer) {
-            var slot = vertexParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
-            body.Append($"{indent}        pass_.Draw({vertexParam.Name}, {slot}, config, {drawArgs});\n");
-        } else {
-            var name = vertexParam.Name;
-            body.Append($"{indent}        pass_.Draw({name}, {drawArgs});\n");
+
+        var paramName = drawParam.Name;
+        switch (drawParam.ParamAttribute) {
+            case storage:
+            case uniform:
+                body.Append($"{indent}        pass_.Draw({paramName}, {drawArgs});\n");
+                break;
+            case VertexBuffer:
+                var slot = drawParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
+                body.Append($"{indent}        pass_.Draw({paramName}, {slot}, config, {drawArgs});\n");
+                break;
+            case IndexBuffer:
+                body.Append($"{indent}        pass_.DrawIndexed({paramName}, {drawArgs});\n");
+                break;
         }
         if (isArray) {
             body.Append("        }\n");
