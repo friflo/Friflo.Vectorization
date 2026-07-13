@@ -44,7 +44,7 @@ public partial class TwoCubes
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
     {
-        internal WgpuBindGroup    bindGroup0 = new ();
+        internal WgpuBindGroup    bindGroup0;
         
         protected override void Clear() {
             ReleaseBindGroup(ref bindGroup0);

@@ -65,7 +65,7 @@ public partial class ShadowMapping
     private sealed class Render_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
-        internal WgpuBindGroup    bindGroup1 = new ();
+        internal WgpuBindGroup    bindGroup1;
         
         protected override void Clear() {
             ReleaseBindGroups(bindGroup0);

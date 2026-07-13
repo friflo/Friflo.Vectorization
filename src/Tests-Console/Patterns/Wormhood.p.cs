@@ -34,7 +34,7 @@ public static partial class Wormhood
     
     private sealed class Wormhood_GPU_Cache : BindGroupCache
     {
-        internal            WgpuBindGroup                         bindGroup0;
+        internal    WgpuBindGroup   bindGroup0;
         
         protected override void Clear() {
             ReleaseBindGroup(ref bindGroup0);

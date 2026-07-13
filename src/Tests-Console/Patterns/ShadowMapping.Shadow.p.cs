@@ -53,8 +53,8 @@ public partial class ShadowMapping
     
     private sealed class Shadow_GPU_Cache : BindGroupCache
     {
-        internal WgpuBindGroup    bindGroup0 = new ();
-        internal WgpuBindGroup    bindGroup1 = new ();
+        internal WgpuBindGroup    bindGroup0;
+        internal WgpuBindGroup    bindGroup1;
         
         protected override void Clear() {
             ReleaseBindGroup(ref bindGroup0);
