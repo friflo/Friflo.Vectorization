@@ -38,7 +38,7 @@ public static partial class CodeFixer
         return default;
     }
     
-    private static string CreateWgsl(CsMethod method, ImmutableArray<WgslFile> files)
+    public static string CreateWgsl(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var sb      = new StringBuilder();
         // var (vsEntry, fsEntry) = GetEntryPoints(method, files);
@@ -51,12 +51,6 @@ public static partial class CodeFixer
             }
         }
         return sb.ToString();
-    }
-    
-    public static WgslModule CreateWgslModule(CsMethod method, ImmutableArray<WgslFile> files, out string wgsl)
-    {
-        wgsl = CreateWgsl(method, files);
-        return WgslSuperpowerParser.ParseShader(wgsl);
     }
     
     public static CodeFixerResult CreateShaderParams(WgslModule module)

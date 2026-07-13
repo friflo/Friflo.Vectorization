@@ -153,10 +153,11 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         bool                        generateParameters)
     {
         var location 	= result.GetFreshLocation(compilation);
-        var module      = CodeFixer.CreateWgslModule(result.method, files, out var wgsl);
+        var wgsl        = CodeFixer.CreateWgsl(result.method, files);
         
         if (generateParameters && result.method!.Parameters.Length == 0)
         {
+            var module      = WgslSuperpowerParser.ParseShader(wgsl);
             var fixerResult = CodeFixer.CreateShaderParams(module);
             
             var properties  = ImmutableDictionary<string, string?>.Empty
