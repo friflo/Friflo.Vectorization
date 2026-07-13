@@ -100,5 +100,13 @@ public static class Errors
         category: "WGPU",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
+    
+    public static readonly DiagnosticDescriptor AddShaderTypes = new(
+        id: "WGPU004",
+        title: "Add shader types",
+        messageFormat: "Add shader types for: '{0}'",
+        category: "WGPU",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
 
 }

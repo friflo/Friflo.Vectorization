@@ -152,8 +152,10 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ShaderMethodResult          result,
         ImmutableArray<WgslFile>    files)
     {
-        var fixerResult = CodeFixer.CreateShaderParams(result.method, files);
-        var properties = ImmutableDictionary<string, string?>.Empty
+        var module      = CodeFixer.CreateWgslModel(result.method, files);
+        var fixerResult = CodeFixer.CreateShaderParams(module);
+        
+        var properties  = ImmutableDictionary<string, string?>.Empty
             .Add($"ShaderParams", fixerResult.Parameters);
             
         var location 	= result.GetFreshLocation(compilation);

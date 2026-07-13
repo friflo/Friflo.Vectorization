@@ -25,7 +25,6 @@ public readonly struct CodeFixerResult
 {
     public required string                  Parameters  { get; init; }
     public required WgslValidationError[]   Errors      { get; init; }
-    public required WgslModule              Module      { get; init; }
 }
 
 
@@ -55,14 +54,17 @@ public static partial class CodeFixer
         return wgsl;
     }
     
-    public static CodeFixerResult CreateShaderParams(CsMethod method, ImmutableArray<WgslFile> files)
+    public static WgslModule CreateWgslModel(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var sb      = new StringBuilder();
         var wgsl    = CreateWgsl(sb, method, files);
-        
+        return WgslSuperpowerParser.ParseShader(wgsl);
+    }
+    
+    public static CodeFixerResult CreateShaderParams(WgslModule module)
+    {
+        var sb      = new StringBuilder();
         sb.Append("(RenderPass pass, RenderConfig config,");
-
-        var module = WgslSuperpowerParser.ParseShader(wgsl);
         
         var errors      = new List<WgslValidationError>();
         var parameters  = new List<MethodParam>();
@@ -78,8 +80,7 @@ public static partial class CodeFixer
         
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
-            Errors      = errors.ToArray(), // new WgslValidationError { Message = "XXX Test some WGSL message" }]
-            Module      = module
+            Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
         };
     }
 
