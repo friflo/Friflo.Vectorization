@@ -53,13 +53,13 @@ public static partial class CodeFixer
 
         foreach (var param in parameters) {
             if (param.attribute.Length > maxAttrLength) maxAttrLength = param.attribute.Length;
-            if (param.type.Length > maxTypeLength)      maxTypeLength = param.type.Length;
+            if (param.type.Length      > maxTypeLength) maxTypeLength = param.type.Length;
         }
 
         int absoluteTypeStart   = attrStartColumn + maxAttrLength + 1;
-        int typeGlobalTabStop   = ((absoluteTypeStart + 3) / 4) * 4;
+        int typeGlobalTabStop   = ((absoluteTypeStart + 4) / 4) * 4;
         int attrTargetWidth     = typeGlobalTabStop - attrStartColumn;
-        int typeTargetWidth     = ((maxTypeLength + 3) / 4) * 4; 
+        int typeTargetWidth     = ((maxTypeLength     + 4) / 4) * 4; 
 
         for (int n = 0; n < parameters.Count; n++)
         {
