@@ -257,17 +257,17 @@ $$"""
         var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA   1 2 3
         
         switch (binding.ParamAttribute) {
-            case Storage:
+            case storage:
                 bool isReadonly = binding.IsReadOnlyBuffer;
                                                 AppendStorage(sb, isReadonly ? "ReadOnlyStorage" : "Storage");
                                                                                             return isReadonly ? 0x100u : 0x200u;
-            case Uniform:
+            case uniform:
                 bool isBuffer = binding.IsBuffer;
                                                 AppendUniform(sb, isBuffer);                return isBuffer   ? 0x300u : 0x400u;
             //
-            case SamplerFiltering:              AppendSampler(sb, "Filtering");             return 0x01000;
-            case SamplerNonFiltering:           AppendSampler(sb, "NonFiltering");          return 0x02000;
-            case SamplerComparison:             AppendSampler(sb, "Comparison");            return 0x03000;
+            case sampler:                       AppendSampler(sb, "Filtering");             return 0x01000;
+            case sampler_NonFiltering:          AppendSampler(sb, "NonFiltering");          return 0x02000;
+            case sampler_comparison:            AppendSampler(sb, "Comparison");            return 0x03000;
             //
             case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 0x04000 + sampleType.Value;
             case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 0x05000 + sampleType.Value;
@@ -296,10 +296,10 @@ $$"""
     {
         switch (binding.ParamAttribute)
         {
-            case Storage:
+            case storage:
                 body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                 return;
-            case Uniform:
+            case uniform:
                 if (binding.HasHandle) {
                     body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
                     return;
@@ -307,9 +307,9 @@ $$"""
                 var uniformType = binding.Type.Name;
                 body.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
                 return;
-            case SamplerFiltering:
-            case SamplerNonFiltering:
-            case SamplerComparison:
+            case sampler:
+            case sampler_NonFiltering:
+            case sampler_comparison:
                 body.Append($"            recorder.BindGroupEntrySampler({binding.Name});\n");
                 return;
             case texture_1d:

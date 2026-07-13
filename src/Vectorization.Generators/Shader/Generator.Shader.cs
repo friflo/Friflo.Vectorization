@@ -151,7 +151,7 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static CsBindGroup Bg(ImmutableArray<TypedConstant> args, int pos) {
+    private static CsBindGroup BindGroup(ImmutableArray<TypedConstant> args, int pos) {
         return new CsBindGroup {
             group   = (int)args[pos + 0].Value!,
             binding = (int)args[pos + 1].Value!
@@ -183,28 +183,33 @@ public sealed partial class ShaderGen
                 
             switch (symbol.Name)
             {
-                case "MapAttribute":            bg = Bg(args, 0);                           continue;
+                // --- WGSL: bind group ---
+                case "MapAttribute":            bg = BindGroup(args, 0);                    continue;
+                
+                // --- WGSL: Buffer types ---
+                case "storageAttribute":                            attr = storage;         continue;
+                case "uniformAttribute":                            attr = uniform;         continue;
                 //
                 case "VertexBufferAttribute":   bg = Int(args[0]);  attr = VertexBuffer;    continue;
                 //
-                case "storageAttribute":                            attr = Storage;         continue;
-                case "uniformAttribute":                            attr = Uniform;         continue;
                 case "IndexBufferAttribute":                        attr = IndexBuffer;     continue;
-                //
+                
+                // --- WGSL: Sampler types ---
                 case "samplerAttribute":
-                    if ((bool)args[0].Value!)                       attr = SamplerFiltering;
-                    else                                            attr = SamplerNonFiltering; continue;
-                case "sampler_comparisonAttribute":                 attr = SamplerComparison;   continue;
+                    if ((bool)args[0].Value!)                       attr = sampler;
+                    else                                            attr = sampler_NonFiltering; continue;
+                case "sampler_comparisonAttribute":                 attr = sampler_comparison;   continue;
+
+                // --- WGSL: Texture types ---
+                case "texture_1dAttribute":                 e1 = Enum(args[0]); attr = texture_1d;                      continue;
+                case "texture_2dAttribute":                 e1 = Enum(args[0]); attr = texture_2d;                      continue;
+                case "texture_2d_arrayAttribute":           e1 = Enum(args[0]); attr = texture_2d_array;                continue;
+                case "texture_3dAttribute":                 e1 = Enum(args[0]); attr = texture_3d;                      continue;
+                case "texture_cubeAttribute":               e1 = Enum(args[0]); attr = texture_cube;                    continue;
+                case "texture_cube_arrayAttribute":         e1 = Enum(args[0]); attr = texture_cube_array;              continue;
                 //
-                case "texture_1dAttribute":                 e1 = Enum(args[0]);     attr = texture_1d;          continue;
-                case "texture_2dAttribute":                 e1 = Enum(args[0]);     attr = texture_2d;          continue;
-                case "texture_2d_arrayAttribute":           e1 = Enum(args[0]);     attr = texture_2d_array;    continue;
-                case "texture_3dAttribute":                 e1 = Enum(args[0]);     attr = texture_3d;          continue;
-                case "texture_cubeAttribute":               e1 = Enum(args[0]);     attr = texture_cube;        continue;
-                case "texture_cube_arrayAttribute":         e1 = Enum(args[0]);     attr = texture_cube_array;  continue;
-                //
-                case "texture_multisampled_2dAttribute":    e1 = Enum(args[0]);     attr = texture_multisampled_2d;         continue;
-                case "texture_depth_multisampled_2dAttribute":                      attr = texture_depth_multisampled_2d;   continue;
+                case "texture_multisampled_2dAttribute":    e1 = Enum(args[0]); attr = texture_multisampled_2d;         continue;
+                case "texture_depth_multisampled_2dAttribute":                  attr = texture_depth_multisampled_2d;   continue;
                 //
                 case "texture_storage_1dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_1d;      continue;
                 case "texture_storage_2dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d;      continue;
