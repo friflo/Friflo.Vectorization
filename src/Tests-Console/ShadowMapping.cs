@@ -211,21 +211,21 @@ public partial class ShadowMapping : IRenderer
     [NoEmit]
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void Shadow(RenderPass pass, RenderConfig config,
-                [Map(0, 0)] [uniform]           in Scene            scene,
-                [Map(1, 0)] [uniform]           in Model            model,
-                            [VertexBuffer(0)]   InBuffer<Vector3>   verticesBuffer,
-        [Draw]              [IndexBuffer]       InBuffer<ushort>    indexBuffer);
+        [Map(0, 0)] [uniform]               in Scene            scene,
+        [Map(1, 0)] [uniform]               in Model            model,
+                    [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
+                    [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
     
     [NoEmit]
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     private static partial void Render(RenderPass pass, RenderConfig config,
-                [Map(0, 0)] [uniform]               in Scene            scene,
-                [Map(0, 1)] [texture_depth_2d]      GpuTextureView      textureView,
-                [Map(0, 2)] [sampler_comparison]    GpuSampler          sampler,
-                [Map(1, 0)] [uniform]               in Model            model,
-                            [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
-        [Draw]              [IndexBuffer]           InBuffer<ushort>    indexBuffer);
+        [Map(0, 0)] [uniform]               in Scene            scene,
+        [Map(0, 1)] [texture_depth_2d]      GpuTextureView      textureView,
+        [Map(0, 2)] [sampler_comparison]    GpuSampler          sampler,
+        [Map(1, 0)] [uniform]               in Model            model,
+                    [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
+                    [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
     
 
     [StructLayout(LayoutKind.Sequential)]

@@ -79,8 +79,8 @@ public partial class RenderTest : IRenderer
 
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
-        [Draw]  [Map(0, 0)] [storage]  InBuffer<VertexData>    triangles,
-                [Map(1, 0)] [uniform]  in MyUniform            myUniform);
+        [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
+        [Map(1, 0)] [uniform]           in MyUniform            myUniform);
 }
 
 
