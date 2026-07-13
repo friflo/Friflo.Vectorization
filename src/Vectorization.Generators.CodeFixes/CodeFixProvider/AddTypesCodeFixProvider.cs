@@ -3,6 +3,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -43,11 +44,12 @@ public class AddTypesCodeFixProvider : CodeFixProvider
     private static async Task<Document> InsertTypesAsync(
         Document document, MethodDeclarationSyntax methodNode, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("ShaderTypes", out var typeString) || typeString == null || typeString == "") {
+        if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
             return document;
         }
+        var types = TypeGenerator.GenerateCSharpTypes(wgsl);
 
-        var newTypes = SyntaxFactory.ParseCompilationUnit(typeString).Members;
+        var newTypes = SyntaxFactory.ParseCompilationUnit(types).Members;
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         
         // add new types in syntax tree directly after the method

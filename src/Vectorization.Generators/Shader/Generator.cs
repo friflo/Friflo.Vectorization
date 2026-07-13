@@ -153,7 +153,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         bool                        generateParameters)
     {
         var location 	= result.GetFreshLocation(compilation);
-        var module      = CodeFixer.CreateWgslModel(result.method, files);
+        var module      = CodeFixer.CreateWgslModule(result.method, files, out var wgsl);
         
         if (generateParameters && result.method!.Parameters.Length == 0)
         {
@@ -170,9 +170,8 @@ public sealed partial class ShaderGen : IIncrementalGenerator
                 spc.ReportDiagnostic(diagnostic);
             }
         } {
-            var types = "\n    struct MyStruct { int value; }";
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add($"ShaderTypes", types);
+                .Add($"WGSL", wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);

@@ -80,4 +80,8 @@
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" />
+  </ItemGroup>
 </Project>
