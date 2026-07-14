@@ -55,3 +55,17 @@ public struct DrawArgs
         return new DrawArgs { instanceCount = buffer.Length };
     }
 }
+
+public struct DrawIndirectArgs
+{
+    public int offset;
+    public int drawCount;
+
+    public DrawIndirectArgs(int offset, int drawCount = 1)
+    {
+        this.offset     = offset;
+        this.drawCount  = drawCount;
+    }
+
+    public static implicit operator DrawIndirectArgs(int value) => new(value, 1);
+}
