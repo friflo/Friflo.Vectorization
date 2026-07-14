@@ -91,9 +91,17 @@ public struct DrawIndirectArgs
     public static implicit operator DrawIndirectArgs(int value) => new(value, 1);
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct Indirect
+{
+    public  int     vertexCount;    // uint
+    public  int     instanceCount;  // uint
+    public  int     firstVertex;    // uint
+    public  int     firstInstance;  // uint
+}
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct IndirectArgs
+public struct IndexedIndirect
 {
     public  int     indexCount;     // uint
     public  int     instanceCount;  // uint

@@ -18,7 +18,7 @@ public partial class ShaderExample
         RenderConfig                config,
         in Scene                    scene,
         in Model                    model,
-        InBuffer<IndirectArgs>      indirectBuffer,
+        InBuffer<IndexedIndirect>   indirectBuffer,
         InBuffer<Vector3>           verticesBuffer,
         InBuffer<ushort>            indexBuffer,
         DrawIndirectArgs            args)

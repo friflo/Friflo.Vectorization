@@ -512,12 +512,49 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void DrawIndexedIndirect(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           in Scene                scene,
-        [Map(1, 0)] [uniform]           in Model                model,
-        [Map(1, 1)] [storage]    [Draw] InBuffer<IndirectArgs>  indirectBuffer,
-                    [VertexBuffer(0)]   InBuffer<Vector3>       verticesBuffer,
-                    [IndexBuffer]       InBuffer<ushort>        indexBuffer,
-                                        DrawIndirectArgs        args);
+        [Map(0, 0)] [uniform]           in Scene                    scene,
+        [Map(1, 0)] [uniform]           in Model                    model,
+        [Map(1, 1)] [storage]    [Draw] InBuffer<IndexedIndirect>   indirectBuffer,
+                    [VertexBuffer(0)]   InBuffer<Vector3>           verticesBuffer,
+                    [IndexBuffer]       InBuffer<ushort>            indexBuffer,
+                                        DrawIndirectArgs            args);
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Scene {
+        public Matrix4x4   lightViewProjMatrix;
+        public Matrix4x4   cameraViewProjMatrix;
+        public Vector3     lightPos;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Model {
+        public Matrix4x4   modelMatrix;
+    }
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_DrawIndirect()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
+    private static partial void DrawIndirect(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]           in Scene            scene,
+        [Map(1, 0)] [uniform]           in Model            model,
+        [Map(1, 1)] [storage]    [Draw] InBuffer<Indirect>  indirectBuffer,
+                    [VertexBuffer(0)]   InBuffer<Vector3>   verticesBuffer,
+                                        DrawIndirectArgs    args);
     
     [StructLayout(LayoutKind.Sequential)]
     public struct Scene {
