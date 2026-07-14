@@ -92,7 +92,9 @@ public struct DrawIndirectArgs
 }
 
 /// <summary>
-/// TODO
+/// If a <c>[Shader]</c> method contains an <c>InBuffer&lt;Indirect></c> parameter
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndirect"><c>DrawIndirect()</c></a>
+/// is executed on this buffer.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Indirect
@@ -104,7 +106,9 @@ public struct Indirect
 }
 
 /// <summary>
-/// TODO
+/// If a <c>[Shader]</c> method contains an <c>InBuffer&lt;IndexedIndirect></c> parameter
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexedIndirect"><c>DrawIndexedIndirect()</c></a>
+/// is executed on this buffer.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct IndexedIndirect
