@@ -8,7 +8,6 @@ using Friflo.Vectorization.GPU;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable FieldCanBeMadeReadOnly.Global
 namespace Friflo.Vectorization.WebGPU;
 
 /// <summary>
@@ -88,7 +87,13 @@ public struct DrawIndirectArgs
         this.drawCount  = drawCount;
     }
 
-    public static implicit operator DrawIndirectArgs(int value) => new(value, 1);
+    public static implicit operator DrawIndirectArgs(int offset)
+    {
+        return new DrawIndirectArgs {
+            offset      = offset,
+            drawCount   = 1
+        };
+    }
 }
 
 /// <summary>

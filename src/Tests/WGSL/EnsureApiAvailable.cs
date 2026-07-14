@@ -28,8 +28,7 @@ public static class EnsureApiAvailable
             firstVertex     = 0,
             firstInstance   = 0,
         };
-        _ = new IndexedIndirect
-        {
+        _ = new IndexedIndirect {
             indexCount      = 0,   
             instanceCount   = 0,
             firstIndex      = 0,
@@ -37,5 +36,17 @@ public static class EnsureApiAvailable
             firstInstance   = 0
         };
         
+        _ = new DrawArgs {
+            count           = 0,
+            instanceCount   = 0,
+            first           = 0,
+            firstInstance   = 0,
+        };
+        
+        _ = new DrawIndirectArgs {
+            offset      = 0,
+            drawCount   = 0,
+        };
+        _ = new DrawIndirectArgs(0, 0);
     }
 }
