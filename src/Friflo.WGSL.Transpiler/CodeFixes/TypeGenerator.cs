@@ -52,12 +52,15 @@ public static class TypeGenerator
         }
 
         var sb = new StringBuilder();
+        bool addedStructs = false;
+        sb.Append("    // Hint: Check if you can reuse an existing struct types\n");
         foreach (var name in exportTypes)
         {
             var type = module.Structs.FirstOrDefault(s => s.Name == name);
             if (type == null) {
                 continue;
             }
+            addedStructs = true;
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
                 TryGetKnownCSharpType(field.WgslType, out var csType);
@@ -65,6 +68,9 @@ public static class TypeGenerator
             }
             sb.Append("    }\n");
             sb.Append("    \n");
+        }
+        if (!addedStructs) {
+            return "    // Hint: wgsl bindings do not use custom structs\n";
         }
         return sb.ToString();
     }

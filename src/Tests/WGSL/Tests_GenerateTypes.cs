@@ -19,6 +19,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types, Is.EqualTo( // language=csharp
             """
+                // Hint: Check if you can reuse an existing struct types
                 public struct VertexData {
                     public Vector4 position;
                     public Vector4 color;
@@ -43,6 +44,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types, Is.EqualTo( // language=csharp
             """
+                // Hint: Check if you can reuse an existing struct types
                 public struct Scene {
                     public Matrix4x4 lightViewProjMatrix;
                     public Matrix4x4 cameraViewProjMatrix;
@@ -68,6 +70,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types, Is.EqualTo( // language=csharp
             """
+                // Hint: Check if you can reuse an existing struct types
                 public struct Uniforms {
                     public Matrix4x4 modelViewProjectionMatrix;
                 }
@@ -85,6 +88,6 @@ public static class Tests_GenerateTypes
         var wgsl    = CodeFixer.CreateWgsl(method, files);
         var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
         
-        Assert.That(types, Is.EqualTo(""));
+        Assert.That(types, Is.EqualTo("    // Hint: wgsl bindings do not use custom structs\n"));
     }
 }

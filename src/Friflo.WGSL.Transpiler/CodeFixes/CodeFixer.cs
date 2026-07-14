@@ -224,7 +224,7 @@ public static partial class CodeFixer
             if (param.comment == null)  continue;
             sb.Append($"    // {param.comment}\n");
         }
-        sb.Append("    // Hint: If needed, add an optional parameter: [IndexBuffer] InBuffer<ushort|uint> indices. It cannot be inferred from wgsl.\n");
+        sb.Append("    // Hint: If needed, add an optional parameter: [IndexBuffer] InBuffer<ushort|uint> indices. [IndexBuffer] cannot be inferred from wgsl.\n");
         return sb.ToString();
     }
 }
