@@ -5,8 +5,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -221,27 +219,3 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     }
 }
 
-public readonly unsafe ref struct RenderPass : IDisposable
-{
-    private  readonly   CommandRecorder     Recorder;
-    private  readonly   RenderPassEncoder*  handle;
-    
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
-        this.handle = handle;
-        Recorder    = recorder;
-
-    }
-    
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public RenderPassInternal Internal => new (handle, Recorder);
-    
-    public void Dispose()
-    {
-        if (handle != null) {
-            Recorder.Reset();
-            wgpuRenderPassEncoderEnd(handle);
-            wgpuRenderPassEncoderRelease(handle);
-        }
-    }
-}
