@@ -131,14 +131,29 @@ public readonly unsafe ref struct RenderPassInternal
         wgpuRenderPassEncoderDraw(handle, (uint)args.count, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
     
+    // not tested
+    public void DrawIndirect<T>(in InBuffer<T> buffer, DrawIndirectArgs args) where T : unmanaged
+    {
+        int actualCount = args.drawCount <= 0 ? 1 : args.drawCount;
+        var byteOffset  = (ulong)args.offset * (ulong)sizeof(T);
+        if (actualCount > 1) {
+            // requires WebGPU Multi-Draw extension
+            wgpuRenderPassEncoderMultiDrawIndirect(handle, (Buffer*)buffer.Handle, byteOffset, (uint)actualCount);
+        } else {
+            wgpuRenderPassEncoderDrawIndirect(handle, (Buffer*)buffer.Handle, byteOffset);
+        }
+    }
+    
+    // not tested
     public void DrawIndexedIndirect<T>(in InBuffer<T> buffer, DrawIndirectArgs args) where T : unmanaged
     {
         int actualCount = args.drawCount <= 0 ? 1 : args.drawCount;
+        var byteOffset  = (ulong)args.offset * (ulong)sizeof(T);
         if (actualCount > 1) {
             // requires WebGPU Multi-Draw extension
-            wgpuRenderPassEncoderMultiDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, (ulong)args.offset, (uint)actualCount);
+            wgpuRenderPassEncoderMultiDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, byteOffset, (uint)actualCount);
         } else {
-            wgpuRenderPassEncoderDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, (ulong)args.offset);
+            wgpuRenderPassEncoderDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, byteOffset);
         }
     }
 }
