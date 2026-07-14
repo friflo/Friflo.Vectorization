@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
@@ -196,21 +197,19 @@ public static partial class CodeFixer
 
     private static void AddVertexBufferParameters(List<MethodParam> parameters, List<WgslEntryPoint> entryPoints)
     {
-        foreach (var entryPoint in entryPoints)
-        {
-            if (entryPoint.Stage == "vertex")
-            {
-                var foundVertexBuffers = 0;
-                foreach (var parameter in entryPoint.Parameters)
-                {
-                    if (parameter.Attribute.StartsWith("@location")) {
-                        if (foundVertexBuffers == 0) {
-                            parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameter.Name, "Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
-                        }
-                        foundVertexBuffers++;
-                    }
-                }
+        var hasVertexLocations = entryPoints
+            .Any(ep => ep.Stage == "vertex" && ep.Parameters.Any(p => p.Attribute.StartsWith("@location")));
+
+        if (!hasVertexLocations) {
+            return;
+        }
+        var parameterName = "vertexBuffer";
+        if (parameters.Any(p => p.name == parameterName)) {
+            parameterName = "vertices";
+            if (parameters.Any(p => p.name == parameterName)) {
+                parameterName = "vertexInputBuffer";
             }
-        } 
+        }
+        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, "Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
     }
 }
