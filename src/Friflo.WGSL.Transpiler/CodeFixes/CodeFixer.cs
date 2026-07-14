@@ -25,6 +25,7 @@ public readonly struct WgslValidationError
 public readonly struct CodeFixerResult
 {
     public required string                  Parameters  { get; init; }
+    public required string                  Comments    { get; init; }
     public required WgslValidationError[]   Errors      { get; init; }
 }
 
@@ -71,8 +72,11 @@ public static partial class CodeFixer
         
         AppendParameters(sb, parameters);
         
+        var comments = CreateComments(parameters);
+        
         return new CodeFixerResult {
             Parameters  = sb.ToString(),
+            Comments    = comments,  
             Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
         };
     }
@@ -210,6 +214,17 @@ public static partial class CodeFixer
                 parameterName = "vertexInputBuffer";
             }
         }
-        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, "Opt: [IndexBuffer] InBuffer<ushort|uint> indices"));
+        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $"Hint: Adjust the generic type of '{parameterName}' to your vertex struct."));
+    }
+    
+    private static string CreateComments(List<MethodParam> parameters)
+    {
+        var sb = new StringBuilder();
+        foreach (var param in parameters) {
+            if (param.comment == null)  continue;
+            sb.Append($"    // {param.comment}\n");
+        }
+        sb.Append("    // Hint: If needed, add an optional parameter: [IndexBuffer] InBuffer<ushort|uint> indices. It cannot be inferred from wgsl.\n");
+        return sb.ToString();
     }
 }

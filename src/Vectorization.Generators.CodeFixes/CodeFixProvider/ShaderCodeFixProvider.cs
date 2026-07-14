@@ -59,9 +59,19 @@ public class ShaderCodeFixProvider : CodeFixProvider
         var module      = WgslSuperpowerParser.ParseShader(wgsl);
         var fixerResult = CodeFixer.CreateShaderParams(module);
         var newParams   = SyntaxFactory.ParseParameterList(fixerResult.Parameters);
-
+        
         var root = await document.GetSyntaxRootAsync(cancellationToken);
-        return document.WithSyntaxRoot(root!.ReplaceNode(oldParams, newParams));
+        var method = oldParams.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+        if (method == null || root == null) return document;
+
+        var updatedMethod = method
+            .WithParameterList(newParams)
+            .WithSemicolonToken(method.SemicolonToken.WithTrailingTrivia(
+                SyntaxFactory.LineFeed,
+                SyntaxFactory.Comment(fixerResult.Comments), 
+                SyntaxFactory.CarriageReturnLineFeed));
+
+        return document.WithSyntaxRoot(root.ReplaceNode(method, updatedMethod));
     }
 }
 

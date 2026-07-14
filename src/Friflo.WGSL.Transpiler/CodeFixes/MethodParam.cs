@@ -84,11 +84,6 @@ public static partial class CodeFixer
             // column 4: parameter name
             sb.Append(parameter.name);
             
-            if (parameter.comment != null) {
-                sb.Append(" /* ");
-                sb.Append(parameter.comment);
-                sb.Append(" */");
-            }
             var last = n == parameters.Count - 1;
             sb.Append(last ? ")" : ",");
         }
