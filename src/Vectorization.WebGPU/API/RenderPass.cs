@@ -27,7 +27,8 @@ public readonly unsafe ref struct RenderPass : IDisposable
         this.handle = handle;
         Recorder    = recorder;
     }
-    
+
+#region --- rasterization & blending states
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBlendConstant">MDN: SetBlendConstant()</a> 
     /// </summary>
@@ -37,6 +38,19 @@ public readonly unsafe ref struct RenderPass : IDisposable
         wgpuRenderPassEncoderSetBlendConstant(handle, &native);
     }
     
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setStencilReference">MDN: SetStencilReference()</a> 
+    /// </summary>
+    public void SetStencilReference(int reference)
+    {
+        wgpuRenderPassEncoderSetStencilReference(handle, (uint)reference);
+    }
+#endregion
+
+
+
+
+#region --- viewport & clipping
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setScissorRect">MDN: SetScissorRect()</a> 
     /// </summary>
@@ -52,15 +66,30 @@ public readonly unsafe ref struct RenderPass : IDisposable
     {
         wgpuRenderPassEncoderSetViewport(handle, x, y, width, height, minDepth, maxDepth);
     }
+#endregion
     
+
+    
+#region --- occlusion query
     /// <summary>
-    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setStencilReference">MDN: SetStencilReference()</a> 
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/beginOcclusionQuery">MDN: BeginOcclusionQuery()</a> 
     /// </summary>
-    public void SetStencilReference(int reference)
+    public void BeginOcclusionQuery(int queryIndex)
     {
-        wgpuRenderPassEncoderSetStencilReference(handle, (uint)reference);
+        wgpuRenderPassEncoderBeginOcclusionQuery(handle, (uint)queryIndex);
     }
-    
+
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/endOcclusionQuery">MDN: EndOcclusionQuery()</a> 
+    /// </summary>
+    public void EndOcclusionQuery()
+    {
+        wgpuRenderPassEncoderEndOcclusionQuery(handle);
+    }
+#endregion
+
+
+
 #region --- debug group
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/pushDebugGroup">MDN: PushDebugGroup()</a> 
@@ -74,6 +103,14 @@ public readonly unsafe ref struct RenderPass : IDisposable
     }
     
     /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/popDebugGroup">MDN: PopDebugGroup()</a> 
+    /// </summary>
+    public void PopDebugGroup()
+    {
+        wgpuRenderPassEncoderPopDebugGroup(handle);
+    }
+    
+    /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/insertDebugMarker">MDN: InsertDebugMarker()</a> 
     /// </summary>
     public void InsertDebugMarker(string markerLabel)
@@ -82,14 +119,6 @@ public readonly unsafe ref struct RenderPass : IDisposable
         var labelBuffer     = stackalloc byte[labelMaxCount];
         var labelView       = WgpuUtils.CopyToStringView(markerLabel, labelBuffer, labelMaxCount);
         wgpuRenderPassEncoderInsertDebugMarker(handle, labelView);
-    }
-    
-    /// <summary>
-    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/popDebugGroup">MDN: PopDebugGroup()</a> 
-    /// </summary>
-    public void PopDebugGroup()
-    {
-        wgpuRenderPassEncoderPopDebugGroup(handle);
     }
 #endregion
     
