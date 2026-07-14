@@ -356,55 +356,58 @@ $$"""
         // attribute: DrawAttribute
         var drawParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
         if (drawParam.Name == null) {
-            return;
-        }
-        var drawArgs = "new DrawArgs()";
-        var (drawArgsParameter, isArray) = GetDrawArgsParameter(method.Parameters);
+        	return;
+		}
+        var (drawArgsParameter, isArray, isIndirect) = GetDrawArgsParameter(method.Parameters);
+        var drawArgs = isIndirect ? "new DrawIndirectArgs()" : "new DrawArgs()";
         
         var indent = "";
         if (isArray) {
-            // case: Instanced Batching  (aka: CPU-driven Multi-Draw or Batch-Rendering)
+			// case: Instanced Batching  (aka: CPU-driven Multi-Draw or Batch-Rendering)
             indent = "    ";
             body.Append($"        foreach(var {drawArgsParameter}Item in {drawArgsParameter}) {{\n");
             drawArgsParameter += "Item";
         }
         if (drawArgsParameter != null) {
             drawArgs = drawArgsParameter;
-        } else {
-            // attribute: DrawInstanceAttribute
+        } else if (!isIndirect) {
+			// attribute: DrawInstanceAttribute
             var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
             if (instanceName != null) {
-                drawArgs = $"DrawArgs.InstanceCount({instanceName})";
-            }
-        }
+            	drawArgs = $"DrawArgs.InstanceCount({instanceName})";
+        	}
+		}
 
+        var suffix = isIndirect ? "Indirect" : ""; // append Indirect suffix if isIndirect
         var paramName = drawParam.Name;
         switch (drawParam.ParamAttribute) {
             case storage:
             case uniform:
-                body.Append($"{indent}        pass_.Draw({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
-                var slot = drawParam.BindGroup.group; // group is used as slot in [VertexBuffer(slot)]
-                body.Append($"{indent}        pass_.Draw({paramName}, {slot}, config, {drawArgs});\n");
+                var slot = drawParam.BindGroup.group;
+                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, config, {drawArgs});\n");
                 break;
             case IndexBuffer:
-                body.Append($"{indent}        pass_.DrawIndexed({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.DrawIndexed{suffix}({paramName}, {drawArgs});\n");
                 break;
         }
         if (isArray) {
-            body.Append("        }\n");
-        }
+        	body.Append("        }\n");
+    	}
     }
     
-    private static (string name, bool isArray) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
+    private static (string name, bool isArray, bool isIndirect) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
     {
         foreach (var p in Parameters) {
             var typeName = p.Type.Name;
             switch (typeName) {
-                case "DrawArgs":        return (p.Name, p.Type.IsArray);
+                case "DrawArgs":          return (p.Name, p.Type.IsArray, false);
+                case "DrawIndirectArgs":  return (p.Name, false, true); // never a CPU-array loop for Indirect
                 case "Span":
-                case "ReadOnlySpan":    return (p.Name, true);
+                case "ReadOnlySpan":      
+                    return (p.Name, true, false); 
             }
         }
         return default;

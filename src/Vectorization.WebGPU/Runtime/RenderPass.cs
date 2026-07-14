@@ -130,6 +130,17 @@ public readonly unsafe ref struct RenderPassInternal
     {
         wgpuRenderPassEncoderDraw(handle, (uint)args.count, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
+    
+    public void DrawIndexedIndirect<T>(in InBuffer<T> buffer, DrawIndirectArgs args) where T : unmanaged
+    {
+        int actualCount = args.drawCount <= 0 ? 1 : args.drawCount;
+        if (actualCount > 1) {
+            // requires WebGPU Multi-Draw extension
+            wgpuRenderPassEncoderMultiDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, (ulong)args.offset, (uint)actualCount);
+        } else {
+            wgpuRenderPassEncoderDrawIndexedIndirect(handle, (Buffer*)buffer.Handle, (ulong)args.offset);
+        }
+    }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
