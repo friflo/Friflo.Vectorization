@@ -91,6 +91,9 @@ public struct DrawIndirectArgs
     public static implicit operator DrawIndirectArgs(int value) => new(value, 1);
 }
 
+/// <summary>
+/// TODO
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Indirect
 {
@@ -100,6 +103,9 @@ public struct Indirect
     public  int     firstInstance;  // uint
 }
 
+/// <summary>
+/// TODO
+/// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct IndexedIndirect
 {

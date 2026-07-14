@@ -358,7 +358,9 @@ $$"""
         if (drawParam.Name == null) {
         	return;
 		}
-        var (drawArgsParameter, isArray, isIndirect) = GetDrawArgsParameter(method.Parameters);
+        var (drawArgsParameter, isArray) = GetDrawArgsParameter(method.Parameters);
+        var (isIndirect, isIndexed)      = GetIndirectParameter(drawParam);
+
         var drawArgs = isIndirect ? "new DrawIndirectArgs()" : "new DrawArgs()";
         
         var indent = "";
@@ -377,23 +379,21 @@ $$"""
             	drawArgs = $"DrawArgs.InstanceCount({instanceName})";
         	}
 		}
-
-        var hasIndexBuffer  = method.Parameters.Any(p => p.ParamAttribute == IndexBuffer);
-        var drawMethod      = hasIndexBuffer ? "DrawIndexed" : "Draw";
-        var suffix          = isIndirect ? "Indirect" : ""; // append Indirect suffix if isIndirect
-        var paramName       = drawParam.Name;
+        var paramName = drawParam.Name;
         
         switch (drawParam.ParamAttribute) {
             case storage:
             case uniform:
+                var drawMethod  = isIndexed  ? "DrawIndexed" : "Draw";
+                var suffix      = isIndirect ? "Indirect" : "";
                 body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
                 var slot = drawParam.BindGroup.group;
-                body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {slot}, config, {drawArgs});\n");
+                body.Append($"{indent}        pass_.Draw({paramName}, {slot}, config, {drawArgs});\n");
                 break;
             case IndexBuffer:
-                body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.DrawIndexed({paramName}, {drawArgs});\n");
                 break;
         }
         if (isArray) {
@@ -401,16 +401,32 @@ $$"""
     	}
     }
     
-    private static (string name, bool isArray, bool isIndirect) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
+    private static (bool isIndirect, bool isIndexed) GetIndirectParameter(CsParameter drawParam)
+    {
+        if (drawParam.IsBuffer)
+        {
+            var generics = drawParam.Type.Generics;
+            if (generics.Length == 1) {
+                switch (generics[0].Name) {
+                    case "Indirect":        return (true, false);
+                    case "IndexedIndirect": return (true, true);
+                }
+            }
+        }
+        return (false, false);
+    }
+
+    
+    private static (string name, bool isArray) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
     {
         foreach (var p in Parameters) {
             var typeName = p.Type.Name;
             switch (typeName) {
-                case "DrawArgs":          return (p.Name, p.Type.IsArray, false);
-                case "DrawIndirectArgs":  return (p.Name, false, true); // never a CPU-array loop for Indirect
+                case "DrawArgs":          return (p.Name, p.Type.IsArray);
+                case "DrawIndirectArgs":  return (p.Name, false); // never a CPU-array loop for Indirect
                 case "Span":
                 case "ReadOnlySpan":      
-                    return (p.Name, true, false); 
+                    return (p.Name, true); 
             }
         }
         return default;
