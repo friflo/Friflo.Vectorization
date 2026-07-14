@@ -71,12 +71,7 @@ public struct GpuRenderPassColorAttachment
             resolveTarget   = resolveTarget.handle,
             loadOp          = loadOp,
             storeOp         = storeOp,
-            clearValue      = new Color {
-                r   = clearValue.r,
-                g   = clearValue.g,
-                b   = clearValue.b,
-                a   = clearValue.a
-            }
+            clearValue      = clearValue.GetNative()
         };
     }
 }
@@ -120,6 +115,16 @@ public struct GpuColor : IEnumerable<double>
     public  double  g;
     public  double  b;
     public  double  a;
+    
+    internal readonly Color GetNative()
+    {
+        return new Color {
+            r = r,
+            g = g,
+            b = b,
+            a = a
+        };
+    }
     
     public IEnumerator<double> GetEnumerator() => throw new NotImplementedException();
     IEnumerator    IEnumerable.GetEnumerator() => GetEnumerator();

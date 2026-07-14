@@ -18,15 +18,26 @@ public readonly unsafe ref struct RenderPass : IDisposable
     private  readonly   CommandRecorder     Recorder;
     private  readonly   RenderPassEncoder*  handle;
     
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public RenderPassInternal Internal => new (handle, Recorder);
+
+    
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
         this.handle = handle;
         Recorder    = recorder;
 
     }
     
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public RenderPassInternal Internal => new (handle, Recorder);
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBlendConstant">Draw()</a> 
+    /// </summary>
+    public void SetBlendConstant(in GpuColor color)
+    {
+        var native = color.GetNative();
+        wgpuRenderPassEncoderSetBlendConstant(handle, &native);
+    }
+    
     
     public void Dispose()
     {
