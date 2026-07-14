@@ -43,7 +43,7 @@ public sealed class ShaderEmitter
     }
     
     
-    public string Emit()
+    public string Emit(ulong wgslHash)
     {
         var header = GetMethodHeader();
         if (method.Parameters.Length == 0) {
@@ -160,7 +160,7 @@ $$"""
 
     private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName}}");
 {{layoutKeys}}
-    private static ulong        {{methodName_GPU}}_WgslHash            => __WGSL_HASH_PLACEHOLDER__;  // support Hot-Reload
+    private static ulong        {{methodName_GPU}}_WgslHash            => 0x{{wgslHash:x}}UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)

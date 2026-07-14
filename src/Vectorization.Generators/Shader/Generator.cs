@@ -91,11 +91,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
         
         var emitShader  = new ShaderEmitter(method);
-        var code        = emitShader.Emit();
+        var code        = emitShader.Emit(wgslHash);
 
-        var finalSourceCode = code.Replace("__WGSL_HASH_PLACEHOLDER__", $"0x{wgslHash:x}UL");
-
-        spc.AddSource(result.fileName!, finalSourceCode);
+        spc.AddSource(result.fileName!, code);
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
