@@ -56,6 +56,26 @@ public struct DrawArgs
     }
 }
 
+/// <summary>
+/// When used as a <c>[Shader]</c> method parameter, it sets the parameters of<br/>
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndirect"><c>drawIndirect()</c></a> or
+/// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexedIndirect"><c>drawIndexedIndirect()</c></a>.
+/// </summary>
+/// <remarks>
+/// This structure encapsulates GPU-side buffer offsets and execution counts.<br/>
+/// It supports two primary execution patterns:
+/// <list type="bullet">
+///   <item>
+///     <b>Single Draw:</b> <br/>
+///     Executes a single indirect draw call using the provided byte offset.
+///   </item>
+///   <item>
+///     <b>Multi-Draw (<c>drawCount &gt; 1</c>):</b><br/>
+///     Enables <b>GPU-driven Multi-Draw-Indirect</b> (Batch-Rendering).<br/>
+///     Executes multiple draws sequentially directly on the GPU hardware from the same buffer.
+///   </item>
+/// </list>
+/// </remarks>
 public struct DrawIndirectArgs
 {
     public int offset;
