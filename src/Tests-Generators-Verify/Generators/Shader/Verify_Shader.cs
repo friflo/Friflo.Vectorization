@@ -496,7 +496,7 @@ public partial class ShaderExample
 """);
     }
     
-    // [Test]
+    [Test]
     public static async Task  Verify_Shader_DrawIndexedIndirect()
     {
         await Verify(
@@ -512,12 +512,12 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void DrawIndexedIndirect(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]               in Scene            scene,
-        [Map(1, 0)] [uniform]               in Model            model,
-                    [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
-                    [IndexBuffer]           InBuffer<ushort>    indexBuffer,
-        [Draw]                              GpuBuffer           indirectBuffer, 
-                                            DrawIndirectArgs    args);
+        [Map(0, 0)] [uniform]           in Scene                scene,
+        [Map(1, 0)] [uniform]           in Model                model,
+        [Map(1, 1)] [storage]    [Draw] InBuffer<IndirectArgs>  indirectBuffer,
+                    [VertexBuffer(0)]   InBuffer<Vector3>       verticesBuffer,
+                    [IndexBuffer]       InBuffer<ushort>        indexBuffer,
+                                        DrawIndirectArgs        args);
     
     [StructLayout(LayoutKind.Sequential)]
     public struct Scene {

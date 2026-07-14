@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 
 
@@ -88,4 +89,15 @@ public struct DrawIndirectArgs
     }
 
     public static implicit operator DrawIndirectArgs(int value) => new(value, 1);
+}
+
+
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct IndirectArgs
+{
+    public  int     indexCount;     // uint
+    public  int     instanceCount;  // uint
+    public  int     firstIndex;     // uint
+    public  int     baseVertex;     // int
+    public  int     firstInstance;  // uint
 }
