@@ -160,19 +160,15 @@ public readonly record struct CsParameter
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
-    public bool HasBindGroup        => ParamAttribute != CsParamAttribute.None &&
-                                       ParamAttribute != CsParamAttribute.VertexBuffer;
+    public bool IsBindGroupEntry    =>  ParamAttribute != CsParamAttribute.None         &&
+                                        ParamAttribute != CsParamAttribute.VertexBuffer &&
+                                        ParamAttribute != CsParamAttribute.IndexBuffer;
     
     public bool IsReadOnlyBuffer    => Type.Name == "InBuffer";
     
     public bool HasHandle           => !(ParamAttribute == CsParamAttribute.uniform && !IsBuffer);
-
-    public bool IsBuffer {
-        get {
-            var typeName = Type.Name;
-            return typeName == "InBuffer" || typeName == "InOutBuffer";
-        }
-    }
+    
+    public bool IsBuffer            => Type.Name is "InBuffer" or "InOutBuffer";
 
     public StringBuilder AppendString(StringBuilder sb)
     {

@@ -64,7 +64,7 @@ public sealed class ShaderEmitter
         shaderResources.Append($"    ];\n");
         
         // filter / sort parameters use to create bind group layouts & bind groups
-        var bindGroups = method.Parameters.Where(p => p.HasBindGroup).ToArray();
+        var bindGroups = method.Parameters.Where(p => p.IsBindGroupEntry).ToArray();
         Array.Sort(bindGroups,  (x, y) => {
             int result = x.BindGroup.group.CompareTo(y.BindGroup.group);
             if (result == 0) {

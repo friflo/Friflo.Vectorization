@@ -40,7 +40,7 @@ public partial class ShaderExample
         var bindGroupCache = (_Render_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        var key_0 = (indexBuffer.Handle, textureView.Handle, sampler.Handle);
+        var key_0 = (textureView.Handle, sampler.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryUniform<Scene>();
             recorder.BindGroupEntryTexture(textureView);
@@ -63,7 +63,7 @@ public partial class ShaderExample
 
     private sealed class _Render_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint, nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup0 = new ();
         internal            WgpuBindGroup bindGroup1;
 
         protected override void Clear() {
@@ -73,7 +73,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _Render_GPU_ShaderId            =  ShaderRegistry.NewShaderId("Render");
-    private const  ulong        _Render_GPU_layout_0_Key        =  0x2c1dad6b80a0153c;
+    private const  ulong        _Render_GPU_layout_0_Key        =  0x65f692ea9104f24;
     private const  ulong        _Render_GPU_layout_1_Key        =  0x8475539045585a6c;
 
     private static ulong        _Render_GPU_WgslHash            => 0x2f823d49650218cfUL;  // support Hot-Reload
@@ -85,7 +85,6 @@ public partial class ShaderExample
         var layout_0 = device.GetBindGroupLayout(_Render_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
-            
             device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, false);
             device.BindGroupLayoutSampler(SamplerBindingType.Comparison);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Render_GPU_layout_0_Key, "Render_layout_0"u8);

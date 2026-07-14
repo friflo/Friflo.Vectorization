@@ -38,14 +38,7 @@ public partial class ShaderExample
         var bindGroupCache = (_DrawIndexBufferShadow_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        var key_0 = indexBuffer.Handle;
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryUniform<Scene>();
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawIndexBufferShadow_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
-        }
-        pass_.AddUniform(scene);
-        pass_.SetBindGroupUniforms(0, bindGroup0);
+        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, scene, pipelineCache,"DrawIndexBufferShadow_bindGroup0"u8);
         
         // --- bind group 1
         pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, model, pipelineCache,"DrawIndexBufferShadow_bindGroup1"u8);
@@ -59,17 +52,17 @@ public partial class ShaderExample
 
     private sealed class _DrawIndexBufferShadow_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();
+        internal            WgpuBindGroup bindGroup0;
         internal            WgpuBindGroup bindGroup1;
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroup(ref bindGroup0);
             ReleaseBindGroup(ref bindGroup1);
         }
     }
 
     private static readonly int _DrawIndexBufferShadow_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawIndexBufferShadow");
-    private const  ulong        _DrawIndexBufferShadow_GPU_layout_0_Key        =  0xeb25c54c658651af;
+    private const  ulong        _DrawIndexBufferShadow_GPU_layout_0_Key        =  0x8d16ce904a32c117;
     private const  ulong        _DrawIndexBufferShadow_GPU_layout_1_Key        =  0x8475539045585a6c;
 
     private static ulong        _DrawIndexBufferShadow_GPU_WgslHash            => 0xd0d6ec6e199e95cfUL;  // support Hot-Reload
@@ -81,7 +74,6 @@ public partial class ShaderExample
         var layout_0 = device.GetBindGroupLayout(_DrawIndexBufferShadow_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform();
-            
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawIndexBufferShadow_GPU_layout_0_Key, "DrawIndexBufferShadow_layout_0"u8);
         }
         layouts[0] = layout_0;
