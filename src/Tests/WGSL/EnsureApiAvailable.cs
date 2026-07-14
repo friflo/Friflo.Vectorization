@@ -19,4 +19,23 @@ public static class EnsureApiAvailable
         pass.InsertDebugMarker("marker");
         pass.PopDebugGroup();
     }
+    
+    public static void EnsureIndirectStructs()
+    {
+        _ = new Indirect {
+            vertexCount     = 0,
+            instanceCount   = 0,
+            firstVertex     = 0,
+            firstInstance   = 0,
+        };
+        _ = new IndexedIndirect
+        {
+            indexCount      = 0,   
+            instanceCount   = 0,
+            firstIndex      = 0,
+            baseVertex      = 0,
+            firstInstance   = 0
+        };
+        
+    }
 }
