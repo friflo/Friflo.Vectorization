@@ -26,16 +26,39 @@ public readonly unsafe ref struct RenderPass : IDisposable
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
         this.handle = handle;
         Recorder    = recorder;
-
     }
     
     /// <summary>
-    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBlendConstant">Draw()</a> 
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBlendConstant">MDN: SetBlendConstant()</a> 
     /// </summary>
     public void SetBlendConstant(in GpuColor color)
     {
         var native = color.GetNative();
         wgpuRenderPassEncoderSetBlendConstant(handle, &native);
+    }
+    
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setScissorRect">MDN: SetScissorRect()</a> 
+    /// </summary>
+    public void SetScissorRect(int x, int y, int width, int height)
+    {
+        wgpuRenderPassEncoderSetScissorRect(handle, (uint)x, (uint)y, (uint)width, (uint)height);
+    }
+    
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setViewport">MDN: SetViewport()</a> 
+    /// </summary>
+    public void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
+    {
+        wgpuRenderPassEncoderSetViewport(handle, x, y, width, height, minDepth, maxDepth);
+    }
+    
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setStencilReference">MDN: SetStencilReference()</a> 
+    /// </summary>
+    public void SetStencilReference(int reference)
+    {
+        wgpuRenderPassEncoderSetStencilReference(handle, (uint)reference);
     }
     
     
