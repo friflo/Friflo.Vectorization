@@ -179,8 +179,8 @@ public static partial class CodeFixer
             case "texture_storage_2d":
             case "texture_storage_2d_array":
             case "texture_storage_3d":
-                var format = arg0 ?? "read";
-                var access = arg1 ?? "RGBA8Unorm";
+                var format = WgslTextureFormat.MapWgslStorageFormatToEnumName(arg0);
+                var access = arg1 ?? "read";
                 parameters.Add(new MethodParam(binding, $"[{name}(TextureFormat.{format}, TSA.{access})]", "GpuTextureView"));
                 break;
             
