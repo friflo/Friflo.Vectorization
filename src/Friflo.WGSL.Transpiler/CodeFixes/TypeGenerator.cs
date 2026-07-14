@@ -53,7 +53,7 @@ public static class TypeGenerator
 
         var sb = new StringBuilder();
         bool addedStructs = false;
-        sb.Append("    // Hint: Check if you can reuse an existing struct types\n");
+        sb.Append("    // Hint: Check if you can reuse existing struct types\n");
         foreach (var name in exportTypes)
         {
             var type = module.Structs.FirstOrDefault(s => s.Name == name);
