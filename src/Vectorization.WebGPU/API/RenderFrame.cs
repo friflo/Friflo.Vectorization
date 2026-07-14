@@ -138,13 +138,12 @@ public static class GpuColorBuilder
     public static GpuColor Create(ReadOnlySpan<double> items)
     {
         if (items.Length != 4) throw new ArgumentException("GpuColor expects 4 elements: [r,g,b,a]");
-        var color = new GpuColor {
+        return new GpuColor {
             r = items[0],
             g = items[1],
             b = items[2],
             a = items[3]
         };
-        return color;
     }
 }
 
