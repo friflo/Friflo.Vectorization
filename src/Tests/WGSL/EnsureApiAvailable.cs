@@ -14,5 +14,9 @@ public static class EnsureApiAvailable
         pass.SetScissorRect(1,2,3,4);
         pass.SetViewport(0,1,2,3,4,5);
         pass.SetStencilReference(1);
+        
+        pass.PushDebugGroup("group");
+        pass.InsertDebugMarker("marker");
+        pass.PopDebugGroup();
     }
 }

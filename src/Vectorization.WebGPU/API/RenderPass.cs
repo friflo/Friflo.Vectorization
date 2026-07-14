@@ -61,6 +61,38 @@ public readonly unsafe ref struct RenderPass : IDisposable
         wgpuRenderPassEncoderSetStencilReference(handle, (uint)reference);
     }
     
+#region --- debug group
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/pushDebugGroup">MDN: PushDebugGroup()</a> 
+    /// </summary>
+    public void PushDebugGroup(string groupLabel)
+    {
+        var labelMaxCount   = WgpuUtils.GetMaxCount(groupLabel);
+        var labelBuffer     = stackalloc byte[labelMaxCount];
+        var labelView       = WgpuUtils.CopyToStringView(groupLabel, labelBuffer, labelMaxCount);
+        wgpuRenderPassEncoderPushDebugGroup(handle, labelView);
+    }
+    
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/insertDebugMarker">MDN: InsertDebugMarker()</a> 
+    /// </summary>
+    public void InsertDebugMarker(string markerLabel)
+    {
+        var labelMaxCount   = WgpuUtils.GetMaxCount(markerLabel);
+        var labelBuffer     = stackalloc byte[labelMaxCount];
+        var labelView       = WgpuUtils.CopyToStringView(markerLabel, labelBuffer, labelMaxCount);
+        wgpuRenderPassEncoderInsertDebugMarker(handle, labelView);
+    }
+    
+    /// <summary>
+    /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/popDebugGroup">MDN: PopDebugGroup()</a> 
+    /// </summary>
+    public void PopDebugGroup()
+    {
+        wgpuRenderPassEncoderPopDebugGroup(handle);
+    }
+#endregion
+    
     
     public void Dispose()
     {
