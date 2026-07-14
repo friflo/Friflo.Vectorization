@@ -58,7 +58,7 @@ public partial class ShaderExample
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
         
         // --- draw
-        pass_.DrawIndirect(indirectBuffer, args);
+        pass_.DrawIndexedIndirect(indirectBuffer, args);
     }
 
     private sealed class _DrawIndexedIndirect_GPU_Cache : BindGroupCache

@@ -378,19 +378,22 @@ $$"""
         	}
 		}
 
-        var suffix = isIndirect ? "Indirect" : ""; // append Indirect suffix if isIndirect
-        var paramName = drawParam.Name;
+        var hasIndexBuffer  = method.Parameters.Any(p => p.ParamAttribute == IndexBuffer);
+        var drawMethod      = hasIndexBuffer ? "DrawIndexed" : "Draw";
+        var suffix          = isIndirect ? "Indirect" : ""; // append Indirect suffix if isIndirect
+        var paramName       = drawParam.Name;
+        
         switch (drawParam.ParamAttribute) {
             case storage:
             case uniform:
-                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
                 var slot = drawParam.BindGroup.group;
-                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, config, {drawArgs});\n");
+                body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {slot}, config, {drawArgs});\n");
                 break;
             case IndexBuffer:
-                body.Append($"{indent}        pass_.DrawIndexed{suffix}({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
         }
         if (isArray) {
