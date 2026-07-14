@@ -58,22 +58,22 @@ public struct DrawArgs
 }
 
 /// <summary>
-/// When used as a <c>[Shader]</c> method parameter, it sets the parameters of<br/>
+/// When used as a <c>[Shader]</c> method parameter, it controls the execution parameters of<br/>
 /// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndirect"><c>drawIndirect()</c></a> or
 /// <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/drawIndexedIndirect"><c>drawIndexedIndirect()</c></a>.
 /// </summary>
 /// <remarks>
-/// This structure encapsulates GPU-side buffer offsets and execution counts.<br/>
+/// This structure encapsulates GPU-side buffer offsets and execution counts of an indirect draw call.<br/>
 /// It supports two primary execution patterns:
-/// <list type="bullet">
+/// <list type="bullet"> 
 ///   <item>
-///     <b>Single Draw:</b> <br/>
-///     Executes a single indirect draw call using the provided byte offset.
+///     <b>Single Draw (<c>drawCount &lt;= 1</c>):</b><br/>
+///     Executes a single indirect draw call using the provided element offset.
 ///   </item>
 ///   <item>
 ///     <b>Multi-Draw (<c>drawCount &gt; 1</c>):</b><br/>
-///     Enables <b>GPU-driven Multi-Draw-Indirect</b> (Batch-Rendering).<br/>
-///     Executes multiple draws sequentially directly on the GPU hardware from the same buffer.
+///     Enables <b>GPU-driven Multi-Draw-Indirect</b> (Batch-Rendering) via the WebGPU Multi-Draw extension.<br/>
+///     Executes multiple draws sequentially directly on the GPU hardware starting from the calculated offset.
 ///   </item>
 /// </list>
 /// </remarks>
