@@ -42,20 +42,29 @@ public class AddTypesCodeFixProvider : CodeFixProvider
     }
 
     private static async Task<Document> InsertTypesAsync(
-        Document document, MethodDeclarationSyntax methodNode, Diagnostic diagnostic, CancellationToken cancellationToken)
+        Document document, MethodDeclarationSyntax method, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
         if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
             return document;
         }
-        var result = TypeGenerator.GenerateCSharpTypes(wgsl);
-        var text = "    \n" + result.Comments + result.Types;
-
-        var newTypes = SyntaxFactory.ParseCompilationUnit(text).Members;
-        
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+        if (root == null) return document;
         
-        // add new types in syntax tree directly after the method
-        var newRoot = root!.InsertNodesAfter(methodNode, newTypes);
+        var result = TypeGenerator.GenerateCSharpTypes(wgsl);
+        if (result.Types == "") {
+            // add only comment
+            var updatedMethod = method
+                .WithSemicolonToken(method.SemicolonToken.WithTrailingTrivia(
+                    SyntaxFactory.LineFeed,
+                    SyntaxFactory.Comment(result.Comments), 
+                    SyntaxFactory.CarriageReturnLineFeed));
+
+            return document.WithSyntaxRoot(root.ReplaceNode(method, updatedMethod));
+        }
+        // add comment + types
+        var text        = "    \n" + result.Comments + result.Types;
+        var newTypes    = SyntaxFactory.ParseCompilationUnit(text).Members;
+        var newRoot     = root.InsertNodesAfter(method, newTypes);
         return document.WithSyntaxRoot(newRoot);
     }
 }
