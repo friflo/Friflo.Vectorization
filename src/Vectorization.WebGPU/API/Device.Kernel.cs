@@ -313,7 +313,7 @@ public sealed unsafe partial  class WgpuDevice
     public WgpuBindGroupLayout GetEmptyBindGroupLayout()
     {
         if (!emptyBindGroupLayout.IsCreated) {
-            var emptyLayoutLabel = "empty_bindgroup_layout "u8; 
+            var emptyLayoutLabel = "empty_bindgroup_layout"u8;
             fixed (byte* labelPtr = emptyLayoutLabel) {
                 var desc = new BindGroupLayoutDescriptor {
                     label = WgpuUtils.FromPtrSpan(labelPtr, emptyLayoutLabel)
