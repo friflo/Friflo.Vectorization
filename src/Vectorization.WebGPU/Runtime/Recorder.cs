@@ -282,8 +282,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
                 entries     = &entry
             };
             var handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-            var group = new WgpuBindGroup(handle); 
-            return group;
+            return new WgpuBindGroup(handle);
         }
     }
         
