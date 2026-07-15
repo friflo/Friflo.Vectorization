@@ -48,10 +48,9 @@ public class AddTypesCodeFixProvider : CodeFixProvider
             return document;
         }
         var result = TypeGenerator.GenerateCSharpTypes(wgsl);
-        var types = result.Types;
-        types =  "    \n" + types;
+        var text = "    \n" + result.Comments + result.Types;
 
-        var newTypes = SyntaxFactory.ParseCompilationUnit(types).Members;
+        var newTypes = SyntaxFactory.ParseCompilationUnit(text).Members;
         
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         
