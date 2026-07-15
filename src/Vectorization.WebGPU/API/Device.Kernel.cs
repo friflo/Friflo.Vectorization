@@ -316,26 +316,28 @@ public sealed unsafe partial  class WgpuDevice
         ReadOnlySpan<byte>              layoutLabel)
     {
         var entries = bindGroupLayoutEntries;
-        for (int n = 0; n < bindGroupLayoutEntriesCount; ++n) {
+        var count   = bindGroupLayoutEntriesCount;
+        bindGroupLayoutEntriesCount = 0;
+        
+        for (int n = 0; n < count; ++n) {
             entries[n].visibility = (ulong)visibility;
         }
+        BindGroupLayout* handle;
         fixed (byte*                    labelPtr    = layoutLabel)
         fixed (BindGroupLayoutEntry*    entriesPtr  = entries)
         {
             var desc = new BindGroupLayoutDescriptor {
                 label       = WgpuUtils.FromPtrSpan(labelPtr, layoutLabel),
-                entryCount  = (uint)bindGroupLayoutEntriesCount,
+                entryCount  = (uint)count,
                 entries     = entriesPtr,
             };
-            bindGroupLayoutEntriesCount = 0;
-            var handle = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
+            handle = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
             if (handle == null)
                 throw new Exception("Failed to create BindGroupLayout. Check your Slot-indexes!");
-            
-            // Add new GpuBindGroupLayout to cache
-            var layout = new WgpuBindGroupLayout(handle);
-            layoutCache.Add(hashKey, layout);
-            return layout;
         }
+        // Add new GpuBindGroupLayout to cache
+        var layout = new WgpuBindGroupLayout(handle);
+        layoutCache.Add(hashKey, layout);
+        return layout;
     }
 }
