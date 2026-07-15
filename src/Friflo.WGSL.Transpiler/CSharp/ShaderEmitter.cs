@@ -182,26 +182,27 @@ $$"""
     {
         foreach (var layout in layouts)
         {
-            var index       = layout.groupIndex;
+            var group       = layout.groupIndex;
             var bindings    = layout.bindings.Where(binding =>  binding.HasHandle).ToArray();
             var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
             
             ulong layoutKey = LayoutStartHash;
             layoutKey      ^= (ulong)layouts.Count; layoutKey *= Prime;
-            layoutKey      ^= (ulong)index;         layoutKey *= Prime;
+            layoutKey      ^= (ulong)group;         layoutKey *= Prime;
             
             // --- bind group creation
-            body.Append($"        // --- bind group {index}\n");
+            body.Append($"        // --- bind group {group}\n");
             if (bindings.Length == 0)
             {
                 foreach (var uniform in uniforms) {
-                    body.Append($"        pass_.SetBindGroupUniform({index}, ref bindGroupCache.bindGroup{index}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{index}\"u8);\n");
+                    var binding = uniform.BindGroup.binding;
+                    body.Append($"        pass_.SetBindGroupUniform({group}, {binding}, ref bindGroupCache.bindGroup{group}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{group}\"u8);\n");
                 }
                 //
-                bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{index};\n");
-                bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{index});\n");
+                bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{group};\n");
+                bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{group});\n");
             } else {
-                body.Append($"        var key_{index} = ");
+                body.Append($"        var key_{group} = ");
                 bindGroupMembers.Append("        internal readonly   Dictionary<");
                 if (bindings.Length > 1) {
                     body.Append("(");
@@ -218,43 +219,43 @@ $$"""
                     bindGroupMembers.Append(")");
                 }
                 body.Append(";\n");
-                body.Append($"        if (!bindGroupCache.bindGroup{index}.TryGetValue(key_{index}, out var bindGroup{index})) {{\n");
+                body.Append($"        if (!bindGroupCache.bindGroup{group}.TryGetValue(key_{group}, out var bindGroup{group})) {{\n");
                 foreach (var binding in layout.bindings) {
                     EmitBinding(body, binding);
                 }
-                body.Append($"            bindGroup{index} = recorder.CreateBindGroup(pipelineCache.layouts[{index}], \"{methodName}_bindGroup{index}\"u8);\n");
-                body.Append($"            bindGroupCache.bindGroup{index}.Add(key_{index}, bindGroup{index});\n");
+                body.Append($"            bindGroup{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup{group}\"u8);\n");
+                body.Append($"            bindGroupCache.bindGroup{group}.Add(key_{group}, bindGroup{group});\n");
                 body.Append( "        }\n");
                 foreach (var uniform in uniforms) {
                     body.Append($"        pass_.AddUniform({uniform.Name});\n");    
                 }
                 if (uniforms.Length > 0) {
-                    body.Append($"        pass_.SetBindGroupUniforms({index}, bindGroup{index});\n");
+                    body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroup{group});\n");
                 } else {
-                    body.Append($"        pass_.SetBindGroup({index}, bindGroup{index});\n");
+                    body.Append($"        pass_.SetBindGroup({group}, bindGroup{group});\n");
                 }
                 
                 //
-                bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{index} = new ();\n");
-                bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{index});\n");
+                bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
+                bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
             }
             body.Append($"        \n");
             
             // --- bind group layout creation
-            bindGroupLayouts.Append($"        var layout_{index} = device.GetBindGroupLayout({methodName_GPU}_layout_{index}_Key);\n");
-            bindGroupLayouts.Append($"        if (!layout_{index}.IsCreated) {{\n");
+            bindGroupLayouts.Append($"        var layout_{group} = device.GetBindGroupLayout({methodName_GPU}_layout_{group}_Key);\n");
+            bindGroupLayouts.Append($"        if (!layout_{group}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {
                 bindGroupLayouts.Append("            ");
                 layoutKey ^= (ulong)binding.BindGroup.binding;      layoutKey *= Prime;
                 layoutKey ^= AddLayout(bindGroupLayouts, binding);  layoutKey *= Prime;
                 bindGroupLayouts.Append("\n");
             }
-            bindGroupLayouts.Append($"            layout_{index} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{index}_Key, \"{methodName}_layout_{index}\"u8);\n");
+            bindGroupLayouts.Append($"            layout_{group} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{group}_Key, \"{methodName}_layout_{group}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
-            bindGroupLayouts.Append($"        layouts[{index}] = layout_{index};\n");
+            bindGroupLayouts.Append($"        layouts[{group}] = layout_{group};\n");
             bindGroupLayouts.Append("        \n");
             
-            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{index}_Key        =  0x{layoutKey:x};\n");
+            layoutKeys.Append($"    private const  ulong        {methodName_GPU}_layout_{group}_Key        =  0x{layoutKey:x};\n");
         }
     }
     

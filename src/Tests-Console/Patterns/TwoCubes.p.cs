@@ -34,7 +34,7 @@ public partial class TwoCubes
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "TextureTest_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup0, modelViewProjectionMatrix, pipelineCache, "TextureTest_bindGroup0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    

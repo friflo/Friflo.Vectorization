@@ -52,7 +52,7 @@ public partial class ShadowMapping
         pass_.SetBindGroupUniforms(0, bindGroup0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, model, pipelineCache, "Render_bindGroup0"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache, "Render_bindGroup0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         

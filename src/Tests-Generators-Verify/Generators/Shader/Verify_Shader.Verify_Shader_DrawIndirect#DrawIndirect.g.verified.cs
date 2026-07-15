@@ -39,7 +39,7 @@ public partial class ShaderExample
         var bindGroupCache = (_DrawIndirect_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, ref bindGroupCache.bindGroup0, scene, pipelineCache,"DrawIndirect_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup0, scene, pipelineCache,"DrawIndirect_bindGroup0"u8);
         
         // --- bind group 1
         var key_1 = indirectBuffer.Handle;

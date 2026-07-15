@@ -52,7 +52,7 @@ public partial class ShaderExample
         pass_.SetBindGroupUniforms(0, bindGroup0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, model, pipelineCache,"Render_bindGroup1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache,"Render_bindGroup1"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);

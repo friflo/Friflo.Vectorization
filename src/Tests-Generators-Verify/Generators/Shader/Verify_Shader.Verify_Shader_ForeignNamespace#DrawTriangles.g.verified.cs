@@ -47,10 +47,10 @@ public partial class ShaderExample
         pass_.SetBindGroup(0, bindGroup0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
         
         // --- bind group 2
-        pass_.SetBindGroupUniform(2, ref bindGroupCache.bindGroup2, globalUniform, pipelineCache,"DrawTriangles_bindGroup2"u8);
+        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup2, globalUniform, pipelineCache,"DrawTriangles_bindGroup2"u8);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());

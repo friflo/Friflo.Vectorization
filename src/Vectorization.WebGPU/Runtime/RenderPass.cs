@@ -63,11 +63,11 @@ public readonly unsafe ref struct RenderPassInternal
     }
     
     /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
-    public void SetBindGroupUniform<T>(uint groupIndex, ref WgpuBindGroup bindGroup, in T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetBindGroupUniform<T>(uint groupIndex, int binding, ref WgpuBindGroup bindGroup, in T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = Recorder;
         if (!bindGroup.IsCreated) {
-            var entry   = rec.CreateUniformBindGroupEntry<T>(0);
+            var entry   = rec.CreateUniformBindGroupEntry<T>(binding);
             bindGroup   = rec.CreateBindGroupInternal(pipelineCache.layouts[(int)groupIndex], entry, groupLabel);
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
