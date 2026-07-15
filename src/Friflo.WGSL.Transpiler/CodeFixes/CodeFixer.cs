@@ -220,6 +220,8 @@ public static partial class CodeFixer
     private static string CreateComments(List<MethodParam> parameters)
     {
         var sb = new StringBuilder();
+        sb.Append("    // Hint: Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
+        
         foreach (var param in parameters) {
             if (param.comment == null)  continue;
             sb.Append($"    // {param.comment}\n");

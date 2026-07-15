@@ -43,8 +43,10 @@ public sealed class DrawVertexIndexAttribute : Attribute
         uint firstInstance  = 0) { }
 }
 
-/// <summary><a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">Draw()</a>
-/// the annotated storage, uniform or vertex buffer. </summary>
+/// <summary>
+/// Marks the buffer that provides the vertex data for the draw command.<br/>
+/// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">MDN: Draw()</a> for reference.
+/// </summary>
 /// <remarks>
 /// Buffer types are annotated by either:<br/>
 /// - <see cref="storageAttribute"/><br/>
