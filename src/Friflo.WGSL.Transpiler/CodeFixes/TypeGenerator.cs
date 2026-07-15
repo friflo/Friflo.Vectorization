@@ -76,9 +76,9 @@ public static class TypeGenerator
             sb.Append("    \n");
         }
         
-        var comments = "    // Hint: Check if you can reuse existing struct types\n";
+        var comments = "    // [ ]  Check if you can reuse existing struct types\n";
         if (!addedStructs) {
-            comments = "    // Hint: wgsl bindings do not use custom structs\n";
+            comments = "    // [ ]  wgsl bindings do not use custom structs\n";
         }
         return new ShaderTypesResult {
             Types       = sb.ToString(),

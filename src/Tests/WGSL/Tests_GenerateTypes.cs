@@ -92,7 +92,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types.Comments, Is.EqualTo( // language=csharp
             """
-                // Hint: wgsl bindings do not use custom structs
+                // [ ]  wgsl bindings do not use custom structs
             
             """));
     }
