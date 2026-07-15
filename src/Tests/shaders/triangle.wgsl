@@ -10,13 +10,14 @@ struct TriangleStorage {
 
 // --- uniform structs
 struct MyUniforms {
-    tint_color: vec4<f32>,
+    tint_color:   vec4<f32>,
 }
 
 
 // --- bindings
-@binding(0) @group(0) var<storage, read>    mesh_data:  TriangleStorage;
-@group(2) @binding(0) var<uniform>          myUniforms: MyUniforms;
+@binding(0) @group(0) var<storage, read>    mesh_data:    TriangleStorage;
+@group(2) @binding(0) var<uniform>          myUniforms:   MyUniforms;
+@group(2) @binding(1) var<uniform>          model_offset: vec2<f32>;
 
 // ---  pipeline stage input/output
 struct VertexOutput {
@@ -30,9 +31,9 @@ fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
     
     let vertex = mesh_data.triangles[vertex_id];
     
-    // Pass transformed position and color data down the pipeline
-    out.clip_position   = vertex.position;
-    out.color           = vertex.color * myUniforms.tint_color;
+    // pass transformed position and color and add model_offset
+    out.clip_position = vertex.position + vec4<f32>(model_offset, 0.0, 0.0);    
+    out.color 		  = vertex.color * myUniforms.tint_color;
     
     return out;
 }

@@ -70,17 +70,20 @@ public partial class RenderTest : IRenderer
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
+        var model_offset 		= new Vector2(0.1f * MathF.Cos(time * 2), 0);
         wormhood.IResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
         wormhood.ITime          = time;
         
         Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
-        DrawTriangles(pass, wgpu.Config, rectangle, myUniform);
+        DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
     }
 
+    [NoEmit]
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
-        [Map(2, 0)] [uniform]           in MyUniform            myUniform);
+        [Map(2, 0)] [uniform]           in MyUniform            myUniform,
+        [Map(2, 1)] [uniform]           Vector2                 model_offset);
 }
 
 
@@ -97,6 +100,7 @@ public struct VertexData(Vector4 position, Vector4 color)
 public struct MyUniform
 {
     public Vector4 	tint_color;
+    public Vector4 	model_offset;
 }
 
 public static partial class Wormhood

@@ -26,6 +26,6 @@ public class ConfigTest : RenderTest
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 
-        DrawTriangles(pass, config, rectangle, myUniform);
+        DrawTriangles(pass, config, rectangle, myUniform, default);
     }
 }

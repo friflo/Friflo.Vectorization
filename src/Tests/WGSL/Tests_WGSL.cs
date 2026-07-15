@@ -18,7 +18,7 @@ public static class Tests_WGSL
         
         Assert.AreEqual(4, metadata.Structs.Count);
         Assert.AreEqual(2, metadata.EntryPoints.Count);
-        Assert.AreEqual(2, metadata.Bindings.Count);
+        Assert.AreEqual(3, metadata.Bindings.Count);
     }
     
     
@@ -49,7 +49,8 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [storage]   InBuffer<VertexData>    mesh_data,
-                    [Map(2, 0)] [uniform]   in MyUniforms           myUniforms)
+                    [Map(2, 0)] [uniform]   in MyUniforms           myUniforms,
+                    [Map(2, 1)] [uniform]   in Vector2              model_offset)
             """));
     }
     

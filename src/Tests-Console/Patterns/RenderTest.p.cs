@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -9,11 +10,12 @@ namespace TestConsole;
 
 public partial class RenderTest
 {
-    public static void Pattern_DrawTriangles(
+    public static partial void DrawTriangles(
         RenderPass              pass,
         RenderConfig            config,
         InBuffer<VertexData>    triangles,
-        in MyUniform            myUniform)
+        in MyUniform            myUniform,
+        Vector2                 model_offset)
 	{
         var buffers =
         GpuBuffers.Create(triangles, nameof(triangles));
@@ -42,7 +44,14 @@ public partial class RenderTest
         pass_.SetBindGroup(0, bindGroup0);
         
         // --- bind group 2
-        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup2, myUniform, pipelineCache,"Triangles_bindGroup2"u8);
+        if (!bindGroupCache.bindGroup2.IsCreated) {
+            recorder.BindGroupEntryUniform<MyUniform>(0);
+            recorder.BindGroupEntryUniform<Vector2>(1);
+            bindGroupCache.bindGroup2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "Triangles_bindGroup2"u8);
+        }
+        pass_.AddUniform(myUniform);
+        pass_.AddUniform(model_offset);
+        pass_.SetBindGroupUniforms(2, bindGroupCache.bindGroup2);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -82,6 +91,7 @@ public partial class RenderTest
         var layout_2 = device.GetBindGroupLayout(Triangles_GPU_layout_2_key);
         if (!layout_2.IsCreated) {
             device.BindGroupLayoutUniform(0);
+            device.BindGroupLayoutUniform(1);
             layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_2_key, "Triangles_layout_2"u8);
         }
         layouts[2] = layout_2;
