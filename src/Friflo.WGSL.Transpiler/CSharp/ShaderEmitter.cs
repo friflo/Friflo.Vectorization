@@ -288,7 +288,7 @@ $$"""
             case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + sampleType.Value;
             //
             case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 0x0a000 + sampleType.Value;
-            case texture_depth_multisampled_2d: AppendTexture(sb, default,    "D2D", true); return 0x0b000;
+            case texture_depth_multisampled_2d: AppendDepthMultisampled(sb,   "D2D");       return 0x0b000;
             //
             case texture_storage_1d:        AppendStorageTexture(sb, format, access, "D1D");       return 0x0c000 + format.Value + (access.Value << 8);
             case texture_storage_2d:        AppendStorageTexture(sb, format, access, "D2D");       return 0x0d000 + format.Value + (access.Value << 8);
@@ -462,6 +462,11 @@ $$"""
         };
         var multi = multisampled ? "true" : "false";
         sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
+    }
+    
+    private static void AppendDepthMultisampled(StringBuilder sb, string dimension)
+    {
+        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.{dimension}, true);");
     }
     
     private static void AppendDepthTexture(StringBuilder sb, string dimension)

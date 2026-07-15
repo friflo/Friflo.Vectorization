@@ -594,7 +594,7 @@ public partial class ShaderExample
         [Map(0, 4)] [texture_cube(ST.u32)]                                          GpuTextureView  texture4,
         [Map(0, 5)] [texture_cube_array(ST.u32)]                                    GpuTextureView  texture5,
         [Map(0, 6)] [texture_multisampled_2d(ST.i32)]                               GpuTextureView  texture6,
-    //  [Map(0, 7)] [texture_depth_multisampled_2d]                                 GpuTextureView  texture7,
+        [Map(0, 7)] [texture_depth_multisampled_2d]                                 GpuTextureView  texture7,
         [Map(0, 8)] [texture_storage_1d(TextureFormat.RGBA32Float, TSA.write)]      GpuTextureView  texture8,
         [Map(0, 9)] [texture_storage_2d(TextureFormat.RGBA8Unorm, TSA.write)]       GpuTextureView  texture9,
         [Map(0,10)] [texture_storage_2d_array(TextureFormat.RGBA8Uint, TSA.write)]  GpuTextureView  texture10,

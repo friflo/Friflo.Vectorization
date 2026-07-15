@@ -23,6 +23,7 @@ public partial class ShaderExample
         GpuTextureView              texture4,
         GpuTextureView              texture5,
         GpuTextureView              texture6,
+        GpuTextureView              texture7,
         GpuTextureView              texture8,
         GpuTextureView              texture9,
         GpuTextureView              texture10,
@@ -49,7 +50,7 @@ public partial class ShaderExample
         var bindGroupCache = (_Textures_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        var key_0 = (texture0.Handle, texture1.Handle, texture2.Handle, texture3.Handle, texture4.Handle, texture5.Handle, texture6.Handle, texture8.Handle, texture9.Handle, texture10.Handle, texture11.Handle, texture12.Handle, texture13.Handle, texture14.Handle, texture15.Handle);
+        var key_0 = (texture0.Handle, texture1.Handle, texture2.Handle, texture3.Handle, texture4.Handle, texture5.Handle, texture6.Handle, texture7.Handle, texture8.Handle, texture9.Handle, texture10.Handle, texture11.Handle, texture12.Handle, texture13.Handle, texture14.Handle, texture15.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryTexture(texture0);
             recorder.BindGroupEntryTexture(texture1);
@@ -58,6 +59,7 @@ public partial class ShaderExample
             recorder.BindGroupEntryTexture(texture4);
             recorder.BindGroupEntryTexture(texture5);
             recorder.BindGroupEntryTexture(texture6);
+            recorder.BindGroupEntryTexture(texture7);
             recorder.BindGroupEntryTexture(texture8);
             recorder.BindGroupEntryTexture(texture9);
             recorder.BindGroupEntryTexture(texture10);
@@ -86,7 +88,7 @@ public partial class ShaderExample
 
     private sealed class _Textures_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup>    bindGroup0 = new ();
         internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup1 = new ();
 
         protected override void Clear() {
@@ -96,7 +98,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _Textures_GPU_ShaderId            =  ShaderRegistry.NewShaderId("Textures");
-    private const  ulong        _Textures_GPU_layout_0_Key        =  0x4e47cc6a8a53afab;
+    private const  ulong        _Textures_GPU_layout_0_Key        =  0xb1244d2c118c100c;
     private const  ulong        _Textures_GPU_layout_1_Key        =  0x1c264884083a5675;
 
     private static ulong        _Textures_GPU_WgslHash            => 0x6daa93cb8c2d50ccUL;  // support Hot-Reload
@@ -114,6 +116,7 @@ public partial class ShaderExample
             device.BindGroupLayoutTexture(TextureSampleType.Uint, TextureViewDimension.Cube, false);
             device.BindGroupLayoutTexture(TextureSampleType.Uint, TextureViewDimension.CubeArray, false);
             device.BindGroupLayoutTexture(TextureSampleType.Sint, TextureViewDimension.D2D, true);
+            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, true);
             device.BindGroupLayoutStorageTexture(TextureFormat.RGBA32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D1D);
             device.BindGroupLayoutStorageTexture(TextureFormat.RGBA8Unorm, StorageTextureAccess.WriteOnly, TextureViewDimension.D2D);
             device.BindGroupLayoutStorageTexture(TextureFormat.RGBA8Uint, StorageTextureAccess.WriteOnly, TextureViewDimension.D2DArray);
