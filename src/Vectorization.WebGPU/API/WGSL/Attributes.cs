@@ -127,9 +127,14 @@ public sealed class VertexBufferAttribute : Attribute
 public sealed class IndexBufferAttribute : Attribute;
 
 
+/// <summary>
+/// Maps a WGSL resource (e.g. <c>storage, uniform, ...</c>) to a specific bind <c>@group()</c> and <c>@binding()</c> index.
+/// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class MapAttribute : Attribute
 {
+    /// <param name="group">The bind <c>@group()</c> (0-3).</param>
+    /// <param name="binding">The <c>@binding()</c> index within the group.</param>
     public MapAttribute (int group, int binding) { }
 }
 
