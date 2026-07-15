@@ -214,13 +214,13 @@ public static partial class CodeFixer
                 parameterName = "vertexInputBuffer";
             }
         }
-        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $" [ ]  Adjust the generic type of '{parameterName}' to your vertex struct."));
+        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $"[ ]  Adjust the generic type of '{parameterName}' to your vertex struct."));
     }
     
     private static string CreateComments(List<MethodParam> parameters)
     {
         var sb = new StringBuilder();
-        sb.Append("    //  [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
+        sb.Append("    // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
         
         foreach (var param in parameters) {
             if (param.comment == null)  continue;
