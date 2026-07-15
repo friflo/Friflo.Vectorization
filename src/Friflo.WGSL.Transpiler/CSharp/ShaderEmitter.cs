@@ -353,13 +353,14 @@ $$"""
             return;
         }
 
+        var methodParameters = method.Parameters;
         // attribute: DrawAttribute
-        var drawParam = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
+        var drawParam = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
         if (drawParam.Name == null) {
         	return;
 		}
-        var (drawArgsParameter, isArray) = GetDrawArgsParameter(method.Parameters);
-        var (isIndirect, isIndexed)      = GetIndirectParameter(drawParam);
+        var (drawArgsParameter, isArray) = GetDrawArgsParameter(methodParameters);
+        var (isIndirect, isIndexed)      = IsIndirectBufferParameter(drawParam);
 
         var drawArgs = isIndirect ? "new DrawIndirectArgs()" : "new DrawArgs()";
         
@@ -374,7 +375,7 @@ $$"""
             drawArgs = drawArgsParameter;
         } else if (!isIndirect) {
 			// attribute: DrawInstanceAttribute
-            var instanceName = method.Parameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
+            var instanceName = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
             if (instanceName != null) {
             	drawArgs = $"DrawArgs.InstanceCount({instanceName})";
         	}
@@ -401,7 +402,7 @@ $$"""
     	}
     }
     
-    private static (bool isIndirect, bool isIndexed) GetIndirectParameter(CsParameter drawParam)
+    private static (bool isIndirect, bool isIndexed) IsIndirectBufferParameter(CsParameter drawParam)
     {
         if (drawParam.IsBuffer)
         {
@@ -417,11 +418,10 @@ $$"""
     }
 
     
-    private static (string name, bool isArray) GetDrawArgsParameter(ValueArray<CsParameter> Parameters)
+    private static (string name, bool isArray) GetDrawArgsParameter(ValueArray<CsParameter> parameters)
     {
-        foreach (var p in Parameters) {
-            var typeName = p.Type.Name;
-            switch (typeName) {
+        foreach (var p in parameters) {
+            switch (p.Type.Name) {
                 case "DrawArgs":          return (p.Name, p.Type.IsArray);
                 case "DrawIndirectArgs":  return (p.Name, false); // never a CPU-array loop for Indirect
                 case "Span":
