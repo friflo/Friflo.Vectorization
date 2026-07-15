@@ -1,8 +1,10 @@
 ﻿// ReSharper disable RedundantUsingDirective
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
+// ReSharper disable RedundantUsingDirective
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 namespace TestConsole;

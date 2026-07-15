@@ -61,6 +61,7 @@ public static class TypeGenerator
                 continue;
             }
             addedStructs = true;
+            sb.Append($"    [StructLayout(LayoutKind.Sequential)]\n");
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
                 TryGetKnownCSharpType(field.WgslType, out var csType);
