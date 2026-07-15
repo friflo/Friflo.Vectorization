@@ -287,8 +287,8 @@ $$"""
             case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 0x08000 + sampleType.Value;
             case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + sampleType.Value;
             //
-            case texture_multisampled_2d:       AppendTexture(sb, sampleType, "D2D", true); return 0x0a000 + sampleType.Value;
-            case texture_depth_multisampled_2d: AppendDepthMultisampled(sb,   "D2D");       return 0x0b000;
+            case texture_multisampled_2d:       AppendMultisampled(sb, sampleType, "D2D");  return 0x0a000 + sampleType.Value;
+            case texture_depth_multisampled_2d: AppendMultisampled(sb, null,       "D2D");  return 0x0b000;
             //
             case texture_storage_1d:        AppendStorageTexture(sb, format, access, "D1D");       return 0x0c000 + format.Value + (access.Value << 8);
             case texture_storage_2d:        AppendStorageTexture(sb, format, access, "D2D");       return 0x0d000 + format.Value + (access.Value << 8);
@@ -451,22 +451,25 @@ $$"""
         sb.Append($"device.BindGroupLayoutSampler(SamplerBindingType.{sampleType});");
     }
     
-    private static void AppendTexture(StringBuilder sb, CsEnum sampleType, string dimension, bool multisampled = false)
-    {
-        // WGSL enum:  ST
-        var type = sampleType.Name switch {
+    private static string GetSampleTypeEnum( CsEnum sampleType) =>
+         // WGSL enum:  ST
+        sampleType.Name switch {
             "i32"   => "Sint",
             "u32"   => "Uint",
             "f32"   => "Float",
             _       => "None"
         };
-        var multi = multisampled ? "true" : "false";
-        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, {multi});");
+    
+    private static void AppendTexture(StringBuilder sb, CsEnum sampleType, string dimension)
+    {
+        var type = GetSampleTypeEnum(sampleType);
+        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, false);");
     }
     
-    private static void AppendDepthMultisampled(StringBuilder sb, string dimension)
+    private static void AppendMultisampled(StringBuilder sb, CsEnum? sampleType, string dimension)
     {
-        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.{dimension}, true);");
+        var type = sampleType == null ? "Depth" : GetSampleTypeEnum(sampleType.Value);
+        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, true);");
     }
     
     private static void AppendDepthTexture(StringBuilder sb, string dimension)
