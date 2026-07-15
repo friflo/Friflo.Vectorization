@@ -44,6 +44,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     private             GCHandle                deviceHandle;
     private  readonly   void*                   deviceHandlePtr;
     
+    private             WgpuBindGroupLayout     emptyBindGroupLayout;
     private  readonly   BindGroupLayoutMap      layoutCache     = new ();
     internal readonly   List<IWgpuBuffer>       bufferMap       = [];
     internal readonly   CommandListPool         commandListPool = new ();
@@ -119,6 +120,9 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             if (!computeCache.IsCreated) continue;
             computeCache.bindGroupCache.Clear();
             wgpuComputePipelineRelease(computeCache.computePipeline.handle);
+        }
+        if (emptyBindGroupLayout.IsCreated) {
+            wgpuBindGroupLayoutRelease(emptyBindGroupLayout.handle);
         }
         foreach (var layout in layoutCache.Values) {
             wgpuBindGroupLayoutRelease(layout.handle);

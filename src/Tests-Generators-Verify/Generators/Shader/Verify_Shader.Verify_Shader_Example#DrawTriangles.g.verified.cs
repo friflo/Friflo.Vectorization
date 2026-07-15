@@ -43,8 +43,8 @@ public partial class ShaderExample
         }
         pass_.SetBindGroup(0, bindGroup0);
         
-        // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
+        // --- bind group 2
+        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup2, myUniform, pipelineCache,"DrawTriangles_bindGroup2"u8);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -53,24 +53,24 @@ public partial class ShaderExample
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();
-        internal            WgpuBindGroup bindGroup1;
+        internal            WgpuBindGroup bindGroup2;
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroup(ref bindGroup1);
+            ReleaseBindGroup(ref bindGroup2);
         }
     }
 
     private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawTriangles");
-    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0x8d19ce904a37da17;
-    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0x8475539045585a6c;
+    private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0xed212287f4058386;
+    private const  ulong        _DrawTriangles_GPU_layout_2_Key        =  0xdbd12c87ea3a9f30;
 
-    private static ulong        _DrawTriangles_GPU_WgslHash            => 0x690fb60ab3b0790UL;  // support Hot-Reload
+    private static ulong        _DrawTriangles_GPU_WgslHash            => 0x52997f8a6bd81e83UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawTriangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[3];
         var layout_0 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(0, BufferBindingType.ReadOnlyStorage);
@@ -78,12 +78,14 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
-        if (!layout_1.IsCreated) {
+        layouts[1] = device.GetEmptyBindGroupLayout();
+        
+        var layout_2 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_2_Key);
+        if (!layout_2.IsCreated) {
             device.BindGroupLayoutUniform(0);
-            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
+            layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_2_Key, "DrawTriangles_layout_2"u8);
         }
-        layouts[1] = layout_1;
+        layouts[2] = layout_2;
         
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _DrawTriangles_GPU_Shaders, "DrawTriangles_pipeline"u8);
 

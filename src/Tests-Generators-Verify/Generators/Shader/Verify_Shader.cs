@@ -97,7 +97,7 @@ public partial class ShaderExample
     [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
-        [Map(1, 0)] [uniform]           in MyUniform            myUniform);
+        [Map(2, 0)] [uniform]           in MyUniform            myUniform);
         
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform

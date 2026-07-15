@@ -41,8 +41,8 @@ public partial class RenderTest
         }
         pass_.SetBindGroup(0, bindGroup0);
         
-        // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
+        // --- bind group 2
+        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -61,7 +61,7 @@ public partial class RenderTest
     
     private static readonly int Triangles_GPU_ShaderId      =  ShaderRegistry.NewShaderId("Triangles");
     private const  ulong        Triangles_GPU_layout_0_key  =  0x47;  // unique key set by Generator
-    private const  ulong        Triangles_GPU_layout_1_key  =  0x11;  // unique key set by Generator
+    private const  ulong        Triangles_GPU_layout_2_key  =  0x11;  // unique key set by Generator
     
     private static ulong        Triangles_GPU_WgslHash      => 0x123; // support Hot-Relead
     
@@ -69,7 +69,7 @@ public partial class RenderTest
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache Triangles_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[3];
         var layout_0 = device.GetBindGroupLayout(Triangles_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(0, BufferBindingType.ReadOnlyStorage);
@@ -77,12 +77,14 @@ public partial class RenderTest
         }
         layouts[0] = layout_0;
         
-        var layout_1 = device.GetBindGroupLayout(Triangles_GPU_layout_1_key);
-        if (!layout_1.IsCreated) {
+        layouts[1] = device.GetEmptyBindGroupLayout();
+        
+        var layout_2 = device.GetBindGroupLayout(Triangles_GPU_layout_2_key);
+        if (!layout_2.IsCreated) {
             device.BindGroupLayoutUniform(0);
-            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_1_key, "Triangles_layout_1"u8);
+            layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_2_key, "Triangles_layout_1"u8);
         }
-        layouts[1] = layout_1;
+        layouts[2] = layout_2;
         
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(RenderTest), Triangles_GPU_Shaders, "Triangles_pipeline"u8);
         

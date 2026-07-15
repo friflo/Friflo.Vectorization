@@ -105,7 +105,13 @@ public sealed class ShaderEmitter
             bufferInit.Append($"\n        recorder.{requireType}({parameter.Name});");
         }
         
-        EmitBindGroups(layouts);
+        var layoutLength = bindGroups.Last().BindGroup.group + 1;
+        var layoutArray = new BindGroupLayout[layoutLength];
+        foreach (var layout in layouts) {
+            layoutArray[layout.groupIndex] = layout;
+        }
+        
+        EmitBindGroups(layoutArray);
         
         // --- set index / vertex buffers
         bool addedBuffer = false;
@@ -165,7 +171,7 @@ $$"""
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layouts.Count}}];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layoutArray.Length}}];
 {{bindGroupLayouts}}        var pipeline = device.CreateRenderPipeline(layouts, config, typeof({{className}}), {{methodName_GPU}}_Shaders, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
@@ -178,17 +184,23 @@ $$"""
         return code;
     }
     
-    private void EmitBindGroups(List<BindGroupLayout> layouts)
+    private void EmitBindGroups(BindGroupLayout[] layouts)
     {
-        foreach (var layout in layouts)
+        for (int group = 0; group < layouts.Length; group++)
         {
-            var group       = layout.groupIndex;
+            var layout = layouts[group];
+            if (layout == null) {
+                bindGroupLayouts.Append($"        layouts[{group}] = device.GetEmptyBindGroupLayout();\n");
+                bindGroupLayouts.Append($"        \n");
+                continue;
+            }
+            
             var bindings    = layout.bindings.Where(binding =>  binding.HasHandle).ToArray();
             var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
             
             ulong layoutKey = LayoutStartHash;
-            layoutKey      ^= (ulong)layouts.Count; layoutKey *= Prime;
-            layoutKey      ^= (ulong)group;         layoutKey *= Prime;
+            layoutKey      ^= (ulong)layouts.Length; layoutKey *= Prime;
+            layoutKey      ^= (ulong)group;          layoutKey *= Prime;
             
             // --- bind group creation
             body.Append($"        // --- bind group {group}\n");

@@ -310,6 +310,16 @@ public sealed unsafe partial  class WgpuDevice
         };
     }
     
+    public WgpuBindGroupLayout GetEmptyBindGroupLayout()
+    {
+        if (!emptyBindGroupLayout.IsCreated) {
+            var desc    = new BindGroupLayoutDescriptor();
+            var handle  = wgpuDeviceCreateBindGroupLayout(DevicePtr, &desc);
+            emptyBindGroupLayout = new WgpuBindGroupLayout(handle);
+        }
+        return emptyBindGroupLayout;
+    }
+    
     public WgpuBindGroupLayout CreateBindGroupLayout(
         ShaderStage                     visibility,
         ulong                           hashKey,

@@ -49,7 +49,7 @@ public static class Tests_WGSL
             """
             (RenderPass pass, RenderConfig config,
                     [Map(0, 0)] [storage]   InBuffer<VertexData>    mesh_data,
-                    [Map(1, 0)] [uniform]   in MyUniforms           myUniforms)
+                    [Map(2, 0)] [uniform]   in MyUniforms           myUniforms)
             """));
     }
     
