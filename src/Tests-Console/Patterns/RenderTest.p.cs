@@ -42,7 +42,7 @@ public partial class RenderTest
         pass_.SetBindGroup(0, bindGroup0);
         
         // --- bind group 2
-        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"Triangles_bindGroup1"u8);
+        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup2, myUniform, pipelineCache,"Triangles_bindGroup2"u8);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -51,11 +51,11 @@ public partial class RenderTest
     private sealed class Triangles_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup0 = new ();
-        internal            WgpuBindGroup                         bindGroup1;
+        internal            WgpuBindGroup                         bindGroup2;
         
         protected override void Clear() {
             ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroup(ref bindGroup1);
+            ReleaseBindGroup(ref bindGroup2);
         }
     }
     
