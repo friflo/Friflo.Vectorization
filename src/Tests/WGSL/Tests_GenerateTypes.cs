@@ -20,11 +20,13 @@ public static class Tests_GenerateTypes
         Assert.That(types, Is.EqualTo( // language=csharp
             """
                 // Hint: Check if you can reuse existing struct types
+                [StructLayout(LayoutKind.Sequential)]
                 public struct VertexData {
                     public Vector4 position;
                     public Vector4 color;
                 }
                 
+                [StructLayout(LayoutKind.Sequential)]
                 public struct MyUniforms {
                     public Vector4 tint_color;
                 }
@@ -45,12 +47,14 @@ public static class Tests_GenerateTypes
         Assert.That(types, Is.EqualTo( // language=csharp
             """
                 // Hint: Check if you can reuse existing struct types
+                [StructLayout(LayoutKind.Sequential)]
                 public struct Scene {
                     public Matrix4x4 lightViewProjMatrix;
                     public Matrix4x4 cameraViewProjMatrix;
                     public Vector3 lightPos;
                 }
                 
+                [StructLayout(LayoutKind.Sequential)]
                 public struct Model {
                     public Matrix4x4 modelMatrix;
                 }
@@ -71,6 +75,7 @@ public static class Tests_GenerateTypes
         Assert.That(types, Is.EqualTo( // language=csharp
             """
                 // Hint: Check if you can reuse existing struct types
+                [StructLayout(LayoutKind.Sequential)]
                 public struct Uniforms {
                     public Matrix4x4 modelViewProjectionMatrix;
                 }
