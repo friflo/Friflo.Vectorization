@@ -384,20 +384,20 @@ $$"""
         	}
 		}
         var paramName = drawParam.Name;
+        var suffix    = isIndirect ? "Indirect" : "";
         
         switch (drawParam.ParamAttribute) {
             case storage:
             case uniform:
                 var drawMethod  = isIndexed  ? "DrawIndexed" : "Draw";
-                var suffix      = isIndirect ? "Indirect" : "";
                 body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
                 var slot = drawParam.BindGroup.group;
-                body.Append($"{indent}        pass_.Draw({paramName}, {slot}, config, {drawArgs});\n");
+                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, config, {drawArgs});\n");
                 break;
             case IndexBuffer:
-                body.Append($"{indent}        pass_.DrawIndexed({paramName}, {drawArgs});\n");
+                body.Append($"{indent}        pass_.DrawIndexed{suffix}({paramName}, {drawArgs});\n");
                 break;
         }
         if (isArray) {
