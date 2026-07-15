@@ -82,7 +82,7 @@ public partial class InstancedCube
     }
     
     private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
-        new WgpuShader("shaders/instanced.vert.wgsl",           vert: "main"),
-        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+        new("shaders/instanced.vert.wgsl",           vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];
 }

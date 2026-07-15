@@ -71,7 +71,7 @@ public partial struct ShaderExample
     }
     
     private static readonly WgpuShader[] _RenderTunnel_GPU_Shaders = [
-        new WgpuShader("shaders/raymarcher_no_texture.wgsl"),
+        new("shaders/raymarcher_no_texture.wgsl"),
     ];
 
 }

@@ -56,7 +56,7 @@ public sealed class ShaderEmitter
         
         shaderResources.Append($"    private static readonly WgpuShader[] {methodName_GPU}_Shaders = [\n");
         foreach (var shader in method.Shaders) {
-            shaderResources.Append($"        new WgpuShader(\"{shader.path}\"");
+            shaderResources.Append($"        new(\"{shader.path}\"");
             if (shader.vert != null) shaderResources.Append($", vert: \"{shader.vert}\"");
             if (shader.frag != null) shaderResources.Append($", frag: \"{shader.frag}\"");
             shaderResources.Append("),\n");

@@ -65,7 +65,7 @@ public static partial class Wormhood
     }
     
     private static readonly WgpuShader[] Wormhood_GPU_Shaders = [
-        new WgpuShader("shaders/full_screen_triangle.wgsl",  vert: "vs_main"),
-        new WgpuShader("shaders/raymarcher_no_texture.wgsl", frag: "fs_main")
+        new("shaders/full_screen_triangle.wgsl",  vert: "vs_main"),
+        new("shaders/raymarcher_no_texture.wgsl", frag: "fs_main")
     ];
 }

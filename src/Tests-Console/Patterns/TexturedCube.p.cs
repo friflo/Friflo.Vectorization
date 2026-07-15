@@ -87,7 +87,7 @@ public partial class TexturedCube
     }
     
     private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
-        new WgpuShader("shaders/basic.vert.wgsl",                   vert: "main"),
-        new WgpuShader("shaders/sampleTextureMixColor.frag.wgsl",   frag: "main")
+        new("shaders/basic.vert.wgsl",                   vert: "main"),
+        new("shaders/sampleTextureMixColor.frag.wgsl",   frag: "main")
     ];
 }

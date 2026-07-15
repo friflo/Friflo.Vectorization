@@ -93,6 +93,6 @@ public partial class RenderTest
     }
     
     private static readonly WgpuShader[] Triangles_GPU_Shaders = [
-        new WgpuShader("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")
+        new("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main")
     ];
 }

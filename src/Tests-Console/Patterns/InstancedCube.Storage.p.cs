@@ -83,7 +83,7 @@ public partial class InstancedCube
     }
     
     private static readonly WgpuShader[] InstancedCube_Storage_GPU_Shaders = [
-        new WgpuShader("shaders/instanced.storage.vert.wgsl",   vert: "main"),
-        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+        new("shaders/instanced.storage.vert.wgsl",   vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];
 }

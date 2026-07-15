@@ -101,7 +101,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _DrawIndirect_GPU_Shaders = [
-        new WgpuShader("shaders/shadowMapping/vertexShadow.wgsl", vert: "main"),
+        new("shaders/shadowMapping/vertexShadow.wgsl", vert: "main"),
     ];
 
 }

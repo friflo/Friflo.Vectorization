@@ -75,7 +75,7 @@ public partial class TwoCubes
     }
     
     private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
-        new WgpuShader("shaders/basic.vert.wgsl",               vert: "main"),
-        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main")
+        new("shaders/basic.vert.wgsl",               vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl", frag: "main")
     ];
 }

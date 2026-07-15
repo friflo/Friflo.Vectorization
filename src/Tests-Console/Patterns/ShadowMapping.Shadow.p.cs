@@ -94,6 +94,6 @@ public partial class ShadowMapping
     }
     
     private static readonly WgpuShader[] Shadow_GPU_Shaders = [
-        new WgpuShader("shaders/shadowMapping/vertexShadow.wgsl", vert: "main")
+        new("shaders/shadowMapping/vertexShadow.wgsl", vert: "main")
     ];
 }

@@ -83,8 +83,8 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _DrawCustomDrawArgs_GPU_Shaders = [
-        new WgpuShader("shaders/instanced.vert.wgsl", vert: "main"),
-        new WgpuShader("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+        new("shaders/instanced.vert.wgsl", vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];
 
 }

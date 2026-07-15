@@ -144,7 +144,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _Textures_GPU_Shaders = [
-        new WgpuShader("shaders/testTextureTypes.frag.wgsl"),
+        new("shaders/testTextureTypes.frag.wgsl"),
     ];
 
 }
