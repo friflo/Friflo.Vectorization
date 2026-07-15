@@ -82,7 +82,7 @@ public partial class RenderTest
         var layout_2 = device.GetBindGroupLayout(Triangles_GPU_layout_2_key);
         if (!layout_2.IsCreated) {
             device.BindGroupLayoutUniform(0);
-            layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_2_key, "Triangles_layout_1"u8);
+            layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex, Triangles_GPU_layout_2_key, "Triangles_layout_2"u8);
         }
         layouts[2] = layout_2;
         
