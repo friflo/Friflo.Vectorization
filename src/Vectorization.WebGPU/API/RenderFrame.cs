@@ -116,15 +116,7 @@ public struct GpuColor : IEnumerable<double>
     public  double  b;
     public  double  a;
     
-    internal readonly Color GetNative()
-    {
-        return new Color {
-            r = r,
-            g = g,
-            b = b,
-            a = a
-        };
-    }
+    internal readonly Color GetNative() => new Color { r = r, g = g, b = b, a = a };
     
     public IEnumerator<double> GetEnumerator() => throw new NotImplementedException();
     IEnumerator    IEnumerable.GetEnumerator() => GetEnumerator();
