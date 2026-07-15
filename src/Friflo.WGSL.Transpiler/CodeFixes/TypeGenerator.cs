@@ -10,6 +10,12 @@ using System.Text;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;
 
+public readonly struct ShaderTypesResult
+{
+    public required string  Types       { get; init; }
+    public required string  Comments    { get; init; }
+}
+
 public static class TypeGenerator
 {
     internal static WgslType GetBindingType(WgslModule module, WgslBinding binding)
@@ -30,7 +36,7 @@ public static class TypeGenerator
         return null;
     }
     
-    public static string GenerateCSharpTypes(string wgsl)
+    public static ShaderTypesResult GenerateCSharpTypes(string wgsl)
     {
         var module = WgslSuperpowerParser.ParseShader(wgsl);
         
@@ -53,7 +59,6 @@ public static class TypeGenerator
 
         var sb = new StringBuilder();
         bool addedStructs = false;
-        sb.Append("    // Hint: Check if you can reuse existing struct types\n");
         foreach (var name in exportTypes)
         {
             var type = module.Structs.FirstOrDefault(s => s.Name == name);
@@ -70,10 +75,15 @@ public static class TypeGenerator
             sb.Append("    }\n");
             sb.Append("    \n");
         }
+        
+        var comments = "    // Hint: Check if you can reuse existing struct types\n";
         if (!addedStructs) {
-            return "    // Hint: wgsl bindings do not use custom structs\n";
+            comments = "    // Hint: wgsl bindings do not use custom structs\n";
         }
-        return sb.ToString();
+        return new ShaderTypesResult {
+            Types       = sb.ToString(),
+            Comments    = comments
+        };
     }
     
     internal static bool TryGetKnownCSharpType(WgslType wgslType, out string csType)

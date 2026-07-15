@@ -47,7 +47,8 @@ public class AddTypesCodeFixProvider : CodeFixProvider
         if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
             return document;
         }
-        var types = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var result = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var types = result.Types;
         types =  "    \n" + types;
 
         var newTypes = SyntaxFactory.ParseCompilationUnit(types).Members;

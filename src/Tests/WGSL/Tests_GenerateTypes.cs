@@ -17,9 +17,8 @@ public static class Tests_GenerateTypes
         var wgsl    = CodeFixer.CreateWgsl(method, files);
         var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
         
-        Assert.That(types, Is.EqualTo( // language=csharp
+        Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
-                // Hint: Check if you can reuse existing struct types
                 [StructLayout(LayoutKind.Sequential)]
                 public struct VertexData {
                     public Vector4 position;
@@ -44,9 +43,8 @@ public static class Tests_GenerateTypes
         var wgsl    = CodeFixer.CreateWgsl(method, files);
         var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
         
-        Assert.That(types, Is.EqualTo( // language=csharp
+        Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
-                // Hint: Check if you can reuse existing struct types
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Scene {
                     public Matrix4x4 lightViewProjMatrix;
@@ -72,9 +70,8 @@ public static class Tests_GenerateTypes
         var wgsl    = CodeFixer.CreateWgsl(method, files);
         var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
         
-        Assert.That(types, Is.EqualTo( // language=csharp
+        Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
-                // Hint: Check if you can reuse existing struct types
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Uniforms {
                     public Matrix4x4 modelViewProjectionMatrix;
@@ -93,6 +90,10 @@ public static class Tests_GenerateTypes
         var wgsl    = CodeFixer.CreateWgsl(method, files);
         var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
         
-        Assert.That(types, Is.EqualTo("    // Hint: wgsl bindings do not use custom structs\n"));
+        Assert.That(types.Comments, Is.EqualTo( // language=csharp
+            """
+                // Hint: wgsl bindings do not use custom structs
+            
+            """));
     }
 }
