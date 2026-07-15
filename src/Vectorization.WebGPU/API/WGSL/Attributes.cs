@@ -15,10 +15,16 @@ namespace Friflo.Vectorization.WebGPU;
 
 #region ---------- Shader method Attribute
 
+/// <summary>
+/// Associates a WGSL shader file with the annotated method and specifies the entry points for the pipeline.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple =  true)]
 public sealed class ShaderAttribute : Attribute
 {
-    public ShaderAttribute([PathReference] string wgsl, string vertex = null, string fragment = null) { }
+    /// <param name="wgslPath">Relative path - with prefix <c>~/</c> to the .wgsl source file.</param>
+    /// <param name="vertex">Name of the <c>@vertex</c> shader entry point function.</param>
+    /// <param name="fragment">Name of the <c>@fragment</c> shader entry point function.</param>
+    public ShaderAttribute([PathReference] string wgslPath, string vertex = null, string fragment = null) { }
 }
 
 #endregion
