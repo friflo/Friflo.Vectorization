@@ -19,8 +19,8 @@ namespace Friflo.CodeFixes;
 //     The Microsoft.CodeAnalysis.Workspaces assembly is not provided during command line compilation scenarios,
 //     so references to it could cause the compiler extension to behave unpredictably.
 // Note: A CodeFixProvider only runs in IDEs / language servers
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ShaderCodeFixProvider)), Shared]
-public class ShaderCodeFixProvider : CodeFixProvider
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddParamsCodeFixProvider)), Shared]
+public class AddParamsCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU003"];
 
