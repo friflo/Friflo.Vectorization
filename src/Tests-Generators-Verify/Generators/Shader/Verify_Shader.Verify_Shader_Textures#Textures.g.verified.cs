@@ -52,22 +52,22 @@ public partial class ShaderExample
         // --- bind group 0
         var key_0 = (texture0.Handle, texture1.Handle, texture2.Handle, texture3.Handle, texture4.Handle, texture5.Handle, texture6.Handle, texture7.Handle, texture8.Handle, texture9.Handle, texture10.Handle, texture11.Handle, texture12.Handle, texture13.Handle, texture14.Handle, texture15.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryTexture(texture0);
-            recorder.BindGroupEntryTexture(texture1);
-            recorder.BindGroupEntryTexture(texture2);
-            recorder.BindGroupEntryTexture(texture3);
-            recorder.BindGroupEntryTexture(texture4);
-            recorder.BindGroupEntryTexture(texture5);
-            recorder.BindGroupEntryTexture(texture6);
-            recorder.BindGroupEntryTexture(texture7);
-            recorder.BindGroupEntryTexture(texture8);
-            recorder.BindGroupEntryTexture(texture9);
-            recorder.BindGroupEntryTexture(texture10);
-            recorder.BindGroupEntryTexture(texture11);
-            recorder.BindGroupEntryTexture(texture12);
-            recorder.BindGroupEntryTexture(texture13);
-            recorder.BindGroupEntryTexture(texture14);
-            recorder.BindGroupEntryTexture(texture15);
+            recorder.BindGroupEntryTexture(0, texture0);
+            recorder.BindGroupEntryTexture(1, texture1);
+            recorder.BindGroupEntryTexture(2, texture2);
+            recorder.BindGroupEntryTexture(3, texture3);
+            recorder.BindGroupEntryTexture(4, texture4);
+            recorder.BindGroupEntryTexture(5, texture5);
+            recorder.BindGroupEntryTexture(6, texture6);
+            recorder.BindGroupEntryTexture(7, texture7);
+            recorder.BindGroupEntryTexture(8, texture8);
+            recorder.BindGroupEntryTexture(9, texture9);
+            recorder.BindGroupEntryTexture(10, texture10);
+            recorder.BindGroupEntryTexture(11, texture11);
+            recorder.BindGroupEntryTexture(12, texture12);
+            recorder.BindGroupEntryTexture(13, texture13);
+            recorder.BindGroupEntryTexture(14, texture14);
+            recorder.BindGroupEntryTexture(15, texture15);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Textures_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }
@@ -76,8 +76,8 @@ public partial class ShaderExample
         // --- bind group 1
         var key_1 = (sampler0.Handle, sampler1.Handle);
         if (!bindGroupCache.bindGroup1.TryGetValue(key_1, out var bindGroup1)) {
-            recorder.BindGroupEntrySampler(sampler0);
-            recorder.BindGroupEntrySampler(sampler1);
+            recorder.BindGroupEntrySampler(0, sampler0);
+            recorder.BindGroupEntrySampler(1, sampler1);
             bindGroup1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "Textures_bindGroup1"u8);
             bindGroupCache.bindGroup1.Add(key_1, bindGroup1);
         }

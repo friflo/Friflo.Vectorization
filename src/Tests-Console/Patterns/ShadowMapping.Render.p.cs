@@ -42,9 +42,9 @@ public partial class ShadowMapping
         // --- bind group 0
         var key_0 = (textureView.Handle, sampler.Handle);
         if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryUniform<Scene>();
-            recorder.BindGroupEntryTexture(textureView);
-            recorder.BindGroupEntrySampler(sampler);
+            recorder.BindGroupEntryUniform<Scene>(0);
+            recorder.BindGroupEntryTexture(1, textureView);
+            recorder.BindGroupEntrySampler(2, sampler);
             bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
             bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
         }

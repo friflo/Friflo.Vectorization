@@ -305,23 +305,24 @@ $$"""
     
     private static void EmitBinding(StringBuilder body, in CsParameter binding)
     {
+        var index = binding.BindGroup.binding;
         switch (binding.ParamAttribute)
         {
             case storage:
-                body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                body.Append($"            recorder.BindGroupEntryBuffer({index}, {binding.Name}.Buffer);\n");
                 return;
             case uniform:
                 if (binding.HasHandle) {
-                    body.Append($"            recorder.BindGroupEntryBuffer({binding.Name}.Buffer);\n");
+                    body.Append($"            recorder.BindGroupEntryBuffer({index}, {binding.Name}.Buffer);\n");
                     return;
                 }
                 var uniformType = binding.Type.Name;
-                body.Append($"            recorder.BindGroupEntryUniform<{uniformType}>();\n");
+                body.Append($"            recorder.BindGroupEntryUniform<{uniformType}>({index});\n");
                 return;
             case sampler:
             case sampler_NonFiltering:
             case sampler_comparison:
-                body.Append($"            recorder.BindGroupEntrySampler({binding.Name});\n");
+                body.Append($"            recorder.BindGroupEntrySampler({index}, {binding.Name});\n");
                 return;
             case texture_1d:
             case texture_2d:
@@ -339,7 +340,7 @@ $$"""
             case texture_depth_2d_array:
             case texture_depth_cube:
             case texture_depth_cube_array:
-                body.Append($"            recorder.BindGroupEntryTexture({binding.Name});\n");
+                body.Append($"            recorder.BindGroupEntryTexture({index}, {binding.Name});\n");
                 return;
         }
     }

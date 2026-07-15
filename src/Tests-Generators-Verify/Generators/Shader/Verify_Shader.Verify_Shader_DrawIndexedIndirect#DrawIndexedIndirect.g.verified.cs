@@ -46,8 +46,8 @@ public partial class ShaderExample
         // --- bind group 1
         var key_1 = indirectBuffer.Handle;
         if (!bindGroupCache.bindGroup1.TryGetValue(key_1, out var bindGroup1)) {
-            recorder.BindGroupEntryUniform<Model>();
-            recorder.BindGroupEntryBuffer(indirectBuffer.Buffer);
+            recorder.BindGroupEntryUniform<Model>(0);
+            recorder.BindGroupEntryBuffer(1, indirectBuffer.Buffer);
             bindGroup1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "DrawIndexedIndirect_bindGroup1"u8);
             bindGroupCache.bindGroup1.Add(key_1, bindGroup1);
         }

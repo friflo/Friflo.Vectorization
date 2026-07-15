@@ -104,6 +104,7 @@ public sealed partial class Gen
         int bufferCount = 0;
         // var setTaskOnOutputs    = new StringBuilder();
 
+        int bindingIndex = 0;
         foreach (var vectorType in vectorTypes)
         {
             if (!vectorType.IsSpan) {
@@ -117,7 +118,7 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName},");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        recorder.{requireType}({paramName});");
-            bufferBindEntries.Append($"\n            recorder.BindGroupEntryBuffer({paramName}.Buffer);");
+            bufferBindEntries.Append($"\n            recorder.BindGroupEntryBuffer({bindingIndex++}, {paramName}.Buffer);");
             var storageMethod = isOutput ? "Storage);        " : "ReadOnlyStorage);";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";

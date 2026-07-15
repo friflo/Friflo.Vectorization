@@ -130,8 +130,8 @@ namespace Kernel.Generators
         var key = (dst.Handle, src.Handle);
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
-            recorder.BindGroupEntryBuffer(dst.Buffer);
-            recorder.BindGroupEntryBuffer(src.Buffer);
+            recorder.BindGroupEntryBuffer(0, dst.Buffer);
+            recorder.BindGroupEntryBuffer(1, src.Buffer);
             bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Add_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
