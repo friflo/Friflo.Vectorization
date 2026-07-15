@@ -120,18 +120,20 @@ public enum BufferProfile
 public enum BufferType
 {
     /// <summary> Large data arrays accessible by compute and graphics shaders. </summary>
-    Storage     = 0,
+    Storage         = 0,
     
     /// <summary> Small, fast, read-only configuration data for shaders. </summary>
-    Uniform     = 1,
+    Uniform         = 1,
     
     /// <summary> Fed directly into the Vertex Input Assembly stage to draw geometry. </summary>
-    Vertex      = 2,
+    Vertex          = 2,
     
     /// <summary> Fed directly into the Index Input Assembly stage to lookup vertices. </summary>
-    Index       = 3,
+    Index           = 3,
     
     /// <summary> Contains execution arguments for indirect dispatch or draw calls. </summary>
-    Indirect    = 4
+    Indirect        = 4,
+    
+    QueryResolve    = 5
 }
 

@@ -309,6 +309,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
             BufferType.Vertex       => BufferUsage.Vertex,
             BufferType.Index        => BufferUsage.Index,
             BufferType.Indirect     => BufferUsage.Indirect,
+            BufferType.QueryResolve => BufferUsage.QueryResolve,
             _                       => throw new InvalidOperationException()
         };
         return usage | typeUsage;
