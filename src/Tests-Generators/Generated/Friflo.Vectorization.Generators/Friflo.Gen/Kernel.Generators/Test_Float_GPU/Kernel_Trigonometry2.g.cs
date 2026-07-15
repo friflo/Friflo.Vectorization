@@ -179,13 +179,13 @@ namespace Kernel.Generators
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Trigonometry2_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated)
         {
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Trigonometry2_GPU_BufferLayoutKey, "Kernel_Trigonometry2_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Kernel_Trigonometry2_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Trigonometry2_GPU_UniformLayoutKey, "Kernel_Trigonometry2_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(_Kernel_Trigonometry2_GPU_Shader(), "Kernel_Trigonometry2"u8);

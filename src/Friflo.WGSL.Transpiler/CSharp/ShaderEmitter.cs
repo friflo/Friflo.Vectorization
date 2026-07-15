@@ -263,6 +263,7 @@ $$"""
     
     private static ulong AddLayout(StringBuilder sb, in CsParameter binding)
     {
+        var index       = binding.BindGroup.binding;
         var sampleType  = binding.AttrEnum.enum1; // WGSL enum:  ST    1 2 3
         var format      = binding.AttrEnum.enum1; // WGPU enum:  TextureFormat
         var access      = binding.AttrEnum.enum2; // WGSL enum:  TSA   1 2 3
@@ -270,35 +271,35 @@ $$"""
         switch (binding.ParamAttribute) {
             case storage:
                 bool isReadonly = binding.IsReadOnlyBuffer;
-                                                AppendStorage(sb, isReadonly ? "ReadOnlyStorage" : "Storage");
+                                                AppendStorage(sb, index, isReadonly ? "ReadOnlyStorage" : "Storage");
                                                                                             return isReadonly ? 0x100u : 0x200u;
             case uniform:
                 bool isBuffer = binding.IsBuffer;
-                                                AppendUniform(sb, isBuffer);                return isBuffer   ? 0x300u : 0x400u;
+                                                AppendUniform(sb, index, isBuffer);                return isBuffer   ? 0x300u : 0x400u;
             //
-            case sampler:                       AppendSampler(sb, "Filtering");             return 0x01000;
-            case sampler_NonFiltering:          AppendSampler(sb, "NonFiltering");          return 0x02000;
-            case sampler_comparison:            AppendSampler(sb, "Comparison");            return 0x03000;
+            case sampler:                       AppendSampler(sb, index, "Filtering");             return 0x01000;
+            case sampler_NonFiltering:          AppendSampler(sb, index, "NonFiltering");          return 0x02000;
+            case sampler_comparison:            AppendSampler(sb, index, "Comparison");            return 0x03000;
             //
-            case texture_1d:                    AppendTexture(sb, sampleType, "D1D");       return 0x04000 + sampleType.Value;
-            case texture_2d:                    AppendTexture(sb, sampleType, "D2D");       return 0x05000 + sampleType.Value;
-            case texture_2d_array:              AppendTexture(sb, sampleType, "D2DArray");  return 0x06000 + sampleType.Value;
-            case texture_3d:                    AppendTexture(sb, sampleType, "D3D");       return 0x07000 + sampleType.Value;
-            case texture_cube:                  AppendTexture(sb, sampleType, "Cube");      return 0x08000 + sampleType.Value;
-            case texture_cube_array:            AppendTexture(sb, sampleType, "CubeArray"); return 0x09000 + sampleType.Value;
+            case texture_1d:                    AppendTexture(sb, index, sampleType, "D1D");       return 0x04000 + sampleType.Value;
+            case texture_2d:                    AppendTexture(sb, index, sampleType, "D2D");       return 0x05000 + sampleType.Value;
+            case texture_2d_array:              AppendTexture(sb, index, sampleType, "D2DArray");  return 0x06000 + sampleType.Value;
+            case texture_3d:                    AppendTexture(sb, index, sampleType, "D3D");       return 0x07000 + sampleType.Value;
+            case texture_cube:                  AppendTexture(sb, index, sampleType, "Cube");      return 0x08000 + sampleType.Value;
+            case texture_cube_array:            AppendTexture(sb, index, sampleType, "CubeArray"); return 0x09000 + sampleType.Value;
             //
-            case texture_multisampled_2d:       AppendMultisampled(sb, sampleType, "D2D");  return 0x0a000 + sampleType.Value;
-            case texture_depth_multisampled_2d: AppendMultisampled(sb, null,       "D2D");  return 0x0b000;
+            case texture_multisampled_2d:       AppendMultisampled(sb, index, sampleType, "D2D");  return 0x0a000 + sampleType.Value;
+            case texture_depth_multisampled_2d: AppendMultisampled(sb, index, null,       "D2D");  return 0x0b000;
             //
-            case texture_storage_1d:        AppendStorageTexture(sb, format, access, "D1D");       return 0x0c000 + format.Value + (access.Value << 8);
-            case texture_storage_2d:        AppendStorageTexture(sb, format, access, "D2D");       return 0x0d000 + format.Value + (access.Value << 8);
-            case texture_storage_2d_array:  AppendStorageTexture(sb, format, access, "D2DArray");  return 0x0e000 + format.Value + (access.Value << 8);
-            case texture_storage_3d:        AppendStorageTexture(sb, format, access, "D3D");       return 0x0f000 + format.Value + (access.Value << 8);
+            case texture_storage_1d:        AppendStorageTexture(sb, index, format, access, "D1D");       return 0x0c000 + format.Value + (access.Value << 8);
+            case texture_storage_2d:        AppendStorageTexture(sb, index, format, access, "D2D");       return 0x0d000 + format.Value + (access.Value << 8);
+            case texture_storage_2d_array:  AppendStorageTexture(sb, index, format, access, "D2DArray");  return 0x0e000 + format.Value + (access.Value << 8);
+            case texture_storage_3d:        AppendStorageTexture(sb, index, format, access, "D3D");       return 0x0f000 + format.Value + (access.Value << 8);
             //
-            case texture_depth_2d:              AppendDepthTexture(sb, "D2D");              return 0x10000;
-            case texture_depth_2d_array:        AppendDepthTexture(sb, "D2DArray");         return 0x11000;
-            case texture_depth_cube:            AppendDepthTexture(sb, "Cube");             return 0x12000;
-            case texture_depth_cube_array:      AppendDepthTexture(sb, "CubeArray");        return 0x13000;
+            case texture_depth_2d:              AppendDepthTexture(sb, index, "D2D");              return 0x10000;
+            case texture_depth_2d_array:        AppendDepthTexture(sb, index, "D2DArray");         return 0x11000;
+            case texture_depth_cube:            AppendDepthTexture(sb, index, "Cube");             return 0x12000;
+            case texture_depth_cube_array:      AppendDepthTexture(sb, index, "CubeArray");        return 0x13000;
         }
         return 0;
     }
@@ -433,23 +434,23 @@ $$"""
         return default;
     }
     
-    private static void AppendStorage(StringBuilder sb, string bindingType)
+    private static void AppendStorage(StringBuilder sb, int binding, string bindingType)
     {
-        sb.Append($"device.BindGroupLayoutBuffer(BufferBindingType.{bindingType});");
+        sb.Append($"device.BindGroupLayoutBuffer({binding}, BufferBindingType.{bindingType});");
     }
     
-    private static void AppendUniform(StringBuilder sb, bool isBuffer)
+    private static void AppendUniform(StringBuilder sb, int binding, bool isBuffer)
     {
         if (isBuffer) {
-            AppendStorage(sb, "Uniform");
+            AppendStorage(sb, binding, "Uniform");
         } else {
-            sb.Append($"device.BindGroupLayoutUniform();");
+            sb.Append($"device.BindGroupLayoutUniform({binding});");
         }
     }
     
-    private static void AppendSampler(StringBuilder sb, string sampleType)
+    private static void AppendSampler(StringBuilder sb, int binding, string sampleType)
     {
-        sb.Append($"device.BindGroupLayoutSampler(SamplerBindingType.{sampleType});");
+        sb.Append($"device.BindGroupLayoutSampler({binding}, SamplerBindingType.{sampleType});");
     }
     
     private static string GetSampleTypeEnum( CsEnum sampleType) =>
@@ -461,24 +462,24 @@ $$"""
             _       => "None"
         };
     
-    private static void AppendTexture(StringBuilder sb, CsEnum sampleType, string dimension)
+    private static void AppendTexture(StringBuilder sb, int binding, CsEnum sampleType, string dimension)
     {
         var type = GetSampleTypeEnum(sampleType);
-        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, false);");
+        sb.Append($"device.BindGroupLayoutTexture({binding}, TextureSampleType.{type}, TextureViewDimension.{dimension}, false);");
     }
     
-    private static void AppendMultisampled(StringBuilder sb, CsEnum? sampleType, string dimension)
+    private static void AppendMultisampled(StringBuilder sb, int binding, CsEnum? sampleType, string dimension)
     {
         var type = sampleType == null ? "Depth" : GetSampleTypeEnum(sampleType.Value);
-        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.{type}, TextureViewDimension.{dimension}, true);");
+        sb.Append($"device.BindGroupLayoutTexture({binding}, TextureSampleType.{type}, TextureViewDimension.{dimension}, true);");
     }
     
-    private static void AppendDepthTexture(StringBuilder sb, string dimension)
+    private static void AppendDepthTexture(StringBuilder sb, int binding, string dimension)
     {
-        sb.Append($"device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.{dimension}, false);");
+        sb.Append($"device.BindGroupLayoutTexture({binding}, TextureSampleType.Depth, TextureViewDimension.{dimension}, false);");
     }
     
-    private static void AppendStorageTexture(StringBuilder sb, CsEnum format, CsEnum access, string dimension)
+    private static void AppendStorageTexture(StringBuilder sb, int binding, CsEnum format, CsEnum access, string dimension)
     {
         // WGSL enum:  TSA
         var tsa = access.Name switch  {
@@ -487,7 +488,7 @@ $$"""
             "read_write"    => "ReadWrite",
             _               => "BindingNotUsed"
         };
-        sb.Append($"device.BindGroupLayoutStorageTexture(TextureFormat.{format}, StorageTextureAccess.{tsa}, TextureViewDimension.{dimension});");
+        sb.Append($"device.BindGroupLayoutStorageTexture({binding}, TextureFormat.{format}, StorageTextureAccess.{tsa}, TextureViewDimension.{dimension});");
     }
     
     private string GetMethodHeader()

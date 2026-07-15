@@ -118,18 +118,19 @@ public sealed partial class Gen
             signature.Append($"\n        {paramType}<{type}> {paramName},");
             var requireType         = vectorType.RefKind == RefKind.Ref ? "RequireReadWrite" : "RequireRead     ";
             bufferInit.Append($"\n        recorder.{requireType}({paramName});");
-            bufferBindEntries.Append($"\n            recorder.BindGroupEntryBuffer({bindingIndex++}, {paramName}.Buffer);");
+            bufferBindEntries.Append($"\n            recorder.BindGroupEntryBuffer({bindingIndex}, {paramName}.Buffer);");
             var storageMethod = isOutput ? "Storage);        " : "ReadOnlyStorage);";
             var storageWgsl   = isOutput ? "read_write"       : "read      ";
             var binding = $"var<storage, {storageWgsl}>  {paramName}_arr: array<{wgslType}>;";
             bindings.Append($"    @group(0) @binding({bufferCount}) {binding}\n");
-            bufferLayoutEntries.Append($"\n            device.BindGroupLayoutBuffer(BufferBindingType.{storageMethod} // {binding }");
+            bufferLayoutEntries.Append($"\n            device.BindGroupLayoutBuffer({bindingIndex}, BufferBindingType.{storageMethod} // {binding }");
             bindingHash ^= (ulong)bufferCount;                                                                  bindingHash *= Prime;
             bindingHash ^= (ulong)(isOutput ? BufferBindingType.Storage : BufferBindingType.ReadOnlyStorage);   bindingHash *= Prime;
             // Note: the data type in a buffer is not relevant for layout. Need to understand why.
             bufferCount++;
             bufferKeyBuilder.Append($"{paramName}.Handle, ");
             bufferKeyTypeBuilder.Append("nint, ");
+            bindingIndex++;
         }
         bufferKeyBuilder.Length -= 2;
         bufferKeyTypeBuilder.Length -= 2;
@@ -248,7 +249,7 @@ $$""""
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout({{methodName_GPU}}_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, {{methodName_GPU}}_UniformLayoutKey, "{{methodName}}_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule({{methodName_GPU}}_Shader(), "{{methodName}}"u8);

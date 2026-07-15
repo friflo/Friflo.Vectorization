@@ -84,16 +84,16 @@ public partial class ShaderExample
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(_Render_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutUniform();
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, false);
-            device.BindGroupLayoutSampler(SamplerBindingType.Comparison);
+            device.BindGroupLayoutUniform(0);
+            device.BindGroupLayoutTexture(1, TextureSampleType.Depth, TextureViewDimension.D2D, false);
+            device.BindGroupLayoutSampler(2, SamplerBindingType.Comparison);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Render_GPU_layout_0_Key, "Render_layout_0"u8);
         }
         layouts[0] = layout_0;
         
         var layout_1 = device.GetBindGroupLayout(_Render_GPU_layout_1_Key);
         if (!layout_1.IsCreated) {
-            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutUniform(0);
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Render_GPU_layout_1_Key, "Render_layout_1"u8);
         }
         layouts[1] = layout_1;

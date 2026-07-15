@@ -164,13 +164,13 @@ namespace Kernel.Generators
         var bufferLayout = device.GetBindGroupLayout(_InverseSqrt_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated)
         {
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _InverseSqrt_GPU_BufferLayoutKey, "InverseSqrt_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_InverseSqrt_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _InverseSqrt_GPU_UniformLayoutKey, "InverseSqrt_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(_InverseSqrt_GPU_Shader(), "InverseSqrt"u8);

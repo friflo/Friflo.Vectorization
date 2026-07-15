@@ -92,14 +92,14 @@ public static class WgpuPattern
     {
         var bufferLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated) {
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);
+            device.BindGroupLayoutBuffer(0, BufferBindingType.ReadOnlyStorage);
+            device.BindGroupLayoutBuffer(1, BufferBindingType.ReadOnlyStorage);
+            device.BindGroupLayoutBuffer(2, BufferBindingType.Storage);
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, MultiplyAdd_GPU_BufferLayoutKey, "MultiplyAdd_buffers"u8);
         }
         var uniformLayout = device.GetBindGroupLayout(MultiplyAdd_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutUniform(0);
             uniformLayout   = device.CreateBindGroupLayout(ShaderStage.Compute, MultiplyAdd_GPU_UniformLayoutKey, "MultiplyAdd_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(MultiplyAdd_GPU_Shader(), "MultiplyAdd"u8);

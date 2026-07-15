@@ -109,30 +109,30 @@ public partial class ShaderExample
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
         var layout_0 = device.GetBindGroupLayout(_Textures_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D1D, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Float, TextureViewDimension.D2D, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Sint, TextureViewDimension.D2DArray, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Sint, TextureViewDimension.D3D, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Uint, TextureViewDimension.Cube, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Uint, TextureViewDimension.CubeArray, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Sint, TextureViewDimension.D2D, true);
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, true);
-            device.BindGroupLayoutStorageTexture(TextureFormat.RGBA32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D1D);
-            device.BindGroupLayoutStorageTexture(TextureFormat.RGBA8Unorm, StorageTextureAccess.WriteOnly, TextureViewDimension.D2D);
-            device.BindGroupLayoutStorageTexture(TextureFormat.RGBA8Uint, StorageTextureAccess.WriteOnly, TextureViewDimension.D2DArray);
-            device.BindGroupLayoutStorageTexture(TextureFormat.R32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D3D);
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2D, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.D2DArray, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.Cube, false);
-            device.BindGroupLayoutTexture(TextureSampleType.Depth, TextureViewDimension.CubeArray, false);
+            device.BindGroupLayoutTexture(0, TextureSampleType.Float, TextureViewDimension.D1D, false);
+            device.BindGroupLayoutTexture(1, TextureSampleType.Float, TextureViewDimension.D2D, false);
+            device.BindGroupLayoutTexture(2, TextureSampleType.Sint, TextureViewDimension.D2DArray, false);
+            device.BindGroupLayoutTexture(3, TextureSampleType.Sint, TextureViewDimension.D3D, false);
+            device.BindGroupLayoutTexture(4, TextureSampleType.Uint, TextureViewDimension.Cube, false);
+            device.BindGroupLayoutTexture(5, TextureSampleType.Uint, TextureViewDimension.CubeArray, false);
+            device.BindGroupLayoutTexture(6, TextureSampleType.Sint, TextureViewDimension.D2D, true);
+            device.BindGroupLayoutTexture(7, TextureSampleType.Depth, TextureViewDimension.D2D, true);
+            device.BindGroupLayoutStorageTexture(8, TextureFormat.RGBA32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D1D);
+            device.BindGroupLayoutStorageTexture(9, TextureFormat.RGBA8Unorm, StorageTextureAccess.WriteOnly, TextureViewDimension.D2D);
+            device.BindGroupLayoutStorageTexture(10, TextureFormat.RGBA8Uint, StorageTextureAccess.WriteOnly, TextureViewDimension.D2DArray);
+            device.BindGroupLayoutStorageTexture(11, TextureFormat.R32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D3D);
+            device.BindGroupLayoutTexture(12, TextureSampleType.Depth, TextureViewDimension.D2D, false);
+            device.BindGroupLayoutTexture(13, TextureSampleType.Depth, TextureViewDimension.D2DArray, false);
+            device.BindGroupLayoutTexture(14, TextureSampleType.Depth, TextureViewDimension.Cube, false);
+            device.BindGroupLayoutTexture(15, TextureSampleType.Depth, TextureViewDimension.CubeArray, false);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Textures_GPU_layout_0_Key, "Textures_layout_0"u8);
         }
         layouts[0] = layout_0;
         
         var layout_1 = device.GetBindGroupLayout(_Textures_GPU_layout_1_Key);
         if (!layout_1.IsCreated) {
-            device.BindGroupLayoutSampler(SamplerBindingType.Filtering);
-            device.BindGroupLayoutSampler(SamplerBindingType.Comparison);
+            device.BindGroupLayoutSampler(0, SamplerBindingType.Filtering);
+            device.BindGroupLayoutSampler(1, SamplerBindingType.Comparison);
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Textures_GPU_layout_1_Key, "Textures_layout_1"u8);
         }
         layouts[1] = layout_1;

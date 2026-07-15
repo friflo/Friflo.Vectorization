@@ -152,13 +152,13 @@ namespace Kernel.Lab
         var bufferLayout = device.GetBindGroupLayout(_ReadOnly_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated)
         {
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage); // var<storage, read      >  input_arr: array<f32>;
+            device.BindGroupLayoutBuffer(0, BufferBindingType.ReadOnlyStorage); // var<storage, read      >  input_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _ReadOnly_GPU_BufferLayoutKey, "ReadOnly_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_ReadOnly_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _ReadOnly_GPU_UniformLayoutKey, "ReadOnly_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(_ReadOnly_GPU_Shader(), "ReadOnly"u8);

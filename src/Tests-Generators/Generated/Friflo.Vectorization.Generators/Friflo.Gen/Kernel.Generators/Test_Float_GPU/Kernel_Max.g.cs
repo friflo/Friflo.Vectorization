@@ -178,14 +178,14 @@ namespace Kernel.Generators
         var bufferLayout = device.GetBindGroupLayout(_Kernel_Max_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated)
         {
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage); // var<storage, read      >  velocity_arr: array<f32>;
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<f32>;
+            device.BindGroupLayoutBuffer(1, BufferBindingType.ReadOnlyStorage); // var<storage, read      >  velocity_arr: array<f32>;
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Max_GPU_BufferLayoutKey, "Kernel_Max_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Kernel_Max_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Kernel_Max_GPU_UniformLayoutKey, "Kernel_Max_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(_Kernel_Max_GPU_Shader(), "Kernel_Max"u8);

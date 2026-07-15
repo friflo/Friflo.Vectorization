@@ -53,7 +53,7 @@ public static partial class Wormhood
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(Wormhood_GPU_layout_0_key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutUniform();
+            device.BindGroupLayoutUniform(0);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Fragment, Wormhood_GPU_layout_0_key, "Wormhood_layout_0"u8);
         }
         layouts[0] = layout_0;

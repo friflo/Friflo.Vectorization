@@ -70,7 +70,7 @@ public partial class InstancedCube
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutBuffer(BufferBindingType.Uniform);
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
         layouts[0] = layout_0;

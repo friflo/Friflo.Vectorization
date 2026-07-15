@@ -71,7 +71,7 @@ public partial class InstancedCube
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(InstancedCube_Storage_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage);
+            device.BindGroupLayoutBuffer(0, BufferBindingType.ReadOnlyStorage);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, InstancedCube_Storage_GPU_layout_0_Key, "InstancedCube_layout_0"u8);
         }
         layouts[0] = layout_0;

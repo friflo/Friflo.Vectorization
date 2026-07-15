@@ -252,20 +252,20 @@ public sealed unsafe partial  class WgpuDevice
         return layout;
     }
     
-    public void BindGroupLayoutSampler(SamplerBindingType samplerType)
+    public void BindGroupLayoutSampler(int binding, SamplerBindingType samplerType)
     {
-        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
-            binding = (uint)bindGroupLayoutEntriesCount++,
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount++] = new BindGroupLayoutEntry {
+            binding = (uint)binding,
             sampler = new SamplerBindingLayout {
                 type    = samplerType
             }
         };
     }
     
-    public void BindGroupLayoutTexture(TextureSampleType sampleType, TextureViewDimension viewDimension, bool multisampled)
+    public void BindGroupLayoutTexture(int binding, TextureSampleType sampleType, TextureViewDimension viewDimension, bool multisampled)
     {
-        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
-            binding = (uint)bindGroupLayoutEntriesCount++,
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount++] = new BindGroupLayoutEntry {
+            binding = (uint)binding,
             texture = new TextureBindingLayout {
                 sampleType      = sampleType,
                 viewDimension   = viewDimension,
@@ -274,10 +274,10 @@ public sealed unsafe partial  class WgpuDevice
         };
     }
     
-    public void BindGroupLayoutStorageTexture(TextureFormat format, StorageTextureAccess access, TextureViewDimension viewDimension)
+    public void BindGroupLayoutStorageTexture(int binding, TextureFormat format, StorageTextureAccess access, TextureViewDimension viewDimension)
     {
-        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
-            binding = (uint)bindGroupLayoutEntriesCount++,
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount++] = new BindGroupLayoutEntry {
+            binding = (uint)binding,
             storageTexture = new StorageTextureBindingLayout {
                 format          = format,
                 access          = access,
@@ -286,10 +286,10 @@ public sealed unsafe partial  class WgpuDevice
         };
     }
     
-    public void BindGroupLayoutUniform()
+    public void BindGroupLayoutUniform(int binding)
     {
-        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
-            binding = (uint)bindGroupLayoutEntriesCount++,
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount++] = new BindGroupLayoutEntry {
+            binding = (uint)binding,
             buffer  = new BufferBindingLayout {
                 type                = BufferBindingType.Uniform,
                 hasDynamicOffset    = WgpuUtils.FromBool(true), // true for uniform buffer
@@ -298,10 +298,10 @@ public sealed unsafe partial  class WgpuDevice
         };
     }
     
-    public void BindGroupLayoutBuffer(BufferBindingType bindingType)
+    public void BindGroupLayoutBuffer(int binding, BufferBindingType bindingType)
     {
-        bindGroupLayoutEntries[bindGroupLayoutEntriesCount] = new BindGroupLayoutEntry {
-            binding = (uint)bindGroupLayoutEntriesCount++,
+        bindGroupLayoutEntries[bindGroupLayoutEntriesCount++] = new BindGroupLayoutEntry {
+            binding = (uint)binding,
             buffer  = new BufferBindingLayout {
                 type                = bindingType,
                 hasDynamicOffset    = WgpuUtils.FromBool(false), // true for uniform buffer

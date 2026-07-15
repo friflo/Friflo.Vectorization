@@ -220,14 +220,14 @@ namespace Kernel.Generators
         var bufferLayout = device.GetBindGroupLayout(_Arithmetic_GPU_BufferLayoutKey);
         if (!bufferLayout.IsCreated)
         {
-            device.BindGroupLayoutBuffer(BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<vec2<f32>>;
-            device.BindGroupLayoutBuffer(BufferBindingType.ReadOnlyStorage); // var<storage, read      >  velocity_arr: array<vec2<f32>>;
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Storage);         // var<storage, read_write>  position_arr: array<vec2<f32>>;
+            device.BindGroupLayoutBuffer(1, BufferBindingType.ReadOnlyStorage); // var<storage, read      >  velocity_arr: array<vec2<f32>>;
             bufferLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Arithmetic_GPU_BufferLayoutKey, "Arithmetic_buffers"u8);
         }
         // @group(1)
         var uniformLayout = device.GetBindGroupLayout(_Arithmetic_GPU_UniformLayoutKey);
         if (!uniformLayout.IsCreated) {
-            device.BindGroupLayoutUniform();  // var<uniform>              uniforms
+            device.BindGroupLayoutUniform(0);  // var<uniform>              uniforms
             uniformLayout = device.CreateBindGroupLayout(ShaderStage.Compute, _Arithmetic_GPU_UniformLayoutKey, "Arithmetic_uniforms"u8);
         }
         using var shaderModule  = device.CreateShaderModule(_Arithmetic_GPU_Shader(), "Arithmetic"u8);
