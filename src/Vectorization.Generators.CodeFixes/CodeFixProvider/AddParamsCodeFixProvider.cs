@@ -57,8 +57,8 @@ public class AddParamsCodeFixProvider : CodeFixProvider
             return document;
         }
         var module      = WgslSuperpowerParser.ParseShader(wgsl);
-        var fixerResult = CodeFixer.CreateShaderParams(module);
-        var newParams   = SyntaxFactory.ParseParameterList(fixerResult.Parameters);
+        var paramsResult= CodeFixer.CreateShaderParams(module);
+        var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         
         var root = await document.GetSyntaxRootAsync(cancellationToken);
         var method = oldParams.FirstAncestorOrSelf<MethodDeclarationSyntax>();
@@ -68,7 +68,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
             .WithParameterList(newParams)
             .WithSemicolonToken(method.SemicolonToken.WithTrailingTrivia(
                 SyntaxFactory.LineFeed,
-                SyntaxFactory.Comment(fixerResult.Comments), 
+                SyntaxFactory.Comment(paramsResult.Comments), 
                 SyntaxFactory.CarriageReturnLineFeed));
 
         return document.WithSyntaxRoot(root.ReplaceNode(method, updatedMethod));

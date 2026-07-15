@@ -22,7 +22,7 @@ public readonly struct WgslValidationError
 }
 
 
-public readonly struct CodeFixerResult
+public readonly struct ShaderParamsResult
 {
     public required string                  Parameters  { get; init; }
     public required string                  Comments    { get; init; }
@@ -55,7 +55,7 @@ public static partial class CodeFixer
         return sb.ToString();
     }
     
-    public static CodeFixerResult CreateShaderParams(WgslModule module)
+    public static ShaderParamsResult CreateShaderParams(WgslModule module)
     {
         var sb      = new StringBuilder();
         sb.Append("(RenderPass pass, RenderConfig config,");
@@ -74,7 +74,7 @@ public static partial class CodeFixer
         
         var comments = CreateComments(parameters);
         
-        return new CodeFixerResult {
+        return new ShaderParamsResult {
             Parameters  = sb.ToString(),
             Comments    = comments,  
             Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
