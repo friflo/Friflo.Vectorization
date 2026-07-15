@@ -38,7 +38,7 @@ public static class TypeGenerator
     
     public static ShaderTypesResult GenerateCSharpTypes(string wgsl)
     {
-        var module = WgslSuperpowerParser.ParseShader(wgsl);
+        var module = WgslParser.ParseShader(wgsl);
         
         var exportTypes = new HashSet<string>();
 

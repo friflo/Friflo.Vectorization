@@ -14,7 +14,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Parse_triangle()
     {
         var (_, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var metadata = WgslSuperpowerParser.ParseShader(files[0].Content);
+        var metadata = WgslParser.ParseShader(files[0].Content);
         
         Assert.AreEqual(4, metadata.Structs.Count);
         Assert.AreEqual(2, metadata.EntryPoints.Count);
@@ -27,7 +27,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
         var (_, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var metadata = WgslSuperpowerParser.ParseShader(files[0].Content);
+        var metadata   = WgslParser.ParseShader(files[0].Content);
         
         Assert.AreEqual(4, metadata.Structs.Count);
         Assert.AreEqual(2, metadata.EntryPoints.Count);
@@ -41,7 +41,7 @@ public static class Tests_WGSL
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var module  = WgslParser.ParseShader(wgsl);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
@@ -61,7 +61,7 @@ public static class Tests_WGSL
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var module  = WgslParser.ParseShader(wgsl);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
@@ -84,7 +84,7 @@ public static class Tests_WGSL
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var module  = WgslParser.ParseShader(wgsl);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
@@ -106,7 +106,7 @@ public static class Tests_WGSL
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var module  = WgslParser.ParseShader(wgsl);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
@@ -142,7 +142,7 @@ public static class Tests_WGSL
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_WGSL));
         var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var module  = WgslSuperpowerParser.ParseShader(wgsl);
+        var module  = WgslParser.ParseShader(wgsl);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));

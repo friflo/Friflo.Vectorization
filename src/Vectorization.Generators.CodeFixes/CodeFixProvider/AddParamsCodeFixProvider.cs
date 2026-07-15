@@ -56,7 +56,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
             return document;
         }
-        var module      = WgslSuperpowerParser.ParseShader(wgsl);
+        var module      = WgslParser.ParseShader(wgsl);
         var paramsResult= CodeFixer.CreateShaderParams(module);
         var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         

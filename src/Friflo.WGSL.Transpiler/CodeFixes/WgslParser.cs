@@ -149,7 +149,7 @@ public static class WgslTokenizer
 // ==========================================
 // ROBUST TOKEN PARSER
 // ==========================================
-public static class WgslSuperpowerParser
+public static class WgslParser
 {
 // --- Primitive Token Matchers ---
     private static readonly TokenListParser<WgslToken, string> Id = 
