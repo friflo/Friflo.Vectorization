@@ -128,13 +128,12 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             return new ShaderMethodResult([]);
         }
         var diagnostics = new Diagnostics { BlueprintMethod = blueprintMethod };
-        var attributes  = blueprintMethod.GetAttributes();
         
         var hash = "";
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
-        var result = CreateShaderMethod(attributes, blueprintMethod, hash, diagnostics);
+        var result = CreateShaderMethod(blueprintMethod, hash, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
         }

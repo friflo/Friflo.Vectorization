@@ -21,12 +21,10 @@ namespace Friflo;
 public sealed partial class ShaderGen
 {
 
-    private static ShaderMethodResult? CreateShaderMethod(
-        ImmutableArray<AttributeData>   methodAttributes,
-        IMethodSymbol                   methodSymbol,
-        string                          hash,
-        Diagnostics                     diagnostics)
+    private static ShaderMethodResult? CreateShaderMethod(IMethodSymbol methodSymbol, string hash, Diagnostics diagnostics)
     {
+        var methodAttributes  = methodSymbol.GetAttributes();
+
         var noEmit = GeneratorUtils.HasAttribute(methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
         if (noEmit) {
             return null;
