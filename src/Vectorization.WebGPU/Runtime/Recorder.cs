@@ -196,8 +196,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BindGroupEntryUniformInternal(int binding, uint alignedSize)
     {
-    	bindGroupEntriesCount++;
-        bindGroupEntries[binding] = new BindGroupEntry {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
             binding = (uint)binding,
             buffer  = uniformBuffer.handle,
             offset  = 0,
@@ -208,8 +207,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     public void BindGroupEntrySampler(int binding, GpuSampler sampler)
     {
-    	bindGroupEntriesCount++;
-        bindGroupEntries[binding] = new BindGroupEntry {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
             binding = (uint)binding,
             sampler = sampler.handle
         };
@@ -218,8 +216,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     public void BindGroupEntryTexture(int binding, in GpuTextureView textureView)
     {
-    	bindGroupEntriesCount++;
-        bindGroupEntries[binding] = new BindGroupEntry {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
             binding     = (uint)binding,
             textureView = textureView.handle
         };
@@ -234,8 +231,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BindGroupEntryBufferInternal(int binding, nint buffer, int size)
     {
-    	bindGroupEntriesCount++;
-        bindGroupEntries[binding] = new BindGroupEntry {
+        bindGroupEntries[bindGroupEntriesCount++] = new BindGroupEntry {
             binding = (uint)binding,
             buffer  = (Buffer*)buffer,
             offset  = 0,
@@ -246,12 +242,11 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     [MethodImpl(MethodImplOptions.NoInlining)]
     public WgpuBindGroup CreateBindGroup(WgpuBindGroupLayout layout, ReadOnlySpan<byte> groupLabel)
     {
-        int count   = bindGroupEntriesCount;
-        var entries = bindGroupEntries;
+        int count = bindGroupEntriesCount;
         bindGroupEntriesCount = 0;
         BindGroup* handle;
         fixed(byte*             labelPtr        = groupLabel)
-        fixed(BindGroupEntry*   nativeEntryPtr  = entries) {
+        fixed(BindGroupEntry*   nativeEntryPtr  = bindGroupEntries) {
             var descriptor = new BindGroupDescriptor {
                 label       = WgpuUtils.FromPtrSpan(labelPtr, groupLabel), 
                 layout      = layout.handle,
@@ -259,9 +254,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
                 entries     = nativeEntryPtr
             };
             handle = wgpuDeviceCreateBindGroup(device.DevicePtr, &descriptor);
-        }
-        for (int n = 0; n < count; n++) {
-            entries[n] = default;
         }
         return new WgpuBindGroup(handle);
     }
