@@ -36,22 +36,22 @@ public partial class RenderTest
         
         // --- bind group 0
         var key_0 = triangles.Handle;
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryBuffer(0, triangles.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Triangles_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Triangles_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup0);
         }
         pass_.SetBindGroup(0, bindGroup0);
         
         // --- bind group 2
-        if (!bindGroupCache.bindGroup2.IsCreated) {
+        if (!bindGroupCache.bindGroup_2.IsCreated) {
             recorder.BindGroupEntryUniform<MyUniform>(0);
             recorder.BindGroupEntryUniform<Vector2>(1);
-            bindGroupCache.bindGroup2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "Triangles_bindGroup2"u8);
+            bindGroupCache.bindGroup_2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "Triangles_bindGroup_2"u8);
         }
         pass_.AddUniform(myUniform);
         pass_.AddUniform(model_offset);
-        pass_.SetBindGroupUniforms(2, bindGroupCache.bindGroup2);
+        pass_.SetBindGroupUniforms(2, bindGroupCache.bindGroup_2);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -59,12 +59,12 @@ public partial class RenderTest
     
     private sealed class Triangles_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup0 = new ();
-        internal            WgpuBindGroup                         bindGroup2;
+        internal readonly   Dictionary<nint,    WgpuBindGroup>    bindGroup_0 = new ();
+        internal            WgpuBindGroup                         bindGroup_2;
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroup(ref bindGroup2);
+            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_2);
         }
     }
     

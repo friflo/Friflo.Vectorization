@@ -41,18 +41,18 @@ public partial class ShadowMapping
         
         // --- bind group 0
         var key_0 = (textureView.Handle, sampler.Handle);
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryUniform<Scene>(0);
             recorder.BindGroupEntryTexture(1, textureView);
             recorder.BindGroupEntrySampler(2, sampler);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup0);
         }
         pass_.AddUniform(scene);
         pass_.SetBindGroupUniforms(0, bindGroup0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache, "Render_bindGroup0"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache, "Render_bindGroup_1"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         
@@ -64,11 +64,11 @@ public partial class ShadowMapping
     
     private sealed class Render_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint,nint), WgpuBindGroup>    bindGroup_0 = new ();
         internal WgpuBindGroup    bindGroup1;
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroups(bindGroup_0);
             ReleaseBindGroup(ref bindGroup1);
         }
     }
