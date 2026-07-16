@@ -189,27 +189,28 @@ $$"""
         if (resources.Length == 0) {
             bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{group};\n");
             bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{group});\n");
-        } else {
-            body.Append($"        var key_{group} = ");
-            bindGroupMembers.Append("        internal readonly   Dictionary<");
-            if (resources.Length > 1) {
-                body.Append("(");
-                bindGroupMembers.Append("(");
-            }
-            foreach (var resource in resources) {
-                body.Append($"{resource.Name}.Handle, ");
-                bindGroupMembers.Append("nint, ");
-            }
-            body.Length -= 2;
-            bindGroupMembers.Length -= 2;
-            if (resources.Length > 1) {
-                body.Append(")");
-                bindGroupMembers.Append(")");
-            }
-            body.Append(";\n");
-            bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
-            bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
+            return;
         }
+        // emit key, Dictionary<> and release of cached bind groups 
+        body.Append($"        var key_{group} = ");
+        bindGroupMembers.Append("        internal readonly   Dictionary<");
+        if (resources.Length > 1) {
+            body.Append("(");
+            bindGroupMembers.Append("(");
+        }
+        foreach (var resource in resources) {
+            body.Append($"{resource.Name}.Handle, ");
+            bindGroupMembers.Append("nint, ");
+        }
+        body.Length -= 2;
+        bindGroupMembers.Length -= 2;
+        if (resources.Length > 1) {
+            body.Append(")");
+            bindGroupMembers.Append(")");
+        }
+        body.Append(";\n");
+        bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
+        bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
     }
     
     private void EmitBindGroups(BindGroupLayout[] layouts)
