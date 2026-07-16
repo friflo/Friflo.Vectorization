@@ -191,7 +191,7 @@ $$"""
             bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup_{group});\n");
             return;
         }
-        // emit key, Dictionary<> and release of cached bind groups 
+        // emit key, Dictionary<(nint, ...), WgpuBindGroup> and release cached bind groups 
         body.Append($"        var key_{group} = ");
         bindGroupMembers.Append("        internal readonly   Dictionary<");
         if (resources.Length > 1) {
@@ -215,9 +215,10 @@ $$"""
     
     private void EmitBindGroup(int group, List<CsParameter> bindings, CsParameter[] uniforms)
     {
-        // does bind group contains only uniforms (no bindings with handles)?
+        // does bind group contains only uniforms?
         if (bindings.Count == uniforms.Length)
         {
+            // case: bind group is cached with a simple WgpuBindGroup field
             if (uniforms.Length == 1) {
                 var uniform = uniforms[0];
                 var binding = uniform.BindGroup.binding;
@@ -236,6 +237,7 @@ $$"""
             }
             return;
         }
+        // case: bind group is cached via with a Dictionary<(nint, ...), WgpuBindGroup>
         body.Append($"        if (!bindGroupCache.bindGroup_{group}.TryGetValue(key_{group}, out var bindGroup_{group})) {{\n");
         foreach (var binding in bindings) {
             EmitBinding(body, binding);
