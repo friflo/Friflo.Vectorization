@@ -166,7 +166,7 @@ public readonly record struct CsParameter
     
     public bool IsReadOnlyBuffer    => Type.Name == "InBuffer";
     
-    public bool HasHandle           => !(ParamAttribute == CsParamAttribute.uniform && !IsBuffer);
+    public bool IsResource          => !(ParamAttribute == CsParamAttribute.uniform && !IsBuffer);
     
     public bool IsBuffer            => Type.Name is "InBuffer" or "InOutBuffer";
 

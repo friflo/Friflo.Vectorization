@@ -266,8 +266,8 @@ $$"""
                 continue;
             }
             var bindings    = layout.bindings;
-            var resources   = bindings.Where(binding =>  binding.HasHandle).ToArray(); // bindings with a Handle
-            var uniforms    = bindings.Where(binding => !binding.HasHandle).ToArray(); // only uniform bindings
+            var resources   = bindings.Where(binding =>  binding.IsResource).ToArray(); // bindings with a Handle
+            var uniforms    = bindings.Where(binding => !binding.IsResource).ToArray(); // only uniform bindings
             
             body.Append($"        // --- bind group {group}\n");
             
@@ -355,7 +355,7 @@ $$"""
                 body.Append($"            recorder.BindGroupEntryBuffer({index}, {binding.Name}.Buffer);\n");
                 return;
             case uniform:
-                if (binding.HasHandle) {
+                if (binding.IsResource) {
                     body.Append($"            recorder.BindGroupEntryBuffer({index}, {binding.Name}.Buffer);\n");
                     return;
                 }
