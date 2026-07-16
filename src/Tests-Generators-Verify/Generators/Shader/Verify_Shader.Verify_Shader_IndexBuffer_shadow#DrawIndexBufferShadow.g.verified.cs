@@ -38,10 +38,10 @@ public partial class ShaderExample
         var bindGroupCache = (_DrawIndexBufferShadow_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup0, scene, pipelineCache,"DrawIndexBufferShadow_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, scene, pipelineCache,"DrawIndexBufferShadow_bindGroup_0"u8);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache,"DrawIndexBufferShadow_bindGroup1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, model, pipelineCache,"DrawIndexBufferShadow_bindGroup_1"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
@@ -52,12 +52,12 @@ public partial class ShaderExample
 
     private sealed class _DrawIndexBufferShadow_GPU_Cache : BindGroupCache
     {
-        internal            WgpuBindGroup bindGroup0;
-        internal            WgpuBindGroup bindGroup1;
+        internal            WgpuBindGroup bindGroup_0;
+        internal            WgpuBindGroup bindGroup_1;
 
         protected override void Clear() {
-            ReleaseBindGroup(ref bindGroup0);
-            ReleaseBindGroup(ref bindGroup1);
+            ReleaseBindGroup(ref bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_1);
         }
     }
 

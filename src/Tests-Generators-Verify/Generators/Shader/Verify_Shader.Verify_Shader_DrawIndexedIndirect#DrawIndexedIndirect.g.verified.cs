@@ -41,18 +41,18 @@ public partial class ShaderExample
         var bindGroupCache = (_DrawIndexedIndirect_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup0, scene, pipelineCache,"DrawIndexedIndirect_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, scene, pipelineCache,"DrawIndexedIndirect_bindGroup_0"u8);
         
         // --- bind group 1
         var key_1 = indirectBuffer.Handle;
-        if (!bindGroupCache.bindGroup1.TryGetValue(key_1, out var bindGroup1)) {
+        if (!bindGroupCache.bindGroup_1.TryGetValue(key_1, out var bindGroup_1)) {
             recorder.BindGroupEntryUniform<Model>(0);
             recorder.BindGroupEntryBuffer(1, indirectBuffer.Buffer);
-            bindGroup1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "DrawIndexedIndirect_bindGroup1"u8);
-            bindGroupCache.bindGroup1.Add(key_1, bindGroup1);
+            bindGroup_1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "DrawIndexedIndirect_bindGroup_1"u8);
+            bindGroupCache.bindGroup_1.Add(key_1, bindGroup_1);
         }
         pass_.AddUniform(model);
-        pass_.SetBindGroupUniforms(1, bindGroup1);
+        pass_.SetBindGroupUniforms(1, bindGroup_1);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
@@ -63,12 +63,12 @@ public partial class ShaderExample
 
     private sealed class _DrawIndexedIndirect_GPU_Cache : BindGroupCache
     {
-        internal            WgpuBindGroup bindGroup0;
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup1 = new ();
+        internal            WgpuBindGroup bindGroup_0;
+        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_1 = new ();
 
         protected override void Clear() {
-            ReleaseBindGroup(ref bindGroup0);
-            ReleaseBindGroups(bindGroup1);
+            ReleaseBindGroup(ref bindGroup_0);
+            ReleaseBindGroups(bindGroup_1);
         }
     }
 

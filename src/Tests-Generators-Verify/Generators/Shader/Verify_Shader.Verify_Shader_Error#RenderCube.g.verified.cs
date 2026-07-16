@@ -38,15 +38,15 @@ public partial class ShaderExample
 
         // --- bind group 0
         var key_0 = (smoothFilter.Handle, material.Handle);
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryUniform<Uniforms>(0);
             recorder.BindGroupEntrySampler(1, smoothFilter);
             recorder.BindGroupEntryTexture(2, material);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "RenderCube_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "RenderCube_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
         pass_.AddUniform(uniforms);
-        pass_.SetBindGroupUniforms(0, bindGroup0);
+        pass_.SetBindGroupUniforms(0, bindGroup_0);
         
         pass_.SetVertexBuffer(vertices, 0);
         
@@ -56,10 +56,10 @@ public partial class ShaderExample
 
     private sealed class _RenderCube_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup_0 = new ();
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroups(bindGroup_0);
         }
     }
 

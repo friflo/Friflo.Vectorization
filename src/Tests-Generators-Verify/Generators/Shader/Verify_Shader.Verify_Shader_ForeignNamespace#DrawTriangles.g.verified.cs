@@ -39,18 +39,18 @@ public partial class ShaderExample
 
         // --- bind group 0
         var key_0 = triangles.Handle;
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryBuffer(0, triangles.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawTriangles_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawTriangles_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
-        pass_.SetBindGroup(0, bindGroup0);
+        pass_.SetBindGroup(0, bindGroup_0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, myUniform, pipelineCache,"DrawTriangles_bindGroup1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, myUniform, pipelineCache,"DrawTriangles_bindGroup_1"u8);
         
         // --- bind group 2
-        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup2, globalUniform, pipelineCache,"DrawTriangles_bindGroup2"u8);
+        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup_2, globalUniform, pipelineCache,"DrawTriangles_bindGroup_2"u8);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -58,14 +58,14 @@ public partial class ShaderExample
 
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();
-        internal            WgpuBindGroup bindGroup1;
-        internal            WgpuBindGroup bindGroup2;
+        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_0 = new ();
+        internal            WgpuBindGroup bindGroup_1;
+        internal            WgpuBindGroup bindGroup_2;
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroup(ref bindGroup1);
-            ReleaseBindGroup(ref bindGroup2);
+            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_1);
+            ReleaseBindGroup(ref bindGroup_2);
         }
     }
 

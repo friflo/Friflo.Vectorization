@@ -51,7 +51,7 @@ public partial class ShaderExample
 
         // --- bind group 0
         var key_0 = (texture0.Handle, texture1.Handle, texture2.Handle, texture3.Handle, texture4.Handle, texture5.Handle, texture6.Handle, texture7.Handle, texture8.Handle, texture9.Handle, texture10.Handle, texture11.Handle, texture12.Handle, texture13.Handle, texture14.Handle, texture15.Handle);
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryTexture(0, texture0);
             recorder.BindGroupEntryTexture(1, texture1);
             recorder.BindGroupEntryTexture(2, texture2);
@@ -68,32 +68,32 @@ public partial class ShaderExample
             recorder.BindGroupEntryTexture(13, texture13);
             recorder.BindGroupEntryTexture(14, texture14);
             recorder.BindGroupEntryTexture(15, texture15);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Textures_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Textures_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
-        pass_.SetBindGroup(0, bindGroup0);
+        pass_.SetBindGroup(0, bindGroup_0);
         
         // --- bind group 1
         var key_1 = (sampler0.Handle, sampler1.Handle);
-        if (!bindGroupCache.bindGroup1.TryGetValue(key_1, out var bindGroup1)) {
+        if (!bindGroupCache.bindGroup_1.TryGetValue(key_1, out var bindGroup_1)) {
             recorder.BindGroupEntrySampler(0, sampler0);
             recorder.BindGroupEntrySampler(1, sampler1);
-            bindGroup1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "Textures_bindGroup1"u8);
-            bindGroupCache.bindGroup1.Add(key_1, bindGroup1);
+            bindGroup_1 = recorder.CreateBindGroup(pipelineCache.layouts[1], "Textures_bindGroup_1"u8);
+            bindGroupCache.bindGroup_1.Add(key_1, bindGroup_1);
         }
-        pass_.SetBindGroup(1, bindGroup1);
+        pass_.SetBindGroup(1, bindGroup_1);
         
         // --- draw
     }
 
     private sealed class _Textures_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup>    bindGroup0 = new ();
-        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup1 = new ();
+        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup>    bindGroup_0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup_1 = new ();
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroups(bindGroup1);
+            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroups(bindGroup_1);
         }
     }
 

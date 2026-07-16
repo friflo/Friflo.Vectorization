@@ -41,18 +41,18 @@ public partial class ShaderExample
 
         // --- bind group 0
         var key_0 = (textureView.Handle, sampler.Handle);
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryUniform<Scene>(0);
             recorder.BindGroupEntryTexture(1, textureView);
             recorder.BindGroupEntrySampler(2, sampler);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Render_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Render_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
         pass_.AddUniform(scene);
-        pass_.SetBindGroupUniforms(0, bindGroup0);
+        pass_.SetBindGroupUniforms(0, bindGroup_0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup1, model, pipelineCache,"Render_bindGroup1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, model, pipelineCache,"Render_bindGroup_1"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         pass_.SetIndexBuffer(indexBuffer, IndexFormat.Uint16);
@@ -63,12 +63,12 @@ public partial class ShaderExample
 
     private sealed class _Render_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup0 = new ();
-        internal            WgpuBindGroup bindGroup1;
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup_0 = new ();
+        internal            WgpuBindGroup bindGroup_1;
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
-            ReleaseBindGroup(ref bindGroup1);
+            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_1);
         }
     }
 

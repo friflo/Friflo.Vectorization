@@ -33,7 +33,7 @@ public partial struct ShaderExample
         var bindGroupCache = (_RenderTunnel_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup0, uniforms, pipelineCache,"RenderTunnel_bindGroup0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, uniforms, pipelineCache,"RenderTunnel_bindGroup_0"u8);
         
         // --- draw
         pass_.Draw(new DrawArgs(3, 1, 0, 0));
@@ -41,10 +41,10 @@ public partial struct ShaderExample
 
     private sealed class _RenderTunnel_GPU_Cache : BindGroupCache
     {
-        internal            WgpuBindGroup bindGroup0;
+        internal            WgpuBindGroup bindGroup_0;
 
         protected override void Clear() {
-            ReleaseBindGroup(ref bindGroup0);
+            ReleaseBindGroup(ref bindGroup_0);
         }
     }
 

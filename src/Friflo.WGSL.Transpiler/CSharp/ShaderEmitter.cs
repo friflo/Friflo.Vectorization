@@ -187,8 +187,8 @@ $$"""
     private void EmitBindGroupCaching(int group, CsParameter[] resources)
     {
         if (resources.Length == 0) {
-            bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{group};\n");
-            bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{group});\n");
+            bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup_{group};\n");
+            bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup_{group});\n");
             return;
         }
         // emit key, Dictionary<> and release of cached bind groups 
@@ -209,8 +209,8 @@ $$"""
             bindGroupMembers.Append(")");
         }
         body.Append(";\n");
-        bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
-        bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
+        bindGroupMembers.Append($", WgpuBindGroup>    bindGroup_{group} = new ();\n");
+        bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup_{group});\n");
     }
     
     private void EmitBindGroup(int group, List<CsParameter> bindings, CsParameter[] uniforms)
@@ -221,35 +221,35 @@ $$"""
             if (uniforms.Length == 1) {
                 var uniform = uniforms[0];
                 var binding = uniform.BindGroup.binding;
-                body.Append($"        pass_.SetBindGroupUniform({group}, {binding}, ref bindGroupCache.bindGroup{group}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{group}\"u8);\n");
+                body.Append($"        pass_.SetBindGroupUniform({group}, {binding}, ref bindGroupCache.bindGroup_{group}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup_{group}\"u8);\n");
             } else {
-                body.Append($"        if (!bindGroupCache.bindGroup{group}.IsCreated) {{\n");
+                body.Append($"        if (!bindGroupCache.bindGroup_{group}.IsCreated) {{\n");
                 foreach (var uniform in uniforms) {
                     body.Append($"            recorder.BindGroupEntryUniform<{uniform.Type.Name}>({uniform.BindGroup.binding});\n");
                 }
-                body.Append($"            bindGroupCache.bindGroup{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup{group}\"u8);\n");
+                body.Append($"            bindGroupCache.bindGroup_{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup_{group}\"u8);\n");
                 body.Append("        }\n");
                 foreach (var uniform in uniforms) {
                     body.Append($"        pass_.AddUniform({uniform.Name});\n");
                 }
-                body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroupCache.bindGroup{group});\n");
+                body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroupCache.bindGroup_{group});\n");
             }
             return;
         }
-        body.Append($"        if (!bindGroupCache.bindGroup{group}.TryGetValue(key_{group}, out var bindGroup{group})) {{\n");
+        body.Append($"        if (!bindGroupCache.bindGroup_{group}.TryGetValue(key_{group}, out var bindGroup_{group})) {{\n");
         foreach (var binding in bindings) {
             EmitBinding(body, binding);
         }
-        body.Append($"            bindGroup{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup{group}\"u8);\n");
-        body.Append($"            bindGroupCache.bindGroup{group}.Add(key_{group}, bindGroup{group});\n");
+        body.Append($"            bindGroup_{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup_{group}\"u8);\n");
+        body.Append($"            bindGroupCache.bindGroup_{group}.Add(key_{group}, bindGroup_{group});\n");
         body.Append( "        }\n");
         foreach (var uniform in uniforms) {
             body.Append($"        pass_.AddUniform({uniform.Name});\n");    
         }
         if (uniforms.Length == 0) {
-            body.Append($"        pass_.SetBindGroup({group}, bindGroup{group});\n");
+            body.Append($"        pass_.SetBindGroup({group}, bindGroup_{group});\n");
         } else {
-            body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroup{group});\n");
+            body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroup_{group});\n");
         }
     }
     

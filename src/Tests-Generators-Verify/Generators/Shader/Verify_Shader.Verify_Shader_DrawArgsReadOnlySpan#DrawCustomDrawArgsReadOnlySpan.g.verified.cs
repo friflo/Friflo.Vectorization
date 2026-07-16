@@ -38,12 +38,12 @@ public partial class ShaderExample
 
         // --- bind group 0
         var key_0 = mvpMatrices.Handle;
-        if (!bindGroupCache.bindGroup0.TryGetValue(key_0, out var bindGroup0)) {
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryBuffer(0, mvpMatrices.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawCustomDrawArgsReadOnlySpan_bindGroup0"u8);
-            bindGroupCache.bindGroup0.Add(key_0, bindGroup0);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawCustomDrawArgsReadOnlySpan_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
-        pass_.SetBindGroup(0, bindGroup0);
+        pass_.SetBindGroup(0, bindGroup_0);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         
@@ -55,10 +55,10 @@ public partial class ShaderExample
 
     private sealed class _DrawCustomDrawArgsReadOnlySpan_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup0 = new ();
+        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_0 = new ();
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup0);
+            ReleaseBindGroups(bindGroup_0);
         }
     }
 
