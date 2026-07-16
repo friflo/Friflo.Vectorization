@@ -63,7 +63,7 @@ public partial class ShaderExample
 
     private sealed class _Render_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup_0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bindGroup_0 = new ();
         internal            WgpuBindGroup bindGroup_1;
 
         protected override void Clear() {

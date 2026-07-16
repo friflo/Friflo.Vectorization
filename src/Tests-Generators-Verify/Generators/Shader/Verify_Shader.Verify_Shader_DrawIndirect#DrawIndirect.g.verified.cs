@@ -61,7 +61,7 @@ public partial class ShaderExample
     private sealed class _DrawIndirect_GPU_Cache : BindGroupCache
     {
         internal            WgpuBindGroup bindGroup_0;
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_1 = new ();
+        internal readonly   Dictionary<nint, WgpuBindGroup> bindGroup_1 = new ();
 
         protected override void Clear() {
             ReleaseBindGroup(ref bindGroup_0);

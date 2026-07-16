@@ -53,7 +53,7 @@ public partial class ShaderExample
 
     private sealed class _DrawCustomDrawArgs_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_0 = new ();
+        internal readonly   Dictionary<nint, WgpuBindGroup> bindGroup_0 = new ();
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup_0);

@@ -60,7 +60,7 @@ public partial class ShaderExample
 
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_0 = new ();
+        internal readonly   Dictionary<nint, WgpuBindGroup> bindGroup_0 = new ();
         internal            WgpuBindGroup bindGroup_2;
 
         protected override void Clear() {

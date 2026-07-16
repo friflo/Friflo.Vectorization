@@ -88,8 +88,8 @@ public partial class ShaderExample
 
     private sealed class _Textures_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup>    bindGroup_0 = new ();
-        internal readonly   Dictionary<(nint, nint), WgpuBindGroup>    bindGroup_1 = new ();
+        internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup> bindGroup_0 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bindGroup_1 = new ();
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup_0);

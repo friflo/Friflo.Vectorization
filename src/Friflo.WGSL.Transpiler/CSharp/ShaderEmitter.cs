@@ -209,7 +209,7 @@ $$"""
             bindGroupMembers.Append(")");
         }
         body.Append(";\n");
-        bindGroupMembers.Append($", WgpuBindGroup>    bindGroup_{group} = new ();\n");
+        bindGroupMembers.Append($", WgpuBindGroup> bindGroup_{group} = new ();\n");
         bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup_{group});\n");
     }
     
