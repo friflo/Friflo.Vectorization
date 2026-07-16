@@ -50,8 +50,6 @@ public sealed class ShaderEmitter
             return header + " { }\n}\n";
         }
 
-        var className       = method.DeclaringType.Name;
-        
         var shaderResources = new StringBuilder();
         
         shaderResources.Append($"    private static readonly WgpuShader[] {methodName_GPU}_Shaders = [\n");
@@ -105,8 +103,7 @@ public sealed class ShaderEmitter
             bufferInit.Append($"\n        recorder.{requireType}({parameter.Name});");
         }
         
-        var layoutLength = bindGroups.Last().BindGroup.group + 1;
-        var layoutArray = new BindGroupLayout[layoutLength];
+        var layoutArray = new BindGroupLayout[bindGroups.Last().BindGroup.group + 1];
         foreach (var layout in layouts) {
             layoutArray[layout.groupIndex] = layout;
         }
@@ -136,6 +133,8 @@ public sealed class ShaderEmitter
         // --- draw
         EmitDraw(body, method);
         
+        var className       = method.DeclaringType.Name;
+
         // language=csharp
         var code =
 $$"""
