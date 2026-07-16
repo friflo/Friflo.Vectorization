@@ -184,6 +184,34 @@ $$"""
         return code;
     }
     
+    private void EmitBindGroupCache(int group, CsParameter[] resources)
+    {
+        if (resources.Length == 0) {
+            bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{group};\n");
+            bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{group});\n");
+        } else {
+            body.Append($"        var key_{group} = ");
+            bindGroupMembers.Append("        internal readonly   Dictionary<");
+            if (resources.Length > 1) {
+                body.Append("(");
+                bindGroupMembers.Append("(");
+            }
+            foreach (var resource in resources) {
+                body.Append($"{resource.Name}.Handle, ");
+                bindGroupMembers.Append("nint, ");
+            }
+            body.Length -= 2;
+            bindGroupMembers.Length -= 2;
+            if (resources.Length > 1) {
+                body.Append(")");
+                bindGroupMembers.Append(")");
+            }
+            body.Append(";\n");
+            bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
+            bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
+        }
+    }
+    
     private void EmitBindGroups(BindGroupLayout[] layouts)
     {
         for (int group = 0; group < layouts.Length; group++)
@@ -195,42 +223,34 @@ $$"""
                 continue;
             }
             
-            var bindings    = layout.bindings.Where(binding =>  binding.HasHandle).ToArray();
-            var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray();
+            var resources   = layout.bindings.Where(binding =>  binding.HasHandle).ToArray(); // bindings with a Handle
+            var uniforms    = layout.bindings.Where(binding => !binding.HasHandle).ToArray(); // only uniform bindings
             
-            ulong layoutKey = LayoutStartHash;
-            layoutKey      ^= (ulong)layouts.Length; layoutKey *= Prime;
-            layoutKey      ^= (ulong)group;          layoutKey *= Prime;
+            body.Append($"        // --- bind group {group}\n");
             
             // --- bind group creation
-            body.Append($"        // --- bind group {group}\n");
-            if (bindings.Length == 0)
+            EmitBindGroupCache(group, resources);
+
+            // does bind group contains only uniforms (no bindings with handles)?
+            if (resources.Length == 0)
             {
-                foreach (var uniform in uniforms) {
+                if (uniforms.Length == 1) {
+                    var uniform = uniforms[0];
                     var binding = uniform.BindGroup.binding;
                     body.Append($"        pass_.SetBindGroupUniform({group}, {binding}, ref bindGroupCache.bindGroup{group}, {uniform.Name}, pipelineCache,\"{methodName}_bindGroup{group}\"u8);\n");
+                } else {
+                    body.Append($"        if (!bindGroupCache.bindGroup{group}.IsCreated) {{\n");
+                    foreach (var uniform in uniforms) {
+                        body.Append($"            recorder.BindGroupEntryUniform<{uniform.Type.Name}>({uniform.BindGroup.binding});\n");
+                    }
+                    body.Append($"            bindGroupCache.bindGroup{group} = recorder.CreateBindGroup(pipelineCache.layouts[{group}], \"{methodName}_bindGroup{group}\"u8);\n");
+                    body.Append("        }\n");
+                    foreach (var uniform in uniforms) {
+                        body.Append($"        pass_.AddUniform({uniform.Name});\n");
+                    }
+                    body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroupCache.bindGroup{group});\n");
                 }
-                //
-                bindGroupMembers.Append($"        internal            WgpuBindGroup bindGroup{group};\n");
-                bindGroupClear.Append  ($"            ReleaseBindGroup(ref bindGroup{group});\n");
             } else {
-                body.Append($"        var key_{group} = ");
-                bindGroupMembers.Append("        internal readonly   Dictionary<");
-                if (bindings.Length > 1) {
-                    body.Append("(");
-                    bindGroupMembers.Append("(");
-                }
-                foreach (var binding in bindings) {
-                    body.Append($"{binding.Name}.Handle, ");
-                    bindGroupMembers.Append("nint, ");
-                }
-                body.Length -= 2;
-                bindGroupMembers.Length -= 2;
-                if (bindings.Length > 1) {
-                    body.Append(")");
-                    bindGroupMembers.Append(")");
-                }
-                body.Append(";\n");
                 body.Append($"        if (!bindGroupCache.bindGroup{group}.TryGetValue(key_{group}, out var bindGroup{group})) {{\n");
                 foreach (var binding in layout.bindings) {
                     EmitBinding(body, binding);
@@ -241,19 +261,19 @@ $$"""
                 foreach (var uniform in uniforms) {
                     body.Append($"        pass_.AddUniform({uniform.Name});\n");    
                 }
-                if (uniforms.Length > 0) {
-                    body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroup{group});\n");
-                } else {
+                if (uniforms.Length == 0) {
                     body.Append($"        pass_.SetBindGroup({group}, bindGroup{group});\n");
+                } else {
+                    body.Append($"        pass_.SetBindGroupUniforms({group}, bindGroup{group});\n");
                 }
-                
-                //
-                bindGroupMembers.Append($", WgpuBindGroup>    bindGroup{group} = new ();\n");
-                bindGroupClear.Append  ($"            ReleaseBindGroups(bindGroup{group});\n");
             }
             body.Append($"        \n");
             
             // --- bind group layout creation
+            ulong layoutKey = LayoutStartHash;
+            layoutKey      ^= (ulong)layouts.Length; layoutKey *= Prime;
+            layoutKey      ^= (ulong)group;          layoutKey *= Prime;
+            
             bindGroupLayouts.Append($"        var layout_{group} = device.GetBindGroupLayout({methodName_GPU}_layout_{group}_Key);\n");
             bindGroupLayouts.Append($"        if (!layout_{group}.IsCreated) {{\n");
             foreach (var binding in layout.bindings) {

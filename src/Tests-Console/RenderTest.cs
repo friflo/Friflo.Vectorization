@@ -78,7 +78,6 @@ public partial class RenderTest : IRenderer
         DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
     }
 
-    [NoEmit]
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
