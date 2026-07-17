@@ -137,7 +137,9 @@ public sealed class ShaderEmitter
         // --- draw
         EmitDraw(body, method);
         
-        var className       = method.DeclaringType.Name;
+        var className   = method.DeclaringType.Name;
+        var passName    = method.Parameters[0].Name;
+        var configName  = method.Parameters[1].Name;
 
         // language=csharp
         var code =
@@ -145,14 +147,14 @@ $$"""
 {{header}}
     {
 {{buffers}}
-        var pass_       = pass.Internal;
+        var pass_       = {{passName}}.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init({{methodName_GPU}}_ShaderId, "{{methodName}}_encoder"u8);
 {{bufferInit}}
         
-        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, config, {{methodName_GPU}}_WgslHash);
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, {{configName}}, {{methodName_GPU}}_WgslHash);
         if (!pipelineCache.IsCreated) {
-            pipelineCache = ref {{methodName_GPU}}_CreatePipelineCache(recorder.Device, config);
+            pipelineCache = ref {{methodName_GPU}}_CreatePipelineCache(recorder.Device, {{configName}});
         }
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
@@ -437,8 +439,9 @@ $$"""
                 body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
-                var slot = drawParam.BindGroup.group;
-                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, config, {drawArgs});\n");
+                var slot        = drawParam.BindGroup.group;
+                var configName  = method.Parameters[1].Name;
+                body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, {configName}, {drawArgs});\n");
                 break;
             case IndexBuffer:
                 body.Append($"{indent}        pass_.DrawIndexed{suffix}({paramName}, {drawArgs});\n");

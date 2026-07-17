@@ -132,7 +132,7 @@ public partial class ShaderExample
 {
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
-    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
+    protected static partial void RenderCube(RenderPass renderPass, RenderConfig renderConfig,
         [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
         [Map(0, 1)] [sampler]                   GpuSampler      smoothFilter,
         [Map(0, 2)] [texture_2d(ST.f32)]        GpuTextureView  material,

@@ -14,23 +14,23 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     protected static partial void RenderCube(
-        RenderPass                  pass,
-        RenderConfig                config,
+        RenderPass                  renderPass,
+        RenderConfig                renderConfig,
         in Uniforms                 uniforms,
         GpuSampler                  smoothFilter,
         GpuTextureView              material,
         InBuffer<float>             vertices)
     {
 
-        var pass_       = pass.Internal;
+        var pass_       = renderPass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.Init(_RenderCube_GPU_ShaderId, "RenderCube_encoder"u8);
 
         recorder.RequireRead     (vertices);
         
-        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_RenderCube_GPU_ShaderId, config, _RenderCube_GPU_WgslHash);
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_RenderCube_GPU_ShaderId, renderConfig, _RenderCube_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
-            pipelineCache = ref _RenderCube_GPU_CreatePipelineCache(recorder.Device, config);
+            pipelineCache = ref _RenderCube_GPU_CreatePipelineCache(recorder.Device, renderConfig);
         }
         pass_.SetPipeline(pipelineCache.renderPipeline);
         
@@ -51,7 +51,7 @@ public partial class ShaderExample
         pass_.SetVertexBuffer(vertices, 0);
         
         // --- draw
-        pass_.Draw(vertices, 0, config, new DrawArgs());
+        pass_.Draw(vertices, 0, renderConfig, new DrawArgs());
     }
 
     private sealed class _RenderCube_GPU_Cache : BindGroupCache
