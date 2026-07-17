@@ -107,23 +107,20 @@ public static class ShaderValidation
             switch (parameter.ParamAttribute)
             {
                 case CsParamAttribute.uniform:
-                    if (!parameter.IsResource) {
-                        
-                        continue;
-                    }
-                    goto case CsParamAttribute.storage;
                 case CsParamAttribute.storage:
                     if (wgslBinding.AddressSpace != paramType) {
-                        // errors.Add(bindGroup.attrLoc, $"wgsl expect: <{wgslBinding.AddressSpace}>");
+                        errors.Add(bindGroup.attrLoc, $"wgsl expect: <{wgslBinding.AddressSpace}>");
                     }
                     continue;
+                
+                // --- Sampler types
                 case CsParamAttribute.sampler_NonFiltering:
                     paramType = "sampler";
                     goto case CsParamAttribute.sampler;
-                //
                 case CsParamAttribute.sampler:
                 case CsParamAttribute.sampler_comparison:
-                //
+                    
+                // --- Texture Types
                 case CsParamAttribute.texture_1d:
                 case CsParamAttribute.texture_2d:
                 case CsParamAttribute.texture_2d_array:
