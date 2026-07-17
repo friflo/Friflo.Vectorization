@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-// ReSharper disable ConvertToPrimaryConstructor
 
+// ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable PossibleMultipleEnumeration
 namespace Friflo.WGSL.Transpiler.CSharp;
 
 public readonly struct ValidationError
@@ -53,6 +54,12 @@ public static class ShaderValidation
         }
         if (parameters.Length == 1) {
             errors.Add(method.MethodLoc, "expect two parameters: RenderPass pass, RenderConfig config");
+        }
+        var vertexParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
+        if (vertexParameters.Count() > 1) {
+            foreach (var parameter in vertexParameters) {
+                errors.Add(parameter.AttrLoc, "Shader method must not have multiple [IndexBuffer] parameters");    
+            }
         }
         return errors;
     }
