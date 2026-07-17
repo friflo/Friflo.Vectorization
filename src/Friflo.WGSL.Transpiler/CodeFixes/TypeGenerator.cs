@@ -78,7 +78,7 @@ public static class TypeGenerator
         
         var comments = "    // [ ]  Check if you can reuse existing struct types\n";
         if (!addedStructs) {
-            comments = "    // [ ]  wgsl bindings do not use custom structs\n";
+            comments = "    // (i)  wgsl bindings do not use custom structs\n";
         }
         return new ShaderTypesResult {
             Types       = sb.ToString(),
