@@ -58,7 +58,7 @@ public sealed partial class ShaderGen
         {
             var paramSymbol     = methodParameters[n];
             var attributes      = paramSymbol.GetAttributes();
-            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out var e1, out var e2);
+            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out var e1, out var e2, out var attributeData);
             var drawAttribute   = CsDrawAttribute.None;
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
                 drawAttribute = CsDrawAttribute.Draw;
@@ -67,7 +67,9 @@ public sealed partial class ShaderGen
                 drawAttribute = CsDrawAttribute.DrawInstance;
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
-            var (nameLoc, typeLoc) = paramSymbol.GetParameterLocs();
+            var (nameLoc, typeLoc)          = paramSymbol.GetParameterLocs();
+            var (attrLoc, arg0Loc, arg1Loc) = attributeData.GetParamSrcLocs();
+            
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawAttribute   = drawAttribute,
@@ -79,7 +81,10 @@ public sealed partial class ShaderGen
                     enum2           = e2,
                 },
                 TypeLoc         = typeLoc,
-                NameLoc         = nameLoc
+                NameLoc         = nameLoc,
+                AttrLoc         = attrLoc,
+                AttrArg0Loc     = arg0Loc,
+                AttrArg1Loc     = arg1Loc
             };
             var modifierType = paramSymbol.RefKind switch {
                 RefKind.In  => "in ",
@@ -172,12 +177,14 @@ public sealed partial class ShaderGen
         ImmutableArray<AttributeData>   attributes,
         out CsBindGroup                 bg,
         out CsEnum                      e1,
-        out CsEnum                      e2)
+        out CsEnum                      e2,
+        out AttributeData?              attributeData)
     {
         bg = default;
         e1 = default;
         e2 = default;
         CsParamAttribute attr = default;
+        attributeData = null;
         
         foreach (var attribute in attributes)
         {
@@ -198,40 +205,43 @@ public sealed partial class ShaderGen
                 case "MapAttribute":            bg = BindGroup(args, 0, loc);                   continue;
                 
                 // --- WGSL: Buffer types ---
-                case "storageAttribute":                                attr = storage;         continue;
-                case "uniformAttribute":                                attr = uniform;         continue;
+                case "storageAttribute":                                attr = storage;         break;
+                case "uniformAttribute":                                attr = uniform;         break;
                 //
-                case "VertexBufferAttribute":   bg = Int(args[0], loc); attr = VertexBuffer;    continue;
+                case "VertexBufferAttribute":   bg = Int(args[0], loc); attr = VertexBuffer;    break;
                 //
-                case "IndexBufferAttribute":                            attr = IndexBuffer;     continue;
+                case "IndexBufferAttribute":                            attr = IndexBuffer;     break;
                 
                 // --- WGSL: Sampler types ---
                 case "samplerAttribute":
                     if ((bool)args[0].Value!)                           attr = sampler;
-                    else                                                attr = sampler_NonFiltering; continue;
-                case "sampler_comparisonAttribute":                     attr = sampler_comparison;   continue;
+                    else                                                attr = sampler_NonFiltering; break;
+                case "sampler_comparisonAttribute":                     attr = sampler_comparison;   break;
 
                 // --- WGSL: Texture types ---
-                case "texture_1dAttribute":                 e1 = Enum(args[0]); attr = texture_1d;                      continue;
-                case "texture_2dAttribute":                 e1 = Enum(args[0]); attr = texture_2d;                      continue;
-                case "texture_2d_arrayAttribute":           e1 = Enum(args[0]); attr = texture_2d_array;                continue;
-                case "texture_3dAttribute":                 e1 = Enum(args[0]); attr = texture_3d;                      continue;
-                case "texture_cubeAttribute":               e1 = Enum(args[0]); attr = texture_cube;                    continue;
-                case "texture_cube_arrayAttribute":         e1 = Enum(args[0]); attr = texture_cube_array;              continue;
+                case "texture_1dAttribute":                 e1 = Enum(args[0]); attr = texture_1d;                      break;
+                case "texture_2dAttribute":                 e1 = Enum(args[0]); attr = texture_2d;                      break;
+                case "texture_2d_arrayAttribute":           e1 = Enum(args[0]); attr = texture_2d_array;                break;
+                case "texture_3dAttribute":                 e1 = Enum(args[0]); attr = texture_3d;                      break;
+                case "texture_cubeAttribute":               e1 = Enum(args[0]); attr = texture_cube;                    break;
+                case "texture_cube_arrayAttribute":         e1 = Enum(args[0]); attr = texture_cube_array;              break;
                 //
-                case "texture_multisampled_2dAttribute":    e1 = Enum(args[0]); attr = texture_multisampled_2d;         continue;
-                case "texture_depth_multisampled_2dAttribute":                  attr = texture_depth_multisampled_2d;   continue;
+                case "texture_multisampled_2dAttribute":    e1 = Enum(args[0]); attr = texture_multisampled_2d;         break;
+                case "texture_depth_multisampled_2dAttribute":                  attr = texture_depth_multisampled_2d;   break;
                 //
-                case "texture_storage_1dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_1d;      continue;
-                case "texture_storage_2dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d;      continue;
-                case "texture_storage_2d_arrayAttribute":   e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d_array;continue;
-                case "texture_storage_3dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_3d;      continue;
+                case "texture_storage_1dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_1d;      break;
+                case "texture_storage_2dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d;      break;
+                case "texture_storage_2d_arrayAttribute":   e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_2d_array;break;
+                case "texture_storage_3dAttribute":         e1 = Enum(args[0]); e2 = Enum(args[1]); attr = texture_storage_3d;      break;
                 //
-                case "texture_depth_2dAttribute":           attr = texture_depth_2d;            continue;
-                case "texture_depth_2d_arrayAttribute":     attr = texture_depth_2d_array;      continue;
-                case "texture_depth_cubeAttribute":         attr = texture_depth_cube;          continue;
-                case "texture_depth_cube_arrayAttribute":   attr = texture_depth_cube_array;    continue;
+                case "texture_depth_2dAttribute":           attr = texture_depth_2d;            break;
+                case "texture_depth_2d_arrayAttribute":     attr = texture_depth_2d_array;      break;
+                case "texture_depth_cubeAttribute":         attr = texture_depth_cube;          break;
+                case "texture_depth_cube_arrayAttribute":   attr = texture_depth_cube_array;    break;
+                default:
+                    continue;
             }
+            attributeData = attribute;
         }
         return attr;
     }

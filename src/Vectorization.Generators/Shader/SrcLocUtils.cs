@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.Generators;
 
-public static class SrcUtils
+public static class SrcLocUtils
 {
     public static SrcLoc GetSymbolLoc(this ISymbol symbol)
     {
@@ -49,6 +49,25 @@ public static class SrcUtils
                 args[0].Expression.GetLocation().GetSrcLoc(),
                 vertLoc,
                 fragLoc);
+    }
+    
+    public static (SrcLoc attrLoc, SrcLoc arg0Loc, SrcLoc arg1Loc)
+        GetParamSrcLocs(this AttributeData? attributeData)
+    {
+        if (attributeData?.ApplicationSyntaxReference == null) {
+            return default;
+        }
+        var attributeSyntax = (AttributeSyntax)attributeData.ApplicationSyntaxReference.GetSyntax();
+
+        var attrLoc = attributeSyntax.GetLocation().GetSrcLoc();
+        if (attributeSyntax.ArgumentList == null) {
+            return (attrLoc, default, default);
+        }
+        var args = attributeSyntax.ArgumentList.Arguments;
+        
+        var arg0Loc = args.Count < 1 ? default : args[0].Expression.GetLocation().GetSrcLoc();
+        var arg1Loc = args.Count < 2 ? default : args[1].Expression.GetLocation().GetSrcLoc();
+        return (attrLoc, arg0Loc, arg1Loc);
     }
     
     public static SrcLoc GetAttributeLoc(this AttributeData attributeData)

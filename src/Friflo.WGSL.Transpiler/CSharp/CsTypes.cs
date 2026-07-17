@@ -30,6 +30,7 @@ public readonly record struct CsShader
     public required     string  path     { get; init; }
     public required     string  vert     { get; init; }
     public required     string  frag     { get; init; }
+    //
     public required     SrcLoc  attrLoc  { get; init; }
     public required     SrcLoc  pathLoc  { get; init; }
     public required     SrcLoc  vertLoc  { get; init; }
@@ -57,6 +58,7 @@ public record CsMethod
     public required     ValueArray<CsParameter> Parameters      { get; init; }
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
+    //
     public required     SrcLoc                  MethodLoc       { get; init; }
     
     public override string ToString()
@@ -160,6 +162,7 @@ public readonly record struct CsBindGroup
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
     public required     int     group   { get; init; }
     public required     int     binding { get; init; }
+    //
     public required     SrcLoc  attrLoc { get; init; }
 }
 
@@ -171,8 +174,12 @@ public readonly record struct CsParameter
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
     public required     CsAttrEnum          AttrEnum        { get; init; }
+    //
     public required     SrcLoc              TypeLoc         { get; init; }
     public required     SrcLoc              NameLoc         { get; init; }
+    public required     SrcLoc              AttrLoc         { get; init; }
+    public required     SrcLoc              AttrArg0Loc    { get; init; }
+    public required     SrcLoc              AttrArg1Loc    { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
