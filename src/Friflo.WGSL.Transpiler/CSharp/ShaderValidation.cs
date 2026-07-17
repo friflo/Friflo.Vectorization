@@ -39,19 +39,20 @@ public static class ShaderValidation
             }
         }
         var parameters = method.Parameters;
-        if (parameters.Length > 0)
-        {
+        if (parameters.Length > 0) {
             var param = parameters[0]; 
             if (param.Type.Name != "RenderPass") {
                 errors.Add(param.TypeLoc, "expect first parameter Type: RenderPass");
             }
         }
-        if (parameters.Length > 1)
-        {
+        if (parameters.Length > 1) {
             var param = parameters[1]; 
             if (param.Type.Name != "RenderConfig") {
                 errors.Add(param.TypeLoc, "expect second parameter Type: RenderConfig");
             }
+        }
+        if (parameters.Length == 1) {
+            errors.Add(method.MethodLoc, "expect two parameters: RenderPass pass, RenderConfig config");
         }
         return errors;
     }

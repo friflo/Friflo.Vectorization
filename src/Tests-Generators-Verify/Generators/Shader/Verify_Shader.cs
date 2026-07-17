@@ -403,6 +403,26 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_Error_expect_two_parameters()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    protected static partial void Expect_RenderPass(RenderPass pass);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_NoParameters()
     {
         await Verify(
