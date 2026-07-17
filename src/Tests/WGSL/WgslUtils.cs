@@ -62,7 +62,8 @@ internal static class WgslUtils
             DrawVertexIndex = null,
             Modifier        = default,
             Shaders         = shaders.ToValueArray(),
-            TypeInfos       = default
+            TypeInfos       = default,
+            Location        = default
         };
         return (method, files.ToImmutableArray());
     }

@@ -16,6 +16,14 @@ public readonly struct WgslFile
     public override     string  ToString()      => NormalizedPath;
 }
 
+public readonly record struct SrcLoc
+{
+    public required     string  path     { get; init; }
+    public required     int     start    { get; init; }
+    public required     int     length   { get; init; }
+}
+
+
 // WGPU attribute:  ShaderAttribute
 public readonly record struct CsShader
 {
@@ -45,6 +53,7 @@ public record CsMethod
     public required     ValueArray<CsParameter> Parameters      { get; init; }
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
+    public required     SrcLoc                  Location        { get; init; }
     
     public override string ToString()
     {

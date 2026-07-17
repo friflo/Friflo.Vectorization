@@ -147,7 +147,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ImmutableArray<WgslFile>    files,
         bool                        generateParameters)
     {
-        var location 	= result.GetFreshLocation(compilation);
+        var location 	= result.method!.Location.GetFreshLocation(compilation);
         var wgsl        = CodeFixer.CreateWgsl(result.method, files);
         
         if (generateParameters && result.method!.Parameters.Length == 0)

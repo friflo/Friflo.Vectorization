@@ -36,9 +36,8 @@ public sealed partial class ShaderGen
         var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex, diagnostics);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
-        var location    = methodSymbol.Locations.FirstOrDefault();
 
-        return new ShaderMethodResult(fileName, method, location, diagnostics.List);
+        return new ShaderMethodResult(fileName, method, diagnostics.List);
     }
 
 
@@ -127,7 +126,8 @@ public sealed partial class ShaderGen
             Shaders         = shaders.ToValueArray(),
             DrawVertexIndex = drawVertexIndex,
             TypeInfos       = types.Values.ToValueArray(), 
-            Modifier        = modifier
+            Modifier        = modifier,
+            Location        = methodSymbol.GetSrcLoc()
         };
     }
     
