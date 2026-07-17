@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Friflo.WGSL.Transpiler.CodeFixes;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable PossibleMultipleEnumeration
@@ -64,7 +65,7 @@ public static class ShaderValidation
                 errors.Add(parameter.AttrLoc, "Shader method must not have multiple [IndexBuffer] parameters");    
             }
         }
-        var bindings = new HashSet<(int,int)>();
+        var bindings = new Dictionary<(int,int), CsParameter>();
         foreach (var parameter in parameters) {
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
@@ -74,10 +75,50 @@ public static class ShaderValidation
             if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
                 errors.Add(bindGroup.attrLoc, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
             }
-            if (!bindings.Add((bindGroup.group, bindGroup.binding))) {
+            if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
                 errors.Add(bindGroup.attrLoc, $"binding already exists: [Map({bindGroup.group}, {bindGroup.binding})]");
             }
         }
+        
+        var wgslBindings = new Dictionary<(int,int), WgslBinding>();
+        foreach (var file in files) {
+            foreach (var binding in file.Module.Bindings) {
+                wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
+            }
+        }
+        ValidateBindings(bindings, wgslBindings, errors);
+
         return errors;
     }
+    
+    private static void ValidateBindings(
+        Dictionary<(int,int), CsParameter>  bindings,
+        Dictionary<(int,int), WgslBinding>  wgslBindings,
+        List<ValidationError>               errors)
+    {
+        foreach (var parameter in bindings.Values)
+        {
+            if (!parameter.IsBindGroupEntry) continue;
+            var bindGroup = parameter.BindGroup;
+            if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
+                continue; 
+            }
+            var paramType = parameter.ParamAttribute.ToString();
+            switch (parameter.ParamAttribute)
+            {
+                case CsParamAttribute.uniform:
+                    if (!parameter.IsResource) {
+                        
+                        continue;
+                    }
+                    goto case CsParamAttribute.storage;
+                case CsParamAttribute.storage:
+                    if (wgslBinding.AddressSpace != paramType) {
+                        // errors.Add(bindGroup.attrLoc, $"expect: <{paramType}>  was: <{wgslBinding.AddressSpace}>");
+                    }
+                    continue;
+            }
+        }
+    }
 }
+
