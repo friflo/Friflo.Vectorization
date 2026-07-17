@@ -423,6 +423,26 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_no_Layouts()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void NoLayouts(RenderPass pass, RenderConfig config);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_TextureTypes()
     {
         await Verify(

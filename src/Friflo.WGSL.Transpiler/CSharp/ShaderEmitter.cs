@@ -106,7 +106,8 @@ public sealed class ShaderEmitter
             bufferInit.Append($"\n        recorder.{requireType}({parameter.Name});");
         }
         
-        var layoutArray = new BindGroupLayout[bindGroups.Last().BindGroup.group + 1];
+        var layoutCount = bindGroups.Length == 0 ? 0 : bindGroups.Last().BindGroup.group + 1; 
+        var layoutArray = new BindGroupLayout[layoutCount];
         foreach (var layout in layouts) {
             layoutArray[layout.groupIndex] = layout;
         }
