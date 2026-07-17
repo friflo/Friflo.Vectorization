@@ -32,7 +32,9 @@ public static class ShaderValidation
     
     public static List<ValidationError> Validate(CsMethod method, ImmutableArray<WgslFile> files)
     {
-        var errors = new List<ValidationError>();
+        var errors          = new List<ValidationError>();
+        var wgslBindings    = new Dictionary<(int,int), WgslBinding>();
+        
         foreach (var shader in  method.Shaders)
         {
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
@@ -42,6 +44,9 @@ public static class ShaderValidation
             }
             foreach (var error in file.Module.Errors) {
                 errors.Add(shader.attrLoc, $"WGSL parser error: {error}");
+            }
+            foreach (var binding in file.Module.Bindings) {
+                wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
             }
         }
         
@@ -66,7 +71,8 @@ public static class ShaderValidation
             }
         }
         var bindings = new Dictionary<(int,int), CsParameter>();
-        foreach (var parameter in parameters) {
+        foreach (var parameter in parameters)
+        {
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (bindGroup.group < 0 || bindGroup.group >= 4) {
@@ -80,12 +86,6 @@ public static class ShaderValidation
             }
         }
         
-        var wgslBindings = new Dictionary<(int,int), WgslBinding>();
-        foreach (var file in files) {
-            foreach (var binding in file.Module.Bindings) {
-                wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
-            }
-        }
         ValidateBindings(bindings, wgslBindings, errors);
 
         return errors;
@@ -114,7 +114,37 @@ public static class ShaderValidation
                     goto case CsParamAttribute.storage;
                 case CsParamAttribute.storage:
                     if (wgslBinding.AddressSpace != paramType) {
-                        // errors.Add(bindGroup.attrLoc, $"expect: <{paramType}>  was: <{wgslBinding.AddressSpace}>");
+                        // errors.Add(bindGroup.attrLoc, $"wgsl expect: <{wgslBinding.AddressSpace}>");
+                    }
+                    continue;
+                case CsParamAttribute.sampler_NonFiltering:
+                    paramType = "sampler";
+                    goto case CsParamAttribute.sampler;
+                //
+                case CsParamAttribute.sampler:
+                case CsParamAttribute.sampler_comparison:
+                //
+                case CsParamAttribute.texture_1d:
+                case CsParamAttribute.texture_2d:
+                case CsParamAttribute.texture_2d_array:
+                case CsParamAttribute.texture_3d:
+                case CsParamAttribute.texture_cube:
+                case CsParamAttribute.texture_cube_array:
+                //
+                case CsParamAttribute.texture_multisampled_2d:
+                case CsParamAttribute.texture_depth_multisampled_2d:
+                //
+                case CsParamAttribute.texture_storage_1d:
+                case CsParamAttribute.texture_storage_2d:
+                case CsParamAttribute.texture_storage_2d_array:
+                case CsParamAttribute.texture_storage_3d:
+                //
+                case CsParamAttribute.texture_depth_2d:
+                case CsParamAttribute.texture_depth_2d_array:
+                case CsParamAttribute.texture_depth_cube:
+                case CsParamAttribute.texture_depth_cube_array:
+                    if (wgslBinding.WgslType.Name != paramType) {
+                        errors.Add(bindGroup.attrLoc, $"C# [{paramType}]  wgsl expect: <{wgslBinding.WgslType.Name}>");
                     }
                     continue;
             }

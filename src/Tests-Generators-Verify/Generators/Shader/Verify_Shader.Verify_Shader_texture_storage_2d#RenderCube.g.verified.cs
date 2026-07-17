@@ -64,7 +64,7 @@ public partial class ShaderExample
     }
 
     private static readonly int _RenderCube_GPU_ShaderId            =  ShaderRegistry.NewShaderId("RenderCube");
-    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x7d5a41753180ccf1;
+    private const  ulong        _RenderCube_GPU_layout_0_Key        =  0x7cdb547530a9203a;
 
     private static ulong        _RenderCube_GPU_WgslHash            => 0x7d9a5dec1e37d625UL;  // support Hot-Reload
 
@@ -76,7 +76,7 @@ public partial class ShaderExample
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform(0);
             device.BindGroupLayoutSampler(1, SamplerBindingType.Filtering);
-            device.BindGroupLayoutStorageTexture(2, TextureFormat.RGBA8Unorm, StorageTextureAccess.ReadOnly, TextureViewDimension.D2D);
+            device.BindGroupLayoutTexture(2, TextureSampleType.Float, TextureViewDimension.D2D, false);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _RenderCube_GPU_layout_0_Key, "RenderCube_layout_0"u8);
         }
         layouts[0] = layout_0;

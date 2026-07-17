@@ -25,6 +25,14 @@ public class WgslModule
     public List<WgslEntryPoint> EntryPoints { get; set; } = new();
     public List<string>         Errors      { get; set; } = new();
     public string               wgsl;
+    
+    public void AddModule(WgslModule module)
+    {
+        Structs    .AddRange(module.Structs);
+        Bindings   .AddRange(module.Bindings);
+        EntryPoints.AddRange(module.EntryPoints);
+        Errors     .AddRange(module.Errors);
+    }
 }
 
 public record WgslType

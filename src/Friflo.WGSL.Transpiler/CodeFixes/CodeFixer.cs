@@ -50,11 +50,7 @@ public static partial class CodeFixer
             var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) continue;
             sb.AppendLine(file.Content);
-            var module = file.Module;
-            fullModule.Structs    .AddRange(module.Structs);
-            fullModule.Bindings   .AddRange(module.Bindings);
-            fullModule.EntryPoints.AddRange(module.EntryPoints);
-            fullModule.Errors     .AddRange(module.Errors);
+            fullModule.AddModule(file.Module);
         }
         fullModule.wgsl = sb.ToString();
         return fullModule;
