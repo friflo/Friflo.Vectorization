@@ -178,7 +178,7 @@ public sealed partial class ShaderGen
         out CsEnum                      e2,
         out AttributeData?              attributeData)
     {
-        bg      = new CsBindGroup{ group = -1,  binding = -1, attrLoc = default };
+        bg      = default;
         e1      = default;
         e2      = default;
         vbs     = 0;

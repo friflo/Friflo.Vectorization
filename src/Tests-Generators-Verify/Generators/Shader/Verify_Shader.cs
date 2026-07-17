@@ -469,6 +469,30 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_Error_binding_not_in_range()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    private static partial void Binding_not_in_range(RenderPass pass, RenderConfig config,
+        [Map(-1, 0)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
+        [Map(0,640)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_NoParameters()
     {
         await Verify(

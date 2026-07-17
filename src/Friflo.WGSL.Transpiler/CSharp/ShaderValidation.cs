@@ -63,8 +63,14 @@ public static class ShaderValidation
         }
         var bindings = new HashSet<(int,int)>();
         foreach (var parameter in parameters) {
+            if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
-            if (bindGroup.group < 0) continue;
+            if (bindGroup.group < 0 || bindGroup.group >= 4) {
+                errors.Add(bindGroup.attrLoc, $"group must be in range: 0 - 3. was: {bindGroup.group}");
+            }
+            if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
+                errors.Add(bindGroup.attrLoc, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
+            }
             if (!bindings.Add((bindGroup.group, bindGroup.binding))) {
                 errors.Add(bindGroup.attrLoc, $"binding already exists: [Map({bindGroup.group}, {bindGroup.binding})]");
             }
