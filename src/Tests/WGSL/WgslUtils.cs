@@ -63,7 +63,7 @@ internal static class WgslUtils
             Modifier        = default,
             Shaders         = shaders.ToValueArray(),
             TypeInfos       = default,
-            Location        = default
+            MethodLoc       = default
         };
         return (method, files.ToImmutableArray());
     }

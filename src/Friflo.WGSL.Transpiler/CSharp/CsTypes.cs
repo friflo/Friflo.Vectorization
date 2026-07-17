@@ -53,7 +53,7 @@ public record CsMethod
     public required     ValueArray<CsParameter> Parameters      { get; init; }
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
-    public required     SrcLoc                  Location        { get; init; }
+    public required     SrcLoc                  MethodLoc       { get; init; }
     
     public override string ToString()
     {
@@ -154,9 +154,9 @@ public enum CsDrawAttribute
 public readonly record struct CsBindGroup
 {
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
-    public required     int     group           { get; init; }
-    public required     int     binding         { get; init; }
-    public required     SrcLoc  location        { get; init; }
+    public required     int     group   { get; init; }
+    public required     int     binding { get; init; }
+    public required     SrcLoc  attrLoc { get; init; }
 }
 
 public readonly record struct CsParameter

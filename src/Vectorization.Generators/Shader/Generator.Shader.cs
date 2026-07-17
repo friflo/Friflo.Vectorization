@@ -127,7 +127,7 @@ public sealed partial class ShaderGen
             DrawVertexIndex = drawVertexIndex,
             TypeInfos       = types.Values.ToValueArray(), 
             Modifier        = modifier,
-            Location        = methodSymbol.GetSrcLoc()
+            MethodLoc       = methodSymbol.GetSrcLoc()
         };
     }
     
@@ -146,17 +146,17 @@ public sealed partial class ShaderGen
     
     private static CsBindGroup Int(TypedConstant arg, SrcLoc loc) {
         return new CsBindGroup {
-            group       = (int)arg.Value!,
-            binding     = 0,
-            location    = loc
+            group   = (int)arg.Value!,
+            binding = 0,
+            attrLoc	= loc
         };
     }
     
     private static CsBindGroup BindGroup(ImmutableArray<TypedConstant> args, int pos, SrcLoc loc) {
         return new CsBindGroup {
-            group       = (int)args[pos + 0].Value!,
-            binding     = (int)args[pos + 1].Value!,
-            location    = loc
+            group   = (int)args[pos + 0].Value!,
+            binding = (int)args[pos + 1].Value!,
+            attrLoc = loc
         };
     }
     
