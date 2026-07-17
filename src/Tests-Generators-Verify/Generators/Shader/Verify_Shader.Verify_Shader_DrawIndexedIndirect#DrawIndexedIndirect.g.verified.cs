@@ -76,7 +76,7 @@ public partial class ShaderExample
     private const  ulong        _DrawIndexedIndirect_GPU_layout_0_Key        =  0x8d16ce904a32c117;
     private const  ulong        _DrawIndexedIndirect_GPU_layout_1_Key        =  0x2a514849282d6f75;
 
-    private static ulong        _DrawIndexedIndirect_GPU_WgslHash            => 0xd0d6ec6e199e95cfUL;  // support Hot-Reload
+    private static ulong        _DrawIndexedIndirect_GPU_WgslHash            => 0x5cebfa97fbcb143dUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _DrawIndexedIndirect_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -104,7 +104,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _DrawIndexedIndirect_GPU_Shaders = [
-        new("shaders/shadowMapping/vertexShadow.wgsl", vert: "main"),
+        new("shaders/tests/vertexShadowIndexedIndirect.wgsl", vert: "main"),
     ];
 
 }

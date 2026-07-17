@@ -46,11 +46,15 @@ public partial class ShaderExample
         }
         pass_.SetBindGroup(0, bindGroup_0);
         
-        // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, myUniform, pipelineCache,"DrawTriangles_bindGroup_1"u8);
-        
         // --- bind group 2
-        pass_.SetBindGroupUniform(2, 0, ref bindGroupCache.bindGroup_2, globalUniform, pipelineCache,"DrawTriangles_bindGroup_2"u8);
+        if (!bindGroupCache.bindGroup_2.IsCreated) {
+            recorder.BindGroupEntryUniform<MyUniform>(0);
+            recorder.BindGroupEntryUniform<GlobalUniform>(1);
+            bindGroupCache.bindGroup_2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "DrawTriangles_bindGroup_2"u8);
+        }
+        pass_.AddUniform(myUniform);
+        pass_.AddUniform(globalUniform);
+        pass_.SetBindGroupUniforms(2, bindGroupCache.bindGroup_2);
         
         // --- draw
         pass_.Draw(triangles, new DrawArgs());
@@ -59,20 +63,17 @@ public partial class ShaderExample
     private sealed class _DrawTriangles_GPU_Cache : BindGroupCache
     {
         internal readonly   Dictionary<nint, WgpuBindGroup> bindGroup_0 = new ();
-        internal            WgpuBindGroup bindGroup_1;
         internal            WgpuBindGroup bindGroup_2;
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup_0);
-            ReleaseBindGroup(ref bindGroup_1);
             ReleaseBindGroup(ref bindGroup_2);
         }
     }
 
     private static readonly int _DrawTriangles_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawTriangles");
     private const  ulong        _DrawTriangles_GPU_layout_0_Key        =  0xed212287f4058386;
-    private const  ulong        _DrawTriangles_GPU_layout_1_Key        =  0xf5cd9d87f8f29b31;
-    private const  ulong        _DrawTriangles_GPU_layout_2_Key        =  0xdbd12c87ea3a9f30;
+    private const  ulong        _DrawTriangles_GPU_layout_2_Key        =  0x411100ebbcf4bdd9;
 
     private static ulong        _DrawTriangles_GPU_WgslHash            => 0x259828d805e43104UL;  // support Hot-Reload
 
@@ -87,16 +88,12 @@ public partial class ShaderExample
         }
         layouts[0] = layout_0;
         
-        var layout_1 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_1_Key);
-        if (!layout_1.IsCreated) {
-            device.BindGroupLayoutUniform(0);
-            layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_1_Key, "DrawTriangles_layout_1"u8);
-        }
-        layouts[1] = layout_1;
+        layouts[1] = device.GetEmptyBindGroupLayout();
         
         var layout_2 = device.GetBindGroupLayout(_DrawTriangles_GPU_layout_2_Key);
         if (!layout_2.IsCreated) {
             device.BindGroupLayoutUniform(0);
+            device.BindGroupLayoutUniform(1);
             layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawTriangles_GPU_layout_2_Key, "DrawTriangles_layout_2"u8);
         }
         layouts[2] = layout_2;

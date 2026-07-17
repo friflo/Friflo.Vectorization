@@ -77,9 +77,11 @@ public static class ShaderValidation
             var bindGroup = parameter.BindGroup;
             if (bindGroup.group < 0 || bindGroup.group >= 4) {
                 errors.Add(bindGroup.attrLoc, $"group must be in range: 0 - 3. was: {bindGroup.group}");
+                continue;
             }
             if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
                 errors.Add(bindGroup.attrLoc, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
+                continue;
             }
             if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
                 errors.Add(bindGroup.attrLoc, $"binding already exists: [Map({bindGroup.group}, {bindGroup.binding})]");
@@ -101,6 +103,7 @@ public static class ShaderValidation
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
+                errors.Add(parameter.BindGroup.attrLoc, $"C# [Map({bindGroup.group}, {bindGroup.binding})]  binding not declared in wgsl");
                 continue; 
             }
             var paramType = parameter.ParamAttribute.ToString();

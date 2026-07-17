@@ -322,8 +322,8 @@ namespace VerifyShader {
         [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
         public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
             [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>  triangles,
-            [Map(1, 0)] [uniform]           in MyUniform          myUniform,
-            [Map(2, 0)] [uniform]           in GlobalUniform      globalUniform);
+            [Map(2, 0)] [uniform]           in MyUniform          myUniform,
+            [Map(2, 1)] [uniform]           in GlobalUniform      globalUniform);
     }
 }
 
@@ -661,7 +661,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
+    [Shader("~/shaders/tests/vertexShadowIndexedIndirect.wgsl",  vertex: "main")]
     private static partial void DrawIndexedIndirect(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           in Scene                    scene,
         [Map(1, 0)] [uniform]           in Model                    model,
@@ -699,7 +699,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
+    [Shader("~/shaders/tests/vertexShadowIndirect.wgsl",  vertex: "main")]
     private static partial void DrawIndirect(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           in Scene            scene,
         [Map(1, 0)] [uniform]           in Model            model,
