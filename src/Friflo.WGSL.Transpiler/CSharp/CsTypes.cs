@@ -167,6 +167,8 @@ public readonly record struct CsParameter
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
     public required     CsAttrEnum          AttrEnum        { get; init; }
+    public required     SrcLoc              TypeLoc         { get; init; }
+    public required     SrcLoc              NameLoc         { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     

@@ -67,6 +67,7 @@ public sealed partial class ShaderGen
                 drawAttribute = CsDrawAttribute.DrawInstance;
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
+            var (nameLoc, typeLoc) = paramSymbol.GetSrcLocs();
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawAttribute   = drawAttribute,
@@ -76,7 +77,9 @@ public sealed partial class ShaderGen
                 AttrEnum = new CsAttrEnum {
                     enum1           = e1,
                     enum2           = e2,
-                }
+                },
+                TypeLoc         = typeLoc,
+                NameLoc         = nameLoc
             };
             var modifierType = paramSymbol.RefKind switch {
                 RefKind.In  => "in ",

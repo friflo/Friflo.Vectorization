@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -26,6 +27,25 @@ public static class SrcUtils
         var syntaxRef   = attributeData.ApplicationSyntaxReference;
         var location    = syntaxRef?.GetSyntax().GetLocation();
         return location.GetSrcLoc();            
+    }
+    
+    public static (SrcLoc nameLoc, SrcLoc typeLoc) GetSrcLocs(this IParameterSymbol parameterSymbol)
+    {
+        var syntaxRef = parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+        if (syntaxRef == null)
+        {
+            return default;
+        }
+        var parameterSyntax = (ParameterSyntax)syntaxRef.GetSyntax();
+
+        var parameterNameLocation = parameterSymbol.Locations.FirstOrDefault() 
+            ?? parameterSyntax.Identifier.GetLocation();
+
+        var parameterTypeLocation = Location.None;
+        if (parameterSyntax.Type != null) {
+            parameterTypeLocation = parameterSyntax.Type.GetLocation();
+        }
+        return (parameterNameLocation.GetSrcLoc(), parameterTypeLocation.GetSrcLoc());
     }
         
     private static SrcLoc GetSrcLoc(this Location? location)
