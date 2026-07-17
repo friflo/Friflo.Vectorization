@@ -20,6 +20,13 @@ public static class SrcUtils
         var location = symbol.Locations.FirstOrDefault();
         return location.GetSrcLoc();
     }
+    
+    public static SrcLoc GetSrcLoc(this AttributeData attributeData)
+    {
+        var syntaxRef   = attributeData.ApplicationSyntaxReference;
+        var location    = syntaxRef?.GetSyntax().GetLocation();
+        return location.GetSrcLoc();            
+    }
         
     private static SrcLoc GetSrcLoc(this Location? location)
     {

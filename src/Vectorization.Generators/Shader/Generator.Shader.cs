@@ -144,17 +144,19 @@ public sealed partial class ShaderGen
         return new CsEnum { Name = "NoName", Value = (ulong)(int)typedConstant.Value! };
     }
     
-    private static CsBindGroup Int(TypedConstant arg) {
+    private static CsBindGroup Int(TypedConstant arg, SrcLoc loc) {
         return new CsBindGroup {
-            group   = (int)arg.Value!,
-            binding = 0
+            group       = (int)arg.Value!,
+            binding     = 0,
+            location    = loc
         };
     }
     
-    private static CsBindGroup BindGroup(ImmutableArray<TypedConstant> args, int pos) {
+    private static CsBindGroup BindGroup(ImmutableArray<TypedConstant> args, int pos, SrcLoc loc) {
         return new CsBindGroup {
-            group   = (int)args[pos + 0].Value!,
-            binding = (int)args[pos + 1].Value!
+            group       = (int)args[pos + 0].Value!,
+            binding     = (int)args[pos + 1].Value!,
+            location    = loc
         };
     }
     
@@ -179,26 +181,27 @@ public sealed partial class ShaderGen
             if (ns != "Friflo.Vectorization.WebGPU") {
                 continue;   
             }
+            var loc     = attribute.GetSrcLoc();
             var args    = attribute.ConstructorArguments;
                 
             switch (symbol.Name)
             {
                 // --- WGSL: bind group ---
-                case "MapAttribute":            bg = BindGroup(args, 0);                    continue;
+                case "MapAttribute":            bg = BindGroup(args, 0, loc);                   continue;
                 
                 // --- WGSL: Buffer types ---
-                case "storageAttribute":                            attr = storage;         continue;
-                case "uniformAttribute":                            attr = uniform;         continue;
+                case "storageAttribute":                                attr = storage;         continue;
+                case "uniformAttribute":                                attr = uniform;         continue;
                 //
-                case "VertexBufferAttribute":   bg = Int(args[0]);  attr = VertexBuffer;    continue;
+                case "VertexBufferAttribute":   bg = Int(args[0], loc); attr = VertexBuffer;    continue;
                 //
-                case "IndexBufferAttribute":                        attr = IndexBuffer;     continue;
+                case "IndexBufferAttribute":                            attr = IndexBuffer;     continue;
                 
                 // --- WGSL: Sampler types ---
                 case "samplerAttribute":
-                    if ((bool)args[0].Value!)                       attr = sampler;
-                    else                                            attr = sampler_NonFiltering; continue;
-                case "sampler_comparisonAttribute":                 attr = sampler_comparison;   continue;
+                    if ((bool)args[0].Value!)                           attr = sampler;
+                    else                                                attr = sampler_NonFiltering; continue;
+                case "sampler_comparisonAttribute":                     attr = sampler_comparison;   continue;
 
                 // --- WGSL: Texture types ---
                 case "texture_1dAttribute":                 e1 = Enum(args[0]); attr = texture_1d;                      continue;

@@ -156,6 +156,7 @@ public readonly record struct CsBindGroup
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
     public required     int     group           { get; init; }
     public required     int     binding         { get; init; }
+    public required     SrcLoc  location        { get; init; }
 }
 
 public readonly record struct CsParameter
