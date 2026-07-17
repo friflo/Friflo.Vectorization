@@ -67,7 +67,7 @@ public sealed partial class ShaderGen
                 drawAttribute = CsDrawAttribute.DrawInstance;
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
-            var (nameLoc, typeLoc) = paramSymbol.GetSrcLocs();
+            var (nameLoc, typeLoc) = paramSymbol.GetParameterLocs();
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawAttribute   = drawAttribute,
@@ -114,10 +114,15 @@ public sealed partial class ShaderGen
                 diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader.AttributeClass, "Expect shader path");
                 path = "";
             }
+            var (attrLoc, pathLoc, vertLoc, fragLoc) = shader.GetShaderSrcLocs();
             shaders[i] = new CsShader {
-                path = path,
-                vert = (string)args[1].Value!,
-                frag = (string)args[2].Value!,
+                path    = path,
+                vert    = (string)args[1].Value!,
+                frag    = (string)args[2].Value!,
+                attrLoc = attrLoc,
+                pathLoc = pathLoc,
+                vertLoc = vertLoc,
+                fragLoc = fragLoc
             };
         }
         
@@ -130,7 +135,7 @@ public sealed partial class ShaderGen
             DrawVertexIndex = drawVertexIndex,
             TypeInfos       = types.Values.ToValueArray(), 
             Modifier        = modifier,
-            MethodLoc       = methodSymbol.GetSrcLoc()
+            MethodLoc       = methodSymbol.GetSymbolLoc()
         };
     }
     
@@ -184,7 +189,7 @@ public sealed partial class ShaderGen
             if (ns != "Friflo.Vectorization.WebGPU") {
                 continue;   
             }
-            var loc     = attribute.GetSrcLoc();
+            var loc     = attribute.GetAttributeLoc();
             var args    = attribute.ConstructorArguments;
                 
             switch (symbol.Name)

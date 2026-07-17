@@ -16,20 +16,49 @@ namespace Friflo.Vectorization.Generators;
 
 public static class SrcUtils
 {
-    public static SrcLoc GetSrcLoc(this ISymbol symbol)
+    public static SrcLoc GetSymbolLoc(this ISymbol symbol)
     {
         var location = symbol.Locations.FirstOrDefault();
         return location.GetSrcLoc();
     }
     
-    public static SrcLoc GetSrcLoc(this AttributeData attributeData)
+    public static (SrcLoc attrLoc, SrcLoc pathLoc, SrcLoc vertLoc, SrcLoc fragLoc)
+        GetShaderSrcLocs(this AttributeData attributeData)
+    {
+        if (attributeData.ApplicationSyntaxReference == null) {
+            return default;
+        }
+        var attributeSyntax = (AttributeSyntax)attributeData.ApplicationSyntaxReference.GetSyntax();
+        var args = attributeSyntax.ArgumentList!.Arguments;
+        
+        SrcLoc vertLoc = default;
+        SrcLoc fragLoc = default;
+        
+        for(int n = 1; n < args.Count; n++)
+        {
+            var arg = args[n];
+            if (arg.NameColon == null) continue;
+            if (arg.NameColon.Name.Identifier.Text == "vertex") {
+                vertLoc = arg.Expression.GetLocation().GetSrcLoc();
+            }
+            if (arg.NameColon.Name.Identifier.Text == "fragment") {
+                fragLoc = arg.Expression.GetLocation().GetSrcLoc();
+            }
+        }
+        return (attributeSyntax.GetLocation().GetSrcLoc(),
+                args[0].Expression.GetLocation().GetSrcLoc(),
+                vertLoc,
+                fragLoc);
+    }
+    
+    public static SrcLoc GetAttributeLoc(this AttributeData attributeData)
     {
         var syntaxRef   = attributeData.ApplicationSyntaxReference;
         var location    = syntaxRef?.GetSyntax().GetLocation();
         return location.GetSrcLoc();            
     }
     
-    public static (SrcLoc nameLoc, SrcLoc typeLoc) GetSrcLocs(this IParameterSymbol parameterSymbol)
+    public static (SrcLoc nameLoc, SrcLoc typeLoc) GetParameterLocs(this IParameterSymbol parameterSymbol)
     {
         var syntaxRef = parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault();
         if (syntaxRef == null)

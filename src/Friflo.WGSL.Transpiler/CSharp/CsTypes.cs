@@ -30,6 +30,10 @@ public readonly record struct CsShader
     public required     string  path     { get; init; }
     public required     string  vert     { get; init; }
     public required     string  frag     { get; init; }
+    public required     SrcLoc  attrLoc  { get; init; }
+    public required     SrcLoc  pathLoc  { get; init; }
+    public required     SrcLoc  vertLoc  { get; init; }
+    public required     SrcLoc  fragLoc  { get; init; }
 }
 
 

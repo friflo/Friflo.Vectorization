@@ -49,9 +49,13 @@ internal static class WgslUtils
             var wgsl = ReadWgslResource(resourceName);
             files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0 });
             shaders.Add(new CsShader {
-                path = path,
-                frag = args[1].Value as string,
-                vert = args[2].Value as string,
+                path    = path,
+                frag    = args[1].Value as string,
+                vert    = args[2].Value as string,
+                attrLoc = default,
+                pathLoc = default,
+                vertLoc = default,
+                fragLoc = default
             });
         }
         var method = new CsMethod {
