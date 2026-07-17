@@ -37,6 +37,10 @@ public static class ShaderValidation
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) {
                 errors.Add(shader.pathLoc, $"'{shader.path}' not found");
+                continue;
+            }
+            foreach (var error in file.Module.Errors) {
+                errors.Add(shader.attrLoc, $"WGSL parser error: {error}");
             }
         }
         

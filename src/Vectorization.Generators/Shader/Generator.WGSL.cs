@@ -1,6 +1,7 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Threading;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.CSharp;
@@ -17,7 +18,13 @@ public sealed partial class ShaderGen
     {
         var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
         var path    = text.Path.Replace('\\', '/');
-        var module  = WgslParser.ParseShader(content);
+        WgslModule module;
+        try {
+            module = WgslParser.ParseShader(content);    
+        } catch (Exception exception) {
+            module = new WgslModule();
+            module.Errors.Add(exception.Message);
+        }
         return new WgslFile {
             NormalizedPath  = path,
             Hash            = ComputeFnv1A64(content),

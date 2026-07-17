@@ -54,6 +54,7 @@ public static partial class CodeFixer
             fullModule.Structs    .AddRange(module.Structs);
             fullModule.Bindings   .AddRange(module.Bindings);
             fullModule.EntryPoints.AddRange(module.EntryPoints);
+            fullModule.Errors     .AddRange(module.Errors);
         }
         fullModule.wgsl = sb.ToString();
         return fullModule;

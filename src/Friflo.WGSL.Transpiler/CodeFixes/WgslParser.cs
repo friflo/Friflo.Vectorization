@@ -22,6 +22,7 @@ public class WgslModule
     public List<WgslStruct>     Structs     { get; set; } = new();
     public List<WgslBinding>    Bindings    { get; set; } = new();
     public List<WgslEntryPoint> EntryPoints { get; set; } = new();
+    public List<string>         Errors      { get; set; } = new();
     public string               wgsl;
 }
 
