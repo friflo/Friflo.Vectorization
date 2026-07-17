@@ -46,10 +46,10 @@ public sealed class ShaderEmitter
     }
     
     
-    public string Emit(ulong wgslHash)
+    public string Emit(ulong wgslHash, bool hasErrors)
     {
         var header = GetMethodHeader();
-        if (method.Parameters.Length == 0) {
+        if (hasErrors || method.Parameters.Length == 0) {
             return header + " { }\n}\n";
         }
 

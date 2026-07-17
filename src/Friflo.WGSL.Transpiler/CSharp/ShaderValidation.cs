@@ -39,14 +39,14 @@ public static class ShaderValidation
         {
             var param = parameters[0]; 
             if (param.Type.Name != "RenderPass") {
-                // errors.Add(new ValidationError(param.TypeLoc, "expect first parameter is of type RenderPass"));
+                errors.Add(new ValidationError(param.TypeLoc, "expect first parameter Type: RenderPass"));
             }
         }
         if (parameters.Length > 1)
         {
             var param = parameters[1]; 
             if (param.Type.Name != "RenderConfig") {
-                // errors.Add(new ValidationError(param.TypeLoc, "expect second parameter is of type RenderConfig"));
+                errors.Add(new ValidationError(param.TypeLoc, "expect second parameter Type: RenderConfig"));
             }
         }
         return errors;

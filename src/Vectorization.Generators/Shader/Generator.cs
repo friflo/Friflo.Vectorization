@@ -74,30 +74,39 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         if (method == null) {
             return;
         }
-        ulong   wgslHash    = 0;
-        var     foundWgsl   = false;
-        
-        foreach (var file in files) {
-            foreach (var shader in  method.Shaders)
-            {
-                if (file.NormalizedPath.EndsWith(shader.path)) {
-                    wgslHash ^= file.Hash;
-                    foundWgsl = true;
+        try {
+            ulong   wgslHash    = 0;
+            var     foundWgsl   = false;
+            
+            foreach (var file in files) {
+                foreach (var shader in  method.Shaders)
+                {
+                    if (file.NormalizedPath.EndsWith(shader.path)) {
+                        wgslHash ^= file.Hash;
+                        foundWgsl = true;
+                    }
                 }
             }
+            var errors = ShaderValidation.Validate(method, files);
+            foreach (var error in errors) {
+	            var location = error.srcLoc.GetFreshLocation(compilation);
+	            var diagnostic = Diagnostic.Create(Errors.ShaderValidationError, location, error.message);
+	            spc.ReportDiagnostic(diagnostic);
+            }
+            AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
+            
+            bool hasErrors  = errors.Count > 0;
+            var emitShader  = new ShaderEmitter(method);
+            var code        = emitShader.Emit(wgslHash, hasErrors);
+            spc.AddSource(result.fileName!, code);
         }
-        var errors = ShaderValidation.Validate(method, files);
-        foreach (var error in errors) {
-	        var location = error.srcLoc.GetFreshLocation(compilation);
-	        var diagnostic = Diagnostic.Create(Errors.ShaderValidationError, location, error.message);
-	        spc.ReportDiagnostic(diagnostic);
+        catch (Exception exception)
+        {
+            var exceptionMessage    = $"{exception.GetType()} : {exception.Message}";
+            var methodLocation      = method.MethodLoc.GetFreshLocation(compilation);
+            var error               = new GeneratorError(exceptionMessage, exceptionMessage, methodLocation);
+            error.ReportException(spc);
         }
-        AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
-        
-        var emitShader  = new ShaderEmitter(method);
-        var code        = emitShader.Emit(wgslHash);
-
-        spc.AddSource(result.fileName!, code);
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
