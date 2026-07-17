@@ -34,16 +34,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     {
         var wgslFiles = context.AdditionalTextsProvider
         .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
-        .Select((text, cancellationToken) =>
-        {
-            var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
-            var path    = text.Path.Replace('\\', '/');
-            return new WgslFile {
-                NormalizedPath  = path,
-                Hash            = ComputeFnv1A64(content),
-                Content         = content
-            };
-        }).Collect();
+        .Select(CreateWgslFile).Collect();
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -162,13 +153,13 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ImmutableArray<WgslFile>    files,
         bool                        generateParameters)
     {
-        var location 	= result.method!.MethodLoc.GetFreshLocation(compilation);
-        var wgsl        = CodeFixer.CreateWgsl(result.method, files);
+        var location    = result.method!.MethodLoc.GetFreshLocation(compilation);
+        var module      = CodeFixer.CreateWgslModule(result.method, files);
         
         if (generateParameters && result.method!.Parameters.Length == 0)
         {
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add("WGSL", wgsl);
+                .Add("WGSL", module.wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
@@ -179,7 +170,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             }*/
         } {
             var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add("WGSL", wgsl);
+                .Add("WGSL", module.wgsl);
                 
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: result.method!.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);

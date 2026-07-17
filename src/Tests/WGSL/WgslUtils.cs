@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.CSharp;
 using NUnit.Framework;
 
@@ -46,8 +47,9 @@ internal static class WgslUtils
             
             path = path.Substring(2);
             var resourceName = "Tests." + path.Replace('/', '.'); 
-            var wgsl = ReadWgslResource(resourceName);
-            files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0 });
+            var wgsl    = ReadWgslResource(resourceName);
+            var module  = WgslParser.ParseShader(wgsl);
+            files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = module });
             shaders.Add(new CsShader {
                 path    = path,
                 frag    = args[1].Value as string,

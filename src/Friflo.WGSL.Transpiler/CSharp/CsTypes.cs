@@ -1,19 +1,30 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Text;
+using Friflo.WGSL.Transpiler.CodeFixes;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-public readonly struct WgslFile
+public readonly struct WgslFile : IEquatable<WgslFile>
 {
-    public required     string  NormalizedPath  { get; init; }
-    public required     ulong   Hash            { get; init; }
-    public required     string  Content         { get; init; }
+    public required     string      NormalizedPath  { get; init; }
+    public required     ulong       Hash            { get; init; }
+    public required     string      Content         { get; init; }
+    public required     WgslModule  Module          { get; init; }
 
-    public override     string  ToString()      => NormalizedPath;
+    public override int     GetHashCode() => (int)Hash;
+
+    public override bool    Equals(object other) => other is WgslFile that && Equals(that);
+
+    public bool Equals(WgslFile other) {
+        return Hash == other.Hash;
+    }
+
+    public override     string      ToString()      => NormalizedPath;
 }
 
 public readonly record struct SrcLoc

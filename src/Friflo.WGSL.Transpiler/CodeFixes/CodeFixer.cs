@@ -40,19 +40,23 @@ public static partial class CodeFixer
         return default;
     }
     
-    public static string CreateWgsl(CsMethod method, ImmutableArray<WgslFile> files)
+    public static WgslModule CreateWgslModule(CsMethod method, ImmutableArray<WgslFile> files)
     {
-        var sb      = new StringBuilder();
-        // var (vsEntry, fsEntry) = GetEntryPoints(method, files);
-        foreach (var file in files)
+        var fullModule = new WgslModule();
+        var sb = new StringBuilder(2048); 
+
+        foreach (var shader in method.Shaders) 
         {
-            foreach (var shader in method.Shaders) {
-                if (!file.NormalizedPath.EndsWith(shader.path)) continue;
-                sb.Append(file.Content);
-                break;
-            }
+            var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
+            if (file.NormalizedPath == null) continue;
+            sb.AppendLine(file.Content);
+            var module = file.Module;
+            fullModule.Structs    .AddRange(module.Structs);
+            fullModule.Bindings   .AddRange(module.Bindings);
+            fullModule.EntryPoints.AddRange(module.EntryPoints);
         }
-        return sb.ToString();
+        fullModule.wgsl = sb.ToString();
+        return fullModule;
     }
     
     public static ShaderParamsResult CreateShaderParams(WgslModule module)

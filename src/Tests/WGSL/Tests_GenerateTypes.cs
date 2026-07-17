@@ -14,8 +14,8 @@ public static class Tests_GenerateTypes
     public static void Tests_WGSL_GenerateTypes_1()
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var module  = CodeFixer.CreateWgslModule(method, files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -40,8 +40,8 @@ public static class Tests_GenerateTypes
     public static void Tests_WGSL_GenerateTypes_2()
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var module  = CodeFixer.CreateWgslModule(method, files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -67,8 +67,8 @@ public static class Tests_GenerateTypes
     public static void Tests_WGSL_GenerateTypes_3()
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var module  = CodeFixer.CreateWgslModule(method, files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -87,8 +87,8 @@ public static class Tests_GenerateTypes
     public static void Tests_WGSL_GenerateTypes_4()
     {
         var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var wgsl    = CodeFixer.CreateWgsl(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var module  = CodeFixer.CreateWgslModule(method, files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
         
         Assert.That(types.Comments, Is.EqualTo( // language=csharp
             """
