@@ -25,4 +25,18 @@ public sealed partial class ShaderGen
             Module          = module
         };
     }
+    
+    // High-performance, allocation-free FNV-1a 64-bit string hashing
+    private static ulong ComputeFnv1A64(string text)
+    {
+        ulong hash = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
+
+        foreach (char c in text)
+        {
+            hash ^= (byte)c;        hash *= prime;
+            hash ^= (byte)(c >> 8); hash *= prime;
+        }
+        return hash;
+    }
 }
