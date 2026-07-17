@@ -39,22 +39,21 @@ public static class ShaderValidation
                 errors.Add(shader.pathLoc, $"'{shader.path}' not found");
             }
         }
+        
+        // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
-        if (parameters.Length > 0) {
-            var param = parameters[0]; 
-            if (param.Type.Name != "RenderPass") {
-                errors.Add(param.TypeLoc, "expect first parameter Type: RenderPass");
-            }
-        }
-        if (parameters.Length > 1) {
-            var param = parameters[1]; 
-            if (param.Type.Name != "RenderConfig") {
-                errors.Add(param.TypeLoc, "expect second parameter Type: RenderConfig");
-            }
-        }
         if (parameters.Length == 1) {
             errors.Add(method.MethodLoc, "expect two parameters: RenderPass pass, RenderConfig config");
         }
+        else if (parameters.Length > 1) {
+            if (parameters[0].Type.Name != "RenderPass") {
+                errors.Add(parameters[0].TypeLoc, "expect first parameter Type: RenderPass");
+            }
+            if (parameters[1].Type.Name != "RenderConfig") {
+                errors.Add(parameters[1].TypeLoc, "expect second parameter Type: RenderConfig");
+            }
+        }
+        
         var vertexParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
         if (vertexParameters.Count() > 1) {
             foreach (var parameter in vertexParameters) {
