@@ -119,7 +119,7 @@ public sealed class ShaderEmitter
         foreach (var parameter in method.Parameters) {
             switch (parameter.ParamAttribute) {
                 case VertexBuffer:
-                    body.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.BindGroup.group});\n");
+                    body.Append($"        pass_.SetVertexBuffer({parameter.Name}, {parameter.VertexBufferSlot});\n");
                     addedBuffer = true;
                     break;
                 case IndexBuffer:
@@ -439,7 +439,7 @@ $$"""
                 body.Append($"{indent}        pass_.{drawMethod}{suffix}({paramName}, {drawArgs});\n");
                 break;
             case VertexBuffer:
-                var slot        = drawParam.BindGroup.group;
+                var slot        = drawParam.VertexBufferSlot;
                 var configName  = method.Parameters[1].Name;
                 body.Append($"{indent}        pass_.Draw{suffix}({paramName}, {slot}, {configName}, {drawArgs});\n");
                 break;

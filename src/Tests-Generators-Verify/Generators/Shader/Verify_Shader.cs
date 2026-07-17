@@ -445,6 +445,30 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_Error_binding_already_exists()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    private static partial void Binding_already_exists(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
+        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_NoParameters()
     {
         await Verify(

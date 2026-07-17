@@ -58,7 +58,7 @@ public sealed partial class ShaderGen
         {
             var paramSymbol     = methodParameters[n];
             var attributes      = paramSymbol.GetAttributes();
-            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out var e1, out var e2, out var attributeData);
+            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
             var drawAttribute   = CsDrawAttribute.None;
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
                 drawAttribute = CsDrawAttribute.Draw;
@@ -76,6 +76,7 @@ public sealed partial class ShaderGen
                 Type            = type,
                 ParamAttribute  = paramAttribute,
                 BindGroup       = bindGroup,
+                VertexBufferSlot= vbs,
                 AttrEnum = new CsAttrEnum {
                     enum1           = e1,
                     enum2           = e2,
@@ -157,12 +158,8 @@ public sealed partial class ShaderGen
         return new CsEnum { Name = "NoName", Value = (ulong)(int)typedConstant.Value! };
     }
     
-    private static CsBindGroup Int(TypedConstant arg, SrcLoc loc) {
-        return new CsBindGroup {
-            group   = (int)arg.Value!,
-            binding = 0,
-            attrLoc	= loc
-        };
+    private static int Int(TypedConstant arg) {
+        return (int)arg.Value!;
     }
     
     private static CsBindGroup BindGroup(ImmutableArray<TypedConstant> args, int pos, SrcLoc loc) {
@@ -176,13 +173,15 @@ public sealed partial class ShaderGen
     private static CsParamAttribute GetParamAttribute(
         ImmutableArray<AttributeData>   attributes,
         out CsBindGroup                 bg,
+        out int                         vbs,
         out CsEnum                      e1,
         out CsEnum                      e2,
         out AttributeData?              attributeData)
     {
-        bg = default;
-        e1 = default;
-        e2 = default;
+        bg      = new CsBindGroup{ group = -1,  binding = -1, attrLoc = default };
+        e1      = default;
+        e2      = default;
+        vbs     = 0;
         CsParamAttribute attr = default;
         attributeData = null;
         
@@ -208,7 +207,7 @@ public sealed partial class ShaderGen
                 case "storageAttribute":                                attr = storage;         break;
                 case "uniformAttribute":                                attr = uniform;         break;
                 //
-                case "VertexBufferAttribute":   bg = Int(args[0], loc); attr = VertexBuffer;    break;
+                case "VertexBufferAttribute":   vbs = Int(args[0]);     attr = VertexBuffer;    break;
                 //
                 case "IndexBufferAttribute":                            attr = IndexBuffer;     break;
                 

@@ -173,13 +173,14 @@ public readonly record struct CsParameter
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
+    public required     int                 VertexBufferSlot{ get; init; }
     public required     CsAttrEnum          AttrEnum        { get; init; }
     //
     public required     SrcLoc              TypeLoc         { get; init; }
     public required     SrcLoc              NameLoc         { get; init; }
     public required     SrcLoc              AttrLoc         { get; init; }
-    public required     SrcLoc              AttrArg0Loc    { get; init; }
-    public required     SrcLoc              AttrArg1Loc    { get; init; }
+    public required     SrcLoc              AttrArg0Loc     { get; init; }
+    public required     SrcLoc              AttrArg1Loc     { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     

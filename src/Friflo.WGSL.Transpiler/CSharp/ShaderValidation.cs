@@ -61,6 +61,14 @@ public static class ShaderValidation
                 errors.Add(parameter.AttrLoc, "Shader method must not have multiple [IndexBuffer] parameters");    
             }
         }
+        var bindings = new HashSet<(int,int)>();
+        foreach (var parameter in parameters) {
+            var bindGroup = parameter.BindGroup;
+            if (bindGroup.group < 0) continue;
+            if (!bindings.Add((bindGroup.group, bindGroup.binding))) {
+                errors.Add(bindGroup.attrLoc, $"binding already exists: [Map({bindGroup.group}, {bindGroup.binding})]");
+            }
+        }
         return errors;
     }
 }

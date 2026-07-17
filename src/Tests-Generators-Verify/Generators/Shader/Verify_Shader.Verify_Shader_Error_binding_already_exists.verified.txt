@@ -1,0 +1,16 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: Shader Validation Error - binding already exists: [Map(0, 0)],
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: Shader Validation Error - {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
