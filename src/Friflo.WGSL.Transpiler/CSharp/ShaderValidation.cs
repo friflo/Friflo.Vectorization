@@ -24,6 +24,10 @@ public readonly struct ValidationError
 
 public static class ShaderValidation
 {
+    private static void Add(this List<ValidationError> errors, SrcLoc srcLoc, string message) {
+        errors.Add(new ValidationError(srcLoc, message));
+    }
+    
     public static List<ValidationError> Validate(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var errors = new List<ValidationError>();
@@ -31,7 +35,7 @@ public static class ShaderValidation
         {
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) {
-                errors.Add(new ValidationError(shader.pathLoc, $"'{shader.path}' not found"));
+                errors.Add(shader.pathLoc, $"'{shader.path}' not found");
             }
         }
         var parameters = method.Parameters;
@@ -39,14 +43,14 @@ public static class ShaderValidation
         {
             var param = parameters[0]; 
             if (param.Type.Name != "RenderPass") {
-                errors.Add(new ValidationError(param.TypeLoc, "expect first parameter Type: RenderPass"));
+                errors.Add(param.TypeLoc, "expect first parameter Type: RenderPass");
             }
         }
         if (parameters.Length > 1)
         {
             var param = parameters[1]; 
             if (param.Type.Name != "RenderConfig") {
-                errors.Add(new ValidationError(param.TypeLoc, "expect second parameter Type: RenderConfig"));
+                errors.Add(param.TypeLoc, "expect second parameter Type: RenderConfig");
             }
         }
         return errors;
