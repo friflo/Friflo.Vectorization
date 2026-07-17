@@ -80,8 +80,8 @@ public sealed partial class ShaderGen
                     enum1           = e1,
                     enum2           = e2,
                 },
-                TypeLoc         = typeLoc,
                 NameLoc         = nameLoc,
+                TypeLoc         = typeLoc,
                 AttrLoc         = attrLoc,
                 AttrArg0Loc     = arg0Loc,
                 AttrArg1Loc     = arg1Loc

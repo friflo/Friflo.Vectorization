@@ -12,7 +12,9 @@ public readonly struct ValidationError
 {
     public readonly SrcLoc  srcLoc;
     public readonly string  message;
-    
+
+    public override string  ToString() => message;
+
     public ValidationError(SrcLoc srcLoc, string  message)
     {
         this.srcLoc     = srcLoc;
@@ -30,6 +32,21 @@ public static class ShaderValidation
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) {
                 errors.Add(new ValidationError(shader.pathLoc, $"'{shader.path}' not found"));
+            }
+        }
+        var parameters = method.Parameters;
+        if (parameters.Length > 0)
+        {
+            var param = parameters[0]; 
+            if (param.Type.Name != "RenderPass") {
+                // errors.Add(new ValidationError(param.TypeLoc, "expect first parameter is of type RenderPass"));
+            }
+        }
+        if (parameters.Length > 1)
+        {
+            var param = parameters[1]; 
+            if (param.Type.Name != "RenderConfig") {
+                // errors.Add(new ValidationError(param.TypeLoc, "expect second parameter is of type RenderConfig"));
             }
         }
         return errors;
