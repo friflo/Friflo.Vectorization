@@ -108,8 +108,9 @@ public static class ShaderValidation
             {
                 case CsParamAttribute.uniform:
                 case CsParamAttribute.storage:
-                    if (wgslBinding.AddressSpace != paramType) {
-                        errors.Add(bindGroup.attrLoc, $"wgsl expect: <{wgslBinding.AddressSpace}>");
+                    var addressSpace = wgslBinding.AddressSpace;
+                    if (addressSpace != paramType) {
+                        errors.Add(bindGroup.attrLoc, $"inconsistent types - C# [{paramType}]  wgsl: <{addressSpace}>");
                     }
                     continue;
                 
@@ -141,8 +142,9 @@ public static class ShaderValidation
                 case CsParamAttribute.texture_depth_2d_array:
                 case CsParamAttribute.texture_depth_cube:
                 case CsParamAttribute.texture_depth_cube_array:
-                    if (wgslBinding.WgslType.Name != paramType) {
-                        errors.Add(bindGroup.attrLoc, $"C# [{paramType}]  wgsl expect: <{wgslBinding.WgslType.Name}>");
+                    var wgslTypeName = wgslBinding.WgslType?.Name; 
+                    if (wgslTypeName != paramType) {
+                        errors.Add(bindGroup.attrLoc, $"inconsistent types - C# [{paramType}]  wgsl: <{wgslTypeName}>");
                     }
                     continue;
             }
