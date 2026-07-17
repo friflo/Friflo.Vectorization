@@ -115,10 +115,11 @@ public static class ShaderValidation
                 
                 // --- Sampler types
                 case CsParamAttribute.sampler_NonFiltering:
-                    paramType = "sampler";
+                    paramType = "sampler";  // maps to sampler. no sampler_NonFiltering in WGSL
                     goto case CsParamAttribute.sampler;
                 case CsParamAttribute.sampler:
                 case CsParamAttribute.sampler_comparison:
+                // fall-through intentional 
                     
                 // --- Texture Types
                 case CsParamAttribute.texture_1d:
