@@ -493,6 +493,26 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_Error_WgslParser_Exception()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/parser-crash.vert.wgsl",              vertex:   "main")]
+    private static partial void WgslParser_Exception();
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_NoParameters()
     {
         await Verify(

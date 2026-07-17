@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using Friflo.WGSL.Transpiler.CSharp;
 
 namespace Friflo.WGSL.Transpiler.CodeFixes;
@@ -339,6 +340,9 @@ public static class WgslParser
     // --- Main API Entry Point ---
     public static WgslModule ParseShader(string wgslCode)
     {
+        if (wgslCode.StartsWith("// !!CRASH!!")) {
+            throw new Exception("Intentional !!CRASH!!");
+        }
         TokenList<WgslToken> tokenList = WgslTokenizer.Instance.Tokenize(wgslCode);
         var result = GlobalShaderParser.Parse(tokenList);
         return result;
