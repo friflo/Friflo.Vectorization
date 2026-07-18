@@ -76,18 +76,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
                     }
                 }
             }
-            var errors = ShaderValidation.Validate(method, files);
-            foreach (var error in errors) {
-	            var location = error.srcLoc.GetFreshLocation(compilation);
-                var desc = error.type == DiagType.Error ? Errors.ShaderValidationError : Errors.ShaderValidationWarning;
-	            var diagnostic = Diagnostic.Create(desc, location, error.message);
+            var diags = ShaderValidation.Validate(method, files);
+            
+            foreach (var diag in diags) {
+	            var location = diag.srcLoc.GetFreshLocation(compilation);
+                var desc = diag.type == DiagType.Error ? Errors.ShaderValidationError : Errors.ShaderValidationWarning;
+	            var diagnostic = Diagnostic.Create(desc, location, diag.message);
 	            spc.ReportDiagnostic(diagnostic);
             }
             var generateParameters = method.Parameters.Length == 0  ||
-                                    (method.Parameters.Length == 2 && errors.Count > 0);
+                                    (method.Parameters.Length == 2 && diags.Count > 0);
             AddShaderCodeFixes(spc, compilation, method, files, generateParameters);
             
-            bool hasErrors  = errors.Any(e => e.type == DiagType.Error);
+            bool hasErrors  = diags.Any(e => e.type == DiagType.Error);
             var emitShader  = new ShaderEmitter(method);
             var code        = emitShader.Emit(wgslHash, hasErrors);
             spc.AddSource(result.fileName!, code);
