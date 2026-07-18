@@ -1,12 +1,12 @@
 ﻿{
   Diagnostics: [
     {
-      Message: Shader Validation Error - WGSL parser error: Intentional !!CRASH!!,
+      Message: Shader Validation Error at [Shader("shaders/parser-crash.vert.wgsl")] - WGSL parser error: Intentional !!CRASH!!,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error - {0},
+        MessageFormat: Shader Validation Error {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true

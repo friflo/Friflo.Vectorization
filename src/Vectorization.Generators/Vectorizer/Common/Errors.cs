@@ -112,7 +112,7 @@ public static class Errors
     public static readonly DiagnosticDescriptor ShaderValidationError = new(
         id: "WGPU005",
         title: "Shader Validation Error",
-        messageFormat: "Shader Validation Error - {0}",
+        messageFormat: "Shader Validation Error {0}",
         category: "WGPU",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);

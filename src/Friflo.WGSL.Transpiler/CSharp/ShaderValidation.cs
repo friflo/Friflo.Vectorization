@@ -10,14 +10,14 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 // ReSharper disable PossibleMultipleEnumeration
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-public readonly struct ValidationError
+public readonly struct ValidationDiag
 {
     public readonly SrcLoc  srcLoc;
     public readonly string  message;
 
     public override string  ToString() => message;
 
-    public ValidationError(SrcLoc srcLoc, string  message)
+    public ValidationDiag(SrcLoc srcLoc, string  message)
     {
         this.srcLoc     = srcLoc;
         this.message    = message;
@@ -26,24 +26,20 @@ public readonly struct ValidationError
 
 public static class ShaderValidation
 {
-    private static void Add(this List<ValidationError> errors, SrcLoc srcLoc, string message) {
-        errors.Add(new ValidationError(srcLoc, message));
-    }
-    
-    public static List<ValidationError> Validate(CsMethod method, ImmutableArray<WgslFile> files)
+    public static List<ValidationDiag> Validate(CsMethod method, ImmutableArray<WgslFile> files)
     {
-        var errors          = new List<ValidationError>();
+        var diags           = new List<ValidationDiag>();
         var wgslBindings    = new Dictionary<(int,int), WgslBinding>();
         
         foreach (var shader in  method.Shaders)
         {
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) {
-                errors.Add(shader.pathLoc, $"'{shader.path}' not found");
+                diags.ShaderErr(shader.pathLoc, shader, $"file not found");
                 continue;
             }
             foreach (var error in file.Module.Errors) {
-                errors.Add(shader.attrLoc, $"WGSL parser error: {error}");
+                diags.ShaderErr(shader.attrLoc, shader, $"WGSL parser error: {error}");
             }
             foreach (var binding in file.Module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
@@ -53,21 +49,21 @@ public static class ShaderValidation
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
         if (parameters.Length == 1) {
-            errors.Add(method.MethodLoc, "expect two parameters: RenderPass pass, RenderConfig config");
+            diags.MethodErr(method.MethodLoc, method, "expect two parameters: RenderPass pass, RenderConfig config");
         }
         else if (parameters.Length > 1) {
             if (parameters[0].Type.Name != "RenderPass") {
-                errors.Add(parameters[0].TypeLoc, "expect first parameter Type: RenderPass");
+                diags.MethodErr(parameters[0].TypeLoc, method, "expect first parameter Type: RenderPass");
             }
             if (parameters[1].Type.Name != "RenderConfig") {
-                errors.Add(parameters[1].TypeLoc, "expect second parameter Type: RenderConfig");
+                diags.MethodErr(parameters[1].TypeLoc, method, "expect second parameter Type: RenderConfig");
             }
         }
         
         var vertexParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
         if (vertexParameters.Count() > 1) {
             foreach (var parameter in vertexParameters) {
-                errors.Add(parameter.AttrLoc, "Shader method must not have multiple [IndexBuffer] parameters");    
+                diags.MapErr(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters");    
             }
         }
         var bindings = new Dictionary<(int,int), CsParameter>();
@@ -76,34 +72,53 @@ public static class ShaderValidation
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (bindGroup.group < 0 || bindGroup.group >= 4) {
-                errors.Add(bindGroup.attrLoc, $"group must be in range: 0 - 3. was: {bindGroup.group}");
+                diags.MapErr(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}");
                 continue;
             }
             if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
-                errors.Add(bindGroup.attrLoc, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
+                diags.MapErr(bindGroup.attrLoc, parameter, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
                 continue;
             }
             if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
-                errors.Add(bindGroup.attrLoc, $"binding already exists: [Map({bindGroup.group}, {bindGroup.binding})]");
+                diags.MapErr(bindGroup.attrLoc, parameter, "binding already exists");
             }
         }
         
-        ValidateBindings(bindings, wgslBindings, errors);
+        ValidateBindings(bindings, wgslBindings, diags);
 
-        return errors;
+        return diags;
     }
     
+    extension(List<ValidationDiag> diags)
+    {
+        private void ShaderErr(SrcLoc srcLoc, CsShader shader, string message) {
+            var error = $"at [Shader(\"{shader.path}\")] - {message}";
+            diags.Add(new ValidationDiag(srcLoc, error));
+        }
+                
+        private void MethodErr(SrcLoc srcLoc, CsMethod method, string message) {
+            var error = $"at '{method.Name}' - {message}";
+            diags.Add(new ValidationDiag(srcLoc, error));
+        }
+
+        private void MapErr(SrcLoc srcLoc, CsParameter parameter, string message) {
+            var bg = parameter.BindGroup;
+            var error = $"at [Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
+            diags.Add(new ValidationDiag(srcLoc, error));
+        }
+    }
+
     private static void ValidateBindings(
         Dictionary<(int,int), CsParameter>  bindings,
         Dictionary<(int,int), WgslBinding>  wgslBindings,
-        List<ValidationError>               errors)
+        List<ValidationDiag>                diags)
     {
         foreach (var parameter in bindings.Values)
         {
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
-                errors.Add(parameter.BindGroup.attrLoc, $"C# [Map({bindGroup.group}, {bindGroup.binding})]  binding not declared in wgsl");
+                diags.MapErr(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl");
                 continue; 
             }
             var paramType = parameter.ParamAttribute.ToString();
@@ -113,7 +128,7 @@ public static class ShaderValidation
                 case CsParamAttribute.storage:
                     var addressSpace = wgslBinding.AddressSpace;
                     if (addressSpace != paramType) {
-                        errors.Add(parameter.AttrLoc, $"inconsistent types - C# [{paramType}]  wgsl <{addressSpace}>");
+                        diags.MapErr(parameter.AttrLoc, parameter, $"inconsistent types - C# [{paramType}]  wgsl <{addressSpace}>");
                     }
                     continue;
                 
@@ -147,7 +162,7 @@ public static class ShaderValidation
                 case CsParamAttribute.texture_depth_cube_array:
                     var wgslTypeName = wgslBinding.WgslType?.Name; 
                     if (wgslTypeName != paramType) {
-                        errors.Add(parameter.AttrLoc, $"inconsistent types - C# [{paramType}]  wgsl <{wgslTypeName}>");
+                        diags.MapErr(parameter.AttrLoc, parameter, $"inconsistent types - C# [{paramType}]  wgsl <{wgslTypeName}>");
                     }
                     continue;
             }

@@ -1,24 +1,24 @@
 ﻿{
   Diagnostics: [
     {
-      Message: Shader Validation Error - group must be in range: 0 - 3. was: -1,
+      Message: Shader Validation Error at [Map(-1, 0)] mvpMatrices - group must be in range: 0 - 3. was: -1,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error - {0},
+        MessageFormat: Shader Validation Error {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error - binding must be in range: 0 - 639. was: 640,
+      Message: Shader Validation Error at [Map(0, 640)] mvpMatrices2 - binding must be in range: 0 - 639. was: 640,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error - {0},
+        MessageFormat: Shader Validation Error {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
