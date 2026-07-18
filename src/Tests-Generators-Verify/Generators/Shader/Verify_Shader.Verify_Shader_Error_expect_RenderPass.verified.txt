@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: 'Expect_RenderPass' - missing required parameters  ->  require (RenderPass pass, RenderConfig config),
+      Message: Expect_RenderPass - missing required parameters  ->  require (RenderPass pass, RenderConfig config),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

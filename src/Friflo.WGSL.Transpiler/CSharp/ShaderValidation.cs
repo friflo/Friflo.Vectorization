@@ -116,7 +116,7 @@ public static class ShaderValidation
         }
                 
         private void Method(SrcLoc srcLoc, CsMethod method, string message, DiagType type = DiagType.Warn) {
-            var error = $"'{method.Name}' - {message}";
+            var error = $"{method.Name} - {message}";
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
 

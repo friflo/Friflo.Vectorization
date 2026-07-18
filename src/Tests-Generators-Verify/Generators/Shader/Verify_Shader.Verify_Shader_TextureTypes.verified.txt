@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(1, 0)] sampler0  ->  var sampler0: sampler,
+      Message: TestTextureTypes - missing C# parameter [Map(1, 0)] sampler0  ->  var sampler0: sampler,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -14,7 +14,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(1, 1)] sampler1  ->  var sampler1: sampler_comparison,
+      Message: TestTextureTypes - missing C# parameter [Map(1, 1)] sampler1  ->  var sampler1: sampler_comparison,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -27,7 +27,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 0)] texture0  ->  var texture0: texture_1d<f32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 0)] texture0  ->  var texture0: texture_1d<f32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -40,7 +40,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 1)] texture1  ->  var texture1: texture_2d<f32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 1)] texture1  ->  var texture1: texture_2d<f32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -53,7 +53,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 2)] texture2  ->  var texture2: texture_2d_array<i32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 2)] texture2  ->  var texture2: texture_2d_array<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -66,7 +66,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 3)] texture3  ->  var texture3: texture_3d<i32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 3)] texture3  ->  var texture3: texture_3d<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -79,7 +79,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 4)] texture4  ->  var texture4: texture_cube<u32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 4)] texture4  ->  var texture4: texture_cube<u32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -92,7 +92,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 5)] texture5  ->  var texture5: texture_cube_array<u32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 5)] texture5  ->  var texture5: texture_cube_array<u32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -105,7 +105,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 6)] texture6  ->  var texture6: texture_multisampled_2d<i32>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 6)] texture6  ->  var texture6: texture_multisampled_2d<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -118,7 +118,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 7)] texture7  ->  var texture7: texture_depth_multisampled_2d,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 7)] texture7  ->  var texture7: texture_depth_multisampled_2d,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -131,7 +131,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 8)] texture8  ->  var texture8: texture_storage_1d<rgba32float, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 8)] texture8  ->  var texture8: texture_storage_1d<rgba32float, write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -144,7 +144,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 9)] texture9  ->  var texture9: texture_storage_2d<rgba8unorm, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 9)] texture9  ->  var texture9: texture_storage_2d<rgba8unorm, write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -157,7 +157,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 10)] texture10  ->  var texture10: texture_storage_2d_array<rgba8uint, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 10)] texture10  ->  var texture10: texture_storage_2d_array<rgba8uint, write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -170,7 +170,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 11)] texture11  ->  var texture11: texture_storage_3d<r32float, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 11)] texture11  ->  var texture11: texture_storage_3d<r32float, write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -183,7 +183,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 12)] texture12  ->  var texture12: texture_depth_2d,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 12)] texture12  ->  var texture12: texture_depth_2d,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -196,7 +196,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 13)] texture13  ->  var texture13: texture_depth_2d_array,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 13)] texture13  ->  var texture13: texture_depth_2d_array,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -209,7 +209,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 14)] texture14  ->  var texture14: texture_depth_cube,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 14)] texture14  ->  var texture14: texture_depth_cube,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -222,7 +222,7 @@
       }
     },
     {
-      Message: 'TestTextureTypes' - missing C# parameter [Map(0, 15)] texture15  ->  var texture15: texture_depth_cube_array,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 15)] texture15  ->  var texture15: texture_depth_cube_array,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
