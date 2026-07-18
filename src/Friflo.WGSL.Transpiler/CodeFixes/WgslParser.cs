@@ -73,7 +73,13 @@ public record WgslBinding
     public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
     public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
     
-    public override string ToString() => $"{Name} : {WgslType}{(AddressSpace == "" ? "" : $"  <{AddressSpace}>")}";
+    public override string ToString()
+    {
+        if (AddressSpace == "") {
+            return $"var {Name}: {WgslType}";
+        }
+        return $"var<{AddressSpace}> {Name}: {WgslType}";
+    }
 }
 
 public class WgslEntryPoint

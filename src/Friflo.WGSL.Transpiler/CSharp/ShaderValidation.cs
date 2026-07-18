@@ -117,6 +117,10 @@ public static class ShaderValidation
             var error = $"at [Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
             diags.Add(new ValidationDiag(srcLoc, error));
         }
+        
+        private void TypeErr(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
+            diags.MapErr(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding}");
+        }
     }
 
     private static void ValidateBindings(
@@ -139,7 +143,7 @@ public static class ShaderValidation
                 case CsParamAttribute.storage:
                     var addressSpace = wgslBinding.AddressSpace;
                     if (addressSpace != paramType) {
-                        diags.MapErr(parameter.AttrLoc, parameter, $"inconsistent types - C# [{paramType}]  wgsl <{addressSpace}>");
+                        diags.TypeErr(parameter.AttrLoc, parameter, paramType, wgslBinding);
                     }
                     continue;
                 
@@ -173,7 +177,7 @@ public static class ShaderValidation
                 case CsParamAttribute.texture_depth_cube_array:
                     var wgslTypeName = wgslBinding.WgslType?.Name; 
                     if (wgslTypeName != paramType) {
-                        diags.MapErr(parameter.AttrLoc, parameter, $"inconsistent types - C# [{paramType}]  wgsl <{wgslTypeName}>");
+                        diags.TypeErr(parameter.AttrLoc, parameter, paramType, wgslBinding);
                     }
                     continue;
             }
