@@ -58,7 +58,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         if (wgslFiles == null) {
             return document;
         }
-        var module      = CodeFixer.CreateWgslModule(wgslFiles);
+        var module      = CodeFixer.ParseWgslFiles(wgslFiles);
         var paramsResult= CodeFixer.CreateShaderParams(module);
         var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         

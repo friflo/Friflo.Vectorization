@@ -352,7 +352,7 @@ public static class WgslParser
         });
 
     // --- Main API Entry Point ---
-    public static WgslModule ParseShader(string wgslCode, string sourcePath)
+    public static WgslModule ParseWgsl(string wgslCode, string sourcePath)
     {
         if (wgslCode.StartsWith("// !!CRASH!!")) {
             throw new Exception("Intentional !!CRASH!!");

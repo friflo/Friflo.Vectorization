@@ -41,12 +41,12 @@ public static partial class CodeFixer
         return default;
     }
     
-    public static WgslModule CreateWgslModule(List<WgslFile> files)
+    public static WgslModule ParseWgslFiles(List<WgslFile> files)
     {
         var fullModule = new WgslModule();
         foreach (var file in files) 
         {
-            var module = WgslParser.ParseShader(file.Content, file.NormalizedPath);
+            var module = WgslParser.ParseWgsl(file.Content, file.NormalizedPath);
             fullModule.AddModule(module);
         }
         return fullModule;

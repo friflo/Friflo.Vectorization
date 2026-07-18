@@ -14,7 +14,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Parse_triangle()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
         Assert.AreEqual(2, module.EntryPoints.Count);
@@ -27,7 +27,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
         Assert.AreEqual(2, module.EntryPoints.Count);
@@ -40,7 +40,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_GenerateParameters()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
@@ -60,7 +60,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(result.Errors.Length, Is.EqualTo(0));
@@ -82,7 +82,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Generate_texture_2d()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
@@ -103,7 +103,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Generate_textures()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
@@ -138,7 +138,7 @@ public static class Tests_WGSL
     public static void Tests_WGSL_Generate_UniformMatrix4x4()
     {
         var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
-        var module  = CodeFixer.CreateWgslModule(files);
+        var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));

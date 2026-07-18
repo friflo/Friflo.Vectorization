@@ -52,7 +52,7 @@ public class AddTypesCodeFixProvider : CodeFixProvider
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
-        var module  = CodeFixer.CreateWgslModule(wgslFiles);
+        var module = CodeFixer.ParseWgslFiles(wgslFiles);
         var result = TypeGenerator.GenerateCSharpTypes(module);
         if (result.Types == "") {
             // add only comment
