@@ -46,7 +46,7 @@ internal static class WgslUtils
             path = path.Substring(2);
             var resourceName = "Tests." + path.Replace('/', '.'); 
             var wgsl    = ReadWgslResource(resourceName);
-            var module  = WgslParser.ParseShader(wgsl);
+            var module  = WgslParser.ParseShader(wgsl, path);
             files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = module });
         }
         return files;

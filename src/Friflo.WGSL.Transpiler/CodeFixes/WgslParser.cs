@@ -49,8 +49,9 @@ public record WgslType
 
 public class WgslStruct
 {
-    public string Name { get; set; } = string.Empty;
-    public List<WgslField> Fields { get; set; } = new();
+    public string           Name { get; set; } = string.Empty;
+    public List<WgslField>  Fields { get; set; } = new();
+    public string           sourcePath;
     
     public override string ToString() => Name;
 }
@@ -354,13 +355,17 @@ public static class WgslParser
         });
 
     // --- Main API Entry Point ---
-    public static WgslModule ParseShader(string wgslCode)
+    public static WgslModule ParseShader(string wgslCode, string sourcePath)
     {
         if (wgslCode.StartsWith("// !!CRASH!!")) {
             throw new Exception("Intentional !!CRASH!!");
         }
         TokenList<WgslToken> tokenList = WgslTokenizer.Instance.Tokenize(wgslCode);
         var result = GlobalShaderParser.Parse(tokenList);
+        
+        foreach (var structType in result.Structs) {
+            structType.sourcePath = sourcePath;
+        }
         return result;
     }
 }

@@ -20,7 +20,7 @@ public sealed partial class ShaderGen
         var path    = text.Path.Replace('\\', '/');
         WgslModule module;
         try {
-            module = WgslParser.ParseShader(content);    
+            module = WgslParser.ParseShader(content, path);
         } catch (Exception exception) {
             module = new WgslModule();
             module.Errors.Add(exception.Message);
