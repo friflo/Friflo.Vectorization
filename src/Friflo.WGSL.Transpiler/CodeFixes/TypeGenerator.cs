@@ -76,7 +76,7 @@ public static class TypeGenerator
             sb.Append("    \n");
         }
         
-        var comments = "    // [ ]  Check if you can reuse existing struct types\n";
+        var comments = "    // [ ]  Remove if you can reuse existing struct types\n";
         if (!addedStructs) {
             comments = "    // (i)  wgsl bindings do not use custom structs\n";
         }
