@@ -1,48 +1,48 @@
 ﻿{
   Diagnostics: [
     {
-      Message: Shader Validation Error at [Shader("no-file.wgsl")] - file not found,
+      Message: [Shader("no-file.wgsl")] - file not found,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at [Map(0, 0)] uniforms - binding not declared in wgsl,
+      Message: [Map(0, 0)] uniforms - binding not declared in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at [Map(0, 1)] smoothFilter - binding not declared in wgsl,
+      Message: [Map(0, 1)] smoothFilter - binding not declared in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at [Map(0, 2)] material - binding not declared in wgsl,
+      Message: [Map(0, 2)] material - binding not declared in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true

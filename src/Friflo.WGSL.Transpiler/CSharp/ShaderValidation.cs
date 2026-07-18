@@ -103,18 +103,18 @@ public static class ShaderValidation
     extension(List<ValidationDiag> diags)
     {
         private void ShaderErr(SrcLoc srcLoc, CsShader shader, string message) {
-            var error = $"at [Shader(\"{shader.path}\")] - {message}";
+            var error = $"[Shader(\"{shader.path}\")] - {message}";
             diags.Add(new ValidationDiag(srcLoc, error));
         }
                 
         private void MethodErr(SrcLoc srcLoc, CsMethod method, string message) {
-            var error = $"at '{method.Name}' - {message}";
+            var error = $"'{method.Name}' - {message}";
             diags.Add(new ValidationDiag(srcLoc, error));
         }
 
         private void MapErr(SrcLoc srcLoc, CsParameter parameter, string message) {
             var bg = parameter.BindGroup;
-            var error = $"at [Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
+            var error = $"[Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
             diags.Add(new ValidationDiag(srcLoc, error));
         }
         

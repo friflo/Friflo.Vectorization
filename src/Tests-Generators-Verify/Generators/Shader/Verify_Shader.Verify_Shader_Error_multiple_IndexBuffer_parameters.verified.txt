@@ -1,60 +1,60 @@
 ﻿{
   Diagnostics: [
     {
-      Message: Shader Validation Error at [Map(0, 0)] indexBuffer1 - Shader method must not have multiple [IndexBuffer] parameters,
+      Message: [Map(0, 0)] indexBuffer1 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at [Map(0, 0)] indexBuffer2 - Shader method must not have multiple [IndexBuffer] parameters,
+      Message: [Map(0, 0)] indexBuffer2 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(0, 0)] mesh_data for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(0, 0)] mesh_data for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 0)] myUniforms for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 0)] myUniforms for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     },
     {
-      Message: Shader Validation Error at 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 1)] model_offset for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 1)] model_offset for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
-        MessageFormat: Shader Validation Error {0},
+        MessageFormat: {0},
         Category: WGPU,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
