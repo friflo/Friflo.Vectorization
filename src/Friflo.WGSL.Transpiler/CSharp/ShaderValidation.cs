@@ -60,9 +60,9 @@ public static class ShaderValidation
             }
         }
         
-        var vertexParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
-        if (vertexParameters.Count() > 1) {
-            foreach (var parameter in vertexParameters) {
+        var indexBufferParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
+        if (indexBufferParameters.Count() > 1) {
+            foreach (var parameter in indexBufferParameters) {
                 diags.MapErr(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters");    
             }
         }
