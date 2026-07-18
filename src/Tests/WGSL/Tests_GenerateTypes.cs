@@ -19,12 +19,14 @@ public static class Tests_GenerateTypes
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
+                [Source("~/shaders/basic.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct VertexData {
                     public Vector4 position;
                     public Vector4 color;
                 }
                 
+                [Source("~/shaders/basic.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct MyUniforms {
                     public Vector4 tint_color;
@@ -45,6 +47,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
+                [Source("~/shaders/basic.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Scene {
                     public Matrix4x4 lightViewProjMatrix;
@@ -52,6 +55,7 @@ public static class Tests_GenerateTypes
                     public Vector3 lightPos;
                 }
                 
+                [Source("~/shaders/basic.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Model {
                     public Matrix4x4 modelMatrix;
@@ -72,6 +76,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
+                [Source("~/shaders/basic.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Uniforms {
                     public Matrix4x4 modelViewProjectionMatrix;

@@ -66,6 +66,8 @@ public static class TypeGenerator
                 continue;
             }
             addedStructs = true;
+            var path        = "~/shaders/basic.vert.wgsl";
+            sb.Append($"    [Source(\"{path}\")]\n");
             sb.Append($"    [StructLayout(LayoutKind.Sequential)]\n");
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {

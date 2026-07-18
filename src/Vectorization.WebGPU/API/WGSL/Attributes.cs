@@ -189,6 +189,11 @@ public sealed class uniformAttribute : Attribute;
 #endregion
 
 
+[AttributeUsage(AttributeTargets.Struct)]
+public sealed class SourceAttribute : Attribute
+{
+    public SourceAttribute([PathReference] string wgslPath, string name = null) { }
+}
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class NoEmitAttribute : Attribute;
