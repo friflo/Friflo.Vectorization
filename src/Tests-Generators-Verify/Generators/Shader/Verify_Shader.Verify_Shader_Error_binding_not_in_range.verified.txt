@@ -25,7 +25,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'Binding_not_in_range' - missing parameter [Map(0, 0)] uniforms for binding in wgsl,
+      Message: Shader Validation Error at 'Binding_not_in_range' - missing C# parameter [Map(0, 0)] uniforms for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

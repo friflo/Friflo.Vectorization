@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(1, 0)] sampler0 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(1, 0)] sampler0 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -13,7 +13,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(1, 1)] sampler1 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(1, 1)] sampler1 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -25,7 +25,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 0)] texture0 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 0)] texture0 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -37,7 +37,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 1)] texture1 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 1)] texture1 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -49,7 +49,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 2)] texture2 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 2)] texture2 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -61,7 +61,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 3)] texture3 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 3)] texture3 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -73,7 +73,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 4)] texture4 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 4)] texture4 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -85,7 +85,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 5)] texture5 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 5)] texture5 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -97,7 +97,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 6)] texture6 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 6)] texture6 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -109,7 +109,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 7)] texture7 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 7)] texture7 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -121,7 +121,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 8)] texture8 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 8)] texture8 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -133,7 +133,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 9)] texture9 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 9)] texture9 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -145,7 +145,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 10)] texture10 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 10)] texture10 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -157,7 +157,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 11)] texture11 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 11)] texture11 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -169,7 +169,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 12)] texture12 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 12)] texture12 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -181,7 +181,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 13)] texture13 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 13)] texture13 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -193,7 +193,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 14)] texture14 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 14)] texture14 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -205,7 +205,7 @@
       }
     },
     {
-      Message: Shader Validation Error at 'TestTextureTypes' - missing parameter [Map(0, 15)] texture15 for binding in wgsl,
+      Message: Shader Validation Error at 'TestTextureTypes' - missing C# parameter [Map(0, 15)] texture15 for binding in wgsl,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

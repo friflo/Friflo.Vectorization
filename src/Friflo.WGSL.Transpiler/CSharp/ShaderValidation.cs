@@ -90,7 +90,7 @@ public static class ShaderValidation
             // no errors on shader methods without parameters for fast prototyping
             foreach (var wgslBinding in wgslBindings.Values) {
                 if (!bindings.ContainsKey((wgslBinding.Group, wgslBinding.Binding))) {
-                    var msg = $"missing parameter [Map({wgslBinding.Group}, {wgslBinding.Binding})] {wgslBinding.Name} for binding in wgsl";
+                    var msg = $"missing C# parameter [Map({wgslBinding.Group}, {wgslBinding.Binding})] {wgslBinding.Name} for binding in wgsl";
                     diags.MethodErr(method.MethodLoc, method, msg);
                 }
             }
