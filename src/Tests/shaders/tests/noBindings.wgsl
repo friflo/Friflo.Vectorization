@@ -1,0 +1,42 @@
+﻿// --- buffer structs
+struct VertexData {
+    position:   vec4<f32>,
+    color:      vec4<f32>
+}
+
+struct TriangleStorage {
+    triangles: array<VertexData>,
+}
+
+// --- uniform structs
+struct MyUniforms {
+    tint_color:   vec4<f32>,
+}
+
+
+// --- bindings
+// no bindings
+
+// ---  pipeline stage input/output
+struct VertexOutput {
+    @builtin(position)  clip_position:  vec4<f32>,
+    @location(0)        color:          vec4<f32>,
+}
+
+@vertex
+fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
+    var out: VertexOutput;
+    
+    let vertex = mesh_data.triangles[vertex_id];
+    
+    // pass transformed position and color and add model_offset
+    out.clip_position = vertex.position + vec4<f32>(model_offset, 0.0, 0.0);    
+    out.color 		  = vertex.color * myUniforms.tint_color;
+    
+    return out;
+}
+
+@fragment
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+    return in.color;  // output the interpolated vertex color
+}

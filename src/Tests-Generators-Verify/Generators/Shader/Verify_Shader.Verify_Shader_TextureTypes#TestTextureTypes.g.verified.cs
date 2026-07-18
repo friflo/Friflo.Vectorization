@@ -13,5 +13,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void TestTextureTypes() { }
+    public static partial void TestTextureTypes(
+        RenderPass                  pass,
+        RenderConfig                config) { }
 }

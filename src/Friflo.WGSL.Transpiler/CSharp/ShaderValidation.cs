@@ -85,7 +85,16 @@ public static class ShaderValidation
         }
         
         ValidateBindings(bindings, wgslBindings, diags);
-
+        
+        if (method.Parameters.Length > 0) {
+            // no errors on shader methods without parameters for fast prototyping
+            foreach (var wgslBinding in wgslBindings.Values) {
+                if (!bindings.ContainsKey((wgslBinding.Group, wgslBinding.Binding))) {
+                    var msg = $"missing parameter [Map({wgslBinding.Group}, {wgslBinding.Binding})] {wgslBinding.Name} for binding in wgsl";
+                    diags.MethodErr(method.MethodLoc, method, msg);
+                }
+            }
+        }
         return diags;
     }
     

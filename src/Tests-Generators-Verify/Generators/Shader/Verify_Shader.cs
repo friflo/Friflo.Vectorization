@@ -396,7 +396,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/tests/noBindings.wgsl", vertex: "vs_main", fragment: "fs_main")]
     protected static partial void Expect_RenderPass(int i);
 }
 """);
@@ -416,7 +416,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/tests/noBindings.wgsl", vertex: "vs_main", fragment: "fs_main")]
     protected static partial void Expect_RenderPass(RenderPass pass);
 }
 """);
@@ -546,7 +546,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/tests/noBindings.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void NoLayouts(RenderPass pass, RenderConfig config);
 }
 """);
@@ -567,7 +567,7 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     [Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
-    public static partial void TestTextureTypes();
+    public static partial void TestTextureTypes(RenderPass pass, RenderConfig config);
 }
 """);
     }
