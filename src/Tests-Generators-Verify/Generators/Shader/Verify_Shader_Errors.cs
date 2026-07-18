@@ -1,0 +1,195 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System.Threading.Tasks;
+using Friflo;
+using JetBrains.Annotations;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+using Tests.Generators;
+using VerifyNUnit;
+using VerifyTests;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable InconsistentNaming
+namespace Shader;
+
+public static class Verify_Shader_Errors
+{
+    private static async Task Verify([LanguageInjection("csharp")] string code)
+    {
+        var compilation = VerifyShaderUtils.CreateCompilation(code);
+        var generator = new ShaderGen();
+        var wgslFiles = VerifyShaderUtils.LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
+        var driver = CSharpGeneratorDriver.Create(generator).AddAdditionalTexts(wgslFiles);
+
+        // Run
+        var runResult = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        
+        VerifyUtils.CheckOutputCompilation(outputCompilation);
+
+        // Verify (NUnit adapter)
+        await Verifier.Verify(runResult).IgnoreGeneratedResult(VerifyUtils.IgnoreStaticSource);
+    }
+    
+    
+    [Test]
+    public static async Task  Verify_Shader_Error()
+    {
+        await Verify(           //   TODO  support having only a [VertexShader]
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/no-file.wgsl",                  vertex: "main")]
+    protected static partial void RenderCube(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
+        [Map(0, 1)] [sampler]                   GpuSampler      smoothFilter,
+        [Map(0, 2)] [texture_2d(ST.f32)]        GpuTextureView  material,
+                    [VertexBuffer(0)] [Draw]    InBuffer<float> vertices);
+        
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Uniforms {
+        public Matrix4x4   modelViewProjectionMatrix;
+    }
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_expect_RenderPass()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/tests/noBindings.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    protected static partial void Expect_RenderPass(int i);
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_expect_two_parameters()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/tests/noBindings.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    protected static partial void Expect_RenderPass(RenderPass pass);
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_multiple_IndexBuffer_parameters()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    protected static partial void Multiple_IndexBuffer_parameters(RenderPass pass, RenderConfig config,
+        [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer1,
+        [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer2);
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_binding_already_exists()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    private static partial void Binding_already_exists(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
+        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_binding_not_in_range()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+    private static partial void Binding_not_in_range(RenderPass pass, RenderConfig config,
+        [Map(-1, 0)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
+        [Map(0,640)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_WgslParser_Exception()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+	[Shader("~/shaders/parser-crash.vert.wgsl",              vertex:   "main")]
+    private static partial void WgslParser_Exception();
+}
+""");
+    }
+    
+}
