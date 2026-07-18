@@ -27,7 +27,7 @@
       }
     },
     {
-      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(0, 0)] mesh_data for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(0, 0)] mesh_data  ->  var<storage> mesh_data: TriangleStorage,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -40,7 +40,7 @@
       }
     },
     {
-      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 0)] myUniforms for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 0)] myUniforms  ->  var<uniform> myUniforms: MyUniforms,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -53,7 +53,7 @@
       }
     },
     {
-      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 1)] model_offset for binding in wgsl,
+      Message: 'Multiple_IndexBuffer_parameters' - missing C# parameter [Map(2, 1)] model_offset  ->  var<uniform> model_offset: vec2<f32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {

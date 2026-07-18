@@ -26,7 +26,7 @@
       }
     },
     {
-      Message: 'Binding_not_in_range' - missing C# parameter [Map(0, 0)] uniforms for binding in wgsl,
+      Message: 'Binding_not_in_range' - missing C# parameter [Map(0, 0)] uniforms  ->  var<uniform> uniforms: Uniforms,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
