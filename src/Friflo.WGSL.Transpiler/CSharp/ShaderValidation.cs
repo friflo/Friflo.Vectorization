@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Friflo.WGSL.Transpiler.CodeFixes;
 
+// ReSharper disable RedundantJumpStatement
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable PossibleMultipleEnumeration
 namespace Friflo.WGSL.Transpiler.CSharp;
@@ -81,6 +82,7 @@ public static class ShaderValidation
             }
             if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
                 diags.MapErr(bindGroup.attrLoc, parameter, "binding already exists");
+                continue;
             }
         }
         
