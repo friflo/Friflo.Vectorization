@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Friflo.WGSL.Transpiler.CodeFixes;
+using Friflo.WGSL.Transpiler.WGSL;
 
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable ConvertToPrimaryConstructor

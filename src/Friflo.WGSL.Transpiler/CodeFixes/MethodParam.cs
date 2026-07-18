@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text;
+using Friflo.WGSL.Transpiler.WGSL;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;

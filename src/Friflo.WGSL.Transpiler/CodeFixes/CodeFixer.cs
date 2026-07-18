@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
+using Friflo.WGSL.Transpiler.WGSL;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToReturnStatement

@@ -3,8 +3,7 @@
 
 using System;
 using System.Threading;
-using Friflo.WGSL.Transpiler.CodeFixes;
-using Friflo.WGSL.Transpiler.CSharp;
+using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
 
 

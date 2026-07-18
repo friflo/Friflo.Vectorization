@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Friflo.WGSL.Transpiler.CSharp;
+namespace Friflo.WGSL.Transpiler.WGSL;
 
 
 public static class DictionaryExtensions
@@ -37,7 +37,7 @@ public static class WgslUtils
         return builder.ToImmutable();
     }
     
-    public static List<WgslFile> ParseFromProperties(ImmutableDictionary<string, string> properties)
+    public static List<WgslFile> CreateWgslFiles(ImmutableDictionary<string, string> properties)
     {
         var list = new List<WgslFile>();
 
@@ -53,7 +53,7 @@ public static class WgslUtils
                     Content         = contentStr, 
                     NormalizedPath  = pathStr,
                     Hash            = 0,
-                    Module          =  null
+                    Module          = null
                 });
             }
         }

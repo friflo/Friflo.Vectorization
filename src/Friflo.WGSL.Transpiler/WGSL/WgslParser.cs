@@ -2,17 +2,15 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.WGSL.Transpiler.CSharp;
-
-namespace Friflo.WGSL.Transpiler.CodeFixes;
-
 using System.Collections.Generic;
 using System.Linq;
+using Friflo.WGSL.Transpiler.CSharp;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 
+namespace Friflo.WGSL.Transpiler.WGSL;
 
 // ==========================================
 // AST / DATA MODELS
