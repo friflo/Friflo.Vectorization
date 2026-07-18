@@ -85,7 +85,9 @@ public sealed partial class ShaderGen : IIncrementalGenerator
 	            var diagnostic = Diagnostic.Create(desc, location, error.message);
 	            spc.ReportDiagnostic(diagnostic);
             }
-            AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
+            var generateParameters = method.Parameters.Length == 0  ||
+                                    (method.Parameters.Length == 2 && errors.Count > 0);
+            AddShaderCodeFixes(spc, compilation, method, files, generateParameters);
             
             bool hasErrors  = errors.Any(e => e.type == DiagType.Error);
             var emitShader  = new ShaderEmitter(method);
@@ -136,19 +138,19 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     private static void AddShaderCodeFixes(
         SourceProductionContext     spc,
         Compilation                 compilation,
-        ShaderMethodResult          result,
+        CsMethod                    method,
         ImmutableArray<WgslFile>    files,
         bool                        generateParameters)
     {
-        var location    = result.method!.MethodLoc.GetFreshLocation(compilation);
-        var module      = CodeFixer.CreateWgslModule(result.method, files);
+        var location    = method.MethodLoc.GetFreshLocation(compilation);
+        var module      = CodeFixer.CreateWgslModule(method, files);
         
-        if (generateParameters && result.method!.Parameters.Length == 0)
+        if (generateParameters)
         {
             var properties  = ImmutableDictionary<string, string?>.Empty
                 .Add("WGSL", module.wgsl);
                 
-            var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: result.method!.Name, properties: properties);
+            var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
 
             /* foreach (var error in fixerResult.Errors) {
@@ -159,7 +161,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             var properties  = ImmutableDictionary<string, string?>.Empty
                 .Add("WGSL", module.wgsl);
                 
-            var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: result.method!.Name, properties: properties);
+            var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
         }
     }
