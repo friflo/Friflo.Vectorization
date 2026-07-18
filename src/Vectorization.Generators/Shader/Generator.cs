@@ -141,14 +141,13 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         ImmutableArray<WgslFile>    files,
         bool                        generateParameters)
     {
-        var location    = method.MethodLoc.GetFreshLocation(compilation);
-        var module      = CodeFixer.CreateWgslModule(method, files);
+        var location        = method.MethodLoc.GetFreshLocation(compilation);
+        
+        var filteredFiles   = CodeFixer.FilterFiles(method, files);
+        var properties      = WgslUtils.CreateDictionary(filteredFiles);
         
         if (generateParameters)
         {
-            var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add("WGSL", module.wgsl);
-                
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
 
@@ -157,9 +156,6 @@ public sealed partial class ShaderGen : IIncrementalGenerator
                 spc.ReportDiagnostic(diagnostic);
             }*/
         } {
-            var properties  = ImmutableDictionary<string, string?>.Empty
-                .Add("WGSL", module.wgsl);
-                
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
         }

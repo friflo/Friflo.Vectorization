@@ -13,9 +13,9 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateTypes_1()
     {
-        var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var module  = CodeFixer.CreateWgslModule(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
+        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var module  = CodeFixer.CreateWgslModule(files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -41,9 +41,9 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_2()
     {
-        var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var module  = CodeFixer.CreateWgslModule(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
+        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var module  = CodeFixer.CreateWgslModule(files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -70,9 +70,9 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_3()
     {
-        var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var module  = CodeFixer.CreateWgslModule(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
+        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var module  = CodeFixer.CreateWgslModule(files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -91,9 +91,9 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_4()
     {
-        var (method, files) = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
-        var module  = CodeFixer.CreateWgslModule(method, files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module.wgsl);
+        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var module  = CodeFixer.CreateWgslModule(files);
+        var types   = TypeGenerator.GenerateCSharpTypes(module);
         
         Assert.That(types.Comments, Is.EqualTo( // language=csharp
             """

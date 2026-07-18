@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.WGSL.Transpiler.CodeFixes;
+using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -53,10 +54,11 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         Diagnostic          diagnostic,
         CancellationToken   cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
+        var wgslFiles = WgslUtils.ParseFromProperties(diagnostic.Properties);
+        if (wgslFiles == null) {
             return document;
         }
-        var module      = WgslParser.ParseShader(wgsl);
+        var module      = CodeFixer.CreateWgslModule(wgslFiles);
         var paramsResult= CodeFixer.CreateShaderParams(module);
         var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         

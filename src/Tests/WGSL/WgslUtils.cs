@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -29,13 +28,12 @@ internal static class WgslUtils
         return reader.ReadToEnd();
     }
     
-    public static (CsMethod, ImmutableArray<WgslFile>) GetShaders(Type type, [CallerMemberName] string callerName = "")
+    public static List<WgslFile> GetShaders(Type type, [CallerMemberName] string callerName = "")
     {
         var methodInfo = type.GetMethod(callerName);
         if (methodInfo == null) throw new InvalidOperationException("Could not find method " + callerName);
         
         var files           = new List<WgslFile>();
-        var shaders         = new List<CsShader>();
         var attributesData  = methodInfo.GetCustomAttributesData();
         
         foreach (var data in attributesData)
@@ -50,27 +48,7 @@ internal static class WgslUtils
             var wgsl    = ReadWgslResource(resourceName);
             var module  = WgslParser.ParseShader(wgsl);
             files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = module });
-            shaders.Add(new CsShader {
-                path    = path,
-                frag    = args[1].Value as string,
-                vert    = args[2].Value as string,
-                attrLoc = default,
-                pathLoc = default,
-                vertLoc = default,
-                fragLoc = default
-            });
         }
-        var method = new CsMethod {
-            Name            = "",
-            Hash            = "",
-            DeclaringType   = default,
-            Parameters      = default,
-            DrawVertexIndex = null,
-            Modifier        = default,
-            Shaders         = shaders.ToValueArray(),
-            TypeInfos       = default,
-            MethodLoc       = default
-        };
-        return (method, files.ToImmutableArray());
+        return files;
     }
 }

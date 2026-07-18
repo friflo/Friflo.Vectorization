@@ -40,20 +40,27 @@ public static partial class CodeFixer
         return default;
     }
     
-    public static WgslModule CreateWgslModule(CsMethod method, ImmutableArray<WgslFile> files)
+    public static WgslModule CreateWgslModule(List<WgslFile> files)
     {
         var fullModule = new WgslModule();
-        var sb = new StringBuilder(2048); 
-
+        foreach (var file in files) 
+        {
+            var module = WgslParser.ParseShader(file.Content);
+            fullModule.AddModule(module);
+        }
+        return fullModule;
+    }
+    
+    public static List<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files)
+    {
+        var result = new List<WgslFile>();
         foreach (var shader in method.Shaders) 
         {
             var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) continue;
-            sb.AppendLine(file.Content);
-            fullModule.AddModule(file.Module);
+            result.Add(file);
         }
-        fullModule.wgsl = sb.ToString();
-        return fullModule;
+        return result;
     }
     
     public static ShaderParamsResult CreateShaderParams(WgslModule module)

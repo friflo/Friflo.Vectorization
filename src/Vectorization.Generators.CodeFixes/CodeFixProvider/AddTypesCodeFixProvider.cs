@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Friflo.WGSL.Transpiler.CodeFixes;
+using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -44,13 +45,15 @@ public class AddTypesCodeFixProvider : CodeFixProvider
     private static async Task<Document> InsertTypesAsync(
         Document document, MethodDeclarationSyntax method, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("WGSL", out var wgsl) || wgsl == null || wgsl == "") {
+        var wgslFiles = WgslUtils.ParseFromProperties(diagnostic.Properties);
+        if (wgslFiles == null) {
             return document;
         }
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
-        var result = TypeGenerator.GenerateCSharpTypes(wgsl);
+        var module  = CodeFixer.CreateWgslModule(wgslFiles);
+        var result = TypeGenerator.GenerateCSharpTypes(module);
         if (result.Types == "") {
             // add only comment
             var updatedMethod = method
