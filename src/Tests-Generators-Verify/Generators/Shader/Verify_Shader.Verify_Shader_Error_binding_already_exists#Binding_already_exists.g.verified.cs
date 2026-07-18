@@ -18,5 +18,76 @@ public partial class ShaderExample
         RenderConfig                config,
         InBuffer<Matrix4x4>         mvpMatrices,
         InBuffer<Matrix4x4>         mvpMatrices2,
-        InBuffer<float>             verticesBuffer) { }
+        InBuffer<float>             verticesBuffer)
+    {
+
+        var pass_       = pass.Internal;
+		var recorder	= pass_.Recorder;
+		recorder.Init(_Binding_already_exists_GPU_ShaderId, "Binding_already_exists_encoder"u8);
+
+        recorder.RequireRead     (mvpMatrices);
+        recorder.RequireRead     (mvpMatrices2);
+        recorder.RequireRead     (verticesBuffer);
+        
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_Binding_already_exists_GPU_ShaderId, config, _Binding_already_exists_GPU_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref _Binding_already_exists_GPU_CreatePipelineCache(recorder.Device, config);
+        }
+        pass_.SetPipeline(pipelineCache.renderPipeline);
+        
+        var bindGroupCache = (_Binding_already_exists_GPU_Cache)pipelineCache.bindGroupCache;
+
+        // --- bind group 0
+        var key_0 = (mvpMatrices.Handle, mvpMatrices2.Handle);
+        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
+            recorder.BindGroupEntryBuffer(0, mvpMatrices.Buffer);
+            recorder.BindGroupEntryBuffer(0, mvpMatrices2.Buffer);
+            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "Binding_already_exists_bindGroup_0"u8);
+            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
+        }
+        pass_.SetBindGroup(0, bindGroup_0);
+        
+        pass_.SetVertexBuffer(verticesBuffer, 0);
+        
+        // --- draw
+        pass_.Draw(verticesBuffer, 0, config, DrawArgs.InstanceCount(mvpMatrices));
+    }
+
+    private sealed class _Binding_already_exists_GPU_Cache : BindGroupCache
+    {
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bindGroup_0 = new ();
+
+        protected override void Clear() {
+            ReleaseBindGroups(bindGroup_0);
+        }
+    }
+
+    private static readonly int _Binding_already_exists_GPU_ShaderId            =  ShaderRegistry.NewShaderId("Binding_already_exists");
+    private const  ulong        _Binding_already_exists_GPU_layout_0_Key        =  0xa4c698cc23a53d04;
+
+    private static ulong        _Binding_already_exists_GPU_WgslHash            => 0x7bea408b45888bf2UL;  // support Hot-Reload
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static ref readonly PipelineCache _Binding_already_exists_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
+    {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
+        var layout_0 = device.GetBindGroupLayout(_Binding_already_exists_GPU_layout_0_Key);
+        if (!layout_0.IsCreated) {
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
+            layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _Binding_already_exists_GPU_layout_0_Key, "Binding_already_exists_layout_0"u8);
+        }
+        layouts[0] = layout_0;
+        
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _Binding_already_exists_GPU_Shaders, "Binding_already_exists_pipeline"u8);
+
+        var bindGroupCache = new _Binding_already_exists_GPU_Cache();
+        return ref device.CreatePipelineCache(_Binding_already_exists_GPU_ShaderId, config, _Binding_already_exists_GPU_WgslHash, pipeline, layouts, bindGroupCache);
+    }
+    
+    private static readonly WgpuShader[] _Binding_already_exists_GPU_Shaders = [
+        new("shaders/instanced.vert.wgsl", vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+    ];
+
 }

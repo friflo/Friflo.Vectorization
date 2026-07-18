@@ -87,7 +87,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             }
             AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);
             
-            bool hasErrors  = errors.Count > 0;
+            bool hasErrors  = errors.Any(e => e.type == DiagType.Error);
             var emitShader  = new ShaderEmitter(method);
             var code        = emitShader.Emit(wgslHash, hasErrors);
             spc.AddSource(result.fileName!, code);
