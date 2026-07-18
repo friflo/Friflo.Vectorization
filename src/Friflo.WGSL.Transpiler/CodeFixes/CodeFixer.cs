@@ -58,7 +58,7 @@ public static partial class CodeFixer
         {
             var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) continue;
-            result.Add(file);
+            result.Add(file with { NormalizedPath = shader.path });
         }
         return result;
     }
