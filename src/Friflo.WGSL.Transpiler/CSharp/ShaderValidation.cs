@@ -119,7 +119,7 @@ public static class ShaderValidation
         }
         
         private void TypeErr(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
-            diags.MapErr(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding}");
+            diags.MapErr(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding.AsString()}");
         }
     }
 
