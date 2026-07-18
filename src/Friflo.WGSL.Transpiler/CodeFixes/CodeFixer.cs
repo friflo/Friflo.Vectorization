@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -17,17 +16,10 @@ namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 
 
-public readonly struct WgslValidationError
-{
-    public required string                  Message  { get; init; }
-}
-
-
 public readonly struct ShaderParamsResult
 {
-    public required string                  Parameters  { get; init; }
-    public required string                  Comments    { get; init; }
-    public required WgslValidationError[]   Errors      { get; init; }
+    public required string  Parameters  { get; init; }
+    public required string  Comments    { get; init; }
 }
 
 
@@ -69,11 +61,10 @@ public static partial class CodeFixer
         var sb      = new StringBuilder();
         sb.Append("(RenderPass pass, RenderConfig config,");
         
-        var errors      = new List<WgslValidationError>();
         var parameters  = new List<MethodParam>();
         
         // --- [Map(group, binding)] [...]
-        var bindings = CreateBindings(module, errors);
+        var bindings = CreateBindings(module);
         AddBindingParameters(module, parameters, bindings);
         
         // --- [VertexBuffer(0)]
@@ -86,11 +77,10 @@ public static partial class CodeFixer
         return new ShaderParamsResult {
             Parameters  = sb.ToString(),
             Comments    = comments,  
-            Errors      = errors.ToArray() // new WgslValidationError { Message = "XXX Test some WGSL message" }]
         };
     }
 
-    private static List<WgslBinding> CreateBindings(WgslModule module, List<WgslValidationError> errors)
+    private static List<WgslBinding> CreateBindings(WgslModule module)
     {
         var bindings    = new List<WgslBinding>();
         var bindingMap  = new Dictionary<(int, int), WgslBinding>();
@@ -99,11 +89,7 @@ public static partial class CodeFixer
         foreach (var binding in module.Bindings)
         {
             var key = (binding.Group, binding.Binding);
-            if (bindingMap.TryGetValue(key, out var value)) {
-                if (!value.Equals(binding)) { 
-                    errors.Add(new WgslValidationError { Message = $"inconsistent binding for: @group({binding.Group}) @binding({binding.Binding})" });
-                }
-            } else {
+            if (!bindingMap.ContainsKey(key)) {
                 bindingMap.Add(key, binding);
                 bindings.Add(binding);
             }

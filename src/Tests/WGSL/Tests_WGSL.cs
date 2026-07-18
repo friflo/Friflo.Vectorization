@@ -43,7 +43,6 @@ public static class Tests_WGSL
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
-        Assert.That(result.Errors.Length, Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
@@ -63,7 +62,6 @@ public static class Tests_WGSL
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
-        Assert.That(result.Errors.Length, Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
@@ -86,7 +84,6 @@ public static class Tests_WGSL
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
-        Assert.That(result.Errors.Length,               Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
@@ -107,7 +104,6 @@ public static class Tests_WGSL
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
-        Assert.That(result.Errors.Length,       Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
@@ -142,7 +138,6 @@ public static class Tests_WGSL
         var result  = CodeFixer.CreateShaderParams(module);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
-        Assert.That(result.Errors.Length,               Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
