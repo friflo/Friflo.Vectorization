@@ -81,7 +81,8 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             var errors = ShaderValidation.Validate(method, files);
             foreach (var error in errors) {
 	            var location = error.srcLoc.GetFreshLocation(compilation);
-	            var diagnostic = Diagnostic.Create(Errors.ShaderValidationError, location, error.message);
+                var desc = error.type == DiagType.Error ? Errors.ShaderValidationError : Errors.ShaderValidationWarning;
+	            var diagnostic = Diagnostic.Create(desc, location, error.message);
 	            spc.ReportDiagnostic(diagnostic);
             }
             AddShaderCodeFixes(spc, compilation, result, files, foundWgsl);

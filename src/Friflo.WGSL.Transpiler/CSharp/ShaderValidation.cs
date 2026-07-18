@@ -11,17 +11,25 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 // ReSharper disable PossibleMultipleEnumeration
 namespace Friflo.WGSL.Transpiler.CSharp;
 
+public enum DiagType
+{
+    Error,
+    Warn
+}
+
 public readonly struct ValidationDiag
 {
-    public readonly SrcLoc  srcLoc;
-    public readonly string  message;
+    public readonly     SrcLoc      srcLoc;
+    public readonly     string      message;
+    public readonly     DiagType    type;
 
     public override string  ToString() => message;
 
-    public ValidationDiag(SrcLoc srcLoc, string  message)
+    public ValidationDiag(SrcLoc srcLoc, string  message,  DiagType type)
     {
         this.srcLoc     = srcLoc;
         this.message    = message;
+        this.type       = type;
     }
 }
 
@@ -36,11 +44,11 @@ public static class ShaderValidation
         {
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) {
-                diags.ShaderErr(shader.pathLoc, shader, $"file not found");
+                diags.Shader(shader.pathLoc, shader, $"file not found", DiagType.Error);
                 continue;
             }
             foreach (var error in file.Module.Errors) {
-                diags.ShaderErr(shader.attrLoc, shader, $"WGSL parser error: {error}");
+                diags.Shader(shader.attrLoc, shader, $"WGSL parser error: {error}");
             }
             foreach (var binding in file.Module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
@@ -50,21 +58,21 @@ public static class ShaderValidation
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
         if (parameters.Length == 1) {
-            diags.MethodErr(method.MethodLoc, method, "expect two parameters: RenderPass pass, RenderConfig config");
+            diags.Method(method.MethodLoc, method, "expect two parameters: RenderPass pass, RenderConfig config");
         }
         else if (parameters.Length > 1) {
             if (parameters[0].Type.Name != "RenderPass") {
-                diags.MethodErr(parameters[0].TypeLoc, method, "expect first parameter Type: RenderPass");
+                diags.Method(parameters[0].TypeLoc, method, "expect first parameter Type: RenderPass");
             }
             if (parameters[1].Type.Name != "RenderConfig") {
-                diags.MethodErr(parameters[1].TypeLoc, method, "expect second parameter Type: RenderConfig");
+                diags.Method(parameters[1].TypeLoc, method, "expect second parameter Type: RenderConfig");
             }
         }
         
         var indexBufferParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
         if (indexBufferParameters.Count() > 1) {
             foreach (var parameter in indexBufferParameters) {
-                diags.MapErr(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters");    
+                diags.Map(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters");    
             }
         }
         var bindings = new Dictionary<(int,int), CsParameter>();
@@ -73,15 +81,15 @@ public static class ShaderValidation
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (bindGroup.group < 0 || bindGroup.group >= 4) {
-                diags.MapErr(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}");
+                diags.Map(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}");
                 continue;
             }
             if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
-                diags.MapErr(bindGroup.attrLoc, parameter, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
+                diags.Map(bindGroup.attrLoc, parameter, $"binding must be in range: 0 - 639. was: {bindGroup.binding}");
                 continue;
             }
             if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
-                diags.MapErr(bindGroup.attrLoc, parameter, "binding already exists");
+                diags.Map(bindGroup.attrLoc, parameter, "binding already exists");
                 continue;
             }
         }
@@ -93,7 +101,7 @@ public static class ShaderValidation
             foreach (var wgslBinding in wgslBindings.Values) {
                 if (!bindings.ContainsKey((wgslBinding.Group, wgslBinding.Binding))) {
                     var msg = $"missing C# parameter [Map({wgslBinding.Group}, {wgslBinding.Binding})] {wgslBinding.Name} for binding in wgsl";
-                    diags.MethodErr(method.MethodLoc, method, msg);
+                    diags.Method(method.MethodLoc, method, msg);
                 }
             }
         }
@@ -102,24 +110,24 @@ public static class ShaderValidation
     
     extension(List<ValidationDiag> diags)
     {
-        private void ShaderErr(SrcLoc srcLoc, CsShader shader, string message) {
+        private void Shader(SrcLoc srcLoc, CsShader shader, string message, DiagType type = DiagType.Warn) {
             var error = $"[Shader(\"{shader.path}\")] - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error));
+            diags.Add(new ValidationDiag(srcLoc, error, type));
         }
                 
-        private void MethodErr(SrcLoc srcLoc, CsMethod method, string message) {
+        private void Method(SrcLoc srcLoc, CsMethod method, string message, DiagType type = DiagType.Warn) {
             var error = $"'{method.Name}' - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error));
+            diags.Add(new ValidationDiag(srcLoc, error, type));
         }
 
-        private void MapErr(SrcLoc srcLoc, CsParameter parameter, string message) {
+        private void Map(SrcLoc srcLoc, CsParameter parameter, string message, DiagType type = DiagType.Warn) {
             var bg = parameter.BindGroup;
             var error = $"[Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error));
+            diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void TypeErr(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
-            diags.MapErr(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding.AsString()}");
+        private void Type(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
+            diags.Map(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding.AsString()}");
         }
     }
 
@@ -133,7 +141,7 @@ public static class ShaderValidation
             if (!parameter.IsBindGroupEntry) continue;
             var bindGroup = parameter.BindGroup;
             if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
-                diags.MapErr(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl");
+                diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl");
                 continue; 
             }
             var paramType = parameter.ParamAttribute.ToString();
@@ -143,7 +151,7 @@ public static class ShaderValidation
                 case CsParamAttribute.storage:
                     var addressSpace = wgslBinding.AddressSpace;
                     if (addressSpace != paramType) {
-                        diags.TypeErr(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                        diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
                     }
                     continue;
                 
@@ -177,7 +185,7 @@ public static class ShaderValidation
                 case CsParamAttribute.texture_depth_cube_array:
                     var wgslTypeName = wgslBinding.WgslType?.Name; 
                     if (wgslTypeName != paramType) {
-                        diags.TypeErr(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                        diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
                     }
                     continue;
             }

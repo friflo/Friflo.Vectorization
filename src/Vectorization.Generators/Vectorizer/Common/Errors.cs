@@ -116,5 +116,13 @@ public static class Errors
         category: "WGPU",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+    
+    public static readonly DiagnosticDescriptor ShaderValidationWarning = new(
+        id: "WGPU005",
+        title: "Shader Validation Error",
+        messageFormat: "{0}",
+        category: "WGPU",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
 
 }

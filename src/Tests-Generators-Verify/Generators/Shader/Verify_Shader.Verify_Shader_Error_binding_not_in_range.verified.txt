@@ -2,37 +2,40 @@
   Diagnostics: [
     {
       Message: [Map(-1, 0)] mvpMatrices - group must be in range: 0 - 3. was: -1,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     },
     {
       Message: [Map(0, 640)] mvpMatrices2 - binding must be in range: 0 - 639. was: 640,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     },
     {
       Message: 'Binding_not_in_range' - missing C# parameter [Map(0, 0)] uniforms for binding in wgsl,
-      Severity: Error,
+      Severity: Warning,
+      WarningLevel: 1,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
-        DefaultSeverity: Error,
+        DefaultSeverity: Warning,
         IsEnabledByDefault: true
       }
     }
