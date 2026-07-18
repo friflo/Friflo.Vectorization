@@ -66,15 +66,13 @@ public sealed partial class ShaderGen : IIncrementalGenerator
             return;
         }
         try {
-            ulong   wgslHash    = 0;
-            var     foundWgsl   = false;
+            ulong wgslHash    = 0;
             
             foreach (var file in files) {
                 foreach (var shader in  method.Shaders)
                 {
                     if (file.NormalizedPath.EndsWith(shader.path)) {
                         wgslHash ^= file.Hash;
-                        foundWgsl = true;
                     }
                 }
             }
