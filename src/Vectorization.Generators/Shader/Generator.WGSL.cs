@@ -6,7 +6,7 @@ using System.Threading;
 using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo;
 
@@ -21,9 +21,10 @@ public sealed partial class ShaderGen
         try {
             module = WgslParser.ParseWgsl(content, path);
         } catch (Exception exception) {
-            module = new WgslModule();
-            var type = exception.GetType();
-            module.Errors.Add($"{type.Namespace}.{type.Name}: {exception.Message}");
+            var type        = exception.GetType();
+            var firstLine   = GetFirstStackTraceLine(exception);
+            module          = new WgslModule();
+            module.Errors.Add($"{type.Namespace}.{type.Name}: {exception.Message} {firstLine}");
         }
         return new WgslFile {
             NormalizedPath  = path,
@@ -31,6 +32,15 @@ public sealed partial class ShaderGen
             Content         = content,
             Module          = module
         };
+    }
+    
+    private static string GetFirstStackTraceLine(Exception ex)
+    {
+        string trace = ex.StackTrace;
+        if (string.IsNullOrEmpty(trace)) return string.Empty;
+
+        int end = trace.IndexOf('\n');
+        return (end != -1 ? trace.Substring(0, end) : trace).Trim();
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
