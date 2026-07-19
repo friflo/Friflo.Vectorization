@@ -16,6 +16,38 @@ public readonly record struct SrcLoc
     public required     int     length   { get; init; }
 }
 
+public enum CsTypeCode
+{
+    None,
+    f16,
+    f32,
+    i32,
+    u32,
+    
+    vec2f,
+    vec3f,
+    vec4f,
+    
+    mat4x4f,
+    
+    // --- non WGSL Types
+    Bool,
+    Enum,
+    Char,
+    DateTime,
+    i8,
+    u8,
+    i16,
+    u16,
+    i64,
+    u64,
+    f64,
+    Decimal,
+    String,
+    Object,
+    ValueType
+}
+
 
 // WGPU attribute:  ShaderAttribute
 public readonly record struct CsShader
@@ -239,6 +271,7 @@ public readonly record struct CsType
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
     public required     bool                IsArray     { get; init; }
     public required     bool                IsValueType { get; init; }
+    public required     CsTypeCode          TypeCode    { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();
     

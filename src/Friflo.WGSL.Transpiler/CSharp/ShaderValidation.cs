@@ -253,23 +253,19 @@ public static class ShaderValidation
     private static void ValidateElementType(in CsParameter parameter, List<ValidationDiag> diags)
     {
         var type = GetGenericType(parameter);
-        switch (type.Name)
+        switch (type.TypeCode)
         {
-            case "float":
-            case "int":
-            case "uint":
-            case "Half":
-            //
-            case "Vector2":
-            case "Vector3":
-            case "Vector4":
-            case "Matrix4x4":
+            case CsTypeCode.f16:
+            case CsTypeCode.f32:
+            case CsTypeCode.i32:
+            case CsTypeCode.u32:
+            case CsTypeCode.vec2f:
+            case CsTypeCode.vec3f:
+            case CsTypeCode.vec4f:
+            case CsTypeCode.mat4x4f:
                 return;
-            default:
-                if (type.IsValueType) {
-                    return;
-                }
-                break;
+            case CsTypeCode.None:
+                return;
         }
         diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
     }
@@ -307,8 +303,8 @@ public static class ShaderValidation
                 return;
             case IndexBuffer:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
-                    var genericType = GetGenericType(parameter).Name;
-                    if (genericType != "ushort" && genericType != "uint") {
+                    var typeCode = GetGenericType(parameter).TypeCode;
+                    if (typeCode != CsTypeCode.u16 && typeCode != CsTypeCode.u32) {
                         diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
                     }
                     return;

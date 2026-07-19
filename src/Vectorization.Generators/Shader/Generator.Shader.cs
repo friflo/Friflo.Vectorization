@@ -295,7 +295,8 @@ public sealed partial class ShaderGen
                     Namespace   = identifier.Namespace,
                     Generics    = default,
                     IsArray     = false,
-                    IsValueType = typeArg.IsValueType
+                    IsValueType = typeArg.IsValueType,
+                    TypeCode    = GetTypeCode(typeArg)
                 });
             }
         }
@@ -304,7 +305,8 @@ public sealed partial class ShaderGen
             Namespace   = type.Namespace,
             Generics    = genericTypes.ToValueArray(),
             IsArray     = isArray,
-            IsValueType = isValueType
+            IsValueType = isValueType,
+            TypeCode    = GetTypeCode(typeSymbol)
         };
     }
 
@@ -331,6 +333,48 @@ public sealed partial class ShaderGen
             Type = GetIdentifier(attributeData.AttributeClass),
             Args = args.ToValueArray()
         };
+    }
+    
+    private static CsTypeCode GetTypeCode(ITypeSymbol symbol)
+    {
+        var typeCode = symbol.SpecialType switch {
+            SpecialType.System_Object 	=> CsTypeCode.Object,
+            SpecialType.System_Enum 	=> CsTypeCode.Enum,
+            SpecialType.System_ValueType=> CsTypeCode.ValueType,
+            SpecialType.System_Boolean 	=> CsTypeCode.Bool,         // WGSL type (not in buffers)
+            SpecialType.System_Char 	=> CsTypeCode.Char,
+            SpecialType.System_SByte 	=> CsTypeCode.i8,
+            SpecialType.System_Byte 	=> CsTypeCode.u8,
+            SpecialType.System_Int16 	=> CsTypeCode.i16,
+            SpecialType.System_UInt16 	=> CsTypeCode.u16,
+            SpecialType.System_Int32 	=> CsTypeCode.i32,          // WGSL type
+            SpecialType.System_UInt32	=> CsTypeCode.u32,          // WGSL type
+            SpecialType.System_Int64 	=> CsTypeCode.i64,
+            SpecialType.System_UInt64 	=> CsTypeCode.u64,
+            SpecialType.System_Decimal	=> CsTypeCode.Decimal,
+            SpecialType.System_Single 	=> CsTypeCode.f32,          // WGSL type
+            SpecialType.System_Double 	=> CsTypeCode.f64,
+            SpecialType.System_String 	=> CsTypeCode.String,
+            SpecialType.System_DateTime => CsTypeCode.DateTime,
+            _                           => CsTypeCode.None
+        };
+        if (typeCode != CsTypeCode.None) {
+            return typeCode;
+        }
+        var ns = symbol.ContainingNamespace?.Name;
+        if (ns == "System" && symbol.Name == "Half") {
+            return CsTypeCode.f16;                                  // WGSL type
+        }
+        if (ns == "System.Numerics") {
+            return symbol.Name switch {
+                "Vector2"   => CsTypeCode.vec2f,
+                "Vector3"   => CsTypeCode.vec3f,
+                "Vector4"   => CsTypeCode.vec4f,
+                "Matrix4x4" => CsTypeCode.mat4x4f,
+                _           => CsTypeCode.None
+            };
+        }
+        return CsTypeCode.None;
     }
     
     private static CsTypeIdentifier GetIdentifier(ITypeSymbol? symbol)
