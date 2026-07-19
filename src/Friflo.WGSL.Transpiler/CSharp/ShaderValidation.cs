@@ -48,7 +48,7 @@ public static class ShaderValidation
                 continue;
             }
             foreach (var error in file.Module.Errors) {
-                diags.Shader(shader.attrLoc, shader, $"WGSL parser error: {error}", DiagType.Warn);
+                diags.Shader(shader.attrLoc, shader, $"WGSL parser error - {error}", DiagType.Warn);
             }
             foreach (var binding in file.Module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);

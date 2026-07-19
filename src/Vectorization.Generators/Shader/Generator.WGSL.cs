@@ -22,7 +22,8 @@ public sealed partial class ShaderGen
             module = WgslParser.ParseWgsl(content, path);
         } catch (Exception exception) {
             module = new WgslModule();
-            module.Errors.Add(exception.Message);
+            var type = exception.GetType();
+            module.Errors.Add($"{type.Namespace}.{type.Name}: {exception.Message}");
         }
         return new WgslFile {
             NormalizedPath  = path,

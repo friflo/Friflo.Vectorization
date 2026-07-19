@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [Shader("shaders/parser-crash.vert.wgsl")] - WGSL parser error: Intentional !!CRASH!!,
+      Message: [Shader("shaders/parser-crash.vert.wgsl")] - WGSL parser error - System.Exception: Intentional !!CRASH!!,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
