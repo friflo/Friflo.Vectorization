@@ -19,6 +19,7 @@ public readonly record struct SrcLoc
 public enum CsTypeCode
 {
     None,
+    // --- WGSL Types
     f16,
     f32,
     i32,
@@ -29,9 +30,10 @@ public enum CsTypeCode
     vec4f,
     
     mat4x4f,
+    //
+    Bool,  // not in buffers
     
-    // --- non WGSL Types
-    Bool,
+    // --- non-WGSL Types
     Enum,
     Char,
     DateTime,
