@@ -16,6 +16,11 @@ public partial class ShaderExample
     private static partial void ParameterTypeErrors(
         RenderPass                  pass,
         RenderConfig                config,
+        Object                      mvpMatrices,
+        Object                      vertices,
+        Object                      verticesBuffer,
+        Object                      indexBuffer1,
+        InBuffer<float>             indexBuffer2,
         Object                      texture0,
         Object                      texture1,
         Object                      texture2,

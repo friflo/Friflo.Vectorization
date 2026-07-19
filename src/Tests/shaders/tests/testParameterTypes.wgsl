@@ -1,3 +1,11 @@
+struct Uniforms {
+  modelViewProjectionMatrix : array<mat4x4f, 16>,
+}
+
+@group(2) @binding(0) var<uniform> uniforms : Uniforms;
+@group(2) @binding(1) var<storage> uniforms : Uniforms;
+
+
 @group(1) @binding(0) var sampler0: sampler;
 @group(1) @binding(1) var sampler1: sampler_comparison;
 

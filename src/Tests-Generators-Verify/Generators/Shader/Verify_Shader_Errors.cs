@@ -266,6 +266,12 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testParameterTypes.wgsl")]
     private static partial void ParameterTypeErrors(RenderPass pass, RenderConfig config,
+        [Map(2, 0)] [uniform]                                                       object          mvpMatrices,
+        [Map(2, 1)] [storage]                                                       object          vertices,
+                    [VertexBuffer(0)]                                               object          verticesBuffer,
+                    [IndexBuffer]                                                   object          indexBuffer1,
+                    [IndexBuffer]                                                   InBuffer<float> indexBuffer2,
+
         [Map(0, 0)] [texture_1d(ST.f32)]                                            object  texture0,
         [Map(0, 1)] [texture_2d(ST.f32)]                                            object  texture1,
         [Map(0, 2)] [texture_2d_array(ST.i32)]                                      object  texture2,
@@ -282,6 +288,7 @@ public partial class ShaderExample
         [Map(0,13)] [texture_depth_2d_array]                                        object  texture13,
         [Map(0,14)] [texture_depth_cube]                                            object  texture14,
         [Map(0,15)] [texture_depth_cube_array]                                      object  texture15,
+        
         [Map(1, 0)] [sampler]                                                       object  sampler0,
         [Map(1, 1)] [sampler_comparison]                                            object  sampler1);
 }

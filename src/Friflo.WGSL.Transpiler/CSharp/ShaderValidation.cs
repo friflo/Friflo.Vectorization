@@ -281,7 +281,7 @@ public static class ShaderValidation
                     var generics = parameter.Type.Generics; 
                     var genericType = generics.Length == 1 ? generics[0].Name : "";
                     if (genericType != "ushort" && genericType != "uint") {
-                        diags.TypeRequirement(parameter, "with <ushort> or <uint>");
+                        diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
                     }
                 }
                 return;
