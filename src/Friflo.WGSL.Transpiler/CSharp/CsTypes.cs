@@ -34,7 +34,7 @@ public enum CsTypeCode
     mat2x2h, mat3x3h, mat4x4h,
     mat2x2f, mat3x3f, mat4x4f,
     //
-    Bool,  // not in buffers
+    Bool,  // not in buffers - Also last enum in list
     
     // --- non-WGSL Types
     Enum,

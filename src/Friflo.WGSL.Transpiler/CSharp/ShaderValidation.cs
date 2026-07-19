@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InvertIf
@@ -250,25 +251,12 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateElementType(in CsParameter parameter, List<ValidationDiag> diags)
+    private static bool IsValidElementType(in CsParameter parameter)
     {
         var type = GetGenericType(parameter);
-        switch (type.TypeCode)
-        {
-            case CsTypeCode.f16:
-            case CsTypeCode.f32:
-            case CsTypeCode.i32:
-            case CsTypeCode.u32:
-            case CsTypeCode.vec2f:
-            case CsTypeCode.vec3f:
-            case CsTypeCode.vec4f:
-            case CsTypeCode.mat4x4f:
-                return;
-            case CsTypeCode.None:
-                return;
-        }
-        diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
+        return type.TypeCode < CsTypeCode.Bool;
     }
+
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {
@@ -277,21 +265,29 @@ public static class ShaderValidation
         {
             case uniform:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
-                    ValidateElementType(parameter, diags);
+                    if (IsValidElementType(parameter)) {
+                        return;
+                    }
+                    diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
                     return;
                 }
-                // var isValueType = ValidateElementType(parameter, diags);                                     TODO
-                if (!parameter.Type.IsValueType) {
+                var isValidUniformType = parameter.Type.IsValueType && parameter.Type.TypeCode <= CsTypeCode.Bool;
+                if (!isValidUniformType) {
                     diags.TypeRequirement(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
                 }
                 return;
+            
             case storage:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
-                    ValidateElementType(parameter, diags);
+                    if (IsValidElementType(parameter)) {
+                        return;
+                    }
+                    diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
                 } else {
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
+            
             case VertexBuffer:
                 var slot = parameter.VertexBufferSlot; 
                 if (slot < 0 ||slot > 15) {
@@ -301,6 +297,7 @@ public static class ShaderValidation
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
+            
             case IndexBuffer:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
                     var typeCode = GetGenericType(parameter).TypeCode;
