@@ -203,6 +203,7 @@ public record CsTypeInfo
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
+    public required     bool                    IsValueType { get; set;  }
     
     public override     string                  ToString() => Identifier.Name;
 }

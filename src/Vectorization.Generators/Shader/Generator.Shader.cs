@@ -257,14 +257,16 @@ public sealed partial class ShaderGen
         {
             if (!types.ContainsKey(type))
             {
-                var attributes = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
+                var attributes  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
+                var isValueType = typeSymbol.IsValueType;
                 var typeInfo = new CsTypeInfo {
                     Identifier  = GetIdentifier(typeSymbol),
                     Attributes  = attributes.ToValueArray(),
-                    Fields      = []
+                    Fields      = [],
+                    IsValueType = isValueType
                 };
                 // recursion only for struct types
-                if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol structSymbol)
+                if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
                 {
                     typeInfo.Fields = structSymbol.GetMembers()
                         .OfType<IFieldSymbol>()

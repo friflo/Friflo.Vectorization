@@ -87,7 +87,7 @@ public static class ShaderValidation
             if (parameter.IsBindGroupEntry) {
                 ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            ValidateParameter(parameter, diags);
+            ValidateParameter(parameter, diags, method.TypeInfos);
         }
         
         if (parameters.Length > 0) {
@@ -242,12 +242,31 @@ public static class ShaderValidation
         }
     }
     
-    private static void ValidateParameter(CsParameter parameter, List<ValidationDiag> diags)
+    private static bool IsValueType(CsType type, ValueArray<CsTypeInfo> typeInfos)
+    {
+        foreach (var typeInfo in typeInfos)
+        {
+            if (type.Name       == typeInfo.Identifier.Name &&
+                type.Namespace  == typeInfo.Identifier.Namespace) {
+                return typeInfo.IsValueType;
+            }
+        }
+        return false;
+    }
+    
+    private static void ValidateParameter(CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
         var typeName = parameter.Type.Name;
         switch (parameter.ParamAttribute)
         {
             case uniform:
+                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                    return;
+                }
+                var isValueType = IsValueType(parameter.Type, typeInfos);
+                if (!isValueType) {
+                    diags.ParameterType(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
+                }
                 return;
             case storage:
             case VertexBuffer:
