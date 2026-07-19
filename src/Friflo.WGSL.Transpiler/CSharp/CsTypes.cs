@@ -202,7 +202,6 @@ public readonly record struct CsTypeInfo
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; init; } // only set for struct's -> no cyclic dependencies
-    public required     bool                    IsValueType { get; init; }
     
     public override     string                  ToString() => Identifier.Name;
 }
@@ -239,6 +238,7 @@ public readonly record struct CsType
     public required     string              Namespace   { get; init; }
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
     public required     bool                IsArray     { get; init; }
+    public required     bool                IsValueType { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();
     

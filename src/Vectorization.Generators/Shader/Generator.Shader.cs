@@ -252,13 +252,13 @@ public sealed partial class ShaderGen
             isArray = true;
             typeSymbol = arrayTypeSymbol.ElementType;
         }
-        var type = GetIdentifier(typeSymbol);
+        var type        = GetIdentifier(typeSymbol);
+        var isValueType = typeSymbol.IsValueType;
         if (getFields)
         {
             if (!types.ContainsKey(type))
             {
                 var attributes  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
-                var isValueType = typeSymbol.IsValueType;
                 
                 ValueArray<CsField> fields = default;
                
@@ -278,8 +278,7 @@ public sealed partial class ShaderGen
                 var typeInfo = new CsTypeInfo {
                     Identifier  = GetIdentifier(typeSymbol),
                     Attributes  = attributes.ToValueArray(),
-                    Fields      = fields,
-                    IsValueType = isValueType
+                    Fields      = fields
                 };
 
                 types.Add(type, typeInfo);
@@ -295,7 +294,8 @@ public sealed partial class ShaderGen
                     Name        = identifier.Name,
                     Namespace   = identifier.Namespace,
                     Generics    = default,
-                    IsArray     = false
+                    IsArray     = false,
+                    IsValueType = typeArg.IsValueType
                 });
             }
         }
@@ -303,7 +303,8 @@ public sealed partial class ShaderGen
             Name        = type.Name,
             Namespace   = type.Namespace,
             Generics    = genericTypes.ToValueArray(),
-            IsArray     = isArray
+            IsArray     = isArray,
+            IsValueType = isValueType
         };
     }
 

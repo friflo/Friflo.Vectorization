@@ -89,7 +89,7 @@ public static class ShaderValidation
             if (parameter.IsBindGroupEntry) {
                 ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            ValidateParameter(parameter, diags, method.TypeInfos);
+            ValidateParameter(parameter, diags);
         }
         
         if (parameters.Length > 0) {
@@ -250,19 +250,7 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static bool IsValueType(in CsType type, ValueArray<CsTypeInfo> typeInfos)
-    {
-        foreach (var typeInfo in typeInfos)
-        {
-            if (type.Name       == typeInfo.Identifier.Name &&
-                type.Namespace  == typeInfo.Identifier.Namespace) {
-                return typeInfo.IsValueType;
-            }
-        }
-        return false;
-    }
-    
-    private static void ValidateElementType(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateElementType(in CsParameter parameter, List<ValidationDiag> diags)
     {
         var type = GetGenericType(parameter);
         switch (type.Name)
@@ -278,7 +266,7 @@ public static class ShaderValidation
             case "Matrix4x4":
                 return;
             default:
-                if (IsValueType(type, typeInfos)) {
+                if (type.IsValueType) {
                     return;
                 }
                 break;
@@ -286,24 +274,24 @@ public static class ShaderValidation
         diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
     }
     
-    private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {
         var typeName = parameter.Type.Name;
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
-                    ValidateElementType(parameter, diags, typeInfos);
+                    ValidateElementType(parameter, diags);
                     return;
                 }
-                var isValueType = IsValueType(parameter.Type, typeInfos);
-                if (!isValueType) {
+                // var isValueType = ValidateElementType(parameter, diags);                                     TODO
+                if (!parameter.Type.IsValueType) {
                     diags.TypeRequirement(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
                 }
                 return;
             case storage:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
-                    // ValidateElementType(parameter, diags, typeInfos);
+                    ValidateElementType(parameter, diags);
                 } else {
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
