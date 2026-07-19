@@ -1,0 +1,147 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: [Map(0, 0)] texture0 - type mismatch: C# [texture_1d]  ->  var texture0: texture_1d<f32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 1)] texture1 - type mismatch: C# [texture_2d]  ->  var texture1: texture_2d<f32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 2)] texture2 - type mismatch: C# [texture_2d_array]  ->  var texture2: texture_2d_array<i32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 3)] texture3 - type mismatch: C# [texture_3d]  ->  var texture3: texture_3d<i32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 4)] texture4 - type mismatch: C# [texture_cube]  ->  var texture4: texture_cube<u32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 5)] texture5 - type mismatch: C# [texture_cube_array]  ->  var texture5: texture_cube_array<u32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 6)] texture6 - type mismatch: C# [texture_multisampled_2d]  ->  var texture6: texture_multisampled_2d<i32>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 8)] texture8 - type mismatch: C# [texture_storage_1d]  ->  var texture8: texture_storage_1d<rgba32float, read>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 9)] texture9 - type mismatch: C# [texture_storage_2d]  ->  var texture9: texture_storage_2d<rgba8unorm, read>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 10)] texture10 - type mismatch: C# [texture_storage_2d_array]  ->  var texture10: texture_storage_2d_array<rgba8uint, write>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [Map(0, 11)] texture11 - type mismatch: C# [texture_storage_3d]  ->  var texture11: texture_storage_3d<r32float, read_write>,
+      Severity: Warning,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Warning,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
