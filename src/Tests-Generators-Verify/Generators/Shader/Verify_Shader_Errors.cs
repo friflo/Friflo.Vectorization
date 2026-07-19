@@ -266,11 +266,12 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testParameterTypes.wgsl")]
     private static partial void ParameterTypeErrors(RenderPass pass, RenderConfig config,
-        [Map(2, 0)] [uniform]                                                       object          mvpMatrices,
-        [Map(2, 1)] [storage]                                                       object          vertices,
-                    [VertexBuffer(0)]                                               object          verticesBuffer,
-                    [IndexBuffer]                                                   object          indexBuffer1,
-                    [IndexBuffer]                                                   InBuffer<float> indexBuffer2,
+        [Map(2, 0)] [uniform]                                                       object              mvpMatrices,
+        [Map(2, 1)] [storage]                                                       object              vertices,
+                    [VertexBuffer(-1)]                                              InBuffer<Vector3>   verticesBuffer1,
+                    [VertexBuffer(0)]                                               object              verticesBuffer2,
+                    [IndexBuffer]                                                   object              indexBuffer1,
+                    [IndexBuffer]                                                   InBuffer<float>     indexBuffer2,
 
         [Map(0, 0)] [texture_1d(ST.f32)]                                            object  texture0,
         [Map(0, 1)] [texture_2d(ST.f32)]                                            object  texture1,

@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
 // ReSharper disable DuplicatedSwitchSectionBodies
@@ -269,7 +270,15 @@ public static class ShaderValidation
                 }
                 return;
             case storage:
+                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
+                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
+                }
+                return;
             case VertexBuffer:
+                var slot = parameter.VertexBufferSlot; 
+                if (slot < 0 ||slot > 15) {
+                    diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
+                }
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
