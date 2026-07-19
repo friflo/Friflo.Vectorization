@@ -259,16 +259,13 @@ public sealed partial class ShaderGen
             {
                 var attributes  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
                 var isValueType = typeSymbol.IsValueType;
-                var typeInfo = new CsTypeInfo {
-                    Identifier  = GetIdentifier(typeSymbol),
-                    Attributes  = attributes.ToValueArray(),
-                    Fields      = [],
-                    IsValueType = isValueType
-                };
-                // recursion only for struct types
+                
+                ValueArray<CsField> fields = default;
+               
                 if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
                 {
-                    typeInfo.Fields = structSymbol.GetMembers()
+                    // recursion only for struct types
+                    fields = structSymbol.GetMembers()
                         .OfType<IFieldSymbol>()
                         .Where(fieldSymbol => !fieldSymbol.IsStatic)
                         .Select(fieldSymbol => new CsField
@@ -278,6 +275,13 @@ public sealed partial class ShaderGen
                             Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
                         }).ToValueArray();
                 }
+                var typeInfo = new CsTypeInfo {
+                    Identifier  = GetIdentifier(typeSymbol),
+                    Attributes  = attributes.ToValueArray(),
+                    Fields      = fields,
+                    IsValueType = isValueType
+                };
+
                 types.Add(type, typeInfo);
             }
         }

@@ -197,13 +197,12 @@ public readonly record struct CsParameter
     public CsParameter() { }
 }
 
-/// Is a record - it has an identity
-public record CsTypeInfo
+public readonly record struct CsTypeInfo
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
-    public required     ValueArray<CsField>     Fields      { get; set;  } // only set for struct's -> no cyclic dependencies
-    public required     bool                    IsValueType { get; set;  }
+    public required     ValueArray<CsField>     Fields      { get; init; } // only set for struct's -> no cyclic dependencies
+    public required     bool                    IsValueType { get; init; }
     
     public override     string                  ToString() => Identifier.Name;
 }
