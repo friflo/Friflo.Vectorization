@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
@@ -105,7 +106,7 @@ public static class ShaderValidation
     
     extension(List<ValidationDiag> diags)
     {
-        private void Shader(SrcLoc srcLoc, CsShader shader, string message, DiagType type) {
+        private void Shader(SrcLoc srcLoc, in CsShader shader, string message, DiagType type) {
             var error = $"[Shader(\"{shader.path}\")] - {message}";
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
@@ -115,13 +116,13 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
 
-        private void Map(SrcLoc srcLoc, CsParameter parameter, string message, DiagType type) {
+        private void Map(SrcLoc srcLoc, in CsParameter parameter, string message, DiagType type) {
             var bg = parameter.BindGroup;
             var error = $"[Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void Mismatch(CsParameter parameter, WgslBinding wgslBinding, string message)
+        private void Mismatch(in CsParameter parameter, WgslBinding wgslBinding, string message)
         {
             var sb = new StringBuilder();
             sb.Append($"wgsl {message}: C# [");
@@ -145,7 +146,7 @@ public static class ShaderValidation
             diags.Map(parameter.AttrLoc, parameter, sb.ToString(), DiagType.Warn);
         }
         
-        private void TypeRequirement(CsParameter parameter, string expectedCSharpType)
+        private void TypeRequirement(in CsParameter parameter, string expectedCSharpType)
         {
             var error = $"[{parameter.ParamAttribute}]  Type requirement: {expectedCSharpType}";
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
@@ -153,7 +154,7 @@ public static class ShaderValidation
     }
     
     private static void ValidateBinding(
-        CsParameter                         parameter,
+        in CsParameter                      parameter,
         Dictionary<(int,int), CsParameter>  bindings,
         Dictionary<(int,int), WgslBinding>  wgslBindings,
         List<ValidationDiag>                diags)
@@ -178,7 +179,7 @@ public static class ShaderValidation
     }
 
     
-    private static void ValidateBindingType(CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
+    private static void ValidateBindingType(in CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
     {
         var paramType = parameter.ParamAttribute.ToString();
         switch (parameter.ParamAttribute)
@@ -243,7 +244,13 @@ public static class ShaderValidation
         }
     }
     
-    private static bool IsValueType(CsType type, ValueArray<CsTypeInfo> typeInfos)
+    private static CsType GetGenericType(in CsParameter parameter)
+    {
+        var generics = parameter.Type.Generics; 
+        return generics.Length == 1 ? generics[0] : default;
+    }
+    
+    private static bool IsValueType(in CsType type, ValueArray<CsTypeInfo> typeInfos)
     {
         foreach (var typeInfo in typeInfos)
         {
@@ -255,13 +262,38 @@ public static class ShaderValidation
         return false;
     }
     
-    private static void ValidateParameter(CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateElementType(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    {
+        var type = GetGenericType(parameter);
+        switch (type.Name)
+        {
+            case "float":
+            case "int":
+            case "uint":
+            case "Half":
+            //
+            case "Vector2":
+            case "Vector3":
+            case "Vector4":
+            case "Matrix4x4":
+                return;
+            default:
+                if (IsValueType(type, typeInfos)) {
+                    return;
+                }
+                break;
+        }
+        diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
+    }
+    
+    private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
         var typeName = parameter.Type.Name;
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                    ValidateElementType(parameter, diags, typeInfos);
                     return;
                 }
                 var isValueType = IsValueType(parameter.Type, typeInfos);
@@ -270,7 +302,9 @@ public static class ShaderValidation
                 }
                 return;
             case storage:
-                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
+                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                    // ValidateElementType(parameter, diags, typeInfos);
+                } else {
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
@@ -284,15 +318,14 @@ public static class ShaderValidation
                 }
                 return;
             case IndexBuffer:
-                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
-                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
-                } else {
-                    var generics = parameter.Type.Generics; 
-                    var genericType = generics.Length == 1 ? generics[0].Name : "";
+                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                    var genericType = GetGenericType(parameter).Name;
                     if (genericType != "ushort" && genericType != "uint") {
                         diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
                     }
+                    return;
                 }
+                diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 return;
             
             // --- Sampler types
