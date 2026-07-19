@@ -98,7 +98,7 @@ public static class ShaderValidation
             }
         }
         
-        ValidateBindings(bindings, wgslBindings, diags);
+        ValidateParameters(bindings, wgslBindings, diags);
         
         if (method.Parameters.Length > 0) {
             // no errors on shader methods without parameters for fast prototyping
@@ -130,7 +130,7 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void TypeMismatch(SrcLoc srcLoc, CsParameter parameter, WgslBinding wgslBinding)
+        private void TypeMismatch(CsParameter parameter, WgslBinding wgslBinding)
         {
             var sb = new StringBuilder();
             sb.Append("type mismatch: C# [");
@@ -151,24 +151,32 @@ public static class ShaderValidation
             }
             sb.Append("]  ->  ");
             sb.Append(wgslBinding.AsString());
-            diags.Map(srcLoc, parameter, sb.ToString(), DiagType.Warn);
+            diags.Map(parameter.AttrLoc, parameter, sb.ToString(), DiagType.Warn);
+        }
+        
+        private void ParameterType(CsParameter parameter, string expectedCSharpType)
+        {
+            var error = $"[{parameter.ParamAttribute}] requires Type: {expectedCSharpType}";
+            diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
     }
 
-    private static void ValidateBindings(
+    private static void ValidateParameters(
         Dictionary<(int,int), CsParameter>  bindings,
         Dictionary<(int,int), WgslBinding>  wgslBindings,
         List<ValidationDiag>                diags)
     {
         foreach (var parameter in bindings.Values)
         {
-            if (!parameter.IsBindGroupEntry) continue;
-            var bindGroup = parameter.BindGroup;
-            if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
-                diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
-                continue; 
+            if (parameter.IsBindGroupEntry) {
+                var bindGroup = parameter.BindGroup;
+                if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
+                    diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
+                    continue; 
+                }
+                ValidateBinding(parameter, wgslBinding, diags);
             }
-            ValidateBinding(parameter, wgslBinding, diags);
+            ValidateParameter(parameter, diags);
         }
     }
     
@@ -180,7 +188,7 @@ public static class ShaderValidation
             case CsParamAttribute.uniform:
             case CsParamAttribute.storage:
                 if (paramType != wgslBinding.AddressSpace) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
+                    diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
             
@@ -191,7 +199,7 @@ public static class ShaderValidation
             case CsParamAttribute.sampler:
             case CsParamAttribute.sampler_comparison:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
+                    diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
                 
@@ -207,7 +215,7 @@ public static class ShaderValidation
                 if (paramType != wgslBinding.WgslType?.Name ||
                     parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
                 {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
+                    diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
             //
@@ -220,7 +228,7 @@ public static class ShaderValidation
                     parameter.AttrEnum.enum1.Name != format ||
                     parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1))
                 {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
+                    diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
             //
@@ -231,7 +239,62 @@ public static class ShaderValidation
             case CsParamAttribute.texture_depth_cube:
             case CsParamAttribute.texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
+                    diags.TypeMismatch(parameter, wgslBinding);
+                }
+                return;
+        }
+    }
+    
+    private static void ValidateParameter(CsParameter parameter, List<ValidationDiag> diags)
+    {
+        var typeName = parameter.Type.Name;
+        switch (parameter.ParamAttribute)
+        {
+            case CsParamAttribute.uniform:
+                return;
+            case CsParamAttribute.storage:
+            case CsParamAttribute.VertexBuffer:
+                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
+                    diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
+                }
+                return;
+            case CsParamAttribute.IndexBuffer:                                      // TODO check generic type: ushort | uint
+                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
+                    diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
+                }
+                return;
+            
+            // --- Sampler types
+            case CsParamAttribute.sampler_NonFiltering:
+            case CsParamAttribute.sampler:
+            case CsParamAttribute.sampler_comparison:
+                if (typeName != "GpuSampler") {
+                    diags.ParameterType(parameter, "GpuSampler");
+                }
+                return;
+                
+            // --- Texture Types
+            case CsParamAttribute.texture_1d:
+            case CsParamAttribute.texture_2d:
+            case CsParamAttribute.texture_2d_array:
+            case CsParamAttribute.texture_3d:
+            case CsParamAttribute.texture_cube:
+            case CsParamAttribute.texture_cube_array:
+            //
+            case CsParamAttribute.texture_multisampled_2d:
+            case CsParamAttribute.texture_depth_multisampled_2d:
+            //
+            case CsParamAttribute.texture_storage_1d:
+            case CsParamAttribute.texture_storage_2d:
+            case CsParamAttribute.texture_storage_2d_array:
+            case CsParamAttribute.texture_storage_3d:
+            //
+            case CsParamAttribute.texture_depth_2d:
+            case CsParamAttribute.texture_depth_2d_array:
+            case CsParamAttribute.texture_depth_cube:
+            case CsParamAttribute.texture_depth_cube_array:
+                if (typeName != "GpuTextureView") {
+                    diags.ParameterType(parameter, "GpuTextureView");
                 }
                 return;
         }
