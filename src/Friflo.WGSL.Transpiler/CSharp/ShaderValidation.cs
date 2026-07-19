@@ -273,10 +273,11 @@ public static class ShaderValidation
                     diags.TypeRequirement(parameter, ElementType);
                     return;
                 }
-                var isValidUniformType = parameter.Type.IsValueType && parameter.Type.TypeCode <= CsTypeCode.Bool;
-                if (!isValidUniformType) {
-                    diags.TypeRequirement(parameter, UniformType);
+                var isValidUniformType = parameter.Type.IsValueType && parameter.Type.TypeCode < CsTypeCode.Bool;
+                if (isValidUniformType) {
+                    return;
                 }
+                diags.TypeRequirement(parameter, UniformType);
                 return;
             
             case storage:
