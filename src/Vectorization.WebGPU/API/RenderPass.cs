@@ -13,10 +13,10 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 namespace Friflo.Vectorization.WebGPU;
 
 
-public readonly unsafe ref struct RenderPass : IDisposable
+public unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;
-    private  readonly   RenderPassEncoder*  handle;
+    private             RenderPassEncoder*  handle;
     
     [EditorBrowsable(EditorBrowsableState.Never)]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -125,11 +125,13 @@ public readonly unsafe ref struct RenderPass : IDisposable
     
     public void Dispose()
     {
-        if (handle != null) {
-            Recorder.Reset();
-            wgpuRenderPassEncoderEnd(handle);
-            wgpuRenderPassEncoderRelease(handle);
+        if (handle == null) {
+            return;
         }
+        Recorder.Reset();
+        wgpuRenderPassEncoderEnd(handle);
+        wgpuRenderPassEncoderRelease(handle);
+        handle = null;
     }
 }
 
