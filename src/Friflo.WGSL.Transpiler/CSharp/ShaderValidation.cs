@@ -144,51 +144,56 @@ public static class ShaderValidation
                 diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
                 continue; 
             }
-            var paramType = parameter.ParamAttribute.ToString();
-            switch (parameter.ParamAttribute)
-            {
-                case CsParamAttribute.uniform:
-                case CsParamAttribute.storage:
-                    var addressSpace = wgslBinding.AddressSpace;
-                    if (addressSpace != paramType) {
-                        diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
-                    }
-                    continue;
+            ValidateBinding(parameter, wgslBinding, diags);
+        }
+    }
+    
+    private static void ValidateBinding(CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
+    {
+        var paramType = parameter.ParamAttribute.ToString();
+        switch (parameter.ParamAttribute)
+        {
+            case CsParamAttribute.uniform:
+            case CsParamAttribute.storage:
+                var addressSpace = wgslBinding.AddressSpace;
+                if (addressSpace != paramType) {
+                    diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                }
+                return;
+            
+            // --- Sampler types
+            case CsParamAttribute.sampler_NonFiltering:
+                paramType = "sampler";  // maps to sampler. no sampler_NonFiltering in WGSL
+                goto case CsParamAttribute.sampler;
+            case CsParamAttribute.sampler:
+            case CsParamAttribute.sampler_comparison:
+            // fall-through intentional 
                 
-                // --- Sampler types
-                case CsParamAttribute.sampler_NonFiltering:
-                    paramType = "sampler";  // maps to sampler. no sampler_NonFiltering in WGSL
-                    goto case CsParamAttribute.sampler;
-                case CsParamAttribute.sampler:
-                case CsParamAttribute.sampler_comparison:
-                // fall-through intentional 
-                    
-                // --- Texture Types
-                case CsParamAttribute.texture_1d:
-                case CsParamAttribute.texture_2d:
-                case CsParamAttribute.texture_2d_array:
-                case CsParamAttribute.texture_3d:
-                case CsParamAttribute.texture_cube:
-                case CsParamAttribute.texture_cube_array:
-                //
-                case CsParamAttribute.texture_multisampled_2d:
-                case CsParamAttribute.texture_depth_multisampled_2d:
-                //
-                case CsParamAttribute.texture_storage_1d:
-                case CsParamAttribute.texture_storage_2d:
-                case CsParamAttribute.texture_storage_2d_array:
-                case CsParamAttribute.texture_storage_3d:
-                //
-                case CsParamAttribute.texture_depth_2d:
-                case CsParamAttribute.texture_depth_2d_array:
-                case CsParamAttribute.texture_depth_cube:
-                case CsParamAttribute.texture_depth_cube_array:
-                    var wgslTypeName = wgslBinding.WgslType?.Name; 
-                    if (wgslTypeName != paramType) {
-                        diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
-                    }
-                    continue;
-            }
+            // --- Texture Types
+            case CsParamAttribute.texture_1d:
+            case CsParamAttribute.texture_2d:
+            case CsParamAttribute.texture_2d_array:
+            case CsParamAttribute.texture_3d:
+            case CsParamAttribute.texture_cube:
+            case CsParamAttribute.texture_cube_array:
+            //
+            case CsParamAttribute.texture_multisampled_2d:
+            case CsParamAttribute.texture_depth_multisampled_2d:
+            //
+            case CsParamAttribute.texture_storage_1d:
+            case CsParamAttribute.texture_storage_2d:
+            case CsParamAttribute.texture_storage_2d_array:
+            case CsParamAttribute.texture_storage_3d:
+            //
+            case CsParamAttribute.texture_depth_2d:
+            case CsParamAttribute.texture_depth_2d_array:
+            case CsParamAttribute.texture_depth_cube:
+            case CsParamAttribute.texture_depth_cube_array:
+                var wgslTypeName = wgslBinding.WgslType?.Name; 
+                if (wgslTypeName != paramType) {
+                    diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                }
+                return;
         }
     }
 }
