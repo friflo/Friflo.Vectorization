@@ -257,6 +257,8 @@ public static class ShaderValidation
         return type.TypeCode < CsTypeCode.Bool;
     }
 
+    private const string ElementType = "generic type - value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
+    private const string UniformType = "value type (struct), bool, float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {
@@ -268,12 +270,12 @@ public static class ShaderValidation
                     if (IsValidElementType(parameter)) {
                         return;
                     }
-                    diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
+                    diags.TypeRequirement(parameter, ElementType);
                     return;
                 }
                 var isValidUniformType = parameter.Type.IsValueType && parameter.Type.TypeCode <= CsTypeCode.Bool;
                 if (!isValidUniformType) {
-                    diags.TypeRequirement(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
+                    diags.TypeRequirement(parameter, UniformType);
                 }
                 return;
             
@@ -282,7 +284,7 @@ public static class ShaderValidation
                     if (IsValidElementType(parameter)) {
                         return;
                     }
-                    diags.TypeRequirement(parameter, "generic type - float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4");
+                    diags.TypeRequirement(parameter, ElementType);
                 } else {
                     diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
