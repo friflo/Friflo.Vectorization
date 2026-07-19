@@ -149,7 +149,7 @@ public static class ShaderValidation
         
         private void TypeRequirement(in CsParameter parameter, string expectedCSharpType)
         {
-            var error = $"[{parameter.ParamAttribute}]  Type requirement: {expectedCSharpType}";
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type requirement: {expectedCSharpType}";
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
     }
@@ -286,9 +286,9 @@ public static class ShaderValidation
                         return;
                     }
                     diags.TypeRequirement(parameter, ElementType);
-                } else {
-                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
+                    return;
                 }
+                diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 return;
             
             case VertexBuffer:
@@ -301,7 +301,9 @@ public static class ShaderValidation
                         return;
                     }
                     diags.TypeRequirement(parameter, ElementType);
+                    return;
                 }
+                diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 return;
             
             case IndexBuffer:

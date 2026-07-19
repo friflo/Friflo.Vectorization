@@ -25,7 +25,7 @@
       }
     },
     {
-      Message: [uniform]  Type requirement: value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4,
+      Message: [uniform] mvpMatrices - Type requirement: value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -37,7 +37,7 @@
       }
     },
     {
-      Message: [storage]  Type requirement: InBuffer<> or InOutBuffer<>,
+      Message: [storage] vertices - Type requirement: InBuffer<> or InOutBuffer<>,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -61,7 +61,7 @@
       }
     },
     {
-      Message: [IndexBuffer]  Type requirement: InBuffer<> or InOutBuffer<>,
+      Message: [VertexBuffer] verticesBuffer2 - Type requirement: InBuffer<> or InOutBuffer<>,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -73,7 +73,7 @@
       }
     },
     {
-      Message: [IndexBuffer]  Type requirement: generic type <ushort> or <uint>,
+      Message: [IndexBuffer] indexBuffer1 - Type requirement: InBuffer<> or InOutBuffer<>,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -85,7 +85,7 @@
       }
     },
     {
-      Message: [texture_1d]  Type requirement: GpuTextureView,
+      Message: [IndexBuffer] indexBuffer2 - Type requirement: generic type <ushort> or <uint>,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -97,7 +97,7 @@
       }
     },
     {
-      Message: [texture_2d]  Type requirement: GpuTextureView,
+      Message: [texture_1d] texture0 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -109,7 +109,7 @@
       }
     },
     {
-      Message: [texture_2d_array]  Type requirement: GpuTextureView,
+      Message: [texture_2d] texture1 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -121,7 +121,7 @@
       }
     },
     {
-      Message: [texture_3d]  Type requirement: GpuTextureView,
+      Message: [texture_2d_array] texture2 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -133,7 +133,7 @@
       }
     },
     {
-      Message: [texture_cube]  Type requirement: GpuTextureView,
+      Message: [texture_3d] texture3 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -145,7 +145,7 @@
       }
     },
     {
-      Message: [texture_cube_array]  Type requirement: GpuTextureView,
+      Message: [texture_cube] texture4 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -157,7 +157,7 @@
       }
     },
     {
-      Message: [texture_multisampled_2d]  Type requirement: GpuTextureView,
+      Message: [texture_cube_array] texture5 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -169,7 +169,7 @@
       }
     },
     {
-      Message: [texture_depth_multisampled_2d]  Type requirement: GpuTextureView,
+      Message: [texture_multisampled_2d] texture6 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -181,7 +181,7 @@
       }
     },
     {
-      Message: [texture_storage_1d]  Type requirement: GpuTextureView,
+      Message: [texture_depth_multisampled_2d] texture7 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -193,7 +193,7 @@
       }
     },
     {
-      Message: [texture_storage_2d]  Type requirement: GpuTextureView,
+      Message: [texture_storage_1d] texture8 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -205,7 +205,7 @@
       }
     },
     {
-      Message: [texture_storage_2d_array]  Type requirement: GpuTextureView,
+      Message: [texture_storage_2d] texture9 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -217,7 +217,7 @@
       }
     },
     {
-      Message: [texture_storage_3d]  Type requirement: GpuTextureView,
+      Message: [texture_storage_2d_array] texture10 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -229,7 +229,7 @@
       }
     },
     {
-      Message: [texture_depth_2d]  Type requirement: GpuTextureView,
+      Message: [texture_storage_3d] texture11 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -241,7 +241,7 @@
       }
     },
     {
-      Message: [texture_depth_2d_array]  Type requirement: GpuTextureView,
+      Message: [texture_depth_2d] texture12 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -253,7 +253,7 @@
       }
     },
     {
-      Message: [texture_depth_cube]  Type requirement: GpuTextureView,
+      Message: [texture_depth_2d_array] texture13 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -265,7 +265,7 @@
       }
     },
     {
-      Message: [texture_depth_cube_array]  Type requirement: GpuTextureView,
+      Message: [texture_depth_cube] texture14 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -277,7 +277,7 @@
       }
     },
     {
-      Message: [sampler]  Type requirement: GpuSampler,
+      Message: [texture_depth_cube_array] texture15 - Type requirement: GpuTextureView,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -289,7 +289,19 @@
       }
     },
     {
-      Message: [sampler_comparison]  Type requirement: GpuSampler,
+      Message: [sampler] sampler0 - Type requirement: GpuSampler,
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [sampler_comparison] sampler1 - Type requirement: GpuSampler,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
