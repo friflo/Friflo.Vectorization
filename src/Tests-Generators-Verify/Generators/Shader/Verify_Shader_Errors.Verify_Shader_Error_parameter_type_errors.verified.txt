@@ -61,18 +61,6 @@
       }
     },
     {
-      Message: [VertexBuffer]  Type requirement: InBuffer<> or InOutBuffer<>,
-      Severity: Error,
-      Descriptor: {
-        Id: WGPU005,
-        Title: Shader Validation Error,
-        MessageFormat: {0},
-        Category: WGPU,
-        DefaultSeverity: Error,
-        IsEnabledByDefault: true
-      }
-    },
-    {
       Message: [IndexBuffer]  Type requirement: InBuffer<> or InOutBuffer<>,
       Severity: Error,
       Descriptor: {

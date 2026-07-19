@@ -296,17 +296,21 @@ public static class ShaderValidation
                 if (slot < 0 ||slot > 15) {
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
-                if (typeName != "InBuffer" && typeName != "InOutBuffer") {
-                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
+                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                    if (IsValidElementType(parameter)) {
+                        return;
+                    }
+                    diags.TypeRequirement(parameter, ElementType);
                 }
                 return;
             
             case IndexBuffer:
                 if (typeName == "InBuffer" || typeName == "InOutBuffer") {
                     var typeCode = GetGenericType(parameter).TypeCode;
-                    if (typeCode != CsTypeCode.u16 && typeCode != CsTypeCode.u32) {
-                        diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
+                    if (typeCode == CsTypeCode.u16 || typeCode == CsTypeCode.u32) {
+                        return;    
                     }
+                    diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
