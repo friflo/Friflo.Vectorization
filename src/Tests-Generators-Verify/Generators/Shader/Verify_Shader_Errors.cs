@@ -249,4 +249,42 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_parameter_type_errors()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/tests/testParameterTypes.wgsl")]
+    private static partial void ParameterTypeErrors(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [texture_1d(ST.f32)]                                            object  texture0,
+        [Map(0, 1)] [texture_2d(ST.f32)]                                            object  texture1,
+        [Map(0, 2)] [texture_2d_array(ST.i32)]                                      object  texture2,
+        [Map(0, 3)] [texture_3d(ST.i32)]                                            object  texture3,
+        [Map(0, 4)] [texture_cube(ST.u32)]                                          object  texture4,
+        [Map(0, 5)] [texture_cube_array(ST.u32)]                                    object  texture5,
+        [Map(0, 6)] [texture_multisampled_2d(ST.i32)]                               object  texture6,
+        [Map(0, 7)] [texture_depth_multisampled_2d]                                 object  texture7,
+        [Map(0, 8)] [texture_storage_1d(TextureFormat.RGBA32Float, TSA.read)]       object  texture8,
+        [Map(0, 9)] [texture_storage_2d(TextureFormat.RGBA8Unorm, TSA.read)]        object  texture9,
+        [Map(0,10)] [texture_storage_2d_array(TextureFormat.RGBA8Uint, TSA.write)]  object  texture10,
+        [Map(0,11)] [texture_storage_3d(TextureFormat.R32Float, TSA.read_write)]    object  texture11,
+        [Map(0,12)] [texture_depth_2d]                                              object  texture12,
+        [Map(0,13)] [texture_depth_2d_array]                                        object  texture13,
+        [Map(0,14)] [texture_depth_cube]                                            object  texture14,
+        [Map(0,15)] [texture_depth_cube_array]                                      object  texture15,
+        [Map(1, 0)] [sampler]                                                       object  sampler0,
+        [Map(1, 1)] [sampler_comparison]                                            object  sampler1);
+}
+""");
+    }
 }
