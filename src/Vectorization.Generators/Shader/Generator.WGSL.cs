@@ -40,7 +40,8 @@ public sealed partial class ShaderGen
         if (string.IsNullOrEmpty(trace)) return string.Empty;
 
         int end = trace.IndexOf('\n');
-        return (end != -1 ? trace.Substring(0, end) : trace).Trim();
+        var line = (end != -1 ? trace.Substring(0, end) : trace).Trim();
+        return line.Replace('\\', '/');
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
