@@ -121,10 +121,10 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void TypeMismatch(CsParameter parameter, WgslBinding wgslBinding)
+        private void Mismatch(CsParameter parameter, WgslBinding wgslBinding, string message)
         {
             var sb = new StringBuilder();
-            sb.Append("type mismatch: C# [");
+            sb.Append($"wgsl {message}: C# [");
             sb.Append(parameter.ParamAttribute);
             var start = sb.Length;
             var arg_0 = parameter.AttrEnum.enum1.Name;
@@ -186,7 +186,7 @@ public static class ShaderValidation
             case uniform:
             case storage:
                 if (paramType != wgslBinding.AddressSpace) {
-                    diags.TypeMismatch(parameter, wgslBinding);
+                    diags.Mismatch(parameter, wgslBinding, "binding mismatch");
                 }
                 return;
             
@@ -197,7 +197,7 @@ public static class ShaderValidation
             case sampler:
             case sampler_comparison:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter, wgslBinding);
+                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
                 }
                 return;
                 
@@ -213,7 +213,7 @@ public static class ShaderValidation
                 if (paramType != wgslBinding.WgslType?.Name ||
                     parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
                 {
-                    diags.TypeMismatch(parameter, wgslBinding);
+                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
                 }
                 return;
             //
@@ -226,7 +226,7 @@ public static class ShaderValidation
                     parameter.AttrEnum.enum1.Name != format ||
                     parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1))
                 {
-                    diags.TypeMismatch(parameter, wgslBinding);
+                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
                 }
                 return;
             //
@@ -237,7 +237,7 @@ public static class ShaderValidation
             case texture_depth_cube:
             case texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter, wgslBinding);
+                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
                 }
                 return;
         }

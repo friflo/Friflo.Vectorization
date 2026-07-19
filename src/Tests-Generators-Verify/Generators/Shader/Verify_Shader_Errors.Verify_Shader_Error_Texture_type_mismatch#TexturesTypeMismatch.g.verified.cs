@@ -16,6 +16,8 @@ public partial class ShaderExample
     private static partial void TexturesTypeMismatch(
         RenderPass                  pass,
         RenderConfig                config,
+        InBuffer<Vector3>           vertices1,
+        InBuffer<Vector3>           vertices2,
         GpuTextureView              texture0,
         GpuTextureView              texture1,
         GpuTextureView              texture2,
@@ -40,6 +42,8 @@ public partial class ShaderExample
 		var recorder	= pass_.Recorder;
 		recorder.Init(_TexturesTypeMismatch_GPU_ShaderId, "TexturesTypeMismatch_encoder"u8);
 
+        recorder.RequireRead     (vertices1);
+        recorder.RequireRead     (vertices2);
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_TexturesTypeMismatch_GPU_ShaderId, config, _TexturesTypeMismatch_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -83,6 +87,16 @@ public partial class ShaderExample
         }
         pass_.SetBindGroup(1, bindGroup_1);
         
+        // --- bind group 2
+        var key_2 = (vertices1.Handle, vertices2.Handle);
+        if (!bindGroupCache.bindGroup_2.TryGetValue(key_2, out var bindGroup_2)) {
+            recorder.BindGroupEntryBuffer(0, vertices1.Buffer);
+            recorder.BindGroupEntryBuffer(1, vertices2.Buffer);
+            bindGroup_2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "TexturesTypeMismatch_bindGroup_2"u8);
+            bindGroupCache.bindGroup_2.Add(key_2, bindGroup_2);
+        }
+        pass_.SetBindGroup(2, bindGroup_2);
+        
         // --- draw
     }
 
@@ -90,23 +104,26 @@ public partial class ShaderExample
     {
         internal readonly   Dictionary<(nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint, nint), WgpuBindGroup> bindGroup_0 = new ();
         internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bindGroup_1 = new ();
+        internal readonly   Dictionary<(nint, nint), WgpuBindGroup> bindGroup_2 = new ();
 
         protected override void Clear() {
             ReleaseBindGroups(bindGroup_0);
             ReleaseBindGroups(bindGroup_1);
+            ReleaseBindGroups(bindGroup_2);
         }
     }
 
     private static readonly int _TexturesTypeMismatch_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TexturesTypeMismatch");
-    private const  ulong        _TexturesTypeMismatch_GPU_layout_0_Key        =  0xc633f26dbee1a739;
-    private const  ulong        _TexturesTypeMismatch_GPU_layout_1_Key        =  0x1c264884083a5675;
+    private const  ulong        _TexturesTypeMismatch_GPU_layout_0_Key        =  0x485d5e82576b5a4c;
+    private const  ulong        _TexturesTypeMismatch_GPU_layout_1_Key        =  0x2946de09149f7eb0;
+    private const  ulong        _TexturesTypeMismatch_GPU_layout_2_Key        =  0x979100e6d4ed93d9;
 
-    private static ulong        _TexturesTypeMismatch_GPU_WgslHash            => 0xf90c8fa781785351UL;  // support Hot-Reload
+    private static ulong        _TexturesTypeMismatch_GPU_WgslHash            => 0x72d67df01c6622f1UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _TexturesTypeMismatch_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
     {
-        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[2];
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[3];
         var layout_0 = device.GetBindGroupLayout(_TexturesTypeMismatch_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutTexture(0, TextureSampleType.Sint, TextureViewDimension.D1D, false);
@@ -136,6 +153,14 @@ public partial class ShaderExample
             layout_1 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _TexturesTypeMismatch_GPU_layout_1_Key, "TexturesTypeMismatch_layout_1"u8);
         }
         layouts[1] = layout_1;
+        
+        var layout_2 = device.GetBindGroupLayout(_TexturesTypeMismatch_GPU_layout_2_Key);
+        if (!layout_2.IsCreated) {
+            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
+            device.BindGroupLayoutBuffer(1, BufferBindingType.ReadOnlyStorage);
+            layout_2 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _TexturesTypeMismatch_GPU_layout_2_Key, "TexturesTypeMismatch_layout_2"u8);
+        }
+        layouts[2] = layout_2;
         
         var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShaderExample), _TexturesTypeMismatch_GPU_Shaders, "TexturesTypeMismatch_pipeline"u8);
 

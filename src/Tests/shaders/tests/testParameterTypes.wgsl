@@ -3,7 +3,7 @@ struct Uniforms {
 }
 
 @group(2) @binding(0) var<uniform> uniforms : Uniforms;
-@group(2) @binding(1) var<storage> uniforms : Uniforms;
+@group(2) @binding(1) var<storage> vertices : Uniforms;
 
 
 @group(1) @binding(0) var sampler0: sampler;

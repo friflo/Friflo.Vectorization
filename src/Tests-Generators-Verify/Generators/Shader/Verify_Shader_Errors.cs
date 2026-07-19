@@ -228,6 +228,9 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testTextureTypes.frag.wgsl")]
     private static partial void TexturesTypeMismatch(RenderPass pass, RenderConfig config,
+        [Map(2, 0)] [uniform]                                                       InBuffer<Vector3>   vertices1,
+        [Map(2, 1)] [storage]                                                       InBuffer<Vector3>   vertices2,
+        
         [Map(0, 0)] [texture_1d(ST.i32)]                                            GpuTextureView  texture0,
         [Map(0, 1)] [texture_2d(ST.u32)]                                            GpuTextureView  texture1,
         [Map(0, 2)] [texture_2d_array(ST.f32)]                                      GpuTextureView  texture2,
