@@ -20,16 +20,19 @@ public enum CsTypeCode
 {
     None,
     // --- WGSL Types
-    f16,
-    f32,
-    i32,
-    u32,
+    f16, f32,
+    i32, u32,
     
-    vec2f,
-    vec3f,
-    vec4f,
+    vec2h, vec3h, vec4h,
+    vec2f, vec3f, vec4f,
+    vec2i, vec3i, vec4i,
+    vec2u, vec3u, vec4u,
     
-    mat4x4f,
+    mat2x3h, mat2x4h, mat3x2h, mat3x4h, mat4x2h, mat4x3h,
+    mat2x3f, mat2x4f, mat3x2f, mat3x4f, mat4x2f, mat4x3f,
+    
+    mat2x2h, mat3x3h, mat4x4h,
+    mat2x2f, mat3x3f, mat4x4f,
     //
     Bool,  // not in buffers
     
