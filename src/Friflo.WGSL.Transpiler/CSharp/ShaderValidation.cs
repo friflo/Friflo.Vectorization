@@ -126,7 +126,7 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void Type(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
+        private void TypeMismatch(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
             diags.Map(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding.AsString()}", DiagType.Warn);
         }
     }
@@ -156,7 +156,7 @@ public static class ShaderValidation
             case CsParamAttribute.uniform:
             case CsParamAttribute.storage:
                 if (paramType != wgslBinding.AddressSpace) {
-                    diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
                 }
                 return;
             
@@ -189,7 +189,7 @@ public static class ShaderValidation
             case CsParamAttribute.texture_depth_cube:
             case CsParamAttribute.texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
                 }
                 return;
         }
