@@ -4,8 +4,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 
+// ReSharper disable DuplicatedSwitchSectionBodies
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable PossibleMultipleEnumeration
@@ -166,7 +168,10 @@ public static class ShaderValidation
                 goto case CsParamAttribute.sampler;
             case CsParamAttribute.sampler:
             case CsParamAttribute.sampler_comparison:
-            // fall-through intentional 
+                if (paramType != wgslBinding.WgslType?.Name) {
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                }
+                return;
                 
             // --- Texture Types
             case CsParamAttribute.texture_1d:
@@ -177,12 +182,27 @@ public static class ShaderValidation
             case CsParamAttribute.texture_cube_array:
             //
             case CsParamAttribute.texture_multisampled_2d:
-            case CsParamAttribute.texture_depth_multisampled_2d:
+                if (paramType != wgslBinding.WgslType?.Name ||
+                    parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
+                {
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                }
+                return;
             //
             case CsParamAttribute.texture_storage_1d:
             case CsParamAttribute.texture_storage_2d:
             case CsParamAttribute.texture_storage_2d_array:
             case CsParamAttribute.texture_storage_3d:
+                var format = WgslTextureFormat.MapWgslStorageFormatToEnumName(wgslBinding.GetGenericNameAt(0));
+                if (paramType != wgslBinding.WgslType?.Name ||
+                    parameter.AttrEnum.enum1.Name != format ||
+                    parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1))
+                {
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                }
+                return;
+            //
+            case CsParamAttribute.texture_depth_multisampled_2d:
             //
             case CsParamAttribute.texture_depth_2d:
             case CsParamAttribute.texture_depth_2d_array:

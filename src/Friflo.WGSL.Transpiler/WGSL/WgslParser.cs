@@ -83,6 +83,14 @@ public record WgslBinding
         }
         return $"var<{AddressSpace}, {AccessMode}> {Name}: {WgslType}";
     }
+    
+    public string GetGenericNameAt(int index)
+    {
+        if (WgslType == null) return string.Empty;
+        var generics = WgslType.Generics;
+        if (index >= generics.Length) return string.Empty;
+        return generics[index].Name;
+    }
 }
 
 public class WgslEntryPoint
