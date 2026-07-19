@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [Map(0, 0)] texture0 - type mismatch: C# [texture_1d]  ->  var texture0: texture_1d<f32>,
+      Message: [Map(0, 0)] texture0 - type mismatch: C# [texture_1d(i32)]  ->  var texture0: texture_1d<f32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -14,7 +14,7 @@
       }
     },
     {
-      Message: [Map(0, 1)] texture1 - type mismatch: C# [texture_2d]  ->  var texture1: texture_2d<f32>,
+      Message: [Map(0, 1)] texture1 - type mismatch: C# [texture_2d(u32)]  ->  var texture1: texture_2d<f32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -27,7 +27,7 @@
       }
     },
     {
-      Message: [Map(0, 2)] texture2 - type mismatch: C# [texture_2d_array]  ->  var texture2: texture_2d_array<i32>,
+      Message: [Map(0, 2)] texture2 - type mismatch: C# [texture_2d_array(f32)]  ->  var texture2: texture_2d_array<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -40,7 +40,7 @@
       }
     },
     {
-      Message: [Map(0, 3)] texture3 - type mismatch: C# [texture_3d]  ->  var texture3: texture_3d<i32>,
+      Message: [Map(0, 3)] texture3 - type mismatch: C# [texture_3d(u32)]  ->  var texture3: texture_3d<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -53,7 +53,7 @@
       }
     },
     {
-      Message: [Map(0, 4)] texture4 - type mismatch: C# [texture_cube]  ->  var texture4: texture_cube<u32>,
+      Message: [Map(0, 4)] texture4 - type mismatch: C# [texture_cube(i32)]  ->  var texture4: texture_cube<u32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -66,7 +66,7 @@
       }
     },
     {
-      Message: [Map(0, 5)] texture5 - type mismatch: C# [texture_cube_array]  ->  var texture5: texture_cube_array<u32>,
+      Message: [Map(0, 5)] texture5 - type mismatch: C# [texture_cube_array(i32)]  ->  var texture5: texture_cube_array<u32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -79,7 +79,7 @@
       }
     },
     {
-      Message: [Map(0, 6)] texture6 - type mismatch: C# [texture_multisampled_2d]  ->  var texture6: texture_multisampled_2d<i32>,
+      Message: [Map(0, 6)] texture6 - type mismatch: C# [texture_multisampled_2d(f32)]  ->  var texture6: texture_multisampled_2d<i32>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -92,7 +92,7 @@
       }
     },
     {
-      Message: [Map(0, 8)] texture8 - type mismatch: C# [texture_storage_1d]  ->  var texture8: texture_storage_1d<rgba32float, read>,
+      Message: [Map(0, 8)] texture8 - type mismatch: C# [texture_storage_1d(RGBA32Float, write)]  ->  var texture8: texture_storage_1d<rgba32float, read>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -105,7 +105,7 @@
       }
     },
     {
-      Message: [Map(0, 9)] texture9 - type mismatch: C# [texture_storage_2d]  ->  var texture9: texture_storage_2d<rgba8unorm, read>,
+      Message: [Map(0, 9)] texture9 - type mismatch: C# [texture_storage_2d(RGBA8UnormSrgb, read)]  ->  var texture9: texture_storage_2d<rgba8unorm, read>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -118,7 +118,7 @@
       }
     },
     {
-      Message: [Map(0, 10)] texture10 - type mismatch: C# [texture_storage_2d_array]  ->  var texture10: texture_storage_2d_array<rgba8uint, write>,
+      Message: [Map(0, 10)] texture10 - type mismatch: C# [texture_storage_2d_array(RGBA8Sint, write)]  ->  var texture10: texture_storage_2d_array<rgba8uint, write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -131,7 +131,7 @@
       }
     },
     {
-      Message: [Map(0, 11)] texture11 - type mismatch: C# [texture_storage_3d]  ->  var texture11: texture_storage_3d<r32float, read_write>,
+      Message: [Map(0, 11)] texture11 - type mismatch: C# [texture_storage_3d(R32Uint, read_write)]  ->  var texture11: texture_storage_3d<r32float, read_write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {

@@ -4,9 +4,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable DuplicatedSwitchSectionBodies
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable ConvertToPrimaryConstructor
@@ -128,8 +130,28 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void TypeMismatch(SrcLoc srcLoc, CsParameter parameter, string paramType, WgslBinding wgslBinding) {
-            diags.Map(srcLoc, parameter, $"type mismatch: C# [{paramType}]  ->  {wgslBinding.AsString()}", DiagType.Warn);
+        private void TypeMismatch(SrcLoc srcLoc, CsParameter parameter, WgslBinding wgslBinding)
+        {
+            var sb = new StringBuilder();
+            sb.Append("type mismatch: C# [");
+            sb.Append(parameter.ParamAttribute);
+            var start = sb.Length;
+            var arg_0 = parameter.AttrEnum.enum1.Name;
+            if (!string.IsNullOrEmpty(arg_0)) {
+                sb.Append("(");
+                sb.Append(arg_0);
+            }
+            var arg_1 = parameter.AttrEnum.enum2.Name;
+            if (!string.IsNullOrEmpty(arg_1)) {
+                sb.Append(", ");
+                sb.Append(arg_1);
+            }
+            if (sb.Length > start) {
+                sb.Append(")");
+            }
+            sb.Append("]  ->  ");
+            sb.Append(wgslBinding.AsString());
+            diags.Map(srcLoc, parameter, sb.ToString(), DiagType.Warn);
         }
     }
 
@@ -158,7 +180,7 @@ public static class ShaderValidation
             case CsParamAttribute.uniform:
             case CsParamAttribute.storage:
                 if (paramType != wgslBinding.AddressSpace) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
                 }
                 return;
             
@@ -169,7 +191,7 @@ public static class ShaderValidation
             case CsParamAttribute.sampler:
             case CsParamAttribute.sampler_comparison:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
                 }
                 return;
                 
@@ -185,7 +207,7 @@ public static class ShaderValidation
                 if (paramType != wgslBinding.WgslType?.Name ||
                     parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
                 {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
                 }
                 return;
             //
@@ -198,7 +220,7 @@ public static class ShaderValidation
                     parameter.AttrEnum.enum1.Name != format ||
                     parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1))
                 {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
                 }
                 return;
             //
@@ -209,7 +231,7 @@ public static class ShaderValidation
             case CsParamAttribute.texture_depth_cube:
             case CsParamAttribute.texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.TypeMismatch(parameter.AttrLoc, parameter, paramType, wgslBinding);
+                    diags.TypeMismatch(parameter.AttrLoc, parameter, wgslBinding);
                 }
                 return;
         }
