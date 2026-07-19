@@ -43,7 +43,7 @@ public partial class ShaderExample
 
     private static readonly int _TestTextureTypes_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TestTextureTypes");
 
-    private static ulong        _TestTextureTypes_GPU_WgslHash            => 0x6daa93cb8c2d50ccUL;  // support Hot-Reload
+    private static ulong        _TestTextureTypes_GPU_WgslHash            => 0xf90c8fa781785351UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _TestTextureTypes_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -56,7 +56,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _TestTextureTypes_GPU_Shaders = [
-        new("shaders/testTextureTypes.frag.wgsl", frag: "main"),
+        new("shaders/tests/testTextureTypes.frag.wgsl", frag: "main"),
     ];
 
 }

@@ -98,10 +98,10 @@ public partial class ShaderExample
     }
 
     private static readonly int _Textures_GPU_ShaderId            =  ShaderRegistry.NewShaderId("Textures");
-    private const  ulong        _Textures_GPU_layout_0_Key        =  0xb1244d2c118c100c;
+    private const  ulong        _Textures_GPU_layout_0_Key        =  0x3eaf7ba1508b090c;
     private const  ulong        _Textures_GPU_layout_1_Key        =  0x1c264884083a5675;
 
-    private static ulong        _Textures_GPU_WgslHash            => 0x6daa93cb8c2d50ccUL;  // support Hot-Reload
+    private static ulong        _Textures_GPU_WgslHash            => 0xf90c8fa781785351UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _Textures_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -117,10 +117,10 @@ public partial class ShaderExample
             device.BindGroupLayoutTexture(5, TextureSampleType.Uint, TextureViewDimension.CubeArray, false);
             device.BindGroupLayoutTexture(6, TextureSampleType.Sint, TextureViewDimension.D2D, true);
             device.BindGroupLayoutTexture(7, TextureSampleType.Depth, TextureViewDimension.D2D, true);
-            device.BindGroupLayoutStorageTexture(8, TextureFormat.RGBA32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D1D);
-            device.BindGroupLayoutStorageTexture(9, TextureFormat.RGBA8Unorm, StorageTextureAccess.WriteOnly, TextureViewDimension.D2D);
+            device.BindGroupLayoutStorageTexture(8, TextureFormat.RGBA32Float, StorageTextureAccess.ReadOnly, TextureViewDimension.D1D);
+            device.BindGroupLayoutStorageTexture(9, TextureFormat.RGBA8Unorm, StorageTextureAccess.ReadOnly, TextureViewDimension.D2D);
             device.BindGroupLayoutStorageTexture(10, TextureFormat.RGBA8Uint, StorageTextureAccess.WriteOnly, TextureViewDimension.D2DArray);
-            device.BindGroupLayoutStorageTexture(11, TextureFormat.R32Float, StorageTextureAccess.WriteOnly, TextureViewDimension.D3D);
+            device.BindGroupLayoutStorageTexture(11, TextureFormat.R32Float, StorageTextureAccess.ReadWrite, TextureViewDimension.D3D);
             device.BindGroupLayoutTexture(12, TextureSampleType.Depth, TextureViewDimension.D2D, false);
             device.BindGroupLayoutTexture(13, TextureSampleType.Depth, TextureViewDimension.D2DArray, false);
             device.BindGroupLayoutTexture(14, TextureSampleType.Depth, TextureViewDimension.Cube, false);
@@ -144,7 +144,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _Textures_GPU_Shaders = [
-        new("shaders/testTextureTypes.frag.wgsl"),
+        new("shaders/tests/testTextureTypes.frag.wgsl"),
     ];
 
 }

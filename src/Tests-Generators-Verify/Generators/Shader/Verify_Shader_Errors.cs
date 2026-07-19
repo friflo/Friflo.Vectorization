@@ -206,7 +206,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
+    [Shader("~/shaders/tests/testTextureTypes.frag.wgsl",  fragment: "main")]
     public static partial void TestTextureTypes(RenderPass pass, RenderConfig config);
 }
 """);

@@ -131,7 +131,7 @@
       }
     },
     {
-      Message: TestTextureTypes - missing C# parameter [Map(0, 8)] texture8  ->  var texture8: texture_storage_1d<rgba32float, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 8)] texture8  ->  var texture8: texture_storage_1d<rgba32float, read>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -144,7 +144,7 @@
       }
     },
     {
-      Message: TestTextureTypes - missing C# parameter [Map(0, 9)] texture9  ->  var texture9: texture_storage_2d<rgba8unorm, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 9)] texture9  ->  var texture9: texture_storage_2d<rgba8unorm, read>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {
@@ -170,7 +170,7 @@
       }
     },
     {
-      Message: TestTextureTypes - missing C# parameter [Map(0, 11)] texture11  ->  var texture11: texture_storage_3d<r32float, write>,
+      Message: TestTextureTypes - missing C# parameter [Map(0, 11)] texture11  ->  var texture11: texture_storage_3d<r32float, read_write>,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {

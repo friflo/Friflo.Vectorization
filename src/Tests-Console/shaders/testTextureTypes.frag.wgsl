@@ -14,10 +14,10 @@
 @group(0) @binding(7) var texture7: texture_depth_multisampled_2d;
 
 // Storage Texture Types - TODO
-@group(0) @binding(8) var texture8:  texture_storage_1d<rgba32float, write>;
-@group(0) @binding(9) var texture9:  texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(8) var texture8:  texture_storage_1d<rgba32float, read>;
+@group(0) @binding(9) var texture9:  texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(10)var texture10: texture_storage_2d_array<rgba8uint, write>;
-@group(0) @binding(11)var texture11: texture_storage_3d<r32float, write>;
+@group(0) @binding(11)var texture11: texture_storage_3d<r32float, read_write>;
 
 // Depth Texture Types
 @group(0) @binding(12) var texture12: texture_depth_2d;
