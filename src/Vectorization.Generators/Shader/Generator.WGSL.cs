@@ -22,7 +22,7 @@ public sealed partial class ShaderGen
             module = WgslParser.ParseWgsl(content, path);
         } catch (Exception exception) {
             var type        = exception.GetType();
-            var firstLine   = GetFirstStackTraceLine(exception);
+            var firstLine   = GetStackTraceCaller(exception);
             module          = new WgslModule();
             module.Errors.Add($"{type.Namespace}.{type.Name}: {exception.Message} {firstLine}");
         }
@@ -34,14 +34,19 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static string GetFirstStackTraceLine(Exception ex)
+    private static string GetStackTraceCaller(Exception ex)
     {
-        string trace = ex.StackTrace;
+        var trace = ex.StackTrace;
         if (string.IsNullOrEmpty(trace)) return string.Empty;
 
         int end = trace.IndexOf('\n');
-        var line = (end != -1 ? trace.Substring(0, end) : trace).Trim();
-        return line.Replace('\\', '/');
+        end = end != -1 ? end : trace.Length;
+
+        int closeParen = trace.IndexOf(')', 0, end);
+        
+        int length = closeParen != -1 ? closeParen + 1 : end;
+        
+        return trace.Substring(0, length).Trim();
     }
     
     // High-performance, allocation-free FNV-1a 64-bit string hashing
