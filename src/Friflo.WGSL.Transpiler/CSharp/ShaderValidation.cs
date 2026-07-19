@@ -258,7 +258,7 @@ public static class ShaderValidation
     }
 
     private const string ElementType = "generic type - value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
-    private const string UniformType = "value type (struct), bool, float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
+    private const string UniformType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {

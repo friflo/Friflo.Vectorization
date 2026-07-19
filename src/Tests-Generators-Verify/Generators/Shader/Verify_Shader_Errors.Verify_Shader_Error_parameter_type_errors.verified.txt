@@ -25,7 +25,7 @@
       }
     },
     {
-      Message: [uniform]  Type requirement: value type (struct), bool, float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4,
+      Message: [uniform]  Type requirement: value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
