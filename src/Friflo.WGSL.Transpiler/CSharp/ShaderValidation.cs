@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
+using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable DuplicatedSwitchSectionBodies
@@ -73,7 +74,7 @@ public static class ShaderValidation
             }
         }
         
-        var indexBufferParameters = parameters.Where(p => p.ParamAttribute == CsParamAttribute.IndexBuffer);
+        var indexBufferParameters = parameters.Where(p => p.ParamAttribute == IndexBuffer);
         if (indexBufferParameters.Count() > 1) {
             foreach (var parameter in indexBufferParameters) {
                 diags.Map(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters", DiagType.Warn);    
@@ -185,33 +186,33 @@ public static class ShaderValidation
         var paramType = parameter.ParamAttribute.ToString();
         switch (parameter.ParamAttribute)
         {
-            case CsParamAttribute.uniform:
-            case CsParamAttribute.storage:
+            case uniform:
+            case storage:
                 if (paramType != wgslBinding.AddressSpace) {
                     diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
             
             // --- Sampler types
-            case CsParamAttribute.sampler_NonFiltering:
+            case sampler_NonFiltering:
                 paramType = "sampler";  // maps to sampler. no sampler_NonFiltering in WGSL
-                goto case CsParamAttribute.sampler;
-            case CsParamAttribute.sampler:
-            case CsParamAttribute.sampler_comparison:
+                goto case sampler;
+            case sampler:
+            case sampler_comparison:
                 if (paramType != wgslBinding.WgslType?.Name) {
                     diags.TypeMismatch(parameter, wgslBinding);
                 }
                 return;
                 
             // --- Texture Types
-            case CsParamAttribute.texture_1d:
-            case CsParamAttribute.texture_2d:
-            case CsParamAttribute.texture_2d_array:
-            case CsParamAttribute.texture_3d:
-            case CsParamAttribute.texture_cube:
-            case CsParamAttribute.texture_cube_array:
+            case texture_1d:
+            case texture_2d:
+            case texture_2d_array:
+            case texture_3d:
+            case texture_cube:
+            case texture_cube_array:
             //
-            case CsParamAttribute.texture_multisampled_2d:
+            case texture_multisampled_2d:
                 if (paramType != wgslBinding.WgslType?.Name ||
                     parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
                 {
@@ -219,10 +220,10 @@ public static class ShaderValidation
                 }
                 return;
             //
-            case CsParamAttribute.texture_storage_1d:
-            case CsParamAttribute.texture_storage_2d:
-            case CsParamAttribute.texture_storage_2d_array:
-            case CsParamAttribute.texture_storage_3d:
+            case texture_storage_1d:
+            case texture_storage_2d:
+            case texture_storage_2d_array:
+            case texture_storage_3d:
                 var format = WgslTextureFormat.MapWgslStorageFormatToEnumName(wgslBinding.GetGenericNameAt(0));
                 if (paramType != wgslBinding.WgslType?.Name ||
                     parameter.AttrEnum.enum1.Name != format ||
@@ -232,12 +233,12 @@ public static class ShaderValidation
                 }
                 return;
             //
-            case CsParamAttribute.texture_depth_multisampled_2d:
+            case texture_depth_multisampled_2d:
             //
-            case CsParamAttribute.texture_depth_2d:
-            case CsParamAttribute.texture_depth_2d_array:
-            case CsParamAttribute.texture_depth_cube:
-            case CsParamAttribute.texture_depth_cube_array:
+            case texture_depth_2d:
+            case texture_depth_2d_array:
+            case texture_depth_cube:
+            case texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
                     diags.TypeMismatch(parameter, wgslBinding);
                 }
@@ -250,49 +251,49 @@ public static class ShaderValidation
         var typeName = parameter.Type.Name;
         switch (parameter.ParamAttribute)
         {
-            case CsParamAttribute.uniform:
+            case uniform:
                 return;
-            case CsParamAttribute.storage:
-            case CsParamAttribute.VertexBuffer:
+            case storage:
+            case VertexBuffer:
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
                     diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
-            case CsParamAttribute.IndexBuffer:                                      // TODO check generic type: ushort | uint
+            case IndexBuffer:                                      // TODO check generic type: ushort | uint
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
                     diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
             
             // --- Sampler types
-            case CsParamAttribute.sampler_NonFiltering:
-            case CsParamAttribute.sampler:
-            case CsParamAttribute.sampler_comparison:
+            case sampler_NonFiltering:
+            case sampler:
+            case sampler_comparison:
                 if (typeName != "GpuSampler") {
                     diags.ParameterType(parameter, "GpuSampler");
                 }
                 return;
                 
             // --- Texture Types
-            case CsParamAttribute.texture_1d:
-            case CsParamAttribute.texture_2d:
-            case CsParamAttribute.texture_2d_array:
-            case CsParamAttribute.texture_3d:
-            case CsParamAttribute.texture_cube:
-            case CsParamAttribute.texture_cube_array:
+            case texture_1d:
+            case texture_2d:
+            case texture_2d_array:
+            case texture_3d:
+            case texture_cube:
+            case texture_cube_array:
             //
-            case CsParamAttribute.texture_multisampled_2d:
-            case CsParamAttribute.texture_depth_multisampled_2d:
+            case texture_multisampled_2d:
+            case texture_depth_multisampled_2d:
             //
-            case CsParamAttribute.texture_storage_1d:
-            case CsParamAttribute.texture_storage_2d:
-            case CsParamAttribute.texture_storage_2d_array:
-            case CsParamAttribute.texture_storage_3d:
+            case texture_storage_1d:
+            case texture_storage_2d:
+            case texture_storage_2d_array:
+            case texture_storage_3d:
             //
-            case CsParamAttribute.texture_depth_2d:
-            case CsParamAttribute.texture_depth_2d_array:
-            case CsParamAttribute.texture_depth_cube:
-            case CsParamAttribute.texture_depth_cube_array:
+            case texture_depth_2d:
+            case texture_depth_2d_array:
+            case texture_depth_cube:
+            case texture_depth_cube_array:
                 if (typeName != "GpuTextureView") {
                     diags.ParameterType(parameter, "GpuTextureView");
                 }
