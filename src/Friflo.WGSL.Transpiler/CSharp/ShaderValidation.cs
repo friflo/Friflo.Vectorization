@@ -155,8 +155,7 @@ public static class ShaderValidation
         {
             case CsParamAttribute.uniform:
             case CsParamAttribute.storage:
-                var addressSpace = wgslBinding.AddressSpace;
-                if (addressSpace != paramType) {
+                if (paramType != wgslBinding.AddressSpace) {
                     diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
                 }
                 return;
@@ -189,8 +188,7 @@ public static class ShaderValidation
             case CsParamAttribute.texture_depth_2d_array:
             case CsParamAttribute.texture_depth_cube:
             case CsParamAttribute.texture_depth_cube_array:
-                var wgslTypeName = wgslBinding.WgslType?.Name; 
-                if (wgslTypeName != paramType) {
+                if (paramType != wgslBinding.WgslType?.Name) {
                     diags.Type(parameter.AttrLoc, parameter, paramType, wgslBinding);
                 }
                 return;
