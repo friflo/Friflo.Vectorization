@@ -27,7 +27,7 @@
       }
     },
     {
-      Message: Multiple_IndexBuffer_parameters - missing C# parameter [Map(0, 0)] mesh_data  ->  var<storage> mesh_data: TriangleStorage,
+      Message: Multiple_IndexBuffer_parameters - missing C# parameter [Map(0, 0)] mesh_data  ->  var<storage, read> mesh_data: TriangleStorage,
       Severity: Warning,
       WarningLevel: 1,
       Descriptor: {

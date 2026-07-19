@@ -78,7 +78,10 @@ public record WgslBinding
         if (AddressSpace == "") {
             return $"var {Name}: {WgslType}";
         }
-        return $"var<{AddressSpace}> {Name}: {WgslType}";
+        if (AccessMode == "") {
+            return $"var<{AddressSpace}> {Name}: {WgslType}";
+        }
+        return $"var<{AddressSpace}, {AccessMode}> {Name}: {WgslType}";
     }
 }
 
