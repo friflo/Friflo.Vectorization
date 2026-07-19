@@ -356,11 +356,20 @@ public sealed partial class ShaderGen
                 };
             }
         }
+        bool isPointerType = false;
+        if (symbol is IPointerTypeSymbol pointerTypeSymbol) {
+            symbol          = pointerTypeSymbol.PointedAtType;
+            isPointerType   = true;
+        }
         var ns = symbol?.ContainingNamespace?.IsGlobalNamespace == false
                     ? symbol.ContainingNamespace.ToDisplayString()
                     : string.Empty;
+        var name = symbol?.Name ?? "UnknownType";
+        if (isPointerType) {
+            name += '*';
+        }
         return new CsTypeIdentifier {
-            Name        = symbol?.Name ?? "UnknownType",
+            Name        = name,
             Namespace   = ns
         };
     }
