@@ -90,7 +90,7 @@ public static class ShaderValidation
             ValidateParameter(parameter, diags);
         }
         
-        if (method.Parameters.Length > 0) {
+        if (parameters.Length > 0) {
             // no errors on shader methods without parameters for fast prototyping
             foreach (var wgslBinding in wgslBindings.Values) {
                 if (!bindings.ContainsKey((wgslBinding.Group, wgslBinding.Binding))) {
@@ -255,9 +255,15 @@ public static class ShaderValidation
                     diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
-            case IndexBuffer:                                      // TODO check generic type: ushort | uint
+            case IndexBuffer:
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
                     diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
+                } else {
+                    var generics = parameter.Type.Generics; 
+                    var genericType = generics.Length == 1 ? generics[0].Name : "";
+                    if (genericType != "ushort" && genericType != "uint") {
+                        diags.ParameterType(parameter, "with <ushort> or <uint>");
+                    }
                 }
                 return;
             
