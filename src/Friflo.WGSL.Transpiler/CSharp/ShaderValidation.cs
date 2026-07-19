@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable InvertIf
 // ReSharper disable InconsistentNaming
 // ReSharper disable DuplicatedSwitchSectionBodies
 // ReSharper disable RedundantJumpStatement
@@ -83,23 +84,11 @@ public static class ShaderValidation
         var bindings = new Dictionary<(int,int), CsParameter>();
         foreach (var parameter in parameters)
         {
-            if (!parameter.IsBindGroupEntry) continue;
-            var bindGroup = parameter.BindGroup;
-            if (bindGroup.group < 0 || bindGroup.group >= 4) {
-                diags.Map(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}", DiagType.Error);
-                continue;
+            if (parameter.IsBindGroupEntry) {
+                ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
-                diags.Map(bindGroup.attrLoc, parameter, $"binding must be in range: 0 - 639. was: {bindGroup.binding}", DiagType.Warn);
-                continue;
-            }
-            if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
-                diags.Map(bindGroup.attrLoc, parameter, "binding already exists", DiagType.Error);
-                continue;
-            }
+            ValidateParameter(parameter, diags);
         }
-        
-        ValidateParameters(bindings, wgslBindings, diags);
         
         if (method.Parameters.Length > 0) {
             // no errors on shader methods without parameters for fast prototyping
@@ -161,27 +150,34 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
     }
-
-    private static void ValidateParameters(
+    
+    private static void ValidateBinding(
+        CsParameter                         parameter,
         Dictionary<(int,int), CsParameter>  bindings,
         Dictionary<(int,int), WgslBinding>  wgslBindings,
         List<ValidationDiag>                diags)
     {
-        foreach (var parameter in bindings.Values)
-        {
-            if (parameter.IsBindGroupEntry) {
-                var bindGroup = parameter.BindGroup;
-                if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
-                    diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
-                    continue; 
-                }
-                ValidateBinding(parameter, wgslBinding, diags);
+        var bindGroup = parameter.BindGroup;
+        if (bindGroup.group < 0 || bindGroup.group >= 4) {
+            diags.Map(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}", DiagType.Error);
+        }
+        else if (bindGroup.binding < 0 || bindGroup.binding >= 640) {
+            diags.Map(bindGroup.attrLoc, parameter, $"binding must be in range: 0 - 639. was: {bindGroup.binding}", DiagType.Warn);
+        }
+        else if (!bindings.TryAdd((bindGroup.group, bindGroup.binding), parameter)) {
+            diags.Map(bindGroup.attrLoc, parameter, "binding already exists", DiagType.Error);
+        }
+        else {
+            if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
+                diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
+            } else {
+                ValidateBindingType(parameter, wgslBinding, diags);
             }
-            ValidateParameter(parameter, diags);
         }
     }
+
     
-    private static void ValidateBinding(CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
+    private static void ValidateBindingType(CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
     {
         var paramType = parameter.ParamAttribute.ToString();
         switch (parameter.ParamAttribute)
