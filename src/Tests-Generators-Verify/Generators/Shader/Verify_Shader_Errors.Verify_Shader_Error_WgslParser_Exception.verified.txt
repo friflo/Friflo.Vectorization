@@ -2,14 +2,13 @@
   Diagnostics: [
     {
       Message: [Shader("shaders/parser-crash.vert.wgsl")] - WGSL parser error - System.Exception: Intentional !!CRASH!! at Friflo.WGSL.Transpiler.WGSL.WgslParser.ParseWgsl(String wgslCode, String sourcePath),
-      Severity: Warning,
-      WarningLevel: 1,
+      Severity: Error,
       Descriptor: {
         Id: WGPU005,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
-        DefaultSeverity: Warning,
+        DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
     }

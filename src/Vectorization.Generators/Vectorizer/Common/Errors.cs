@@ -122,7 +122,7 @@ public static class Errors
         title: "Shader Validation Error",
         messageFormat: "{0}",
         category: "WGPU",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
 }
