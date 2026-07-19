@@ -144,9 +144,9 @@ public static class ShaderValidation
             diags.Map(parameter.AttrLoc, parameter, sb.ToString(), DiagType.Warn);
         }
         
-        private void ParameterType(CsParameter parameter, string expectedCSharpType)
+        private void TypeRequirement(CsParameter parameter, string expectedCSharpType)
         {
-            var error = $"[{parameter.ParamAttribute}] requires Type: {expectedCSharpType}";
+            var error = $"[{parameter.ParamAttribute}]  Type requirement: {expectedCSharpType}";
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
     }
@@ -265,23 +265,23 @@ public static class ShaderValidation
                 }
                 var isValueType = IsValueType(parameter.Type, typeInfos);
                 if (!isValueType) {
-                    diags.ParameterType(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
+                    diags.TypeRequirement(parameter, "value type (struct), InBuffer<> or InOutBuffer<>");
                 }
                 return;
             case storage:
             case VertexBuffer:
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
-                    diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
+                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 }
                 return;
             case IndexBuffer:
                 if (typeName != "InBuffer" && typeName != "InOutBuffer") {
-                    diags.ParameterType(parameter, "InBuffer<> or InOutBuffer<>");
+                    diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
                 } else {
                     var generics = parameter.Type.Generics; 
                     var genericType = generics.Length == 1 ? generics[0].Name : "";
                     if (genericType != "ushort" && genericType != "uint") {
-                        diags.ParameterType(parameter, "with <ushort> or <uint>");
+                        diags.TypeRequirement(parameter, "with <ushort> or <uint>");
                     }
                 }
                 return;
@@ -291,7 +291,7 @@ public static class ShaderValidation
             case sampler:
             case sampler_comparison:
                 if (typeName != "GpuSampler") {
-                    diags.ParameterType(parameter, "GpuSampler");
+                    diags.TypeRequirement(parameter, "GpuSampler");
                 }
                 return;
                 
@@ -316,7 +316,7 @@ public static class ShaderValidation
             case texture_depth_cube:
             case texture_depth_cube_array:
                 if (typeName != "GpuTextureView") {
-                    diags.ParameterType(parameter, "GpuTextureView");
+                    diags.TypeRequirement(parameter, "GpuTextureView");
                 }
                 return;
         }
