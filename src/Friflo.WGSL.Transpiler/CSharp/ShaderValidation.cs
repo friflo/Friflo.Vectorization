@@ -123,7 +123,7 @@ public static class ShaderValidation
             diags.Add(new ValidationDiag(srcLoc, error, type));
         }
         
-        private void Mismatch(in CsParameter parameter, WgslBinding wgslBinding, string message)
+        private void Mismatch(SrcLoc loc, in CsParameter parameter, WgslBinding wgslBinding, string message)
         {
             var sb = new StringBuilder();
             sb.Append($"wgsl {message}: C# [");
@@ -144,7 +144,7 @@ public static class ShaderValidation
             }
             sb.Append("]  ->  ");
             sb.Append(wgslBinding.AsString());
-            diags.Map(parameter.AttrLoc, parameter, sb.ToString(), DiagType.Warn);
+            diags.Map(loc, parameter, sb.ToString(), DiagType.Warn);
         }
         
         private void TypeRequirement(in CsParameter parameter, string expectedCSharpType)
@@ -194,7 +194,7 @@ public static class ShaderValidation
             case uniform:
             case storage:
                 if (paramType != wgslBinding.AddressSpace) {
-                    diags.Mismatch(parameter, wgslBinding, "binding mismatch");
+                    diags.Mismatch(parameter.AttrLoc, parameter, wgslBinding, "binding mismatch");
                 }
                 return;
             
@@ -205,7 +205,7 @@ public static class ShaderValidation
             case sampler:
             case sampler_comparison:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
+                    diags.Mismatch(parameter.AttrLoc, parameter, wgslBinding, "type mismatch");
                 }
                 return;
                 
@@ -218,10 +218,11 @@ public static class ShaderValidation
             case texture_cube_array:
             //
             case texture_multisampled_2d:
-                if (paramType != wgslBinding.WgslType?.Name ||
-                    parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0))
-                {
-                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
+                if (paramType != wgslBinding.WgslType?.Name) {
+                    diags.Mismatch(parameter.AttrLoc, parameter, wgslBinding, "type mismatch");
+                }
+                else if (parameter.AttrEnum.enum1.Name != wgslBinding.GetGenericNameAt(0)) {
+                    diags.Mismatch(parameter.AttrArg0Loc, parameter, wgslBinding, "sample type mismatch");
                 }
                 return;
             //
@@ -230,11 +231,14 @@ public static class ShaderValidation
             case texture_storage_2d_array:
             case texture_storage_3d:
                 var format = WgslTextureFormat.MapWgslStorageFormatToEnumName(wgslBinding.GetGenericNameAt(0));
-                if (paramType != wgslBinding.WgslType?.Name ||
-                    parameter.AttrEnum.enum1.Name != format ||
-                    parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1))
-                {
-                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
+                if (paramType != wgslBinding.WgslType?.Name) {
+                    diags.Mismatch(parameter.AttrLoc, parameter, wgslBinding, "type mismatch");
+                }
+                else if (parameter.AttrEnum.enum1.Name != format) {
+                    diags.Mismatch(parameter.AttrArg0Loc, parameter, wgslBinding, "texture format mismatch");
+                }
+                else if (parameter.AttrEnum.enum2.Name != wgslBinding.GetGenericNameAt(1)) {
+                    diags.Mismatch(parameter.AttrArg1Loc, parameter, wgslBinding, "texture storage access mismatch");
                 }
                 return;
             //
@@ -245,7 +249,7 @@ public static class ShaderValidation
             case texture_depth_cube:
             case texture_depth_cube_array:
                 if (paramType != wgslBinding.WgslType?.Name) {
-                    diags.Mismatch(parameter, wgslBinding, "type mismatch");
+                    diags.Mismatch(parameter.AttrLoc, parameter, wgslBinding, "type mismatch");
                 }
                 return;
         }
