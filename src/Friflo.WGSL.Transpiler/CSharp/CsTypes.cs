@@ -208,6 +208,7 @@ public readonly record struct CsParameter
     public required     CsAttrEnum          AttrEnum        { get; init; }
     //
     public required     SrcLoc              TypeLoc         { get; init; }
+    public required     SrcLoc              GenericArgLoc   { get; init; }
     public required     SrcLoc              NameLoc         { get; init; }
     public required     SrcLoc              AttrLoc         { get; init; }
     public required     SrcLoc              AttrArg0Loc     { get; init; }

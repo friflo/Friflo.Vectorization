@@ -77,11 +77,10 @@ public static class SrcLocUtils
         return location.GetSrcLoc();            
     }
     
-    public static (SrcLoc nameLoc, SrcLoc typeLoc) GetParameterLocs(this IParameterSymbol parameterSymbol)
+    public static (SrcLoc nameLoc, SrcLoc typeLoc, SrcLoc genericArgLoc) GetParameterLocs(this IParameterSymbol parameterSymbol)
     {
         var syntaxRef = parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault();
-        if (syntaxRef == null)
-        {
+        if (syntaxRef == null) {
             return default;
         }
         var parameterSyntax = (ParameterSyntax)syntaxRef.GetSyntax();
@@ -90,10 +89,18 @@ public static class SrcLocUtils
             ?? parameterSyntax.Identifier.GetLocation();
 
         var parameterTypeLocation = Location.None;
-        if (parameterSyntax.Type != null) {
+        SrcLoc genericArgLoc = default; 
+        if (parameterSyntax.Type != null)
+        {
             parameterTypeLocation = parameterSyntax.Type.GetLocation();
+            if (parameterSyntax.Type is GenericNameSyntax genericName) {
+                var args = genericName.TypeArgumentList.Arguments;
+                if (args.Count >= 1) {
+                    genericArgLoc = args[0].GetLocation().GetSrcLoc();
+                }
+            }
         }
-        return (parameterNameLocation.GetSrcLoc(), parameterTypeLocation.GetSrcLoc());
+        return (parameterNameLocation.GetSrcLoc(), parameterTypeLocation.GetSrcLoc(), genericArgLoc);
     }
         
     private static SrcLoc GetSrcLoc(this Location? location)

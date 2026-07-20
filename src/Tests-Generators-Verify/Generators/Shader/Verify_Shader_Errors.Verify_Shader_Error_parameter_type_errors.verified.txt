@@ -85,7 +85,7 @@
       }
     },
     {
-      Message: [IndexBuffer] indexBuffer2 - Type requirement: generic type <ushort> or <uint>,
+      Message: [IndexBuffer] indexBuffer2 - Generic Type requirement: ushort or uint,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

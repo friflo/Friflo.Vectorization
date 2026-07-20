@@ -67,8 +67,8 @@ public sealed partial class ShaderGen
                 drawAttribute = CsDrawAttribute.DrawInstance;
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
-            var (nameLoc, typeLoc)          = paramSymbol.GetParameterLocs();
-            var (attrLoc, arg0Loc, arg1Loc) = attributeData.GetParamSrcLocs();
+            var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
+            var (attrLoc, arg0Loc, arg1Loc) 		= attributeData.GetParamSrcLocs();
             
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
@@ -83,6 +83,7 @@ public sealed partial class ShaderGen
                 },
                 NameLoc         = nameLoc,
                 TypeLoc         = typeLoc,
+                GenericArgLoc   = genericArgLoc,
                 AttrLoc         = attrLoc,
                 AttrArg0Loc     = arg0Loc,
                 AttrArg1Loc     = arg1Loc

@@ -152,6 +152,12 @@ public static class ShaderValidation
             var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type requirement: {expectedCSharpType}";
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
+        
+        private void ElementRequirement(in CsParameter parameter, string expectedCSharpType)
+        {
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Generic Type requirement: {expectedCSharpType}";
+            diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
+        }
     }
     
     private static void ValidateBinding(
@@ -257,7 +263,7 @@ public static class ShaderValidation
         return type.TypeCode < CsTypeCode.Bool;
     }
 
-    private const string ElementType = "generic type - value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
+    private const string ElementType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
     private const string UniformType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
@@ -270,7 +276,7 @@ public static class ShaderValidation
                     if (IsValidElementType(parameter)) {
                         return;
                     }
-                    diags.TypeRequirement(parameter, ElementType);
+                    diags.ElementRequirement(parameter, ElementType);
                     return;
                 }
                 var isValidUniformType = type.IsValueType && type.TypeCode < CsTypeCode.Bool;
@@ -285,7 +291,7 @@ public static class ShaderValidation
                     if (IsValidElementType(parameter)) {
                         return;
                     }
-                    diags.TypeRequirement(parameter, ElementType);
+                    diags.ElementRequirement(parameter, ElementType);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -300,7 +306,7 @@ public static class ShaderValidation
                     if (IsValidElementType(parameter)) {
                         return;
                     }
-                    diags.TypeRequirement(parameter, ElementType);
+                    diags.ElementRequirement(parameter, ElementType);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -312,7 +318,7 @@ public static class ShaderValidation
                     if (typeCode == CsTypeCode.u16 || typeCode == CsTypeCode.u32) {
                         return;    
                     }
-                    diags.TypeRequirement(parameter, "generic type <ushort> or <uint>");
+                    diags.ElementRequirement(parameter, "ushort or uint");
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
