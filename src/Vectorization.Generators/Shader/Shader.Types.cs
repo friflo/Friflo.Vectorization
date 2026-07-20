@@ -46,6 +46,8 @@ public sealed partial class ShaderGen
             case "System":
                 return symbolName switch {
                     "Half"                  =>  CsTypeCode.f16,         // WGSL type
+                    "Span"                  =>  CsTypeCode.Span,
+                    "ReadOnlySpan"          =>  CsTypeCode.ReadOnlySpan,
                     _ => CsTypeCode.None
                 };
             case "System.Numerics":

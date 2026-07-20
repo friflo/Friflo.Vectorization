@@ -285,8 +285,9 @@ public sealed partial class ShaderGen
                 types.Add(type, typeInfo);
             }
         }
-        
+        var typeCode = GetTypeCode(typeSymbol);
         var genericTypes = new List<CsType>();
+
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
             foreach (var typeArg in namedType.TypeArguments) {
@@ -300,6 +301,14 @@ public sealed partial class ShaderGen
                     TypeCode    = GetTypeCode(typeArg)
                 });
             }
+            switch (typeCode) {
+                case CsTypeCode.InBuffer:
+                case CsTypeCode.InOutBuffer:
+                case CsTypeCode.Span:
+                case CsTypeCode.ReadOnlySpan:
+                    // TODO  use GetTypeCode() to check if generic types are WGSL types
+                    break;
+            }
         }
         return new CsType {
             Name        = type.Name,
@@ -307,7 +316,7 @@ public sealed partial class ShaderGen
             Generics    = genericTypes.ToValueArray(),
             IsArray     = isArray,
             IsValueType = isValueType,
-            TypeCode    = GetTypeCode(typeSymbol)
+            TypeCode    = typeCode
         };
     }
 

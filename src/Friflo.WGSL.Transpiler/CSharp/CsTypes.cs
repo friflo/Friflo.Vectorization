@@ -49,9 +49,12 @@ public enum CsTypeCode
     String,
     Object,
     ValueType,
+    Span,           // generic
+    ReadOnlySpan,   // generic
+    
     // --- GPU Types
-    InBuffer,
-    InOutBuffer,
+    InBuffer,       // generic
+    InOutBuffer,    // generic
     GpuSampler,
     GpuTextureView
 }
