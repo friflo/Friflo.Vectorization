@@ -69,9 +69,10 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         try {
             ulong wgslHash    = 0;
             
+            // files array can be large.
             foreach (var file in files) {
-                foreach (var shader in  method.Shaders)
-                {
+                // method.Shaders array Length typically <= 3. A HashSet<WgslFile> would be worse.
+                foreach (var shader in  method.Shaders) {
                     if (file.NormalizedPath.EndsWith(shader.path)) {
                         wgslHash ^= file.Hash;
                     }
