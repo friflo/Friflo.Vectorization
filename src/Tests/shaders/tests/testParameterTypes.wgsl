@@ -21,7 +21,7 @@ struct Uniforms {
 @group(0) @binding(6) var texture6: texture_multisampled_2d<i32>;
 @group(0) @binding(7) var texture7: texture_depth_multisampled_2d;
 
-// Storage Texture Types - TODO
+// Storage Texture Types
 @group(0) @binding(8) var texture8:  texture_storage_1d<rgba32float, read>;
 @group(0) @binding(9) var texture9:  texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(10)var texture10: texture_storage_2d_array<rgba8uint, write>;
