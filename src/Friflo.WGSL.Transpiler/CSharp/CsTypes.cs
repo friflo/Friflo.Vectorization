@@ -22,7 +22,7 @@ public static class CsExtensions
 {
     extension (CsTypeCode typeCode)
     {
-        public bool IsWgslType => CsTypeCode.None < typeCode && typeCode <= CsTypeCode.WgslStruct; 
+        public bool IsWgslType => typeCode is > CsTypeCode.None and <= CsTypeCode.WgslStruct; 
     }
 }
 
@@ -254,7 +254,6 @@ public readonly record struct CsTypeInfo
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; init; }
-    public required     bool                    IsValueType { get; init; }
     public required     CsTypeCode              TypeCode    { get; init; }
     
     public override     string                  ToString() => Identifier.Name;
@@ -290,7 +289,6 @@ public readonly record struct CsType
     public required     string              Namespace   { get; init; }
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
     public required     bool                IsArray     { get; init; }
-    public required     bool                IsValueType { get; init; }
     public required     CsTypeCode          TypeCode    { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();

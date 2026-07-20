@@ -24,8 +24,7 @@ public sealed partial class ShaderGen
                 Namespace   = type.Namespace,
                 Generics    = default,
                 IsArray     = false,
-                TypeCode    = CsTypeCode.None,
-                IsValueType = false
+                TypeCode    = CsTypeCode.None
             };
         }
         if (!types.TryGetValue(type, out var typeInfo))
@@ -39,7 +38,6 @@ public sealed partial class ShaderGen
                     Namespace   = type.Namespace,
                     Generics    = default,
                     TypeCode    = typeCode,
-                    IsValueType = isValueType,
                     IsArray     = false
                 };
             }
@@ -81,8 +79,7 @@ public sealed partial class ShaderGen
                 Identifier  = type,
                 Attributes  = attributesData.ToValueArray(),
                 Fields      = fields,
-                TypeCode    = typeCode,
-                IsValueType = isValueType
+                TypeCode    = typeCode
             };
             types.Add(type, typeInfo);
         }
@@ -92,7 +89,6 @@ public sealed partial class ShaderGen
             Namespace   = type.Namespace,
             Generics    = default,
             TypeCode    = typeInfo.TypeCode,
-            IsValueType = typeSymbol.IsValueType,
             IsArray     = false
         };
     }
