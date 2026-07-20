@@ -116,8 +116,6 @@ public readonly record struct CsAttribute
     public required     ValueArray<CsAttributeArg>  Args    { get; init; }
     
     public override     string                      ToString() => Type.ToString();
-    
-    public CsAttribute() { }
 }
 
 public readonly record struct CsAttributeArg
@@ -233,7 +231,6 @@ public readonly record struct CsParameter
         Type.AppendString(sb);
         return sb;
     }
-    public CsParameter() { }
 }
 
 public readonly record struct CsTypeInfo
@@ -259,8 +256,6 @@ public readonly record struct CsField
         Type.AppendString(sb);
         return sb.ToString();
     }
-
-    public CsField() { }
 }
 
 public readonly record struct CsTypeIdentifier
