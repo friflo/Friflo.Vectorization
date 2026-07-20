@@ -247,7 +247,7 @@ public static class ShaderValidation
     
     private static CsType GetGenericType(in CsParameter parameter)
     {
-        var generics = parameter.Type.Generics; 
+        var generics = parameter.Type.Generics;
         return generics.Length == 1 ? generics[0] : default;
     }
     
@@ -262,18 +262,18 @@ public static class ShaderValidation
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {
-        var typeName = parameter.Type.Name;
+        var type = parameter.Type;
         switch (parameter.ParamAttribute)
         {
             case uniform:
-                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                if (parameter.IsBuffer) {
                     if (IsValidElementType(parameter)) {
                         return;
                     }
                     diags.TypeRequirement(parameter, ElementType);
                     return;
                 }
-                var isValidUniformType = parameter.Type.IsValueType && parameter.Type.TypeCode < CsTypeCode.Bool;
+                var isValidUniformType = type.IsValueType && type.TypeCode < CsTypeCode.Bool;
                 if (isValidUniformType) {
                     return;
                 }
@@ -281,7 +281,7 @@ public static class ShaderValidation
                 return;
             
             case storage:
-                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                if (parameter.IsBuffer) {
                     if (IsValidElementType(parameter)) {
                         return;
                     }
@@ -296,7 +296,7 @@ public static class ShaderValidation
                 if (slot < 0 ||slot > 15) {
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
-                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                if (parameter.IsBuffer) {
                     if (IsValidElementType(parameter)) {
                         return;
                     }
@@ -307,7 +307,7 @@ public static class ShaderValidation
                 return;
             
             case IndexBuffer:
-                if (typeName == "InBuffer" || typeName == "InOutBuffer") {
+                if (parameter.IsBuffer) {
                     var typeCode = GetGenericType(parameter).TypeCode;
                     if (typeCode == CsTypeCode.u16 || typeCode == CsTypeCode.u32) {
                         return;    
@@ -322,7 +322,7 @@ public static class ShaderValidation
             case sampler_NonFiltering:
             case sampler:
             case sampler_comparison:
-                if (typeName != "GpuSampler") {
+                if (type.TypeCode != CsTypeCode.GpuSampler) {
                     diags.TypeRequirement(parameter, "GpuSampler");
                 }
                 return;
@@ -347,7 +347,7 @@ public static class ShaderValidation
             case texture_depth_2d_array:
             case texture_depth_cube:
             case texture_depth_cube_array:
-                if (typeName != "GpuTextureView") {
+                if (type.TypeCode != CsTypeCode.GpuTextureView) {
                     diags.TypeRequirement(parameter, "GpuTextureView");
                 }
                 return;

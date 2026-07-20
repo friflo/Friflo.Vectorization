@@ -361,20 +361,44 @@ public sealed partial class ShaderGen
         if (typeCode != CsTypeCode.None) {
             return typeCode;
         }
-        var ns = symbol.ContainingNamespace?.Name;
-        if (ns == "System" && symbol.Name == "Half") {
-            return CsTypeCode.f16;                                  // WGSL type
-        }
-        if (ns == "System.Numerics") {
-            return symbol.Name switch {
-                "Vector2"   => CsTypeCode.vec2f,
-                "Vector3"   => CsTypeCode.vec3f,
-                "Vector4"   => CsTypeCode.vec4f,
-                "Matrix4x4" => CsTypeCode.mat4x4f,
-                _           => CsTypeCode.None
-            };
+        var ns          = GetNamespace(symbol);
+        var symbolName  = symbol.Name;
+        switch (ns)
+        {
+            case "System":
+                return symbolName switch {
+                    "Half"              =>  CsTypeCode.f16,         // WGSL type
+                    _ => CsTypeCode.None
+                };
+            case "System.Numerics":
+                return symbolName switch {
+                    "Vector2"           =>  CsTypeCode.vec2f,       // WGSL type
+                    "Vector3"           =>  CsTypeCode.vec3f,       // WGSL type
+                    "Vector4"           =>  CsTypeCode.vec4f,       // WGSL type
+                    "Matrix4x4"         =>  CsTypeCode.mat4x4f,     // WGSL type
+                    _                   =>  CsTypeCode.None
+                };
+            case "Friflo.Vectorization.GPU":
+                return symbolName switch {
+                    "InBuffer"          =>  CsTypeCode.InBuffer,
+                    "InOutBuffer"       =>  CsTypeCode.InOutBuffer,
+                    _ => CsTypeCode.None
+                };
+            case"Friflo.Vectorization.WebGPU":
+                return symbolName switch {
+                    "GpuSampler"        =>  CsTypeCode.GpuSampler,
+                    "GpuTextureView"    =>  CsTypeCode.GpuTextureView,
+                    _ => CsTypeCode.None
+                };
         }
         return CsTypeCode.None;
+    }
+    
+    private static string GetNamespace(ITypeSymbol? symbol)
+    {
+        return symbol?.ContainingNamespace?.IsGlobalNamespace == false
+            ? symbol.ContainingNamespace.ToDisplayString()
+            : string.Empty;
     }
     
     private static CsTypeIdentifier GetIdentifier(ITypeSymbol? symbol)
@@ -410,9 +434,8 @@ public sealed partial class ShaderGen
             symbol          = pointerTypeSymbol.PointedAtType;
             isPointerType   = true;
         }
-        var ns = symbol?.ContainingNamespace?.IsGlobalNamespace == false
-                    ? symbol.ContainingNamespace.ToDisplayString()
-                    : string.Empty;
+        var ns = GetNamespace(symbol);
+        
         var name = symbol?.Name ?? "UnknownType";
         if (isPointerType) {
             name += '*';

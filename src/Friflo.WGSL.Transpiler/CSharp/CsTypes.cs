@@ -39,17 +39,19 @@ public enum CsTypeCode
     Enum,
     Char,
     DateTime,
-    i8,
-    u8,
-    i16,
-    u16,
-    i64,
-    u64,
+    i8,  u8,
+    i16, u16,
+    i64, u64,
     f64,
     Decimal,
     String,
     Object,
-    ValueType
+    ValueType,
+    // --- GPU Types
+    InBuffer,
+    InOutBuffer,
+    GpuSampler,
+    GpuTextureView
 }
 
 
@@ -217,11 +219,11 @@ public readonly record struct CsParameter
                                         ParamAttribute != CsParamAttribute.VertexBuffer &&
                                         ParamAttribute != CsParamAttribute.IndexBuffer;
     
-    public bool IsReadOnlyBuffer    => Type.Name == "InBuffer";
+    public bool IsReadOnlyBuffer    => Type.TypeCode == CsTypeCode.InBuffer;
     
     public bool IsResource          => !(ParamAttribute == CsParamAttribute.uniform && !IsBuffer);
     
-    public bool IsBuffer            => Type.Name is "InBuffer" or "InOutBuffer";
+    public bool IsBuffer            => Type.TypeCode is CsTypeCode.InBuffer or CsTypeCode.InOutBuffer;
 
     public StringBuilder AppendString(StringBuilder sb)
     {
