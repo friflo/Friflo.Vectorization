@@ -181,9 +181,10 @@ public sealed partial class ShaderGen
         }
 
         foreach (var f in fields) {
-            if (f.Name.IndexOf   ("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
-                f.Name.IndexOf   ("matrix", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                f.Name.StartsWith("m",      StringComparison.OrdinalIgnoreCase))     // e.g. m11, m12, m21, m22
+            var fieldName = f.Name;
+            if (fieldName.IndexOf   ("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                fieldName.IndexOf   ("matrix", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                fieldName.StartsWith("m",      StringComparison.OrdinalIgnoreCase))     // e.g. m11, m12, m21, m22
             {
                 return true;
             }
