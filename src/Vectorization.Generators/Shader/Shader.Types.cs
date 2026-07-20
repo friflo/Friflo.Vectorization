@@ -1,6 +1,8 @@
 // Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
+using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 
@@ -65,53 +67,133 @@ public sealed partial class ShaderGen
                 return symbolName switch {
                     "GpuSampler"            =>  CsTypeCode.GpuSampler,
                     "GpuTextureView"        =>  CsTypeCode.GpuTextureView,
+                    "Indirect"              =>  CsTypeCode.vec4i,           // TODO  implement Duck Typing?
+                    "IndexedIndirect"       =>  CsTypeCode.IndexedIndirect, // TODO  implement Duck Typing?
                     _ => CsTypeCode.None
                 };
             default:
-                // TODO implement duck typing - detect WGSL types from their layout: E.g. a struct with 3 float fields is a  vec3f
-                
-                // WGSL types not covered by BCL. Any namespace can be used
-                return symbolName switch {
-                    // --- vector 2, 3, 4
-                    "vec2h"                 =>  CsTypeCode.vec2h,
-                    "vec3h"                 =>  CsTypeCode.vec3h,
-                    "vec4h"                 =>  CsTypeCode.vec4h,
-                    // 
-                    "vec2f"                 =>  CsTypeCode.vec2f,
-                    "vec3f"                 =>  CsTypeCode.vec3f,
-                    "vec4f"                 =>  CsTypeCode.vec4f,
-                    //
-                    "vec2i"                 =>  CsTypeCode.vec2i,
-                    "vec3i"                 =>  CsTypeCode.vec3i,
-                    "vec4i"                 =>  CsTypeCode.vec4i,
-                    //
-                    "vec2u"                 =>  CsTypeCode.vec2u,
-                    "vec3u"                 =>  CsTypeCode.vec3u,
-                    "vec4u"                 =>  CsTypeCode.vec4u,
-                    // --- rectangular matrices
-                    "mat2x3h"               =>  CsTypeCode.mat2x3h,
-                    "mat2x4h"               =>  CsTypeCode.mat2x4h,
-                    "mat3x2h"               =>  CsTypeCode.mat3x2h,
-                    "mat3x4h"               =>  CsTypeCode.mat3x4h,
-                    "mat4x2h"               =>  CsTypeCode.mat4x2h,
-                    "mat4x3h"               =>  CsTypeCode.mat4x3h,
-                    //
-                    "mat2x3f"               =>  CsTypeCode.mat2x3f,
-                    "mat2x4f"               =>  CsTypeCode.mat2x4f,
-                    "mat3x2f"               =>  CsTypeCode.mat3x2f,
-                    "mat3x4f"               =>  CsTypeCode.mat3x4f,
-                    "mat4x2f"               =>  CsTypeCode.mat4x2f,
-                    "mat4x3f"               =>  CsTypeCode.mat4x3f,
-                    // --- quadratic matrices
-                    "mat2x2h" or "mat2h"    =>  CsTypeCode.mat2x2h,
-                    "mat3x3h" or "mat3h"    =>  CsTypeCode.mat3x3h,
-                    "mat4x4h" or "mat4h"    =>  CsTypeCode.mat4x4h,
-                    "mat2x2f" or "mat2f"    =>  CsTypeCode.mat2x2f,
-                    "mat3x3f" or "mat3f"    =>  CsTypeCode.mat3x3f,
-                    "mat4x4f" or "mat4f"    =>  CsTypeCode.mat4x4f,
-                    
-                    _ => CsTypeCode.None
-                };
+                return DetectWgslPrimitiveByLayout(symbol);
         }
     }
+    
+    
+    // Duck typing - detect WGSL types from their layout: E.g. a struct with 3 float fields is a vec3f
+    private static CsTypeCode DetectWgslPrimitiveByLayout(ITypeSymbol symbol)
+    {
+        if (!symbol.IsValueType || symbol.TypeKind == TypeKind.Enum) {
+            return CsTypeCode.None;
+        }
+
+        var fields = symbol.GetMembers()
+                           .OfType<IFieldSymbol>()
+                           .Where(f => !f.IsStatic)
+                           .ToArray();
+
+        if (fields.Length == 0) {
+            return CsTypeCode.None;
+        }
+
+        // Detect base type: f32, f16, i32, u32 OR vector columns (vec2f, vec3f, vec4f ...)
+        var baseType = GetTypeCode(fields[0].Type);
+
+        // Check that all fields have the same scalar/vector type
+        for (int i = 1; i < fields.Length; i++) {
+            if (GetTypeCode(fields[i].Type) != baseType) {
+                return CsTypeCode.None;
+            }
+        }
+
+        var name = symbol.Name;
+
+        // Pattern-Matching via base type and field count
+        return (baseType, fields.Length) switch
+        {
+            // --- Matrices composed of Vector Columns (e.g. struct Mat3x3 { vec3f c0, c1, c2; })
+            (CsTypeCode.vec2f, 2) => CsTypeCode.mat2x2f,
+            (CsTypeCode.vec2f, 3) => CsTypeCode.mat3x2f,
+            (CsTypeCode.vec2f, 4) => CsTypeCode.mat4x2f,
+
+            (CsTypeCode.vec3f, 2) => CsTypeCode.mat2x3f,
+            (CsTypeCode.vec3f, 3) => CsTypeCode.mat3x3f,
+            (CsTypeCode.vec3f, 4) => CsTypeCode.mat4x3f,
+
+            (CsTypeCode.vec4f, 2) => CsTypeCode.mat2x4f,
+            (CsTypeCode.vec4f, 3) => CsTypeCode.mat3x4f,
+            (CsTypeCode.vec4f, 4) => CsTypeCode.mat4x4f,
+
+            (CsTypeCode.vec2h, 2) => CsTypeCode.mat2x2h,
+            (CsTypeCode.vec2h, 3) => CsTypeCode.mat3x2h,
+            (CsTypeCode.vec2h, 4) => CsTypeCode.mat4x2h,
+
+            (CsTypeCode.vec3h, 2) => CsTypeCode.mat2x3h,
+            (CsTypeCode.vec3h, 3) => CsTypeCode.mat3x3h,
+            (CsTypeCode.vec3h, 4) => CsTypeCode.mat4x3h,
+
+            (CsTypeCode.vec4h, 2) => CsTypeCode.mat2x4h,
+            (CsTypeCode.vec4h, 3) => CsTypeCode.mat3x4h,
+            (CsTypeCode.vec4h, 4) => CsTypeCode.mat4x4h,
+
+            // --- Float 32-bit (f32)
+            // Vectors
+            (CsTypeCode.f32, 2)  => CsTypeCode.vec2f,
+            (CsTypeCode.f32, 3)  => CsTypeCode.vec3f,
+            (CsTypeCode.f32, 4)  => IsMatrixName(name, fields)          ? CsTypeCode.mat2x2f : CsTypeCode.vec4f,
+            // Rectangular matrices
+            (CsTypeCode.f32, 6)  => IsTransposedMatrixName(name, "3x2") ? CsTypeCode.mat3x2f : CsTypeCode.mat2x3f,
+            (CsTypeCode.f32, 8)  => IsTransposedMatrixName(name, "4x2") ? CsTypeCode.mat4x2f : CsTypeCode.mat2x4f,
+            (CsTypeCode.f32, 12) => IsTransposedMatrixName(name, "4x3") ? CsTypeCode.mat4x3f : CsTypeCode.mat3x4f,
+            // Quadratic matrices
+            (CsTypeCode.f32, 9)  => CsTypeCode.mat3x3f,
+            (CsTypeCode.f32, 16) => CsTypeCode.mat4x4f,
+
+            // --- Float 16-bit (f16 / Half)
+            // Vectors
+            (CsTypeCode.f16, 2)  => CsTypeCode.vec2h,
+            (CsTypeCode.f16, 3)  => CsTypeCode.vec3h,
+            (CsTypeCode.f16, 4)  => IsMatrixName(name, fields)          ? CsTypeCode.mat2x2h : CsTypeCode.vec4h,
+            // Rectangular matrices
+            (CsTypeCode.f16, 6)  => IsTransposedMatrixName(name, "3x2") ? CsTypeCode.mat3x2h : CsTypeCode.mat2x3h,
+            (CsTypeCode.f16, 8)  => IsTransposedMatrixName(name, "4x2") ? CsTypeCode.mat4x2h : CsTypeCode.mat2x4h,
+            (CsTypeCode.f16, 12) => IsTransposedMatrixName(name, "4x3") ? CsTypeCode.mat4x3h : CsTypeCode.mat3x4h,
+            // Quadratic matrices
+            (CsTypeCode.f16, 9)  => CsTypeCode.mat3x3h,
+            (CsTypeCode.f16, 16) => CsTypeCode.mat4x4h,
+
+            // --- Signed Integer 32-bit (i32)
+            (CsTypeCode.i32, 2)  => CsTypeCode.vec2i,
+            (CsTypeCode.i32, 3)  => CsTypeCode.vec3i,
+            (CsTypeCode.i32, 4)  => CsTypeCode.vec4i,
+
+            // --- Unsigned Integer 32-bit (u32)
+            (CsTypeCode.u32, 2)  => CsTypeCode.vec2u,
+            (CsTypeCode.u32, 3)  => CsTypeCode.vec3u,
+            (CsTypeCode.u32, 4)  => CsTypeCode.vec4u,
+
+            _                    => CsTypeCode.None
+        };
+    }
+
+    private static bool IsMatrixName(string name, IFieldSymbol[] fields)
+    {
+        if (name.IndexOf("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
+            name.IndexOf("matrix", StringComparison.OrdinalIgnoreCase) >= 0) {
+            return true;
+        }
+
+        foreach (var f in fields) {
+            if (f.Name.IndexOf   ("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
+                f.Name.IndexOf   ("matrix", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                f.Name.StartsWith("m",      StringComparison.OrdinalIgnoreCase))     // e.g. m11, m12, m21, m22
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsTransposedMatrixName(string name, string targetDimension)
+    {
+        return name.IndexOf(targetDimension, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
 }

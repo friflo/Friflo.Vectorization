@@ -264,7 +264,7 @@ public static class ShaderValidation
     private static bool IsValidElementType(in CsParameter parameter)
     {
         var type = GetGenericType(parameter);
-        return type.TypeCode < CsTypeCode.Bool;
+        return CsTypeCode.None < type.TypeCode && type.TypeCode < CsTypeCode.Bool;
     }
 
     private const string ElementType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
@@ -283,6 +283,7 @@ public static class ShaderValidation
                     diags.ElementRequirement(parameter, ElementType);
                     return;
                 }
+                // var isValidUniformType = CsTypeCode.None < type.TypeCode && type.TypeCode < CsTypeCode.Bool;
                 var isValidUniformType = type.IsValueType && type.TypeCode < CsTypeCode.Bool;
                 if (isValidUniformType) {
                     return;
