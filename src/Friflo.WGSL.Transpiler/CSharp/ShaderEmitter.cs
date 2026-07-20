@@ -452,7 +452,7 @@ $$"""
     	}
     }
     
-    private static (bool isIndirect, bool isIndexed) IsIndirectBufferParameter(CsParameter drawParam)
+    private static (bool isIndirect, bool isIndexed) IsIndirectBufferParameter(in CsParameter drawParam)
     {
         if (drawParam.IsBuffer)
         {
@@ -633,7 +633,7 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
         return sb.ToString();
     }
     
-    private static void AddNamespace(CsType identifier, HashSet<string> namespaces, string declaringNamespace)
+    private static void AddNamespace(in CsType identifier, HashSet<string> namespaces, string declaringNamespace)
     {
         var ns = identifier.Namespace;
         switch (ns) {
