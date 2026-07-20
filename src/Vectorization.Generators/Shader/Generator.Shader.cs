@@ -290,24 +290,27 @@ public sealed partial class ShaderGen
 
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
-            foreach (var typeArg in namedType.TypeArguments) {
-                var identifier = GetIdentifier(typeArg);
+             bool getTypeCode = typeCode switch {
+                CsTypeCode.InBuffer     => true,
+                CsTypeCode.InOutBuffer  => true,
+                CsTypeCode.Span         => true,
+                CsTypeCode.ReadOnlySpan => true,
+                _ => false
+            };
+            // TODO  use GetTypeCode() to check if generic types are WGSL types
+            
+            foreach (var typeArg in namedType.TypeArguments)
+            {
+                var identifier      = GetIdentifier(typeArg);
+                var fieldTypeCode   = getTypeCode ? GetTypeCode(typeArg) : CsTypeCode.None;
                 genericTypes.Add(new CsType {
                     Name        = identifier.Name,
                     Namespace   = identifier.Namespace,
                     Generics    = default,
                     IsArray     = false,
                     IsValueType = typeArg.IsValueType,
-                    TypeCode    = GetTypeCode(typeArg)
+                    TypeCode    = fieldTypeCode
                 });
-            }
-            switch (typeCode) {
-                case CsTypeCode.InBuffer:
-                case CsTypeCode.InOutBuffer:
-                case CsTypeCode.Span:
-                case CsTypeCode.ReadOnlySpan:
-                    // TODO  use GetTypeCode() to check if generic types are WGSL types
-                    break;
             }
         }
         return new CsType {
