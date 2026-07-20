@@ -43,7 +43,7 @@ public partial class ShaderExample
 
     private static readonly int _TestTextureTypes_GPU_ShaderId            =  ShaderRegistry.NewShaderId("TestTextureTypes");
 
-    private static ulong        _TestTextureTypes_GPU_WgslHash            => 0x72d67df01c6622f1UL;  // support Hot-Reload
+    private static ulong        _TestTextureTypes_GPU_WgslHash            => 0xdfedd3c4778a619cUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _TestTextureTypes_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)

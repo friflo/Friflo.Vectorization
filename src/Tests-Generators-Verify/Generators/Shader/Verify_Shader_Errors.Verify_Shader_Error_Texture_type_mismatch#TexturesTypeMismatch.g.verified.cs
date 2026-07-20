@@ -118,7 +118,7 @@ public partial class ShaderExample
     private const  ulong        _TexturesTypeMismatch_GPU_layout_1_Key        =  0x2946de09149f7eb0;
     private const  ulong        _TexturesTypeMismatch_GPU_layout_2_Key        =  0x979100e6d4ed93d9;
 
-    private static ulong        _TexturesTypeMismatch_GPU_WgslHash            => 0x72d67df01c6622f1UL;  // support Hot-Reload
+    private static ulong        _TexturesTypeMismatch_GPU_WgslHash            => 0xdfedd3c4778a619cUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _TexturesTypeMismatch_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)

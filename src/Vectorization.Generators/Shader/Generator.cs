@@ -34,14 +34,14 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     private static void RegisterStreamingTranspiler(IncrementalGeneratorInitializationContext context)
     {
         var wgslFiles = context.AdditionalTextsProvider
-        .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
-        .Select(CreateWgslFile).Collect();
+            .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
+            .Select(static (text, ct) => CreateWgslFile(text, ct)).Collect();
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
-            transform: TransformShader)
+            transform: static (ctx, ct) => TransformShader(ctx, ct))
             .Combine(wgslFiles);
 
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
