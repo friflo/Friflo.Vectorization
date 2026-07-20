@@ -68,6 +68,8 @@ public sealed partial class ShaderGen
                     _ => CsTypeCode.None
                 };
             default:
+                // TODO implement duck typing - detect WGSL types from their layout: E.g. a struct with 3 float fields is a  vec3f
+                
                 // WGSL types not covered by BCL. Any namespace can be used
                 return symbolName switch {
                     // --- vector 2, 3, 4
