@@ -2,6 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Text;
+using static System.Diagnostics.DebuggerBrowsableState;
+using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
@@ -63,14 +65,14 @@ public enum CsTypeCode
 // WGPU attribute:  ShaderAttribute
 public readonly record struct CsShader
 {
-    public required     string  path     { get; init; }
-    public required     string  vert     { get; init; }
-    public required     string  frag     { get; init; }
+    public required                 string  path     { get; init; }
+    public required                 string  vert     { get; init; }
+    public required                 string  frag     { get; init; }
     //
-    public required     SrcLoc  attrLoc  { get; init; }
-    public required     SrcLoc  pathLoc  { get; init; }
-    public required     SrcLoc  vertLoc  { get; init; }
-    public required     SrcLoc  fragLoc  { get; init; }
+    [Browse(Never)] public required SrcLoc  attrLoc  { get; init; }
+    [Browse(Never)] public required SrcLoc  pathLoc  { get; init; }
+    [Browse(Never)] public required SrcLoc  vertLoc  { get; init; }
+    [Browse(Never)] public required SrcLoc  fragLoc  { get; init; }
 }
 
 
@@ -95,7 +97,7 @@ public record CsMethod
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
     //
-    public required     SrcLoc                  MethodLoc       { get; init; }
+    [Browse(Never)] public required SrcLoc      MethodLoc       { get; init; }
     
     public override string ToString()
     {
@@ -194,10 +196,10 @@ public enum CsDrawAttribute
 public readonly record struct CsBindGroup
 {
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
-    public required     int     group   { get; init; }
-    public required     int     binding { get; init; }
+    public required                 int     group   { get; init; }
+    public required                 int     binding { get; init; }
     //
-    public required     SrcLoc  attrLoc { get; init; }
+    [Browse(Never)] public required SrcLoc  attrLoc { get; init; }
 }
 
 public readonly record struct CsParameter
@@ -210,12 +212,12 @@ public readonly record struct CsParameter
     public required     int                 VertexBufferSlot{ get; init; }
     public required     CsAttrEnum          AttrEnum        { get; init; }
     //
-    public required     SrcLoc              TypeLoc         { get; init; }
-    public required     SrcLoc              GenericArgLoc   { get; init; }
-    public required     SrcLoc              NameLoc         { get; init; }
-    public required     SrcLoc              AttrLoc         { get; init; }
-    public required     SrcLoc              AttrArg0Loc     { get; init; }
-    public required     SrcLoc              AttrArg1Loc     { get; init; }
+    [Browse(Never)] public required SrcLoc  TypeLoc         { get; init; }
+    [Browse(Never)] public required SrcLoc  GenericArgLoc   { get; init; }
+    [Browse(Never)] public required SrcLoc  NameLoc         { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrLoc         { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrArg0Loc     { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrArg1Loc     { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     
