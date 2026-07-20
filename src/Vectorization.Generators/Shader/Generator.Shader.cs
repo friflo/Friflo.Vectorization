@@ -336,65 +336,6 @@ public sealed partial class ShaderGen
         };
     }
     
-    private static CsTypeCode GetTypeCode(ITypeSymbol symbol)
-    {
-        var typeCode = symbol.SpecialType switch {
-            SpecialType.System_Object 	=> CsTypeCode.Object,
-            SpecialType.System_Enum 	=> CsTypeCode.Enum,
-            SpecialType.System_ValueType=> CsTypeCode.ValueType,
-            SpecialType.System_Boolean 	=> CsTypeCode.Bool,         // WGSL type (not in buffers)
-            SpecialType.System_Char 	=> CsTypeCode.Char,
-            SpecialType.System_SByte 	=> CsTypeCode.i8,
-            SpecialType.System_Byte 	=> CsTypeCode.u8,
-            SpecialType.System_Int16 	=> CsTypeCode.i16,
-            SpecialType.System_UInt16 	=> CsTypeCode.u16,
-            SpecialType.System_Int32 	=> CsTypeCode.i32,          // WGSL type
-            SpecialType.System_UInt32	=> CsTypeCode.u32,          // WGSL type
-            SpecialType.System_Int64 	=> CsTypeCode.i64,
-            SpecialType.System_UInt64 	=> CsTypeCode.u64,
-            SpecialType.System_Decimal	=> CsTypeCode.Decimal,
-            SpecialType.System_Single 	=> CsTypeCode.f32,          // WGSL type
-            SpecialType.System_Double 	=> CsTypeCode.f64,
-            SpecialType.System_String 	=> CsTypeCode.String,
-            SpecialType.System_DateTime => CsTypeCode.DateTime,
-            _                           => CsTypeCode.None
-        };
-        if (typeCode != CsTypeCode.None) {
-            return typeCode;
-        }
-        var ns          = GetNamespace(symbol);
-        var symbolName  = symbol.Name;
-        switch (ns)
-        {
-            case "System":
-                return symbolName switch {
-                    "Half"              =>  CsTypeCode.f16,         // WGSL type
-                    _ => CsTypeCode.None
-                };
-            case "System.Numerics":
-                return symbolName switch {
-                    "Vector2"           =>  CsTypeCode.vec2f,       // WGSL type
-                    "Vector3"           =>  CsTypeCode.vec3f,       // WGSL type
-                    "Vector4"           =>  CsTypeCode.vec4f,       // WGSL type
-                    "Matrix4x4"         =>  CsTypeCode.mat4x4f,     // WGSL type
-                    _                   =>  CsTypeCode.None
-                };
-            case "Friflo.Vectorization.GPU":
-                return symbolName switch {
-                    "InBuffer"          =>  CsTypeCode.InBuffer,
-                    "InOutBuffer"       =>  CsTypeCode.InOutBuffer,
-                    _ => CsTypeCode.None
-                };
-            case"Friflo.Vectorization.WebGPU":
-                return symbolName switch {
-                    "GpuSampler"        =>  CsTypeCode.GpuSampler,
-                    "GpuTextureView"    =>  CsTypeCode.GpuTextureView,
-                    _ => CsTypeCode.None
-                };
-        }
-        return CsTypeCode.None;
-    }
-    
     private static string GetNamespace(ITypeSymbol? symbol)
     {
         return symbol?.ContainingNamespace?.IsGlobalNamespace == false
