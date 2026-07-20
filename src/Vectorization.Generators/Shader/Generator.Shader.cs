@@ -253,73 +253,28 @@ public sealed partial class ShaderGen
             isArray = true;
             typeSymbol = arrayTypeSymbol.ElementType;
         }
-        var type        = GetIdentifier(typeSymbol);
-        var isValueType = typeSymbol.IsValueType;
-        if (getFields)
-        {
-            if (!types.ContainsKey(type))
-            {
-                var attributes  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
-                
-                ValueArray<CsField> fields = default;
-               
-                if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
-                {
-                    // recursion only for struct types
-                    fields = structSymbol.GetMembers()
-                        .OfType<IFieldSymbol>()
-                        .Where(fieldSymbol => !fieldSymbol.IsStatic)
-                        .Select(fieldSymbol => new CsField
-                        {
-                            Name        = fieldSymbol.Name,
-                            Type        = MapType(types, fieldSymbol.Type, true), // recursive call
-                            Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
-                        }).ToValueArray();
-                }
-                var typeInfo = new CsTypeInfo {
-                    Identifier  = GetIdentifier(typeSymbol),
-                    Attributes  = attributes.ToValueArray(),
-                    Fields      = fields
-                };
+        var type = GetType(types, typeSymbol, getFields);
 
-                types.Add(type, typeInfo);
-            }
-        }
-        var typeCode = GetTypeCode(typeSymbol);
         var genericTypes = new List<CsType>();
 
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
-             bool getTypeCode = typeCode switch {
+             bool getFieldTypes = type.TypeCode switch {
                 CsTypeCode.InBuffer     => true,
                 CsTypeCode.InOutBuffer  => true,
                 CsTypeCode.Span         => true,
                 CsTypeCode.ReadOnlySpan => true,
-                _ => false
+                _                       => false
             };
-            // TODO  use GetTypeCode() to check if generic types are WGSL types
-            
             foreach (var typeArg in namedType.TypeArguments)
             {
-                var identifier      = GetIdentifier(typeArg);
-                var fieldTypeCode   = getTypeCode ? GetTypeCode(typeArg) : CsTypeCode.None;
-                genericTypes.Add(new CsType {
-                    Name        = identifier.Name,
-                    Namespace   = identifier.Namespace,
-                    Generics    = default,
-                    IsArray     = false,
-                    IsValueType = typeArg.IsValueType,
-                    TypeCode    = fieldTypeCode
-                });
+                var fieldType = GetType(types, typeArg, getFieldTypes);
+                genericTypes.Add(fieldType);
             }
         }
-        return new CsType {
-            Name        = type.Name,
-            Namespace   = type.Namespace,
+        return type with {
             Generics    = genericTypes.ToValueArray(),
-            IsArray     = isArray,
-            IsValueType = isValueType,
-            TypeCode    = typeCode
+            IsArray     = isArray
         };
     }
 

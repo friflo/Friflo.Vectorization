@@ -18,6 +18,16 @@ public readonly record struct SrcLoc
     public required     int     length   { get; init; }
 }
 
+public static class CsExtensions
+{
+    extension (CsTypeCode typeCode)
+    {
+        public bool IsWgslType => CsTypeCode.None < typeCode && typeCode <= CsTypeCode.WgslStruct; 
+    }
+}
+
+
+
 public enum CsTypeCode
 {
     None,
@@ -37,9 +47,10 @@ public enum CsTypeCode
     mat2x2f, mat3x3f, mat4x4f,
     
     IndexedIndirect,
+    WgslStruct,     // Last WGSL Type
     
     // --- non-WGSL Types
-    Bool,  // First non-WGSL Types - Info: bool is part of WGSL, but only on GPU - not on CPU
+    Bool,           // Info: bool is part of WGSL (only on GPU)
     Enum,
     Char,
     DateTime,
@@ -53,10 +64,8 @@ public enum CsTypeCode
     ValueType,
     Span,           // generic
     ReadOnlySpan,   // generic
-    
-    // --- GPU Types
     InBuffer,       // generic
-    InOutBuffer,    // generic
+    InOutBuffer,    // generic    
     GpuSampler,
     GpuTextureView
 }
@@ -244,7 +253,9 @@ public readonly record struct CsTypeInfo
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
     public required     ValueArray<CsAttribute> Attributes  { get; init; }
-    public required     ValueArray<CsField>     Fields      { get; init; } // only set for struct's -> no cyclic dependencies
+    public required     ValueArray<CsField>     Fields      { get; init; }
+    public required     bool                    IsValueType { get; init; }
+    public required     CsTypeCode              TypeCode    { get; init; }
     
     public override     string                  ToString() => Identifier.Name;
 }

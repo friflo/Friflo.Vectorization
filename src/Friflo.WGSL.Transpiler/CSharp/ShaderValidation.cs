@@ -260,12 +260,6 @@ public static class ShaderValidation
         var generics = parameter.Type.Generics;
         return generics.Length == 1 ? generics[0] : default;
     }
-    
-    private static bool IsValidElementType(in CsParameter parameter)
-    {
-        var type = GetGenericType(parameter);
-        return CsTypeCode.None < type.TypeCode && type.TypeCode < CsTypeCode.Bool;
-    }
 
     private const string ElementType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
     private const string UniformType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
@@ -277,15 +271,13 @@ public static class ShaderValidation
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    if (IsValidElementType(parameter)) {
+                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
                         return;
                     }
                     diags.ElementRequirement(parameter, ElementType);
                     return;
                 }
-                // var isValidUniformType = CsTypeCode.None < type.TypeCode && type.TypeCode < CsTypeCode.Bool;
-                var isValidUniformType = type.IsValueType && type.TypeCode < CsTypeCode.Bool;
-                if (isValidUniformType) {
+                if (type.TypeCode.IsWgslType) {
                     return;
                 }
                 diags.TypeRequirement(parameter, UniformType);
@@ -293,7 +285,7 @@ public static class ShaderValidation
             
             case storage:
                 if (parameter.IsBuffer) {
-                    if (IsValidElementType(parameter)) {
+                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
                         return;
                     }
                     diags.ElementRequirement(parameter, ElementType);
@@ -308,7 +300,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    if (IsValidElementType(parameter)) {
+                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
                         return;
                     }
                     diags.ElementRequirement(parameter, ElementType);
