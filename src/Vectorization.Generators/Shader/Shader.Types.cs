@@ -15,82 +15,99 @@ namespace Friflo;
     
 public sealed partial class ShaderGen
 {
-    private static CsType GetType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
+    private static CsType GetType(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
     {
-        var type = GetIdentifier(typeSymbol);
-        if (!getFields) {
+        if (getFields) {
+            var typeInfo = GetTypeInfo(types, typeSymbol);
             return new CsType {
-                Name        = type.Name,
-                Namespace   = type.Namespace,
+                Name        = typeInfo.Identifier.Name,
+                Namespace   = typeInfo.Identifier.Namespace,
+                TypeCode    = typeInfo.TypeCode,
                 Generics    = default,
                 IsArray     = false,
-                TypeCode    = CsTypeCode.None
             };
         }
-        if (!types.TryGetValue(type, out var typeInfo))
-        {
-            var typeCode    = GetTypeCode(typeSymbol);
-            var isValueType = typeSymbol.IsValueType;
-            if (CsTypeCode.None != typeCode || !isValueType)
-            {
-                return new CsType {
-                    Name        = type.Name,
-                    Namespace   = type.Namespace,
-                    Generics    = default,
-                    TypeCode    = typeCode,
-                    IsArray     = false
-                };
-            }
-
-            var attributesData  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
-            
-            ValueArray<CsField> fields = default;
-            if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
-            {
-                // recursion only for struct types
-                var fieldSymbols = structSymbol.GetMembers()
-                    .OfType<IFieldSymbol>()
-                    .Where(fieldSymbol => !fieldSymbol.IsStatic);
-                var fieldList = new List<CsField>();
-                foreach (var fieldSymbol in fieldSymbols)
-                {
-                    // var fieldType = MapType(types, fieldSymbol.Type, true); // recursive call
-                    var fieldType = GetType(types, fieldSymbol.Type, true);
-                    fieldList.Add(new CsField {
-                        Name        = fieldSymbol.Name,
-                        Type        = fieldType,
-                        Attributes  = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray()
-                    });
-                }
-                fields = fieldList.ToValueArray();
-            }
-            if (fields.Length > 0) {
-                typeCode = CsTypeCode.WgslStruct;
-                foreach (var field in fields) {
-                    var fieldTypeCode = field.Type.TypeCode;
-                    if (fieldTypeCode.IsWgslType) {
-                        continue;
-                    }
-                    typeCode = CsTypeCode.None;
-                    break;
-                }
-            }
-            typeInfo = new CsTypeInfo {
-                Identifier  = type,
-                Attributes  = attributesData.ToValueArray(),
-                Fields      = fields,
-                TypeCode    = typeCode
-            };
-            types.Add(type, typeInfo);
-        }
-
+        var type = GetIdentifier(typeSymbol);
         return new CsType {
             Name        = type.Name,
             Namespace   = type.Namespace,
+            TypeCode    = CsTypeCode.None,
             Generics    = default,
-            TypeCode    = typeInfo.TypeCode,
             IsArray     = false
         };
+    }
+    
+    
+    private static CsTypeInfo GetTypeInfo(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol)
+    {
+        if (types.TryGetValue(typeSymbol, out var typeInfo)) {
+            return typeInfo;
+        }
+        var type        = GetIdentifier(typeSymbol);
+        var typeCode    = GetTypeCode(typeSymbol);
+        var isValueType = typeSymbol.IsValueType;
+        
+        if (CsTypeCode.None != typeCode || !isValueType)
+        {
+            typeInfo = new CsTypeInfo {
+                Identifier  = type,
+                Attributes  = default,
+                Fields      = default,
+                TypeCode    = typeCode
+            };
+            types.Add(typeSymbol, typeInfo);
+            return typeInfo;
+        }
+
+        var attributesData  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
+        
+        ValueArray<CsField> fields = default;
+        if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
+        {
+            // recursion only for struct types
+            var fieldSymbols = structSymbol.GetMembers()
+                .OfType<IFieldSymbol>()
+                .Where(fieldSymbol => !fieldSymbol.IsStatic);
+            var fieldList = new List<CsField>();
+            foreach (var fieldSymbol in fieldSymbols)
+            {
+                var fieldTypeInfo   = GetTypeInfo(types, fieldSymbol.Type); // recursive call
+                
+                var fieldAttributes = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray();
+                
+                fieldList.Add(new CsField {
+                    Name        = fieldSymbol.Name,
+                    Type        = new CsType {
+                        Name        = fieldTypeInfo.Identifier.Name,
+                        Namespace   = fieldTypeInfo.Identifier.Namespace,
+                        TypeCode    = fieldTypeInfo.TypeCode,
+                        Generics    = default,
+                        IsArray     = false
+                    },
+                    Attributes  = fieldAttributes
+                });
+            }
+            fields = fieldList.ToValueArray();
+        }
+        if (fields.Length > 0) {
+            typeCode = CsTypeCode.WgslStruct;
+            foreach (var field in fields) {
+                var fieldTypeCode = field.Type.TypeCode;
+                if (fieldTypeCode.IsWgslType) {
+                    continue;
+                }
+                typeCode = CsTypeCode.None;
+                break;
+            }
+        }
+        typeInfo = new CsTypeInfo {
+            Identifier  = type,
+            Attributes  = attributesData.ToValueArray(),
+            Fields      = fields,
+            TypeCode    = typeCode
+        };
+        types.Add(typeSymbol, typeInfo);
+        return typeInfo;
     }
     
     

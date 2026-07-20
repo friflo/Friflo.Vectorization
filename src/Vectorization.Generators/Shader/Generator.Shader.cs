@@ -48,7 +48,7 @@ public sealed partial class ShaderGen
         AttributeData?      drawVertexIndexAttr,
         Diagnostics         diagnostics)
     {
-        var types               = new Dictionary<CsTypeIdentifier, CsTypeInfo>();
+        var types               = new Dictionary<ITypeSymbol, CsTypeInfo>(SymbolEqualityComparer.Default);
         var declaringType       = MapType(types, methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
         var parameters          = new CsParameter    [methodParameters.Length];
@@ -133,6 +133,8 @@ public sealed partial class ShaderGen
             };
         }
         
+        var typeInfos =  types.Values.Where(ti => ti.TypeCode.IsWgslType).ToValueArray();
+        
         return new CsMethod {
             Name            = methodSymbol.Name,
             Hash            = hash, 
@@ -140,7 +142,7 @@ public sealed partial class ShaderGen
             Parameters      = parameters.ToValueArray(),
             Shaders         = shaders.ToValueArray(),
             DrawVertexIndex = drawVertexIndex,
-            TypeInfos       = types.Values.ToValueArray(), 
+            TypeInfos       = typeInfos, 
             Modifier        = modifier,
             MethodLoc       = methodSymbol.GetSymbolLoc()
         };
@@ -246,7 +248,7 @@ public sealed partial class ShaderGen
         return attr;
     }
 
-    private static CsType MapType(Dictionary<CsTypeIdentifier, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
+    private static CsType MapType(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
     {
         bool isArray = false;
         if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol) {
