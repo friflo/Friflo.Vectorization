@@ -54,7 +54,7 @@ public enum CsTypeCode
     WgslStruct,     // Last WGSL Type
     
     // --- non-WGSL Types
-    CSharpStruct,   // Must be direct successor of WgslStruct
+    CSharpStruct,   // A struct that cant be mapped to a WgslStruct.  Must be direct successor of WgslStruct
     Bool,           // Info: bool is part of WGSL (only on GPU)
     Enum,
     Char,
