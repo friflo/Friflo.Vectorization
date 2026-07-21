@@ -35,7 +35,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
     {
         var wgslFiles = context.AdditionalTextsProvider
             .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
-            .Select(static (text, ct) => CreateWgslFile(text, ct)).Collect();
+            .Select(static (text, ct) => WgslGenerator.CreateWgslFile(text, ct)).Collect();
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -129,7 +129,7 @@ public sealed partial class ShaderGen : IIncrementalGenerator
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
-        var result = CreateShaderMethod(blueprintMethod, hash, diagnostics);
+        var result = ShaderGenerator.CreateShaderMethod(blueprintMethod, hash, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
         }

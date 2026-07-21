@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 namespace Friflo;
 
     
-public sealed partial class ShaderGen
+internal static partial class ShaderGenerator
 {
     private static CsType GetType(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
     {

@@ -18,10 +18,9 @@ using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 namespace Friflo;
 
     
-public sealed partial class ShaderGen
+internal static partial class ShaderGenerator
 {
-
-    private static ShaderMethodResult? CreateShaderMethod(IMethodSymbol methodSymbol, string hash, Diagnostics diagnostics)
+    internal static ShaderMethodResult? CreateShaderMethod(IMethodSymbol methodSymbol, string hash, Diagnostics diagnostics)
     {
         var methodAttributes  = methodSymbol.GetAttributes();
 

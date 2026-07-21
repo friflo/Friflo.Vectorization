@@ -11,9 +11,9 @@ using Microsoft.CodeAnalysis;
 namespace Friflo;
 
 
-public sealed partial class ShaderGen
+internal static class WgslGenerator
 {
-    private static WgslFile CreateWgslFile(AdditionalText text, CancellationToken cancellationToken)
+    internal static WgslFile CreateWgslFile(AdditionalText text, CancellationToken cancellationToken)
     {
         var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
         var path    = text.Path.Replace('\\', '/');
