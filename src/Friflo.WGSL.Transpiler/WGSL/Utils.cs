@@ -54,7 +54,7 @@ public static class WgslUtils
                     NormalizedPath  = pathStr,
                     Hash            = 0,
                     Module          = null,
-                    Source          = null
+                    StructSources	= null
                 });
             }
         }

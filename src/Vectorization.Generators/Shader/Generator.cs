@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 
+// ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
@@ -68,13 +70,21 @@ public sealed class ShaderGen : IIncrementalGenerator
         }
         try {
             ulong wgslHash    = 0;
+            var structSources = new Dictionary<string, string>();
             
             // files array can be large.
             foreach (var file in files) {
+                bool addStructs = false;
                 // method.Shaders array Length typically <= 3. A HashSet<WgslFile> would be worse.
                 foreach (var shader in  method.Shaders) {
                     if (file.NormalizedPath.EndsWith(shader.path)) {
                         wgslHash ^= file.Hash;
+                        addStructs = true;
+                    }
+                }
+                if (addStructs && file.StructSources != null) {
+                    foreach (var structSource in  file.StructSources) {
+                        structSources.TryAdd(structSource.StructName, structSource.Source);   
                     }
                 }
             }
@@ -94,6 +104,11 @@ public sealed class ShaderGen : IIncrementalGenerator
             var emitShader  = new ShaderEmitter(method);
             var code        = emitShader.Emit(wgslHash, hasErrors);
             spc.AddSource(result.fileName!, code);
+            
+            if (structSources.Count > 0) {
+                var typeSource = TypeEmitter.EmitAllStructs(structSources);
+                // spc.AddSource("WgslTypes.g.cs", typeSource);
+            }
         }
         catch (Exception exception)
         {
