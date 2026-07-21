@@ -167,8 +167,6 @@ internal static partial class ShaderGenerator
                 return symbolName switch {
                     "GpuSampler"            =>  CsTypeCode.GpuSampler,
                     "GpuTextureView"        =>  CsTypeCode.GpuTextureView,
-                    "Indirect"              =>  CsTypeCode.vec4i,           // TODO  implement Duck Typing?
-                    "IndexedIndirect"       =>  CsTypeCode.IndexedIndirect, // TODO  implement Duck Typing?
                     _ => CsTypeCode.None
                 };
             default:

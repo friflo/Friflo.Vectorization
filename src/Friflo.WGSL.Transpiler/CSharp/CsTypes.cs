@@ -46,7 +46,6 @@ public enum CsTypeCode
     mat2x2h, mat3x3h, mat4x4h,
     mat2x2f, mat3x3f, mat4x4f,
     
-    IndexedIndirect,
     WgslStruct,     // Last WGSL Type
     
     // --- non-WGSL Types
