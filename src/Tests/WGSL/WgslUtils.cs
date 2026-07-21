@@ -45,7 +45,7 @@ internal static class WgslUtils
             path = path.Substring(2);
             var resourceName = "Tests." + path.Replace('/', '.'); 
             var wgsl    = ReadWgslResource(resourceName);
-            files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = null });
+            files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = null, Source = null });
         }
         return files;
     }

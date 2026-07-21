@@ -53,7 +53,8 @@ public static class WgslUtils
                     Content         = contentStr, 
                     NormalizedPath  = pathStr,
                     Hash            = 0,
-                    Module          = null
+                    Module          = null,
+                    Source          = null
                 });
             }
         }

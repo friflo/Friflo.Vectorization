@@ -11,6 +11,7 @@ public readonly struct WgslFile : IEquatable<WgslFile>
     public required     ulong       Hash            { get; init; }
     public required     string      Content         { get; init; }
     public required     WgslModule  Module          { get; init; }
+    public required     string      Source          { get; init; }
 
     public override     int         GetHashCode() => (int)Hash;
 
