@@ -38,6 +38,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         var wgslFiles = context.AdditionalTextsProvider
             .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, ct) => WgslGenerator.CreateWgslFile(text, ct)).Collect();
+        context.RegisterSourceOutput(wgslFiles, EmitAllWgslTypes);
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -49,6 +50,22 @@ public sealed class ShaderGen : IIncrementalGenerator
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
         // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
         context.RegisterSourceOutput(shaderMethod.Combine(context.CompilationProvider), EmitShader);
+    }
+    
+    private static void EmitAllWgslTypes(SourceProductionContext spc, ImmutableArray<WgslFile> files)
+    {
+        var structSources = new Dictionary<string, string>();
+        foreach (var wgslFile in files)
+        {
+            if (wgslFile.StructSources == null) continue;
+            foreach (var structSource in  wgslFile.StructSources) {
+                structSources.TryAdd(structSource.StructName, structSource.Source);   
+            }
+        }
+        if (structSources.Count > 0) {
+            var typeSource = TypeEmitter.EmitAllStructs(structSources);
+            // spc.AddSource("WgslTypes.g.cs", typeSource);
+        }
     }
     
     private static void EmitShader(
@@ -70,21 +87,13 @@ public sealed class ShaderGen : IIncrementalGenerator
         }
         try {
             ulong wgslHash    = 0;
-            var structSources = new Dictionary<string, string>();
-            
+
             // files array can be large.
             foreach (var file in files) {
-                bool addStructs = false;
                 // method.Shaders array Length typically <= 3. A HashSet<WgslFile> would be worse.
                 foreach (var shader in  method.Shaders) {
                     if (file.NormalizedPath.EndsWith(shader.path)) {
                         wgslHash ^= file.Hash;
-                        addStructs = true;
-                    }
-                }
-                if (addStructs && file.StructSources != null) {
-                    foreach (var structSource in  file.StructSources) {
-                        structSources.TryAdd(structSource.StructName, structSource.Source);   
                     }
                 }
             }
@@ -104,11 +113,6 @@ public sealed class ShaderGen : IIncrementalGenerator
             var emitShader  = new ShaderEmitter(method);
             var code        = emitShader.Emit(wgslHash, hasErrors);
             spc.AddSource(result.fileName!, code);
-            
-            if (structSources.Count > 0) {
-                var typeSource = TypeEmitter.EmitAllStructs(structSources);
-                // spc.AddSource("WgslTypes.g.cs", typeSource);
-            }
         }
         catch (Exception exception)
         {
