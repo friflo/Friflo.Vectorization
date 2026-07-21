@@ -298,4 +298,47 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_invalid_csharp_structs()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
+        [Map(2, 0)] [uniform]           in NestedStruct         myUniform,
+        [Map(2, 1)] [uniform]           EmptyStruct             empty,
+        [Map(2, 2)] [uniform]           double                  primitive);
+        
+    public struct VertexData
+    {
+        public Vector4 	position;
+        public bool 	color;
+    }
+    
+    public struct NestedStruct
+    {
+        public Child 	child;
+    }
+    
+    public struct Child
+    {
+        public Vector4 	position;
+        public bool 	color;
+    }
+    
+    public struct EmptyStruct;
+}
+""");
+    }
 }
