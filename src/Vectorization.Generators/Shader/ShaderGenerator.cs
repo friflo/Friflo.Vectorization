@@ -69,13 +69,10 @@ internal static partial class ShaderGenerator
             var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
             var (attrLoc, arg0Loc, arg1Loc) 		= attributeData.GetParamSrcLocs();
             
-            var typeError = GetParameterTypeError(paramAttribute, type, types);
-            
             parameters[n] = new CsParameter {
                 Name            = paramSymbol.Name,
                 DrawAttribute   = drawAttribute,
                 Type            = type,
-                TypeError       = typeError,
                 ParamAttribute  = paramAttribute,
                 BindGroup       = bindGroup,
                 VertexBufferSlot= vbs,
@@ -135,7 +132,7 @@ internal static partial class ShaderGenerator
             };
         }
         
-        var typeInfos =  types.Values.Where(ti => ti.TypeCode.IsWgslType).ToValueArray();
+        var typeInfos =  types.Values.Where(ti => ti.TypeCode > CsTypeCode.None && ti.TypeCode <= CsTypeCode.CSharpStruct).ToValueArray();
         
         return new CsMethod {
             Name            = methodSymbol.Name,

@@ -22,7 +22,7 @@ public static class CsExtensions
 {
     extension (CsTypeCode typeCode)
     {
-        public bool IsWgslType => typeCode is > CsTypeCode.None and <= CsTypeCode.WgslStruct; 
+        public bool IsWgslType => typeCode is > CsTypeCode.None and <= CsTypeCode.WgslStruct;
     }
     
     extension (CsTypeCode typeCode)
@@ -54,7 +54,7 @@ public enum CsTypeCode
     WgslStruct,     // Last WGSL Type
     
     // --- non-WGSL Types
-    CSharpStruct,
+    CSharpStruct,   // Must be direct successor of WgslStruct
     Bool,           // Info: bool is part of WGSL (only on GPU)
     Enum,
     Char,
@@ -222,7 +222,6 @@ public readonly record struct CsParameter
     public required     CsDrawAttribute     DrawAttribute   { get; init; }
     public required     CsParamAttribute    ParamAttribute  { get; init; }
     public required     CsType              Type            { get; init; }
-    public required     string              TypeError       { get; init; }
     public required     CsBindGroup         BindGroup       { get; init; }
     public required     int                 VertexBufferSlot{ get; init; }
     public required     CsAttrEnum          AttrEnum        { get; init; }
