@@ -96,7 +96,7 @@ public sealed partial class ShaderGen
                 if (fieldTypeCode.IsWgslType) {
                     continue;
                 }
-                typeCode = CsTypeCode.None;
+                typeCode = CsTypeCode.CSharpStruct;
                 break;
             }
         }
@@ -295,6 +295,54 @@ public sealed partial class ShaderGen
     private static bool IsTransposedMatrixName(string name, string targetDimension)
     {
         return name.IndexOf(targetDimension, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+    
+    
+    
+    private static string? GetParameterTypeError(CsParamAttribute attribute, CsType type, Dictionary<ITypeSymbol, CsTypeInfo> typeInfos)
+    {
+        switch (attribute) {
+            case CsParamAttribute.storage:
+            case CsParamAttribute.uniform:
+            case CsParamAttribute.VertexBuffer:
+                break;
+            default:
+                return null;
+        }
+        if (type.TypeCode == CsTypeCode.InBuffer || type.TypeCode == CsTypeCode.InOutBuffer) {
+            var generic = type.Generics;
+            if (generic.Length == 1) {
+                type = generic[0];
+            }
+        }
+        if (type.TypeCode.IsWgslType) {
+            return null;
+        }
+        var path        = new Stack<string>();
+        var errorType   = GetErrorPath(type, path, typeInfos);
+        if (path.Count == 0) {
+            return errorType.Name;
+        }
+        return $"{errorType.Name} at {type.Name}.{string.Join(".", path.Reverse())}";
+    }
+    
+    private static CsType GetErrorPath(in CsType type, Stack<string> path, Dictionary<ITypeSymbol, CsTypeInfo> typeInfos)
+    {
+        if ((type.TypeCode == CsTypeCode.WgslStruct || type.TypeCode == CsTypeCode.CSharpStruct) && path.Count < 10)
+        {
+            var name = type.Name;
+            var ns = type.Namespace;
+            var ti = typeInfos.Values.FirstOrDefault(ti => ti.Identifier.Name == name && ti.Identifier.Namespace == ns);
+            foreach (var field in ti.Fields) {
+                path.Push(field.Name);
+                var fieldType = GetErrorPath(field.Type, path, typeInfos);
+                if (!fieldType.TypeCode.IsWgslType) {
+                    return fieldType;
+                }
+                path.Pop();
+            }
+        }
+        return type;
     }
 
 }

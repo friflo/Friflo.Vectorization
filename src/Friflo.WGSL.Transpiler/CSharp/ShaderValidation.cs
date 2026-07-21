@@ -147,16 +147,16 @@ public static class ShaderValidation
             diags.Map(loc, parameter, sb.ToString(), DiagType.Warn);
         }
         
-        private void TypeRequirement(in CsParameter parameter, string expectedCSharpType)
+        private void TypeRequirement(in CsParameter parameter, string expectedType)
         {
-            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type requirement: {expectedCSharpType}";
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type requirement: {expectedType} - was: {parameter.Type.Name}";
             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
         }
         
-        private void ElementRequirement(in CsParameter parameter, string expectedCSharpType)
+        private void WgslTypeRequirement(in CsParameter parameter, SrcLoc typeLoc)
         {
-            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Generic Type requirement: {expectedCSharpType}";
-            diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - require WGSL Type (int, float, Vector3, ...) - was: {parameter.TypeError}";
+            diags.Add(new ValidationDiag(typeLoc, error, DiagType.Error));
         }
     }
     
@@ -260,9 +260,14 @@ public static class ShaderValidation
         var generics = parameter.Type.Generics;
         return generics.Length == 1 ? generics[0] : default;
     }
-
-    private const string ElementType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
-    private const string UniformType = "value type (struct), float, int, uint, Half,  Vector2, Vector3, Vector4, Matrix4x4";
+    
+    private static void ValidateWgslElement(in CsParameter parameter, List<ValidationDiag> diags)
+    {
+        if (GetGenericType(parameter).TypeCode.IsWgslType) {
+            return;
+        }
+        diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc); 
+    }
     
     private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags)
     {
@@ -271,24 +276,18 @@ public static class ShaderValidation
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
-                        return;
-                    }
-                    diags.ElementRequirement(parameter, ElementType);
+                    ValidateWgslElement(in parameter, diags);
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
                     return;
                 }
-                diags.TypeRequirement(parameter, UniformType);
+                diags.WgslTypeRequirement(parameter, parameter.TypeLoc);
                 return;
             
             case storage:
                 if (parameter.IsBuffer) {
-                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
-                        return;
-                    }
-                    diags.ElementRequirement(parameter, ElementType);
+                    ValidateWgslElement(in parameter, diags);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -300,10 +299,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    if (GetGenericType(parameter).TypeCode.IsWgslType) {
-                        return;
-                    }
-                    diags.ElementRequirement(parameter, ElementType);
+                    ValidateWgslElement(in parameter, diags);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -315,7 +311,7 @@ public static class ShaderValidation
                     if (typeCode == CsTypeCode.u16 || typeCode == CsTypeCode.u32) {
                         return;    
                     }
-                    diags.ElementRequirement(parameter, "ushort or uint");
+                    diags.TypeRequirement(parameter, "ushort or uint");
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
