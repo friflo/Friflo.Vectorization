@@ -29,6 +29,21 @@ public static class CsExtensions
     {
         public bool IsBuffer   => typeCode is CsTypeCode.InBuffer or CsTypeCode.InOutBuffer; 
     }
+
+    extension (ValueArray<CsTypeInfo> typeInfos)
+    {
+        public CsTypeInfo FindTypeInfo(string @namespace, string name)
+        {
+            foreach (var typeInfo in typeInfos) {
+                if (typeInfo.Identifier.Name == name &&  typeInfo.Identifier.Namespace == @namespace) {
+                    return typeInfo;
+                }
+            }
+            return default;
+        } 
+    }
+
+     
 }
 
 

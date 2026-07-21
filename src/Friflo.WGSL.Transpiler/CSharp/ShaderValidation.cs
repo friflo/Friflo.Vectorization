@@ -377,9 +377,7 @@ public static class ShaderValidation
     {
         if ((type.TypeCode == CsTypeCode.WgslStruct || type.TypeCode == CsTypeCode.CSharpStruct) && path.Count < 10)
         {
-            var name = type.Name;
-            var ns = type.Namespace;
-            var ti = typeInfos.FirstOrDefault(ti => ti.Identifier.Name == name && ti.Identifier.Namespace == ns);
+            var ti = typeInfos.FindTypeInfo(type.Namespace, type.Name);
             foreach (var field in ti.Fields) {
                 path.Push(field.Name);
                 var fieldType = GetErrorPath(field.Type, path, typeInfos);
