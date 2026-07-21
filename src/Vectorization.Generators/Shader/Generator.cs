@@ -22,7 +22,7 @@ namespace Friflo;
 
 
 [Generator]
-public sealed partial class ShaderGen : IIncrementalGenerator
+public sealed class ShaderGen : IIncrementalGenerator
 {
     // --- IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)

@@ -12,9 +12,9 @@ using Microsoft.CodeAnalysis;
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 namespace Friflo;
 
-public sealed partial class Gen
+internal static class QueryGenerator
 {
-    private static void EmitQuerySource(
+    internal static void EmitQuerySource(
         Query query,
         out string shadowMethodSource,
         out string privateSource)

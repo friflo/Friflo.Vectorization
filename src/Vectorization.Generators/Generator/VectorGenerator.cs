@@ -9,9 +9,9 @@ using Microsoft.CodeAnalysis;
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 namespace Friflo;
 
-public sealed partial class Gen
+internal static class VectorGenerator
 {
-    private static string EmitVectorSource(Query query)
+    internal static string EmitVectorSource(Query query)
     {
         var vectorTypes = query.VectorTypes;
         var vectorized  = query.vectorized;

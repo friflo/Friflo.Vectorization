@@ -20,7 +20,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Friflo;
 
 [Generator]
-public sealed partial class Gen : IIncrementalGenerator
+public sealed class Gen : IIncrementalGenerator
 {
     // --- IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -170,15 +170,15 @@ public sealed partial class Gen : IIncrementalGenerator
         string kernelMethodPrivate = "";
         var privateSource = "";
         if (vectorMode == VectorMode.Query) {
-            EmitQuerySource(query, out vectorMethodSource, out privateSource);
+            QueryGenerator.EmitQuerySource(query, out vectorMethodSource, out privateSource);
         } else {
             if (hasVectorizeAttribute && !query.vectorized) {
                 return new EmissionResult("", "", query.Diagnostics.List);
             }
-            vectorMethodSource = EmitVectorSource(query);
+            vectorMethodSource = VectorGenerator.EmitVectorSource(query);
             if (hasKernelAttribute) {
-                kernelMethodSource  = EmitKernelSource(query);
-                kernelMethodPrivate = EmitKernelPrivate(query);
+                kernelMethodSource  = KernelGenerator.EmitKernelSource(query);
+                kernelMethodPrivate = KernelGenerator.EmitKernelPrivate(query);
             }
         }
         var namespaces          = EmitNamespaces(query, hasKernelAttribute, hasVectorizeAttribute);

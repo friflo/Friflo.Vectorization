@@ -15,9 +15,9 @@ using Microsoft.CodeAnalysis;
 // Note: Used small namespace and class name to enable shorter path names in 'Generated' folders
 namespace Friflo;
 
-public sealed partial class Gen
+internal static class KernelGenerator
 {
-    private static string EmitKernelSource(Query query)
+    internal static string EmitKernelSource(Query query)
     {
         var vectorTypes = query.VectorTypes;
         var signature = new StringBuilder();
@@ -88,7 +88,7 @@ public sealed partial class Gen
       ReadOnlyStorage   = 4,
     }
     
-    private static string EmitKernelPrivate(Query query)
+    internal static string EmitKernelPrivate(Query query)
     {
         var vectorTypes = query.VectorTypes;
         
