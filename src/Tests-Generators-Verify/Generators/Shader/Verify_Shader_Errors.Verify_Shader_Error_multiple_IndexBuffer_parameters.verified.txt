@@ -4,7 +4,7 @@
       Message: [Map(0, 0)] indexBuffer1 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
@@ -16,7 +16,7 @@
       Message: [Map(0, 0)] indexBuffer2 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
@@ -28,7 +28,7 @@
       Message: Multiple_IndexBuffer_parameters - missing C# parameter [Map(0, 0)] mesh_data  ->  var<storage, read> mesh_data: TriangleStorage,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
@@ -40,7 +40,7 @@
       Message: Multiple_IndexBuffer_parameters - missing C# parameter [Map(2, 0)] myUniforms  ->  var<uniform> myUniforms: MyUniforms,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
@@ -52,7 +52,7 @@
       Message: Multiple_IndexBuffer_parameters - missing C# parameter [Map(2, 1)] model_offset  ->  var<uniform> model_offset: vec2<f32>,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,

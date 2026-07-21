@@ -8,6 +8,7 @@ using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 
+// ReSharper disable UseCollectionExpression
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InvertIf
@@ -44,7 +45,7 @@ public static partial class CodeFixer
         return fullModule;
     }
     
-    public static List<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files)
+    public static ImmutableArray<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files)
     {
         var result = new List<WgslFile>();
         foreach (var shader in method.Shaders) 
@@ -53,7 +54,7 @@ public static partial class CodeFixer
             if (file.NormalizedPath == null) continue;
             result.Add(file with { NormalizedPath = shader.path });
         }
-        return result;
+        return result.ToImmutableArray();
     }
     
     public static ShaderParamsResult CreateShaderParams(WgslModule module)

@@ -1,5 +1,6 @@
 ﻿using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler.CodeFixes;
+using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
 
 
@@ -8,12 +9,21 @@ namespace Tests.WGSL;
 
 public static class Tests_GenerateTypes
 {
+    // [Test]
+    public static void Tests_WGSL_GenerateAllTypes()
+    {
+        var files = TestWgslUtils.LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
+
+        var typeEmitter = new TypeEmitter();
+        typeEmitter.EmitAllStructs(files, "../../../../Tests/");
+    }
+    
     
     [Test]
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateTypes_1()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
         var types   = TypeGenerator.GenerateCSharpTypes(module);
         
@@ -41,7 +51,7 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_2()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
         var types   = TypeGenerator.GenerateCSharpTypes(module);
         
@@ -70,7 +80,7 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_3()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
         var types   = TypeGenerator.GenerateCSharpTypes(module);
         
@@ -91,7 +101,7 @@ public static class Tests_GenerateTypes
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_4()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_GenerateTypes));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
         var types   = TypeGenerator.GenerateCSharpTypes(module);
         

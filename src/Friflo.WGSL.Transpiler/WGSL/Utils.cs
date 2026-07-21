@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using Friflo.WGSL.Transpiler.CSharp;
 
 namespace Friflo.WGSL.Transpiler.WGSL;
 
@@ -23,21 +25,25 @@ public static class DictionaryExtensions
 
 public static class WgslUtils
 {
-    public static ImmutableDictionary<string, string> CreateDictionary(List<WgslFile> wgslFiles)
+    public static ImmutableDictionary<string, string> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, ValueArray<CsShader> shaders)
     {
         var builder = ImmutableDictionary.CreateBuilder<string, string>();
 
-        builder.Add("wgsl_length", wgslFiles.Count.ToString());
-
-        for (int i = 0; i < wgslFiles.Count; i++)
+        builder.Add("wgsl_length", wgslFiles.Length.ToString());
+        for (int i = 0; i < wgslFiles.Length; i++)
         {
             builder.Add($"wgsl_content_{i}", wgslFiles[i].Content);
             builder.Add($"wgsl_path_{i}",    wgslFiles[i].NormalizedPath);
         }
+        if (shaders.Length > 0) {
+            var shaderStrings = shaders.Select(s => s.path);
+            var shadersJoined = string.Join("|", shaderStrings);
+            builder.Add("shader_files", shadersJoined);
+        }
         return builder.ToImmutable();
     }
     
-    public static List<WgslFile> CreateWgslFiles(ImmutableDictionary<string, string> properties)
+    public static List<WgslFile> CreateWgslFiles(ImmutableDictionary<string, string> properties, out string[] shaderFiles)
     {
         var list = new List<WgslFile>();
 
@@ -53,10 +59,13 @@ public static class WgslUtils
                     Content         = contentStr, 
                     NormalizedPath  = pathStr,
                     Hash            = 0,
-                    Module          = null,
-                    StructSources	= null
+                    Module          = null
                 });
             }
+        }
+        shaderFiles = null;
+        if (properties.TryGetValue("shader_files", out var shadersJoined)) {
+            shaderFiles = shadersJoined.Split('|');
         }
         return list;
     }

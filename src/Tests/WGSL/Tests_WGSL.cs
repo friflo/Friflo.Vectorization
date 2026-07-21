@@ -13,7 +13,7 @@ public static class Tests_WGSL
     [Shader("~/shaders/triangle.wgsl")]
     public static void Tests_WGSL_Parse_triangle()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
@@ -26,7 +26,7 @@ public static class Tests_WGSL
     [Shader("~/shaders/raymarcher_no_texture.wgsl")]
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
@@ -39,7 +39,7 @@ public static class Tests_WGSL
 	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateParameters()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
@@ -58,7 +58,7 @@ public static class Tests_WGSL
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
@@ -79,7 +79,7 @@ public static class Tests_WGSL
 	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_Generate_texture_2d()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
@@ -99,7 +99,7 @@ public static class Tests_WGSL
 	[Shader("~/shaders/tests/testTextureTypes.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_Generate_textures()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         
@@ -135,7 +135,7 @@ public static class Tests_WGSL
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static void Tests_WGSL_Generate_UniformMatrix4x4()
     {
-        var files   = WgslUtils.GetShaders(typeof(Tests_WGSL));
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var result  = CodeFixer.CreateShaderParams(module);
         

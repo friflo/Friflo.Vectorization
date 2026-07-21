@@ -18,11 +18,8 @@ internal static class WgslGenerator
         var content = text.GetText(cancellationToken)?.ToString() ?? string.Empty;
         var path    = text.Path.Replace('\\', '/');
         WgslModule module;
-        StructSource[]? sources = null;
         try {
             module = WgslParser.ParseWgsl(content, path);
-            var typeEmitter = new TypeEmitter(module);
-            sources = typeEmitter.Emit();            
         }
         catch (Exception exception) {
             var type        = exception.GetType();
@@ -34,8 +31,7 @@ internal static class WgslGenerator
             NormalizedPath  = path,
             Hash            = ComputeFnv1A64(content),
             Content         = content,
-            Module          = module,
-            StructSources   = sources
+            Module          = module
         };
     }
     

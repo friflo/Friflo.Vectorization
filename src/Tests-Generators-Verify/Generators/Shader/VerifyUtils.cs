@@ -1,14 +1,15 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using Tests.WGSL;
+
 // ReSharper disable InconsistentNaming
+namespace Shader;
 
 public static class VerifyShaderUtils
 {
@@ -22,22 +23,11 @@ public static class VerifyShaderUtils
     
     public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
     {
-        if (Environment.CurrentDirectory.EndsWith("/linux-x64")) {
-            srcFolder = "../" + srcFolder; // use a specific bin folder on GitHub.  See: https://github.com/friflo/Friflo.Vectorization/blob/main/.github/workflows/generators-ci.yml#L55
-        }
-        var searchPath  = Path.GetFullPath(srcFolder);
-        if (!Directory.Exists(searchPath)) {
-            throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
-        } 
-        var fullBaseDir = searchPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        var builder     = ImmutableArray.CreateBuilder<AdditionalText>();
+        var files = TestWgslUtils.LoadAdditionalFilesRecursive(srcFolder, baseFolder);
+        var builder = ImmutableArray.CreateBuilder<AdditionalText>();
 
-        // iterate recursive all *.wgsl files
-        foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
-        {
-            var relativePath = baseFolder + Path.GetRelativePath(fullBaseDir, fullFilePath);
-            var content = File.ReadAllText(fullFilePath);
-            builder.Add(new InMemoryAdditionalText(relativePath, content));
+        foreach (var file in files) {
+            builder.Add(new InMemoryAdditionalText(file.NormalizedPath, file.Content));
         }
         return builder.ToImmutable();
     }
@@ -51,7 +41,8 @@ public static class VerifyShaderUtils
         var options = compilation.Options.WithSpecificDiagnosticOptions(
             new Dictionary<string, ReportDiagnostic> {
                 { "WGPU003", ReportDiagnostic.Suppress },
-                { "WGPU004", ReportDiagnostic.Suppress }
+                { "WGPU004", ReportDiagnostic.Suppress },
+                { "WGPU007", ReportDiagnostic.Suppress }
             });
         return compilation.WithOptions(options);
     }

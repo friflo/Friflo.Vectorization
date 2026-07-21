@@ -4,7 +4,7 @@
       Message: [Map(0, 0)] indexBuffer1 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,
@@ -16,7 +16,7 @@
       Message: [Map(0, 0)] indexBuffer2 - Shader method must not have multiple [IndexBuffer] parameters,
       Severity: Error,
       Descriptor: {
-        Id: WGPU005,
+        Id: WGPU006,
         Title: Shader Validation Error,
         MessageFormat: {0},
         Category: WGPU,

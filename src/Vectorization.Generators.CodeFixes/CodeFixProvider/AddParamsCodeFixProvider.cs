@@ -42,7 +42,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                $"Add parameters from wgsl for: {methodNode.Identifier.Text}()",
+                $"Add parameters to: {methodNode.Identifier.Text}()",
                 c => InsertParametersAsync(context.Document, methodNode.ParameterList, diagnostic, c),
                 equivalenceKey: "GenWgsl"),
             diagnostic);
@@ -54,7 +54,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         Diagnostic          diagnostic,
         CancellationToken   cancellationToken)
     {
-        var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties);
+        var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties, out _);
         if (wgslFiles == null) {
             return document;
         }

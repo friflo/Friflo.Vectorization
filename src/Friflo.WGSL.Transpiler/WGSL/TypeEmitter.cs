@@ -3,35 +3,70 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
+// ReSharper disable CanSimplifyDictionaryLookupWithTryGetValue
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.WGSL;
 
-public readonly struct StructSource
-{
-    public required string StructName   { get; init; }
-    public required string Source       { get; init; }
-} 
 
 public sealed class TypeEmitter
 {
-    private readonly    WgslModule                  module;
     private readonly    Dictionary<string, string>  structMap   = new();
+    private readonly    List<string>                fileStructs = new();
+    private             WgslModule                  module;
     
-    public TypeEmitter (WgslModule module) {
-        this.module = module;
+    public void EmitAllStructs(List<WgslFile> wgslFiles, string basePath)
+    {
+        // sort for deterministic generation
+        wgslFiles.Sort((f1, f2) => string.Compare(f1.NormalizedPath, f2.NormalizedPath, StringComparison.Ordinal));
+        var sb = new StringBuilder();
+        
+        foreach (var file in wgslFiles) {
+            try {
+                module = WgslParser.ParseWgsl(file.Content, file.NormalizedPath);
+                fileStructs.Clear();
+                EmitModule();
+                
+                if (fileStructs.Count == 0) {
+                    continue;
+                }
+                sb.Clear();
+                sb.Append("using System;\n");
+                sb.Append("using System.Numerics;\n");
+                sb.Append("\n");
+                sb.Append("// ReSharper disable CheckNamespace\n");
+                
+                sb.Append("\n");
+                foreach (var structSource in fileStructs) {
+                    sb.Append(structSource);
+                }
+            }
+            catch (Exception exception) {
+                sb.Append($"/* -------- Error parsing: {file.NormalizedPath}\n");
+                sb.Append(exception);
+                sb.Append("\n*/\n");
+            }
+            var source =  sb.ToString();
+            var path = Path.Combine(basePath, file.NormalizedPath);
+            if (path.EndsWith(".wgsl")) {
+                path = path.Substring(0, path.Length - ".wgsl".Length);
+            }
+            path += ".cs";
+            File.WriteAllText(path, source, new UTF8Encoding(false));
+        }
     }
         
-    public StructSource[] Emit()
+    private void EmitModule()
     {
         var structs = module.Structs;
         var bindings = module.Bindings;
         if (bindings.Count == 0 || structs.Count == 0) {
-            return null;
+            return;
         }
         foreach (var binding in bindings)
         {
@@ -40,17 +75,10 @@ public sealed class TypeEmitter
             if (wgslStruct == null) continue;
             AddStruct(wgslStruct);
         }
-        if (structMap.Count == 0) {
-            return null;
-        }
-        return structMap.Select((kv) => new StructSource { StructName = kv.Key, Source = kv.Value}).ToArray();
     }
     
     private void AddStruct(WgslStruct wgslStruct)
     {
-        if (structMap.ContainsKey(wgslStruct.Name)) {
-            return;
-        }
         var sb = new StringBuilder();
         sb.Clear();
         sb.Append($"public struct {wgslStruct.Name} {{\n");
@@ -60,7 +88,12 @@ public sealed class TypeEmitter
             sb.Append($"    public {csharpType} {field.Name};\n");
         }
         sb.Append("}\n\n");
+        if (structMap.ContainsKey(wgslStruct.Name)) {
+            fileStructs.Add($"/// <see cref=\"{wgslStruct.Name}\"/>  - already declared\ninternal partial class Docs;\n\n");
+            return;
+        }
         structMap.Add(wgslStruct.Name, sb.ToString());
+        fileStructs.Add(sb.ToString());
     }
     
     private string GetCSharpType(WgslType type)
@@ -109,21 +142,5 @@ public sealed class TypeEmitter
                 AddStruct(wgslStruct);
                 return typeName;
         }
-    }
-    
-    public static string EmitAllStructs(Dictionary<string, string> structSources)
-    {
-        var sb = new StringBuilder();
-        sb.Clear();
-        sb.Append("using System;\n");
-        sb.Append("using System.Numerics;\n");
-        sb.Append("\n");
-        
-        foreach (var kv in structSources)
-        {
-            var source = kv.Value;
-            sb.Append(source);
-        }
-        return sb.ToString();
     }
 }

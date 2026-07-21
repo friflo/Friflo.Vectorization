@@ -118,11 +118,19 @@ public static class Errors
         isEnabledByDefault: true);
     
     public static readonly DiagnosticDescriptor ShaderValidationWarning = new(
-        id: "WGPU005",
+        id: "WGPU006",
         title: "Shader Validation Error",
         messageFormat: "{0}",
         category: "WGPU",
         defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+    
+    public static readonly DiagnosticDescriptor GenerateCSharpTypes = new(
+        id: "WGPU007",
+        title: "Generate C# Types from WGSL",
+        messageFormat: "Generate C# Types for: '{0}'",
+        category: "WGPU",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
 }

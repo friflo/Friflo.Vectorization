@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -38,7 +37,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         var wgslFiles = context.AdditionalTextsProvider
             .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, ct) => WgslGenerator.CreateWgslFile(text, ct)).Collect();
-        context.RegisterSourceOutput(wgslFiles, EmitAllWgslTypes);
+        // context.RegisterSourceOutput(wgslFiles, EmitAllWgslTypes);   TODO remove
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -52,7 +51,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         context.RegisterSourceOutput(shaderMethod.Combine(context.CompilationProvider), EmitShader);
     }
     
-    private static void EmitAllWgslTypes(SourceProductionContext spc, ImmutableArray<WgslFile> files)
+    /* private static void EmitAllWgslTypes(SourceProductionContext spc, ImmutableArray<WgslFile> files)
     {
         var structSources = new Dictionary<string, string>();
         foreach (var wgslFile in files)
@@ -66,7 +65,7 @@ public sealed class ShaderGen : IIncrementalGenerator
             var typeSource = TypeEmitter.EmitAllStructs(structSources);
             // spc.AddSource("WgslTypes.g.cs", typeSource);
         }
-    }
+    } */
     
     private static void EmitShader(
         SourceProductionContext spc,
@@ -165,7 +164,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         var location        = method.MethodLoc.GetFreshLocation(compilation);
         
         var filteredFiles   = CodeFixer.FilterFiles(method, files);
-        var properties      = WgslUtils.CreateDictionary(filteredFiles);
+        var properties      = WgslUtils.CreateDictionary(filteredFiles, default);
         
         if (generateParameters)
         {
@@ -179,6 +178,11 @@ public sealed class ShaderGen : IIncrementalGenerator
         } {
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
+        } {
+            var allFiles = WgslUtils.CreateDictionary(files, default);
+            var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, messageArgs: method.Name, properties: allFiles);
+            spc.ReportDiagnostic(diagnostic);
+            
         }
     }
 }

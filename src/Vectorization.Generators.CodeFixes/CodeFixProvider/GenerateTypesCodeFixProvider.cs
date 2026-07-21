@@ -14,10 +14,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo.CodeFixes;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddTypesCodeFixProvider)), Shared]
-public class AddTypesCodeFixProvider : CodeFixProvider
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(GenerateTypesCodeFixProvider)), Shared]
+public class GenerateTypesCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU004"];
+    public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU007"];
 
     public override FixAllProvider? GetFixAllProvider() => null; // null -> fix only specific method - was: WellKnownFixAllProviders.BatchFixer; 
 
@@ -36,9 +36,9 @@ public class AddTypesCodeFixProvider : CodeFixProvider
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                $"Add types from wgsl for: {methodNode.Identifier.Text}()",
+                $"Generate types for: {methodNode.Identifier.Text}()",
                 c => InsertTypesAsync(context.Document, methodNode, diagnostic, c),
-                equivalenceKey: "GenWgslTypes"),
+                equivalenceKey: "GenC#lTypes"),
             diagnostic);
     }
 
@@ -52,23 +52,10 @@ public class AddTypesCodeFixProvider : CodeFixProvider
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
-        var module = CodeFixer.ParseWgslFiles(wgslFiles);
-        var result = TypeGenerator.GenerateCSharpTypes(module);
-        if (result.Types == "") {
-            // add only comment
-            var updatedMethod = method
-                .WithSemicolonToken(method.SemicolonToken.WithTrailingTrivia(
-                    SyntaxFactory.LineFeed,
-                    SyntaxFactory.Comment(result.Comments), 
-                    SyntaxFactory.CarriageReturnLineFeed));
+        var typeEmitter = new TypeEmitter();
+        typeEmitter.EmitAllStructs(wgslFiles, "");
 
-            return document.WithSyntaxRoot(root.ReplaceNode(method, updatedMethod));
-        }
-        // add comment + types
-        var text        = "    \n" + result.Comments + result.Types;
-        var newTypes    = SyntaxFactory.ParseCompilationUnit(text).Members;
-        var newRoot     = root.InsertNodesAfter(method, newTypes);
-        return document.WithSyntaxRoot(newRoot);
+        return document;
     }
 }
 
