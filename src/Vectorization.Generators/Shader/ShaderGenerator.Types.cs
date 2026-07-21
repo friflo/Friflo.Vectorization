@@ -307,7 +307,7 @@ internal static partial class ShaderGenerator
             default:
                 return null;
         }
-        if (type.TypeCode == CsTypeCode.InBuffer || type.TypeCode == CsTypeCode.InOutBuffer) {
+        if (type.TypeCode.IsBuffer) {
             var generic = type.Generics;
             if (generic.Length == 1) {
                 type = generic[0];

@@ -263,13 +263,7 @@ internal static partial class ShaderGenerator
 
         if (typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
         {
-             bool getFieldTypes = type.TypeCode switch {
-                CsTypeCode.InBuffer     => true,
-                CsTypeCode.InOutBuffer  => true,
-                CsTypeCode.Span         => true,
-                CsTypeCode.ReadOnlySpan => true,
-                _                       => false
-            };
+            bool getFieldTypes = type.TypeCode.IsBuffer;
             foreach (var typeArg in namedType.TypeArguments)
             {
                 var fieldType = GetType(types, typeArg, getFieldTypes);

@@ -24,6 +24,11 @@ public static class CsExtensions
     {
         public bool IsWgslType => typeCode is > CsTypeCode.None and <= CsTypeCode.WgslStruct; 
     }
+    
+    extension (CsTypeCode typeCode)
+    {
+        public bool IsBuffer   => typeCode is CsTypeCode.InBuffer or CsTypeCode.InOutBuffer; 
+    }
 }
 
 
@@ -239,7 +244,7 @@ public readonly record struct CsParameter
     
     public bool IsResource          => !(ParamAttribute == CsParamAttribute.uniform && !IsBuffer);
     
-    public bool IsBuffer            => Type.TypeCode is CsTypeCode.InBuffer or CsTypeCode.InOutBuffer;
+    public bool IsBuffer            => Type.TypeCode.IsBuffer;
 
     public StringBuilder AppendString(StringBuilder sb)
     {
