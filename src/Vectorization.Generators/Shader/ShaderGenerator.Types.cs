@@ -89,7 +89,9 @@ internal static partial class ShaderGenerator
             }
             fields = fieldList.ToValueArray();
         }
-        if (fields.Length > 0) {
+        if (fields.Length == 0) {
+            typeCode = CsTypeCode.CSharpStruct;
+        } else {
             typeCode = CsTypeCode.WgslStruct;
             foreach (var field in fields) {
                 var fieldTypeCode = field.Type.TypeCode;
