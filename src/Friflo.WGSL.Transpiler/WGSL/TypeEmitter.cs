@@ -19,6 +19,7 @@ public sealed class TypeEmitter
     private readonly    Dictionary<string, string>  structMap   = new();
     private readonly    List<string>                fileStructs = new();
     private             WgslModule                  module;
+    private             string                      fileNamespace;
     
     public void EmitAllStructs(List<WgslFile> wgslFiles, string basePath)
     {
@@ -30,6 +31,8 @@ public sealed class TypeEmitter
             try {
                 module = WgslParser.ParseWgsl(file.Content, file.NormalizedPath);
                 fileStructs.Clear();
+                fileNamespace = PathToNamespace(file.NormalizedPath);
+                
                 EmitModule();
                 
                 if (fileStructs.Count == 0) {
@@ -40,7 +43,7 @@ public sealed class TypeEmitter
                 sb.Append("using System.Numerics;\n");
                 sb.Append("\n");
                 sb.Append("// ReSharper disable CheckNamespace\n");
-                
+                sb.Append($"namespace {fileNamespace};\n");
                 sb.Append("\n");
                 foreach (var structSource in fileStructs) {
                     sb.Append(structSource);
@@ -88,11 +91,14 @@ public sealed class TypeEmitter
             sb.Append($"    public {csharpType} {field.Name};\n");
         }
         sb.Append("}\n\n");
-        if (structMap.ContainsKey(wgslStruct.Name)) {
-            fileStructs.Add($"/// <see cref=\"{wgslStruct.Name}\"/>  - already declared\ninternal partial class Docs;\n\n");
+        var source = sb.ToString();
+        var fullQualifiedName = $"{fileNamespace}-{wgslStruct.Name}";
+        if (structMap.TryGetValue(fullQualifiedName, out var curSource)) {
+            var diff = source == curSource ? "Same definition at" : "DIFFERENT definition at";
+            fileStructs.Add($"/// {diff} <see cref=\"{wgslStruct.Name}\"/>\ninternal partial struct Info;\n\n");
             return;
         }
-        structMap.Add(wgslStruct.Name, sb.ToString());
+        structMap.Add(fullQualifiedName, sb.ToString());
         fileStructs.Add(sb.ToString());
     }
     
@@ -142,5 +148,20 @@ public sealed class TypeEmitter
                 AddStruct(wgslStruct);
                 return typeName;
         }
+    }
+    
+    public static string PathToNamespace(string path, string root = "")
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (string.IsNullOrEmpty(dir)) return root;
+
+        var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var p = parts[i];
+            var rest = p.Length > 1 ? p.Substring(1) : "";
+            parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
+        }
+        return $"{root}{string.Join(".", parts)}";
     }
 }
