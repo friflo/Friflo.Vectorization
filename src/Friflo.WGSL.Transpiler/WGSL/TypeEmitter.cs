@@ -114,16 +114,19 @@ public sealed class TypeEmitter
             var file = entry.file;
             var normalizedPath = file.NormalizedPath;
             try {
-                module = WgslParser.ParseWgsl(file.Content, normalizedPath);
+                // --- clear state first!
+                sb.Clear();
                 fileStructs.Clear();
                 fileNamespace = PathToNamespace(normalizedPath);
+                
+                // --- process after
+                module = WgslParser.ParseWgsl(file.Content, normalizedPath);
                 
                 EmitModule();
                 
                 if (fileStructs.Count == 0) {
                     continue;
                 }
-                sb.Clear();
                 sb.Append("using System;\n");
                 sb.Append("using System.Numerics;\n");
                 sb.Append("using Friflo.Vectorization.WebGPU;\n");
