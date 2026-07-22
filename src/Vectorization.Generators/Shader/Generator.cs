@@ -168,8 +168,8 @@ public sealed class ShaderGen : IIncrementalGenerator
                 spc.ReportDiagnostic(diagnostic);
             }*/
         } {
-            var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
-            spc.ReportDiagnostic(diagnostic);
+            // var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
+            // spc.ReportDiagnostic(diagnostic);
         } {
             var allFiles = WgslUtils.CreateDictionary(files, projDir, default);
             var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: allFiles);

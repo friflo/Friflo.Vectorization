@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // ReSharper disable CheckNamespace
 namespace Friflo.CodeFixes;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddTypesCodeFixProvider)), Shared]
+// [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddTypesCodeFixProvider)), Shared]
 public class AddTypesCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU004"];
