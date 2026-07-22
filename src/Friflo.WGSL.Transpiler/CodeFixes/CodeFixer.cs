@@ -34,7 +34,7 @@ public static partial class CodeFixer
         return default;
     }
     
-    public static WgslModule ParseWgslFiles(List<WgslFile> files)
+    public static WgslModule ParseWgslFiles(WgslFile[] files)
     {
         var fullModule = new WgslModule();
         foreach (var file in files) 

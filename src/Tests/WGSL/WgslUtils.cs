@@ -28,7 +28,7 @@ public static class TestWgslUtils
         return reader.ReadToEnd();
     }
     
-    public static List<WgslFile> GetShaders(Type type, [CallerMemberName] string callerName = "")
+    public static WgslFile[] GetShaders(Type type, [CallerMemberName] string callerName = "")
     {
         var methodInfo = type.GetMethod(callerName);
         if (methodInfo == null) throw new InvalidOperationException("Could not find method " + callerName);
@@ -48,10 +48,10 @@ public static class TestWgslUtils
             var wgsl    = ReadWgslResource(resourceName);
             files.Add(new WgslFile { NormalizedPath = path, Content = wgsl, Hash = 0, Module = null });
         }
-        return files;
+        return files.ToArray();
     }
     
-    public static List<WgslFile> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
+    public static WgslFile[] LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
     {
         if (Environment.CurrentDirectory.EndsWith("/linux-x64")) {
             srcFolder = "../" + srcFolder; // use a specific bin folder on GitHub.  See: https://github.com/friflo/Friflo.Vectorization/blob/main/.github/workflows/generators-ci.yml#L55
@@ -70,6 +70,6 @@ public static class TestWgslUtils
             var content = File.ReadAllText(fullFilePath);
             list.Add(new WgslFile{ NormalizedPath = relativePath, Content = content, Hash =  0, Module = null });
         }
-        return list;
+        return list.ToArray();
     }
 }

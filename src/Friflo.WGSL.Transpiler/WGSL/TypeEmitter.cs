@@ -14,26 +14,37 @@ using System.Text;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
+internal struct StructCode {
+    public string source;
+    public bool   alreadyDeclared;
+}
+
 public sealed class TypeEmitter
 {
     private readonly    Dictionary<string, string>  structMap   = new();
-    private readonly    List<string>                fileStructs = new();
+    private readonly    List<StructCode>            fileStructs = new();
     private             WgslModule                  module;
     private             string                      fileNamespace;
+
     
-    public void EmitAllStructs(List<WgslFile> wgslFiles, string basePath, string projDir)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string basePath, string projDir)
     {
+        for (int n = 0; n < wgslFiles.Length; n++) {
+            var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length);
+            wgslFiles[n] = wgslFiles[n] with{ NormalizedPath =  path };
+        }
+        
         // sort for deterministic generation
-        wgslFiles.Sort((f1, f2) => string.Compare(f1.NormalizedPath, f2.NormalizedPath, StringComparison.Ordinal));
+        Array.Sort(wgslFiles, (f1, f2) => string.Compare(f1.NormalizedPath, f2.NormalizedPath, StringComparison.Ordinal));
         var sb = new StringBuilder();
         
         foreach (var file in wgslFiles)
         {
-            var relativePath = file.NormalizedPath.Substring(projDir.Length);
+            var normalizedPath = file.NormalizedPath;
             try {
-                module = WgslParser.ParseWgsl(file.Content, relativePath);
+                module = WgslParser.ParseWgsl(file.Content, normalizedPath);
                 fileStructs.Clear();
-                fileNamespace = PathToNamespace(relativePath);
+                fileNamespace = PathToNamespace(normalizedPath);
                 
                 EmitModule();
                 
@@ -43,16 +54,20 @@ public sealed class TypeEmitter
                 sb.Clear();
                 sb.Append("using System;\n");
                 sb.Append("using System.Numerics;\n");
+                sb.Append("using Friflo.Vectorization.WebGPU;\n");
                 sb.Append("\n");
                 sb.Append("// ReSharper disable CheckNamespace\n");
                 sb.Append($"namespace {fileNamespace};\n");
                 sb.Append("\n\n");
                 foreach (var structSource in fileStructs) {
-                    sb.Append(structSource);
+                    if (!structSource.alreadyDeclared) {
+                        sb.Append($"[Source(\"~/{normalizedPath}\")]\n");
+                    } 
+                    sb.Append(structSource.source);
                 }
             }
             catch (Exception exception) {
-                sb.Append($"/* -------- Error parsing: {relativePath}\n");
+                sb.Append($"/* -------- Error parsing: {normalizedPath}\n");
                 sb.Append(exception);
                 sb.Append("\n*/\n");
             }
@@ -90,15 +105,19 @@ public sealed class TypeEmitter
             sb.Append($"    public {csharpType} {field.Name};\n");
         }
         sb.Append("}\n\n");
-        var source = sb.ToString();
-        var fullQualifiedName = $"{fileNamespace}-{wgslStruct.Name}";
+        var source              = sb.ToString();
+        var alreadyDeclared     = false;
+        var fullQualifiedName   = $"{fileNamespace}-{wgslStruct.Name}";
+        
         if (structMap.TryGetValue(fullQualifiedName, out var curSource)) {
-            var diff = source == curSource ? "Same definition at" : "DIFFERENT definition at";
-            fileStructs.Add($"/// {diff} <see cref=\"{wgslStruct.Name}\"/>\ninternal partial struct Info;\n\n");
-            return;
+            if (source == curSource) {
+                source = $"/// Same as <see cref=\"{wgslStruct.Name}\"/>\ninternal partial struct Info;\n\n";
+                alreadyDeclared = true;
+            }
+        } else {
+            structMap.Add(fullQualifiedName, source);
         }
-        structMap.Add(fullQualifiedName, sb.ToString());
-        fileStructs.Add(sb.ToString());
+        fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
     
     private string GetCSharpType(WgslType type)

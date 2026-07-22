@@ -46,7 +46,7 @@ public static class WgslUtils
         return builder.ToImmutable();
     }
     
-    public static List<WgslFile> CreateWgslFiles(ImmutableDictionary<string, string> properties, out string[] shaderFiles)
+    public static WgslFile[] CreateWgslFiles(ImmutableDictionary<string, string> properties, out string[] shaderFiles)
     {
         var list = new List<WgslFile>();
 
@@ -70,6 +70,6 @@ public static class WgslUtils
         if (properties.TryGetValue("shader_files", out var shadersJoined)) {
             shaderFiles = shadersJoined.Split('|');
         }
-        return list;
+        return list.ToArray();
     }
 }
