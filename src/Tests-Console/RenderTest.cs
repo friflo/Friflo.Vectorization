@@ -47,8 +47,8 @@ public partial class Renderer : IRenderer
     protected readonly  Wgpu                    wgpu;
     protected readonly  PerfLog                 perfLog             = new();
     protected readonly  InView<VertexData>      rectangle;
-    protected           MyUniform               myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
-    protected           Wormhood.Uniforms       wormhood;
+    protected           MyUniforms              myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
+    protected           ShadertoyUniforms       wormhood;
     protected readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
     protected           GpuRenderPassDescriptor renderPassDescriptor= new () { colorAttachments = [ default ] };
     
@@ -72,8 +72,8 @@ public partial class Renderer : IRenderer
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
         var model_offset 		= new Vector2(0.1f * MathF.Cos(time * 2), 0);
-        wormhood.IResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
-        wormhood.ITime          = time;
+        wormhood.iResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
+        wormhood.iTime          = time;
         
         Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
         DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
@@ -82,26 +82,11 @@ public partial class Renderer : IRenderer
 	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
-        [Map(2, 0)] [uniform]           in MyUniform            myUniform,
+        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
         [Map(2, 1)] [uniform]           Vector2                 model_offset);
 }
 
 
-
-
-[StructLayout(LayoutKind.Sequential, Size = 32)]
-public struct VertexData(Vector4 position, Vector4 color)
-{
-    public Vector4 	position    = position;
-    public Vector4 	color       = color;
-}
-
-[StructLayout(LayoutKind.Sequential, Size = 16)]
-public struct MyUniform
-{
-    public Vector4 	tint_color;
-    public Vector4 	model_offset;
-}
 
 public static partial class Wormhood
 {
@@ -109,14 +94,5 @@ public static partial class Wormhood
     [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform] in Uniforms uniforms);
-     
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Uniforms
-    {
-        public  Vector3     IResolution;
-        private float       _pad;       // 16-Byte Alignment for Vector3
-        public  float       ITime;
-        private Vector3     _pad2;      // fill block for 16 byte alignment
-    }
+        [Map(0, 0)] [uniform] in ShadertoyUniforms uniforms);
 }

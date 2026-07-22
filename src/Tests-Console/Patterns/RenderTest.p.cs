@@ -14,7 +14,7 @@ public partial class Renderer
         RenderPass              pass,
         RenderConfig            config,
         InBuffer<VertexData>    triangles,
-        in MyUniform            myUniform,
+        in MyUniforms           myUniform,
         Vector2                 model_offset)
 	{
         var buffers =
@@ -45,7 +45,7 @@ public partial class Renderer
         
         // --- bind group 2
         if (!bindGroupCache.bindGroup_2.IsCreated) {
-            recorder.BindGroupEntryUniform<MyUniform>(0);
+            recorder.BindGroupEntryUniform<MyUniforms>(0);
             recorder.BindGroupEntryUniform<Vector2>(1);
             bindGroupCache.bindGroup_2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "Triangles_bindGroup_2"u8);
         }

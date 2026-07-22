@@ -11,6 +11,7 @@ struct TriangleStorage {
 // --- uniform structs
 struct MyUniforms {
     tint_color:   vec4<f32>,
+    model_offset: vec4<f32>,
 }
 
 
