@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+// ReSharper disable UnusedMember.Local
 // ReSharper disable CanSimplifyDictionaryLookupWithTryGetValue
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToPrimaryConstructor
@@ -37,6 +38,22 @@ public sealed class TypeEmitter
             sb.Append($"{file.NormalizedPath}\n");
         }
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
+    }
+    
+    
+    private static string PathToNamespace(string path, string root = "")
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (string.IsNullOrEmpty(dir)) return root;
+
+        var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var p = parts[i];
+            var rest = p.Length > 1 ? p.Substring(1) : "";
+            parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
+        }
+        return $"{root}{string.Join(".", parts)}";
     }
     
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir)
@@ -180,20 +197,5 @@ public sealed class TypeEmitter
                 AddStruct(wgslStruct);
                 return typeName;
         }
-    }
-    
-    public static string PathToNamespace(string path, string root = "")
-    {
-        var dir = Path.GetDirectoryName(path);
-        if (string.IsNullOrEmpty(dir)) return root;
-
-        var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < parts.Length; i++)
-        {
-            var p = parts[i];
-            var rest = p.Length > 1 ? p.Substring(1) : "";
-            parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
-        }
-        return $"{root}{string.Join(".", parts)}";
     }
 }
