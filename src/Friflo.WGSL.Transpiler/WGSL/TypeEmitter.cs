@@ -22,8 +22,8 @@ internal struct StructCode {
 
 internal struct FileEntry : IComparable<FileEntry>
 {
-    internal    string[]    path;       // priority 1 small Length,   priority 2  element Alphabetical
-    internal    bool        isCommon;   // priority 3 (true)
+    internal    string[]    path;       // priority 1 small Length,   priority 3  element Alphabetical
+    internal    bool        isCommon;   // priority 2 (true)
     internal    WgslFile    file;
 
     public override string  ToString() => file.NormalizedPath;
@@ -32,12 +32,15 @@ internal struct FileEntry : IComparable<FileEntry>
     {
         int cmp = path.Length.CompareTo(other.path.Length);
         if (cmp != 0) return cmp;
-        
+
+        cmp = other.isCommon.CompareTo(isCommon);
+        if (cmp != 0) return cmp;
+
         for (int i = 0; i < path.Length; i++) {
             cmp = string.Compare(path[i], other.path[i], StringComparison.OrdinalIgnoreCase);
             if (cmp != 0) return cmp;
         }
-        return other.isCommon.CompareTo(isCommon);
+        return 0;
     }
 }
 
