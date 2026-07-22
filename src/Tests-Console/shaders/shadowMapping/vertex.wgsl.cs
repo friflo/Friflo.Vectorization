@@ -7,7 +7,7 @@ using Friflo.Vectorization.WebGPU;
 namespace Shaders.ShadowMapping;
 
 
-/// Skipped identical duplicate of struct <see cref="Scene"/>
+/// Skipped identical duplicate of  <see cref="Scene"/>
 internal partial struct _info;
 
 [Source("~/shaders/shadowMapping/vertex.wgsl")]

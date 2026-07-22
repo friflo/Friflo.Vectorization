@@ -16,7 +16,7 @@ public struct VertexData (
     public Vector4 color = color;
 }
 
-/// Skipped identical duplicate of struct <see cref="VertexData"/>
+/// Skipped identical duplicate of  <see cref="VertexData"/>
 internal partial struct _info;
 
 [Source("~/shaders/renderTest/triangle.wgsl")]

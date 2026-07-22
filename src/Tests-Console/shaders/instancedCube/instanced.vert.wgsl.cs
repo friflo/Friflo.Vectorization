@@ -7,6 +7,6 @@ using Friflo.Vectorization.WebGPU;
 namespace Shaders.InstancedCube;
 
 
-/// Skipped identical duplicate of struct <see cref="Uniforms"/>
+/// Skipped identical duplicate of  <see cref="Uniforms"/>
 internal partial struct _info;
 
