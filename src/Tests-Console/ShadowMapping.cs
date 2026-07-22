@@ -142,7 +142,7 @@ public partial class Renderer : IRenderer
     private   readonly  GpuTextureView          shadowDepthTextureView;              
     private   readonly  PerfLog                 perfLog             = new();
     private             Scene                   scene;
-    private   readonly  Model                   model = new() { modelMatrix = Matrix4x4.CreateTranslation(new Vector3(0, -45, 0)) };
+    private   readonly  Model                   model = new(Matrix4x4.CreateTranslation(new Vector3(0, -45, 0)));
     
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
     private   readonly  GpuRenderPassDescriptor shadowPassDescriptor;
