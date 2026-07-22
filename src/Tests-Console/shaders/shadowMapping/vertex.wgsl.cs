@@ -8,7 +8,7 @@ namespace Shaders.ShadowMapping;
 
 
 /// Skipped identical duplicate of  <see cref="Scene"/>
-internal partial struct _info;
+file partial class _info;
 
 [Source("~/shaders/shadowMapping/vertex.wgsl")]
 public struct Model (

@@ -8,5 +8,5 @@ namespace Shaders.InstancedCube;
 
 
 /// Skipped identical duplicate of  <see cref="Uniforms"/>
-internal partial struct _info;
+file partial class _info;
 

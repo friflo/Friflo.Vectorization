@@ -8,8 +8,8 @@ namespace Shaders.ShadowMapping;
 
 
 /// Skipped identical duplicate of  <see cref="Scene"/>
-internal partial struct _info;
+file partial class _info;
 
 /// Skipped identical duplicate of  <see cref="Model"/>
-internal partial struct _info;
+file partial class _info;
 

@@ -187,7 +187,7 @@ public sealed class TypeEmitter
         
         if (structMap.TryGetValue(fullQualifiedName, out var curSource)) {
             if (source == curSource) {
-                source = $"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\ninternal partial struct _info;\n\n";
+                source = $"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n";
                 alreadyDeclared = true;
             }
         } else {

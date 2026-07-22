@@ -17,7 +17,7 @@ public struct VertexData (
 }
 
 /// Skipped identical duplicate of  <see cref="VertexData"/>
-internal partial struct _info;
+file partial class _info;
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
 public struct TriangleStorage (
