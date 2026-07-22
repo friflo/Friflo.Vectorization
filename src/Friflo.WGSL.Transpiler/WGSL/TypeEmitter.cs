@@ -25,6 +25,7 @@ public sealed class TypeEmitter
     private readonly    Dictionary<string, string>  structMap   = new();
     private readonly    List<StructCode>            fileStructs = new();
     private             WgslModule                  module;
+    private             string                      fileNamespace;
 
     
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
@@ -87,7 +88,7 @@ public sealed class TypeEmitter
             try {
                 module = WgslParser.ParseWgsl(file.Content, normalizedPath);
                 fileStructs.Clear();
-                // fileNamespace = PathToNamespace(normalizedPath);
+                fileNamespace = PathToNamespace(normalizedPath);
                 
                 EmitModule();
                 
@@ -101,7 +102,7 @@ public sealed class TypeEmitter
                 sb.Append("\n");
                 sb.Append("// ReSharper disable CheckNamespace\n");
                 sb.Append("// ReSharper disable InconsistentNaming\n");
-                sb.Append($"namespace Shaders.Layout;\n");
+                sb.Append($"namespace {fileNamespace};\n");
                 sb.Append("\n\n");
                 foreach (var structSource in fileStructs) {
                     if (!structSource.alreadyDeclared) {
@@ -151,15 +152,15 @@ public sealed class TypeEmitter
         sb.Append("}\n\n");
         var source          = sb.ToString();
         var alreadyDeclared = false;
-        var structName      = wgslStruct.Name;
+        var fullQualifiedName   = $"{fileNamespace}-{wgslStruct.Name}";
         
-        if (structMap.TryGetValue(wgslStruct.Name, out var curSource)) {
+        if (structMap.TryGetValue(fullQualifiedName, out var curSource)) {
             if (source == curSource) {
                 source = $"/// Skipped identical duplicate of struct <see cref=\"{wgslStruct.Name}\"/>\ninternal partial struct _info;\n\n";
                 alreadyDeclared = true;
             }
         } else {
-            structMap.Add(structName, source);
+            structMap.Add(fullQualifiedName, source);
         }
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
