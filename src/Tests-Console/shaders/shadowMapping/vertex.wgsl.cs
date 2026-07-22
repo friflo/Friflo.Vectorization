@@ -11,7 +11,9 @@ namespace Shaders.ShadowMapping;
 internal partial struct _info;
 
 [Source("~/shaders/shadowMapping/vertex.wgsl")]
-public struct Model {
-    public Matrix4x4 modelMatrix;
+public struct Model (
+    Matrix4x4 modelMatrix)
+{
+    public Matrix4x4 modelMatrix = modelMatrix;
 }
 

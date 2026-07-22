@@ -168,11 +168,17 @@ public sealed class TypeEmitter
     {
         var sb = new StringBuilder();
         sb.Clear();
-        sb.Append($"public struct {wgslStruct.Name} {{\n");
-        foreach (var field in wgslStruct.Fields)
-        {
+        sb.Append($"public struct {wgslStruct.Name} (\n");
+        foreach (var field in wgslStruct.Fields) {
             var csharpType = GetCSharpType(field.WgslType);
-            sb.Append($"    public {csharpType} {field.Name};\n");
+            sb.Append($"    {csharpType} {field.Name},\n");
+        }
+        sb.Length -= 2;
+        sb.Append(")\n");
+        sb.Append("{\n");
+        foreach (var field in wgslStruct.Fields) {
+            var csharpType = GetCSharpType(field.WgslType);
+            sb.Append($"    public {csharpType} {field.Name} = {field.Name};\n");
         }
         sb.Append("}\n\n");
         var source          = sb.ToString();

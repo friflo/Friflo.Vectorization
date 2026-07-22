@@ -8,7 +8,9 @@ namespace Shaders.InstancedCube;
 
 
 [Source("~/shaders/instancedCube/instanced.storage.vert.wgsl")]
-public struct Uniforms {
-    public Matrix4x4 modelViewProjectionMatrix;
+public struct Uniforms (
+    Matrix4x4 modelViewProjectionMatrix)
+{
+    public Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
 }
 

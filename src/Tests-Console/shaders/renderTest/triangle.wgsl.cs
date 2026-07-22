@@ -8,20 +8,30 @@ namespace Shaders.RenderTest;
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-public struct VertexData(Vector4 position, Vector4 color)
+public struct VertexData (
+    Vector4 position,
+    Vector4 color)
 {
     public Vector4 position = position;
     public Vector4 color = color;
 }
 
+/// Skipped identical duplicate of struct <see cref="VertexData"/>
+internal partial struct _info;
+
 [Source("~/shaders/renderTest/triangle.wgsl")]
-public struct TriangleStorage {
-    public VertexData triangles;
+public struct TriangleStorage (
+    VertexData triangles)
+{
+    public VertexData triangles = triangles;
 }
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-public struct MyUniforms {
-    public Vector4 tint_color;
-    public Vector4 model_offset;
+public struct MyUniforms (
+    Vector4 tint_color,
+    Vector4 model_offset)
+{
+    public Vector4 tint_color = tint_color;
+    public Vector4 model_offset = model_offset;
 }
 
