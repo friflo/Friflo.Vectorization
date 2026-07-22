@@ -57,11 +57,8 @@ public sealed class TypeEmitter
                 sb.Append("\n*/\n");
             }
             var source =  sb.ToString();
-            var path = Path.Combine(basePath, file.NormalizedPath);
-            if (path.EndsWith(".wgsl")) {
-                path = path.Substring(0, path.Length - ".wgsl".Length);
-            }
-            path += ".cs";
+            var path = Path.Combine(basePath, file.NormalizedPath) + ".cs";
+
             File.WriteAllText(path, source, new UTF8Encoding(false));
         }
     }
