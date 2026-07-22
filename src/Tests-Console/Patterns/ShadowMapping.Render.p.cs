@@ -6,9 +6,9 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-namespace TestConsole;
+namespace Shaders.ShadowMapping;
 
-public partial class ShadowMapping
+public partial class Renderer
 {
     private static void Pattern_Render(
         RenderPass          pass,
@@ -100,7 +100,7 @@ public partial class ShadowMapping
         }
         layouts[1] = layout_1;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ShadowMapping), Render_GPU_Shaders, "Render_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Renderer), Render_GPU_Shaders, "Render_pipeline"u8);
 
         var bindGroupCache = new Render_GPU_Cache();
         return ref device.CreatePipelineCache(Render_GPU_ShaderId, config, Render_GPU_WgslHash, pipeline, layouts, bindGroupCache);

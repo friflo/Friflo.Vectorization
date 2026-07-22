@@ -5,9 +5,9 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-namespace TestConsole;
+namespace Shaders.TexturedCube;
 
-public partial class TexturedCube
+public partial class Renderer
 {
     private static void Pattern_RenderCube(
         RenderPass      pass,
@@ -80,7 +80,7 @@ public partial class TexturedCube
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(TexturedCube), TextureTest_GPU_Shaders, "TextureTest_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Renderer), TextureTest_GPU_Shaders, "TextureTest_pipeline"u8);
 
         var bindGroupCache = new TextureTest_GPU_Cache();
         return ref device.CreatePipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash, pipeline, layouts, bindGroupCache);

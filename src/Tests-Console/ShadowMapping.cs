@@ -3,11 +3,12 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.ShadowMapping;
 
-public partial class ShadowMapping : IRenderer
+public partial class Renderer : IRenderer
 {
     // --- IDisposable fields
     private readonly    GpuBuffer<Vector3>  vertexBuffer;
@@ -26,7 +27,7 @@ public partial class ShadowMapping : IRenderer
         vertexBuffer.Dispose();
     }
     
-    public ShadowMapping(Wgpu wgpu)
+    public Renderer(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;

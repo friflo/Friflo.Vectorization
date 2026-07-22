@@ -2,14 +2,15 @@
 using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using TestConsole;
 
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.InstancedCube;
 
-public partial class InstancedCube : IRenderer
+public partial class Renderer : IRenderer
 {
     // --- IDisposable fields
     private readonly    GpuBuffer<float>        verticesBuffer;
@@ -28,7 +29,7 @@ public partial class InstancedCube : IRenderer
         verticesBuffer.Dispose();
     }
     
-    public InstancedCube(Wgpu wgpu)
+    public Renderer(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;

@@ -4,11 +4,12 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using StbImageSharp;
+using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.TexturedCube;
 
-public partial class TexturedCube : IRenderer
+public partial class Renderer : IRenderer
 {
     // --- IDisposable fields
     private readonly    GpuTexture          cubeTexture;
@@ -24,7 +25,7 @@ public partial class TexturedCube : IRenderer
         cubeTexture.Dispose();
     }
     
-    public TexturedCube(Wgpu wgpu)
+    public Renderer(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         var device  = wgpu.Device;

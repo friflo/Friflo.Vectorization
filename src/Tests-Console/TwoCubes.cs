@@ -2,11 +2,12 @@
 using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.TwoCubes;
 
-public partial class TwoCubes : IRenderer
+public partial class Renderer : IRenderer
 {
     // --- IDisposable fields
     private readonly    GpuBuffer<float>    verticesBuffer;
@@ -18,7 +19,7 @@ public partial class TwoCubes : IRenderer
         verticesBuffer.Dispose();
     }
     
-    public TwoCubes(Wgpu wgpu)
+    public Renderer(Wgpu wgpu)
     {
         this.wgpu   = wgpu;
         
