@@ -21,17 +21,19 @@ public sealed class TypeEmitter
     private             WgslModule                  module;
     private             string                      fileNamespace;
     
-    public void EmitAllStructs(List<WgslFile> wgslFiles, string basePath)
+    public void EmitAllStructs(List<WgslFile> wgslFiles, string basePath, string projDir)
     {
         // sort for deterministic generation
         wgslFiles.Sort((f1, f2) => string.Compare(f1.NormalizedPath, f2.NormalizedPath, StringComparison.Ordinal));
         var sb = new StringBuilder();
         
-        foreach (var file in wgslFiles) {
+        foreach (var file in wgslFiles)
+        {
+            var relativePath = file.NormalizedPath.Substring(projDir.Length);
             try {
-                module = WgslParser.ParseWgsl(file.Content, file.NormalizedPath);
+                module = WgslParser.ParseWgsl(file.Content, relativePath);
                 fileStructs.Clear();
-                fileNamespace = PathToNamespace(file.NormalizedPath);
+                fileNamespace = PathToNamespace(relativePath);
                 
                 EmitModule();
                 
@@ -44,13 +46,13 @@ public sealed class TypeEmitter
                 sb.Append("\n");
                 sb.Append("// ReSharper disable CheckNamespace\n");
                 sb.Append($"namespace {fileNamespace};\n");
-                sb.Append("\n");
+                sb.Append("\n\n");
                 foreach (var structSource in fileStructs) {
                     sb.Append(structSource);
                 }
             }
             catch (Exception exception) {
-                sb.Append($"/* -------- Error parsing: {file.NormalizedPath}\n");
+                sb.Append($"/* -------- Error parsing: {relativePath}\n");
                 sb.Append(exception);
                 sb.Append("\n*/\n");
             }

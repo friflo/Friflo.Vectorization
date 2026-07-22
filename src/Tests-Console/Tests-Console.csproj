@@ -29,6 +29,7 @@
     </ItemGroup>
     
     <ItemGroup>
+      <CompilerVisibleProperty Include="MSBuildProjectDirectory" />  
       <EmbeddedResource Include="shaders\**\*.wgsl" />
       <AdditionalFiles  Include="shaders\**\*.wgsl" />
     </ItemGroup>
@@ -41,6 +42,6 @@
     <ItemGroup>
       <EmbeddedResource Include="Assets/wgpu-transparent-light-128x128.bmp" />
       <EmbeddedResource Include="Assets/wgpu-transparent-dark-128x128.bmp" />
-    </ItemGroup>
+    </ItemGroup>   
 
 </Project>

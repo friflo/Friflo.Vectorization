@@ -37,7 +37,6 @@ public sealed class ShaderGen : IIncrementalGenerator
         var wgslFiles = context.AdditionalTextsProvider
             .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, ct) => WgslGenerator.CreateWgslFile(text, ct)).Collect();
-        // context.RegisterSourceOutput(wgslFiles, EmitAllWgslTypes);   TODO remove
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -45,33 +44,25 @@ public sealed class ShaderGen : IIncrementalGenerator
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: static (ctx, ct) => TransformShader(ctx, ct))
             .Combine(wgslFiles);
+        
+        var projectDirProvider = context.AnalyzerConfigOptionsProvider
+            .Select(static (options, _) => {
+                if (options.GlobalOptions.TryGetValue("build_property.MSBuildProjectDirectory", out var projectDir)) {
+                    return projectDir;
+                }
+                return null;
+            });
 
         // Add CompilationProvider does not harm Caching: because it is appended AFTER the heavy 'TransformShader' cache nodes.
         // The expensive syntax transformation remains 100% cached, and the volatile Compilation is only joined at the final emission step.
-        context.RegisterSourceOutput(shaderMethod.Combine(context.CompilationProvider), EmitShader);
+        context.RegisterSourceOutput(shaderMethod.Combine(projectDirProvider).Combine(context.CompilationProvider), EmitShader);
     }
-    
-    /* private static void EmitAllWgslTypes(SourceProductionContext spc, ImmutableArray<WgslFile> files)
-    {
-        var structSources = new Dictionary<string, string>();
-        foreach (var wgslFile in files)
-        {
-            if (wgslFile.StructSources == null) continue;
-            foreach (var structSource in  wgslFile.StructSources) {
-                structSources.TryAdd(structSource.StructName, structSource.Source);   
-            }
-        }
-        if (structSources.Count > 0) {
-            var typeSource = TypeEmitter.EmitAllStructs(structSources);
-            // spc.AddSource("WgslTypes.g.cs", typeSource);
-        }
-    } */
     
     private static void EmitShader(
         SourceProductionContext spc,
-        ((ShaderMethodResult Result, ImmutableArray<WgslFile> Files), Compilation Compilation) source)
+        (((ShaderMethodResult result, ImmutableArray<WgslFile> files), string? projDir), Compilation compilation) source)
     {
-        ((ShaderMethodResult result, ImmutableArray<WgslFile> files), Compilation compilation) = source;
+        (((ShaderMethodResult result, ImmutableArray<WgslFile> files), string? projDir), Compilation compilation) = source;
         
         if (result.error.exceptionMessage != null) {
             result.error.ReportException(spc);
@@ -106,7 +97,7 @@ public sealed class ShaderGen : IIncrementalGenerator
             }
             var generateParameters = method.Parameters.Length == 0  ||
                                     (method.Parameters.Length == 2 && diags.Count > 0);
-            AddShaderCodeFixes(spc, compilation, method, files, generateParameters);
+            AddShaderCodeFixes(spc, compilation, method, files, projDir, generateParameters);
             
             bool hasErrors  = diags.Any(e => e.type == DiagType.Error);
             var emitShader  = new ShaderEmitter(method);
@@ -159,12 +150,13 @@ public sealed class ShaderGen : IIncrementalGenerator
         Compilation                 compilation,
         CsMethod                    method,
         ImmutableArray<WgslFile>    files,
+        string?                     projDir,
         bool                        generateParameters)
     {
         var location        = method.MethodLoc.GetFreshLocation(compilation);
         
         var filteredFiles   = CodeFixer.FilterFiles(method, files);
-        var properties      = WgslUtils.CreateDictionary(filteredFiles, default);
+        var properties      = WgslUtils.CreateDictionary(filteredFiles, null, default);
         
         if (generateParameters)
         {
@@ -179,11 +171,11 @@ public sealed class ShaderGen : IIncrementalGenerator
             var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
         } {
-            var allFiles = WgslUtils.CreateDictionary(files, default);
-            var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, messageArgs: method.Name, properties: allFiles);
+            var allFiles = WgslUtils.CreateDictionary(files, projDir, default);
+            var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: allFiles);
             spc.ReportDiagnostic(diagnostic);
             
-        }
+        } 
     }
 }
 

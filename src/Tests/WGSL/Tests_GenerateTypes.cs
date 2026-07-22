@@ -15,7 +15,7 @@ public static class Tests_GenerateTypes
         var files = TestWgslUtils.LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
 
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(files, "../../../../Tests/");
+        typeEmitter.EmitAllStructs(files, "../../../../Tests/", "");
     }
     
     

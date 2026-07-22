@@ -36,7 +36,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                $"Generate types for: {methodNode.Identifier.Text}()",
+                "Generate C# Types from WGSL",
                 c => InsertTypesAsync(context.Document, methodNode, diagnostic, c),
                 equivalenceKey: "GenC#lTypes"),
             diagnostic);
@@ -49,11 +49,14 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         if (wgslFiles == null) {
             return document;
         }
+        if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir)) {
+            return document;
+        }
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(wgslFiles, "");
+        typeEmitter.EmitAllStructs(wgslFiles, "", projDir);
 
         return document;
     }

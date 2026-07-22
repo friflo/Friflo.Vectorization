@@ -25,7 +25,7 @@ public static class DictionaryExtensions
 
 public static class WgslUtils
 {
-    public static ImmutableDictionary<string, string> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, ValueArray<CsShader> shaders)
+    public static ImmutableDictionary<string, string> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string projDir, ValueArray<CsShader> shaders)
     {
         var builder = ImmutableDictionary.CreateBuilder<string, string>();
 
@@ -34,6 +34,9 @@ public static class WgslUtils
         {
             builder.Add($"wgsl_content_{i}", wgslFiles[i].Content);
             builder.Add($"wgsl_path_{i}",    wgslFiles[i].NormalizedPath);
+        }
+        if (projDir != null) {
+            builder.Add("proj_dir", projDir);
         }
         if (shaders.Length > 0) {
             var shaderStrings = shaders.Select(s => s.path);

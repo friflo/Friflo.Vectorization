@@ -128,7 +128,7 @@ public static class Errors
     public static readonly DiagnosticDescriptor GenerateCSharpTypes = new(
         id: "WGPU007",
         title: "Generate C# Types from WGSL",
-        messageFormat: "Generate C# Types for: '{0}'",
+        messageFormat: "Generate C# Types from WGSL",
         category: "WGPU",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
