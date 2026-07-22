@@ -21,7 +21,7 @@ public static class Tests_GenerateTypes
     
     
     [Test]
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateTypes_1()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
@@ -30,14 +30,14 @@ public static class Tests_GenerateTypes
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
-                [Source("~/shaders/triangle.wgsl")]
+                [Source("~/shaders/renderTest/triangle.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct VertexData {
                     public Vector4 position;
                     public Vector4 color;
                 }
                 
-                [Source("~/shaders/triangle.wgsl")]
+                [Source("~/shaders/renderTest/triangle.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct MyUniforms {
                     public Vector4 tint_color;
@@ -78,7 +78,7 @@ public static class Tests_GenerateTypes
     
     [Test]
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_3()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
@@ -98,7 +98,7 @@ public static class Tests_GenerateTypes
     }
     
     [Test]
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static void Tests_WGSL_GenerateTypes_4()
     {

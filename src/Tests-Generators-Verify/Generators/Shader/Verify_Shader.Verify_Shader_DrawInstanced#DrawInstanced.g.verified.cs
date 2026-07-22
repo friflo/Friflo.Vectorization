@@ -82,7 +82,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _DrawInstanced_GPU_Shaders = [
-        new("shaders/instanced.vert.wgsl", vert: "main"),
+        new("shaders/instancedCube/instanced.vert.wgsl", vert: "main"),
         new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
     ];
 

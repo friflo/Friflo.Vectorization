@@ -64,7 +64,7 @@ public partial class ShaderExample
     }
     
     private static readonly WgpuShader[] _Multiple_IndexBuffer_parameters_GPU_Shaders = [
-        new("shaders/triangle.wgsl", vert: "vs_main", frag: "fs_main"),
+        new("shaders/renderTest/triangle.wgsl", vert: "vs_main", frag: "fs_main"),
     ];
 
 }

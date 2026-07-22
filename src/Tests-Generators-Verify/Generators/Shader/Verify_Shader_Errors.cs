@@ -118,7 +118,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     protected static partial void Multiple_IndexBuffer_parameters(RenderPass pass, RenderConfig config,
         [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer1,
         [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer2);
@@ -140,7 +140,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void Binding_already_exists(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
@@ -164,7 +164,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void Binding_not_in_range(RenderPass pass, RenderConfig config,
         [Map(-1, 0)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
@@ -315,7 +315,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
         [Map(2, 0)] [uniform]           in NestedStruct         myUniform,

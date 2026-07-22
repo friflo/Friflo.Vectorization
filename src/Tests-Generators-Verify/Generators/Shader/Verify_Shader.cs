@@ -48,7 +48,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
         [Map(2, 0)] [uniform]           in MyUniform            myUniform,
@@ -85,7 +85,7 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     protected static partial void RenderCube(RenderPass renderPass, RenderConfig renderConfig,
         [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
         [Map(0, 1)] [sampler]                   GpuSampler      smoothFilter,
@@ -115,7 +115,7 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     [Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
-    [Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+    [Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     protected static partial void RenderCube(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
         [Map(0, 1)] [sampler]                   GpuSampler      smoothFilter,
@@ -144,7 +144,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void DrawInstanced(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
@@ -167,7 +167,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void DrawCustomDrawArgs(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
@@ -192,7 +192,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void DrawCustomDrawArgsReadOnlySpan(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4>     mvpMatrices,
@@ -217,7 +217,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void DrawCustomDrawArgsArray(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
@@ -241,7 +241,7 @@ namespace VerifyShader;
 
 public partial struct ShaderExample
 {
-    [Shader("~/shaders/raymarcher_no_texture.wgsl")]
+    [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl")]
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform] in Uniforms    uniforms);
@@ -273,7 +273,7 @@ using Other.Namespace;
 namespace VerifyShader {
     public partial class ShaderExample
     {
-        [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+        [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
         public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
             [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>  triangles,
             [Map(2, 0)] [uniform]           in MyUniform          myUniform,
@@ -323,7 +323,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    [Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles();
 }
 """);

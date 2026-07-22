@@ -89,7 +89,7 @@ public partial class ShaderExample
     
     private static readonly WgpuShader[] _RenderCube_GPU_Shaders = [
         new("shaders/basic.vert.wgsl", vert: "main"),
-        new("shaders/sampleTextureMixColor.frag.wgsl", frag: "main"),
+        new("shaders/texturedCube/sampleTextureMixColor.frag.wgsl", frag: "main"),
     ];
 
 }

@@ -10,7 +10,7 @@ public static class Tests_WGSL
 {
     
     [Test]
-    [Shader("~/shaders/triangle.wgsl")]
+    [Shader("~/shaders/renderTest/triangle.wgsl")]
     public static void Tests_WGSL_Parse_triangle()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
@@ -23,7 +23,7 @@ public static class Tests_WGSL
     
     
     [Test]
-    [Shader("~/shaders/raymarcher_no_texture.wgsl")]
+    [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl")]
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
@@ -36,7 +36,7 @@ public static class Tests_WGSL
     
     
     [Test]
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateParameters()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
@@ -76,7 +76,7 @@ public static class Tests_WGSL
     
     [Test]
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("~/shaders/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_Generate_texture_2d()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
@@ -131,7 +131,7 @@ public static class Tests_WGSL
     }
     
     [Test]
-    [Shader("~/shaders/instanced.vert.wgsl",              vertex:   "main")]
+    [Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     public static void Tests_WGSL_Generate_UniformMatrix4x4()
     {
