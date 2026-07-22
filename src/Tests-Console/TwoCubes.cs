@@ -63,8 +63,8 @@ public partial class Renderer : IRenderer
     private   readonly  PerfLog                 perfLog             = new();
     private   readonly  Matrix4x4               modelMatrix1        = Matrix4x4.CreateTranslation(new Vector3(-2, 0, 0));
     private   readonly  Matrix4x4               modelMatrix2        = Matrix4x4.CreateTranslation(new Vector3( 2, 0, 0));
-    private             Matrix4x4               modelViewProjectionMatrix1;
-    private             Matrix4x4               modelViewProjectionMatrix2;
+    private             Uniforms                uniforms1;
+    private             Uniforms                uniforms2;
     private   readonly  Matrix4x4               viewMatrix          = Matrix4x4.CreateTranslation(new Vector3(0, 0, -7));
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
     private             GpuRenderPassDescriptor renderPassDescriptor= new() { colorAttachments = [ default ] };
@@ -102,8 +102,8 @@ public partial class Renderer : IRenderer
         
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
         
-        modelViewProjectionMatrix1 = tmpMat41 * viewMatrix * projectionMatrix;
-        modelViewProjectionMatrix2 = tmpMat42 * viewMatrix * projectionMatrix;
+        uniforms1.modelViewProjectionMatrix = tmpMat41 * viewMatrix * projectionMatrix;
+        uniforms2.modelViewProjectionMatrix = tmpMat42 * viewMatrix * projectionMatrix;
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L191
@@ -116,13 +116,13 @@ public partial class Renderer : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
-        RenderCube(pass, config, modelViewProjectionMatrix1, verticesBuffer.In());
-        RenderCube(pass, config, modelViewProjectionMatrix2, verticesBuffer.In());
+        RenderCube(pass, config, uniforms1, verticesBuffer.In());
+        RenderCube(pass, config, uniforms2, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
     private static partial void RenderCube(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]                   in Matrix4x4    modelViewProjectionMatrix,
+        [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
                     [VertexBuffer(0)] [Draw]    InBuffer<float> verticesBuffer);
 }
