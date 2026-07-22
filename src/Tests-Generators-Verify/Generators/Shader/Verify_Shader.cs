@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 using Tests.Generators;
+using Tests.WGSL;
 using VerifyNUnit;
 using VerifyTests;
 
@@ -20,7 +21,8 @@ public static class Verify_Shader
     {
         var compilation = VerifyShaderUtils.CreateCompilation(code);
         var generator = new ShaderGen();
-        var wgslFiles = VerifyShaderUtils.LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
+        var projectDir = TestWgslUtils.GetProjectDir();
+        var wgslFiles = VerifyShaderUtils.LoadAdditionalFilesRecursive(projectDir);
         var driver = CSharpGeneratorDriver.Create(generator).AddAdditionalTexts(wgslFiles);
 
         // Run

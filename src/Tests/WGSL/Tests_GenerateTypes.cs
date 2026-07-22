@@ -1,4 +1,6 @@
-﻿using Friflo.Vectorization.WebGPU;
+﻿using System.Linq;
+using System.Reflection;
+using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
@@ -12,10 +14,11 @@ public static class Tests_GenerateTypes
     // [Test]
     public static void Tests_WGSL_GenerateAllTypes()
     {
-        var files = TestWgslUtils.LoadAdditionalFilesRecursive("../../../../Tests/shaders", "shaders/");
+        var projectDir = TestWgslUtils.GetProjectDir();
+        var files = TestWgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
 
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(files, "../../../../Tests/", "");
+        typeEmitter.EmitAllStructs(files, projectDir);
     }
     
     

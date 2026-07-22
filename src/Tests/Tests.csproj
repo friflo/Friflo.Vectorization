@@ -41,6 +41,9 @@
     </ItemGroup>
     
     <ItemGroup>
+      <AssemblyMetadata Include="ProjectDir" Value="$(MSBuildProjectDirectory)" />
+    </ItemGroup>
+    <ItemGroup>
       <EmbeddedResource Include="shaders\**\*.wgsl" />
       <AdditionalFiles Include="shaders\**\*.wgsl" />
     </ItemGroup>

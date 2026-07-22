@@ -21,9 +21,9 @@ public static class VerifyShaderUtils
         public override SourceText GetText(CancellationToken cancellationToken = default) => Text;
     }
     
-    public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder, string baseFolder)
+    public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder)
     {
-        var files = TestWgslUtils.LoadAdditionalFilesRecursive(srcFolder, baseFolder);
+        var files = TestWgslUtils.LoadAdditionalFilesRecursive(srcFolder);
         var builder = ImmutableArray.CreateBuilder<AdditionalText>();
 
         foreach (var file in files) {

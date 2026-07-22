@@ -27,12 +27,26 @@ public sealed class TypeEmitter
     private             string                      fileNamespace;
 
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string basePath, string projDir)
+    private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
+    {
+        var path = Path.Combine(projDir, "debug.txt");
+        var sb = new StringBuilder();
+        sb.Append($"projDir: {projDir}\n\n");
+        
+        foreach (var file in wgslFiles) {
+            sb.Append($"{file.NormalizedPath}\n");
+        }
+        File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
+    }
+    
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir)
     {
         for (int n = 0; n < wgslFiles.Length; n++) {
-            var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length);
+            var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);
             wgslFiles[n] = wgslFiles[n] with{ NormalizedPath =  path };
         }
+        // DebugInputs(wgslFiles, projDir);
+        
         
         // sort for deterministic generation
         Array.Sort(wgslFiles, (f1, f2) => string.Compare(f1.NormalizedPath, f2.NormalizedPath, StringComparison.Ordinal));
@@ -72,7 +86,7 @@ public sealed class TypeEmitter
                 sb.Append("\n*/\n");
             }
             var source =  sb.ToString();
-            var path = Path.Combine(basePath, file.NormalizedPath) + ".cs";
+            var path = $"{projDir}/{file.NormalizedPath}.cs";
 
             File.WriteAllText(path, source, new UTF8Encoding(false));
         }
