@@ -202,6 +202,10 @@ public sealed class TypeEmitter
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
     
+    private string IOE() {
+        throw new InvalidOperationException();
+    }
+    
     private string GetCSharpType(WgslType type)
     {
         var generics = type.Generics;
@@ -214,32 +218,31 @@ public sealed class TypeEmitter
     {
         switch (typeName)
         {
-            case "i32":         return "int";
-            case "u32":         return "uint";
-            case "f32":         return "float";
-            case "f16":         return "Half";
+            case "i32":             return  "int";
+            case "u32":             return  "uint";
+            case "f32":             return  "float";
+            case "f16":             return  "Half";
             //
-            case "vec2f":       return "Vector2";
-            case "vec3f":       return "Vector3";
-            case "vec4f":       return "Vector4";
+            case "vec2f":           return  "Vector2";
+            case "vec3f":           return  "Vector3";
+            case "vec4f":           return  "Vector4";
             //
-            case "mat4x4f":     return "Matrix4x4";
+            case "vec2":    return arg_0 switch {   "f32"   =>  "Vector2",
+                                                    _       =>  IOE()
+                };
+            case "vec3":    return arg_0 switch {   "f32"   =>  "Vector3",
+                                                    _       =>  IOE()
+                };
+            case "vec4":    return arg_0 switch {   "f32"   =>  "Vector4",
+                                                    _       =>  IOE()
+                };
             //
-            case "vec2":
-                return arg_0 switch {
-                    "f32"   => "Vector2",
-                    _ => throw new NotImplementedException()
+            case "mat4x4f":                             return  "Matrix4x4";
+            //
+            case "mat4x4":  return arg_0 switch {   "f32"   =>  "Matrix4x4",
+                                                    _       =>  IOE()
                 };
-            case "vec3":
-                return arg_0 switch {
-                    "f32"   => "Vector3",
-                    _ => throw new NotImplementedException()
-                };
-            case "vec4":
-                return arg_0 switch {
-                    "f32"   => "Vector4",
-                    _ => throw new NotImplementedException()
-                };
+
             //
             case "array":
                 return GetType(arg_0, null);
