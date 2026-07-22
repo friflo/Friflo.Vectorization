@@ -6,9 +6,9 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-namespace TestConsole;
+namespace Shaders.RenderTest;
 
-public partial class RenderTest
+public partial class Renderer
 {
     public static void Pattern_DrawTriangles(
         RenderPass              pass,
@@ -96,7 +96,7 @@ public partial class RenderTest
         }
         layouts[2] = layout_2;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(RenderTest), Triangles_GPU_Shaders, "Triangles_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(Renderer), Triangles_GPU_Shaders, "Triangles_pipeline"u8);
         
         var bindGroupCache = new Triangles_GPU_Cache();
         return ref device.CreatePipelineCache(Triangles_GPU_ShaderId, config, Triangles_GPU_WgslHash, pipeline, layouts, bindGroupCache);

@@ -1,9 +1,10 @@
 ﻿using Friflo.Vectorization.WebGPU;
+using TestConsole;
 
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.RenderTest;
 
-public class ConfigTest : RenderTest
+public class ConfigTest : Renderer
 {
     public ConfigTest(Wgpu wgpu) : base(wgpu)
     {

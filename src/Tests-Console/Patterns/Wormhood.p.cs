@@ -4,7 +4,7 @@ using Friflo.Vectorization.WebGPU;
 using Friflo.Vectorization.WebGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
-namespace TestConsole;
+namespace Shaders.RenderTest;
 
 public static partial class Wormhood
 {

@@ -3,18 +3,19 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using TestConsole;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
-namespace TestConsole;
+namespace Shaders.RenderTest;
 
 /// <summary>
 /// Uses an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop.<br/>
 /// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
 /// Those platforms only support event driven applications. An event loop would lead to application freeze.
 /// </summary>
-public partial class RenderTest : IRenderer
+public partial class Renderer : IRenderer
 {
     // --- IDisposable fields
     protected readonly  GpuBuffer<VertexData>   data;
@@ -24,7 +25,7 @@ public partial class RenderTest : IRenderer
         data.Dispose();
     }
     
-    public RenderTest(Wgpu wgpu)
+    public Renderer(Wgpu wgpu)
     {
         this.wgpu = wgpu;
         data        = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
@@ -78,7 +79,7 @@ public partial class RenderTest : IRenderer
         DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
     }
 
-	[Shader("~/shaders/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
         [Map(2, 0)] [uniform]           in MyUniform            myUniform,
@@ -104,8 +105,8 @@ public struct MyUniform
 
 public static partial class Wormhood
 {
-    [Shader("~/shaders/full_screen_triangle.wgsl",    vertex:   "vs_main")]
-    [Shader("~/shaders/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
+    [Shader("~/shaders/renderTest/full_screen_triangle.wgsl",    vertex:   "vs_main")]
+    [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
     [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform] in Uniforms uniforms);
