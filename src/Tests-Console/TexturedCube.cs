@@ -145,8 +145,4 @@ public partial class Renderer : IRenderer
         [Map(0, 2)] [texture_2d(ST.f32)]        GpuTextureView  material,
                     [VertexBuffer(0)] [Draw]    InBuffer<float> vertices);
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Uniforms {
-        public Matrix4x4   modelViewProjectionMatrix;
-    }
 }

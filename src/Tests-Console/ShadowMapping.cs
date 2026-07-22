@@ -225,17 +225,4 @@ public partial class Renderer : IRenderer
         [Map(1, 0)] [uniform]               in Model            model,
                     [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
                     [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
-    
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Scene {
-        public Matrix4x4   lightViewProjMatrix;
-        public Matrix4x4   cameraViewProjMatrix;
-        public Vector3     lightPos;
-    }
-    
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Model {
-        public Matrix4x4   modelMatrix;
-    }
 }
