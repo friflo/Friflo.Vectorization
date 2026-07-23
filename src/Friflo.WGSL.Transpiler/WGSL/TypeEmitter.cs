@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -17,6 +18,19 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 internal struct StructCode {
     public string source;
     public bool   alreadyDeclared;
+}
+
+public readonly struct CSharpType
+{
+    public readonly string      typeName;
+    public readonly CsTypeCode  typeCode;
+
+    public override string      ToString() => typeName;
+
+    public CSharpType(string typeName, CsTypeCode typeCode) {
+        this.typeName = typeName;
+        this.typeCode = typeCode;
+    }
 }
 
 public sealed class TypeEmitter
@@ -134,7 +148,7 @@ public sealed class TypeEmitter
         sb.Append($"public struct {wgslStruct.Name} (\n");
         foreach (var field in wgslStruct.Fields) {
             var csharpType = GetCSharpType(field.WgslType);
-            sb.Append($"    {csharpType} {field.Name},\n");
+            sb.Append($"    {csharpType.typeName} {field.Name},\n");
         }
         sb.Length -= 2;
         sb.Append(")\n");
@@ -159,7 +173,7 @@ public sealed class TypeEmitter
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
     
-    private string GetCSharpType(WgslType type)
+    private CSharpType GetCSharpType(WgslType type)
     {
         var generics = type.Generics;
         var arg_0 = generics.Length > 0 ? generics[0].Name : "";
@@ -168,18 +182,18 @@ public sealed class TypeEmitter
     }
 
     
-    private static readonly  string[]                   TypeCodeMap;
-    private static readonly  Dictionary<string,string>  WgslTypeMap = new();
+    private static readonly  CSharpType[]                   TypeCodeMap;
+    private static readonly  Dictionary<string,CSharpType>  WgslTypeMap = new();
     
-    private static void MapType(string[] typeCodeMap, Dictionary<string,string> wgslTypeMap, CsTypeCode code, string typeName) {
-        typeCodeMap[(int)code]       = typeName;
-        wgslTypeMap[code.ToString()] = typeName;
+    private static void MapType(CSharpType[] typeCodeMap, Dictionary<string, CSharpType> wgslTypeMap, CsTypeCode code, string typeName) {
+        typeCodeMap[(int)code]       = new CSharpType(typeName, code);
+        wgslTypeMap[code.ToString()] = new CSharpType(typeName, code);
     }
     
     static TypeEmitter()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var tcMap   = TypeCodeMap = new string[length];
+        var tcMap   = TypeCodeMap = new CSharpType[length];
         var wgslMap = WgslTypeMap;
         var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
         
@@ -200,11 +214,11 @@ public sealed class TypeEmitter
         MapType(tcMap, wgslMap, CsTypeCode.mat3x2f, "Matrix3x2");
     }
     
-    private static string FromCode(CsTypeCode code, int offset) => TypeCodeMap[(int)code + offset];
+    private static CSharpType FromCode(CsTypeCode code, int offset) => TypeCodeMap[(int)code + offset];
 
-    private const string InvalidType = "invalid_type";
+    private static readonly CSharpType InvalidType = new CSharpType("invalid_type", CsTypeCode.None);
     
-    private static string GetVec(string primitive, CsTypeCode code)
+    private static CSharpType GetVec(string primitive, CsTypeCode code)
     {
         return primitive switch
         {
@@ -216,7 +230,7 @@ public sealed class TypeEmitter
         };
     }
     
-    private static string GetMat(string primitive, int w, int h)
+    private static CSharpType GetMat(string primitive, int w, int h)
     {
         var code = (w, h) switch
         {
@@ -244,7 +258,7 @@ public sealed class TypeEmitter
         };
     }
 
-    private string GetType(string typeName, string arg_0)
+    private CSharpType GetType(string typeName, string arg_0)
     {
         switch (typeName)
         {
@@ -270,7 +284,9 @@ public sealed class TypeEmitter
             return csharp;
         }
         var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
-        AddStruct(wgslStruct);
-        return typeName;
+        if (wgslStruct != null) {
+            AddStruct(wgslStruct);
+        }
+        return new CSharpType(typeName, CsTypeCode.WgslStruct);
     }
 }
