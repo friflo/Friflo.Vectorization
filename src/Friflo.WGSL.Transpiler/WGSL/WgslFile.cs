@@ -20,6 +20,8 @@ public readonly struct WgslFile : IEquatable<WgslFile>
     public bool Equals(WgslFile other) {
         return Hash == other.Hash;
     }
+    
+    public static void Sort(WgslFile[] files) => FileEntry.Sort(files);
 
     public override     string      ToString()      => NormalizedPath;
 }
@@ -29,7 +31,7 @@ internal struct FileEntry : IComparable<FileEntry>
 {
     private     string[]    path;       // priority 1 small Length,   priority 3  element Alphabetical
     private     bool        isCommon;   // priority 2 (true)
-    internal    WgslFile    file;
+    private     WgslFile    file;
 
     public override string  ToString() => file.NormalizedPath;
 
@@ -48,7 +50,7 @@ internal struct FileEntry : IComparable<FileEntry>
         return 0;
     }
     
-    internal static FileEntry[] CreateEntries(WgslFile[] wgslFiles)
+    internal static void Sort(WgslFile[] wgslFiles)
     {
         var entries = new FileEntry[wgslFiles.Length];
         for (int n = 0; n < wgslFiles.Length; n++) {
@@ -59,7 +61,11 @@ internal struct FileEntry : IComparable<FileEntry>
                 file        = file 
             };
         }
-        return entries;
+        Array.Sort(entries);
+        
+        for (int n = 0; n < entries.Length; n++) {
+            wgslFiles[n] = entries[n].file;
+        }
     }
     
     private static bool IsCommon(string path)

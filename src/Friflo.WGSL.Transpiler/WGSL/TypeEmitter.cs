@@ -62,16 +62,13 @@ public sealed class TypeEmitter
         }
         // DebugInputs(wgslFiles, projDir);
         
-        var entries = FileEntry.CreateEntries(wgslFiles);
-        
         // sort for deterministic generation
-        Array.Sort(entries);
+        WgslFile.Sort(wgslFiles);
         
         var sb = new StringBuilder();
         
-        foreach (var entry in entries)
+        foreach (var file in wgslFiles)
         {
-            var file = entry.file;
             var normalizedPath = file.NormalizedPath;
             try {
                 // --- clear state first!
