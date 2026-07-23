@@ -159,10 +159,6 @@ public sealed class TypeEmitter
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
     
-    private static string IOE() {
-        throw new InvalidOperationException();
-    }
-    
     private string GetCSharpType(WgslType type)
     {
         var generics = type.Generics;
@@ -170,44 +166,43 @@ public sealed class TypeEmitter
         
         return GetType(type.Name, arg_0);
     }
-    
-    
 
     
-    private static readonly  string[]                   TypeCode2CSharp;
-    private static readonly  Dictionary<string,string>  Wgsl2CSharp = new();
+    private static readonly  string[]                   TypeCodeMap;
+    private static readonly  Dictionary<string,string>  WgslTypeMap = new();
     
-    private static void MapType(string[] typeCode, Dictionary<string,string> wgsl, CsTypeCode code, string typeName) {
-        typeCode[(int)code]   = typeName;
-        wgsl[code.ToString()] = typeName;
+    private static void MapType(string[] typeCodeMap, Dictionary<string,string> wgslTypeMap, CsTypeCode code, string typeName) {
+        typeCodeMap[(int)code]       = typeName;
+        wgslTypeMap[code.ToString()] = typeName;
     }
     
     static TypeEmitter()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var tc      = TypeCode2CSharp = new string[length];
-        var wgsl    = Wgsl2CSharp;
+        var tcMap   = TypeCodeMap = new string[length];
+        var wgslMap = WgslTypeMap;
         var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
         
         foreach (var value in values) {
             if ((int)value >= length) continue;
-            MapType(tc, wgsl, value, value.ToString());
+            MapType(tcMap, wgslMap, value, value.ToString());
         }
-        MapType(tc, wgsl, CsTypeCode.f16,        "Half");
-        MapType(tc, wgsl, CsTypeCode.f32,        "float");
-        MapType(tc, wgsl, CsTypeCode.i32,        "int");
-        MapType(tc, wgsl, CsTypeCode.u32,        "uint");
+        MapType(tcMap, wgslMap, CsTypeCode.f16,     "Half");
+        MapType(tcMap, wgslMap, CsTypeCode.f32,     "float");
+        MapType(tcMap, wgslMap, CsTypeCode.i32,     "int");
+        MapType(tcMap, wgslMap, CsTypeCode.u32,     "uint");
         
-        MapType(tc, wgsl, CsTypeCode.vec2f,      "Vector2");
-        MapType(tc, wgsl, CsTypeCode.vec3f,      "Vector3");
-        MapType(tc, wgsl, CsTypeCode.vec4f,      "Vector4");
+        MapType(tcMap, wgslMap, CsTypeCode.vec2f,   "Vector2");
+        MapType(tcMap, wgslMap, CsTypeCode.vec3f,   "Vector3");
+        MapType(tcMap, wgslMap, CsTypeCode.vec4f,   "Vector4");
         
-        MapType(tc, wgsl, CsTypeCode.mat4x4f,    "Matrix4x4");
-        MapType(tc, wgsl, CsTypeCode.mat3x2f,    "Matrix3x2");
+        MapType(tcMap, wgslMap, CsTypeCode.mat4x4f, "Matrix4x4");
+        MapType(tcMap, wgslMap, CsTypeCode.mat3x2f, "Matrix3x2");
     }
     
-    private static string FromCode(CsTypeCode code, int offset) => TypeCode2CSharp[(int)code + offset];
+    private static string FromCode(CsTypeCode code, int offset) => TypeCodeMap[(int)code + offset];
 
+    private const string InvalidType = "invalid_type";
     
     private static string GetVec(string primitive, CsTypeCode code)
     {
@@ -217,7 +212,7 @@ public sealed class TypeEmitter
             "f32"   => FromCode(code, 1),
             "i32"   => FromCode(code, 2),
             "u32"   => FromCode(code, 3),
-            _       => IOE()
+            _       => InvalidType
         };
     }
     
@@ -245,7 +240,7 @@ public sealed class TypeEmitter
         {
             "f16"   => FromCode(code, 0),
             "f32"   => FromCode(code, 1),
-            _       => IOE()
+            _       => InvalidType
         };
     }
 
@@ -271,7 +266,7 @@ public sealed class TypeEmitter
             case "mat4x3":  return GetMat(arg_0, 4, 3);
             case "mat4x4":  return GetMat(arg_0, 4, 4);
         }
-        if (Wgsl2CSharp.TryGetValue(typeName, out var csharp)) {
+        if (WgslTypeMap.TryGetValue(typeName, out var csharp)) {
             return csharp;
         }
         var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
