@@ -45,8 +45,12 @@
     </ItemGroup>
     <ItemGroup>
       <EmbeddedResource Include="shaders\**\*.wgsl" />
-      <AdditionalFiles Include="shaders\**\*.wgsl" />
+      <!-- <AdditionalFiles  Include="shaders\**\*.wgsl" /> -->
     </ItemGroup>
+    <PropertyGroup>
+      <!-- workaround for: https://youtrack.jetbrains.com/issue/RIDER-141199 -->  
+      <AdditionalFileItemNames>$(AdditionalFileItemNames);EmbeddedResource</AdditionalFileItemNames>
+    </PropertyGroup>
     
     <ItemGroup>
       <None Remove="*.csproj.lscache" />

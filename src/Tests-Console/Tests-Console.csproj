@@ -31,8 +31,12 @@
     <ItemGroup>
       <CompilerVisibleProperty Include="MSBuildProjectDirectory" />  
       <EmbeddedResource Include="shaders\**\*.wgsl" />
-      <AdditionalFiles  Include="shaders\**\*.wgsl" />
+      <!-- <AdditionalFiles  Include="shaders\**\*.wgsl" /> -->
     </ItemGroup>
+    <PropertyGroup>
+      <!-- workaround for: https://youtrack.jetbrains.com/issue/RIDER-141199 -->  
+      <AdditionalFileItemNames>$(AdditionalFileItemNames);EmbeddedResource</AdditionalFileItemNames>
+    </PropertyGroup>
     
     <ItemGroup>
       <EmbeddedResource Include="Assets/img/Di-3d.png" />
