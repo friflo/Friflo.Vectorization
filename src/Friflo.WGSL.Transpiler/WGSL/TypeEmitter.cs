@@ -7,10 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable UnusedMember.Local
-// ReSharper disable CanSimplifyDictionaryLookupWithTryGetValue
-// ReSharper disable InlineTemporaryVariable
-// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.WGSL;
 
@@ -23,7 +21,7 @@ internal struct StructCode {
 public sealed class TypeEmitter
 {
     private readonly    Dictionary<string, string>  structMap   = new();
-    private readonly    List<StructCode>            fileStructs = new();
+    private readonly    List<StructCode>            fileStructs = [];
     private             WgslModule                  module;
     private             string                      fileNamespace;
     
