@@ -19,6 +19,12 @@ internal struct StructCode {
     public bool   alreadyDeclared;
 }
 
+public readonly struct CSharpField
+{
+    public required string      Name    { get; init; }
+    public required CSharpType  Type    { get; init; }
+}
+
 
 public sealed class TypeEmitter
 {
@@ -133,16 +139,19 @@ public sealed class TypeEmitter
         var sb = new StringBuilder();
         sb.Clear();
         sb.Append($"public struct {wgslStruct.Name} (\n");
+        var csharpFields = new List<CSharpField>();
+        
         foreach (var field in wgslStruct.Fields) {
             var csharpType = GetCSharpType(field.WgslType);
+            csharpFields.Add(new CSharpField { Name = field.Name, Type = csharpType });
             sb.Append($"    {csharpType.typeName} {field.Name},\n");
         }
         sb.Length -= 2;
         sb.Append(")\n");
         sb.Append("{\n");
-        foreach (var field in wgslStruct.Fields) {
-            var csharpType = GetCSharpType(field.WgslType);
-            sb.Append($"    public {csharpType} {field.Name} = {field.Name};\n");
+
+        foreach (var field in csharpFields) {
+            sb.Append($"    public {field.Type.typeName} {field.Name} = {field.Name};\n");
         }
         sb.Append("}\n\n");
         var source          = sb.ToString();

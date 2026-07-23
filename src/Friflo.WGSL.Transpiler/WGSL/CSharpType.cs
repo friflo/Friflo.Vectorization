@@ -17,7 +17,7 @@ public readonly struct CSharpType
     public readonly string      typeName;
     public readonly CsTypeCode  typeCode;
 
-    public override string      ToString() => typeName;
+    public override string      ToString() => $"{typeCode} - {typeName}";
 
     private CSharpType(string typeName, CsTypeCode typeCode) {
         this.typeName = typeName;
