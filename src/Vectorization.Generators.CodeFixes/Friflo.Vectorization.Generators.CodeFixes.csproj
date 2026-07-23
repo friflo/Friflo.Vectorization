@@ -70,6 +70,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- recommendation: use lowest version possible version.        "4.8.0" required for .NET 8 SDK / C# 12 - this SDK ships this version -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  Version="4.8.0" PrivateAssets="all" />
   </ItemGroup>
 
