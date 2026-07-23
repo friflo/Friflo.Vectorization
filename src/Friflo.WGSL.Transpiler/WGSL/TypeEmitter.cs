@@ -206,37 +206,74 @@ public sealed class TypeEmitter
         MapType(tc, wgsl, CsTypeCode.mat3x2f,    "Matrix3x2");
     }
     
-    private static string FromCode(CsTypeCode code) => TypeCode2CSharp[(int)code];
+    private static string FromCode(CsTypeCode code, int offset) => TypeCode2CSharp[(int)code + offset];
 
     
+    private static string GetVec(string primitive, CsTypeCode code)
+    {
+        return primitive switch
+        {
+            "f16"   => FromCode(code, 0),
+            "f32"   => FromCode(code, 1),
+            "i32"   => FromCode(code, 2),
+            "u32"   => FromCode(code, 3),
+            _       => IOE()
+        };
+    }
+    
+    private static string GetMat(string primitive, int w, int h)
+    {
+        var code = (w, h) switch
+        {
+            (2, 2)  => CsTypeCode.mat2x2h,
+            (2, 3)  => CsTypeCode.mat2x3h,
+            (2, 4)  => CsTypeCode.mat2x4h,
+            //
+            (3, 2)  => CsTypeCode.mat3x2h,
+            (3, 3)  => CsTypeCode.mat3x3h,
+            (3, 4)  => CsTypeCode.mat3x4h,
+            //
+            (4, 2)  => CsTypeCode.mat4x2h,
+            (4, 3)  => CsTypeCode.mat4x3h,
+            (4, 4)  => CsTypeCode.mat4x4h,
+            //
+            _       => CsTypeCode.None,
+        };
+        if (code == CsTypeCode.None) throw new InvalidOperationException();
+        
+        return primitive switch
+        {
+            "f16"   => FromCode(code, 0),
+            "f32"   => FromCode(code, 1),
+            _       => IOE()
+        };
+    }
+
     private string GetType(string typeName, string arg_0)
     {
         switch (typeName)
         {
-            case "array":   return GetType(arg_0, null);
-            case "vec2":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec2f),
-                                                    _       =>  IOE()
-                                                };
-            case "vec3":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec3f),
-                                                    _       =>  IOE()
-                                                };
-            case "vec4":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec4f),
-                                                    _       =>  IOE()
-                                                };
-            case "mat4x4":  return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.mat4x4f),
-                                                    _       =>  IOE()
-                                                };
+            case "array":   return GetType  (arg_0, null);
+            //
+            case "vec2":    return GetVec(arg_0, CsTypeCode.vec2h);
+            case "vec3":    return GetVec(arg_0, CsTypeCode.vec3h);
+            case "vec4":    return GetVec(arg_0, CsTypeCode.vec4h);
+            //
+            case "mat2x2":  return GetMat(arg_0, 2, 2);
+            case "mat2x3":  return GetMat(arg_0, 2, 3);
+            case "mat2x4":  return GetMat(arg_0, 2, 4);
+            //
+            case "mat3x2":  return GetMat(arg_0, 3, 2);
+            case "mat3x3":  return GetMat(arg_0, 3, 3);
+            case "mat3x4":  return GetMat(arg_0, 3, 4);
+            //
+            case "mat4x2":  return GetMat(arg_0, 4, 2);
+            case "mat4x3":  return GetMat(arg_0, 4, 3);
+            case "mat4x4":  return GetMat(arg_0, 4, 4);
         }
         if (Wgsl2CSharp.TryGetValue(typeName, out var csharp)) {
             return csharp;
         }
-        /* if (typeName.Length == 5 && typeName.StartsWith("vec")) {
-            return GetType(arg_0, null);
-        }
-        if (typeName.Length == 7 && typeName.StartsWith("mat")) {
-            return GetType(arg_0, null);
-        } */
-        
         var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
         AddStruct(wgslStruct);
         return typeName;
