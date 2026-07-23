@@ -91,7 +91,9 @@ public readonly struct CSharpType
             //
             _       => CsTypeCode.None,
         };
-        if (code == CsTypeCode.None) throw new InvalidOperationException();
+        if (code == CsTypeCode.None) {
+            return InvalidType;
+        }
         
         return primitive switch
         {
