@@ -19,13 +19,6 @@ internal struct StructCode {
     public bool   alreadyDeclared;
 }
 
-public readonly struct CSharpField
-{
-    public required string      Name    { get; init; }
-    public required CSharpType  Type    { get; init; }
-}
-
-
 public sealed class TypeEmitter
 {
     private readonly    Dictionary<string, string>  structMap   = new();
@@ -174,7 +167,7 @@ public sealed class TypeEmitter
         var generics = type.Generics;
         var arg_0 = generics.Length > 0 ? generics[0].Name : "";
         
-        var csharpType = CSharpType.GetType(type.Name, arg_0);
+        var csharpType = CSharpType.GetCSharpType(type.Name, arg_0);
         
         var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == csharpType.typeName);
         if (wgslStruct != null) {

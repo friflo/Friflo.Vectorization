@@ -12,6 +12,13 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
+public readonly struct CSharpField
+{
+    public required string      Name    { get; init; }
+    public required CSharpType  Type    { get; init; }
+}
+
+
 public readonly struct CSharpType
 {
     public readonly string      typeName;
@@ -103,11 +110,11 @@ public readonly struct CSharpType
         };
     }
 
-    public static CSharpType GetType(string name, string arg_0)
+    public static CSharpType GetCSharpType(string name, string arg_0)
     {
         switch (name)
         {
-            case "array":   return GetType  (arg_0, null);
+            case "array":   return GetCSharpType  (arg_0, null);
             //
             case "vec2":    return GetVec(arg_0, CsTypeCode.vec2h);
             case "vec3":    return GetVec(arg_0, CsTypeCode.vec3h);
