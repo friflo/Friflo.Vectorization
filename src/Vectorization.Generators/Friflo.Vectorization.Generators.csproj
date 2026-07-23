@@ -85,8 +85,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-     <!-- recommendation: use lowest version possible version.        "4.12.0" is latest version with support of .NET 8 SDK / C# 12  -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+     <!-- recommendation: use lowest version possible version.        "4.8.0" required for .NET 8 SDK / C# 12 - this SDK ships this version -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
     
      <!-- recommendation: use latest version -->
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers"  Version="5.6.0"  PrivateAssets="all" />
