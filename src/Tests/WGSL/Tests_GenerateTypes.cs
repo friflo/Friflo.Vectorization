@@ -9,7 +9,7 @@ namespace Tests.WGSL;
 
 public static class Tests_GenerateTypes
 {
-    // [Test]
+    [Test]
     public static void Tests_WGSL_GenerateAllTypes()
     {
         var projectDir = TestWgslUtils.GetProjectDir();
