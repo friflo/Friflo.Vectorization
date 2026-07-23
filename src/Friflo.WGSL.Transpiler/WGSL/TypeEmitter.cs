@@ -171,80 +171,74 @@ public sealed class TypeEmitter
         return GetType(type.Name, arg_0);
     }
     
-    private static string[] CreateTypeMap()
+    
+
+    
+    private static readonly  string[]                   TypeCode2CSharp;
+    private static readonly  Dictionary<string,string>  Wgsl2CSharp = new();
+    
+    private static void MapType(string[] typeCode, Dictionary<string,string> wgsl, CsTypeCode code, string typeName) {
+        typeCode[(int)code]   = typeName;
+        wgsl[code.ToString()] = typeName;
+    }
+    
+    static TypeEmitter()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var map = new string[length];
-        var values = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
+        var tc      = TypeCode2CSharp = new string[length];
+        var wgsl    = Wgsl2CSharp;
+        var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
+        
         foreach (var value in values) {
             if ((int)value >= length) continue;
-            MapType(map, value, value.ToString());
+            MapType(tc, wgsl, value, value.ToString());
         }
-        MapType(map, CsTypeCode.f16,        "Half");
-        MapType(map, CsTypeCode.f32,        "float");
-        MapType(map, CsTypeCode.i32,        "int");
-        MapType(map, CsTypeCode.u32,        "uint");
+        MapType(tc, wgsl, CsTypeCode.f16,        "Half");
+        MapType(tc, wgsl, CsTypeCode.f32,        "float");
+        MapType(tc, wgsl, CsTypeCode.i32,        "int");
+        MapType(tc, wgsl, CsTypeCode.u32,        "uint");
         
-        MapType(map, CsTypeCode.vec2f,      "Vector2");
-        MapType(map, CsTypeCode.vec3f,      "Vector3");
-        MapType(map, CsTypeCode.vec4f,      "Vector4");
+        MapType(tc, wgsl, CsTypeCode.vec2f,      "Vector2");
+        MapType(tc, wgsl, CsTypeCode.vec3f,      "Vector3");
+        MapType(tc, wgsl, CsTypeCode.vec4f,      "Vector4");
         
-        MapType(map, CsTypeCode.mat4x4f,    "Matrix4x4");
-        MapType(map, CsTypeCode.mat3x2f,    "Matrix3x2");
-        return map;
+        MapType(tc, wgsl, CsTypeCode.mat4x4f,    "Matrix4x4");
+        MapType(tc, wgsl, CsTypeCode.mat3x2f,    "Matrix3x2");
     }
     
-    private static void MapType(string[] map, CsTypeCode code, string typeName) {
-        map[(int)code] = typeName;
-    }
-    
-    private static readonly  string[] TypeMap = CreateTypeMap();
-    
-    private static string GetType(CsTypeCode code) => TypeMap[(int)code];
+    private static string FromCode(CsTypeCode code) => TypeCode2CSharp[(int)code];
 
     
     private string GetType(string typeName, string arg_0)
     {
         switch (typeName)
         {
-            case "f16":             return  GetType(CsTypeCode.f16);
-            case "f32":             return  GetType(CsTypeCode.f32);
-            case "i32":             return  GetType(CsTypeCode.i32);
-            case "u32":             return  GetType(CsTypeCode.u32);
-            //
-            case "vec2f":           return  GetType(CsTypeCode.vec2f);
-            case "vec3f":           return  GetType(CsTypeCode.vec3f);
-            case "vec4f":           return  GetType(CsTypeCode.vec4f);
-            //
-            case "vec2":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec2f),
+            case "array":   return GetType(arg_0, null);
+            case "vec2":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec2f),
                                                     _       =>  IOE()
-                };
-            case "vec3":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec3f),
+                                                };
+            case "vec3":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec3f),
                                                     _       =>  IOE()
-                };
-            case "vec4":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec4f),
+                                                };
+            case "vec4":    return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.vec4f),
                                                     _       =>  IOE()
-                };
-            //
-            case "mat4x4f":                             return  GetType(CsTypeCode.mat4x4f);
-            //
-            case "mat4x4":  return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.mat4x4f),
+                                                };
+            case "mat4x4":  return arg_0 switch {   "f32"   =>  FromCode(CsTypeCode.mat4x4f),
                                                     _       =>  IOE()
-                };
-
-            //
-            case "array":
-                return GetType(arg_0, null);
-            default:
-                /*if (typeName.StartsWith("vec")) {
-                    return typeName;
-                }
-                if (typeName.StartsWith("mat")) {
-                    return typeName;
-                }*/
-                var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
-                AddStruct(wgslStruct);
-                return typeName;
+                                                };
         }
+        if (Wgsl2CSharp.TryGetValue(typeName, out var csharp)) {
+            return csharp;
+        }
+        /* if (typeName.Length == 5 && typeName.StartsWith("vec")) {
+            return GetType(arg_0, null);
+        }
+        if (typeName.Length == 7 && typeName.StartsWith("mat")) {
+            return GetType(arg_0, null);
+        } */
+        
+        var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
+        AddStruct(wgslStruct);
+        return typeName;
     }
 }
