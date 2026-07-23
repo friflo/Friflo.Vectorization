@@ -23,3 +23,48 @@ public readonly struct WgslFile : IEquatable<WgslFile>
 
     public override     string      ToString()      => NormalizedPath;
 }
+
+
+internal struct FileEntry : IComparable<FileEntry>
+{
+    private     string[]    path;       // priority 1 small Length,   priority 3  element Alphabetical
+    private     bool        isCommon;   // priority 2 (true)
+    internal    WgslFile    file;
+
+    public override string  ToString() => file.NormalizedPath;
+
+    public int CompareTo(FileEntry other)
+    {
+        int cmp = path.Length.CompareTo(other.path.Length);
+        if (cmp != 0) return cmp;
+
+        cmp = other.isCommon.CompareTo(isCommon);
+        if (cmp != 0) return cmp;
+
+        for (int i = 0; i < path.Length; i++) {
+            cmp = string.Compare(path[i], other.path[i], StringComparison.OrdinalIgnoreCase);
+            if (cmp != 0) return cmp;
+        }
+        return 0;
+    }
+    
+    internal static FileEntry[] CreateEntries(WgslFile[] wgslFiles)
+    {
+        var entries = new FileEntry[wgslFiles.Length];
+        for (int n = 0; n < wgslFiles.Length; n++) {
+            var file = wgslFiles[n];
+            entries[n] = new FileEntry {
+                path        = file.NormalizedPath.Split('/'),
+                isCommon    = IsCommon(file.NormalizedPath),
+                file        = file 
+            };
+        }
+        return entries;
+    }
+    
+    private static bool IsCommon(string path)
+    {
+        return path.Contains("common", StringComparison.OrdinalIgnoreCase) ||
+               path.Contains("shared", StringComparison.OrdinalIgnoreCase);
+    }
+}

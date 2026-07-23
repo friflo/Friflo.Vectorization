@@ -20,37 +20,12 @@ internal struct StructCode {
     public bool   alreadyDeclared;
 }
 
-internal struct FileEntry : IComparable<FileEntry>
-{
-    internal    string[]    path;       // priority 1 small Length,   priority 3  element Alphabetical
-    internal    bool        isCommon;   // priority 2 (true)
-    internal    WgslFile    file;
-
-    public override string  ToString() => file.NormalizedPath;
-
-    public int CompareTo(FileEntry other)
-    {
-        int cmp = path.Length.CompareTo(other.path.Length);
-        if (cmp != 0) return cmp;
-
-        cmp = other.isCommon.CompareTo(isCommon);
-        if (cmp != 0) return cmp;
-
-        for (int i = 0; i < path.Length; i++) {
-            cmp = string.Compare(path[i], other.path[i], StringComparison.OrdinalIgnoreCase);
-            if (cmp != 0) return cmp;
-        }
-        return 0;
-    }
-}
-
 public sealed class TypeEmitter
 {
     private readonly    Dictionary<string, string>  structMap   = new();
     private readonly    List<StructCode>            fileStructs = new();
     private             WgslModule                  module;
     private             string                      fileNamespace;
-
     
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
@@ -63,7 +38,6 @@ public sealed class TypeEmitter
         }
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
     }
-    
     
     private static string PathToNamespace(string path, string root = "")
     {
@@ -80,12 +54,6 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
-    private static bool IsCommon(string path)
-    {
-        return path.Contains("common", StringComparison.OrdinalIgnoreCase) ||
-               path.Contains("shared", StringComparison.OrdinalIgnoreCase);
-    }
-    
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir)
     {
         for (int n = 0; n < wgslFiles.Length; n++) {
@@ -94,15 +62,7 @@ public sealed class TypeEmitter
         }
         // DebugInputs(wgslFiles, projDir);
         
-        var entries = new FileEntry[wgslFiles.Length];
-        for (int n = 0; n < wgslFiles.Length; n++) {
-            var file = wgslFiles[n];
-            entries[n] = new FileEntry {
-                path        = file.NormalizedPath.Split('/'),
-                isCommon    = IsCommon(file.NormalizedPath),
-                file        = file 
-            };
-        }
+        var entries = FileEntry.CreateEntries(wgslFiles);
         
         // sort for deterministic generation
         Array.Sort(entries);
