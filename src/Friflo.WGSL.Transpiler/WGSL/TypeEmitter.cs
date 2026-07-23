@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Friflo.WGSL.Transpiler.CSharp;
 
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable UnusedMember.Local
@@ -158,7 +159,7 @@ public sealed class TypeEmitter
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }
     
-    private string IOE() {
+    private static string IOE() {
         throw new InvalidOperationException();
     }
     
@@ -170,32 +171,64 @@ public sealed class TypeEmitter
         return GetType(type.Name, arg_0);
     }
     
+    private static string[] CreateTypeMap()
+    {
+        const int length = (int)CsTypeCode.WgslStruct;
+        var map = new string[length];
+        var values = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
+        foreach (var value in values) {
+            if ((int)value >= length) continue;
+            MapType(map, value, value.ToString());
+        }
+        MapType(map, CsTypeCode.f16,        "Half");
+        MapType(map, CsTypeCode.f32,        "float");
+        MapType(map, CsTypeCode.i32,        "int");
+        MapType(map, CsTypeCode.u32,        "uint");
+        
+        MapType(map, CsTypeCode.vec2f,      "Vector2");
+        MapType(map, CsTypeCode.vec3f,      "Vector3");
+        MapType(map, CsTypeCode.vec4f,      "Vector4");
+        
+        MapType(map, CsTypeCode.mat4x4f,    "Matrix4x4");
+        MapType(map, CsTypeCode.mat3x2f,    "Matrix3x2");
+        return map;
+    }
+    
+    private static void MapType(string[] map, CsTypeCode code, string typeName) {
+        map[(int)code] = typeName;
+    }
+    
+    private static readonly  string[] TypeMap = CreateTypeMap();
+    
+    private static string GetType(CsTypeCode code) => TypeMap[(int)code];
+
+    
     private string GetType(string typeName, string arg_0)
     {
         switch (typeName)
         {
-            case "i32":             return  "int";
-            case "u32":             return  "uint";
-            case "f32":             return  "float";
-            case "f16":             return  "Half";
+            case "f16":             return  GetType(CsTypeCode.f16);
+            case "f32":             return  GetType(CsTypeCode.f32);
+            case "i32":             return  GetType(CsTypeCode.i32);
+            case "u32":             return  GetType(CsTypeCode.u32);
             //
-            case "vec2f":           return  "Vector2";
-            case "vec3f":           return  "Vector3";
-            case "vec4f":           return  "Vector4";
+            case "vec2f":           return  GetType(CsTypeCode.vec2f);
+            case "vec3f":           return  GetType(CsTypeCode.vec3f);
+            case "vec4f":           return  GetType(CsTypeCode.vec4f);
             //
-            case "vec2":    return arg_0 switch {   "f32"   =>  "Vector2",
+            case "vec2":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec2f),
                                                     _       =>  IOE()
                 };
-            case "vec3":    return arg_0 switch {   "f32"   =>  "Vector3",
+            case "vec3":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec3f),
                                                     _       =>  IOE()
                 };
-            case "vec4":    return arg_0 switch {   "f32"   =>  "Vector4",
+            case "vec4":    return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.vec4f),
                                                     _       =>  IOE()
                 };
             //
-            case "mat4x4f":                             return  "Matrix4x4";
+            case "mat4x4f":                             return  GetType(CsTypeCode.mat4x4f);
             //
-            case "mat4x4":  return arg_0 switch {   "f32"   =>  "Matrix4x4",
+            case "mat4x4":  return arg_0 switch {   "f32"   =>  GetType(CsTypeCode.mat4x4f),
                                                     _       =>  IOE()
                 };
 
@@ -203,6 +236,12 @@ public sealed class TypeEmitter
             case "array":
                 return GetType(arg_0, null);
             default:
+                /*if (typeName.StartsWith("vec")) {
+                    return typeName;
+                }
+                if (typeName.StartsWith("mat")) {
+                    return typeName;
+                }*/
                 var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == typeName);
                 AddStruct(wgslStruct);
                 return typeName;
