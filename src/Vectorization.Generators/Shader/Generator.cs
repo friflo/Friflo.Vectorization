@@ -38,6 +38,13 @@ public sealed class ShaderGen : IIncrementalGenerator
             .Where(file => file.Path.EndsWith(".wgsl", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, ct) => WgslGenerator.CreateWgslFile(text, ct)).Collect();
         
+        // files of AdditionalTextsProvider is always empty since: Rider - Build #RD-262.8665.328, built on July 22, 2026
+        // context.RegisterSourceOutput(wgslFiles, (spc, files) => {
+        //    // generate temporary file with path of all AdditionalText's
+        //    var debugText = string.Join("\n", files);
+        //    spc.AddSource("Debug_AdditionalFiles.g.cs", $"/* files:\n{debugText}\n*/");
+        // });
+        
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
             "Friflo.Vectorization.WebGPU.ShaderAttribute",
