@@ -46,9 +46,9 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
-                    [Map(0, 0)] [storage]   InBuffer<VertexData>    mesh_data,
-                    [Map(2, 0)] [uniform]   in MyUniforms           myUniforms,
-                    [Map(2, 1)] [uniform]   in Vector2              model_offset)
+                    [Map(0, 0)] [storage]   InBuffer<TriangleStorage>   mesh_data,
+                    [Map(2, 0)] [uniform]   in MyUniforms               myUniforms,
+                    [Map(2, 1)] [uniform]   in Vector2                  model_offset)
             """));
     }
     
@@ -125,8 +125,8 @@ public static class Tests_WGSL
                     [Map(0,15)] [texture_depth_cube_array]                                      GpuTextureView          texture15,
                     [Map(1, 0)] [sampler]                                                       GpuSampler              sampler0,
                     [Map(1, 1)] [sampler_comparison]                                            GpuSampler              sampler1,
-                    [Map(2, 0)] [storage]                                                       InOutBuffer<Vector3>    uniforms,
-                    [Map(2, 1)] [uniform]                                                       in Vector3              vertices)
+                    [Map(2, 0)] [storage]                                                       InOutBuffer<VertexData> uniforms,
+                    [Map(2, 1)] [uniform]                                                       in VertexData           vertices)
             """));
     }
     
@@ -143,7 +143,7 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
-                    [Map(0, 0)] [uniform]           in Matrix4x4    uniforms,
+                    [Map(0, 0)] [uniform]           in Uniforms     uniforms,
                                 [VertexBuffer(0)]   InBuffer<float> vertexBuffer)
             """));
     }

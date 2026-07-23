@@ -25,12 +25,14 @@ public static class TypeGenerator
             case "uniform":
             case "storage":
                 var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+                /*
+                // In case a struct contains exactly one field return the field type 
                 if (type != null && type.Fields.Count == 1) {
                     var fieldType = type.Fields[0].WgslType;
                     if (fieldType.Name == "array" && fieldType.Generics.Length >= 1) {
                         return fieldType.Generics[0];
                     }
-                }
+                }*/
                 return binding.WgslType;
         }
         return null;

@@ -32,9 +32,8 @@ public static class Tests_GenerateTypes
             """
                 [Source("~/shaders/renderTest/triangle.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
-                public struct VertexData {
-                    public Vector4 position;
-                    public Vector4 color;
+                public struct TriangleStorage {
+                    public array triangles;
                 }
                 
                 [Source("~/shaders/renderTest/triangle.wgsl")]
@@ -106,9 +105,19 @@ public static class Tests_GenerateTypes
         var module  = CodeFixer.ParseWgslFiles(files);
         var types   = TypeGenerator.GenerateCSharpTypes(module);
         
+        Assert.That(types.Types, Is.EqualTo( // language=csharp
+            """
+                [Source("~/shaders/instancedCube/instanced.vert.wgsl")]
+                [StructLayout(LayoutKind.Sequential)]
+                public struct Uniforms {
+                    public array modelViewProjectionMatrix;
+                }
+                
+            
+            """));
         Assert.That(types.Comments, Is.EqualTo( // language=csharp
             """
-                // (i)  wgsl bindings do not use custom structs
+                // [ ]  Remove if you can reuse existing struct types
             
             """));
     }
