@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
 namespace Friflo.WGSL.Transpiler.WGSL;
@@ -71,5 +73,28 @@ public static class WgslUtils
             shaderFiles = shadersJoined.Split('|');
         }
         return list.ToArray();
+    }
+    
+    public static string GetExceptionAsString(Exception exception)
+    {
+        var text = exception.ToString();
+        var lines = text.Split(["\r\n", "\n"], StringSplitOptions.None);
+        var sb = new StringBuilder();
+        if (lines.Length > 0) {
+            sb.Append($"{lines[0]}\n");
+        }
+        for (int n = 1; n < lines.Length; n++)
+        {
+            var line = lines[n];
+            var last = line.LastIndexOf(')');
+            if (last == -1) {
+                sb.Append(line);
+            } else {
+                sb.Append(line.Substring(0, last + 1));
+            }
+            sb.Append("\n");
+        }
+        if (sb.Length > 0) sb.Length -=1;
+        return sb.ToString();
     }
 }

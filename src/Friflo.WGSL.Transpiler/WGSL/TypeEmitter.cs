@@ -102,7 +102,7 @@ public sealed class TypeEmitter
             }
             catch (Exception exception) {
                 sb.Append($"/* -------- Error parsing: {normalizedPath}\n");
-                sb.Append(exception);
+                sb.Append(WgslUtils.GetExceptionAsString(exception));
                 sb.Append("\n*/\n");
             }
             var source =  sb.ToString();
