@@ -8,11 +8,11 @@ namespace Shaders.Tests;
 
 
 [Source("~/shaders/tests/testTextureTypes.frag.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct VertexData (
     Vector3 vertices)
 {
-    public  Vector3 vertices = vertices;
+    [FieldOffset(  0)]  public  Vector3 vertices = vertices;
 }
 
 

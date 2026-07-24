@@ -51,12 +51,12 @@ public enum CsTypeCode
     GpuTextureView
 }
 
-public readonly struct WgslLayout
+public readonly struct TypeLayout
 {
     public readonly int size;
     public readonly int align;
     
-    internal WgslLayout(int size, int align)
+    internal TypeLayout(int size, int align)
     {
         this.size  = size;
         this.align = align;
@@ -77,7 +77,7 @@ public static class CsExtensions
     
     extension (CsTypeCode typeCode)
     {
-        public WgslLayout Layout => TypeSizes[(int)typeCode];
+        public TypeLayout Layout => TypeSizes[(int)typeCode];
     }
     
     extension (ValueArray<CsTypeInfo> typeInfos)
@@ -93,17 +93,17 @@ public static class CsExtensions
         } 
     }
     
-    private static readonly WgslLayout[] TypeSizes;
+    private static readonly TypeLayout[] TypeSizes;
     
-    private static void SetLayout(WgslLayout[] typeSizes, CsTypeCode code, int size, int align)
+    private static void SetLayout(TypeLayout[] typeSizes, CsTypeCode code, int size, int align)
     {
-        typeSizes[(int)code] = new WgslLayout(size, align);
+        typeSizes[(int)code] = new TypeLayout(size, align);
     } 
         
     static CsExtensions()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var sizes = TypeSizes = new WgslLayout [length];
+        var sizes = TypeSizes = new TypeLayout [length];
         
         // --- Scalars
         SetLayout(sizes, CsTypeCode.f16, 2, 2);

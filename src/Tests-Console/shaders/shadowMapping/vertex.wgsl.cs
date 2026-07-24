@@ -12,11 +12,11 @@ file partial class _info;
 
 
 [Source("~/shaders/shadowMapping/vertex.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct Model (
     Matrix4x4 modelMatrix)
 {
-    public  Matrix4x4 modelMatrix = modelMatrix;
+    [FieldOffset(  0)]  public  Matrix4x4 modelMatrix = modelMatrix;
 }
 
 

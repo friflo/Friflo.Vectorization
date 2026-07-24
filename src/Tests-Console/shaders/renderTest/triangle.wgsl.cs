@@ -8,33 +8,33 @@ namespace Shaders.RenderTest;
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
 public struct VertexData (
     Vector4 position,
     Vector4 color)
 {
-    public  Vector4 position = position;
-    public  Vector4 color    = color;
+    [FieldOffset(  0)]  public  Vector4 position = position;
+    [FieldOffset( 16)]  public  Vector4 color    = color;
 }
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
 public struct TriangleStorage (
     VertexData triangles)
 {
-    public  VertexData triangles = triangles;
+    [FieldOffset(  0)]  public  VertexData triangles = triangles;
 }
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
 public struct MyUniforms (
     Vector4 tint_color,
     Vector4 model_offset)
 {
-    public  Vector4 tint_color   = tint_color;
-    public  Vector4 model_offset = model_offset;
+    [FieldOffset(  0)]  public  Vector4 tint_color   = tint_color;
+    [FieldOffset( 16)]  public  Vector4 model_offset = model_offset;
 }
 
 

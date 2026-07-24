@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -17,9 +17,9 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public struct CSharpField
 {
-    public required string      name;
-    public required CSharpType  type;
-    public          int         offset;
+    public required string          name;
+    public required CSharpType      type;
+    public          int             offset;
 
     public override string      ToString() => name;
 }
@@ -29,7 +29,7 @@ public class CSharpStruct
     public required string          name;
     public required string          source;
     public required CSharpField[]   fields;
-    public          int             size;
+    public required TypeLayout      layout;
     
     public override string          ToString() => name;
 }
@@ -167,17 +167,17 @@ public sealed class TypeEmitter
                 continue;
             }
             sb.Append($"[Source(\"~/{normalizedPath}\")]\n");
-            sb.Append($"[StructLayout(LayoutKind.Sequential)]\n");
+            sb.Append($"[StructLayout(LayoutKind.Explicit, Size = {localStruct.csharpStruct.layout.size})]\n");
             sb.Append(localStruct.csharpStruct.source);
         }
         return requiredStructs.Count;
     }
     
-    private void CreateStruct(WgslStruct wgslStruct)
+    private CSharpStruct CreateStruct(WgslStruct wgslStruct)
     {
         var structName  = wgslStruct.Name;
-        if (localStructs.ContainsKey(structName)) {
-            return;
+        if (localStructs.TryGetValue(structName, out var localStruct)) {
+            return localStruct.csharpStruct;
         }
         var length      = wgslStruct.Fields.Count;
         var fields      = new CSharpField[length];
@@ -191,10 +191,11 @@ public sealed class TypeEmitter
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
             var csharpType  = GetCSharpType(field.WgslType);
-            fields[n] = new CSharpField { name = field.Name, type = csharpType };
+            fields[n]       = new CSharpField { name = field.Name, type = csharpType };
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.typeName.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
         }
+        var layout = AssignFieldLayouts(fields);
         foreach (var csharpField in fields) {
             var padParam   = maxTypeWidth  - csharpField.type.typeName.Length;
             sb.Append($"    {csharpField.type.typeName} ").Append(' ', padParam).Append($"{csharpField.name},\n");
@@ -208,7 +209,7 @@ public sealed class TypeEmitter
         foreach (var field in fields) {
             var padName   = maxTypeWidth  - field.type.typeName.Length;
             var padAssign = maxFieldWidth - field.name.Length;
-            sb.Append($"    public  {field.type.typeName} ").Append(' ', padName);
+            sb.Append($"    [FieldOffset({field.offset,3})]  public  {field.type.typeName} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};\n");
         }
         sb.Append("}\n\n\n");
@@ -219,11 +220,12 @@ public sealed class TypeEmitter
         if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
             var alreadyDeclared = source == curStruct.source;
             localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = alreadyDeclared });
-            return;
+            return curStruct;
         }
-        var csharpStruct = new CSharpStruct { name = structName, source =  source, fields = fields };
+        var csharpStruct = new CSharpStruct { name = structName, source =  source, fields = fields, layout = layout };
         structMap.Add(fullQualifiedName, csharpStruct);
         localStructs.Add(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
+        return csharpStruct;
     }
     
     private CSharpType GetCSharpType(WgslType type)
@@ -236,14 +238,41 @@ public sealed class TypeEmitter
         if (csharpType.typeCode == CsTypeCode.None) {
             return new CSharpType(type.ToString(), CsTypeCode.None);
         }
-
         if (csharpType.typeCode != CsTypeCode.WgslStruct) {
             return csharpType;
         }
         if (wgslStructs.TryGetValue(csharpType.typeName, out var wgslStruct)) {
             requiredStructs.Add(wgslStruct.Name);
-            CreateStruct(wgslStruct);
+            var csharpStruct = CreateStruct(wgslStruct);
+            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct , csharpStruct);
         }
         return csharpType;
+    }
+    
+    private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
+    {
+	    int currentOffset  = 0;
+	    int maxStructAlign = 1;
+        for (int n = 0; n < fields.Length; n++)
+        {
+            var field   = fields[n];
+            TypeLayout layout;
+            if (field.type.typeCode == CsTypeCode.WgslStruct) {
+                var csharpStruct = field.type.csharpStruct;
+                layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields) : default;
+            } else {
+                layout = field.type.typeCode.Layout;
+            }
+            // TODO implement later
+            // if (field.type.HasAlignAttribute) align = field.type.AlignAttributeValue;
+		    // if (field.type.HasSizeAttribute)  size =  Math.Max(size, field.type.SizeAttributeValue);
+            maxStructAlign = Math.Max(maxStructAlign, layout.align);
+		    
+            currentOffset       = (currentOffset + (layout.align - 1)) & ~(layout.align - 1);
+            fields[n].offset    = currentOffset;
+            currentOffset += layout.size;
+        }
+        int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
+        return new TypeLayout(finalStructSize, maxStructAlign);
     }
 }

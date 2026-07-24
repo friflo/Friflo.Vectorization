@@ -15,14 +15,21 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public readonly struct CSharpType
 {
-    public readonly string      typeName;
-    public readonly CsTypeCode  typeCode;
+    public readonly string          typeName;
+    public readonly CsTypeCode      typeCode;
+    public readonly CSharpStruct    csharpStruct; // != null if struct
 
     public override string      ToString() => $"{typeCode} - {typeName}";
 
     internal CSharpType(string typeName, CsTypeCode typeCode) {
-        this.typeName = typeName;
-        this.typeCode = typeCode;
+        this.typeName       = typeName;
+        this.typeCode       = typeCode;
+    }
+    
+    internal CSharpType(string typeName, CsTypeCode typeCode, CSharpStruct csharpStruct) {
+        this.typeName       = typeName;
+        this.typeCode       = typeCode;
+        this.csharpStruct   = csharpStruct;
     }
     
     

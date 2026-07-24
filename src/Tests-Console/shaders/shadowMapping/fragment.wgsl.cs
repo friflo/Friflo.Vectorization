@@ -8,15 +8,15 @@ namespace Shaders.ShadowMapping;
 
 
 [Source("~/shaders/shadowMapping/fragment.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 144)]
 public struct Scene (
     Matrix4x4 lightViewProjMatrix,
     Matrix4x4 cameraViewProjMatrix,
     Vector3   lightPos)
 {
-    public  Matrix4x4 lightViewProjMatrix  = lightViewProjMatrix;
-    public  Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
-    public  Vector3   lightPos             = lightPos;
+    [FieldOffset(  0)]  public  Matrix4x4 lightViewProjMatrix  = lightViewProjMatrix;
+    [FieldOffset( 64)]  public  Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
+    [FieldOffset(128)]  public  Vector3   lightPos             = lightPos;
 }
 
 

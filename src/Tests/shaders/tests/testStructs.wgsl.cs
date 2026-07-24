@@ -8,7 +8,7 @@ namespace Shaders.Tests;
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 0)]
 public struct EmptyStruct (
 )
 {
@@ -16,35 +16,35 @@ public struct EmptyStruct (
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct StructWithStructs (
     ChildStruct child1,
     ChildStruct child2)
 {
-    public  ChildStruct child1 = child1;
-    public  ChildStruct child2 = child2;
+    [FieldOffset(  0)]  public  ChildStruct child1 = child1;
+    [FieldOffset( 32)]  public  ChildStruct child2 = child2;
 }
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
 public struct ChildStruct (
     Vector3 vector1,
     Vector3 vector2)
 {
-    public  Vector3 vector1 = vector1;
-    public  Vector3 vector2 = vector2;
+    [FieldOffset(  0)]  public  Vector3 vector1 = vector1;
+    [FieldOffset( 16)]  public  Vector3 vector2 = vector2;
 }
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
 public struct TestStruct (
     Vector3 vector1,
     Vector3 vector2)
 {
-    public  Vector3 vector1 = vector1;
-    public  Vector3 vector2 = vector2;
+    [FieldOffset(  0)]  public  Vector3 vector1 = vector1;
+    [FieldOffset( 16)]  public  Vector3 vector2 = vector2;
 }
 
 

@@ -8,11 +8,11 @@ namespace Shaders.InstancedCube;
 
 
 [Source("~/shaders/instancedCube/instanced.vert.wgsl")]
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct Uniforms (
     Matrix4x4 modelViewProjectionMatrix)
 {
-    public  Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
+    [FieldOffset(  0)]  public  Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
 }
 
 
