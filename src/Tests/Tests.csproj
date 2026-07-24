@@ -53,6 +53,10 @@
     </PropertyGroup>
     
     <ItemGroup>
+      <Compile Remove ="shaders/tests/compilerErrors.wgsl.cs" />
+      <None    Include="shaders/tests/compilerErrors.wgsl.cs" />
+    </ItemGroup>
+    <ItemGroup>
       <None Remove="*.csproj.lscache" />
     </ItemGroup>
 
