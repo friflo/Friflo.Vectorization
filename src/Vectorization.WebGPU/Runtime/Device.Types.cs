@@ -117,6 +117,8 @@ public readonly struct WgpuShader
     public readonly string vert;
     public readonly string frag;
     
+    public override string ToString() => path;
+    
     public WgpuShader(string path, string vert = null, string frag = null)
     {
         this.path = path;
