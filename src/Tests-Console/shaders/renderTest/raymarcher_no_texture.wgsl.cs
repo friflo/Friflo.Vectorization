@@ -11,14 +11,14 @@ namespace Shaders.RenderTest;
 [StructLayout(LayoutKind.Sequential)]
 public struct ShadertoyUniforms (
     Vector3 iResolution,
-    float _pad,
-    float iTime,
+    float   _pad,
+    float   iTime,
     Vector3 _pad2)
 {
-    public Vector3 iResolution = iResolution;
-    public float _pad = _pad;
-    public float iTime = iTime;
-    public Vector3 _pad2 = _pad2;
+    public  Vector3 iResolution = iResolution;
+    public  float   _pad        = _pad;
+    public  float   iTime       = iTime;
+    public  Vector3 _pad2       = _pad2;
 }
 
 

@@ -131,24 +131,37 @@ public sealed class TypeEmitter
     
     private void AddStruct(WgslStruct wgslStruct)
     {
+        var length       = wgslStruct.Fields.Count;
+        var csharpFields = new CSharpField[length];
         var sb = new StringBuilder();
         sb.Clear();
         sb.Append($"public struct {wgslStruct.Name} (\n");
-        var csharpFields = new List<CSharpField>();
         
-        foreach (var field in wgslStruct.Fields) {
-            var csharpType = GetCSharpType(field.WgslType);
-            csharpFields.Add(new CSharpField { Name = field.Name, Type = csharpType });
-            sb.Append($"    {csharpType.typeName} {field.Name},\n");
+        var maxTypeWidth  = 0;
+        var maxFieldWidth = 0;
+        
+        for (int n = 0; n < length; n++) {
+            var field       = wgslStruct.Fields[n];
+            var csharpType  = GetCSharpType(field.WgslType);
+            csharpFields[n] = new CSharpField { Name = field.Name, Type = csharpType };
+            maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.typeName.Length);
+            maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
         }
-        if (csharpFields.Count > 0) {
+        foreach (var csharpField in csharpFields) {
+            var padParam   = maxTypeWidth  - csharpField.Type.typeName.Length;
+            sb.Append($"    {csharpField.Type.typeName} ").Append(' ', padParam).Append($"{csharpField.Name},\n");
+        }
+        if (length > 0) {
             sb.Length -= 2;
         }
         sb.Append(")\n");
         sb.Append("{\n");
 
         foreach (var field in csharpFields) {
-            sb.Append($"    public {field.Type.typeName} {field.Name} = {field.Name};\n");
+            var padName   = maxTypeWidth  - field.Type.typeName.Length;
+            var padAssign = maxFieldWidth - field.Name.Length;
+            sb.Append($"    public  {field.Type.typeName} ").Append(' ', padName);
+            sb.Append($"{field.Name} ").Append(' ', padAssign).Append($"= {field.Name};\n");
         }
         sb.Append("}\n\n\n");
         var source          = sb.ToString();

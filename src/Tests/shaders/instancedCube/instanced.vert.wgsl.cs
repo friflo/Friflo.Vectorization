@@ -12,7 +12,7 @@ namespace Shaders.InstancedCube;
 public struct Uniforms (
     Matrix4x4 modelViewProjectionMatrix)
 {
-    public Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
+    public  Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
 }
 
 

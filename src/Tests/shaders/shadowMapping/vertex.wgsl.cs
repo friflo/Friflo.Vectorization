@@ -16,7 +16,7 @@ file partial class _info;
 public struct Model (
     Matrix4x4 modelMatrix)
 {
-    public Matrix4x4 modelMatrix = modelMatrix;
+    public  Matrix4x4 modelMatrix = modelMatrix;
 }
 
 

@@ -15,3 +15,14 @@ public struct EmptyStruct (
 }
 
 
+[Source("~/shaders/tests/testEdgeCases.vert.wgsl")]
+[StructLayout(LayoutKind.Sequential)]
+public struct TestStruct (
+    Vector3 vector1,
+    Vector3 vector2)
+{
+    public  Vector3 vector1 = vector1;
+    public  Vector3 vector2 = vector2;
+}
+
+

@@ -23,10 +23,10 @@ public struct Indirect (
     uint firstVertex,
     uint firstInstance)
 {
-    public uint vertexCount = vertexCount;
-    public uint instanceCount = instanceCount;
-    public uint firstVertex = firstVertex;
-    public uint firstInstance = firstInstance;
+    public  uint vertexCount   = vertexCount;
+    public  uint instanceCount = instanceCount;
+    public  uint firstVertex   = firstVertex;
+    public  uint firstInstance = firstInstance;
 }
 
 

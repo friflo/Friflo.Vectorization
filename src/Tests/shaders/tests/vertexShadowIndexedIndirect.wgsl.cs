@@ -12,11 +12,11 @@ namespace Shaders.Tests;
 public struct Scene (
     Matrix4x4 lightViewProjMatrix,
     Matrix4x4 cameraViewProjMatrix,
-    Vector3 lightPos)
+    Vector3   lightPos)
 {
-    public Matrix4x4 lightViewProjMatrix = lightViewProjMatrix;
-    public Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
-    public Vector3 lightPos = lightPos;
+    public  Matrix4x4 lightViewProjMatrix  = lightViewProjMatrix;
+    public  Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
+    public  Vector3   lightPos             = lightPos;
 }
 
 
@@ -25,7 +25,7 @@ public struct Scene (
 public struct Model (
     Matrix4x4 modelMatrix)
 {
-    public Matrix4x4 modelMatrix = modelMatrix;
+    public  Matrix4x4 modelMatrix = modelMatrix;
 }
 
 
@@ -35,14 +35,14 @@ public struct IndexedIndirect (
     uint indexCount,
     uint instanceCount,
     uint firstIndex,
-    int baseVertex,
+    int  baseVertex,
     uint firstInstance)
 {
-    public uint indexCount = indexCount;
-    public uint instanceCount = instanceCount;
-    public uint firstIndex = firstIndex;
-    public int baseVertex = baseVertex;
-    public uint firstInstance = firstInstance;
+    public  uint indexCount    = indexCount;
+    public  uint instanceCount = instanceCount;
+    public  uint firstIndex    = firstIndex;
+    public  int  baseVertex    = baseVertex;
+    public  uint firstInstance = firstInstance;
 }
 
 

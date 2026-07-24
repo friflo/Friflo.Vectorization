@@ -13,8 +13,8 @@ public struct VertexData (
     Vector4 position,
     Vector4 color)
 {
-    public Vector4 position = position;
-    public Vector4 color = color;
+    public  Vector4 position = position;
+    public  Vector4 color    = color;
 }
 
 
@@ -23,7 +23,7 @@ public struct VertexData (
 public struct TriangleStorage (
     VertexData triangles)
 {
-    public VertexData triangles = triangles;
+    public  VertexData triangles = triangles;
 }
 
 
@@ -33,8 +33,8 @@ public struct MyUniforms (
     Vector4 tint_color,
     Vector4 model_offset)
 {
-    public Vector4 tint_color = tint_color;
-    public Vector4 model_offset = model_offset;
+    public  Vector4 tint_color   = tint_color;
+    public  Vector4 model_offset = model_offset;
 }
 
 

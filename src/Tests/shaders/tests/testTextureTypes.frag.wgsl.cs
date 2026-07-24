@@ -12,7 +12,7 @@ namespace Shaders.Tests;
 public struct VertexData (
     Vector3 vertices)
 {
-    public Vector3 vertices = vertices;
+    public  Vector3 vertices = vertices;
 }
 
 
