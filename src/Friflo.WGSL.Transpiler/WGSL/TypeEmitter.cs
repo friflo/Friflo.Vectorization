@@ -139,7 +139,9 @@ public sealed class TypeEmitter
             return 0;
         }
         foreach (var wgslStruct in structs) {
-            wgslStructs.TryAdd(wgslStruct.Name, wgslStruct); // TODO   emit error
+            if (!wgslStructs.TryAdd(wgslStruct.Name, wgslStruct)) {
+                // TODO  emit warning
+            }
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
