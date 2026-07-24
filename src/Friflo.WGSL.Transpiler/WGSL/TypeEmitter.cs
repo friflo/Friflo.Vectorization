@@ -141,7 +141,9 @@ public sealed class TypeEmitter
             csharpFields.Add(new CSharpField { Name = field.Name, Type = csharpType });
             sb.Append($"    {csharpType.typeName} {field.Name},\n");
         }
-        sb.Length -= 2;
+        if (csharpFields.Count > 0) {
+            sb.Length -= 2;
+        }
         sb.Append(")\n");
         sb.Append("{\n");
 
