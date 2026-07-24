@@ -19,12 +19,33 @@ internal struct StructCode {
     public bool   alreadyDeclared;
 }
 
+
+public struct CSharpField
+{
+    public required string      name;
+    public required CSharpType  type;
+    public          int         offset;
+
+    public override string      ToString() => name;
+}
+
+public class CSharpStruct
+{
+    public required string          name;
+    public required string          source;
+    public required CSharpField[]   fields;
+    public          int             size;
+    
+    public override string      ToString() => name;
+}
+
+
 public sealed class TypeEmitter
 {
-    private readonly    Dictionary<string, string>  structMap   = new();
-    private readonly    List<StructCode>            fileStructs = [];
-    private             WgslModule                  module;
-    private             string                      fileNamespace;
+    private readonly    Dictionary<string, CSharpStruct>    structMap   = new();
+    private readonly    List<StructCode>                    fileStructs = [];
+    private             WgslModule                          module;
+    private             string                              fileNamespace;
     
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
@@ -125,14 +146,17 @@ public sealed class TypeEmitter
             var typeName = binding.WgslType.Name;
             var wgslStruct = structs.FirstOrDefault(s => s.Name == typeName);
             if (wgslStruct == null) continue;
+            if (typeName == "StructWithStructs") {
+                int i = 1;
+            }
             AddStruct(wgslStruct);
         }
     }
     
     private void AddStruct(WgslStruct wgslStruct)
     {
-        var length       = wgslStruct.Fields.Count;
-        var csharpFields = new CSharpField[length];
+        var length = wgslStruct.Fields.Count;
+        var fields = new CSharpField[length];
         var sb = new StringBuilder();
         sb.Clear();
         sb.Append($"public struct {wgslStruct.Name} (\n");
@@ -143,13 +167,13 @@ public sealed class TypeEmitter
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
             var csharpType  = GetCSharpType(field.WgslType);
-            csharpFields[n] = new CSharpField { Name = field.Name, Type = csharpType };
+            fields[n] = new CSharpField { name = field.Name, type = csharpType };
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.typeName.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
         }
-        foreach (var csharpField in csharpFields) {
-            var padParam   = maxTypeWidth  - csharpField.Type.typeName.Length;
-            sb.Append($"    {csharpField.Type.typeName} ").Append(' ', padParam).Append($"{csharpField.Name},\n");
+        foreach (var csharpField in fields) {
+            var padParam   = maxTypeWidth  - csharpField.type.typeName.Length;
+            sb.Append($"    {csharpField.type.typeName} ").Append(' ', padParam).Append($"{csharpField.name},\n");
         }
         if (length > 0) {
             sb.Length -= 2;
@@ -157,24 +181,25 @@ public sealed class TypeEmitter
         sb.Append(")\n");
         sb.Append("{\n");
 
-        foreach (var field in csharpFields) {
-            var padName   = maxTypeWidth  - field.Type.typeName.Length;
-            var padAssign = maxFieldWidth - field.Name.Length;
-            sb.Append($"    public  {field.Type.typeName} ").Append(' ', padName);
-            sb.Append($"{field.Name} ").Append(' ', padAssign).Append($"= {field.Name};\n");
+        foreach (var field in fields) {
+            var padName   = maxTypeWidth  - field.type.typeName.Length;
+            var padAssign = maxFieldWidth - field.name.Length;
+            sb.Append($"    public  {field.type.typeName} ").Append(' ', padName);
+            sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};\n");
         }
         sb.Append("}\n\n\n");
         var source          = sb.ToString();
         var alreadyDeclared = false;
         var fullQualifiedName   = $"{fileNamespace}-{wgslStruct.Name}";
         
-        if (structMap.TryGetValue(fullQualifiedName, out var curSource)) {
-            if (source == curSource) {
+        if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
+            if (source == curStruct.source) {
                 source = $"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n";
                 alreadyDeclared = true;
             }
         } else {
-            structMap.Add(fullQualifiedName, source);
+            var csharpStruct = new CSharpStruct { name = wgslStruct.Name, source =  source, fields = fields };
+            structMap.Add(fullQualifiedName, csharpStruct);
         }
         fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
     }

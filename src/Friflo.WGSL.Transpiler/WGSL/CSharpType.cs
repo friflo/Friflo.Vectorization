@@ -12,12 +12,6 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-public readonly struct CSharpField
-{
-    public required string      Name    { get; init; }
-    public required CSharpType  Type    { get; init; }
-}
-
 
 public readonly struct CSharpType
 {
