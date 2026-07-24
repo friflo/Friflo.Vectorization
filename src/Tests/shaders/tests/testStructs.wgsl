@@ -17,8 +17,24 @@ struct TestStruct {
     vector2: vec3<f32>,
 }
 
+
+// example for align / size of nested struct
+struct Inner {
+    a : vec3<f32>, // Align: 16, Size: 12 (bytes 0..11)
+    b : f32,       // Align: 4,  Size: 4  (bytes 12..15)
+}                  // Inner layout: Size = 16, Align = 16
+
+struct Outer {
+    s1 : Inner,    // Offset 0:  bytes 0..15
+    x  : f32,      // Offset 16: bytes 16..19
+                   // Next available byte = 20
+
+    s2 : Inner,    // Offset 32: padded from 20 to 32 (Inner align = 16)
+}                  // Outer layout: Size = 48, Align = 16
+
 @group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
-@group(0) @binding(2)   var<uniform> uniforms2 : TestStruct;
-@group(0) @binding(1)   var<uniform> uniforms3 : StructWithStructs;
+@group(0) @binding(1)   var<uniform> uniforms2 : TestStruct;
+@group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
+@group(0) @binding(3)   var<uniform> uniforms4 : Outer;
 
 

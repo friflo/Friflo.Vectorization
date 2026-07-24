@@ -48,3 +48,27 @@ public struct TestStruct (
 }
 
 
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct Inner (
+    Vector3 a,
+    float   b)
+{
+    [FieldOffset(  0)]  public  Vector3 a = a;
+    [FieldOffset( 12)]  public  float   b = b;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 48)]
+public struct Outer (
+    Inner s1,
+    float x,
+    Inner s2)
+{
+    [FieldOffset(  0)]  public  Inner s1 = s1;
+    [FieldOffset( 16)]  public  float x  = x;
+    [FieldOffset( 32)]  public  Inner s2 = s2;
+}
+
+
