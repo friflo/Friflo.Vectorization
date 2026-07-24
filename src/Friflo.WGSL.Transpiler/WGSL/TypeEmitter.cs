@@ -272,6 +272,8 @@ public sealed class TypeEmitter
             fields[n].offset    = currentOffset;
             currentOffset += layout.size;
         }
+        // Struct fields (nested structs) align to their maximum internal alignment (maxStructAlign).
+        // Their size (finalStructSize) pads up to a multiple of that alignment (struct stride).
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
