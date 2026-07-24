@@ -16,7 +16,3 @@ public struct Uniforms (
 }
 
 
-/// Skipped identical duplicate of  <see cref="Uniforms"/>
-file partial class _info;
-
-

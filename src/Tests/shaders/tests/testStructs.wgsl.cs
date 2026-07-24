@@ -17,12 +17,12 @@ public struct EmptyStruct (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Sequential)]
-public struct TestStruct (
-    Vector3 vector1,
-    Vector3 vector2)
+public struct StructWithStructs (
+    ChildStruct child1,
+    ChildStruct child2)
 {
-    public  Vector3 vector1 = vector1;
-    public  Vector3 vector2 = vector2;
+    public  ChildStruct child1 = child1;
+    public  ChildStruct child2 = child2;
 }
 
 
@@ -39,12 +39,12 @@ public struct ChildStruct (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Sequential)]
-public struct StructWithStructs (
-    ChildStruct child1,
-    ChildStruct child2)
+public struct TestStruct (
+    Vector3 vector1,
+    Vector3 vector2)
 {
-    public  ChildStruct child1 = child1;
-    public  ChildStruct child2 = child2;
+    public  Vector3 vector1 = vector1;
+    public  Vector3 vector2 = vector2;
 }
 
 

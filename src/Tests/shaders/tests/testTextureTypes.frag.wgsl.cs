@@ -16,7 +16,3 @@ public struct VertexData (
 }
 
 
-/// Skipped identical duplicate of  <see cref="VertexData"/>
-file partial class _info;
-
-
