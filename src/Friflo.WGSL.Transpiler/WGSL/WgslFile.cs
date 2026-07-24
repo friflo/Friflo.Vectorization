@@ -55,9 +55,10 @@ internal struct FileEntry : IComparable<FileEntry>
         var entries = new FileEntry[wgslFiles.Length];
         for (int n = 0; n < wgslFiles.Length; n++) {
             var file = wgslFiles[n];
+            var path = file.NormalizedPath.Split('/');
             entries[n] = new FileEntry {
-                path        = file.NormalizedPath.Split('/'),
-                isCommon    = IsCommon(file.NormalizedPath),
+                path        = path,
+                isCommon    = HasSharedFolder(path),
                 file        = file 
             };
         }
@@ -68,9 +69,16 @@ internal struct FileEntry : IComparable<FileEntry>
         }
     }
     
-    private static bool IsCommon(string path)
+    private static bool HasSharedFolder(string[] path)
     {
-        return path.Contains("common", StringComparison.OrdinalIgnoreCase) ||
-               path.Contains("shared", StringComparison.OrdinalIgnoreCase);
+        for (int n = 0; n < path.Length - 1; n++) {
+            var folder = path[n];
+            if (folder.Equals("common", StringComparison.OrdinalIgnoreCase) ||
+                folder.Equals("shared", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
