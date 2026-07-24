@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Friflo.WGSL.Transpiler.CSharp;
 
 
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -15,8 +16,11 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 
 internal struct StructCode {
-    public string source;
-    public bool   alreadyDeclared;
+    public required string  name;
+    public required string  source;
+    public bool             alreadyDeclared;
+    
+    public override string  ToString() => name;
 }
 
 
@@ -155,11 +159,12 @@ public sealed class TypeEmitter
     
     private void AddStruct(WgslStruct wgslStruct)
     {
-        var length = wgslStruct.Fields.Count;
-        var fields = new CSharpField[length];
-        var sb = new StringBuilder();
+        var structName  = wgslStruct.Name;
+        var length      = wgslStruct.Fields.Count;
+        var fields      = new CSharpField[length];
+        var sb          = new StringBuilder();
         sb.Clear();
-        sb.Append($"public struct {wgslStruct.Name} (\n");
+        sb.Append($"public struct {structName} (\n");
         
         var maxTypeWidth  = 0;
         var maxFieldWidth = 0;
@@ -190,18 +195,18 @@ public sealed class TypeEmitter
         sb.Append("}\n\n\n");
         var source          = sb.ToString();
         var alreadyDeclared = false;
-        var fullQualifiedName   = $"{fileNamespace}-{wgslStruct.Name}";
+        var fullQualifiedName   = $"{fileNamespace}-{structName}";
         
         if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
             if (source == curStruct.source) {
-                source = $"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n";
+                source = $"/// Skipped identical duplicate of  <see cref=\"{structName}\"/>\nfile partial class _info;\n\n\n";
                 alreadyDeclared = true;
             }
         } else {
-            var csharpStruct = new CSharpStruct { name = wgslStruct.Name, source =  source, fields = fields };
+            var csharpStruct = new CSharpStruct { name = structName, source =  source, fields = fields };
             structMap.Add(fullQualifiedName, csharpStruct);
         }
-        fileStructs.Add(new StructCode { source = source, alreadyDeclared = alreadyDeclared });
+        fileStructs.Add(new StructCode { name = structName, source = source, alreadyDeclared = alreadyDeclared });
     }
     
     private CSharpType GetCSharpType(WgslType type)
@@ -210,7 +215,15 @@ public sealed class TypeEmitter
         var arg_0 = generics.Length > 0 ? generics[0].Name : "";
         
         var csharpType = CSharpType.GetCSharpType(type.Name, arg_0);
-        
+        if (csharpType.typeCode != CsTypeCode.WgslStruct) {
+            return csharpType;
+        }
+        var structCode = fileStructs.FirstOrDefault(s => s.name == csharpType.typeName);
+
+        // is struct { ... } with csharpType.typeName (or a comment) already added to current file?
+        if (structCode.name != null) {
+            return csharpType;
+        }
         var wgslStruct = module.Structs.FirstOrDefault(s => s.Name == csharpType.typeName);
         if (wgslStruct != null) {
             AddStruct(wgslStruct);

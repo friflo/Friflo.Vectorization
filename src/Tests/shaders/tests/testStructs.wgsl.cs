@@ -37,10 +37,6 @@ public struct ChildStruct (
 }
 
 
-/// Skipped identical duplicate of  <see cref="ChildStruct"/>
-file partial class _info;
-
-
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Sequential)]
 public struct StructWithStructs (
