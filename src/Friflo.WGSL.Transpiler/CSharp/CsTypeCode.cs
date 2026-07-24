@@ -135,7 +135,7 @@ public static class CsExtensions
         SetLayout(sizes, CsTypeCode.mat2x2h,  8,  4); // 2x vec2h
         SetLayout(sizes, CsTypeCode.mat2x2f, 16,  8); // 2x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat2x3h, 32,  8); // 2x vec3h (Stride: 8)
+        SetLayout(sizes, CsTypeCode.mat2x3h, 16,  8); // 2x vec3h (Stride: 8)
         SetLayout(sizes, CsTypeCode.mat2x3f, 32, 16); // 2x vec3f (Stride: 16)
 
         SetLayout(sizes, CsTypeCode.mat2x4h, 16,  8); // 2x vec4h
@@ -145,7 +145,7 @@ public static class CsExtensions
         SetLayout(sizes, CsTypeCode.mat3x2h, 12,  4); // 3x vec2h
         SetLayout(sizes, CsTypeCode.mat3x2f, 24,  8); // 3x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat3x3h, 48,  8); // 3x vec3h (Stride: 8)
+        SetLayout(sizes, CsTypeCode.mat3x3h, 24,  8); // 3x vec3h (Stride: 8)
         SetLayout(sizes, CsTypeCode.mat3x3f, 48, 16); // 3x vec3f (Stride: 16)
 
         SetLayout(sizes, CsTypeCode.mat3x4h, 24,  8); // 3x vec4h
@@ -155,7 +155,7 @@ public static class CsExtensions
         SetLayout(sizes, CsTypeCode.mat4x2h, 16,  4); // 4x vec2h
         SetLayout(sizes, CsTypeCode.mat4x2f, 32,  8); // 4x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat4x3h, 64,  8); // 4x vec3h (Stride: 8)
+        SetLayout(sizes, CsTypeCode.mat4x3h, 32,  8); // 4x vec3h (Stride: 8)
         SetLayout(sizes, CsTypeCode.mat4x3f, 64, 16); // 4x vec3f (Stride: 16)
 
         SetLayout(sizes, CsTypeCode.mat4x4h, 32,  8); // 4x vec4h
