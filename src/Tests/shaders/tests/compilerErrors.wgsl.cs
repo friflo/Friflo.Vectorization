@@ -18,6 +18,15 @@ public struct HasMissingType (
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Sequential)]
+public struct HasInvalidPrimitve (
+    vec3<i16> invalidVec3)
+{
+    public  vec3<i16> invalidVec3 = invalidVec3;
+}
+
+
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+[StructLayout(LayoutKind.Sequential)]
 public struct InconsistentStruct (
     int value1)
 {
