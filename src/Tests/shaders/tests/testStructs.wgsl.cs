@@ -72,3 +72,23 @@ public struct Outer (
 }
 
 
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct FixeSizeArrayStruct1 (
+    Vector3 vectors)
+{
+    [FieldOffset(  0)]  public  Vector3 vectors = vectors;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 32)]
+public struct FixeSizeArrayStruct2 (
+    Vector3 value,
+    Vector3 vectors)
+{
+    [FieldOffset(  0)]  public  Vector3 value   = value;
+    [FieldOffset( 16)]  public  Vector3 vectors = vectors;
+}
+
+

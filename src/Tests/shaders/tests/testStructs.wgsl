@@ -32,9 +32,21 @@ struct Outer {
     s2 : Inner,    // Offset 32: padded from 20 to 32 (Inner align = 16)
 }                  // Outer layout: Size = 48, Align = 16
 
+struct FixeSizeArrayStruct1 {
+    vectors: array<vec3f, 16>,
+}
+
+struct FixeSizeArrayStruct2 {
+    value:   vec3f,
+    vectors: array<vec3f, 16>,
+}
+
+
 @group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
 @group(0) @binding(1)   var<uniform> uniforms2 : TestStruct;
 @group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
 @group(0) @binding(3)   var<uniform> uniforms4 : Outer;
+@group(0) @binding(3)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
+@group(0) @binding(3)   var<uniform> uniforms5 : FixeSizeArrayStruct2;
 
 
