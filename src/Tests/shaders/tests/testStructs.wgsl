@@ -48,6 +48,6 @@ struct FixeSizeArrayStruct2 {
 @group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
 @group(0) @binding(3)   var<uniform> uniforms4 : Outer;
 @group(0) @binding(3)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
-@group(0) @binding(3)   var<uniform> uniforms5 : FixeSizeArrayStruct2;
+@group(0) @binding(3)   var<uniform> uniforms6 : FixeSizeArrayStruct2;
 
 
