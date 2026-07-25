@@ -62,11 +62,11 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
      triangles: array<vec3f>
 
 2. Use 'DynamicSizedStruct' directly as a <uniform> binding for your header data:
-     @group(0) @binding(4) var<uniform> hackStorageUniform : DynamicSizedStruct;
+     @group(0) @binding(4) var<uniform> trianglesDataUniform : DynamicSizedStruct;
 
 3. Declare the dynamic array as its own standalone <storage> binding:
-     @group(0) @binding(5) var<storage, read> hackStorage : array<vec3f>;
+     @group(0) @binding(5) var<storage, read> trianglesData : array<vec3f>;
 
-4. In your shader functions, replace 'hackStorage.triangles[i]' with 'hackStorage[i]'.
+4. In your shader functions, replace 'trianglesData.triangles[i]' with 'trianglesData[i]'.
 */
 file partial class _info;
