@@ -12,6 +12,18 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
+internal struct GenericArgs
+{
+    internal required string arg_0;
+    internal required string arg_1;
+    
+    internal static GenericArgs Create(ValueArray<WgslType> generics)
+    {
+        var arg_0 = generics.Length > 0 ? generics[0].Name : null;
+        var arg_1 = generics.Length > 1 ? generics[1].Name : null;
+        return new GenericArgs { arg_0 = arg_0, arg_1 = arg_1 };
+    }
+}
 
 public readonly struct CSharpType
 {
@@ -84,9 +96,9 @@ public readonly struct CSharpType
 
     private static readonly CSharpType InvalidType = new CSharpType("invalid_type", CsTypeCode.None);
     
-    private static CSharpType GetVec(string primitive, CsTypeCode code)
+    private static CSharpType GetVec(GenericArgs args, CsTypeCode code)
     {
-        return primitive switch
+        return args.arg_0 switch
         {
             "f16"   => FromCode(code, 0),
             "f32"   => FromCode(code, 1),
@@ -96,7 +108,7 @@ public readonly struct CSharpType
         };
     }
     
-    private static CSharpType GetMat(string primitive, int w, int h)
+    private static CSharpType GetMat(GenericArgs args, int w, int h)
     {
         var code = (w, h) switch
         {
@@ -118,7 +130,7 @@ public readonly struct CSharpType
             return InvalidType;
         }
         
-        return primitive switch
+        return args.arg_0 switch
         {
             "f16"   => FromCode(code, 0),
             "f32"   => FromCode(code, 1),
@@ -126,33 +138,33 @@ public readonly struct CSharpType
         };
     }
     
-    private static CSharpType GetArray(string arg_0)
+    private static CSharpType GetArray(GenericArgs args)
     {
-        var genericType = GetCSharpType(arg_0, null);
+        var genericType = GetCSharpType(args.arg_0, default);
         return new CSharpType(genericType.typeName, genericType.typeCode, true);
     }
 
-    public static CSharpType GetCSharpType(string name, string arg_0)
+    internal static CSharpType GetCSharpType(string name, GenericArgs args)
     {
         switch (name)
         {
-            case "array":   return GetArray(arg_0);
+            case "array":   return GetArray(args);
             //
-            case "vec2":    return GetVec(arg_0, CsTypeCode.vec2h);
-            case "vec3":    return GetVec(arg_0, CsTypeCode.vec3h);
-            case "vec4":    return GetVec(arg_0, CsTypeCode.vec4h);
+            case "vec2":    return GetVec(args, CsTypeCode.vec2h);
+            case "vec3":    return GetVec(args, CsTypeCode.vec3h);
+            case "vec4":    return GetVec(args, CsTypeCode.vec4h);
             //
-            case "mat2x2":  return GetMat(arg_0, 2, 2);
-            case "mat2x3":  return GetMat(arg_0, 2, 3);
-            case "mat2x4":  return GetMat(arg_0, 2, 4);
+            case "mat2x2":  return GetMat(args, 2, 2);
+            case "mat2x3":  return GetMat(args, 2, 3);
+            case "mat2x4":  return GetMat(args, 2, 4);
             //
-            case "mat3x2":  return GetMat(arg_0, 3, 2);
-            case "mat3x3":  return GetMat(arg_0, 3, 3);
-            case "mat3x4":  return GetMat(arg_0, 3, 4);
+            case "mat3x2":  return GetMat(args, 3, 2);
+            case "mat3x3":  return GetMat(args, 3, 3);
+            case "mat3x4":  return GetMat(args, 3, 4);
             //
-            case "mat4x2":  return GetMat(arg_0, 4, 2);
-            case "mat4x3":  return GetMat(arg_0, 4, 3);
-            case "mat4x4":  return GetMat(arg_0, 4, 4);
+            case "mat4x2":  return GetMat(args, 4, 2);
+            case "mat4x3":  return GetMat(args, 4, 3);
+            case "mat4x4":  return GetMat(args, 4, 4);
         }
         if (WgslTypeMap.TryGetValue(name, out var csharp)) {
             return csharp;

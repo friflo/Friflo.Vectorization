@@ -240,10 +240,9 @@ public sealed class TypeEmitter
     
     private CSharpType GetCSharpType(WgslType type)
     {
-        var generics = type.Generics;
-        var arg_0 = generics.Length > 0 ? generics[0].Name : "";
+        var args = GenericArgs.Create(type.Generics);
         
-        var csharpType = CSharpType.GetCSharpType(type.Name, arg_0);
+        var csharpType = CSharpType.GetCSharpType(type.Name, args);
         
         if (csharpType.typeCode == CsTypeCode.None) {
             return new CSharpType(type.ToString(), CsTypeCode.None);
