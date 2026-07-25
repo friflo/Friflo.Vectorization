@@ -32,8 +32,9 @@ public static class Tests_GenerateTypes
             """
                 [Source("~/shaders/renderTest/triangle.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
-                public struct TriangleStorage {
-                    public array triangles;
+                public struct VertexData {
+                    public Vector4 position;
+                    public Vector4 color;
                 }
                 
                 [Source("~/shaders/renderTest/triangle.wgsl")]
