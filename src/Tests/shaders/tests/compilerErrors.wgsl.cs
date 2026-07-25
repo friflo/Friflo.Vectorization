@@ -43,3 +43,28 @@ public struct InconsistentStruct (
 }
 
 
+#error Unsupported Struct Layout in 'shaders/tests/compilerErrors.wgsl'
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+/*
+Struct 'DynamicSizedStruct' contains header fields alongside a dynamic array ('array<vec3f>').
+Combining header data and dynamic arrays in a single Storage Buffer is intentionally restricted.
+
+REASON:
+- The legacy C89/C90 Struct Hack introduces complex byte-alignment and implicit padding issues between C# and WebGPU.
+- Merging varying header data with static arrays degrades GPU cache performance.
+- It makes usage of buffer header structs very complex and error prone.
+
+RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes:
+
+1. Keep 'struct DynamicSizedStruct', but remove the dynamic array from it. Remove:
+     triangles: array<vec3f>
+
+2. Use 'DynamicSizedStruct' directly as a <uniform> binding for your header data:
+     @group(0) @binding(0) var<uniform> header : DynamicSizedStruct;
+
+3. Declare the dynamic array as its own standalone <storage> binding:
+     @group(0) @binding(1) var<storage, read> mesh_data : array<vec3f>;
+
+4. In your shader functions, replace 'mesh_data.triangles[i]' with 'mesh_data[i]'.
+*/
+file partial class _info;

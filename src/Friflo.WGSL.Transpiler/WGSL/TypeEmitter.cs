@@ -117,7 +117,9 @@ public sealed class TypeEmitter
                 // sb.Append("// ReSharper disable InconsistentNaming\n");
                 sb.Append($"namespace {fileNamespace};\n");
                 sb.Append("\n\n");
-                if (EmitStructs(sb, normalizedPath) == 0) {
+                var start = sb.Length;
+                EmitStructs(sb, normalizedPath);
+                if (start == sb.Length) {
                     continue;
                 }
             }
@@ -133,11 +135,11 @@ public sealed class TypeEmitter
         }
     }
         
-    private int EmitStructs(StringBuilder sb, string normalizedPath)
+    private void EmitStructs(StringBuilder sb, string normalizedPath)
     {
         var structs  = module.Structs;
         if (module.Bindings.Count == 0 || structs.Count == 0) {
-            return 0;
+            return;
         }
         foreach (var wgslStruct in structs) {
             if (!wgslStructs.TryAdd(wgslStruct.Name, wgslStruct)) {
@@ -156,31 +158,32 @@ public sealed class TypeEmitter
             }
         }
         if (requiredStructs.Count == 0) {
-            return 0;
+            return;
         }
-        int emittedStructCount = 0;
+
         foreach (var wgslStruct in structs)
         {
             if (!localStructs.TryGetValue(wgslStruct.Name, out var localStruct)) {
                 continue;
             }
             if (localStruct.alreadyDeclared) {
-                emittedStructCount++;
                 sb.Append($"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n");
                 continue;
             }
             // FIX_C89_STRUCT_HACK
             // Ignore structs with dynamic array<> fields
-            var arrayField = localStruct.csharpStruct.fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
+            var fields = localStruct.csharpStruct.fields;
+            var arrayField = fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
+                if (fields.Length > 1) {
+                    EmitStructWithDynamicArrayField(sb, localStruct.csharpStruct, arrayField, normalizedPath);
+                }
                 continue;
             }
-            emittedStructCount++;
             sb.Append($"[Source(\"~/{normalizedPath}\")]\n");
             sb.Append($"[StructLayout(LayoutKind.Explicit, Size = {localStruct.csharpStruct.layout.size})]\n");
             sb.Append(localStruct.csharpStruct.source);
         }
-        return emittedStructCount;
     }
     
     private CSharpStruct CreateStruct(WgslStruct wgslStruct)
@@ -285,5 +288,47 @@ public sealed class TypeEmitter
         // Their size (finalStructSize) pads up to a multiple of that alignment (struct stride).
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
         return new TypeLayout(finalStructSize, maxStructAlign);
+    }
+    
+    private static void EmitStructWithDynamicArrayField(
+        StringBuilder   sb,
+        CSharpStruct    csharpStruct,
+        CSharpField     arrayField,
+        string          path)
+    {
+        var structName  = csharpStruct.name;
+        var fieldName   = arrayField.name;
+        var elementType = arrayField.type.ToString();
+        
+        sb.Append(              // TODO   replace use of mesh_data
+$"""
+#error Unsupported Struct Layout in '{path}'
+[Source("~/{path}")]
+/*
+Struct '{structName}' contains header fields alongside a dynamic array ('{elementType}').
+Combining header data and dynamic arrays in a single Storage Buffer is intentionally restricted.
+
+REASON:
+- The legacy C89/C90 Struct Hack introduces complex byte-alignment and implicit padding issues between C# and WebGPU.
+- Merging varying header data with static arrays degrades GPU cache performance.
+- It makes usage of buffer header structs very complex and error prone.
+
+RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes:
+
+1. Keep 'struct {structName}', but remove the dynamic array from it. Remove:
+     {fieldName}: {elementType}
+
+2. Use '{structName}' directly as a <uniform> binding for your header data:
+     @group(0) @binding(0) var<uniform> header : {structName};
+
+3. Declare the dynamic array as its own standalone <storage> binding:
+     @group(0) @binding(1) var<storage, read> mesh_data : {elementType};
+
+4. In your shader functions, replace 'mesh_data.{fieldName}[i]' with 'mesh_data[i]'.
+*/
+file partial class _info;
+""");
+            
+        
     }
 }

@@ -44,12 +44,11 @@ public readonly struct CSharpType
 
     public override string      ToString()
     {
-        if (paramType == WgslParamType.DynamicArray ||
-            paramType == WgslParamType.FixedSizeArray)
-        {
-            return $"array<{typeCode}> ({typeName})";    
-        }
-        return $"{typeCode} ({typeName})";
+        return paramType switch {
+            WgslParamType.DynamicArray      => $"array<{typeCode}>",
+            WgslParamType.FixedSizeArray    => $"array<{typeCode},{arraySize}>",
+            _                               => typeCode.ToString()
+        };
     }
 
     internal CSharpType(string typeName, CsTypeCode typeCode) {
