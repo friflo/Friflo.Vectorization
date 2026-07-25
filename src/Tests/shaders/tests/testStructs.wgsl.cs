@@ -9,13 +9,6 @@ namespace Shaders.Tests;
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct EmptyStruct ()
-{
-}
-
-
-[Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct StructWithStructs (in ChildStruct child1, in ChildStruct child2)
 {

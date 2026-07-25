@@ -8,6 +8,11 @@ using Friflo.Vectorization.WebGPU;
 namespace Shaders.Tests;
 
 
+#error Struct 'EmptyStruct' must contain at least one member. Empty structs are not allowed in WGSL.
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+file partial class _info;
+
+
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
 public struct HasMissingType (MissingType missingType)
@@ -57,10 +62,10 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
      triangles: array<vec3f>
 
 2. Use 'DynamicSizedStruct' directly as a <uniform> binding for your header data:
-     @group(0) @binding(3) var<uniform> hackStorageUniform : DynamicSizedStruct;
+     @group(0) @binding(4) var<uniform> hackStorageUniform : DynamicSizedStruct;
 
 3. Declare the dynamic array as its own standalone <storage> binding:
-     @group(0) @binding(4) var<storage, read> hackStorage : array<vec3f>;
+     @group(0) @binding(5) var<storage, read> hackStorage : array<vec3f>;
 
 4. In your shader functions, replace 'hackStorage.triangles[i]' with 'hackStorage[i]'.
 */

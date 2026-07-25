@@ -1,7 +1,4 @@
 
-struct EmptyStruct {
-}
-
 struct StructWithStructs {
     child1: ChildStruct,
     child2: ChildStruct,

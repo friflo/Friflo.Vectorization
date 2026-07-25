@@ -189,7 +189,7 @@ public sealed class uniformAttribute : Attribute;
 #endregion
 
 
-[AttributeUsage(AttributeTargets.Struct,  AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class,  AllowMultiple = true)]
 public sealed class SourceAttribute : Attribute
 {
     public SourceAttribute([PathReference] string wgslPath, string name = null) { }

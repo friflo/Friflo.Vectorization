@@ -180,9 +180,20 @@ public sealed class TypeEmitter
                 sb.Append($"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n");
                 continue;
             }
+            var fields = localStruct.csharpStruct.fields;
+            if (fields.Length == 0) {
+                sb.Append( // language=csharp
+                    $"""
+                    #error Struct '{localStruct.csharpStruct.name}' must contain at least one member. Empty structs are not allowed in WGSL.
+                    [Source("~/{normalizedPath}")]
+                    file partial class _info;
+                    """);
+                sb.Append("\n\n\n");
+                continue;
+            }
+            ////
             // FIX_C89_STRUCT_HACK
             // Ignore structs with dynamic array<> fields
-            var fields = localStruct.csharpStruct.fields;
             var arrayField = fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
