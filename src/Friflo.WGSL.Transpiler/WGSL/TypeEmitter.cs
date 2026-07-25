@@ -176,7 +176,8 @@ public sealed class TypeEmitter
             var arrayField = fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
-                    EmitStructWithDynamicArrayField(sb, localStruct.csharpStruct, arrayField, normalizedPath);
+                    var binding = module.Bindings.FirstOrDefault(b => b.WgslType.Name == wgslStruct.Name);
+                    EmitStructWithDynamicArrayField(sb, binding, localStruct.csharpStruct, arrayField, normalizedPath);
                 }
                 continue;
             }
@@ -292,15 +293,17 @@ public sealed class TypeEmitter
     
     private static void EmitStructWithDynamicArrayField(
         StringBuilder   sb,
+        WgslBinding     binding,
         CSharpStruct    csharpStruct,
         CSharpField     arrayField,
         string          path)
     {
+        var bindingName = binding.Name;
         var structName  = csharpStruct.name;
         var fieldName   = arrayField.name;
         var elementType = arrayField.type.ToString();
         
-        sb.Append(              // TODO   replace use of mesh_data
+        sb.Append(
 $"""
 #error Unsupported Struct Layout in '{path}'
 [Source("~/{path}")]
@@ -319,12 +322,12 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
      {fieldName}: {elementType}
 
 2. Use '{structName}' directly as a <uniform> binding for your header data:
-     @group(0) @binding(0) var<uniform> header : {structName};
+     @group({binding.Group}) @binding({binding.Binding}) var<uniform> {bindingName}Uniform : {structName};
 
 3. Declare the dynamic array as its own standalone <storage> binding:
-     @group(0) @binding(1) var<storage, read> mesh_data : {elementType};
+     @group({binding.Group}) @binding({binding.Binding + 1}) var<storage, read> {bindingName} : {elementType};
 
-4. In your shader functions, replace 'mesh_data.{fieldName}[i]' with 'mesh_data[i]'.
+4. In your shader functions, replace '{bindingName}.{fieldName}[i]' with '{bindingName}[i]'.
 */
 file partial class _info;
 """);
