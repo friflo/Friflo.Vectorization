@@ -19,15 +19,6 @@ public struct VertexData (
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct TriangleStorage (
-    VertexData triangles)
-{
-    [FieldOffset(  0)]  public  VertexData triangles = triangles;
-}
-
-
-[Source("~/shaders/renderTest/triangle.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct MyUniforms (
     Vector4 tint_color)

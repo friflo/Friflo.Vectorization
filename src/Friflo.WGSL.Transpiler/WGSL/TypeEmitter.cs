@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
@@ -157,20 +158,29 @@ public sealed class TypeEmitter
         if (requiredStructs.Count == 0) {
             return 0;
         }
+        int emittedStructCount = 0;
         foreach (var wgslStruct in structs)
         {
             if (!localStructs.TryGetValue(wgslStruct.Name, out var localStruct)) {
                 continue;
             }
             if (localStruct.alreadyDeclared) {
+                emittedStructCount++;
                 sb.Append($"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n");
                 continue;
             }
+            // FIX_C89_STRUCT_HACK
+            // Ignore structs with dynamic array<> fields
+            var arrayField = localStruct.csharpStruct.fields.FirstOrDefault(f => f.type.isArray);
+            if (arrayField.name != null) {
+                continue;
+            }
+            emittedStructCount++;
             sb.Append($"[Source(\"~/{normalizedPath}\")]\n");
             sb.Append($"[StructLayout(LayoutKind.Explicit, Size = {localStruct.csharpStruct.layout.size})]\n");
             sb.Append(localStruct.csharpStruct.source);
         }
-        return requiredStructs.Count;
+        return emittedStructCount;
     }
     
     private CSharpStruct CreateStruct(WgslStruct wgslStruct)
