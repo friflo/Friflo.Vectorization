@@ -33,12 +33,13 @@ struct Outer {
 }                  // Outer layout: Size = 48, Align = 16
 
 struct FixeSizeArrayStruct1 {
-    vectors: array<vec3f, 16>,
+    vectors:    array<vec3f, 16>,
 }
 
 struct FixeSizeArrayStruct2 {
-    value:   vec3f,
-    vectors: array<vec3f, 16>,
+    value1:     vec3f,
+    vectors:    array<vec3f, 16>,
+    value2:     vec3f,
 }
 
 

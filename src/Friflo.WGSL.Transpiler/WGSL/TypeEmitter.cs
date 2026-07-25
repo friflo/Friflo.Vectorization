@@ -287,6 +287,14 @@ public sealed class TypeEmitter
                 layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields) : default;
             } else {
                 layout = field.type.typeCode.Layout;
+                if (field.type.paramType == WgslParamType.FixedSizeArray) {
+                    int elementSize     = layout.size;
+                    int elementAlign    = layout.align;
+                    int arrayCount      = field.type.arraySize;
+                    int elementStride   = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
+                    int arraySize       = elementStride * arrayCount;
+                    layout = new TypeLayout(arraySize, elementAlign);
+                }
             }
             // TODO implement later
             // if (field.type.HasAlignAttribute) align = field.type.AlignAttributeValue;
