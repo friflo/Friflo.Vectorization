@@ -24,6 +24,7 @@ public struct CSharpField
     public required string          name;
     public required CSharpType      type;
     public          int             offset;
+    public          int             size;
 
     public override string          ToString() => name;
 }
@@ -220,7 +221,8 @@ public sealed class TypeEmitter
         }
         var layout = AssignFieldLayouts(fields);
         foreach (var csharpField in fields) {
-            sb.Append($"{csharpField.type.typeName} {csharpField.name}, ");
+            var modifier = csharpField.size <= 16 ? "" : "in ";
+            sb.Append($"{modifier}{csharpField.type.typeName} {csharpField.name}, ");
         }
         if (length > 0) {
             sb.Length -= 2;
@@ -302,6 +304,7 @@ public sealed class TypeEmitter
 		    
             currentOffset       = (currentOffset + (layout.align - 1)) & ~(layout.align - 1);
             fields[n].offset    = currentOffset;
+            fields[n].size      = layout.size;
             currentOffset += layout.size;
         }
         // Struct fields (nested structs) align to their maximum internal alignment (maxStructAlign).

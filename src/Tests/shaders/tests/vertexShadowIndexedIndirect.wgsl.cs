@@ -10,7 +10,7 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/vertexShadowIndexedIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 144)]
-public struct Scene (Matrix4x4 lightViewProjMatrix, Matrix4x4 cameraViewProjMatrix, Vector3 lightPos)
+public struct Scene (in Matrix4x4 lightViewProjMatrix, in Matrix4x4 cameraViewProjMatrix, Vector3 lightPos)
 {
     [FieldOffset(  0)]  public  Matrix4x4 lightViewProjMatrix  = lightViewProjMatrix;
     [FieldOffset( 64)]  public  Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
@@ -20,7 +20,7 @@ public struct Scene (Matrix4x4 lightViewProjMatrix, Matrix4x4 cameraViewProjMatr
 
 [Source("~/shaders/tests/vertexShadowIndexedIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct Model (Matrix4x4 modelMatrix)
+public struct Model (in Matrix4x4 modelMatrix)
 {
     [FieldOffset(  0)]  public  Matrix4x4 modelMatrix = modelMatrix;
 }
