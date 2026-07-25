@@ -1,5 +1,5 @@
 struct Uniforms {
-  modelViewProjectionMatrix : array<mat4x4f, 16>,
+  modelViewProjectionMatrix : array<mat4x4f>,
 }
 
 @group(2) @binding(0) var<uniform> uniforms : Uniforms;

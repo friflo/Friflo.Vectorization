@@ -22,7 +22,7 @@ public struct CSharpField
     public required CSharpType      type;
     public          int             offset;
 
-    public override string      ToString() => name;
+    public override string          ToString() => name;
 }
 
 public class CSharpStruct
@@ -171,7 +171,7 @@ public sealed class TypeEmitter
             }
             // FIX_C89_STRUCT_HACK
             // Ignore structs with dynamic array<> fields
-            var arrayField = localStruct.csharpStruct.fields.FirstOrDefault(f => f.type.isArray);
+            var arrayField = localStruct.csharpStruct.fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 continue;
             }
@@ -253,7 +253,7 @@ public sealed class TypeEmitter
         if (wgslStructs.TryGetValue(csharpType.typeName, out var wgslStruct)) {
             requiredStructs.Add(wgslStruct.Name);
             var csharpStruct = CreateStruct(wgslStruct);
-            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct, csharpType.isArray, csharpStruct);
+            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct, csharpType.paramType, csharpType.arraySize, csharpStruct);
         }
         return csharpType;
     }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
+// ReSharper disable MergeIntoLogicalPattern
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable ConvertToPrimaryConstructor
@@ -25,16 +26,27 @@ internal struct GenericArgs
     }
 }
 
+public enum WgslParamType
+{
+    None,
+    FixedSizeArray,
+    DynamicArray
+}
+
+
 public readonly struct CSharpType
 {
     public readonly string          typeName;
     public readonly CsTypeCode      typeCode;
-    public readonly bool            isArray;
+    public readonly WgslParamType   paramType;
+    public readonly int             arraySize;
     public readonly CSharpStruct    csharpStruct; // != null if struct
 
     public override string      ToString()
     {
-        if (isArray) {
+        if (paramType == WgslParamType.DynamicArray ||
+            paramType == WgslParamType.FixedSizeArray)
+        {
             return $"array<{typeCode}> ({typeName})";    
         }
         return $"{typeCode} ({typeName})";
@@ -45,18 +57,19 @@ public readonly struct CSharpType
         this.typeCode       = typeCode;
     }
     
-   internal CSharpType(string typeName, CsTypeCode typeCode, bool isArray) {
+    private CSharpType(string typeName, CsTypeCode typeCode, WgslParamType paramType, int arraySize) {
         this.typeName       = typeName;
         this.typeCode       = typeCode;
-        this.isArray        = isArray;
+        this.paramType      = paramType;
+        this.arraySize      = arraySize;
     }
-
     
-    internal CSharpType(string typeName, CsTypeCode typeCode, bool isArray, CSharpStruct csharpStruct) {
+    internal CSharpType(string typeName, CsTypeCode typeCode, WgslParamType paramType, int arraySize, CSharpStruct csharpStruct) {
         this.typeName       = typeName;
         this.typeCode       = typeCode;
+        this.paramType      = paramType;
+        this.arraySize      = arraySize;
         this.csharpStruct   = csharpStruct;
-        this.isArray        = isArray;
     }
     
     
@@ -141,7 +154,10 @@ public readonly struct CSharpType
     private static CSharpType GetArray(GenericArgs args)
     {
         var genericType = GetCSharpType(args.arg_0, default);
-        return new CSharpType(genericType.typeName, genericType.typeCode, true);
+        var paramType = int.TryParse(args.arg_1, out var arraySize)
+            ? WgslParamType.FixedSizeArray
+            : WgslParamType.DynamicArray;
+        return new CSharpType(genericType.typeName, genericType.typeCode, paramType, arraySize);
     }
 
     internal static CSharpType GetCSharpType(string name, GenericArgs args)
