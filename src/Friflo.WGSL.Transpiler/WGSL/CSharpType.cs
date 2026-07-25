@@ -17,19 +17,34 @@ public readonly struct CSharpType
 {
     public readonly string          typeName;
     public readonly CsTypeCode      typeCode;
+    public readonly bool            isArray;
     public readonly CSharpStruct    csharpStruct; // != null if struct
 
-    public override string      ToString() => $"{typeCode} - {typeName}";
+    public override string      ToString()
+    {
+        if (isArray) {
+            return $"array<{typeCode}> ({typeName})";    
+        }
+        return $"{typeCode} ({typeName})";
+    }
 
     internal CSharpType(string typeName, CsTypeCode typeCode) {
         this.typeName       = typeName;
         this.typeCode       = typeCode;
     }
     
-    internal CSharpType(string typeName, CsTypeCode typeCode, CSharpStruct csharpStruct) {
+   internal CSharpType(string typeName, CsTypeCode typeCode, bool isArray) {
+        this.typeName       = typeName;
+        this.typeCode       = typeCode;
+        this.isArray        = isArray;
+    }
+
+    
+    internal CSharpType(string typeName, CsTypeCode typeCode, bool isArray, CSharpStruct csharpStruct) {
         this.typeName       = typeName;
         this.typeCode       = typeCode;
         this.csharpStruct   = csharpStruct;
+        this.isArray        = isArray;
     }
     
     
@@ -110,12 +125,18 @@ public readonly struct CSharpType
             _       => InvalidType
         };
     }
+    
+    private static CSharpType GetArray(string arg_0)
+    {
+        var genericType = GetCSharpType(arg_0, null);
+        return new CSharpType(genericType.typeName, genericType.typeCode, true);
+    }
 
     public static CSharpType GetCSharpType(string name, string arg_0)
     {
         switch (name)
         {
-            case "array":   return GetCSharpType  (arg_0, null);
+            case "array":   return GetArray(arg_0);
             //
             case "vec2":    return GetVec(arg_0, CsTypeCode.vec2h);
             case "vec3":    return GetVec(arg_0, CsTypeCode.vec3h);

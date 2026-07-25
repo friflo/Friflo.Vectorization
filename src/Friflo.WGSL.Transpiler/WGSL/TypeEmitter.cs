@@ -244,7 +244,7 @@ public sealed class TypeEmitter
         if (wgslStructs.TryGetValue(csharpType.typeName, out var wgslStruct)) {
             requiredStructs.Add(wgslStruct.Name);
             var csharpStruct = CreateStruct(wgslStruct);
-            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct , csharpStruct);
+            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct, csharpType.isArray, csharpStruct);
         }
         return csharpType;
     }
