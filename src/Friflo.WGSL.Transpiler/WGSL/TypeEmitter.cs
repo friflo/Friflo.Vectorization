@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable RawStringCanBeSimplified
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -46,10 +48,13 @@ internal struct LocalStruct
 
 public sealed class TypeEmitter
 {
-    private readonly    Dictionary<string, CSharpStruct>    structMap       = new();
-    private readonly    Dictionary<string, LocalStruct>     localStructs    = new();
-    private readonly    Dictionary<string, WgslStruct>      wgslStructs     = new();
-    private readonly    HashSet<string>                     requiredStructs = [];
+    private readonly    Dictionary<string, CSharpStruct>    structMap           = new();
+    private readonly    Dictionary<string, LocalStruct>     localStructs        = new();
+    private readonly    Dictionary<string, WgslStruct>      wgslStructs         = new();
+    private readonly    HashSet<string>                     requiredStructs     = [];
+    //
+    private readonly    StringBuilder                       fixedSizedArrays    = new();
+    private readonly    HashSet<string>                     fixedSizedArrayTypes= [];
 
     private             WgslModule                          module;
     private             string                              fileNamespace;
@@ -103,6 +108,7 @@ public sealed class TypeEmitter
                 localStructs.Clear();
                 requiredStructs.Clear();
                 wgslStructs.Clear();
+                fixedSizedArrays.Clear();
                 fileNamespace = PathToNamespace(normalizedPath);
                 
                 // --- process after
@@ -124,6 +130,7 @@ public sealed class TypeEmitter
                 if (start == sb.Length) {
                     continue;
                 }
+                sb.Append(fixedSizedArrays);
             }
             catch (Exception exception) {
                 sb.Append($"/* -------- Error parsing: {normalizedPath}\n");
@@ -298,9 +305,25 @@ public sealed class TypeEmitter
     
     private CSharpType CreateFixedSizeArray(CSharpType type)
     {
-        var typeName = type.typeName; // $"{type.typeName}_Array{type.arraySize}";
-        var fixedSizeArrayType = new CSharpType(typeName, type.typeCode, type.paramType, type.arraySize, type.csharpStruct);
-        return fixedSizeArrayType;
+        var typeName = $"{type.typeName}_Array_{type.arraySize}";
+        if (fixedSizedArrayTypes.Add(typeName)) {
+            fixedSizedArrays.Append(
+                $$"""
+                [InlineArray({{type.arraySize}})]
+                public struct {{typeName}}
+                {
+                    private {{type.typeName}} _element0;
+                }
+                """);
+        } else {
+            fixedSizedArrays.Append(
+                $$"""
+                /// Skipped identical duplicate of  <see cref="{{typeName}}"/>
+                file partial class _info;
+                """);
+        }
+        fixedSizedArrays.Append("\n\n\n");
+        return new CSharpType(typeName, type.typeCode, type.paramType, type.arraySize, type.csharpStruct);
     }
     
     private static void EmitStructWithDynamicArrayField(

@@ -11,9 +11,16 @@ namespace Shaders.InstancedCube;
 [Source("~/shaders/instancedCube/instanced.vert.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct Uniforms (
-    Matrix4x4 modelViewProjectionMatrix)
+    Matrix4x4_Array_16 modelViewProjectionMatrix)
 {
-    [FieldOffset(  0)]  public  Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
+    [FieldOffset(  0)]  public  Matrix4x4_Array_16 modelViewProjectionMatrix = modelViewProjectionMatrix;
+}
+
+
+[InlineArray(16)]
+public struct Matrix4x4_Array_16
+{
+    private Matrix4x4 _element0;
 }
 
 
