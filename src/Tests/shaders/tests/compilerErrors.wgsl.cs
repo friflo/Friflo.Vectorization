@@ -10,8 +10,7 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct HasMissingType (
-    MissingType missingType)
+public struct HasMissingType (MissingType missingType)
 {
     [FieldOffset(  0)]  public  MissingType missingType = missingType;
 }
@@ -19,8 +18,7 @@ public struct HasMissingType (
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct HasInvalidPrimitve (
-    vec3<i16> invalidVec3)
+public struct HasInvalidPrimitve (vec3<i16> invalidVec3)
 {
     [FieldOffset(  0)]  public  vec3<i16> invalidVec3 = invalidVec3;
 }
@@ -28,8 +26,7 @@ public struct HasInvalidPrimitve (
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 4)]
-public struct InconsistentStruct (
-    int value1)
+public struct InconsistentStruct (int value1)
 {
     [FieldOffset(  0)]  public  int value1 = value1;
 }
@@ -37,8 +34,7 @@ public struct InconsistentStruct (
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 4)]
-public struct InconsistentStruct (
-    int value1)
+public struct InconsistentStruct (int value1)
 {
     [FieldOffset(  0)]  public  int value1 = value1;
 }

@@ -206,7 +206,7 @@ public sealed class TypeEmitter
         var fields      = new CSharpField[length];
         var sb          = new StringBuilder();
         sb.Clear();
-        sb.Append($"public struct {structName} (\n");
+        sb.Append($"public struct {structName} (");
         
         var maxTypeWidth  = 0;
         var maxFieldWidth = 0;
@@ -220,8 +220,7 @@ public sealed class TypeEmitter
         }
         var layout = AssignFieldLayouts(fields);
         foreach (var csharpField in fields) {
-            var padParam   = maxTypeWidth  - csharpField.type.typeName.Length;
-            sb.Append($"    {csharpField.type.typeName} ").Append(' ', padParam).Append($"{csharpField.name},\n");
+            sb.Append($"{csharpField.type.typeName} {csharpField.name}, ");
         }
         if (length > 0) {
             sb.Length -= 2;

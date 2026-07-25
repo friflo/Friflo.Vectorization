@@ -10,9 +10,7 @@ namespace Shaders.RenderTest;
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct VertexData (
-    Vector4 position,
-    Vector4 color)
+public struct VertexData (Vector4 position, Vector4 color)
 {
     [FieldOffset(  0)]  public  Vector4 position = position;
     [FieldOffset( 16)]  public  Vector4 color    = color;
@@ -21,9 +19,7 @@ public struct VertexData (
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct MyUniforms (
-    Vector4 tint_color,
-    Vector4 model_offset)
+public struct MyUniforms (Vector4 tint_color, Vector4 model_offset)
 {
     [FieldOffset(  0)]  public  Vector4 tint_color   = tint_color;
     [FieldOffset( 16)]  public  Vector4 model_offset = model_offset;

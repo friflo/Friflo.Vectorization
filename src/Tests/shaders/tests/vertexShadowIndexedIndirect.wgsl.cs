@@ -10,10 +10,7 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/vertexShadowIndexedIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 144)]
-public struct Scene (
-    Matrix4x4 lightViewProjMatrix,
-    Matrix4x4 cameraViewProjMatrix,
-    Vector3   lightPos)
+public struct Scene (Matrix4x4 lightViewProjMatrix, Matrix4x4 cameraViewProjMatrix, Vector3 lightPos)
 {
     [FieldOffset(  0)]  public  Matrix4x4 lightViewProjMatrix  = lightViewProjMatrix;
     [FieldOffset( 64)]  public  Matrix4x4 cameraViewProjMatrix = cameraViewProjMatrix;
@@ -23,8 +20,7 @@ public struct Scene (
 
 [Source("~/shaders/tests/vertexShadowIndexedIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct Model (
-    Matrix4x4 modelMatrix)
+public struct Model (Matrix4x4 modelMatrix)
 {
     [FieldOffset(  0)]  public  Matrix4x4 modelMatrix = modelMatrix;
 }
@@ -32,12 +28,7 @@ public struct Model (
 
 [Source("~/shaders/tests/vertexShadowIndexedIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 20)]
-public struct IndexedIndirect (
-    uint indexCount,
-    uint instanceCount,
-    uint firstIndex,
-    int  baseVertex,
-    uint firstInstance)
+public struct IndexedIndirect (uint indexCount, uint instanceCount, uint firstIndex, int baseVertex, uint firstInstance)
 {
     [FieldOffset(  0)]  public  uint indexCount    = indexCount;
     [FieldOffset(  4)]  public  uint instanceCount = instanceCount;

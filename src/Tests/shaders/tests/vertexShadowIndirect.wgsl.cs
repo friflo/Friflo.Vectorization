@@ -18,11 +18,7 @@ file partial class _info;
 
 [Source("~/shaders/tests/vertexShadowIndirect.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct Indirect (
-    uint vertexCount,
-    uint instanceCount,
-    uint firstVertex,
-    uint firstInstance)
+public struct Indirect (uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance)
 {
     [FieldOffset(  0)]  public  uint vertexCount   = vertexCount;
     [FieldOffset(  4)]  public  uint instanceCount = instanceCount;

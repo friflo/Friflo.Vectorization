@@ -10,17 +10,14 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct EmptyStruct (
-)
+public struct EmptyStruct ()
 {
 }
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct StructWithStructs (
-    ChildStruct child1,
-    ChildStruct child2)
+public struct StructWithStructs (ChildStruct child1, ChildStruct child2)
 {
     [FieldOffset(  0)]  public  ChildStruct child1 = child1;
     [FieldOffset( 32)]  public  ChildStruct child2 = child2;
@@ -29,9 +26,7 @@ public struct StructWithStructs (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct ChildStruct (
-    Vector3 vector1,
-    Vector3 vector2)
+public struct ChildStruct (Vector3 vector1, Vector3 vector2)
 {
     [FieldOffset(  0)]  public  Vector3 vector1 = vector1;
     [FieldOffset( 16)]  public  Vector3 vector2 = vector2;
@@ -40,9 +35,7 @@ public struct ChildStruct (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct TestStruct (
-    Vector3 vector1,
-    Vector3 vector2)
+public struct TestStruct (Vector3 vector1, Vector3 vector2)
 {
     [FieldOffset(  0)]  public  Vector3 vector1 = vector1;
     [FieldOffset( 16)]  public  Vector3 vector2 = vector2;
@@ -51,9 +44,7 @@ public struct TestStruct (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct Inner (
-    Vector3 a,
-    float   b)
+public struct Inner (Vector3 a, float b)
 {
     [FieldOffset(  0)]  public  Vector3 a = a;
     [FieldOffset( 12)]  public  float   b = b;
@@ -62,10 +53,7 @@ public struct Inner (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 48)]
-public struct Outer (
-    Inner s1,
-    float x,
-    Inner s2)
+public struct Outer (Inner s1, float x, Inner s2)
 {
     [FieldOffset(  0)]  public  Inner s1 = s1;
     [FieldOffset( 16)]  public  float x  = x;
@@ -75,8 +63,7 @@ public struct Outer (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 256)]
-public struct FixeSizeArrayStruct1 (
-    Vector3_Array_16 vectors)
+public struct FixeSizeArrayStruct1 (Vector3_Array_16 vectors)
 {
     [FieldOffset(  0)]  public  Vector3_Array_16 vectors = vectors;
 }
@@ -84,10 +71,7 @@ public struct FixeSizeArrayStruct1 (
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 288)]
-public struct FixeSizeArrayStruct2 (
-    Vector3          value1,
-    Vector3_Array_16 vectors,
-    Vector3          value2)
+public struct FixeSizeArrayStruct2 (Vector3 value1, Vector3_Array_16 vectors, Vector3 value2)
 {
     [FieldOffset(  0)]  public  Vector3          value1  = value1;
     [FieldOffset( 16)]  public  Vector3_Array_16 vectors = vectors;

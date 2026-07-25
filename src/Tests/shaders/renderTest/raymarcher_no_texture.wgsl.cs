@@ -10,9 +10,7 @@ namespace Shaders.RenderTest;
 
 [Source("~/shaders/renderTest/raymarcher_no_texture.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct ShadertoyUniforms (
-    Vector3 iResolution,
-    float   iTime)
+public struct ShadertoyUniforms (Vector3 iResolution, float iTime)
 {
     [FieldOffset(  0)]  public  Vector3 iResolution = iResolution;
     [FieldOffset( 12)]  public  float   iTime       = iTime;
