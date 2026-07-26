@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Friflo;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
-using NUnit.Framework;
 using Tests.Generators;
 using VerifyNUnit;
 using VerifyTests;
