@@ -78,7 +78,7 @@ public class WgslTypeMappings
    
     private static bool IsValidCSharpIdentifier(string name)
     {
-        return Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+        return Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z0-9_]*(\s*<\s*[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*\s*>)?$");
     }
 
     private static bool IsValidCSharpNamespace(string ns)
