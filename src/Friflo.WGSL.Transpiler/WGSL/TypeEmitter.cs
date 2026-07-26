@@ -385,6 +385,7 @@ public sealed class TypeEmitter
         var arraySize   = type.info.arraySize;
         var identifier  = GetIdentifier(type);
         var typeName    = $"{identifier.Name}_Array_{arraySize}";
+        AddNamespace(type);
         
         if (fixedSizedArrayTypes.Add(typeName)) {
             fixedSizedArrays.Append( // language=csharp

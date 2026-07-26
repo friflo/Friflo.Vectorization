@@ -42,6 +42,7 @@ struct FixeSizeArrayStruct2 {
 
 struct CustomVector {
     vector2i:     vec2i,
+    vectors2i:    array<vec2i, 8>,
     vector2u:     vec2u,
 }
 
