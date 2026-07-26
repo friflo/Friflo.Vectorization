@@ -33,32 +33,32 @@ public class WgslTypeMappings
             var mappings = JsonSerializer.Deserialize<WgslTypeMappings>(stream);
             var map = mappings.map;
             if (map == null) {
-                return Error("missing member: map", out error);
+                return Error(path, "missing member: map", out error);
             }
             var list = new List<WgslType2CSharpType>(map.Length);
             
             foreach (var mapping in map)
             {
                 if (mapping.wgsl == null) {
-                    return Error("missing element member: wgsl", out error);
+                    return Error(path, "missing element member: wgsl", out error);
                 }
                 if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
-                    return Error($"Invalid wgsl type (non generic version required) type: ${mapping.wgsl}", out error);
+                    return Error(path, $"Invalid wgsl type (non generic version required) type: ${mapping.wgsl}", out error);
                 }
                 var type = mapping.type;
                 if (type == null) {
-                    return  Error("missing element member: type", out error);
+                    return  Error(path, "missing element member: type", out error);
                 }
                 var lastDot = type.LastIndexOf('.');
                 var className = type.Substring(lastDot + 1);
                 if (!IsValidCSharpIdentifier(className)) {
-                    return Error($"Invalid C# type: ${type}", out error);
+                    return Error(path, $"Invalid C# type: ${type}", out error);
                 }
                 var @namespace = "";
                 if (lastDot != -1) {
                     @namespace = type.Substring(0, lastDot);
                     if (!IsValidCSharpIdentifier(@namespace)) {
-                        return Error($"Invalid C# type: ${@type}", out error);
+                        return Error(path, $"Invalid C# type: ${@type}", out error);
                     }
                 }
                 list.Add(new WgslType2CSharpType(typeCode, @namespace, className));
@@ -74,9 +74,9 @@ public class WgslTypeMappings
         }
     }
     
-    private static WgslType2CSharpType[] Error(string message, out string error)
+    private static WgslType2CSharpType[] Error(string path, string message, out string error)
     {
-        error = message;
+        error = $"Failed reading '{path}' - Error: {message}";
         return [];
     }
    
