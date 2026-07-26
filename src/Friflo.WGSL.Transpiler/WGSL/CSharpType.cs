@@ -3,6 +3,7 @@
 
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 

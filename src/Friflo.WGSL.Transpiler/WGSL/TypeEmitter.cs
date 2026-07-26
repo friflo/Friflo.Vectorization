@@ -90,7 +90,9 @@ public sealed class TypeEmitter
     
     private CsTypeIdentifier GetIdentifier(in CSharpType type)
     {
-        return type.info.typeCode == CsTypeCode.None ? new CsTypeIdentifier(type.info.elementType) : TypeMap[(int)type.info.typeCode];
+        return type.info.typeCode == CsTypeCode.None
+            ? new CsTypeIdentifier(type.info.elementType, fileNamespace)
+            : TypeMap[(int)type.info.typeCode];
     }
         
     private static void MapType(CsTypeIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
@@ -375,8 +377,8 @@ public sealed class TypeEmitter
     private CSharpType CreateFixedSizeArray(CSharpType type)
     {
         var arraySize   = type.info.arraySize;
-        var elementType = GetIdentifier(type).Name;
-        var typeName    = $"{elementType}_Array_{arraySize}";
+        var identifier  = GetIdentifier(type);
+        var typeName    = $"{identifier.Name}_Array_{arraySize}";
         
         if (fixedSizedArrayTypes.Add(typeName)) {
             fixedSizedArrays.Append( // language=csharp
@@ -384,7 +386,7 @@ public sealed class TypeEmitter
                 [InlineArray({{arraySize}})]
                 public struct {{typeName}}
                 {
-                    private {{elementType}} _element0;
+                    private {{identifier.Name}} _element0;
                 }
                 """);
         } else {
