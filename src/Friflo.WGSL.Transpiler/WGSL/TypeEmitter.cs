@@ -194,7 +194,7 @@ public sealed class TypeEmitter
             ////
             // FIX_C89_STRUCT_HACK
             // Ignore structs with dynamic array<> fields
-            var arrayField = fields.FirstOrDefault(f => f.type.paramType == WgslParamType.DynamicArray);
+            var arrayField = fields.FirstOrDefault(f => f.type.info.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
                     var binding = module.Bindings.FirstOrDefault(b => b.WgslType.Name == wgslStruct.Name);
@@ -267,23 +267,24 @@ public sealed class TypeEmitter
     {
         var args = GenericArgs.Create(type.Generics);
         
-        var csharpType = CSharpType.GetCSharpType(type.Name, args);
+        var info = WgslTypeInfo.GetTypeInfo(type.Name, args);
         
-        if (csharpType.typeCode == CsTypeCode.None) {
-            return new CSharpType(type.ToString(), CsTypeCode.None);
+        var csharpType = CSharpType.GetCSharpType(type, info);
+        
+        if (info.paramType == WgslParamType.FixedSizeArray) {
+            return CreateFixedSizeArray(csharpType);
         }
-        if (csharpType.typeCode != CsTypeCode.WgslStruct) {
-            if (csharpType.paramType == WgslParamType.FixedSizeArray) {
-                return CreateFixedSizeArray(csharpType);
-            }
+        if (info.typeCode != CsTypeCode.None) {
             return csharpType;
         }
-        if (wgslStructs.TryGetValue(csharpType.typeName, out var wgslStruct)) {
-            requiredStructs.Add(wgslStruct.Name);
-            var csharpStruct = CreateStruct(wgslStruct);
-            return new CSharpType(csharpType.typeName, CsTypeCode.WgslStruct, csharpType.paramType, csharpType.arraySize, csharpStruct);
+        var typeName = info.IsArray ? info.elementType : csharpType.typeName;
+        if (!wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
+            return csharpType;
         }
-        return csharpType;
+        requiredStructs.Add(wgslStruct.Name);
+        var csharpStruct = CreateStruct(wgslStruct);
+        var structInfo   = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
+        return new CSharpType(typeName, structInfo, csharpStruct);
     }
     
     private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
@@ -294,15 +295,16 @@ public sealed class TypeEmitter
         {
             var field   = fields[n];
             TypeLayout layout;
-            if (field.type.typeCode == CsTypeCode.WgslStruct) {
+            var typeCode = field.type.info.typeCode;
+            if (typeCode == CsTypeCode.WgslStruct) {
                 var csharpStruct = field.type.csharpStruct;
                 layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields) : default;
             } else {
-                layout = field.type.typeCode.Layout;
-                if (field.type.paramType == WgslParamType.FixedSizeArray) {
+                layout = typeCode.Layout;
+                if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
                     int elementSize     = layout.size;
                     int elementAlign    = layout.align;
-                    int arrayCount      = field.type.arraySize;
+                    int arrayCount      = field.type.info.arraySize;
                     int elementStride   = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
                     int arraySize       = elementStride * arrayCount;
                     layout = new TypeLayout(arraySize, elementAlign);
@@ -326,14 +328,15 @@ public sealed class TypeEmitter
     
     private CSharpType CreateFixedSizeArray(CSharpType type)
     {
-        var typeName = $"{type.typeName}_Array_{type.arraySize}";
+        var arraySize = type.info.arraySize;
+        var typeName = $"{type.ElementType}_Array_{arraySize}";
         if (fixedSizedArrayTypes.Add(typeName)) {
             fixedSizedArrays.Append( // language=csharp
                 $$"""
-                [InlineArray({{type.arraySize}})]
+                [InlineArray({{arraySize}})]
                 public struct {{typeName}}
                 {
-                    private {{type.typeName}} _element0;
+                    private {{type.ElementType}} _element0;
                 }
                 """);
         } else {
@@ -344,7 +347,7 @@ public sealed class TypeEmitter
                 """);
         }
         fixedSizedArrays.Append("\n\n\n");
-        return new CSharpType(typeName, type.typeCode, type.paramType, type.arraySize, type.csharpStruct);
+        return new CSharpType(typeName, type.info, null);
     }
     
     private static void EmitStructWithDynamicArrayField(
@@ -357,7 +360,7 @@ public sealed class TypeEmitter
         var bindingName = binding.Name;
         var structName  = csharpStruct.name;
         var fieldName   = arrayField.name;
-        var elementType = arrayField.type.ToString();
+        var elementType = arrayField.type.info.ToString();
         
         sb.Append( // language=csharp
 $"""
