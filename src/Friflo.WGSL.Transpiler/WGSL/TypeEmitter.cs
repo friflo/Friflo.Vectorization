@@ -18,35 +18,6 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-
-public struct CSharpField
-{
-    public required string          name;
-    public required CSharpType      type;
-    public          int             offset;
-    public          int             size;
-
-    public override string          ToString() => name;
-}
-
-public class CSharpStruct
-{
-    public required string          name;
-    public required string          source;
-    public required CSharpField[]   fields;
-    public required TypeLayout      layout;
-    
-    public override string          ToString() => name;
-}
-
-internal struct LocalStruct
-{
-    public required CSharpStruct    csharpStruct;
-    public required bool            alreadyDeclared;
-    
-    public override string          ToString() => csharpStruct.name ;
-}
-
 public sealed class TypeEmitter
 {
     private readonly    Dictionary<string, CSharpStruct>    structMap               = new();

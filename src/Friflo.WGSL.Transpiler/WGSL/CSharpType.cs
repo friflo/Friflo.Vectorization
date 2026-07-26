@@ -7,18 +7,6 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-public readonly struct WgslType2CSharpType
-{
-    public readonly CsTypeCode          typeCode;
-    public readonly CsTypeIdentifier    identifier;
-    
-    public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
-    {
-        this.typeCode   = typeCode;
-        identifier = new CsTypeIdentifier(name, @namespace);
-    }
-}
-
 public readonly struct CSharpType
 {
     public readonly CsTypeIdentifier    identifier;
@@ -37,5 +25,45 @@ public readonly struct CSharpType
         this.identifier     = identifier;
         this.info           = info;
         this.csharpStruct   = csharpStruct;
+    }
+}
+
+public struct CSharpField
+{
+    public required string          name;
+    public required CSharpType      type;
+    public          int             offset;
+    public          int             size;
+
+    public override string          ToString() => name;
+}
+
+public class CSharpStruct
+{
+    public required string          name;
+    public required string          source;
+    public required CSharpField[]   fields;
+    public required TypeLayout      layout;
+    
+    public override string          ToString() => name;
+}
+
+internal struct LocalStruct
+{
+    public required CSharpStruct    csharpStruct;
+    public required bool            alreadyDeclared;
+    
+    public override string          ToString() => csharpStruct.name ;
+}
+
+public readonly struct WgslType2CSharpType
+{
+    public readonly CsTypeCode          typeCode;
+    public readonly CsTypeIdentifier    identifier;
+    
+    public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
+    {
+        this.typeCode   = typeCode;
+        identifier = new CsTypeIdentifier(name, @namespace);
     }
 }
