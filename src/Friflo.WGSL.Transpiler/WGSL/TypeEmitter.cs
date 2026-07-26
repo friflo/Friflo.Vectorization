@@ -166,9 +166,12 @@ public sealed class TypeEmitter
                     """);
             }
             catch (Exception exception) {
-                source.Append($"/* -------- Error parsing: {normalizedPath}\n");
-                source.Append(WgslUtils.GetExceptionAsString(exception));
-                source.Append("\n*/\n");
+                source.Append( // language=csharp
+                    $"""
+                    /* -------- Error parsing: {normalizedPath}
+                    {WgslUtils.GetExceptionAsString(exception)}
+                    */
+                    """);
             }
             var content =  source.ToString();
             var path    = $"{projDir}/{file.NormalizedPath}.cs";
@@ -176,8 +179,8 @@ public sealed class TypeEmitter
             File.WriteAllText(path, content, new UTF8Encoding(false));
         }
     }
-        
-    private void EmitStructs(StringBuilder sb, string normalizedPath)
+    
+    private void CreateStructs()
     {
         var structs  = module.Structs;
         if (module.Bindings.Count == 0 || structs.Count == 0) {
@@ -199,11 +202,15 @@ public sealed class TypeEmitter
                 CreateStruct(wgslStruct);
             }
         }
+    }
+        
+    private void EmitStructs(StringBuilder sb, string normalizedPath)
+    {
+        CreateStructs();
         if (requiredStructs.Count == 0) {
             return;
         }
-
-        foreach (var wgslStruct in structs)
+        foreach (var wgslStruct in module.Structs)
         {
             if (!localStructs.TryGetValue(wgslStruct.Name, out var localStruct)) {
                 continue;
