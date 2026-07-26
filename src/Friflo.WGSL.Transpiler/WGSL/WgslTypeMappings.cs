@@ -12,15 +12,10 @@ using Friflo.WGSL.Transpiler.CSharp;
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.WGSL;
 
-public struct WgslTypeMapping
-{
-    public string   wgsl    { get; set; }
-    public string   type    { get; set; }
-}
 
 public class WgslTypeMappings
 {
-    public WgslTypeMapping[] map    { get; set; }
+    public Dictionary<string, string> map    { get; set; }
     
     public static WgslType2CSharpType[] LoadTypeMapping(string path, out string error)
     {
@@ -35,17 +30,18 @@ public class WgslTypeMappings
             if (map == null) {
                 return Error(path, "missing member: map", out error);
             }
-            var list = new List<WgslType2CSharpType>(map.Length);
+            var list = new List<WgslType2CSharpType>(map.Count);
             
-            foreach (var mapping in map)
+            foreach (var kv in map)
             {
-                if (mapping.wgsl == null) {
-                    return Error(path, "missing element member: wgsl", out error);
+                var key = kv.Key;
+                if (key == null) {
+                    return Error(path, "key is null", out error);
                 }
-                if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
-                    return Error(path, $"Invalid wgsl type (non generic version required) type: ${mapping.wgsl}", out error);
+                if (!Enum.TryParse<CsTypeCode>(key, out var typeCode)) {
+                    return Error(path, $"Invalid wgsl type (non generic version required) type: ${key}", out error);
                 }
-                var type = mapping.type;
+                var type = kv.Value;
                 if (type == null) {
                     return  Error(path, "missing element member: type", out error);
                 }
