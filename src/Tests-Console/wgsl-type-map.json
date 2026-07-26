@@ -1,4 +1,6 @@
-[
-  { "wgsl": "vec2i", "type": "CustomTypes.Vector2i" },
-  { "wgsl": "vec2u", "type": "CustomTypes.Vector2u" }
-]
+{
+  "map": [
+    { "wgsl": "vec2i", "type": "CustomTypes.Vector2i" },
+    { "wgsl": "vec2u", "type": "CustomTypes.Vector2u" }
+  ]
+}
