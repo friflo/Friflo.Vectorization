@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU;
+using CustomTypes;
 
 namespace Shaders.Tests;
 
@@ -69,6 +70,14 @@ public struct FixeSizeArrayStruct2 (Vector3 value1, in Vector3_Array_16 vectors,
     [FieldOffset(  0)]  public  Vector3          value1  = value1;
     [FieldOffset( 16)]  public  Vector3_Array_16 vectors = vectors;
     [FieldOffset(272)]  public  Vector3          value2  = value2;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 8)]
+public struct CustomVector (Vector2i vector2i)
+{
+    [FieldOffset(  0)]  public  Vector2i vector2i = vector2i;
 }
 
 

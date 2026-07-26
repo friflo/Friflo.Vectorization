@@ -40,11 +40,16 @@ struct FixeSizeArrayStruct2 {
 }
 
 
+struct CustomVector {
+    vector2i:     vec2i,
+}
+
 @group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
 @group(0) @binding(1)   var<uniform> uniforms2 : TestStruct;
 @group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
 @group(0) @binding(3)   var<uniform> uniforms4 : Outer;
-@group(0) @binding(3)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
-@group(0) @binding(3)   var<uniform> uniforms6 : FixeSizeArrayStruct2;
+@group(0) @binding(4)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
+@group(0) @binding(5)   var<uniform> uniforms6 : FixeSizeArrayStruct2;
+@group(0) @binding(6)   var<uniform> uniforms6 : CustomVector;
 
 
