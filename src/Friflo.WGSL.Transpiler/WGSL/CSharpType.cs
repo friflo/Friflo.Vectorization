@@ -103,7 +103,8 @@ public struct WgslTypeMapping
         }
         catch (Exception exception)
         {
-            error = $"Loading {path} failed.\nmessage: {exception.Message}";
+            var message = exception.Message.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
+            error = $"Loading {path} failed: {message}";
             return [];
         }
     }
