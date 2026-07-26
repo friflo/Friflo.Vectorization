@@ -107,8 +107,16 @@ public sealed class TypeEmitter
         additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] mappings)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] mappings, string error)
     {
+        var errorFilePath = $"{projDir}/generator-error.cs";
+        if (error == null) {
+            if (File.Exists(errorFilePath)) {
+                File.Delete(errorFilePath);    
+            }
+        } else {
+            File.WriteAllText(errorFilePath, $"#error {error}", new UTF8Encoding(false));
+        }
         TypeMap = CreateTypeMap(mappings);
         
         for (int n = 0; n < wgslFiles.Length; n++) {

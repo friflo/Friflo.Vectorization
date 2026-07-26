@@ -79,24 +79,33 @@ public struct WgslTypeMapping
     public string   type    { get; set; }
     public string   ns      { get; set; }
     
-    public static WgslType2CSharpType[] LoadTypeMapping(string path)
+    public static WgslType2CSharpType[] LoadTypeMapping(string path, out string error)
     {
-        if (!File.Exists(path)) {
+        try {
+            if (!File.Exists(path)) {
+                error = null;
+                return [];
+            }
+            using var stream = new FileStream(path, FileMode.Open);
+            var mappings = JsonSerializer.Deserialize<WgslTypeMapping[]>(stream);
+            
+            var list = new List<WgslType2CSharpType>(mappings.Length);
+            
+            foreach (var mapping in mappings)
+            {
+                if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
+                    continue;
+                }
+                list.Add(new WgslType2CSharpType(typeCode, mapping.ns, mapping.type));
+            }
+            error = null;
+            return list.ToArray();
+        }
+        catch (Exception exception)
+        {
+            error = $"Loading {path} failed.\nmessage: {exception.Message}";
             return [];
         }
-        using var stream = new FileStream(path, FileMode.Open);
-        var mappings = JsonSerializer.Deserialize<WgslTypeMapping[]>(stream);
-        
-        var list = new List<WgslType2CSharpType>(mappings.Length);
-        
-        foreach (var mapping in mappings)
-        {
-            if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
-                continue;
-            }
-            list.Add(new WgslType2CSharpType(typeCode, mapping.ns, mapping.type));
-        }
-        return list.ToArray();
     }
 }
 
