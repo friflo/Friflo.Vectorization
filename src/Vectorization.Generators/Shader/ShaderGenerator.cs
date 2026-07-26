@@ -327,10 +327,7 @@ internal static partial class ShaderGenerator
                 _                           => null
             };
             if (knownType != null) {
-                return new CsTypeIdentifier {
-                    Name        = knownType,
-                    Namespace   = ""
-                };
+                return new CsTypeIdentifier (knownType);
             }
         }
         bool isPointerType = false;
@@ -344,10 +341,7 @@ internal static partial class ShaderGenerator
         if (isPointerType) {
             name += '*';
         }
-        return new CsTypeIdentifier {
-            Name        = name,
-            Namespace   = ns
-        };
+        return new CsTypeIdentifier (name, ns);
     }
     
     private static CsModifier CreateMethodModifier(IMethodSymbol methodSymbol, CsParamModifier[] paramModifiers)

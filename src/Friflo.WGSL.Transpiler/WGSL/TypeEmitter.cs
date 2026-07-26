@@ -87,7 +87,7 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] wgslType2CSharpType)
     {
         for (int n = 0; n < wgslFiles.Length; n++) {
             var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);
@@ -227,13 +227,13 @@ public sealed class TypeEmitter
             var field       = wgslStruct.Fields[n];
             var csharpType  = GetCSharpType(field.WgslType);
             fields[n]       = new CSharpField { name = field.Name, type = csharpType };
-            maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.typeName.Length);
+            maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
         }
         var layout = AssignFieldLayouts(fields);
         foreach (var csharpField in fields) {
             var modifier = csharpField.size <= 16 ? "" : "in ";
-            sb.Append($"{modifier}{csharpField.type.typeName} {csharpField.name}, ");
+            sb.Append($"{modifier}{csharpField.type.identifier.Name} {csharpField.name}, ");
         }
         if (length > 0) {
             sb.Length -= 2;
@@ -242,9 +242,9 @@ public sealed class TypeEmitter
         sb.Append("{\n");
 
         foreach (var field in fields) {
-            var padName   = maxTypeWidth  - field.type.typeName.Length;
+            var padName   = maxTypeWidth  - field.type.identifier.Name.Length;
             var padAssign = maxFieldWidth - field.name.Length;
-            sb.Append($"    [FieldOffset({field.offset,3})]  public  {field.type.typeName} ").Append(' ', padName);
+            sb.Append($"    [FieldOffset({field.offset,3})]  public  {field.type.identifier.Name} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};\n");
         }
         sb.Append("}\n\n\n");
@@ -277,14 +277,14 @@ public sealed class TypeEmitter
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
         }
-        var typeName = info.IsArray ? info.elementType : csharpType.typeName;
-        if (!wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
+        var identifier = info.IsArray ? new CsTypeIdentifier(info.elementType) : csharpType.identifier;
+        if (!wgslStructs.TryGetValue(identifier.Name, out var wgslStruct)) {
             return csharpType;
         }
         requiredStructs.Add(wgslStruct.Name);
         var csharpStruct = CreateStruct(wgslStruct);
         var structInfo   = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
-        return new CSharpType(typeName, structInfo, csharpStruct);
+        return new CSharpType(identifier, structInfo, csharpStruct);
     }
     
     private static TypeLayout AssignFieldLayouts(CSharpField[] fields)

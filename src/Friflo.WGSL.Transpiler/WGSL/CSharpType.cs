@@ -7,33 +7,47 @@ using Friflo.WGSL.Transpiler.CSharp;
 
 namespace Friflo.WGSL.Transpiler.WGSL;
 
+
+public readonly struct WgslType2CSharpType
+{
+    public readonly CsTypeCode          typeCode;
+    public readonly CsTypeIdentifier    identifier;
+}
+
+
 public readonly struct CSharpType
 {
-    public readonly string          typeName;
-    public readonly WgslTypeInfo    info;
-    public readonly CSharpStruct    csharpStruct; // != null if struct
+    public readonly CsTypeIdentifier    identifier;
+    public readonly WgslTypeInfo        info;
+    public readonly CSharpStruct        csharpStruct; // != null if struct
     
-    public          string          ElementType => info.typeCode == CsTypeCode.None ? info.elementType : TypeCodeMap[(int)info.typeCode];
+    public          CsTypeIdentifier    ElementType => info.typeCode == CsTypeCode.None ? new CsTypeIdentifier(info.elementType) : TypeMap[(int)info.typeCode];
         
-    public override string          ToString()  => info.ToString();
+    public override string              ToString()  => info.ToString();
     
-    private static readonly  string[] TypeCodeMap;
+    private static readonly  CsTypeIdentifier[] TypeMap;
 
-    
+
     internal CSharpType(string typeName, WgslTypeInfo info, CSharpStruct csharpStruct) {
-        this.typeName       = typeName;
+        this.identifier     = new CsTypeIdentifier(typeName);
+        this.info           = info;
+        this.csharpStruct   = csharpStruct;
+    }
+        
+    internal CSharpType(CsTypeIdentifier identifier, WgslTypeInfo info, CSharpStruct csharpStruct) {
+        this.identifier     = identifier;
         this.info           = info;
         this.csharpStruct   = csharpStruct;
     }
     
-    private static void MapType(string[] typeCodeMap, CsTypeCode code, string typeName) {
-        typeCodeMap[(int)code] = typeName;
+    private static void MapType(CsTypeIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
+        typeCodeMap[(int)code] = new CsTypeIdentifier(typeName);
     }
     
     static CSharpType()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var tcMap   = TypeCodeMap = new string[length];
+        var tcMap   = TypeMap = new CsTypeIdentifier[length];
         var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
         
         foreach (var value in values) {
@@ -58,7 +72,7 @@ public readonly struct CSharpType
         if (info.typeCode == CsTypeCode.None) {
             return new CSharpType(wgslType.ToString(), info, null);    
         }
-        var typeName = TypeCodeMap[(int)info.typeCode];
-        return new CSharpType(typeName, info, null);
+        var identifier = TypeMap[(int)info.typeCode];
+        return new CSharpType(identifier, info, null);
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
@@ -224,10 +225,20 @@ public readonly record struct CsField
 
 public readonly record struct CsTypeIdentifier
 {
-    public required     string              Name        { get; init; }
-    public required     string              Namespace   { get; init; }
+    public readonly     string              Name;
+    public readonly     string              Namespace;
 
     public override     string              ToString()  => $"{Name}";
+    
+    public CsTypeIdentifier(string name) {
+        Name        = name;
+        Namespace   = "";
+    }
+    
+    public CsTypeIdentifier(string name, string @namespace) {
+        Name        = name;
+        Namespace   = @namespace;
+    }
 }
 
 public readonly record struct CsType

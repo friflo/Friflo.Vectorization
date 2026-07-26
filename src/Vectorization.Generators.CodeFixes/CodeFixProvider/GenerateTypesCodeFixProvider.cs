@@ -56,7 +56,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         if (root == null) return document;
         
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(wgslFiles, projDir);
+        typeEmitter.EmitAllStructs(wgslFiles, projDir, []);
 
         return document;
     }
