@@ -1,5 +1,6 @@
 ﻿using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler.CodeFixes;
+using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
 
@@ -16,7 +17,8 @@ public static class Tests_GenerateTypes
         var files = TestWgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
 
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(files, projectDir, []);
+        var mapping = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "Vector2i", "MyNamespace") };
+        typeEmitter.EmitAllStructs(files, projectDir, mapping);
     }
     
     

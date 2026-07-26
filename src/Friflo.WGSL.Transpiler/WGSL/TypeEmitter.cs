@@ -59,6 +59,7 @@ public sealed class TypeEmitter
 
     private             WgslModule                          module;
     private             string                              fileNamespace;
+    private             CsTypeIdentifier[]                  TypeMap;
     
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
@@ -87,8 +88,47 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
+    private CsTypeIdentifier GetIdentifier(in CSharpType type)
+    {
+        return type.info.typeCode == CsTypeCode.None ? new CsTypeIdentifier(type.info.elementType) : TypeMap[(int)type.info.typeCode];
+    }
+        
+    private static void MapType(CsTypeIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
+        typeCodeMap[(int)code] = new CsTypeIdentifier(typeName);
+    }
+    
+    private static CsTypeIdentifier[] CreateTypeMap(WgslType2CSharpType[] wgslType2CSharpType)
+    {
+        const int length = (int)CsTypeCode.WgslStruct;
+        var map     = new CsTypeIdentifier[length];
+        var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
+        
+        foreach (var value in values) {
+            if ((int)value >= length) continue;
+            MapType(map, value, value.ToString());
+        }
+        MapType(map, CsTypeCode.f16,     "Half");
+        MapType(map, CsTypeCode.f32,     "float");
+        MapType(map, CsTypeCode.i32,     "int");
+        MapType(map, CsTypeCode.u32,     "uint");
+        
+        MapType(map, CsTypeCode.vec2f,   "Vector2");
+        MapType(map, CsTypeCode.vec3f,   "Vector3");
+        MapType(map, CsTypeCode.vec4f,   "Vector4");
+        
+        MapType(map, CsTypeCode.mat4x4f, "Matrix4x4");
+        MapType(map, CsTypeCode.mat3x2f, "Matrix3x2");
+
+        foreach (var mapping in wgslType2CSharpType) {
+            map[(int)mapping.typeCode] = mapping.identifier;
+        }
+        return map;
+    }
+    
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] wgslType2CSharpType)
     {
+        TypeMap = CreateTypeMap(wgslType2CSharpType);
+        
         for (int n = 0; n < wgslFiles.Length; n++) {
             var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);
             wgslFiles[n] = wgslFiles[n] with{ NormalizedPath =  path };
@@ -269,7 +309,13 @@ public sealed class TypeEmitter
         
         var info = WgslTypeInfo.GetTypeInfo(type.Name, args);
         
-        var csharpType = CSharpType.GetCSharpType(type, info);
+        CSharpType csharpType;
+        if (info.typeCode == CsTypeCode.None) {
+            csharpType = new CSharpType(type.ToString(), info, null);    
+        } else {
+            var typeIdentifier = TypeMap[(int)info.typeCode];
+            csharpType = new CSharpType(typeIdentifier, info, null);
+        }
         
         if (info.paramType == WgslParamType.FixedSizeArray) {
             return CreateFixedSizeArray(csharpType);
@@ -328,15 +374,17 @@ public sealed class TypeEmitter
     
     private CSharpType CreateFixedSizeArray(CSharpType type)
     {
-        var arraySize = type.info.arraySize;
-        var typeName = $"{type.ElementType}_Array_{arraySize}";
+        var arraySize   = type.info.arraySize;
+        var elementType = GetIdentifier(type).Name;
+        var typeName    = $"{elementType}_Array_{arraySize}";
+        
         if (fixedSizedArrayTypes.Add(typeName)) {
             fixedSizedArrays.Append( // language=csharp
                 $$"""
                 [InlineArray({{arraySize}})]
                 public struct {{typeName}}
                 {
-                    private {{type.ElementType}} _element0;
+                    private {{elementType}} _element0;
                 }
                 """);
         } else {
