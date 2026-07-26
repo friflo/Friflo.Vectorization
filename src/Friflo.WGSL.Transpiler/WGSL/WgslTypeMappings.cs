@@ -24,9 +24,9 @@ public class WgslTypeMappings
                 error = null;
                 return [];
             }
-            using var stream = new FileStream(path, FileMode.Open);
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var mappings = JsonSerializer.Deserialize<WgslTypeMappings>(stream);
-            var map = mappings.map;
+            var map = mappings?.map;
             if (map == null) {
                 return Error(path, "missing member: map", out error);
             }
@@ -39,7 +39,7 @@ public class WgslTypeMappings
                     return Error(path, "key is null", out error);
                 }
                 if (!Enum.TryParse<CsTypeCode>(key, out var typeCode)) {
-                    return Error(path, $"Invalid wgsl type (non generic version required) type: ${key}", out error);
+                    return Error(path, $"Invalid wgsl type (non generic version required) type: {key}", out error);
                 }
                 var type = kv.Value;
                 if (type == null) {
@@ -48,13 +48,13 @@ public class WgslTypeMappings
                 var lastDot = type.LastIndexOf('.');
                 var className = type.Substring(lastDot + 1);
                 if (!IsValidCSharpIdentifier(className)) {
-                    return Error(path, $"Invalid C# type: ${type}", out error);
+                    return Error(path, $"Invalid C# type: {type}", out error);
                 }
                 var @namespace = "";
                 if (lastDot != -1) {
                     @namespace = type.Substring(0, lastDot);
-                    if (!IsValidCSharpIdentifier(@namespace)) {
-                        return Error(path, $"Invalid C# type: ${@type}", out error);
+                    if (!IsValidCSharpNamespace(@namespace)) {
+                        return Error(path, $"Invalid C# namespace: {type}", out error);
                     }
                 }
                 list.Add(new WgslType2CSharpType(typeCode, @namespace, className));
@@ -79,5 +79,10 @@ public class WgslTypeMappings
     private static bool IsValidCSharpIdentifier(string name)
     {
         return Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+    }
+
+    private static bool IsValidCSharpNamespace(string ns)
+    {
+        return Regex.IsMatch(ns, @"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$");
     }
 }
