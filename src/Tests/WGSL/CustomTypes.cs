@@ -8,11 +8,16 @@ namespace CustomTypes;
 
 #pragma warning disable CS0169 // Field is never used
 
-/// <summary>
-/// Maps to <see cref="CsTypeCode.vec2i"/>
-/// </summary>
+/// <summary> Maps to <see cref="CsTypeCode.vec2i"/> </summary>
 public struct Vector2i
 {
     public int x;
     public int y;
+}
+
+/// <summary> Maps to all vec2* types. NOT RECOMMENDED. Topic is already complex enough :) </summary>
+public struct Vector2<T> where T : unmanaged
+{
+    public T x;
+    public T y;
 }

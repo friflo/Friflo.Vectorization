@@ -42,6 +42,7 @@ struct FixeSizeArrayStruct2 {
 
 struct CustomVector {
     vector2i:     vec2i,
+    vector2u:     vec2u,
 }
 
 @group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
