@@ -20,7 +20,7 @@ public struct WgslTypeMapping
 
 public class WgslTypeMappings
 {
-    public WgslTypeMapping[] map    { get; set; } = [];
+    public WgslTypeMapping[] map    { get; set; }
     
     public static WgslType2CSharpType[] LoadTypeMapping(string path, out string error)
     {
@@ -33,21 +33,21 @@ public class WgslTypeMappings
             var mappings = JsonSerializer.Deserialize<WgslTypeMappings>(stream);
             var map = mappings.map;
             if (map == null) {
-                return MissingMember("map", out error);
+                return Error("missing member: map", out error);
             }
             var list = new List<WgslType2CSharpType>(map.Length);
             
             foreach (var mapping in map)
             {
                 if (mapping.wgsl == null) {
-                    return MissingMember("wgsl", out error);
+                    return Error("missing element member: wgsl", out error);
                 }
                 if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
                     return Error($"Invalid wgsl type (non generic version required) type: ${mapping.wgsl}", out error);
                 }
                 var type = mapping.type;
                 if (type == null) {
-                    return MissingMember("type", out error);
+                    return  Error("missing element member: type", out error);
                 }
                 var lastDot = type.LastIndexOf('.');
                 var className = type.Substring(lastDot + 1);
@@ -79,13 +79,7 @@ public class WgslTypeMappings
         error = message;
         return [];
     }
-    
-    private static WgslType2CSharpType[] MissingMember(string member, out string error)
-    {
-        error = $"missing member: ${member}";
-        return [];
-    }
-    
+   
     private static bool IsValidCSharpIdentifier(string name)
     {
         return Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
