@@ -53,8 +53,10 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
+        
+        var mappings = WgslTypeMapping.LoadTypeMapping($"{projDir}/wgsl-type-map.json");
         var typeEmitter = new TypeEmitter();
-        typeEmitter.EmitAllStructs(wgslFiles, projDir, []);
+        typeEmitter.EmitAllStructs(wgslFiles, projDir, mappings);
 
         return document;
     }

@@ -107,9 +107,9 @@ public sealed class TypeEmitter
         additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] wgslType2CSharpType)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] mappings)
     {
-        TypeMap = CreateTypeMap(wgslType2CSharpType);
+        TypeMap = CreateTypeMap(mappings);
         
         for (int n = 0; n < wgslFiles.Length; n++) {
             var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);

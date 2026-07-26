@@ -1,8 +1,13 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.WGSL.Transpiler.WGSL;
 
@@ -67,3 +72,33 @@ public readonly struct WgslType2CSharpType
         identifier = new CsTypeIdentifier(name, @namespace);
     }
 }
+
+public struct WgslTypeMapping
+{
+    public string   wgsl    { get; set; }
+    public string   type    { get; set; }
+    public string   ns      { get; set; }
+    
+    public static WgslType2CSharpType[] LoadTypeMapping(string path)
+    {
+        if (!File.Exists(path)) {
+            return [];
+        }
+        using var stream = new FileStream(path, FileMode.Open);
+        var mappings = JsonSerializer.Deserialize<WgslTypeMapping[]>(stream);
+        
+        var list = new List<WgslType2CSharpType>(mappings.Length);
+        
+        foreach (var mapping in mappings)
+        {
+            if (!Enum.TryParse<CsTypeCode>(mapping.wgsl, out var typeCode)) {
+                continue;
+            }
+            list.Add(new WgslType2CSharpType(typeCode, mapping.ns, mapping.type));
+        }
+        return list.ToArray();
+    }
+}
+
+    
+

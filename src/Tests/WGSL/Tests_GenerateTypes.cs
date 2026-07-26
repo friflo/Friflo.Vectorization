@@ -17,8 +17,9 @@ public static class Tests_GenerateTypes
         var files = TestWgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
 
         var typeEmitter = new TypeEmitter();
-        var mapping = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
-        typeEmitter.EmitAllStructs(files, projectDir, mapping);
+        // var mappings = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
+        var mappings = WgslTypeMapping.LoadTypeMapping($"{projectDir}/wgsl-type-map.json");
+        typeEmitter.EmitAllStructs(files, projectDir, mappings);
     }
     
     

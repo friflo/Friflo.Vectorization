@@ -1,0 +1,4 @@
+[
+  { "wgsl": "vec2i", "type": "Vector2i", "ns": "CustomTypes" },
+  { "wgsl": "vec2u", "type": "Vector2u", "ns": "CustomTypes" }
+]
