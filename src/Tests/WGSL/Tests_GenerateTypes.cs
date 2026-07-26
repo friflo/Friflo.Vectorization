@@ -19,6 +19,10 @@ public static class Tests_GenerateTypes
         var typeEmitter = new TypeEmitter();
         // var mappings = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
         var mappings = WgslTypeMappings.LoadTypeMapping($"{projectDir}/wgsl-type-map.json", out var error);
+        if (error != null) {
+            Assert.Fail(error);
+        }
+        Assert.That(mappings.Length, Is.EqualTo(3));
         typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
     }
     
