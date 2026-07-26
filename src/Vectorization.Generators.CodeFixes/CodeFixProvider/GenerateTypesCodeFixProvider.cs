@@ -54,7 +54,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         if (root == null) return document;
         
         
-        var mappings = WgslTypeMappings.LoadTypeMapping($"{projDir}/wgsl-type-map.json", out var error);
+        var mappings = WgslTypeMappings.LoadTypeMapping($"{projDir}/{WgslTypeMappings.MappingPath}", out var error);
         var typeEmitter = new TypeEmitter();
         typeEmitter.EmitAllStructs(wgslFiles, projDir, mappings, error);
 

@@ -15,6 +15,8 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public class WgslTypeMappings
 {
+    public const string MappingPath = "wgsl-type-map.json";
+        
     public Dictionary<string, string> map    { get; set; }
     
     public static WgslType2CSharpType[] LoadTypeMapping(string path, out string error)

@@ -75,12 +75,6 @@ public sealed class TypeEmitter
     {
         const int length = (int)CsTypeCode.WgslStruct;
         var map     = new CsTypeIdentifier[length];
-        var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
-        
-        foreach (var value in values) {
-            if ((int)value >= length) continue;
-            MapType(map, value, value.ToString());
-        }
         MapType(map, CsTypeCode.f16,     "Half");
         MapType(map, CsTypeCode.f32,     "float");
         MapType(map, CsTypeCode.i32,     "int");
