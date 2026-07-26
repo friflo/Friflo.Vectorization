@@ -12,7 +12,7 @@ public readonly struct WgslType2CSharpType
     public readonly CsTypeCode          typeCode;
     public readonly CsTypeIdentifier    identifier;
     
-    public WgslType2CSharpType(CsTypeCode typeCode, string name, string @namespace)
+    public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
     {
         this.typeCode   = typeCode;
         identifier = new CsTypeIdentifier(name, @namespace);
