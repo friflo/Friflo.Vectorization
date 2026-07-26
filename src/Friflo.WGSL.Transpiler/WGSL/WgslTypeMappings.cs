@@ -43,7 +43,7 @@ public class WgslTypeMappings
                 }
                 var type = kv.Value;
                 if (type == null) {
-                    return  Error(path, "missing element member: type", out error);
+                    return  Error(path, $"missing type at '{key}'", out error);
                 }
                 var lastDot = type.LastIndexOf('.');
                 var className = type.Substring(lastDot + 1);
