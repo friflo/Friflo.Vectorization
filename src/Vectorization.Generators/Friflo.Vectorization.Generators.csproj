@@ -98,7 +98,7 @@
       <None Include="$(OutputPath)\$(AssemblyName).CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
       <None Include="$(OutputPath)\Superpower.dll"                Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
       <None Include="$(OutputPath)\Friflo.WGSL.Transpiler.dll"    Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-      <!-- <None Include="$(OutputPath)\System.Text.Json.dll"          Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" /> -->
+      <None Include="$(OutputPath)\System.Text.Json.dll"          Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
   </Target>
   
