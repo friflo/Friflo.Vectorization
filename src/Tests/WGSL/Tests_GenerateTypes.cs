@@ -22,7 +22,12 @@ public static class Tests_GenerateTypes
         if (error != null) {
             Assert.Fail(error);
         }
-        Assert.That(mappings.Length, Is.EqualTo(3));
+        Assert.NotNull(mappings);
+        Assert.That(mappings.Length, Is.EqualTo(4));
+        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.vec2i,   "CustomTypes",    "Vector2i")));
+        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.vec2u,   "CustomTypes",    "Vector2u")));
+        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.mat2x2h, "My.CustomTypes", "Matrix2x2h")));
+        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.mat2x3h, "",               "Matrix2x3h")));
         typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
     }
     

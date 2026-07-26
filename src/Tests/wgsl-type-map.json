@@ -2,6 +2,7 @@
   "map": {
     "vec2i": "CustomTypes.Vector2i",
     "vec2u": "CustomTypes.Vector2u",
-    "mat3x2f": "My.CustomTypes.Matrix3x2"
+    "mat2x2h": "My.CustomTypes.Matrix2x2h",
+    "mat2x3h": "Matrix2x3h"
   }
 }
