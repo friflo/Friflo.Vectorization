@@ -9,6 +9,7 @@ using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable RawStringCanBeSimplified
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -289,11 +290,9 @@ public sealed class TypeEmitter
             var padAssign   = maxFieldWidth - field.name.Length;
             sb.Append($"    [FieldOffset({field.offset,3})]  public  {identifier.Name} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};");
-            if (identifier.resolution == Unmapped) {
-                sb.Append($"  // INFO: requires mapping in '{WgslTypeMappings.MappingPath}'");
-            }
-            if (identifier.resolution == NotFound) {
-                sb.Append($"  // WGSL error - missing type: '{identifier.Name}'");
+            switch (identifier.resolution) {
+                case Unmapped: sb.Append($"  // INFO: '{identifier.Name}' requires mapping in '{WgslTypeMappings.MappingPath}'");   break;
+                case NotFound: sb.Append($"  // WGSL error - missing type: '{identifier.Name}'");                                   break;
             }
             sb.Append("\n");
         }
