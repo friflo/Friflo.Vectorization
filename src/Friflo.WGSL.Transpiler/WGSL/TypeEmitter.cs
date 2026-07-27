@@ -26,6 +26,7 @@ public sealed class TypeEmitter
     private readonly    Dictionary<string, LocalStruct>     localStructs            = new();
     private readonly    Dictionary<string, WgslStruct>      wgslStructs             = new();
     private readonly    HashSet<string>                     requiredStructs         = [];
+    private readonly    HashSet<string>                     emittedStructs          = [];
     //
     private readonly    StringBuilder                       fixedSizedArrays        = new();
     private readonly    HashSet<string>                     fixedSizedArrayTypes    = [];
@@ -135,6 +136,7 @@ public sealed class TypeEmitter
                 body.Clear();
                 localStructs.Clear();
                 requiredStructs.Clear();
+                emittedStructs.Clear();
                 wgslStructs.Clear();
                 fixedSizedArrays.Clear();
                 additionalNamespaces.Clear();
@@ -190,9 +192,7 @@ public sealed class TypeEmitter
             return;
         }
         foreach (var wgslStruct in structs) {
-            if (!wgslStructs.TryAdd(wgslStruct.Name, wgslStruct)) {
-                // TODO  emit warning
-            }
+            wgslStructs.TryAdd(wgslStruct.Name, wgslStruct);
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
@@ -206,6 +206,8 @@ public sealed class TypeEmitter
             }
         }
     }
+    
+    private const string  LineFeeds = "\n\n\n"; 
         
     private void EmitStructs(StringBuilder sb, string normalizedPath)
     {
@@ -215,22 +217,32 @@ public sealed class TypeEmitter
         }
         foreach (var wgslStruct in module.Structs)
         {
-            if (!localStructs.TryGetValue(wgslStruct.Name, out var localStruct)) {
+            var structName = wgslStruct.Name;
+            if (!localStructs.TryGetValue(structName, out var localStruct)) {
+                continue;
+            }
+            if (!emittedStructs.Add(structName)) {
+                sb.Append( // language=csharp
+                    $"""
+                    #error Duplicate identifier '{structName}'
+                    [Source("~/{normalizedPath}")]
+                    file partial class _info;
+                    {LineFeeds}
+                    """).Append(LineFeeds);
                 continue;
             }
             if (localStruct.alreadyDeclared) {
-                sb.Append($"/// Skipped identical duplicate of  <see cref=\"{wgslStruct.Name}\"/>\nfile partial class _info;\n\n\n");
+                sb.Append($"/// Skipped identical duplicate of  <see cref=\"{structName}\"/>\nfile partial class _info;").Append(LineFeeds);
                 continue;
             }
             var fields = localStruct.csharpStruct.fields;
             if (fields.Length == 0) {
                 sb.Append( // language=csharp
                     $"""
-                    #error Struct '{localStruct.csharpStruct.name}' must contain at least one member. Empty structs are not allowed in WGSL.
+                    #error Struct '{structName}' must contain at least one member. Empty structs are not allowed in WGSL.
                     [Source("~/{normalizedPath}")]
                     file partial class _info;
-                    """);
-                sb.Append("\n\n\n");
+                    """).Append(LineFeeds);
                 continue;
             }
             ////
@@ -239,7 +251,7 @@ public sealed class TypeEmitter
             var arrayField = fields.FirstOrDefault(f => f.type.info.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
-                    var binding = module.Bindings.FirstOrDefault(b => b.WgslType.Name == wgslStruct.Name);
+                    var binding = module.Bindings.FirstOrDefault(b => b.WgslType.Name == structName);
                     EmitStructWithDynamicArrayField(sb, binding, localStruct.csharpStruct, arrayField, normalizedPath);
                 }
                 continue;

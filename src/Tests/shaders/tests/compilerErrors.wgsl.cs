@@ -37,12 +37,13 @@ public struct InconsistentStruct (int value1)
 }
 
 
+#error Duplicate identifier 'InconsistentStruct'
 [Source("~/shaders/tests/compilerErrors.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 4)]
-public struct InconsistentStruct (int value1)
-{
-    [FieldOffset(  0)]  public  int value1 = value1;
-}
+file partial class _info;
+
+
+
+
 
 
 #error Unsupported Struct Layout in 'shaders/tests/compilerErrors.wgsl'
