@@ -55,7 +55,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         
         
         var mappings = WgslTypeMappings.LoadTypeMapping($"{projDir}/{WgslTypeMappings.MappingPath}", out var error);
-        var typeEmitter = new TypeEmitter();
+        var typeEmitter = new TypeGen();
         typeEmitter.EmitAllStructs(wgslFiles, projDir, mappings, error);
 
         return document;
