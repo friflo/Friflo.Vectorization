@@ -31,7 +31,7 @@ public sealed class TypeEmitter
 
     private             WgslModule                          module;
     private             string                              fileNamespace;
-    private             CsTypeIdentifier[]                  TypeMap;
+    private             CSharpIdentifier[]                  TypeMap;
     
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
@@ -60,21 +60,21 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
-    private CsTypeIdentifier GetIdentifier(in CSharpType type)
+    private CSharpIdentifier GetIdentifier(in CSharpType type)
     {
         return type.info.typeCode == CsTypeCode.None
-            ? new CsTypeIdentifier(type.info.elementType, fileNamespace)
+            ? new CSharpIdentifier(type.info.elementType, fileNamespace)
             : TypeMap[(int)type.info.typeCode];
     }
         
-    private static void MapType(CsTypeIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
-        typeCodeMap[(int)code] = new CsTypeIdentifier(typeName);
+    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
+        typeCodeMap[(int)code] = new CSharpIdentifier(typeName);
     }
     
-    private static CsTypeIdentifier[] CreateTypeMap(WgslType2CSharpType[] wgslType2CSharpType)
+    private static CSharpIdentifier[] CreateTypeMap(WgslType2CSharpType[] wgslType2CSharpType)
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var map     = new CsTypeIdentifier[length];
+        var map     = new CSharpIdentifier[length];
         MapType(map, CsTypeCode.f16,     "Half");
         MapType(map, CsTypeCode.f32,     "float");
         MapType(map, CsTypeCode.i32,     "int");
@@ -325,7 +325,7 @@ public sealed class TypeEmitter
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
         }
-        var identifier = info.IsArray ? new CsTypeIdentifier(info.elementType) : csharpType.identifier;
+        var identifier = info.IsArray ? new CSharpIdentifier(info.elementType) : csharpType.identifier;
         if (!wgslStructs.TryGetValue(identifier.Name, out var wgslStruct)) {
             return csharpType;
         }

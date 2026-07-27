@@ -10,22 +10,40 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public readonly struct CSharpType
 {
-    public readonly CsTypeIdentifier    identifier;
+    public readonly CSharpIdentifier    identifier;
     public readonly WgslTypeInfo        info;
     public readonly CSharpStruct        csharpStruct; // != null if struct
     
     public override string              ToString()  => info.ToString();
 
     internal CSharpType(string typeName, WgslTypeInfo info, CSharpStruct csharpStruct) {
-        this.identifier     = new CsTypeIdentifier(typeName);
+        this.identifier     = new CSharpIdentifier(typeName);
         this.info           = info;
         this.csharpStruct   = csharpStruct;
     }
         
-    internal CSharpType(CsTypeIdentifier identifier, WgslTypeInfo info, CSharpStruct csharpStruct) {
+    internal CSharpType(CSharpIdentifier identifier, WgslTypeInfo info, CSharpStruct csharpStruct) {
         this.identifier     = identifier;
         this.info           = info;
         this.csharpStruct   = csharpStruct;
+    }
+}
+
+public readonly struct CSharpIdentifier
+{
+    public readonly     string              Name;
+    public readonly     string              Namespace;
+
+    public override     string              ToString()  => $"{Name}";
+    
+    public CSharpIdentifier(string name) {
+        Name        = name;
+        Namespace   = "";
+    }
+    
+    public CSharpIdentifier(string name, string @namespace) {
+        Name        = name;
+        Namespace   = @namespace;
     }
 }
 
@@ -61,14 +79,14 @@ internal struct LocalStruct
 public readonly struct WgslType2CSharpType
 {
     public readonly CsTypeCode          typeCode;
-    public readonly CsTypeIdentifier    identifier;
+    public readonly CSharpIdentifier    identifier;
 
     public override string ToString() => $"{typeCode} - {identifier}";
 
     public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
     {
         this.typeCode   = typeCode;
-        identifier = new CsTypeIdentifier(name, @namespace);
+        identifier = new CSharpIdentifier(name, @namespace);
     }
 }   
 
