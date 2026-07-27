@@ -19,7 +19,7 @@ public class WgslTypeMappings
         
     public Dictionary<string, string> map    { get; set; }
     
-    public static WgslType2CSharpType[] LoadTypeMapping(string path, out string error)
+    public static WgslTypeMapping[] LoadTypeMapping(string path, out string error)
     {
         try {
             if (!File.Exists(path)) {
@@ -32,7 +32,7 @@ public class WgslTypeMappings
             if (map == null) {
                 return Error(path, "missing member: map", out error);
             }
-            var list = new List<WgslType2CSharpType>(map.Count);
+            var list = new List<WgslTypeMapping>(map.Count);
             
             foreach (var kv in map)
             {
@@ -59,7 +59,7 @@ public class WgslTypeMappings
                         return Error(path, $"Invalid C# namespace: {type}", out error);
                     }
                 }
-                list.Add(new WgslType2CSharpType(typeCode, @namespace, className));
+                list.Add(new WgslTypeMapping(typeCode, @namespace, className));
             }
             error = null;
             return list.ToArray();
@@ -72,7 +72,7 @@ public class WgslTypeMappings
         }
     }
     
-    private static WgslType2CSharpType[] Error(string path, string message, out string error)
+    private static WgslTypeMapping[] Error(string path, string message, out string error)
     {
         error = $"Failed reading '{path}' - Error: {message}";
         return [];

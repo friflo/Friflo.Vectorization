@@ -17,15 +17,15 @@ file partial class _info;
 [StructLayout(LayoutKind.Explicit, Size = 0)]
 public struct HasMissingType (MissingType missingType)
 {
-    [FieldOffset(  0)]  public  MissingType missingType = missingType;
+    [FieldOffset(  0)]  public  MissingType missingType = missingType;  // WGSL error - missing type: 'MissingType'
 }
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct HasInvalidPrimitve (vec3<i16> invalidVec3)
+public struct HasInvalidPrimitive (vec3<i16> invalidVec3)
 {
-    [FieldOffset(  0)]  public  vec3<i16> invalidVec3 = invalidVec3;
+    [FieldOffset(  0)]  public  vec3<i16> invalidVec3 = invalidVec3;  // WGSL error - missing type: 'vec3<i16>'
 }
 
 

@@ -24,12 +24,12 @@ public static class Tests_GenerateTypes
         }
         Assert.NotNull(mappings);
         Assert.That(mappings.Length, Is.EqualTo(5));
-        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.vec2i,   "CustomTypes",         "Vector2i")));
-        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.vec2u,   "CustomTypes",         "Vector2<uint>")));
+        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.vec2i,   "CustomTypes",         "Vector2i")));
+        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.vec2u,   "CustomTypes",         "Vector2<uint>")));
         
-        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
-        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
-        Assert.That(mappings, Has.Member(new WgslType2CSharpType(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
+        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
+        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
+        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
         typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
     }
     

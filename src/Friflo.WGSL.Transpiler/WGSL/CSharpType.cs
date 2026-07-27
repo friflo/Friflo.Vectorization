@@ -16,8 +16,8 @@ public readonly struct CSharpType
     
     public override string              ToString()  => info.ToString();
 
-    internal CSharpType(string typeName, WgslTypeInfo info, CSharpStruct csharpStruct) {
-        this.identifier     = new CSharpIdentifier(typeName);
+    internal CSharpType(string typeName, TypeResolution resolution, WgslTypeInfo info, CSharpStruct csharpStruct) {
+        this.identifier     = new CSharpIdentifier(typeName, resolution);
         this.info           = info;
         this.csharpStruct   = csharpStruct;
     }
@@ -29,23 +29,32 @@ public readonly struct CSharpType
     }
 }
 
+public enum TypeResolution
+{
+    Resolved,
+    NotFound,
+    Unmapped
+}
+
+
 public readonly struct CSharpIdentifier
 {
-    public readonly     string      Name;
-    public readonly     string      Namespace;
-    public readonly     bool        isUnmapped;
+    public readonly     string          Name;
+    public readonly     string          Namespace;
+    public readonly     TypeResolution  resolution;
 
     public override     string              ToString()  => $"{Name}";
     
-    public CSharpIdentifier(string name) {
-        Name        = name;
-        Namespace   = "";
+    public CSharpIdentifier(string name, TypeResolution resolution) {
+        Name            = name;
+        Namespace       = "";
+        this.resolution = resolution;
     }
     
-    public CSharpIdentifier(string name, string @namespace, bool isUnmapped) {
+    public CSharpIdentifier(string name, string @namespace, TypeResolution resolution) {
         Name            = name;
         Namespace       = @namespace;
-        this.isUnmapped = isUnmapped;
+        this.resolution = resolution;
     }
 }
 
@@ -78,17 +87,17 @@ internal struct LocalStruct
 }
 
 
-public readonly struct WgslType2CSharpType
+public readonly struct WgslTypeMapping
 {
     public readonly CsTypeCode          typeCode;
     public readonly CSharpIdentifier    identifier;
 
     public override string ToString() => $"{typeCode} - {identifier}";
 
-    public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
+    public WgslTypeMapping(CsTypeCode typeCode, string @namespace, string name)
     {
         this.typeCode   = typeCode;
-        identifier 		= new CSharpIdentifier(name, @namespace, false);
+        identifier 		= new CSharpIdentifier(name, @namespace, TypeResolution.Resolved);
     }
 }   
 

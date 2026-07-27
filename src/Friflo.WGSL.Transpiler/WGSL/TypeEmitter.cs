@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
+using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
 // ReSharper disable RawStringCanBeSimplified
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
@@ -60,11 +61,11 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
-    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string typeName, bool isUnmapped) {
-        typeCodeMap[(int)code] = new CSharpIdentifier(typeName, "", isUnmapped);
+    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string typeName, TypeResolution resolution) {
+        typeCodeMap[(int)code] = new CSharpIdentifier(typeName, "", resolution);
     }
     
-    private static CSharpIdentifier[] CreateTypeMap(WgslType2CSharpType[] wgslType2CSharpType)
+    private static CSharpIdentifier[] CreateTypeMap(WgslTypeMapping[] mappings)
     {
         const int length = (int)CsTypeCode.WgslStruct;
         var map     = new CSharpIdentifier[length];
@@ -72,21 +73,21 @@ public sealed class TypeEmitter
         
         foreach (var value in values) {
             if ((int)value >= length) continue;
-            MapType(map, value, value.ToString(), true);
+            MapType(map, value, value.ToString(), Unmapped);
         }
-        MapType(map, CsTypeCode.f16,     "Half",        false);
-        MapType(map, CsTypeCode.f32,     "float",       false);
-        MapType(map, CsTypeCode.i32,     "int",         false);
-        MapType(map, CsTypeCode.u32,     "uint",        false);
+        MapType(map, CsTypeCode.f16,     "Half",        Resolved);
+        MapType(map, CsTypeCode.f32,     "float",       Resolved);
+        MapType(map, CsTypeCode.i32,     "int",         Resolved);
+        MapType(map, CsTypeCode.u32,     "uint",        Resolved);
         
-        MapType(map, CsTypeCode.vec2f,   "Vector2",     false);
-        MapType(map, CsTypeCode.vec3f,   "Vector3",     false);
-        MapType(map, CsTypeCode.vec4f,   "Vector4",     false);
+        MapType(map, CsTypeCode.vec2f,   "Vector2",     Resolved);
+        MapType(map, CsTypeCode.vec3f,   "Vector3",     Resolved);
+        MapType(map, CsTypeCode.vec4f,   "Vector4",     Resolved);
         
-        MapType(map, CsTypeCode.mat4x4f, "Matrix4x4",   false);
-        MapType(map, CsTypeCode.mat3x2f, "Matrix3x2",   false);
+        MapType(map, CsTypeCode.mat4x4f, "Matrix4x4",   Resolved);
+        MapType(map, CsTypeCode.mat3x2f, "Matrix3x2",   Resolved);
 
-        foreach (var mapping in wgslType2CSharpType) {
+        foreach (var mapping in mappings) {
             map[(int)mapping.typeCode] = mapping.identifier;
         }
         return map;
@@ -100,7 +101,7 @@ public sealed class TypeEmitter
         additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslType2CSharpType[] mappings, string error)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslTypeMapping[] mappings, string error)
     {
         var errorFilePath = $"{projDir}/generator-error.cs";
         if (error == null) {
@@ -288,8 +289,11 @@ public sealed class TypeEmitter
             var padAssign   = maxFieldWidth - field.name.Length;
             sb.Append($"    [FieldOffset({field.offset,3})]  public  {identifier.Name} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};");
-            if (identifier.isUnmapped) {
+            if (identifier.resolution == Unmapped) {
                 sb.Append($"  // INFO: requires mapping in '{WgslTypeMappings.MappingPath}'");
+            }
+            if (identifier.resolution == NotFound) {
+                sb.Append($"  // WGSL error - missing type: '{identifier.Name}'");
             }
             sb.Append("\n");
         }
@@ -316,8 +320,11 @@ public sealed class TypeEmitter
         var info = WgslTypeInfo.GetTypeInfo(type.Name, args);
         
         CSharpType csharpType;
+        WgslStruct wgslStruct = null;
         if (info.typeCode == CsTypeCode.None) {
-            csharpType = new CSharpType(type.ToString(), info, null);    
+            var typeName   = info.IsArray ? info.elementType : type.ToString();
+            var resolution = wgslStructs.TryGetValue(typeName, out wgslStruct) ? Resolved : NotFound;
+            csharpType = new CSharpType(typeName, resolution, info, null);    
         } else {
             var typeIdentifier = TypeMap[(int)info.typeCode];
             csharpType = new CSharpType(typeIdentifier, info, null);
@@ -329,14 +336,17 @@ public sealed class TypeEmitter
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
         }
-        var identifier = info.IsArray ? new CSharpIdentifier(info.elementType) : csharpType.identifier;
+        /* var identifier = info.IsArray ? new CSharpIdentifier(info.elementType) : csharpType.identifier;
         if (!wgslStructs.TryGetValue(identifier.Name, out var wgslStruct)) {
+            return csharpType;
+        } */
+        if (wgslStruct == null) {
             return csharpType;
         }
         requiredStructs.Add(wgslStruct.Name);
         var csharpStruct = CreateStruct(wgslStruct);
         var structInfo   = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
-        return new CSharpType(identifier, structInfo, csharpStruct);
+        return new CSharpType(csharpType.identifier, structInfo, csharpStruct);
     }
     
     private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
@@ -382,7 +392,7 @@ public sealed class TypeEmitter
     {
         var arraySize   = type.info.arraySize;
         var identifier  = type.info.typeCode == CsTypeCode.None
-            ? new CSharpIdentifier(type.info.elementType, fileNamespace, false)
+            ? new CSharpIdentifier(type.info.elementType, fileNamespace, Resolved)
             : TypeMap[(int)type.info.typeCode];
         
         var typeName    = $"{identifier.Name}_Array_{arraySize}";
@@ -405,7 +415,7 @@ public sealed class TypeEmitter
                 """);
         }
         fixedSizedArrays.Append("\n\n\n");
-        return new CSharpType(typeName, type.info, null);
+        return new CSharpType(typeName, Resolved, type.info, null);
     }
     
     private static void EmitStructWithDynamicArrayField(
