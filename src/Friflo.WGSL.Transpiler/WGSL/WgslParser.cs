@@ -365,6 +365,7 @@ public static class WgslParser
     // --- Main API Entry Point ---
     public static WgslModule ParseWgsl(string wgslCode, string sourcePath)
     {
+        // return FastWgslParser.Parse(wgslCode, sourcePath);
         if (wgslCode.StartsWith("// !!CRASH!!")) {
             throw new Exception("Intentional !!CRASH!!");
         }
