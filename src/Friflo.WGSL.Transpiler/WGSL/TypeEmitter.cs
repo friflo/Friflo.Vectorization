@@ -160,7 +160,7 @@ public sealed class TypeEmitter
             File.WriteAllText(absPath, content, new UTF8Encoding(false));
         }
         foreach (var path in currentFiles) {
-            var absPath = $"{projDir}/{path}.cs";
+            var absPath = $"{projDir}/{path}";
             File.Delete(absPath);
         }
     }
