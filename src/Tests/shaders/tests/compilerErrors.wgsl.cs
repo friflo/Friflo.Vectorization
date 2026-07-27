@@ -70,3 +70,13 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
 4. In your shader functions, replace 'trianglesData.triangles[i]' with 'trianglesData[i]'.
 */
 file partial class _info;
+
+
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 8)]
+public struct HasUnmappedType (vec3h unmappedType)
+{
+    [FieldOffset(  0)]  public  vec3h unmappedType = unmappedType;  // INFO: requires mapping in 'wgsl-type-map.json'
+}
+
+

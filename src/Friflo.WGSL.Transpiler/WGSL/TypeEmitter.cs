@@ -60,32 +60,31 @@ public sealed class TypeEmitter
         return $"{root}{string.Join(".", parts)}";
     }
     
-    private CSharpIdentifier GetIdentifier(in CSharpType type)
-    {
-        return type.info.typeCode == CsTypeCode.None
-            ? new CSharpIdentifier(type.info.elementType, fileNamespace)
-            : TypeMap[(int)type.info.typeCode];
-    }
-        
-    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string typeName) {
-        typeCodeMap[(int)code] = new CSharpIdentifier(typeName);
+    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string typeName, bool isUnmapped) {
+        typeCodeMap[(int)code] = new CSharpIdentifier(typeName, "", isUnmapped);
     }
     
     private static CSharpIdentifier[] CreateTypeMap(WgslType2CSharpType[] wgslType2CSharpType)
     {
         const int length = (int)CsTypeCode.WgslStruct;
         var map     = new CSharpIdentifier[length];
-        MapType(map, CsTypeCode.f16,     "Half");
-        MapType(map, CsTypeCode.f32,     "float");
-        MapType(map, CsTypeCode.i32,     "int");
-        MapType(map, CsTypeCode.u32,     "uint");
+        var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
         
-        MapType(map, CsTypeCode.vec2f,   "Vector2");
-        MapType(map, CsTypeCode.vec3f,   "Vector3");
-        MapType(map, CsTypeCode.vec4f,   "Vector4");
+        foreach (var value in values) {
+            if ((int)value >= length) continue;
+            MapType(map, value, value.ToString(), true);
+        }
+        MapType(map, CsTypeCode.f16,     "Half",        false);
+        MapType(map, CsTypeCode.f32,     "float",       false);
+        MapType(map, CsTypeCode.i32,     "int",         false);
+        MapType(map, CsTypeCode.u32,     "uint",        false);
         
-        MapType(map, CsTypeCode.mat4x4f, "Matrix4x4");
-        MapType(map, CsTypeCode.mat3x2f, "Matrix3x2");
+        MapType(map, CsTypeCode.vec2f,   "Vector2",     false);
+        MapType(map, CsTypeCode.vec3f,   "Vector3",     false);
+        MapType(map, CsTypeCode.vec4f,   "Vector4",     false);
+        
+        MapType(map, CsTypeCode.mat4x4f, "Matrix4x4",   false);
+        MapType(map, CsTypeCode.mat3x2f, "Matrix3x2",   false);
 
         foreach (var mapping in wgslType2CSharpType) {
             map[(int)mapping.typeCode] = mapping.identifier;
@@ -284,10 +283,15 @@ public sealed class TypeEmitter
         sb.Append("{\n");
 
         foreach (var field in fields) {
-            var padName   = maxTypeWidth  - field.type.identifier.Name.Length;
-            var padAssign = maxFieldWidth - field.name.Length;
-            sb.Append($"    [FieldOffset({field.offset,3})]  public  {field.type.identifier.Name} ").Append(' ', padName);
-            sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};\n");
+            var identifier  = field.type.identifier;
+            var padName     = maxTypeWidth  - identifier.Name.Length;
+            var padAssign   = maxFieldWidth - field.name.Length;
+            sb.Append($"    [FieldOffset({field.offset,3})]  public  {identifier.Name} ").Append(' ', padName);
+            sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};");
+            if (identifier.isUnmapped) {
+                sb.Append($"  // INFO: requires mapping in '{WgslTypeMappings.MappingPath}'");
+            }
+            sb.Append("\n");
         }
         sb.Append("}\n\n\n");
         var source = sb.ToString();
@@ -377,7 +381,10 @@ public sealed class TypeEmitter
     private CSharpType CreateFixedSizeArray(CSharpType type)
     {
         var arraySize   = type.info.arraySize;
-        var identifier  = GetIdentifier(type);
+        var identifier  = type.info.typeCode == CsTypeCode.None
+            ? new CSharpIdentifier(type.info.elementType, fileNamespace, false)
+            : TypeMap[(int)type.info.typeCode];
+        
         var typeName    = $"{identifier.Name}_Array_{arraySize}";
         AddNamespace(type);
         
@@ -440,6 +447,9 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
 4. In your shader functions, replace '{bindingName}.{fieldName}[i]' with '{bindingName}[i]'.
 */
 file partial class _info;
+
+
+
 """);
             
         

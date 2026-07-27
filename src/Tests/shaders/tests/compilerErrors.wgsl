@@ -24,11 +24,16 @@ struct DynamicSizedStruct {
     triangles: array<vec3f>,
 }
 
+struct HasUnmappedType {
+	unmappedType:  vec3h,
+}
+
 
 @group(0) @binding(0)   var<uniform> emptyStruct    : EmptyStruct;
 @group(0) @binding(1)   var<uniform> uniforms1      : HasMissingType;
 @group(0) @binding(2)   var<uniform> uniforms2      : InconsistentStruct;
 @group(0) @binding(3)   var<uniform> uniforms3      : HasInvalidPrimitve;
 @group(0) @binding(4)   var<storage> trianglesData  : DynamicSizedStruct;
+@group(0) @binding(5)   var<uniform> unmappedType   : HasUnmappedType;
 
 

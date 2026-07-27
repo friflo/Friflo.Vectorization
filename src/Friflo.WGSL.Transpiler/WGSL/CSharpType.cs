@@ -31,8 +31,9 @@ public readonly struct CSharpType
 
 public readonly struct CSharpIdentifier
 {
-    public readonly     string              Name;
-    public readonly     string              Namespace;
+    public readonly     string      Name;
+    public readonly     string      Namespace;
+    public readonly     bool        isUnmapped;
 
     public override     string              ToString()  => $"{Name}";
     
@@ -41,9 +42,10 @@ public readonly struct CSharpIdentifier
         Namespace   = "";
     }
     
-    public CSharpIdentifier(string name, string @namespace) {
-        Name        = name;
-        Namespace   = @namespace;
+    public CSharpIdentifier(string name, string @namespace, bool isUnmapped) {
+        Name            = name;
+        Namespace       = @namespace;
+        this.isUnmapped = isUnmapped;
     }
 }
 
@@ -86,7 +88,7 @@ public readonly struct WgslType2CSharpType
     public WgslType2CSharpType(CsTypeCode typeCode, string @namespace, string name)
     {
         this.typeCode   = typeCode;
-        identifier = new CSharpIdentifier(name, @namespace);
+        identifier 		= new CSharpIdentifier(name, @namespace, false);
     }
 }   
 
