@@ -152,7 +152,7 @@ public ref struct WgslScanner
 // ==========================================
 public static class FastWgslParser
 {
-    public static WgslModule Parse(string wgslCode, string sourcePath)
+    public static WgslModule ParseWgsl(string wgslCode, string sourcePath)
     {
         if (wgslCode.StartsWith("// !!CRASH!!")) {
             throw new Exception("Intentional !!CRASH!!");

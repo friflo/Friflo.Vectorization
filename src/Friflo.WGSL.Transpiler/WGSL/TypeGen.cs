@@ -167,7 +167,7 @@ public sealed partial class TypeGen
             fileNamespace = PathToNamespace(normalizedPath);
             
             // --- process after
-            module = WgslParser.ParseWgsl(file.Content, normalizedPath);
+            module = FastWgslParser.ParseWgsl(file.Content, normalizedPath);
             EmitStructs(body, normalizedPath);
             if (body.Length == 0) {
                 return null;

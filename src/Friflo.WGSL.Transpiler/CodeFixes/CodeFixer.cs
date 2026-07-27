@@ -39,7 +39,7 @@ public static partial class CodeFixer
         var fullModule = new WgslModule();
         foreach (var file in files) 
         {
-            var module = WgslParser.ParseWgsl(file.Content, file.NormalizedPath);
+            var module = FastWgslParser.ParseWgsl(file.Content, file.NormalizedPath);
             fullModule.AddModule(module);
         }
         return fullModule;

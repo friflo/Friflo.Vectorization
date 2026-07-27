@@ -19,7 +19,7 @@ internal static class WgslGenerator
         var path    = text.Path.Replace('\\', '/');
         WgslModule module;
         try {
-            module = WgslParser.ParseWgsl(content, path);
+            module = FastWgslParser.ParseWgsl(content, path);
         }
         catch (Exception exception) {
             var type        = exception.GetType();
