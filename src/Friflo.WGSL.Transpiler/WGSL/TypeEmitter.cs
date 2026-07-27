@@ -386,10 +386,6 @@ public sealed class TypeEmitter
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
         }
-        /* var identifier = info.IsArray ? new CSharpIdentifier(info.elementType) : csharpType.identifier;
-        if (!wgslStructs.TryGetValue(identifier.Name, out var wgslStruct)) {
-            return csharpType;
-        } */
         if (wgslStruct == null) {
             return csharpType;
         }
