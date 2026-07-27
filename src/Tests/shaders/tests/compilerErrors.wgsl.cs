@@ -42,10 +42,6 @@ public struct InconsistentStruct (int value1)
 file partial class _info;
 
 
-
-
-
-
 #error Unsupported Struct Layout in 'shaders/tests/compilerErrors.wgsl'
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 /*

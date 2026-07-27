@@ -227,12 +227,15 @@ public sealed class TypeEmitter
                     #error Duplicate identifier '{structName}'
                     [Source("~/{normalizedPath}")]
                     file partial class _info;
-                    {LineFeeds}
                     """).Append(LineFeeds);
                 continue;
             }
             if (localStruct.alreadyDeclared) {
-                sb.Append($"/// Skipped identical duplicate of  <see cref=\"{structName}\"/>\nfile partial class _info;").Append(LineFeeds);
+                sb.Append( // language=csharp
+                    $"""
+                    /// Skipped identical duplicate of  <see cref="{structName}"/>
+                    file partial class _info;
+                    """).Append(LineFeeds);
                 continue;
             }
             var fields = localStruct.csharpStruct.fields;
@@ -256,8 +259,11 @@ public sealed class TypeEmitter
                 }
                 continue;
             }
-            sb.Append($"[Source(\"~/{normalizedPath}\")]\n");
-            sb.Append($"[StructLayout(LayoutKind.Explicit, Size = {localStruct.csharpStruct.layout.size})]\n");
+            sb.Append( // language=csharp
+                $"""
+                [Source("~/{normalizedPath}")]
+                [StructLayout(LayoutKind.Explicit, Size = {localStruct.csharpStruct.layout.size})]
+                """);
             sb.Append(localStruct.csharpStruct.source);
         }
     }
@@ -272,7 +278,7 @@ public sealed class TypeEmitter
         var fields      = new CSharpField[length];
         var sb          = new StringBuilder();
         sb.Clear();
-        sb.Append($"public struct {structName} (");
+        sb.Append($"\npublic struct {structName} (");
         
         var maxTypeWidth  = 0;
         var maxFieldWidth = 0;
@@ -308,7 +314,7 @@ public sealed class TypeEmitter
             }
             sb.Append("\n");
         }
-        sb.Append("}\n\n\n");
+        sb.Append("}").Append(LineFeeds);
         var source = sb.ToString();
         
         var fullQualifiedName   = $"{fileNamespace}-{structName}";
@@ -318,7 +324,7 @@ public sealed class TypeEmitter
             localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = alreadyDeclared });
             return curStruct;
         }
-        var csharpStruct = new CSharpStruct { name = structName, source =  source, fields = fields, layout = layout };
+        var csharpStruct = new CSharpStruct { name = structName, source = source, fields = fields, layout = layout };
         structMap.Add(fullQualifiedName, csharpStruct);
         localStructs.Add(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
         return csharpStruct;
@@ -425,7 +431,7 @@ public sealed class TypeEmitter
                 file partial class _info;
                 """);
         }
-        fixedSizedArrays.Append("\n\n\n");
+        fixedSizedArrays.Append(LineFeeds);
         return new CSharpType(typeName, Resolved, type.info, null);
     }
     
@@ -468,10 +474,7 @@ RECOMMENDED FIX: Keep your struct as a clean Uniform Header with minimal changes
 4. In your shader functions, replace '{bindingName}.{fieldName}[i]' with '{bindingName}[i]'.
 */
 file partial class _info;
-
-
-
-""");
+""").Append(LineFeeds);
             
         
     }
