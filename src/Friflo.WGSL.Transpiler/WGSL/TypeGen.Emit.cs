@@ -31,8 +31,9 @@ public sealed partial class TypeGen
     private             string                              fileNamespace;
     private             CSharpIdentifier[]                  TypeMap;
 
-    private const string  LineFeeds = "\n\n\n"; 
+    private const string  LineFeeds = "\n\n\n";
         
+    
     private void EmitStructs(StringBuilder sb, string normalizedPath)
     {
         CreateStructs();
@@ -122,7 +123,6 @@ public sealed partial class TypeGen
         var length      = wgslStruct.Fields.Count;
         var fields      = new CSharpField[length];
         var sb          = new StringBuilder();
-        sb.Clear();
         sb.Append($"\npublic struct {structName} (");
         
         var maxTypeWidth  = 0;
@@ -193,7 +193,7 @@ public sealed partial class TypeGen
         }
         
         if (info.paramType == WgslParamType.FixedSizeArray) {
-            return CreateFixedSizeArray(csharpType);
+            return EmitFixedSizeArray(csharpType);
         }
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
@@ -246,7 +246,7 @@ public sealed partial class TypeGen
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
     
-    private CSharpType CreateFixedSizeArray(CSharpType type)
+    private CSharpType EmitFixedSizeArray(CSharpType type)
     {
         var arraySize   = type.info.arraySize;
         var identifier  = type.info.typeCode == CsTypeCode.None

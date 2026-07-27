@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
+
 // ReSharper disable LoopCanBeConvertedToQuery
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.WGSL;
