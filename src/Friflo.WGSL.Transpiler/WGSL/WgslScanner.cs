@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Friflo.WGSL.Transpiler.WGSL;
@@ -22,6 +23,20 @@ public ref struct WgslScanner
     {
         _source = source;
         _position = 0;
+    }
+    
+    public readonly int Position => _position;
+    
+    public readonly ReadOnlySpan<char> Debug => _source.Slice(_position, _source.Length - _position);
+
+    // Slice from a given start position up to current position
+    public readonly ReadOnlySpan<char> SliceFrom(int start)
+    {
+        if (start < 0 || start > _position || _position > _source.Length)
+        {
+            return ReadOnlySpan<char>.Empty;
+        }
+        return _source.Slice(start, _position - start);
     }
 
     public readonly bool IsEof => _position >= _source.Length;
@@ -120,6 +135,15 @@ public ref struct WgslScanner
     {
         if (_position < _source.Length) _position++;
     }
+    
+    public readonly char PeekChar()
+    {
+        if (_position < _source.Length)
+        {
+            return _source[_position];
+        }
+        return '\0';
+    }
 }
 
 // ==========================================
@@ -129,6 +153,9 @@ public static class FastWgslParser
 {
     public static WgslModule Parse(string wgslCode, string sourcePath)
     {
+        if (wgslCode.StartsWith("// !!CRASH!!")) {
+            throw new Exception("Intentional !!CRASH!!");
+        }
         var module = new WgslModule();
         var scanner = new WgslScanner(wgslCode.AsSpan());
 
@@ -159,7 +186,7 @@ public static class FastWgslParser
         return module;
     }
 
-    // --- Type Parser (support generics vec4<f32>) ---
+    // --- Type Parser (support generics vec4<f32> or array<vec3f, 16>)) ---
     private static WgslType ParseType(ref WgslScanner scanner)
     {
         var nameSpan = scanner.ReadIdentifier();
@@ -172,10 +199,23 @@ public static class FastWgslParser
             var genericsList = new List<WgslType>();
             do
             {
-                var genericType = ParseType(ref scanner);
-                if (!string.IsNullOrEmpty(genericType.Name))
+                scanner.SkipWhitespaceAndComments();
+                if (scanner.IsEof || scanner.Match('>')) break;
+
+                // check if next element is a number (e.g. array size 16) or an identifier
+                char nextChar = scanner.PeekChar();
+                if (char.IsDigit(nextChar))
                 {
-                    genericsList.Add(genericType);
+                    int number = scanner.ReadInteger();
+                    genericsList.Add(new WgslType { Name = number.ToString() });
+                }
+                else
+                {
+                    var genericType = ParseType(ref scanner);
+                    if (!string.IsNullOrEmpty(genericType.Name))
+                    {
+                        genericsList.Add(genericType);
+                    }
                 }
             } 
             while (scanner.Match(','));
@@ -294,6 +334,7 @@ public static class FastWgslParser
     }
 
     // --- Entry Point Parser (@vertex, @fragment, @compute) ---
+// --- Entry Point Parser (@vertex, @fragment, @compute) ---
     private static bool TryParseEntryPoint(ref WgslScanner scanner, out WgslEntryPoint result)
     {
         result = null!;
@@ -316,12 +357,19 @@ public static class FastWgslParser
 
         while (!scanner.IsEof && !scanner.Match(')'))
         {
-            SkipAttributes(ref scanner);
+            // Parse optional parameter attributes (e.g., @location(0) or @builtin(...))
+            var attributeStr = TryReadFullAttribute(ref scanner);
+
             var paramName = scanner.ReadIdentifier();
             if (!paramName.IsEmpty && scanner.Match(':'))
             {
                 var paramType = ParseType(ref scanner);
-                parameters.Add(new WgslParam { Name = paramName.ToString(), WgslType = paramType });
+                parameters.Add(new WgslParam 
+                { 
+                    Attribute = attributeStr, 
+                    Name = paramName.ToString(), 
+                    WgslType = paramType 
+                });
             }
             scanner.Match(',');
         }
@@ -333,7 +381,7 @@ public static class FastWgslParser
             returnType = ParseType(ref scanner);
         }
 
-        // skip curly brackets of function body { ... }
+        // Skip function body block { ... }
         SkipBracedBlock(ref scanner);
 
         result = new WgslEntryPoint
@@ -344,6 +392,33 @@ public static class FastWgslParser
             ReturnType = returnType
         };
         return true;
+    }
+
+    // Helper to capture full attribute string like "@location(0)"
+    private static string TryReadFullAttribute(ref WgslScanner scanner)
+    {
+        scanner.SkipWhitespaceAndComments();
+        if (scanner.PeekChar() != '@') return string.Empty;
+
+        int startPos = scanner.Position;
+        scanner.SkipChar(); // skip '@'
+        scanner.ReadIdentifier(); // attribute name (e.g. location)
+
+        if (scanner.PeekChar() == '(')
+        {
+            scanner.SkipChar(); // skip '('
+            int depth = 1;
+            while (!scanner.IsEof && depth > 0)
+            {
+                char c = scanner.PeekChar();
+                scanner.SkipChar();
+                if (c == '(') depth++;
+                else if (c == ')') depth--;
+            }
+        }
+
+        // Return the exact substring slice as string
+        return scanner.SliceFrom(startPos).ToString(); // Or handle via scanner slice
     }
 
     private static void SkipBracedBlock(ref WgslScanner scanner)
