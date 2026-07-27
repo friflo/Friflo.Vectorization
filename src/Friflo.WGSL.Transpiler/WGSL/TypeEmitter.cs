@@ -248,9 +248,8 @@ public sealed class TypeEmitter
                     """).Append(LineFeeds);
                 continue;
             }
-            ////
             // FIX_C89_STRUCT_HACK
-            // Ignore structs with dynamic array<> fields
+            // Ignore structs with: dynamic array<> field + other fields
             var arrayField = fields.FirstOrDefault(f => f.type.info.paramType == WgslParamType.DynamicArray);
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
