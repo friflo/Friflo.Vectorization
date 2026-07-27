@@ -16,7 +16,6 @@ public static class Tests_GenerateTypes
         var projectDir = TestWgslUtils.GetProjectDir();
         var files = TestWgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
 
-        var typeEmitter = new TypeGen();
         // var mappings = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
         var mappings = WgslTypeMappings.LoadTypeMapping($"{projectDir}/{WgslTypeMappings.MappingPath}", out var error);
         if (error != null) {
@@ -30,7 +29,11 @@ public static class Tests_GenerateTypes
         Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
         Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
         Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
-        typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
+
+        for (int n = 0; n < 1; n++) {
+            var typeEmitter = new TypeGen();
+            typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
+        }
     }
     
     

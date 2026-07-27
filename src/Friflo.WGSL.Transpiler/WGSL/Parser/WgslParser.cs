@@ -10,107 +10,8 @@ using Superpower.Model;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 
+// ReSharper disable once CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
-
-// ==========================================
-// AST / DATA MODELS
-// ==========================================
-
-public class WgslModule
-{
-    public List<WgslStruct>     Structs     { get; set; } = new();
-    public List<WgslBinding>    Bindings    { get; set; } = new();
-    public List<WgslEntryPoint> EntryPoints { get; set; } = new();
-    public List<string>         Errors      { get; set; } = new();
-    
-    public void AddModule(WgslModule module)
-    {
-        Structs    .AddRange(module.Structs);
-        Bindings   .AddRange(module.Bindings);
-        EntryPoints.AddRange(module.EntryPoints);
-        Errors     .AddRange(module.Errors);
-    }
-}
-
-public record WgslType
-{
-    public string Name { get; set; } = string.Empty;
-    public ValueArray<WgslType> Generics { get; set; } = new(); // Geändert von ValueArray zu List für einfacheres Parsen, falls nötig im Code anpassen
-
-    public override string ToString()
-    {
-        if (Generics.Length == 0) return Name;
-        return $"{Name}<{string.Join(", ", Generics.Select(g => g.ToString()))}>";
-    }
-}
-
-public class WgslStruct
-{
-    public string           Name { get; set; } = string.Empty;
-    public List<WgslField>  Fields { get; set; } = new();
-    public string           sourcePath;
-    
-    public override string ToString() => Name;
-}
-
-public class WgslField
-{
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
-    
-    public override string ToString() => Name;
-}
-
-public record WgslBinding
-{
-    public int Group { get; set; }
-    public int Binding { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
-    
-    public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
-    public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
-    
-    public override string ToString() => AsString();
-    
-    public string AsString()
-    {
-        if (AddressSpace == "") {
-            return $"var {Name}: {WgslType}";
-        }
-        if (AccessMode == "") {
-            return $"var<{AddressSpace}> {Name}: {WgslType}";
-        }
-        return $"var<{AddressSpace}, {AccessMode}> {Name}: {WgslType}";
-    }
-    
-    public string GetGenericNameAt(int index)
-    {
-        if (WgslType == null) return string.Empty;
-        var generics = WgslType.Generics;
-        if (index >= generics.Length) return string.Empty;
-        return generics[index].Name;
-    }
-}
-
-public class WgslEntryPoint
-{
-    public string Stage { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public List<WgslParam> Parameters { get; set; } = new();
-    public WgslType ReturnType { get; set; } = new();
-
-    public override string ToString() => $"{Name}  @{Stage}";
-}
-
-public class WgslParam
-{
-    public string Attribute { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
-    
-    public override string ToString() => Name;
-}
 
 // ==========================================
 // TOKEN ENUM DEFINITION
@@ -365,7 +266,6 @@ public static class WgslParser
     // --- Main API Entry Point ---
     public static WgslModule ParseWgsl(string wgslCode, string sourcePath)
     {
-        // return FastWgslParser.Parse(wgslCode, sourcePath);
         if (wgslCode.StartsWith("// !!CRASH!!")) {
             throw new Exception("Intentional !!CRASH!!");
         }

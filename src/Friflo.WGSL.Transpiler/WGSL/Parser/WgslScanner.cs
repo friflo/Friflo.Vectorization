@@ -8,6 +8,7 @@ using Friflo.WGSL.Transpiler.CSharp;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable once CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 

@@ -92,6 +92,7 @@ public sealed partial class TypeGen
     
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslTypeMapping[] mappings, string error)
     {
+        wgslFiles = wgslFiles.ToArray();
         var errorFilePath = $"{projDir}/generator-error.cs";
         if (error == null) {
             if (File.Exists(errorFilePath)) {
@@ -117,7 +118,6 @@ public sealed partial class TypeGen
             if (content == null) continue;
             files.Add((file.NormalizedPath, content));
         }
-        // --- get current C# type files
         UpdateFiles(projDir, files);
     }
     
