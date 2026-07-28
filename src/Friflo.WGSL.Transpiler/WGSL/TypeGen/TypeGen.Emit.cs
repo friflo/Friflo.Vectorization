@@ -282,13 +282,27 @@ public sealed partial class TypeGen
         var typeName    = $"{identifier.Name}_Array_{arraySize}";
         AddNamespace(type);
         
-        if (fixedSizedArrayTypes.Add(typeName)) {
+        if (fixedSizedArrayTypes.Add(typeName))
+        {
+            var stride      = type.info.typeCode.Layout.size;
+            var sizeInBytes = stride * arraySize;
+            var elementType = identifier.Name; 
+            
             fixedSizedArrays.Append( // language=csharp
                 $$"""
-                [InlineArray({{arraySize}})]
+                [StructLayout(LayoutKind.Explicit, Size = {{sizeInBytes}})]
                 public struct {{typeName}}
                 {
-                    private {{identifier.Name}} _element0;
+                    [FieldOffset(0)]  private {{elementType}} _element0;
+                    
+                    public ref {{elementType}} this[int index] {
+                        [UnscopedRef] get {
+                            if ((uint)index >= {{arraySize}}) throw new IndexOutOfRangeException();
+                            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * {{stride}});
+                        }
+                    }
+                    
+                    [UnscopedRef] public FixedArrayEnumerator<{{elementType}}> GetEnumerator() => new(ref _element0, {{stride}}, {{sizeInBytes}});
                 }
                 """);
         } else {
