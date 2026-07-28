@@ -56,6 +56,8 @@ public class WgslField
 {
     public  string      Name            { get; set; } = string.Empty;
     public  WgslType    WgslType        { get; set; } = new();
+    public  int?        Align           { get; set; }
+    public  int?        Size            { get; set; }
     
     public override string ToString() => Name;
 }

@@ -257,7 +257,26 @@ public static class FastWgslParser
 
         while (!scanner.IsEof && !scanner.Match('}'))
         {
-            SkipAttributes(ref scanner);
+            int? align = null;
+            int? size = null;
+
+            // Parse optional field attributes like @align(n) or @size(n)
+            while (scanner.Match('@'))
+            {
+                var attrName = scanner.ReadIdentifier();
+                if (scanner.Match('('))
+                {
+                    int val = scanner.ReadInteger();
+                    scanner.Match(')');
+
+                    if (attrName is "align") {
+                        align = val;
+                    }
+                    else if (attrName is "size") {
+                        size = val;
+                    }
+                }
+            }
 
             var fieldName = scanner.ReadIdentifier();
             if (fieldName.IsEmpty) break;
@@ -265,9 +284,13 @@ public static class FastWgslParser
             if (scanner.Match(':'))
             {
                 var fieldType = ParseType(ref scanner);
-                fields.Add(new WgslField { Name = fieldName.ToString(), WgslType = fieldType });
+                fields.Add(new WgslField { 
+                    Name 		= fieldName.ToString(), 
+                    WgslType 	= fieldType,
+                    Align 		= align,
+                    Size 		= size
+                });
             }
-
             scanner.Match(',');
             scanner.Match(';');
         }
