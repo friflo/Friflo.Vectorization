@@ -17,7 +17,7 @@ public struct FixeSizeArray (in Vector2i_Array_16 vectors)
 }
 
 
-[StructLayout(LayoutKind.Explicit, Size = 128)]
+[StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct Vector2i_Array_16
 {
     [FieldOffset(0)]  private Vector2i _element0;
@@ -25,11 +25,11 @@ public struct Vector2i_Array_16
     public ref Vector2i this[int index] {
         [UnscopedRef] get {
             if ((uint)index >= 16) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 8);
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
         }
     }
     
-    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 8, 128);
+    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 16, 256);
 }
 
 

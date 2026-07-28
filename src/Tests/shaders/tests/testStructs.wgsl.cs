@@ -96,7 +96,7 @@ public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
 }
 
 
-[StructLayout(LayoutKind.Explicit, Size = 192)]
+[StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct Vector3_Array_16
 {
     [FieldOffset(0)]  private Vector3 _element0;
@@ -104,11 +104,11 @@ public struct Vector3_Array_16
     public ref Vector3 this[int index] {
         [UnscopedRef] get {
             if ((uint)index >= 16) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 12);
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
         }
     }
     
-    [UnscopedRef] public FixedArrayEnumerator<Vector3> GetEnumerator() => new(ref _element0, 12, 192);
+    [UnscopedRef] public FixedArrayEnumerator<Vector3> GetEnumerator() => new(ref _element0, 16, 256);
 }
 
 
@@ -116,7 +116,7 @@ public struct Vector3_Array_16
 file partial class _info;
 
 
-[StructLayout(LayoutKind.Explicit, Size = 64)]
+[StructLayout(LayoutKind.Explicit, Size = 128)]
 public struct Vector2i_Array_8
 {
     [FieldOffset(0)]  private Vector2i _element0;
@@ -124,11 +124,11 @@ public struct Vector2i_Array_8
     public ref Vector2i this[int index] {
         [UnscopedRef] get {
             if ((uint)index >= 8) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 8);
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
         }
     }
     
-    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 8, 64);
+    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 16, 128);
 }
 
 

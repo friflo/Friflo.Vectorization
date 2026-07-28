@@ -272,7 +272,7 @@ public sealed partial class TypeGen
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
     
-    private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment _) // TODO implement alignment
+    private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment alignment)
     {
         var arraySize   = type.info.arraySize;
         var identifier  = type.info.typeCode == CsTypeCode.None
@@ -284,7 +284,7 @@ public sealed partial class TypeGen
         
         if (fixedSizedArrayTypes.Add(typeName))
         {
-            var stride      = type.info.typeCode.Layout.size;
+            var stride      = GetFixedSizeArrayStride(type.info.typeCode.Layout, alignment);
             var sizeInBytes = stride * arraySize;
             var elementType = identifier.Name; 
             
@@ -314,6 +314,23 @@ public sealed partial class TypeGen
         }
         fixedSizedArrays.Append(LineFeeds);
         return new CSharpType(typeName, Resolved, type.info, null);
+    }
+    
+    private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment)
+    {
+        int elementSize  = layout.size;
+        int elementAlign = layout.align;
+
+        // base rule (std430 & std140):
+        // stride is always rounded up to its elementAlign
+        int stride = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
+
+        // uniform-rule - (std140):
+        // in a uniform buffer each array element must have at least 16 byte alignment/stride.
+        if (alignment == WgslAlignment.std140) {
+            stride = (stride + 15) & ~15;
+        }
+        return stride;
     }
     
     private static void EmitStructWithDynamicArrayField(
