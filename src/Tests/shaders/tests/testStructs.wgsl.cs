@@ -74,12 +74,12 @@ public struct FixeSizeArrayStruct2 (Vector3 value1, in Vector3_Array_16 vectors,
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 80)]
+[StructLayout(LayoutKind.Explicit, Size = 144)]
 public struct CustomVector (Vector2i vector2i, in Vector2i_Array_8 vectors2i, Vector2<uint> vector2u)
 {
     [FieldOffset(  0)]  public  Vector2i         vector2i  = vector2i;
     [FieldOffset(  8)]  public  Vector2i_Array_8 vectors2i = vectors2i;
-    [FieldOffset( 72)]  public  Vector2<uint>    vector2u  = vector2u;
+    [FieldOffset(136)]  public  Vector2<uint>    vector2u  = vector2u;
 }
 
 

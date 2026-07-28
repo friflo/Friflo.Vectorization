@@ -104,18 +104,16 @@ public sealed partial class TypeGen
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
-            if (wgslStructs.ContainsKey(typeName)) {
-                requiredStructs.Add(typeName);
+            if (!wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
+                continue;
             }
-        }
-        foreach (var wgslStruct in structs) {
-            if (requiredStructs.Contains(wgslStruct.Name)) {
-                CreateStruct(wgslStruct);
-            }
+            requiredStructs.Add(typeName);
+            var alignment = binding.AddressSpace == "storage" ? WgslAlignment.std430 : WgslAlignment.std140;
+            CreateStruct(wgslStruct, alignment);
         }
     }
     
-    private CSharpStruct CreateStruct(WgslStruct wgslStruct)
+    private CSharpStruct CreateStruct(WgslStruct wgslStruct, WgslAlignment alignment)
     {
         var structName  = wgslStruct.Name;
         if (localStructs.TryGetValue(structName, out var localStruct)) {
@@ -131,13 +129,13 @@ public sealed partial class TypeGen
         
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
-            var csharpType  = GetCSharpType(field.WgslType);
+            var csharpType  = GetCSharpType(field.WgslType, alignment);
             fields[n]       = new CSharpField { name = field.Name, type = csharpType, wgslAlign = field.Align, wgslSize = field.Size };
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
             AddNamespace(csharpType);
         }
-        var layout = AssignFieldLayouts(fields);
+        var layout = AssignFieldLayouts(fields, alignment);
         foreach (var csharpField in fields) {
             var modifier = csharpField.size <= 16 ? "" : "in ";
             sb.Append($"{modifier}{csharpField.type.identifier.Name} {csharpField.name}, ");
@@ -176,7 +174,7 @@ public sealed partial class TypeGen
         return csharpStruct;
     }
     
-    private CSharpType GetCSharpType(WgslType type)
+    private CSharpType GetCSharpType(WgslType type, WgslAlignment alignment)
     {
         var args = GenericArgs.Create(type.Generics);
         
@@ -194,7 +192,7 @@ public sealed partial class TypeGen
         }
         
         if (info.paramType == WgslParamType.FixedSizeArray) {
-            return EmitFixedSizeArray(csharpType);
+            return EmitFixedSizeArray(csharpType, alignment);
         }
         if (info.typeCode != CsTypeCode.None) {
             return csharpType;
@@ -203,12 +201,12 @@ public sealed partial class TypeGen
             return csharpType;
         }
         requiredStructs.Add(wgslStruct.Name);
-        var csharpStruct = CreateStruct(wgslStruct);
+        var csharpStruct = CreateStruct(wgslStruct, alignment);
         var structInfo   = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
         return new CSharpType(csharpType.identifier, structInfo, csharpStruct);
     }
     
-    private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
+    private static TypeLayout AssignFieldLayouts(CSharpField[] fields, WgslAlignment alignment)
     {
         int currentOffset  = 0;
         int maxStructAlign = 1;
@@ -219,7 +217,15 @@ public sealed partial class TypeGen
             var typeCode = field.type.info.typeCode;
             if (typeCode == CsTypeCode.WgslStruct) {
                 var csharpStruct = field.type.csharpStruct;
-                layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields) : default;
+                
+                // Rebound nested struct layout with the same alignment mode
+                layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields, alignment) : default;
+                
+                // In std140 (Uniform), nested structs are rounded up to at least 16-byte alignment
+                if (alignment == WgslAlignment.std140) {
+                    int structAlign = Math.Max(layout.align, 16);
+                    layout = new TypeLayout(layout.size, structAlign);
+                }
             } else {
                 layout = typeCode.Layout;
                 if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
@@ -227,9 +233,15 @@ public sealed partial class TypeGen
                     int elementAlign  = layout.align;
                     int arrayCount    = field.type.info.arraySize;
                     
-                    // Array elements are aligned according to their natural element alignment (stride)
+                    // Calculate natural stride
                     int elementStride = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
-                    int arraySize     = elementStride * arrayCount;
+                    
+                    // In std140 (Uniform), every array element has a minimum stride of 16 bytes
+                    if (alignment == WgslAlignment.std140) {
+                        elementStride = Math.Max(elementStride, 16);
+                    }
+
+                    int arraySize = elementStride * arrayCount;
                     layout = new TypeLayout(arraySize, elementAlign);
                 }
             }
@@ -246,15 +258,21 @@ public sealed partial class TypeGen
             currentOffset    = (currentOffset + (layout.align - 1)) & ~(layout.align - 1);
             fields[n].offset = currentOffset;
             fields[n].size   = layout.size;
+
             currentOffset += layout.size;
         }
 
-        // Struct size must be padded to a multiple of its largest field alignment (struct stride)
+        // In std140 (Uniform), outer struct alignment is rounded up to at least 16 bytes
+        if (alignment == WgslAlignment.std140) {
+            maxStructAlign = Math.Max(maxStructAlign, 16);
+        }
+
+        // Struct size must be padded to a multiple of its alignment (struct stride)
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
     
-    private CSharpType EmitFixedSizeArray(CSharpType type)
+    private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment _) // TODO implement alignment
     {
         var arraySize   = type.info.arraySize;
         var identifier  = type.info.typeCode == CsTypeCode.None

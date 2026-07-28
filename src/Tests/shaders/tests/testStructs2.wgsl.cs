@@ -9,7 +9,7 @@ namespace Shaders.Tests;
 
 
 [Source("~/shaders/tests/testStructs2.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 128)]
+[StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct FixeSizeArray (in Vector2i_Array_16 vectors)
 {
     [FieldOffset(  0)]  public  Vector2i_Array_16 vectors = vectors;
