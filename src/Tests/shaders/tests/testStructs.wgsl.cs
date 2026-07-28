@@ -76,12 +76,12 @@ public struct FixeSizeArrayStruct2 (Vector3 value1, in Vector3_Array_16 vectors,
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 144)]
+[StructLayout(LayoutKind.Explicit, Size = 160)]
 public struct VectorInUniform (Vector2i uniform_vector2i, in Vector2i_Array_8_Std140 uniform_vectors2i, Vector2<uint> uniform_vector2u)
 {
     [FieldOffset(  0)]  public  Vector2i                uniform_vector2i  = uniform_vector2i;
-    [FieldOffset(  8)]  public  Vector2i_Array_8_Std140 uniform_vectors2i = uniform_vectors2i;
-    [FieldOffset(136)]  public  Vector2<uint>           uniform_vector2u  = uniform_vector2u;
+    [FieldOffset( 16)]  public  Vector2i_Array_8_Std140 uniform_vectors2i = uniform_vectors2i;
+    [FieldOffset(144)]  public  Vector2<uint>           uniform_vector2u  = uniform_vector2u;
 }
 
 

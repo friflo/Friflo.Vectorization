@@ -215,6 +215,8 @@ public sealed partial class TypeGen
             var field   = fields[n];
             TypeLayout layout;
             var typeCode = field.type.info.typeCode;
+
+            // retrieve base layout (struct oder wgsl type: i32, f32, vec3<f32>, mat4x4<f32>, ...)
             if (typeCode == CsTypeCode.WgslStruct) {
                 var csharpStruct = field.type.csharpStruct;
                 
@@ -228,27 +230,32 @@ public sealed partial class TypeGen
                 }
             } else {
                 layout = typeCode.Layout;
-                if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
-                    int elementSize   = layout.size;
-                    int elementAlign  = layout.align;
-                    int arrayCount    = field.type.info.arraySize;
-                    
-                    // Calculate natural stride
-                    int elementStride = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
-                    
-                    // In std140 (Uniform), every array element has a minimum stride of 16 bytes
-                    if (alignment == WgslAlignment.std140) {
-                        elementStride = Math.Max(elementStride, 16);
-                    }
-
-                    int arraySize = elementStride * arrayCount;
-                    layout = new TypeLayout(arraySize, elementAlign);
-                }
             }
 
-            // Apply WGSL @size and @align overrides
-            int fieldSize  = field.wgslSize.HasValue  ? Math.Max(field.wgslSize.Value, layout.size) : layout.size;
-            int fieldAlign = field.wgslAlign ?? layout.align;
+            // adjust layout if FixedSizeArray
+            if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
+                int elementSize   = layout.size;
+                int elementAlign  = layout.align;
+                int arrayCount    = field.type.info.arraySize;
+                
+                // Calculate natural stride
+                int elementStride = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
+                int arrayAlign    = elementAlign;
+                
+                // In std140 (Uniform), both array element stride AND array alignment are at least 16 bytes
+                if (alignment == WgslAlignment.std140) {
+                    elementStride = Math.Max(elementStride, 16);
+                    arrayAlign    = Math.Max(arrayAlign, 16);
+                }
+                int arraySize = elementStride * arrayCount;
+                layout = new TypeLayout(arraySize, arrayAlign);
+            }
+
+            // apply WGSL @size and @align overrides
+            int fieldSize  = field.wgslSize.HasValue  ? Math.Max(field.wgslSize.Value,  layout.size)  : layout.size;
+            // @align must only increase layout.align
+            int fieldAlign = field.wgslAlign.HasValue ? Math.Max(field.wgslAlign.Value, layout.align) : layout.align;
+            
             layout = new TypeLayout(fieldSize, fieldAlign);
 
             // Track maximum alignment to determine total struct alignment
