@@ -290,9 +290,11 @@ public sealed partial class TypeGen
             
             fixedSizedArrays.Append( // language=csharp
                 $$"""
+                [DebuggerTypeProxy(typeof(FixedArrayDebugView<{{elementType}}>))]
                 [StructLayout(LayoutKind.Explicit, Size = {{sizeInBytes}})]
                 public struct {{typeName}}
                 {
+                    public const int  Length = {{arraySize}};
                     [FieldOffset(0)]  private {{elementType}} _element0;
                     
                     public ref {{elementType}} this[int index] {

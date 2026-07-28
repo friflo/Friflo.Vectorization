@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -49,13 +50,23 @@ public static class Tests_WGSL_Lab
         
         Assert.Throws<IndexOutOfRangeException>(() => _ = array[-1]);
         Assert.Throws<IndexOutOfRangeException>(() => _ = array[8]);
+        
+        
+        var debugView = new FixedArrayDebugView<Vector2i>(array);
+        var items = debugView.Items;
+        Assert.That(items.Length, Is.EqualTo(8));
+        Assert.That(items[0], Is.EqualTo(new Vector2i(0, 42)));
+        Assert.That(items[7], Is.EqualTo(new Vector2i(7, 42)));
     }
     
     
     /// Fixed size array with 8 elements for use by a uniform with <see cref="WgslAlignment.std140"/>
+    [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     private struct Vector2i_Array_8
     {
+        public const int Length = 8;
+        
         [FieldOffset(0)]  private Vector2i _element0; // size 8 byte. But <uniform> requires stride 16
         
         public ref Vector2i this[int index]
