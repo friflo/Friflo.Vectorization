@@ -71,6 +71,9 @@ public static class TypeMappings
         if (!Enum.TryParse<CsTypeCode>(key, out var typeCode)) {
             return MappingError($"Invalid wgsl type (non generic version required) type: {key}", out error);
         }
+        if (typeCode is CsTypeCode.None or >= CsTypeCode.WgslStruct) {
+            return MappingError($"WGSL type '{key}' is valid in WGSL, but cannot be mapped to a C# type on the CPU side", out error);
+        }
         var lastDot = type.LastIndexOf('.');
         var className = type.Substring(lastDot + 1);
         if (!IsValidCSharpIdentifier(className)) {
