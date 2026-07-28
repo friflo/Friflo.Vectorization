@@ -75,7 +75,7 @@ file partial class _info;
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct HasUnmappedType (vec3h unmappedType)
 {
-    [FieldOffset(  0)]  public  vec3h unmappedType = unmappedType;  // INFO: 'vec3h' requires mapping in 'wgsl-types.properties'
+    [FieldOffset(  0)]  public  vec3h unmappedType = unmappedType;  // INFO: 'vec3h' requires mapping in 'wgsl-types.ini'
 }
 
 

@@ -16,7 +16,7 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public static class TypeMappings
 {
-    public const string MappingPath = "wgsl-types.properties";
+    public const string MappingPath = "wgsl-types.ini";
         
     
     public static TypeMapping[] LoadTypeMappings(string path, out string error)
