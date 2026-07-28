@@ -45,6 +45,20 @@ public class FixedArrayDebugView<T> where T : unmanaged
 {
     private delegate ref T IndexerDelegate<TStruct>(ref TStruct instance, int index);
 
+    private static class Cache<TStruct> where TStruct : struct
+    {
+        public static readonly IndexerDelegate<TStruct> Indexer;
+
+        static Cache()
+        {
+            var getItemMethod = typeof(TStruct).GetMethod("get_Item", BindingFlags.Public | BindingFlags.Instance);
+            if (getItemMethod != null)
+            {
+                Indexer = (IndexerDelegate<TStruct>)Delegate.CreateDelegate(typeof(IndexerDelegate<TStruct>), null, getItemMethod);
+            }
+        }
+    }
+
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public T[] Items { get; }
 
@@ -55,25 +69,28 @@ public class FixedArrayDebugView<T> where T : unmanaged
     
     private static T[] GetItems(object target)
     {
-        var getItemMethod = FixedArrayDebugViewUtils.GetGetItemMethod(target, out var type, out var count);
-        if (getItemMethod == null) {
-            return [];
-        }
-        // adjust generic method to concrete type
+        if (target == null) return [];
+
+        var type = target.GetType();
+        int count = FixedArrayDebugViewUtils.GetCount(target, type);
+        if (count <= 0) return [];
+
         var helperMethod = typeof(FixedArrayDebugView<T>)
             .GetMethod(nameof(GetItemsGeneric), BindingFlags.NonPublic | BindingFlags.Static)!
             .MakeGenericMethod(type);
 
-        return (T[])helperMethod.Invoke(null, [target, getItemMethod, count])!;
+        return (T[])helperMethod.Invoke(null, [target, count])!;
     }
 
-    private static T[] GetItemsGeneric<TStruct>(object target, MethodInfo getItemMethod, int count) 
+    private static T[] GetItemsGeneric<TStruct>(object target, int count) 
         where TStruct : struct
     {
-        var typedTarget = (TStruct)target;
+        var indexer = Cache<TStruct>.Indexer;
+        if (indexer == null) return [];
 
-        var indexer = (IndexerDelegate<TStruct>)Delegate.CreateDelegate(typeof(IndexerDelegate<TStruct>), null, getItemMethod);
+        var typedTarget = (TStruct)target;
         var items = new T[count];
+
         for (int i = 0; i < count; i++) {
             items[i] = indexer(ref typedTarget, i);
         }
@@ -83,23 +100,12 @@ public class FixedArrayDebugView<T> where T : unmanaged
 
 internal static class FixedArrayDebugViewUtils
 {
-    internal static MethodInfo GetGetItemMethod(object target, out Type type, out int count)
+    internal static int GetCount(object target, Type type)
     {
-        count = 0;
-        type = null;
-        if (target == null) {
-            return null;
-        }
-        type = target.GetType();
-        
         var lengthField = type.GetField("Length", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
         if (lengthField == null) {
-            return null;
+            return 0;
         }
-        count = (int)lengthField.GetValue(target)!;
-        if (count == 0) {
-            return null;
-        }
-        return type.GetMethod("get_Item", BindingFlags.Public | BindingFlags.Instance);
+        return (int)(lengthField.GetValue(target) ?? 0);
     } 
 }
