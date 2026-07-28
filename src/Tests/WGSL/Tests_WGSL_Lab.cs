@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using CustomTypes;
-
+using Friflo.Vectorization.WebGPU;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
 
@@ -42,10 +42,13 @@ public static class Tests_WGSL_Lab
         Assert.That(current, Is.EqualTo(new Vector2i(0, 42)));
         
         while (enumerator.MoveNext()) {
-            current = enumerator.Current;
+            _ = enumerator.Current;
         }
         var last = enumerator.Current;
         Assert.That(last, Is.EqualTo(new Vector2i(7, 42)));
+        
+        Assert.Throws<IndexOutOfRangeException>(() => _ = array[-1]);
+        Assert.Throws<IndexOutOfRangeException>(() => _ = array[8]);
     }
     
     
@@ -65,40 +68,6 @@ public static class Tests_WGSL_Lab
         }
         
         [UnscopedRef]
-        public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 128, 16);
+        public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 16, 128);
     }
-    
-    
-    
-    
-    public ref struct FixedArrayEnumerator<T> /* : IEnumerator<T>*/  where T : unmanaged
-    {
-        private             int     offset;     //  4
-        private readonly    int     stride;     //  4
-        private readonly    int     size;       //  4
-        private readonly    ref T   element0;
-        
-        internal FixedArrayEnumerator(ref T element0, int size, int stride) {
-            offset          = -stride;
-            this.stride     =  stride;
-            this.size       =  size;
-            this.element0   = ref element0;
-        }
-        
-        public ref T Current => ref Unsafe.AddByteOffset(ref element0, offset < 0 ? 0 : offset);
-        
-        public bool MoveNext() {
-            int nextOffset = offset + stride;
-            if (nextOffset < size) {
-                offset = nextOffset;
-                return true;
-            }
-            return false;
-        }
-
-        public void Reset() {
-            offset = -stride;
-        }
-    }
-    
 }
