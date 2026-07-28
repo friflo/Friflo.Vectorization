@@ -65,6 +65,8 @@ public struct CSharpField
     public required CSharpType      type;
     public          int             offset;
     public          int             size;
+    public          int?            wgslAlign;
+    public          int?            wgslSize;
 
     public override string          ToString() => name;
 }

@@ -83,6 +83,18 @@ public struct CustomVector (Vector2i vector2i, in Vector2i_Array_8 vectors2i, Ve
 }
 
 
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
+{
+    [FieldOffset(  0)]  public  uint  a     = a;
+    [FieldOffset( 16)]  public  uint  flags = flags;
+    [FieldOffset( 20)]  public  float speed = speed;
+    [FieldOffset( 24)]  public  uint  id    = id;
+    [FieldOffset( 56)]  public  uint  count = count;
+}
+
+
 [InlineArray(16)]
 public struct Vector3_Array_16
 {

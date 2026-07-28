@@ -46,12 +46,22 @@ struct CustomVector {
     vector2u:     vec2u,
 }
 
+
+struct Particle {
+                a     : u32,  // 4 Bytes (Offset 0..3)
+    @align(16)  flags : u32,  // 4 Bytes (normales align: 4, with @align(16) force: 16)
+                speed : f32,  // 4 Bytes
+    @size(32)   id    : u32,  // 4 Bytes size, but with @size(32) increased to 32 bytes
+                count : u32,  // 4 Bytes
+}
+
 @group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
 @group(0) @binding(1)   var<uniform> uniforms2 : TestStruct;
 @group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
 @group(0) @binding(3)   var<uniform> uniforms4 : Outer;
 @group(0) @binding(4)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
 @group(0) @binding(5)   var<uniform> uniforms6 : FixeSizeArrayStruct2;
-@group(0) @binding(6)   var<uniform> uniforms6 : CustomVector;
+@group(0) @binding(6)   var<uniform> uniforms7 : CustomVector;
+@group(0) @binding(7)   var<uniform> uniforms8 : Particle;
 
 

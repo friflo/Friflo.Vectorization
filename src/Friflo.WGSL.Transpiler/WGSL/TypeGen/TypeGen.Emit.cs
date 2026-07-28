@@ -132,7 +132,7 @@ public sealed partial class TypeGen
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
             var csharpType  = GetCSharpType(field.WgslType);
-            fields[n]       = new CSharpField { name = field.Name, type = csharpType };
+            fields[n]       = new CSharpField { name = field.Name, type = csharpType, wgslAlign = field.Align, wgslSize = field.Size };
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
             AddNamespace(csharpType);
@@ -210,8 +210,8 @@ public sealed partial class TypeGen
     
     private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
     {
-	    int currentOffset  = 0;
-	    int maxStructAlign = 1;
+        int currentOffset  = 0;
+        int maxStructAlign = 1;
         for (int n = 0; n < fields.Length; n++)
         {
             var field   = fields[n];
@@ -223,26 +223,33 @@ public sealed partial class TypeGen
             } else {
                 layout = typeCode.Layout;
                 if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
-                    int elementSize     = layout.size;
-                    int elementAlign    = layout.align;
-                    int arrayCount      = field.type.info.arraySize;
-                    int elementStride   = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
-                    int arraySize       = elementStride * arrayCount;
+                    int elementSize   = layout.size;
+                    int elementAlign  = layout.align;
+                    int arrayCount    = field.type.info.arraySize;
+                    
+                    // Array elements are aligned according to their natural element alignment (stride)
+                    int elementStride = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
+                    int arraySize     = elementStride * arrayCount;
                     layout = new TypeLayout(arraySize, elementAlign);
                 }
             }
-            // TODO implement later
-            // if (field.type.HasAlignAttribute) align = field.type.AlignAttributeValue;
-		    // if (field.type.HasSizeAttribute)  size =  Math.Max(size, field.type.SizeAttributeValue);
+
+            // Apply WGSL @size and @align overrides
+            int fieldSize  = field.wgslSize.HasValue  ? Math.Max(field.wgslSize.Value, layout.size) : layout.size;
+            int fieldAlign = field.wgslAlign ?? layout.align;
+            layout = new TypeLayout(fieldSize, fieldAlign);
+
+            // Track maximum alignment to determine total struct alignment
             maxStructAlign = Math.Max(maxStructAlign, layout.align);
-		    
-            currentOffset       = (currentOffset + (layout.align - 1)) & ~(layout.align - 1);
-            fields[n].offset    = currentOffset;
-            fields[n].size      = layout.size;
+
+            // Align current offset to field's required alignment boundary
+            currentOffset    = (currentOffset + (layout.align - 1)) & ~(layout.align - 1);
+            fields[n].offset = currentOffset;
+            fields[n].size   = layout.size;
             currentOffset += layout.size;
         }
-        // Struct fields (nested structs) align to their maximum internal alignment (maxStructAlign).
-        // Their size (finalStructSize) pads up to a multiple of that alignment (struct stride).
+
+        // Struct size must be padded to a multiple of its largest field alignment (struct stride)
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
