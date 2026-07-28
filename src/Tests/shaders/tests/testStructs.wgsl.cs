@@ -77,11 +77,21 @@ public struct FixeSizeArrayStruct2 (Vector3 value1, in Vector3_Array_16 vectors,
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 144)]
-public struct CustomVector (Vector2i vector2i, in Vector2i_Array_8_Std140 vectors2i, Vector2<uint> vector2u)
+public struct VectorInUniform (Vector2i uniform_vector2i, in Vector2i_Array_8_Std140 uniform_vectors2i, Vector2<uint> uniform_vector2u)
 {
-    [FieldOffset(  0)]  public  Vector2i                vector2i  = vector2i;
-    [FieldOffset(  8)]  public  Vector2i_Array_8_Std140 vectors2i = vectors2i;
-    [FieldOffset(136)]  public  Vector2<uint>           vector2u  = vector2u;
+    [FieldOffset(  0)]  public  Vector2i                uniform_vector2i  = uniform_vector2i;
+    [FieldOffset(  8)]  public  Vector2i_Array_8_Std140 uniform_vectors2i = uniform_vectors2i;
+    [FieldOffset(136)]  public  Vector2<uint>           uniform_vector2u  = uniform_vector2u;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 80)]
+public struct VectorInStorage (Vector2i storage_vector2i, in Vector2i_Array_8 storage_vectors2i, Vector2<uint> storage_vector2u)
+{
+    [FieldOffset(  0)]  public  Vector2i         storage_vector2i  = storage_vector2i;
+    [FieldOffset(  8)]  public  Vector2i_Array_8 storage_vectors2i = storage_vectors2i;
+    [FieldOffset( 72)]  public  Vector2<uint>    storage_vector2u  = storage_vector2u;
 }
 
 
@@ -134,6 +144,24 @@ public struct Vector2i_Array_8_Std140
     }
     
     [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 16, 128);
+}
+
+
+[DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct Vector2i_Array_8
+{
+    public const int  Length = 8;
+    [FieldOffset(0)]  private Vector2i _element0;
+    
+    public ref Vector2i this[int index] {
+        [UnscopedRef] get {
+            if ((uint)index >= 8) throw new IndexOutOfRangeException();
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 8);
+        }
+    }
+    
+    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 8, 64);
 }
 
 

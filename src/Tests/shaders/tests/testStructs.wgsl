@@ -40,10 +40,17 @@ struct FixeSizeArrayStruct2 {
 }
 
 
-struct CustomVector {
-    vector2i:     vec2i,
-    vectors2i:    array<vec2i, 8>,
-    vector2u:     vec2u,
+struct VectorInUniform {
+    uniform_vector2i:   vec2i,
+    uniform_vectors2i:  array<vec2i, 8>,
+    uniform_vector2u:   vec2u,
+}
+
+// uses same fixed array - array<vec2i, 8> - but now in a storage buffer
+struct VectorInStorage {
+    storage_vector2i:   vec2i,
+    storage_vectors2i:  array<vec2i, 8>,
+    storage_vector2u:   vec2u,
 }
 
 
@@ -55,13 +62,14 @@ struct Particle {
                 count : u32,  // 4 Bytes
 }
 
-@group(0) @binding(0)   var<uniform> uniforms1 : EmptyStruct;
-@group(0) @binding(1)   var<uniform> uniforms2 : TestStruct;
-@group(0) @binding(2)   var<uniform> uniforms3 : StructWithStructs;
-@group(0) @binding(3)   var<uniform> uniforms4 : Outer;
-@group(0) @binding(4)   var<uniform> uniforms5 : FixeSizeArrayStruct1;
-@group(0) @binding(5)   var<uniform> uniforms6 : FixeSizeArrayStruct2;
-@group(0) @binding(6)   var<uniform> uniforms7 : CustomVector;
-@group(0) @binding(7)   var<uniform> uniforms8 : Particle;
+@group(0) @binding(0)   var<uniform>        uniform1 : EmptyStruct;
+@group(0) @binding(1)   var<uniform>        uniform2 : TestStruct;
+@group(0) @binding(2)   var<uniform>        uniform3 : StructWithStructs;
+@group(0) @binding(3)   var<uniform>        uniform4 : Outer;
+@group(0) @binding(4)   var<uniform>        uniform5 : FixeSizeArrayStruct1;
+@group(0) @binding(5)   var<uniform>        uniform6 : FixeSizeArrayStruct2;
+@group(0) @binding(6)   var<uniform>        uniform7 : VectorInUniform;
+@group(0) @binding(7)   var<storage, read>  storage0 : VectorInStorage;
+@group(0) @binding(8)   var<uniform>        uniform8 : Particle;
 
 

@@ -322,15 +322,15 @@ public sealed partial class TypeGen
         int elementSize  = layout.size;
         int elementAlign = layout.align;
 
-        // std430: round up elementSize to elementAlign
+        // std430 (Storage): stride is elementSize rounded up to elementAlign
         int strideStd430 = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
 
-        // std140: array element alignment is enforced to at least 16 bytes
-        int alignStd140  = Math.Max(elementAlign, 16);
-        int strideStd140 = (elementSize + alignStd140 - 1) & ~(alignStd140 - 1);
+        // std140 (Uniform): element alignment is elevated to at least 16 bytes
+        int requiredAlignStd140 = Math.Max(16, elementAlign);
+        int strideStd140        = (elementSize + requiredAlignStd140 - 1) & ~(requiredAlignStd140 - 1);
 
-        // flag if uniform buffer layout differs from storage layout
-        isStd140 = strideStd140 != strideStd430;
+        // Array requires std140 layout variant if stride differs from std430
+        isStd140 = alignment == WgslAlignment.std140 && strideStd140 != strideStd430;
 
         return alignment == WgslAlignment.std140 ? strideStd140 : strideStd430;
     }
