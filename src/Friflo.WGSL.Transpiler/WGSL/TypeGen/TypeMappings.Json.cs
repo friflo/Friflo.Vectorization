@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+#if DISABLED_JSON_SUPPORT
+
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -56,3 +58,5 @@ public partial class TypeMappings
         return list.ToArray();
     }
 }
+
+#endif

@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-/*
+#if DISABLED_USING_SUPERPOWER
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -279,4 +280,4 @@ public static class WgslParser
         return result;
     }
 }
-*/
+#endif
