@@ -278,15 +278,14 @@ public sealed partial class TypeGen
         var identifier  = type.info.typeCode == CsTypeCode.None
             ? new CSharpIdentifier(type.info.elementType, fileNamespace, Resolved)
             : TypeMap[(int)type.info.typeCode];
-        
-        var typeName    = $"{identifier.Name}_Array_{arraySize}";
+        var stride      = GetFixedSizeArrayStride(type.info.typeCode.Layout, alignment, out bool isStd140);
+        var typeName    = $"{identifier.Name}_Array_{arraySize}{(isStd140 ? "_Std140" : "")}";
         AddNamespace(type);
         
         if (fixedSizedArrayTypes.Add(typeName))
         {
-            var stride      = GetFixedSizeArrayStride(type.info.typeCode.Layout, alignment);
             var sizeInBytes = stride * arraySize;
-            var elementType = identifier.Name; 
+            var elementType = identifier.Name;
             
             fixedSizedArrays.Append( // language=csharp
                 $$"""
@@ -318,21 +317,22 @@ public sealed partial class TypeGen
         return new CSharpType(typeName, Resolved, type.info, null);
     }
     
-    private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment)
+    private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment, out bool isStd140)
     {
         int elementSize  = layout.size;
         int elementAlign = layout.align;
 
-        // base rule (std430 & std140):
-        // stride is always rounded up to its elementAlign
-        int stride = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
+        // std430: round up elementSize to elementAlign
+        int strideStd430 = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
 
-        // uniform-rule - (std140):
-        // in a uniform buffer each array element must have at least 16 byte alignment/stride.
-        if (alignment == WgslAlignment.std140) {
-            stride = (stride + 15) & ~15;
-        }
-        return stride;
+        // std140: array element alignment is enforced to at least 16 bytes
+        int alignStd140  = Math.Max(elementAlign, 16);
+        int strideStd140 = (elementSize + alignStd140 - 1) & ~(alignStd140 - 1);
+
+        // flag if uniform buffer layout differs from storage layout
+        isStd140 = strideStd140 != strideStd430;
+
+        return alignment == WgslAlignment.std140 ? strideStd140 : strideStd430;
     }
     
     private static void EmitStructWithDynamicArrayField(

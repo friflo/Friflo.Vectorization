@@ -12,15 +12,15 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/testStructs2.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 256)]
-public struct FixeSizeArray (in Vector2i_Array_16 vectors)
+public struct FixeSizeArray (in Vector2i_Array_16_Std140 vectors)
 {
-    [FieldOffset(  0)]  public  Vector2i_Array_16 vectors = vectors;
+    [FieldOffset(  0)]  public  Vector2i_Array_16_Std140 vectors = vectors;
 }
 
 
 [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
 [StructLayout(LayoutKind.Explicit, Size = 256)]
-public struct Vector2i_Array_16
+public struct Vector2i_Array_16_Std140
 {
     public const int  Length = 16;
     [FieldOffset(0)]  private Vector2i _element0;
