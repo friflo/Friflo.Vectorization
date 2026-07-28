@@ -9,10 +9,12 @@ namespace CustomTypes;
 #pragma warning disable CS0169 // Field is never used
 
 /// <summary> Maps to <see cref="CsTypeCode.vec2i"/> </summary>
-public struct Vector2i
+public struct Vector2i(int x, int y)
 {
-    public int x;
-    public int y;
+    public int x = x;
+    public int y = y;
+
+    public override string ToString() =>  $"({x}, {y})";
 }
 
 /// <summary> Maps to all vec2* types. NOT RECOMMENDED. Topic is already complex enough :) </summary>

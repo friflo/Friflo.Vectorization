@@ -89,7 +89,7 @@ internal struct LocalStruct
     public override string          ToString() => csharpStruct.name ;
 }
 
-internal enum WgslAlignment
+public enum WgslAlignment
 {
     // WGSL Storage Buffer Layout (similar to GLSL std430) - Goal: compact data storage for large data sets
     // - f32, u32, i32 -> align  4, size  4
