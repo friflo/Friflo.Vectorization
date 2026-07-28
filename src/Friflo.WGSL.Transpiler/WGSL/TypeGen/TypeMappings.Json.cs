@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.Json;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -15,6 +16,8 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public partial class TypeMappings
 {
+    public Dictionary<string, string> map    { get; set; }
+    
     private static TypeMapping[] LoadJsonTypeMapping(string path, out string error)
     {
         using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
