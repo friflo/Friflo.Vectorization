@@ -17,18 +17,18 @@ public static class Tests_GenerateTypes
         var files = TestWgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
 
         // var mappings = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
-        var mappings = WgslTypeMappings.LoadTypeMapping($"{projectDir}/{WgslTypeMappings.MappingPath}", out var error);
+        var mappings = TypeMappings.LoadTypeMappings($"{projectDir}/{TypeMappings.MappingPath}", out var error);
         if (error != null) {
             Assert.Fail(error);
         }
         Assert.NotNull(mappings);
         Assert.That(mappings.Length, Is.EqualTo(5));
-        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.vec2i,   "CustomTypes",         "Vector2i")));
-        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.vec2u,   "CustomTypes",         "Vector2<uint>")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.vec2i,   "CustomTypes",         "Vector2i")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.vec2u,   "CustomTypes",         "Vector2<uint>")));
         
-        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
-        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
-        Assert.That(mappings, Has.Member(new WgslTypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
 
         for (int n = 0; n < 1; n++) {
             var typeEmitter = new TypeGen();

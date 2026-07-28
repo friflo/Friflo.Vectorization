@@ -5,6 +5,7 @@ using Friflo.WGSL.Transpiler.CSharp;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
+// ReSharper disable CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
@@ -87,14 +88,14 @@ internal struct LocalStruct
 }
 
 
-public readonly struct WgslTypeMapping
+public readonly struct TypeMapping
 {
     public readonly CsTypeCode          typeCode;
     public readonly CSharpIdentifier    identifier;
 
     public override string ToString() => $"{typeCode} - {identifier}";
 
-    public WgslTypeMapping(CsTypeCode typeCode, string @namespace, string name)
+    public TypeMapping(CsTypeCode typeCode, string @namespace, string name)
     {
         this.typeCode   = typeCode;
         identifier 		= new CSharpIdentifier(name, @namespace, TypeResolution.Resolved);

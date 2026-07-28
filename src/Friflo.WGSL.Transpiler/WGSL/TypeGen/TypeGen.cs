@@ -13,6 +13,7 @@ using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
@@ -54,7 +55,7 @@ public sealed partial class TypeGen
         typeCodeMap[(int)code] = new CSharpIdentifier(typeName, ns, resolution);
     }
     
-    private static CSharpIdentifier[] CreateTypeMap(WgslTypeMapping[] mappings)
+    private static CSharpIdentifier[] CreateTypeMap(TypeMapping[] mappings)
     {
         const int length = (int)CsTypeCode.WgslStruct;
         var map     = new CSharpIdentifier[length];
@@ -90,7 +91,7 @@ public sealed partial class TypeGen
         additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, WgslTypeMapping[] mappings, string error)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, TypeMapping[] mappings, string error)
     {
         wgslFiles = wgslFiles.ToArray();
         var errorFilePath = $"{projDir}/generator-error.cs";

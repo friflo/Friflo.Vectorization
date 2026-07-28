@@ -13,6 +13,7 @@ using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable RawStringCanBeSimplified
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
@@ -154,7 +155,7 @@ public sealed partial class TypeGen
             sb.Append($"    [FieldOffset({field.offset,3})]  public  {identifier.Name} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};");
             switch (identifier.resolution) {
-                case Unmapped: sb.Append($"  // INFO: '{identifier.Name}' requires mapping in '{WgslTypeMappings.MappingPath}'");   break;
+                case Unmapped: sb.Append($"  // INFO: '{identifier.Name}' requires mapping in '{TypeMappings.MappingPath}'");   break;
                 case NotFound: sb.Append($"  // WGSL error - missing type: '{identifier.Name}'");                                   break;
             }
             sb.Append("\n");
