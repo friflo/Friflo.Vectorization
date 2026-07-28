@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
 
@@ -14,10 +17,10 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public class WgslModule
 {
-    public List<WgslStruct>     Structs     { get; set; } = new();
-    public List<WgslBinding>    Bindings    { get; set; } = new();
-    public List<WgslEntryPoint> EntryPoints { get; set; } = new();
-    public List<string>         Errors      { get; set; } = new();
+    public List<WgslStruct>     Structs     { get; set; } = [];
+    public List<WgslBinding>    Bindings    { get; set; } = [];
+    public List<WgslEntryPoint> EntryPoints { get; set; } = [];
+    public List<string>         Errors      { get; set; } = [];
     
     public void AddModule(WgslModule module)
     {
@@ -30,8 +33,8 @@ public class WgslModule
 
 public record WgslType
 {
-    public string Name { get; set; } = string.Empty;
-    public ValueArray<WgslType> Generics { get; set; } = new(); // Geändert von ValueArray zu List für einfacheres Parsen, falls nötig im Code anpassen
+    public  string                  Name        { get; set; } = string.Empty;
+    public  ValueArray<WgslType>    Generics    { get; set; } // Geändert von ValueArray zu List für einfacheres Parsen, falls nötig im Code anpassen
 
     public override string ToString()
     {
@@ -42,8 +45,8 @@ public record WgslType
 
 public class WgslStruct
 {
-    public string           Name { get; set; } = string.Empty;
-    public List<WgslField>  Fields { get; set; } = new();
+    public string           Name        { get; set; } = string.Empty;
+    public List<WgslField>  Fields      { get; set; } = [];
     public string           sourcePath;
     
     public override string ToString() => Name;
@@ -51,21 +54,21 @@ public class WgslStruct
 
 public class WgslField
 {
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
+    public  string      Name            { get; set; } = string.Empty;
+    public  WgslType    WgslType        { get; set; } = new();
     
     public override string ToString() => Name;
 }
 
 public record WgslBinding
 {
-    public int Group { get; set; }
-    public int Binding { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
+    public  int         Group           { get; set; }
+    public  int         Binding         { get; set; }
+    public  string      Name            { get; set; } = string.Empty;
+    public  WgslType    WgslType        { get; set; } = new();
     
-    public string AddressSpace { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
-    public string AccessMode { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
+    public  string      AddressSpace    { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
+    public  string      AccessMode      { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
     
     public override string ToString() => AsString();
     
@@ -91,19 +94,19 @@ public record WgslBinding
 
 public class WgslEntryPoint
 {
-    public string Stage { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public List<WgslParam> Parameters { get; set; } = new();
-    public WgslType ReturnType { get; set; } = new();
+    public  string           Stage      { get; set; } = string.Empty;
+    public  string           Name       { get; set; } = string.Empty;
+    public  List<WgslParam>  Parameters { get; set; } = [];
+    public  WgslType         ReturnType { get; set; } = new();
 
-    public override string ToString() => $"{Name}  @{Stage}";
+    public  override string ToString() => $"{Name}  @{Stage}";
 }
 
 public class WgslParam
 {
-    public string Attribute { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public WgslType WgslType { get; set; } = new();
+    public  string          Attribute   { get; set; } = string.Empty;
+    public  string          Name        { get; set; } = string.Empty;
+    public  WgslType        WgslType    { get; set; } = new();
     
-    public override string ToString() => Name;
+    public  override string ToString() => Name;
 }
