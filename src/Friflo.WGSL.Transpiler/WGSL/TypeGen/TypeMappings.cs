@@ -14,7 +14,7 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-public partial class TypeMappings
+public static class TypeMappings
 {
     public const string MappingPath = "wgsl-types.properties";
         
