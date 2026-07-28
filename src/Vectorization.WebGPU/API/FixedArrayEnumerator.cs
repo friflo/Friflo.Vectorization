@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 
@@ -41,6 +43,8 @@ public ref struct FixedArrayEnumerator<T>  where T : unmanaged
 
 public class FixedArrayDebugView<T> where T : unmanaged
 {
+    private delegate ref T IndexerDelegate<TStruct>(ref TStruct instance, int index);
+
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public T[] Items { get; }
 
@@ -51,30 +55,51 @@ public class FixedArrayDebugView<T> where T : unmanaged
     
     private static T[] GetItems(object target)
     {
-        if (target == null) {
+        var getItemMethod = FixedArrayDebugViewUtils.GetGetItemMethod(target, out var type, out var count);
+        if (getItemMethod == null) {
             return [];
         }
-        var type = target.GetType();
-        
-        var lengthField = type.GetField("Length");
-        if (lengthField == null) {
-            return [];
-        }
-        var count = (int)lengthField.GetValue(target)!;
-        if (count == 0) {
-            return [];
-        }
-        var indexer = type.GetProperty("Item");
-        if (indexer == null) {
-            return [];
-        }
+        // adjust generic method to concrete type
+        var helperMethod = typeof(FixedArrayDebugView<T>)
+            .GetMethod(nameof(GetItemsGeneric), BindingFlags.NonPublic | BindingFlags.Static)!
+            .MakeGenericMethod(type);
+
+        return (T[])helperMethod.Invoke(null, [target, getItemMethod, count])!;
+    }
+
+    private static T[] GetItemsGeneric<TStruct>(object target, MethodInfo getItemMethod, int count) 
+        where TStruct : struct
+    {
+        var typedTarget = (TStruct)target;
+
+        var indexer = (IndexerDelegate<TStruct>)Delegate.CreateDelegate(typeof(IndexerDelegate<TStruct>), null, getItemMethod);
         var items = new T[count];
-        var args = new object[1];
-        for (int i = 0; i < count; i++)
-        {
-            args[0] = i;
-            items[i] = (T)indexer.GetValue(target, args)!;
+        for (int i = 0; i < count; i++) {
+            items[i] = indexer(ref typedTarget, i);
         }
         return items;
     }
+}
+
+internal static class FixedArrayDebugViewUtils
+{
+    internal static MethodInfo GetGetItemMethod(object target, out Type type, out int count)
+    {
+        count = 0;
+        type = null;
+        if (target == null) {
+            return null;
+        }
+        type = target.GetType();
+        
+        var lengthField = type.GetField("Length", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+        if (lengthField == null) {
+            return null;
+        }
+        count = (int)lengthField.GetValue(target)!;
+        if (count == 0) {
+            return null;
+        }
+        return type.GetMethod("get_Item", BindingFlags.Public | BindingFlags.Instance);
+    } 
 }
