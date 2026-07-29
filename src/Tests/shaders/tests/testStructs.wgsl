@@ -62,7 +62,9 @@ struct Particle {
                 count : u32,  // 4 Bytes
 }
 
-@group(0) @binding(0)   var<uniform>        uniform1 : EmptyStruct;
+
+
+
 @group(0) @binding(1)   var<uniform>        uniform2 : TestStruct;
 @group(0) @binding(2)   var<uniform>        uniform3 : StructWithStructs;
 @group(0) @binding(3)   var<uniform>        uniform4 : Outer;

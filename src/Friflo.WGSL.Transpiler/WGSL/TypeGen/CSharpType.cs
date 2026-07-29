@@ -68,7 +68,7 @@ public struct CSharpField
     public          int?            wgslAlign;
     public          int?            wgslSize;
 
-    public override string          ToString() => name;
+    public override string          ToString() => $"{name}  offset: {offset}";
 }
 
 public class CSharpStruct
@@ -78,7 +78,7 @@ public class CSharpStruct
     public required CSharpField[]   fields;
     public required TypeLayout      layout;
     
-    public override string          ToString() => name;
+    public override string          ToString() => $"{name}  -  size: {layout.size}  align: {layout.align}";
 }
 
 internal struct LocalStruct

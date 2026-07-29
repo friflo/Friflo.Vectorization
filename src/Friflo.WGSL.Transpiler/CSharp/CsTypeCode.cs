@@ -53,9 +53,11 @@ public enum CsTypeCode
 
 public readonly struct TypeLayout
 {
-    public readonly int size;
-    public readonly int align;
-    
+    public readonly int     size;
+    public readonly int     align;
+
+    public override string  ToString() => $"size: {size}  align: {align}";
+
     internal TypeLayout(int size, int align)
     {
         this.size  = size;

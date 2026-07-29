@@ -181,29 +181,25 @@ public sealed partial class TypeGen
         var info = WgslTypeInfo.GetTypeInfo(type.Name, args);
         
         CSharpType csharpType;
-        WgslStruct wgslStruct = null;
         if (info.typeCode == CsTypeCode.None) {
-            var typeName   = info.IsArray ? info.elementType : type.ToString();
-            var resolution = wgslStructs.TryGetValue(typeName, out wgslStruct) ? Resolved : NotFound;
-            csharpType = new CSharpType(typeName, resolution, info, null);    
+            var typeName = info.IsArray ? info.elementType : type.ToString();
+            if (wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
+                requiredStructs.Add(wgslStruct.Name);
+                var csharpStruct = CreateStruct(wgslStruct, alignment);
+                var structInfo = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
+                csharpType = new CSharpType(typeName, Resolved, structInfo, csharpStruct);
+            } else {
+                // case: WGSL error 
+                csharpType = new CSharpType(typeName, NotFound, info, null);
+            }
         } else {
             var typeIdentifier = TypeMap[(int)info.typeCode];
             csharpType = new CSharpType(typeIdentifier, info, null);
         }
-        
         if (info.paramType == WgslParamType.FixedSizeArray) {
             return EmitFixedSizeArray(csharpType, alignment);
         }
-        if (info.typeCode != CsTypeCode.None) {
-            return csharpType;
-        }
-        if (wgslStruct == null) {
-            return csharpType;
-        }
-        requiredStructs.Add(wgslStruct.Name);
-        var csharpStruct = CreateStruct(wgslStruct, alignment);
-        var structInfo   = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
-        return new CSharpType(csharpType.identifier, structInfo, csharpStruct);
+        return csharpType;
     }
     
     private static TypeLayout AssignFieldLayouts(CSharpField[] fields, WgslAlignment alignment)
@@ -221,7 +217,11 @@ public sealed partial class TypeGen
                 var csharpStruct = field.type.csharpStruct;
                 
                 // Rebound nested struct layout with the same alignment mode
-                layout = csharpStruct != null ? AssignFieldLayouts(csharpStruct.fields, alignment) : default;
+                if (csharpStruct.fields == null) {
+                    layout = csharpStruct.layout; // layout of a fixed size array
+                } else {
+                    layout = AssignFieldLayouts(csharpStruct.fields, alignment);
+                }
                 
                 // In std140 (Uniform), nested structs are rounded up to at least 16-byte alignment
                 if (alignment == WgslAlignment.std140) {
@@ -282,10 +282,16 @@ public sealed partial class TypeGen
     private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment alignment)
     {
         var arraySize   = type.info.arraySize;
-        var identifier  = type.info.typeCode == CsTypeCode.None
-            ? new CSharpIdentifier(type.info.elementType, fileNamespace, Resolved)
-            : TypeMap[(int)type.info.typeCode];
-        var stride      = GetFixedSizeArrayStride(type.info.typeCode.Layout, alignment, out bool isStd140);
+        var typeCode    = type.info.typeCode;
+        var identifier  = typeCode is CsTypeCode.WgslStruct or CsTypeCode.None
+            ? type.identifier
+            : TypeMap[(int)typeCode];
+        
+        var layout = typeCode == CsTypeCode.WgslStruct
+            ? type.csharpStruct.layout
+            : typeCode.Layout;
+        
+        var stride      = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
         var typeName    = $"{identifier.Name}_Array_{arraySize}{(isStd140 ? "_Std140" : "")}";
         AddNamespace(type);
         
@@ -321,7 +327,9 @@ public sealed partial class TypeGen
                 """);
         }
         fixedSizedArrays.Append(LineFeeds);
-        return new CSharpType(typeName, Resolved, type.info, null);
+        var arrayLayout = new TypeLayout(layout.size * arraySize, layout.align); 
+        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = arrayLayout }; 
+        return new CSharpType(typeName, Resolved, type.info, csharpArray);
     }
     
     private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment, out bool isStd140)
