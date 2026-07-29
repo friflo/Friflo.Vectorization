@@ -329,7 +329,7 @@ public sealed partial class TypeGen
         fixedSizedArrays.Append(LineFeeds);
         var arrayLayout = new TypeLayout(layout.size * arraySize, layout.align); 
         var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = arrayLayout }; 
-        return new CSharpType(typeName, Resolved, type.info, csharpArray);
+        return new CSharpType(typeName, Created, type.info, csharpArray);
     }
     
     private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment, out bool isStd140)

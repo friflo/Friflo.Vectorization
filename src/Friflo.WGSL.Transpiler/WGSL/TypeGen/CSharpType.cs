@@ -15,7 +15,7 @@ public readonly struct CSharpType
     public readonly WgslTypeInfo        info;
     public readonly CSharpStruct        csharpStruct; // != null if struct
     
-    public override string              ToString()  => info.ToString();
+    public override string              ToString()  => identifier.ToString();
 
     internal CSharpType(string typeName, TypeResolution resolution, WgslTypeInfo info, CSharpStruct csharpStruct) {
         this.identifier     = new CSharpIdentifier(typeName, resolution);
@@ -32,9 +32,10 @@ public readonly struct CSharpType
 
 public enum TypeResolution
 {
-    Resolved,
-    NotFound,
-    Unmapped
+    Resolved,   // WGSL type or struct with declaration in WGSL
+    NotFound,   // A struct without declaration in WGSL
+    Unmapped,   // WGSL type without mapping in wgsl-types.ini
+    Created     // CSharpType created for a fixed size array
 }
 
 
@@ -44,7 +45,7 @@ public readonly struct CSharpIdentifier
     public readonly     string          Namespace;
     public readonly     TypeResolution  resolution;
 
-    public override     string              ToString()  => $"{Name}";
+    public override     string          ToString()  => $"{Name}";
     
     public CSharpIdentifier(string name, TypeResolution resolution) {
         Name            = name;
