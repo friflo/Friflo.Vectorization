@@ -114,11 +114,14 @@ public static class TypeMappings
                 continue;
             }
 
-            // read key until '='
+            // read key until '=' or line feed
             int keyStart = pos;
-            while (pos < length && span[pos] != '=' && span[pos] != '\n' && span[pos] != '\r') pos++;
-            if (pos >= length || span[pos] != '=') break;
-
+            while (pos < length && span[pos] != '=' && span[pos] != '\n' && span[pos] != '\r') {
+                pos++;
+            }
+            if (pos >= length || span[pos] != '=') {
+                continue; // found no '=' in line
+            }
             var key = span.Slice(keyStart, pos - keyStart).Trim().ToString();
             pos++; // skip '='
 
