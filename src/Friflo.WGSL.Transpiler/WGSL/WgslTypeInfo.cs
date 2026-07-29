@@ -61,19 +61,20 @@ public readonly struct WgslTypeInfo
         this.elementType    = elementType;
     }
     
-    private static WgslTypeInfo GetTypeInfo(CsTypeCode code, int offset) => new ((CsTypeCode)(int)code + offset);
+    private static WgslTypeInfo GetTypeInfoOffset(CsTypeCode code, int offset) => new ((CsTypeCode)(int)code + offset);
 
     private static readonly WgslTypeInfo InvalidType = new(CsTypeCode.None);
     
     private static WgslTypeInfo GetVec(GenericArgs args, CsTypeCode code)
     {
-        return args.arg_0 switch
+        var info = GetTypeInfo(args.arg_0, default);
+        return info.typeCode switch
         {
-            "f16"   => GetTypeInfo(code, 0),
-            "f32"   => GetTypeInfo(code, 1),
-            "i32"   => GetTypeInfo(code, 2),
-            "u32"   => GetTypeInfo(code, 3),
-            _       => InvalidType
+            CsTypeCode.f16  => GetTypeInfoOffset(code, 0),
+            CsTypeCode.f32  => GetTypeInfoOffset(code, 1),
+            CsTypeCode.i32  => GetTypeInfoOffset(code, 2),
+            CsTypeCode.u32  => GetTypeInfoOffset(code, 3),
+            _               => InvalidType
         };
     }
     
@@ -98,12 +99,12 @@ public readonly struct WgslTypeInfo
         if (code == CsTypeCode.None) {
             return InvalidType;
         }
-        
-        return args.arg_0 switch
+        var info = GetTypeInfo(args.arg_0, default);
+        return info.typeCode switch
         {
-            "f16"   => GetTypeInfo(code, 0),
-            "f32"   => GetTypeInfo(code, 1),
-            _       => InvalidType
+            CsTypeCode.f16  => GetTypeInfoOffset(code, 0),
+            CsTypeCode.f32  => GetTypeInfoOffset(code, 1),
+            _               => InvalidType
         };
     }
     
