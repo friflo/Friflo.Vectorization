@@ -15,10 +15,10 @@ internal struct GenericArgs
     internal required string arg_0;
     internal required string arg_1;
     
-    internal static GenericArgs Create(ValueArray<WgslType> generics)
+    internal static GenericArgs Create(WgslTypeGenerics generics)
     {
-        var arg_0 = generics.Length > 0 ? generics[0].Name : null;
-        var arg_1 = generics.Length > 1 ? generics[1].Name : null;
+        var arg_0 = generics.Length > 0 ? generics.Arg_0.Name : null;
+        var arg_1 = generics.Length > 1 ? generics.Arg_1.Name : null;
         return new GenericArgs { arg_0 = arg_0, arg_1 = arg_1 };
     }
 }

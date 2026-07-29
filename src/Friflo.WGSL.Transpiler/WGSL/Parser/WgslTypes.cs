@@ -2,9 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
-using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -31,15 +30,26 @@ public class WgslModule
     }
 }
 
+public struct WgslTypeGenerics
+{
+    public WgslType Arg_0;  // type name like f32, vec3<f32>, ... or a struct name
+    public WgslType Arg_1;  // size of an array
+    
+    public int Length => Arg_1 != null ? 2 : Arg_0 != null ? 1 : 0;
+}
+
 public record WgslType
 {
     public  string                  Name        { get; set; } = string.Empty;
-    public  ValueArray<WgslType>    Generics    { get; set; } // Geändert von ValueArray zu List für einfacheres Parsen, falls nötig im Code anpassen
+    public  WgslTypeGenerics        Generics    { get; set; }
 
     public override string ToString()
     {
-        if (Generics.Length == 0) return Name;
-        return $"{Name}<{string.Join(", ", Generics.Select(g => g.ToString()))}>";
+        switch (Generics.Length) {
+            case 0:     return Name;
+            case 1:     return $"{Name}<{Generics.Arg_0}>";
+            default:    return $"{Name}<{Generics.Arg_0}, {Generics.Arg_1}>";
+        }
     }
 }
 
@@ -90,7 +100,11 @@ public record WgslBinding
         if (WgslType == null) return string.Empty;
         var generics = WgslType.Generics;
         if (index >= generics.Length) return string.Empty;
-        return generics[index].Name;
+        switch (index) {
+            case 0: return generics.Arg_0.Name;
+            case 1: return generics.Arg_1.Name;
+        }
+        return string.Empty;
     }
 }
 

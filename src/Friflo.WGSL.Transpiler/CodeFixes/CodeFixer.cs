@@ -140,8 +140,9 @@ public static partial class CodeFixer
         var wgslType    = binding.WgslType;
         var name        = wgslType.Name;
         var generics    = wgslType.Generics;
-        var arg0        = generics.Length > 0 ? generics[0].Name : null;
-        var arg1        = generics.Length > 1 ? generics[1].Name : null;
+        var length      = generics.Length;
+        var arg0        = length > 0 ? generics.Arg_0.Name : null;
+        var arg1        = length > 1 ? generics.Arg_1.Name : null;
 
         switch (name)
         {

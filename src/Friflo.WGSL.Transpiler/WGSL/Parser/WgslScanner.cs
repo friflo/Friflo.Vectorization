@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Friflo.WGSL.Transpiler.CSharp;
+
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -222,7 +222,10 @@ public static class FastWgslParser
             while (scanner.Match(','));
 
             scanner.Match('>');
-            wgslType.Generics = genericsList.ToValueArray();
+            var generics = new WgslTypeGenerics();
+            if (genericsList.Count > 0) generics.Arg_0 = genericsList[0];
+            if (genericsList.Count > 1) generics.Arg_1 = genericsList[1];
+            wgslType.Generics = generics;
         }
 
         return wgslType;

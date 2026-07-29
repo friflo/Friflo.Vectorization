@@ -30,7 +30,7 @@ public static class TypeGenerator
                 if (type != null && type.Fields.Count == 1) {
                     var fieldType = type.Fields[0].WgslType;
                     if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
-                        return fieldType.Generics[0];
+                        return fieldType.Generics.Arg_0;
                     }
                 }
                 return binding.WgslType;
@@ -92,7 +92,7 @@ public static class TypeGenerator
     {
         var typeName = wgslType.Name;
         var generics = wgslType.Generics;
-        if (generics.Length == 1 && generics[0].Name == "f32") {
+        if (generics.Length == 1 && generics.Arg_0.Name == "f32") {
             typeName = typeName switch
             {
                 "vec2"      => "vec2<f32>",
