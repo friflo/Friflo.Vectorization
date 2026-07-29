@@ -10,19 +10,6 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-internal struct GenericArgs
-{
-    internal required string arg_0;
-    internal required string arg_1;
-    
-    internal static GenericArgs Create(WgslTypeGenerics generics)
-    {
-        var arg_0 = generics.Length > 0 ? generics.Arg_0.Name : null;
-        var arg_1 = generics.Length > 1 ? generics.Arg_1.Name : null;
-        return new GenericArgs { arg_0 = arg_0, arg_1 = arg_1 };
-    }
-}
-
 public enum WgslParamType
 {
     None,
@@ -65,9 +52,9 @@ public readonly struct WgslTypeInfo
 
     private static readonly WgslTypeInfo InvalidType = new(CsTypeCode.None);
     
-    private static WgslTypeInfo GetVec(GenericArgs args, CsTypeCode code)
+    private static WgslTypeInfo GetVec(WgslTypeGenerics args, CsTypeCode code)
     {
-        var info = GetTypeInfo(args.arg_0, default);
+        var info = GetTypeInfo(args.Arg_0);
         return info.typeCode switch
         {
             CsTypeCode.f16  => GetTypeInfoOffset(code, 0),
@@ -78,7 +65,7 @@ public readonly struct WgslTypeInfo
         };
     }
     
-    private static WgslTypeInfo GetMat(GenericArgs args, int w, int h)
+    private static WgslTypeInfo GetMat(WgslTypeGenerics args, int w, int h)
     {
         var code = (w, h) switch
         {
@@ -99,7 +86,7 @@ public readonly struct WgslTypeInfo
         if (code == CsTypeCode.None) {
             return InvalidType;
         }
-        var info = GetTypeInfo(args.arg_0, default);
+        var info = GetTypeInfo(args.Arg_0);
         return info.typeCode switch
         {
             CsTypeCode.f16  => GetTypeInfoOffset(code, 0),
@@ -108,13 +95,13 @@ public readonly struct WgslTypeInfo
         };
     }
     
-    private static WgslTypeInfo GetArray(GenericArgs args)
+    private static WgslTypeInfo GetArray(WgslTypeGenerics args)
     {
-        var typeInfo    = GetTypeInfo(args.arg_0, default);
-        var paramType   = int.TryParse(args.arg_1, out var arraySize)
+        var typeInfo    = GetTypeInfo(args.Arg_0);
+        var paramType   = int.TryParse(args.Arg_1?.Name, out var arraySize)
             ? WgslParamType.FixedSizeArray
             : WgslParamType.DynamicArray;
-        var elementType = typeInfo.typeCode == CsTypeCode.None ? args.arg_0 : null;
+        var elementType = typeInfo.typeCode == CsTypeCode.None ? args.Arg_0?.Name : null;
         return new WgslTypeInfo(typeInfo.typeCode, paramType, arraySize, elementType);
     }
     
@@ -122,72 +109,74 @@ public readonly struct WgslTypeInfo
         return new WgslTypeInfo(code);
     }
 
-    internal static WgslTypeInfo GetTypeInfo(string name, GenericArgs args)
+    internal static WgslTypeInfo GetTypeInfo(WgslType type)
     {
-        switch (name)
-        {
-            case "f16":     return GetType(CsTypeCode.f16);
-            case "f32":     return GetType(CsTypeCode.f32);
-            case "i32":     return GetType(CsTypeCode.i32);
-            case "u32":     return GetType(CsTypeCode.u32);
-            
-            // --- vector
-            case "vec2h":   return GetType(CsTypeCode.vec2h);
-            case "vec2f":   return GetType(CsTypeCode.vec2f);
-            case "vec2i":   return GetType(CsTypeCode.vec2i);
-            case "vec2u":   return GetType(CsTypeCode.vec2u);
-            //
-            case "vec3h":   return GetType(CsTypeCode.vec3h);
-            case "vec3f":   return GetType(CsTypeCode.vec3f);
-            case "vec3i":   return GetType(CsTypeCode.vec3i);
-            case "vec3u":   return GetType(CsTypeCode.vec3u);
-            //
-            case "vec4h":   return GetType(CsTypeCode.vec4h);
-            case "vec4f":   return GetType(CsTypeCode.vec4f);
-            case "vec4i":   return GetType(CsTypeCode.vec4i);
-            case "vec4u":   return GetType(CsTypeCode.vec4u);
-            
-            // --- matrix
-            case "mat2x2h": return GetType(CsTypeCode.mat2x2h);
-            case "mat2x2f": return GetType(CsTypeCode.mat2x2f);
-            case "mat2x3h": return GetType(CsTypeCode.mat2x3h);
-            case "mat2x3f": return GetType(CsTypeCode.mat2x3f);
-            case "mat2x4h": return GetType(CsTypeCode.mat2x4h);
-            case "mat2x4f": return GetType(CsTypeCode.mat2x4f);
-            //
-            case "mat3x2h": return GetType(CsTypeCode.mat3x2h);
-            case "mat3x2f": return GetType(CsTypeCode.mat3x2f);
-            case "mat3x3h": return GetType(CsTypeCode.mat3x3h);
-            case "mat3x3f": return GetType(CsTypeCode.mat3x3f);
-            case "mat3x4h": return GetType(CsTypeCode.mat3x4h);
-            case "mat3x4f": return GetType(CsTypeCode.mat3x4f);
-            //
-            case "mat4x2h": return GetType(CsTypeCode.mat4x2h);
-            case "mat4x2f": return GetType(CsTypeCode.mat4x2f);
-            case "mat4x3h": return GetType(CsTypeCode.mat4x3h);
-            case "mat4x3f": return GetType(CsTypeCode.mat4x3f);
-            case "mat4x4h": return GetType(CsTypeCode.mat4x4h);
-            case "mat4x4f": return GetType(CsTypeCode.mat4x4f);
-            
-            // --- generic
-            case "array":   return GetArray(args);
-            //
-            case "vec2":    return GetVec(args, CsTypeCode.vec2h);
-            case "vec3":    return GetVec(args, CsTypeCode.vec3h);
-            case "vec4":    return GetVec(args, CsTypeCode.vec4h);
-            //
-            case "mat2x2":  return GetMat(args, 2, 2);
-            case "mat2x3":  return GetMat(args, 2, 3);
-            case "mat2x4":  return GetMat(args, 2, 4);
-            //
-            case "mat3x2":  return GetMat(args, 3, 2);
-            case "mat3x3":  return GetMat(args, 3, 3);
-            case "mat3x4":  return GetMat(args, 3, 4);
-            //
-            case "mat4x2":  return GetMat(args, 4, 2);
-            case "mat4x3":  return GetMat(args, 4, 3);
-            case "mat4x4":  return GetMat(args, 4, 4);
+        if (type == null) {
+            return new WgslTypeInfo(CsTypeCode.None);
         }
-        return new WgslTypeInfo(CsTypeCode.None);
+        var args = type.Generics;
+        
+        return type.Name switch
+        {
+            "f16"       => GetType(CsTypeCode.f16),
+            "f32"       => GetType(CsTypeCode.f32),
+            "i32"       => GetType(CsTypeCode.i32),
+            "u32"       => GetType(CsTypeCode.u32),
+            // --- vector
+            "vec2h"     => GetType(CsTypeCode.vec2h),
+            "vec2f"     => GetType(CsTypeCode.vec2f),
+            "vec2i"     => GetType(CsTypeCode.vec2i),
+            "vec2u"     => GetType(CsTypeCode.vec2u),
+            //
+            "vec3h"     => GetType(CsTypeCode.vec3h),
+            "vec3f"     => GetType(CsTypeCode.vec3f),
+            "vec3i"     => GetType(CsTypeCode.vec3i),
+            "vec3u"     => GetType(CsTypeCode.vec3u),
+            //
+            "vec4h"     => GetType(CsTypeCode.vec4h),
+            "vec4f"     => GetType(CsTypeCode.vec4f),
+            "vec4i"     => GetType(CsTypeCode.vec4i),
+            "vec4u"     => GetType(CsTypeCode.vec4u),
+            // --- matrix
+            "mat2x2h"   => GetType(CsTypeCode.mat2x2h),
+            "mat2x2f"   => GetType(CsTypeCode.mat2x2f),
+            "mat2x3h"   => GetType(CsTypeCode.mat2x3h),
+            "mat2x3f"   => GetType(CsTypeCode.mat2x3f),
+            "mat2x4h"   => GetType(CsTypeCode.mat2x4h),
+            "mat2x4f"   => GetType(CsTypeCode.mat2x4f),
+            //
+            "mat3x2h"   => GetType(CsTypeCode.mat3x2h),
+            "mat3x2f"   => GetType(CsTypeCode.mat3x2f),
+            "mat3x3h"   => GetType(CsTypeCode.mat3x3h),
+            "mat3x3f"   => GetType(CsTypeCode.mat3x3f),
+            "mat3x4h"   => GetType(CsTypeCode.mat3x4h),
+            "mat3x4f"   => GetType(CsTypeCode.mat3x4f),
+            //
+            "mat4x2h"   => GetType(CsTypeCode.mat4x2h),
+            "mat4x2f"   => GetType(CsTypeCode.mat4x2f),
+            "mat4x3h"   => GetType(CsTypeCode.mat4x3h),
+            "mat4x3f"   => GetType(CsTypeCode.mat4x3f),
+            "mat4x4h"   => GetType(CsTypeCode.mat4x4h),
+            "mat4x4f"   => GetType(CsTypeCode.mat4x4f),
+            // --- generic
+            "array"     => GetArray(args),
+            //
+            "vec2"      => GetVec(args, CsTypeCode.vec2h),
+            "vec3"      => GetVec(args, CsTypeCode.vec3h),
+            "vec4"      => GetVec(args, CsTypeCode.vec4h),
+            //
+            "mat2x2"    => GetMat(args, 2, 2),
+            "mat2x3"    => GetMat(args, 2, 3),
+            "mat2x4"    => GetMat(args, 2, 4),
+            //
+            "mat3x2"    => GetMat(args, 3, 2),
+            "mat3x3"    => GetMat(args, 3, 3),
+            "mat3x4"    => GetMat(args, 3, 4),
+            //
+            "mat4x2"    => GetMat(args, 4, 2),
+            "mat4x3"    => GetMat(args, 4, 3),
+            "mat4x4"    => GetMat(args, 4, 4),
+            _           => new WgslTypeInfo(CsTypeCode.None)
+        };
     }
 }

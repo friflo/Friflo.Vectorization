@@ -174,9 +174,7 @@ public sealed partial class TypeGen
     
     private CSharpType GetCSharpType(WgslType type, WgslAlignment alignment)
     {
-        var args = GenericArgs.Create(type.Generics);
-        
-        var info = WgslTypeInfo.GetTypeInfo(type.Name, args);
+        var info = WgslTypeInfo.GetTypeInfo(type);
         
         CSharpType csharpType;
         if (info.typeCode == CsTypeCode.None) {
