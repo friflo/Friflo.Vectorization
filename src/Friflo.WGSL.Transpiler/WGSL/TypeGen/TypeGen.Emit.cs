@@ -218,7 +218,7 @@ public sealed partial class TypeGen
                 
                 // Rebound nested struct layout with the same alignment mode
                 if (csharpStruct.fields == null) {
-                    layout = csharpStruct.layout; // layout of a fixed size array
+                    layout = csharpStruct.layout; // element layout of struct in a fixed size array
                 } else {
                     layout = AssignFieldLayouts(csharpStruct.fields, alignment);
                 }
@@ -327,8 +327,7 @@ public sealed partial class TypeGen
                 """);
         }
         fixedSizedArrays.Append(LineFeeds);
-        var arrayLayout = new TypeLayout(layout.size * arraySize, layout.align); 
-        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = arrayLayout }; 
+        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }
     

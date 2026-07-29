@@ -32,14 +32,14 @@ public struct SubItem (uint flag, Vector3 direction)
 
 
 [Source("~/shaders/tests/complexStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 80)]
-public struct EdgeCaseStorage (uint packed_header, float_Array_3 packed_floats, Vector3 position, in SmallData_Array_2 struct_array, uint end_marker)
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct EdgeCaseStorage (uint packed_header, float_Array_3 packed_floats, Vector3 position, SmallData_Array_2 struct_array, uint end_marker)
 {
     [FieldOffset(  0)]  public  uint              packed_header = packed_header;
     [FieldOffset(  4)]  public  float_Array_3     packed_floats = packed_floats;
     [FieldOffset( 16)]  public  Vector3           position      = position;
     [FieldOffset( 28)]  public  SmallData_Array_2 struct_array  = struct_array;
-    [FieldOffset( 64)]  public  uint              end_marker    = end_marker;
+    [FieldOffset( 48)]  public  uint              end_marker    = end_marker;
 }
 
 
