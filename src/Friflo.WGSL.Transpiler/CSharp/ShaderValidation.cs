@@ -309,7 +309,7 @@ public static class ShaderValidation
             case IndexBuffer:
                 if (parameter.IsBuffer) {
                     var typeCode = GetGenericType(parameter).TypeCode;
-                    if (typeCode == CsTypeCode.u16 || typeCode == CsTypeCode.u32) {
+                    if (typeCode == CsTypeCode.UInt16 || typeCode == CsTypeCode.u32) {
                         return;    
                     }
                     diags.TypeRequirement(parameter, "ushort or uint");

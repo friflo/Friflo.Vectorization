@@ -32,11 +32,12 @@ public enum CsTypeCode
     // --- non-WGSL Types
     CSharpStruct,   // A struct that cant be mapped to a WgslStruct.  Must be direct successor of WgslStruct
     
-    // --- WGSL types not allowed on CPU - only on GPU 
-    Bool,
-    i8, u8,
-    i16, u16,
-    f64, i64, u64,
+    Bool, // WGSL type bool not allowed on CPU - only on GPU
+    
+    // --- primitives type not supported by WGSL. E.g:  i8, u8, i16, u16, f64, i64, u64
+    SByte, Byte,
+    Int16, UInt16,
+    Double, Int64, UInt64,
     //
     Enum,
     Char,
