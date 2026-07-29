@@ -68,11 +68,9 @@ public static class TypeMappings
             return MappingError($"missing type at '{key}'", out error);
         }
         type = Regex.Replace(type, @"\s+", "");
-        if (!Enum.TryParse<CsTypeCode>(key, out var typeCode)) {
-            return MappingError($"Invalid wgsl type (non generic version required) type: {key}", out error);
-        }
-        if (typeCode is CsTypeCode.None or >= CsTypeCode.WgslStruct) {
-            return MappingError($"WGSL type '{key}' is valid in WGSL, but cannot be mapped to a C# type on the CPU side", out error);
+        if (!Enum.TryParse<CsTypeCode>(key, out var typeCode) ||
+            typeCode is CsTypeCode.None or >= CsTypeCode.WgslStruct) {
+            return MappingError($"Invalid wgsl type (expect a concrete type or alias like: vec2i, mat3x3f, ...) was: {key}", out error);
         }
         var lastDot = type.LastIndexOf('.');
         var className = type.Substring(lastDot + 1);
