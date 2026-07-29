@@ -8,6 +8,7 @@ using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
@@ -152,10 +153,7 @@ public sealed partial class TypeGen
             var padAssign   = maxFieldWidth - field.name.Length;
             sb.Append($"    [FieldOffset({field.offset,3})]  public  {identifier.Name} ").Append(' ', padName);
             sb.Append($"{field.name} ").Append(' ', padAssign).Append($"= {field.name};");
-            switch (identifier.resolution) {
-                case Unmapped: sb.Append($"  // INFO: '{identifier.Name}' requires mapping in '{TypeMappings.MappingPath}'");   break;
-                case NotFound: sb.Append($"  // WGSL error - missing type: '{identifier.Name}'");                                   break;
-            }
+            AppendTypeComment(sb, identifier, "  ", "");
             sb.Append("\n");
         }
         sb.Append("}").Append(LineFeeds);
@@ -279,6 +277,14 @@ public sealed partial class TypeGen
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
     
+    private static void AppendTypeComment(StringBuilder sb, CSharpIdentifier identifier, string head, string tail)
+    {
+        switch (identifier.resolution) {
+            case Unmapped: sb.Append($"{head}// INFO: '{identifier.Name}' requires mapping in '{TypeMappings.MappingPath}'{tail}"); break;
+            case NotFound: sb.Append($"{head}// WGSL error - missing type: '{identifier.Name}'{tail}");                             break;
+        }
+    }
+    
     private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment alignment)
     {
         var arraySize   = type.info.arraySize;
@@ -294,13 +300,14 @@ public sealed partial class TypeGen
         var stride      = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
         var typeName    = $"{identifier.Name}_Array_{arraySize}{(isStd140 ? "_Std140" : "")}";
         AddNamespace(type);
+        var sb = fixedSizedArrays;
         
         if (fixedSizedArrayTypes.Add(typeName))
         {
             var sizeInBytes = stride * arraySize;
             var elementType = identifier.Name;
-            
-            fixedSizedArrays.Append( // language=csharp
+            AppendTypeComment(sb, identifier, "", "\n");
+            sb.Append( // language=csharp
                 $$"""
                 [DebuggerTypeProxy(typeof(FixedArrayDebugView<{{elementType}}>))]
                 [StructLayout(LayoutKind.Explicit, Size = {{sizeInBytes}})]
@@ -320,13 +327,13 @@ public sealed partial class TypeGen
                 }
                 """);
         } else {
-            fixedSizedArrays.Append( // language=csharp
+            sb.Append( // language=csharp
                 $$"""
                 /// Skipped identical duplicate of  <see cref="{{typeName}}"/>
                 file partial class _info;
                 """);
         }
-        fixedSizedArrays.Append(LineFeeds);
+        sb.Append(LineFeeds);
         var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }

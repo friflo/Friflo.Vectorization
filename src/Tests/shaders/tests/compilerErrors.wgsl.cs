@@ -79,3 +79,57 @@ public struct HasUnmappedType (vec3h unmappedType)
 }
 
 
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct HasMissingElementType (in MissingElementType_Array_4 missingElementType)
+{
+    [FieldOffset(  0)]  public  MissingElementType_Array_4 missingElementType = missingElementType;
+}
+
+
+[Source("~/shaders/tests/compilerErrors.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct HasUnmappedElementType (in vec3h_Array_4_Std140 unmappedElementType)
+{
+    [FieldOffset(  0)]  public  vec3h_Array_4_Std140 unmappedElementType = unmappedElementType;
+}
+
+
+// WGSL error - missing type: 'MissingElementType'
+[DebuggerTypeProxy(typeof(FixedArrayDebugView<MissingElementType>))]
+[StructLayout(LayoutKind.Explicit, Size = 0)]
+public struct MissingElementType_Array_4
+{
+    public const int  Length = 4;
+    [FieldOffset(0)]  private MissingElementType _element0;
+    
+    public ref MissingElementType this[int index] {
+        [UnscopedRef] get {
+            if ((uint)index >= 4) throw new IndexOutOfRangeException();
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 0);
+        }
+    }
+    
+    [UnscopedRef] public FixedArrayEnumerator<MissingElementType> GetEnumerator() => new(ref _element0, 0, 0);
+}
+
+
+// INFO: 'vec3h' requires mapping in 'wgsl-types.ini'
+[DebuggerTypeProxy(typeof(FixedArrayDebugView<vec3h>))]
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct vec3h_Array_4_Std140
+{
+    public const int  Length = 4;
+    [FieldOffset(0)]  private vec3h _element0;
+    
+    public ref vec3h this[int index] {
+        [UnscopedRef] get {
+            if ((uint)index >= 4) throw new IndexOutOfRangeException();
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
+        }
+    }
+    
+    [UnscopedRef] public FixedArrayEnumerator<vec3h> GetEnumerator() => new(ref _element0, 16, 64);
+}
+
+
