@@ -39,8 +39,10 @@ public static class TypeGenerator
         return null;
     }
     
-    public static ShaderTypesResult GenerateCSharpTypes(WgslModule module)
+    public static ShaderTypesResult GenerateCSharpTypes(WgslModule module, TypeMapping[] mappings)
     {
+        var typeMap = TypeMapping.CreateTypeMap(mappings);
+        
         var exportTypes = new HashSet<string>();
 
         foreach (WgslBinding binding in module.Bindings)
@@ -51,7 +53,7 @@ public static class TypeGenerator
                 case "uniform":
                 case "storage":
                     var type = GetBindingType(module, binding);
-                    if (!TryGetKnownCSharpType(type, out _)) {
+                    if (!TryGetKnownCSharpType(type, typeMap, out _)) {
                         exportTypes.Add(type.Name);
                     }
                     break;
@@ -72,7 +74,7 @@ public static class TypeGenerator
             sb.Append($"    [StructLayout(LayoutKind.Sequential)]\n");
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
-                TryGetKnownCSharpType(field.WgslType, out var csType);
+                TryGetKnownCSharpType(field.WgslType, typeMap, out var csType);
                 sb.Append($"        public {csType} {field.Name};\n");
             }
             sb.Append("    }\n");
@@ -89,48 +91,14 @@ public static class TypeGenerator
         };
     }
     
-    internal static bool TryGetKnownCSharpType(WgslType wgslType, out string csType)
+    internal static bool TryGetKnownCSharpType(WgslType type, CSharpIdentifier[] typeMap, out string csType)
     {
-        var typeName = wgslType.Name;
-        var generics = wgslType.Generics;
-        if (generics.Length == 1 && generics.Arg_0.Name == "f32") {
-            typeName = typeName switch
-            {
-                "vec2"      => "vec2<f32>",
-                "vec3"      => "vec3<f32>",
-                "vec4"      => "vec4<f32>",
-                "mat2x2"    => "mat2x2<f32>",
-                "mat3x3"    => "mat3x3<f32>",
-                "mat4x4"    => "mat4x4<f32>",
-                _           => typeName
-            };
+        var info = WgslTypeInfo.GetTypeInfo(type);
+        if (info.typeCode == CsTypeCode.None) {
+            csType = info.IsArray ? info.elementType : type.ToString();
+            return false;
         }
-        var result = GetCSharpTypeFromWgslType(typeName);
-        if (result != null) {
-            csType = result;
-            return true;
-        }
-        csType = typeName;
-        return false;
-    }
-    
-    private static string GetCSharpTypeFromWgslType(string typeName)
-    {
-        return typeName switch {
-            "u32"   => "uint",
-            "i32"   => "int",
-            "f32"   => "float",
-            "f16"   => "Half",
-
-            "vec2<f32>" or "vec2f"      => "Vector2",
-            "vec3<f32>" or "vec3f"      => "Vector3",
-            "vec4<f32>" or "vec4f"      => "Vector4",
-
-            "mat2x2<f32>" or "mat2x2f"  => "Matrix2x2",
-            "mat3x3<f32>" or "mat3x3f"  => "Matrix3x3",
-            "mat4x4<f32>" or "mat4x4f"  => "Matrix4x4",
-
-            _                           => null
-        };
+        csType = typeMap[(int)info.typeCode].Name;
+        return true;
     }
 }

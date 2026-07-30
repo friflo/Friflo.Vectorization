@@ -46,7 +46,8 @@ public static class Tests_GenerateTypes
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var types   = TypeGenerator.GenerateCSharpTypes(module, mappings);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -74,7 +75,8 @@ public static class Tests_GenerateTypes
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var types   = TypeGenerator.GenerateCSharpTypes(module, mappings);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -103,7 +105,8 @@ public static class Tests_GenerateTypes
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var types   = TypeGenerator.GenerateCSharpTypes(module, mappings);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
@@ -124,14 +127,15 @@ public static class Tests_GenerateTypes
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_GenerateTypes));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var types   = TypeGenerator.GenerateCSharpTypes(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var types   = TypeGenerator.GenerateCSharpTypes(module, mappings);
         
         Assert.That(types.Types, Is.EqualTo( // language=csharp
             """
                 [Source("~/shaders/instancedCube/instanced.vert.wgsl")]
                 [StructLayout(LayoutKind.Sequential)]
                 public struct Uniforms {
-                    public array modelViewProjectionMatrix;
+                    public Matrix4x4 modelViewProjectionMatrix;
                 }
                 
             

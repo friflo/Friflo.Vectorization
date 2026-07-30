@@ -52,7 +52,7 @@ public class AddTypesCodeFixProvider : CodeFixProvider
         if (root == null) return document;
         
         var module = CodeFixer.ParseWgslFiles(wgslFiles);
-        var result = TypeGenerator.GenerateCSharpTypes(module);
+        var result = TypeGenerator.GenerateCSharpTypes(module, null); // pass null. Whole class is obsolete
         if (result.Types == "") {
             // add only comment
             var updatedMethod = method

@@ -59,6 +59,7 @@ public static partial class CodeFixer
     
     public static ShaderParamsResult CreateShaderParams(WgslModule module, TypeMapping[] mappings)
     {
+        var typeMap = TypeMapping.CreateTypeMap(mappings);
         var sb      = new StringBuilder();
         sb.Append("(RenderPass pass, RenderConfig config,");
         
@@ -66,7 +67,7 @@ public static partial class CodeFixer
         
         // --- [Map(group, binding)] [...]
         var bindings = CreateBindings(module);
-        AddBindingParameters(module, parameters, bindings);
+        AddBindingParameters(module, parameters, bindings, typeMap);
         
         // --- [VertexBuffer(0)]
         AddVertexBufferParameters(parameters, module.EntryPoints);
@@ -105,7 +106,7 @@ public static partial class CodeFixer
         return bindings;
     }
     
-    private static void AddBindingParameters(WgslModule module, List<MethodParam> parameters, List<WgslBinding> bindings)
+    private static void AddBindingParameters(WgslModule module, List<MethodParam> parameters, List<WgslBinding> bindings, CSharpIdentifier[] typeMap)
     {
         foreach (var binding in bindings)
         {
@@ -116,7 +117,7 @@ public static partial class CodeFixer
                 if (type == null) {
                     continue;
                 }
-                TypeGenerator.TryGetKnownCSharpType(type, out var csType);
+                TypeGenerator.TryGetKnownCSharpType(type, typeMap, out var csType);
                 var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
                 parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{csType}>"));
                 break;
@@ -125,7 +126,7 @@ public static partial class CodeFixer
                 if (type == null) {
                     continue;
                 }
-                TypeGenerator.TryGetKnownCSharpType(type, out csType);
+                TypeGenerator.TryGetKnownCSharpType(type, typeMap, out csType);
                 parameters.Add(new MethodParam(binding, "[uniform]", $"in {csType}"));
                 break;
             case "":

@@ -176,9 +176,9 @@ public static class Tests_WGSL
                     [Map(0, 6)] [uniform]   in VectorInUniform          uniform6,
                     [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
                     [Map(0, 8)] [uniform]   in Particle                 uniform8,
-                    [Map(0, 9)] [uniform]   in array                    uniform9,
-                    [Map(0,10)] [uniform]   in array                    uniform10,
-                    [Map(0,11)] [storage]   InOutBuffer<array>          storage11)
+                    [Map(0, 9)] [uniform]   in Vector4                  uniform9,
+                    [Map(0,10)] [uniform]   in DirectUniform            uniform10,
+                    [Map(0,11)] [storage]   InOutBuffer<DirectStorage>  storage11)
             """));
     }
 }
