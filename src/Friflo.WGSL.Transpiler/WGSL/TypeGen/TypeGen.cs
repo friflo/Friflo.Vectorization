@@ -6,8 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Friflo.WGSL.Transpiler.CSharp;
-using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
+
 
 // ReSharper disable LoopCanBeConvertedToQuery
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -51,38 +50,6 @@ public sealed partial class TypeGen
         return $"{string.Join(".", parts)}";
     }
     
-    private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string ns, string typeName, TypeResolution resolution) {
-        typeCodeMap[(int)code] = new CSharpIdentifier(typeName, ns, resolution);
-    }
-    
-    private static CSharpIdentifier[] CreateTypeMap(TypeMapping[] mappings)
-    {
-        const int length = (int)CsTypeCode.WgslStruct;
-        var map     = new CSharpIdentifier[length];
-        var values  = Enum.GetValues(typeof(CsTypeCode)).Cast<CsTypeCode>();
-        
-        foreach (var value in values) {
-            if ((int)value >= length) continue;
-            MapType(map, value, "", value.ToString(), Unmapped);
-        }
-        MapType(map, CsTypeCode.f16,     "",                "Half",        Resolved);
-        MapType(map, CsTypeCode.f32,     "",                "float",       Resolved);
-        MapType(map, CsTypeCode.i32,     "",                "int",         Resolved);
-        MapType(map, CsTypeCode.u32,     "",                "uint",        Resolved);
-        
-        MapType(map, CsTypeCode.vec2f,   "System.Numerics", "Vector2",     Resolved);
-        MapType(map, CsTypeCode.vec3f,   "System.Numerics", "Vector3",     Resolved);
-        MapType(map, CsTypeCode.vec4f,   "System.Numerics", "Vector4",     Resolved);
-        
-        MapType(map, CsTypeCode.mat4x4f, "System.Numerics", "Matrix4x4",   Resolved);
-        MapType(map, CsTypeCode.mat3x2f, "System.Numerics", "Matrix3x2",   Resolved);
-
-        foreach (var mapping in mappings) {
-            map[(int)mapping.typeCode] = mapping.identifier;
-        }
-        return map;
-    }
-    
     private void AddNamespace(in CSharpType csharpType)
     {
         if (csharpType.identifier.Namespace == "") {
@@ -106,7 +73,7 @@ public sealed partial class TypeGen
             }
             File.WriteAllText(errorFilePath, sb.ToString(), new UTF8Encoding(false));
         }
-        TypeMap = CreateTypeMap(mappings);
+        TypeMap = TypeMapping.CreateTypeMap(mappings);
         
         for (int n = 0; n < wgslFiles.Length; n++) {
             var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);

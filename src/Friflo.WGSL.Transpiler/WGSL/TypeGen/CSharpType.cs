@@ -108,17 +108,4 @@ public enum WgslAlignment
 }
 
 
-public readonly struct TypeMapping
-{
-    public readonly CsTypeCode          typeCode;
-    public readonly CSharpIdentifier    identifier;
-
-    public override string ToString() => $"{typeCode} - {identifier}";
-
-    public TypeMapping(CsTypeCode typeCode, string @namespace, string name)
-    {
-        this.typeCode   = typeCode;
-        identifier 		= new CSharpIdentifier(name, @namespace, TypeResolution.Resolved);
-    }
-}   
 
