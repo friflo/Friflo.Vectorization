@@ -19,7 +19,7 @@ public static class Tests_GenerateTypes
         var mappings = TypeMappings.LoadTypeMappings($"{projectDir}/{TypeMappings.MappingPath}", out var errors);
         if (errors.Length > 0) {
             foreach (var error in errors) {
-                Assert.Fail($"line: {error.line} - {error.message}");    
+                Assert.Fail($"line: {error.line} - {error.message}");
             }
         }
         Assert.NotNull(mappings);

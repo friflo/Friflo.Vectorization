@@ -15,7 +15,7 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public readonly struct ToolError(int? line, string code, string message)
 {
-    public          bool    IsSet   => message != null;
+    private         bool    IsSet   => message != null;
     public readonly int?    line    = line;
     public readonly string  code    = code;
     public readonly string  message = message;
@@ -93,6 +93,7 @@ public static class TypeMappings
     private static TypeMapping[] LoadPropertiesTypeMapping(string path, out ToolError[] errors)
     {
         var content     = File.ReadAllText(path);
+        content = content.Replace("\r\n", "\n").Replace('\r', '\n');
         var errorList   = new List<ToolError>();
         var mappings    = new List<TypeMapping>();
         int pos     = 0;
@@ -103,7 +104,7 @@ public static class TypeMappings
         while (pos < length)
         {
             line++;
-            while (pos < length && char.IsWhiteSpace(span[pos]) && span[pos] != '\n' && span[pos] != '\r') pos++;
+            while (pos < length && char.IsWhiteSpace(span[pos]) && span[pos] != '\n') pos++;
             if (pos >= length) break;
 
             // skip comment and empty lines
@@ -112,30 +113,32 @@ public static class TypeMappings
                 while (pos < length && span[pos] != '\n') pos++;
                 continue;
             }
-            if (c == '\r' || c == '\n') {
+            if (c == '\n') {
                 pos++;
                 continue;
             }
 
             // read key until '=' or line feed
             int keyStart = pos;
-            while (pos < length && span[pos] != '=' && span[pos] != '\n' && span[pos] != '\r') {
+            while (pos < length && span[pos] != '=' && span[pos] != '\n') {
                 pos++;
             }
             if (pos >= length || span[pos] != '=') {
-                continue; // found no '=' in line
+                pos++;
+                MappingError(line, "WGSL020", $"missing type assignment '='", errorList);
+                continue;
             }
             var key = span.Slice(keyStart, pos - keyStart).Trim().ToString();
             pos++; // skip '='
 
             // read value until line feed
             int valStart = pos;
-            while (pos < length && span[pos] != '\n' && span[pos] != '\r') pos++;
+            while (pos < length && span[pos] != '\n') pos++;
 
             var value = span.Slice(valStart, pos - valStart).Trim().ToString();
 
             // Consume line breaks so pos actually increments
-            if (pos < length && (span[pos] == '\n' || span[pos] == '\r')) pos++;
+            if (pos < length && (span[pos] == '\n')) pos++;
 
             var mapping = GetTypeMapping(key, value, line, errorList);
             if (mapping.typeCode != CsTypeCode.None) {
