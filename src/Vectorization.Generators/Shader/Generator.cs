@@ -160,33 +160,23 @@ public sealed class ShaderGen : IIncrementalGenerator
         string?                     projDir,
         bool                        generateParameters)
     {
-        var location        = method.MethodLoc.GetFreshLocation(compilation);
-        
-        var filteredFiles   = CodeFixer.FilterFiles(method, files);
-        
+        var location = method.MethodLoc.GetFreshLocation(compilation);
         if (generateParameters)
         {
+            var filteredFiles = CodeFixer.FilterFiles(method, files);
             var properties  = WgslUtils.CreateDictionary(filteredFiles, null, default);
+            
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
-
-            /* foreach (var error in fixerResult.Errors) {
-                diagnostic = Diagnostic.Create(Errors.WgslValidationError, location, messageArgs: error.Message);
-                spc.ReportDiagnostic(diagnostic);
-            }*/
-        } {
-            // var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
-            // spc.ReportDiagnostic(diagnostic);
-        } {
-            if (projDir != null) {
-                var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-                builder.Add("proj_dir", projDir);
-                var properties = builder.ToImmutable();
-                
-                var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: properties);
-                spc.ReportDiagnostic(diagnostic);
-            }
-        } 
+        }
+        if (projDir != null) {
+            var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+            builder.Add("proj_dir", projDir);
+            var properties = builder.ToImmutable();
+            
+            var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: properties);
+            spc.ReportDiagnostic(diagnostic);
+        }
     }
 }
 
