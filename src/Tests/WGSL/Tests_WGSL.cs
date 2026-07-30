@@ -130,7 +130,7 @@ public static class Tests_WGSL
                     [Map(1, 0)] [sampler]                                                       GpuSampler          sampler0,
                     [Map(1, 1)] [sampler_comparison]                                            GpuSampler          sampler1,
                     [Map(2, 0)] [storage]                                                       InBuffer<Vector3>   uniforms,
-                    [Map(2, 1)] [uniform]                                                       InBuffer<Vector3>   vertices)
+                    [Map(2, 1)] [uniform]                                                       in Vector3          vertices)
             """));
     }
     
@@ -168,17 +168,17 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
-                    [Map(0, 1)] [uniform]   in TestStruct           uniform1,
-                    [Map(0, 2)] [uniform]   in StructWithStructs    uniform2,
-                    [Map(0, 3)] [uniform]   in Outer                uniform3,
-                    [Map(0, 4)] [uniform]   in FixeSizeArrayStruct1 uniform4,
-                    [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2 uniform5,
-                    [Map(0, 6)] [uniform]   in VectorInUniform      uniform6,
-                    [Map(0, 7)] [storage]   in VectorInStorage      storage7,
-                    [Map(0, 8)] [uniform]   in Particle             uniform8,
-                    [Map(0, 9)] [uniform]   in Vector4              uniform9,
-                    [Map(0,10)] [uniform]   InBuffer<DirectUniform> uniform10,
-                    [Map(0,11)] [storage]   InBuffer<DirectStorage> storage11)
+                    [Map(0, 1)] [uniform]   in TestStruct               uniform1,
+                    [Map(0, 2)] [uniform]   in StructWithStructs        uniform2,
+                    [Map(0, 3)] [uniform]   in Outer                    uniform3,
+                    [Map(0, 4)] [uniform]   in FixeSizeArrayStruct1     uniform4,
+                    [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2     uniform5,
+                    [Map(0, 6)] [uniform]   in VectorInUniform          uniform6,
+                    [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
+                    [Map(0, 8)] [uniform]   in Particle                 uniform8,
+                    [Map(0, 9)] [uniform]   in Vector4                  uniform9,
+                    [Map(0,10)] [uniform]   in DirectUniform            uniform10,
+                    [Map(0,11)] [storage]   InBuffer<DirectStorage>     storage11)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """

@@ -112,27 +112,30 @@ public static partial class CodeFixer
         {
             switch (binding.AddressSpace)
             {
-            case "storage":
-            case "uniform":
+            case "storage": {
                 var type = TypeGenerator.GetBindingType(module, binding, out bool isArray);
                 if (type == null) {
                     continue;
                 }
-                bool isUniform =  binding.AddressSpace == "uniform";
+                TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
+                var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
+                paramType = $"{bufferType}<{paramType}>";
+                parameters.Add(new MethodParam(binding, "[storage]", paramType));
+                break;
+            }
+            case "uniform": {
+                var type = TypeGenerator.GetBindingType(module, binding, out bool isArray);
+                if (type == null) {
+                    continue;
+                }
                 string comment = null;
                 TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
                 if (isArray) {
-                    var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
-                    paramType = $"{bufferType}<{paramType}>";
-                    if (isUniform) {
-                        comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
-                    }
-                } else {
-                    paramType = $"in {paramType}";
+                    comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
                 }
-                var bindingType = isUniform ? "[uniform]" : "[storage]";
-                parameters.Add(new MethodParam(binding, bindingType, paramType, comment));
+                parameters.Add(new MethodParam(binding, "[uniform]", $"in {paramType}", comment));
                 break;
+            }
             case "":
                 AppendWgslType(parameters, binding);
                 break;
