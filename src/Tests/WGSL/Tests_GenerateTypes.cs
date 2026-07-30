@@ -29,7 +29,7 @@ public static class Tests_GenerateTypes
         
         Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x2h, "OpenTK.Mathematics",  "Matrix2")));
         Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
-        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
+        Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x4f, "Unity.Mathematics",   "float2x4")));
 
         var files = WgslUtils.LoadShaderFilesRecursive(projectDir);
         
