@@ -91,16 +91,20 @@ public sealed partial class TypeGen
         additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, TypeMapping[] mappings, ToolError error)
+    public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, TypeMapping[] mappings, ToolError[] errors)
     {
         wgslFiles = wgslFiles.ToArray();
         var errorFilePath = $"{projDir}/generator-error.cs";
-        if (!error.IsSet) {
+        if (errors.Length == 0) {
             if (File.Exists(errorFilePath)) {
                 File.Delete(errorFilePath);    
             }
         } else {
-            File.WriteAllText(errorFilePath, $"#error {error}", new UTF8Encoding(false));
+            var sb = new StringBuilder();
+            foreach (var error in errors) {
+                sb.Append($"#error {error}\n");
+            }
+            File.WriteAllText(errorFilePath, sb.ToString(), new UTF8Encoding(false));
         }
         TypeMap = CreateTypeMap(mappings);
         

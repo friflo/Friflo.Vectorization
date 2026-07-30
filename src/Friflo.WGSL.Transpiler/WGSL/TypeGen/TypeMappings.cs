@@ -28,27 +28,27 @@ public static class TypeMappings
     public const string MappingPath = "wgsl-types.ini";
         
     
-    public static TypeMapping[] LoadTypeMappings(string path, out ToolError error)
+    public static TypeMapping[] LoadTypeMappings(string path, out ToolError[] errors)
     {
         try {
             if (!File.Exists(path)) {
-                error = new ToolError(null, "WGSL002", $"'{path}' not found.");
+                errors = [new ToolError(null, "WGSL002", $"'{path}' not found.")];
                 return [];
             }
-            return LoadPropertiesTypeMapping(path, out error);
+            return LoadPropertiesTypeMapping(path, out errors);
             // return LoadJsonTypeMapping(path, out error);
         }
         catch (Exception exception)
         {
             var message = exception.Message.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
-            error = new ToolError(null, "WGSL001", $"Loading failed: {message}");
+            errors = [new ToolError(null, "WGSL001", $"Loading failed: {message}")];
             return [];
         }
     }
     
-    private static TypeMapping MappingError(int line, string code, string message, out ToolError error)
+    private static TypeMapping MappingError(int line, string code, string message, List<ToolError> errors)
     {
-        error = new ToolError(line, code, message);
+        errors.Add(new ToolError(line, code, message));
         return default;
     }
    
@@ -62,39 +62,39 @@ public static class TypeMappings
         return Regex.IsMatch(ns, @"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$");
     }
     
-    private static TypeMapping GetTypeMapping(string key, string type, int line, out ToolError error)
+    private static TypeMapping GetTypeMapping(string key, string type, int line, List<ToolError> errors)
     {
         if (key == null) {
-            return MappingError(line, "WGSL010", "key is null", out error);
+            return MappingError(line, "WGSL010", "key is null", errors);
         }
         if (type == null) {
-            return MappingError(line, "WGSL011", $"missing type at '{key}'", out error);
+            return MappingError(line, "WGSL011", $"missing type at '{key}'", errors);
         }
         type = Regex.Replace(type, @"\s+", "");
         if (!Enum.TryParse<CsTypeCode>(key, out var typeCode) ||
             typeCode is CsTypeCode.None or >= CsTypeCode.WgslStruct) {
-            return MappingError(line, "WGSL012", $"Invalid wgsl type (expect a concrete type or alias like: vec2i, mat3x3f, ...) was: {key}", out error);
+            return MappingError(line, "WGSL012", $"Invalid wgsl type (expect a concrete type or alias like: vec2i, mat3x3f, ...) was: {key}", errors);
         }
         var lastDot = type.LastIndexOf('.');
         var className = type.Substring(lastDot + 1);
         if (!IsValidCSharpIdentifier(className)) {
-            return MappingError(line, "WGSL013", $"Invalid C# type: {type}", out error);
+            return MappingError(line, "WGSL013", $"Invalid C# type: {type}", errors);
         }
         var @namespace = "";
         if (lastDot != -1) {
             @namespace = type.Substring(0, lastDot);
             if (!IsValidCSharpNamespace(@namespace)) {
-                return MappingError(line, "WGSL014", $"Invalid C# namespace: {type}", out error);
+                return MappingError(line, "WGSL014", $"Invalid C# namespace: {type}", errors);
             }
         }
-        error = default;
         return new TypeMapping(typeCode, @namespace, className);
     }
     
-    private static TypeMapping[] LoadPropertiesTypeMapping(string path, out ToolError error)
+    private static TypeMapping[] LoadPropertiesTypeMapping(string path, out ToolError[] errors)
     {
-        var content = File.ReadAllText(path);
-        var mappings = new List<TypeMapping>();
+        var content     = File.ReadAllText(path);
+        var errorList   = new List<ToolError>();
+        var mappings    = new List<TypeMapping>();
         int pos     = 0;
         var span    = content.AsSpan();
         var length  = span.Length;
@@ -137,13 +137,12 @@ public static class TypeMappings
             // Consume line breaks so pos actually increments
             if (pos < length && (span[pos] == '\n' || span[pos] == '\r')) pos++;
 
-            var mapping = GetTypeMapping(key, value, line, out error);
-            if (error.IsSet) {
-                return [];
+            var mapping = GetTypeMapping(key, value, line, errorList);
+            if (mapping.typeCode != CsTypeCode.None) {
+                mappings.Add(mapping);
             }
-            mappings.Add(mapping);
         }
-        error = default;
+        errors = errorList.ToArray();
         return mappings.ToArray();
     }
 }

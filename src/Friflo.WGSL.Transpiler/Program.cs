@@ -14,18 +14,20 @@ public static class Program
             var projectDir  = Directory.GetCurrentDirectory();
             var file        = $"{projectDir}/{TypeMappings.MappingPath}";
             
-            var mappings = TypeMappings.LoadTypeMappings(file, out var error);
+            var mappings = TypeMappings.LoadTypeMappings(file, out var errors);
             
-            if (error.IsSet) {
+            if (errors.Length > 0) {
                 var errorPath = Path.GetFullPath(file);
-                var line = error.line.HasValue ? $"({error.line})" : string.Empty;
-                Console.WriteLine($"{errorPath}{line}: error {error.code}: {error.message}");
+                foreach (var error in errors) { 
+                    var line = error.line.HasValue ? $"({error.line})" : string.Empty;
+                    Console.WriteLine($"{errorPath}{line}: error {error.code}: {error.message}");
+                }
                 return 100;
             }
             var files = WgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
             
             var typeEmitter = new TypeGen();
-            typeEmitter.EmitAllStructs(files, projectDir, mappings, error);
+            typeEmitter.EmitAllStructs(files, projectDir, mappings, errors);
         }
         catch (Exception exception) {
             Error(exception.ToString());
