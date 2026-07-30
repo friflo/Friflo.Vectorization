@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
@@ -96,5 +97,24 @@ public static class WgslUtils
         }
         if (sb.Length > 0) sb.Length -=1;
         return sb.ToString();
+    }
+    
+    public static WgslFile[] LoadAdditionalFilesRecursive(string srcFolder)
+    {
+        var searchPath  = Path.GetFullPath(srcFolder);
+        if (!Directory.Exists(searchPath)) {
+            throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
+        } 
+        var fullBaseDir = searchPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var list = new List<WgslFile>();
+
+        // iterate recursive all *.wgsl files
+        foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
+        {
+            var content = File.ReadAllText(fullFilePath);
+            var normalizedPath = fullFilePath.Replace('\\','/');
+            list.Add(new WgslFile{ NormalizedPath = normalizedPath, Content = content, Hash =  0, Module = null });
+        }
+        return list.ToArray();
     }
 }

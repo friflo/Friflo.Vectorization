@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
+using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using Tests.WGSL;
 
 // ReSharper disable InconsistentNaming
 namespace Shader;
@@ -23,7 +23,7 @@ public static class VerifyShaderUtils
     
     public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder)
     {
-        var files = TestWgslUtils.LoadAdditionalFilesRecursive(srcFolder);
+        var files = WgslUtils.LoadAdditionalFilesRecursive(srcFolder);
         var builder = ImmutableArray.CreateBuilder<AdditionalText>();
 
         foreach (var file in files) {

@@ -56,26 +56,5 @@ public static class TestWgslUtils
         return typeof(TestWgslUtils).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .FirstOrDefault(a => a.Key == "ProjectDir")?.Value;
     }
-    
-    public static WgslFile[] LoadAdditionalFilesRecursive(string srcFolder)
-    {
-        /* if (Environment.CurrentDirectory.EndsWith("/linux-x64")) {
-            srcFolder = "../" + srcFolder; // use a specific bin folder on GitHub.  See: https://github.com/friflo/Friflo.Vectorization/blob/main/.github/workflows/generators-ci.yml#L55
-        } */
-        var searchPath  = Path.GetFullPath(srcFolder);
-        if (!Directory.Exists(searchPath)) {
-            throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
-        } 
-        var fullBaseDir = searchPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        var list = new List<WgslFile>();
 
-        // iterate recursive all *.wgsl files
-        foreach (var fullFilePath in Directory.EnumerateFiles(fullBaseDir, "*.wgsl", SearchOption.AllDirectories))
-        {
-            var content = File.ReadAllText(fullFilePath);
-            var normalizedPath = fullFilePath.Replace('\\','/');
-            list.Add(new WgslFile{ NormalizedPath = normalizedPath, Content = content, Hash =  0, Module = null });
-        }
-        return list.ToArray();
-    }
 }

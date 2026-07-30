@@ -23,7 +23,7 @@ public static class TypeMappings
     {
         try {
             if (!File.Exists(path)) {
-                error = null;
+                error = $"'{path}' not found.";
                 return [];
             }
             return LoadPropertiesTypeMapping(path, out error);
