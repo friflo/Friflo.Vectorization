@@ -41,20 +41,19 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
     }
 
     private static async Task<Document> InsertTypesAsync(
-        Document document, MethodDeclarationSyntax method, Diagnostic diagnostic, CancellationToken cancellationToken)
+        Document document, MethodDeclarationSyntax _, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
-        var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties, out _);
-        if (wgslFiles == null) {
-            return document;
-        }
         if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir)) {
             return document;
         }
+        
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (root == null) return document;
         
-        
         var mappings = TypeMappings.LoadTypeMappings($"{projDir}/{TypeMappings.MappingPath}", out var errors);
+        
+        var wgslFiles = WgslUtils.LoadShaderFilesRecursive($"{projDir}/shaders");
+        
         var typeEmitter = new TypeGen();
         typeEmitter.EmitAllStructs(wgslFiles, projDir, mappings, errors);
 

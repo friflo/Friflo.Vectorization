@@ -15,7 +15,6 @@ public static class Program
             var file        = $"{projectDir}/{TypeMappings.MappingPath}";
             
             var mappings = TypeMappings.LoadTypeMappings(file, out var errors);
-            
             if (errors.Length > 0) {
                 var errorPath = Path.GetFullPath(file);
                 foreach (var error in errors) { 
@@ -24,7 +23,7 @@ public static class Program
                 }
                 return 100;
             }
-            var files = WgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
+            var files = WgslUtils.LoadShaderFilesRecursive($"{projectDir}/shaders");
             
             var typeEmitter = new TypeGen();
             typeEmitter.EmitAllStructs(files, projectDir, mappings, errors);

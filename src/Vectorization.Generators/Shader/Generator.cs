@@ -163,10 +163,10 @@ public sealed class ShaderGen : IIncrementalGenerator
         var location        = method.MethodLoc.GetFreshLocation(compilation);
         
         var filteredFiles   = CodeFixer.FilterFiles(method, files);
-        var properties      = WgslUtils.CreateDictionary(filteredFiles, null, default);
         
         if (generateParameters)
         {
+            var properties  = WgslUtils.CreateDictionary(filteredFiles, null, default);
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);
 
@@ -178,10 +178,14 @@ public sealed class ShaderGen : IIncrementalGenerator
             // var diagnostic 	= Diagnostic.Create(Errors.AddShaderTypes, location, messageArgs: method.Name, properties: properties);
             // spc.ReportDiagnostic(diagnostic);
         } {
-            var allFiles = WgslUtils.CreateDictionary(files, projDir, default);
-            var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: allFiles);
-            spc.ReportDiagnostic(diagnostic);
-            
+            if (projDir != null) {
+                var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+                builder.Add("proj_dir", projDir);
+                var properties = builder.ToImmutable();
+                
+                var diagnostic 	= Diagnostic.Create(Errors.GenerateCSharpTypes, location, properties: properties);
+                spc.ReportDiagnostic(diagnostic);
+            }
         } 
     }
 }

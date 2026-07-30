@@ -23,7 +23,7 @@ public static class VerifyShaderUtils
     
     public static ImmutableArray<AdditionalText> LoadAdditionalFilesRecursive(string srcFolder)
     {
-        var files = WgslUtils.LoadAdditionalFilesRecursive(srcFolder);
+        var files = WgslUtils.LoadShaderFilesRecursive(srcFolder);
         var builder = ImmutableArray.CreateBuilder<AdditionalText>();
 
         foreach (var file in files) {

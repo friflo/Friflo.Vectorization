@@ -99,13 +99,13 @@ public static class WgslUtils
         return sb.ToString();
     }
     
-    public static WgslFile[] LoadAdditionalFilesRecursive(string srcFolder)
+    public static WgslFile[] LoadShaderFilesRecursive(string srcFolder)
     {
-        var searchPath  = Path.GetFullPath(srcFolder);
-        if (!Directory.Exists(searchPath)) {
-            throw new InvalidOperationException($"folder not found: searchPath: {searchPath}  CurrentDirectory: {Environment.CurrentDirectory}");
+        var folder  = Path.GetFullPath(srcFolder);
+        if (!Directory.Exists(folder)) {
+            throw new InvalidOperationException($"folder not found: {folder}  CurrentDirectory: {Environment.CurrentDirectory}");
         } 
-        var fullBaseDir = searchPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var fullBaseDir = folder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var list = new List<WgslFile>();
 
         // iterate recursive all *.wgsl files
