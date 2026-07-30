@@ -36,10 +36,10 @@ public sealed partial class TypeGen
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
     }
     
-    private static string PathToNamespace(string path, string root = "")
+    private static string PathToNamespace(string path)
     {
         var dir = Path.GetDirectoryName(path);
-        if (string.IsNullOrEmpty(dir)) return root;
+        if (string.IsNullOrEmpty(dir)) return "global";
 
         var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < parts.Length; i++)
@@ -48,7 +48,7 @@ public sealed partial class TypeGen
             var rest = p.Length > 1 ? p.Substring(1) : "";
             parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
         }
-        return $"{root}{string.Join(".", parts)}";
+        return $"{string.Join(".", parts)}";
     }
     
     private static void MapType(CSharpIdentifier[] typeCodeMap, CsTypeCode code, string ns, string typeName, TypeResolution resolution) {
