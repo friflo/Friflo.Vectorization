@@ -23,7 +23,7 @@ public static class Program
                 }
                 return 100;
             }
-            var files = WgslUtils.LoadShaderFilesRecursive($"{projectDir}/shaders");
+            var files = WgslUtils.LoadShaderFilesRecursive(projectDir);
             
             var typeEmitter = new TypeGen();
             typeEmitter.EmitAllStructs(files, projectDir, mappings, errors);

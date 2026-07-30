@@ -31,7 +31,7 @@ public static class Tests_GenerateTypes
         Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x3h, "Silk.NET.Maths",      "Matrix2x3<Half>")));
         Assert.That(mappings, Has.Member(new TypeMapping(CsTypeCode.mat2x4h, "Unity.Mathematics",   "float2x4")));
 
-        var files = WgslUtils.LoadShaderFilesRecursive($"{projectDir}/shaders");
+        var files = WgslUtils.LoadShaderFilesRecursive(projectDir);
         
         for (int n = 0; n < 1; n++) {
             var typeEmitter = new TypeGen();

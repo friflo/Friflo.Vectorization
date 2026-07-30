@@ -52,7 +52,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
         
         var mappings = TypeMappings.LoadTypeMappings($"{projDir}/{TypeMappings.MappingPath}", out var errors);
         
-        var wgslFiles = WgslUtils.LoadShaderFilesRecursive($"{projDir}/shaders");
+        var wgslFiles = WgslUtils.LoadShaderFilesRecursive(projDir);
         
         var typeEmitter = new TypeGen();
         typeEmitter.EmitAllStructs(wgslFiles, projDir, mappings, errors);
