@@ -105,6 +105,10 @@ public sealed partial class TypeGen
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
+            if (typeName == "array") {
+                typeName = binding.WgslType.Generics.Arg_0?.Name;
+                if (typeName == null) continue;
+            }
             if (!wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
                 continue;
             }

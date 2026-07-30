@@ -107,6 +107,22 @@ public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
 }
 
 
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct DirectUniform (float someValue)
+{
+    [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 4)]
+public struct DirectStorage (float someValue)
+{
+    [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
 [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector3>))]
 [StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct Vector3_Array_16

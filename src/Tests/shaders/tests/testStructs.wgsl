@@ -62,16 +62,25 @@ struct Particle {
                 count : u32,  // 4 Bytes
 }
 
+struct DirectUniform {
+    someValue: f32
+}
+
+struct DirectStorage {
+    someValue: f32
+}
 
 
-
-@group(0) @binding(1)   var<uniform>        uniform2 : TestStruct;
-@group(0) @binding(2)   var<uniform>        uniform3 : StructWithStructs;
-@group(0) @binding(3)   var<uniform>        uniform4 : Outer;
-@group(0) @binding(4)   var<uniform>        uniform5 : FixeSizeArrayStruct1;
-@group(0) @binding(5)   var<uniform>        uniform6 : FixeSizeArrayStruct2;
-@group(0) @binding(6)   var<uniform>        uniform7 : VectorInUniform;
-@group(0) @binding(7)   var<storage, read>  storage0 : VectorInStorage;
+@group(0) @binding(1)   var<uniform>        uniform1 : TestStruct;
+@group(0) @binding(2)   var<uniform>        uniform2 : StructWithStructs;
+@group(0) @binding(3)   var<uniform>        uniform3 : Outer;
+@group(0) @binding(4)   var<uniform>        uniform4 : FixeSizeArrayStruct1;
+@group(0) @binding(5)   var<uniform>        uniform5 : FixeSizeArrayStruct2;
+@group(0) @binding(6)   var<uniform>        uniform6 : VectorInUniform;
+@group(0) @binding(7)   var<storage, read>  storage7 : VectorInStorage;
 @group(0) @binding(8)   var<uniform>        uniform8 : Particle;
+@group(0) @binding(9)   var<uniform>        uniform9 : array<vec4<f32>>;
+@group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform>;
+@group(0) @binding(11)  var<storage>        storage11: array<DirectStorage>;
 
 
