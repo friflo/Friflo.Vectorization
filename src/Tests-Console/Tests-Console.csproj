@@ -46,6 +46,19 @@
     <ItemGroup>
       <EmbeddedResource Include="Assets/wgpu-transparent-light-128x128.bmp" />
       <EmbeddedResource Include="Assets/wgpu-transparent-dark-128x128.bmp" />
-    </ItemGroup>   
+    </ItemGroup>
+    
+    
+    <ItemGroup>
+      <!-- 1. Ensures Transpiler is build first -->
+      <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+    
+    <Target Name="RunTranspiler" BeforeTargets="BeforeBuild">
+      <!-- Ensures Transpiler.dll exsists in bin folder for local development -->
+      <MSBuild Projects="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net8.0" />
+      
+      <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)..\Friflo.WGSL.Transpiler\bin\$(Configuration)\net8.0\Friflo.WGSL.Transpiler.dll&quot; &quot;$(MSBuildProjectDirectory)&quot;" />
+    </Target>
 
 </Project>

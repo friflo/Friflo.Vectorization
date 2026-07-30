@@ -1,0 +1,15 @@
+﻿<Project>
+  <PropertyGroup>
+    <_TranspilerDll>$(MSBuildThisFileDirectory)bin\$(Configuration)\net8.0\Friflo.WGSL.Transpiler.dll</_TranspilerDll>
+  </PropertyGroup>
+
+  <Target Name="RunWgslTranspilerPreBuild" BeforeTargets="BeforeBuild">    
+    <Error Condition="!Exists('$(_TranspilerDll)')" Text="[WGSL Transpiler] DLL not found: '$(_TranspilerDll)'." />
+
+    <Message Text="Running WGSL Transpiler Pre-Build Step on: $(MSBuildProjectDirectory)" Importance="high" />
+    
+    <Exec Command="dotnet &quot;$(_TranspilerDll)&quot; &quot;$(MSBuildProjectDirectory)&quot;" 
+          StandardOutputImportance="high"
+          StandardErrorImportance="high" />
+  </Target>
+</Project>

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>exe</OutputType>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks> <!-- net8.0 required for execution as pre-build setp -->
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <RootNamespace>Friflo.WGSL.Transpiler</RootNamespace>
@@ -66,6 +66,10 @@
   <ItemGroup>
     <!-- <PackageReference Include="Superpower"       Version="3.2.1" /> -->
     <!-- <PackageReference Include="System.Text.Json" Version="10.0.10" /> -->
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="Friflo.WGSL.Transpiler.targets"  Pack="true" PackagePath="build\Friflo.WGSL.Transpiler.targets" />
   </ItemGroup>
   
  
