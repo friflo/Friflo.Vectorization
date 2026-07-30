@@ -147,4 +147,32 @@ public static class Tests_WGSL
                                 [VertexBuffer(0)]   InBuffer<float> vertexBuffer)
             """));
     }
+    
+    [Test]
+    [Shader("~/shaders/tests/testStructs.wgsl")]
+    public static void Tests_WGSL_Generate_TestStructs()
+    {
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
+        var module  = CodeFixer.ParseWgslFiles(files);
+        var result  = CodeFixer.CreateShaderParams(module);
+        
+        Assert.That(module.Structs.Count,       Is.EqualTo(12));
+        Assert.That(module.Bindings.Count,      Is.EqualTo(11));
+        Assert.That(module.EntryPoints.Count,   Is.EqualTo(0));
+        Assert.That(result.Parameters, Is.EqualTo( // language=csharp
+            """
+            (RenderPass pass, RenderConfig config,
+                    [Map(0, 1)] [uniform]   in TestStruct               uniform1,
+                    [Map(0, 2)] [uniform]   in StructWithStructs        uniform2,
+                    [Map(0, 3)] [uniform]   in Outer                    uniform3,
+                    [Map(0, 4)] [uniform]   in FixeSizeArrayStruct1     uniform4,
+                    [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2     uniform5,
+                    [Map(0, 6)] [uniform]   in VectorInUniform          uniform6,
+                    [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
+                    [Map(0, 8)] [uniform]   in Particle                 uniform8,
+                    [Map(0, 9)] [uniform]   in array                    uniform9,
+                    [Map(0,10)] [uniform]   in array                    uniform10,
+                    [Map(0,11)] [storage]   InOutBuffer<array>          storage11)
+            """));
+    }
 }
