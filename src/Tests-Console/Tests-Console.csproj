@@ -51,14 +51,14 @@
     
     <ItemGroup>
       <!-- 1. Ensures Transpiler is build first -->
-      <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="../Friflo.WGSL.Transpiler/Friflo.WGSL.Transpiler.csproj" ReferenceOutputAssembly="false" />
     </ItemGroup>
     
     <Target Name="RunTranspiler" BeforeTargets="BeforeBuild">
       <!-- Ensures Transpiler.dll exsists in bin folder for local development -->
-      <MSBuild Projects="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net8.0" />
+      <MSBuild Projects="../Friflo.WGSL.Transpiler/Friflo.WGSL.Transpiler.csproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net8.0" />
       
-      <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)..\Friflo.WGSL.Transpiler\bin\$(Configuration)\net8.0\Friflo.WGSL.Transpiler.dll&quot; &quot;$(MSBuildProjectDirectory)&quot;" />
+      <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Friflo.WGSL.Transpiler/bin/$(Configuration)/net8.0/Friflo.WGSL.Transpiler.dll&quot; &quot;$(MSBuildProjectDirectory)&quot;" />
     </Target>
 
 </Project>
