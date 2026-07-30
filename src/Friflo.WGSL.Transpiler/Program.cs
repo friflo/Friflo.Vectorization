@@ -15,9 +15,11 @@ public static class Program
             var file        = $"{projectDir}/{TypeMappings.MappingPath}";
             
             var mappings = TypeMappings.LoadTypeMappings(file, out var error);
+            
             if (error.IsSet) {
+                var errorPath = Path.GetFullPath(file);
                 var line = error.line.HasValue ? $"({error.line})" : string.Empty;
-                Console.WriteLine($"{file}{line}: error {error.code}: {error.message}");
+                Console.WriteLine($"{errorPath}{line}: error {error.code}: {error.message}");
                 return 100;
             }
             var files = WgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
