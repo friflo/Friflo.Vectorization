@@ -11,16 +11,19 @@ public static class Program
         // for (int n = 0; n < 3; n++) { Console.WriteLine("WGSL : error : ----- test log is shown -----"); }
         try
         {
-            var projectDir = Directory.GetCurrentDirectory();
-            var mappings = TypeMappings.LoadTypeMappings($"{projectDir}/{TypeMappings.MappingPath}", out var error);
-            if (error != null) {
-                Error(error);
+            var projectDir  = Directory.GetCurrentDirectory();
+            var file        = $"{projectDir}/{TypeMappings.MappingPath}";
+            
+            var mappings = TypeMappings.LoadTypeMappings(file, out var error);
+            if (error.IsSet) {
+                var line = error.line.HasValue ? $"({error.line})" : string.Empty;
+                Console.WriteLine($"{file}{line}: error {error.code}: {error.message}");
                 return 100;
             }
             var files = WgslUtils.LoadAdditionalFilesRecursive($"{projectDir}/shaders");
             
             var typeEmitter = new TypeGen();
-            typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
+            typeEmitter.EmitAllStructs(files, projectDir, mappings, error);
         }
         catch (Exception exception) {
             Error(exception.ToString());

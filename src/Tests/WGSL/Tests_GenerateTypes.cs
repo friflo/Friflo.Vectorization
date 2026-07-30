@@ -17,8 +17,8 @@ public static class Tests_GenerateTypes
 
         // var mappings = new  WgslType2CSharpType[] { new (CsTypeCode.vec2i, "CustomTypes", "Vector2i") };
         var mappings = TypeMappings.LoadTypeMappings($"{projectDir}/{TypeMappings.MappingPath}", out var error);
-        if (error != null) {
-            Assert.Fail(error);
+        if (error.IsSet) {
+            Assert.Fail(error.message);
         }
         Assert.NotNull(mappings);
         Assert.That(mappings.Length, Is.EqualTo(5));
@@ -33,7 +33,7 @@ public static class Tests_GenerateTypes
         
         for (int n = 0; n < 1; n++) {
             var typeEmitter = new TypeGen();
-            typeEmitter.EmitAllStructs(files, projectDir, mappings, null);
+            typeEmitter.EmitAllStructs(files, projectDir, mappings, error);
         }
     }
     
