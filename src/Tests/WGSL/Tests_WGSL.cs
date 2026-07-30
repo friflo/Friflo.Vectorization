@@ -180,5 +180,12 @@ public static class Tests_WGSL
                     [Map(0,10)] [uniform]   InBuffer<DirectUniform> uniform10,
                     [Map(0,11)] [storage]   InBuffer<DirectStorage> storage11)
             """));
+        Assert.That(result.Comments, Is.EqualTo( // language=csharp
+            """
+                // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.
+                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform>
+                // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
+            
+            """));
     }
 }

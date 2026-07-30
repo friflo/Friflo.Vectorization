@@ -26,12 +26,13 @@ public static partial class CodeFixer
 
         public override string ToString() => name;
 
-        internal MethodParam(WgslBinding binding, string attribute, string type)
+        internal MethodParam(WgslBinding binding, string attribute, string type, string comment = null)
         {
             bindGroup       = new BindGroup(binding.Group, binding.Binding);    
             this.attribute  = attribute;
             this.type       = type;
             name            = binding.Name;
+            this.comment    = comment;
         }
         
         internal MethodParam(string attribute, string type, string name, string comment)

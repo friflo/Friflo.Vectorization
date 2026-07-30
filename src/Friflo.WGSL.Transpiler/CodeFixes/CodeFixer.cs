@@ -118,15 +118,20 @@ public static partial class CodeFixer
                 if (type == null) {
                     continue;
                 }
+                bool isUniform =  binding.AddressSpace == "uniform";
+                string comment = null;
                 TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
                 if (isArray) {
                     var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
                     paramType = $"{bufferType}<{paramType}>";
+                    if (isUniform) {
+                        comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
+                    }
                 } else {
                     paramType = $"in {paramType}";
                 }
-                var bindingType = binding.AddressSpace == "storage" ? "[storage]" : "[uniform]";
-                parameters.Add(new MethodParam(binding, bindingType, paramType));
+                var bindingType = isUniform ? "[uniform]" : "[storage]";
+                parameters.Add(new MethodParam(binding, bindingType, paramType, comment));
                 break;
             case "":
                 AppendWgslType(parameters, binding);
@@ -211,7 +216,7 @@ public static partial class CodeFixer
                 parameterName = "vertexInputBuffer";
             }
         }
-        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $"[ ]  Adjust the generic type of '{parameterName}' to your vertex struct."));
+        parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $"// [ ]  Adjust the generic type of '{parameterName}' to your vertex struct."));
     }
     
     private static string CreateComments(List<MethodParam> parameters)
@@ -221,7 +226,7 @@ public static partial class CodeFixer
         
         foreach (var param in parameters) {
             if (param.comment == null)  continue;
-            sb.Append($"    // {param.comment}\n");
+            sb.Append($"    {param.comment}\n");
         }
         sb.Append("    // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.\n"); // This cannot be inferred from wgsl.
         return sb.ToString();
