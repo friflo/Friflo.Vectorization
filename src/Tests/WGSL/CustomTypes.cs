@@ -8,7 +8,7 @@ namespace CustomTypes;
 
 #pragma warning disable CS0169 // Field is never used
 
-/// <summary> Maps to <see cref="CsTypeCode.vec2i"/> </summary>
+/// <summary> Maps to WGSL type vec2i - mapped in wgsl-types.ini</summary>
 public struct Vector2i(int x, int y)
 {
     public int x = x;
