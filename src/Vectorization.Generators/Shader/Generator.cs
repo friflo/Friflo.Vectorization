@@ -164,7 +164,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         if (generateParameters)
         {
             var filteredFiles = CodeFixer.FilterFiles(method, files);
-            var properties  = WgslUtils.CreateDictionary(filteredFiles, null, default);
+            var properties  = WgslUtils.CreateDictionary(filteredFiles, projDir, default);
             
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);
             spc.ReportDiagnostic(diagnostic);

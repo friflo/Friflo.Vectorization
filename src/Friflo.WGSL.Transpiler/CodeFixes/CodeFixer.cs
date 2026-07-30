@@ -57,7 +57,7 @@ public static partial class CodeFixer
         return result.ToImmutableArray();
     }
     
-    public static ShaderParamsResult CreateShaderParams(WgslModule module)
+    public static ShaderParamsResult CreateShaderParams(WgslModule module, TypeMapping[] mappings)
     {
         var sb      = new StringBuilder();
         sb.Append("(RenderPass pass, RenderConfig config,");

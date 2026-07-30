@@ -51,6 +51,13 @@ public static class TestWgslUtils
         return files.ToArray();
     }
     
+    public static TypeMapping[] LoadTestMappings()
+    {
+        var mappings = TypeMappings.LoadTypeMappings($"{GetProjectDir()}/{TypeMappings.MappingPath}", out var errors);
+        Assert.That(errors.Length, Is.EqualTo(0));
+        return mappings;
+    }
+    
     public static string GetProjectDir()
     {
         return typeof(TestWgslUtils).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()

@@ -58,8 +58,12 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         if (wgslFiles == null) {
             return document;
         }
+        if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir)) {
+            return document;
+        }
         var module      = CodeFixer.ParseWgslFiles(wgslFiles);
-        var paramsResult= CodeFixer.CreateShaderParams(module);
+        var mappings    = TypeMappings.LoadTypeMappings($"{projDir}/{TypeMappings.MappingPath}", out _);
+        var paramsResult= CodeFixer.CreateShaderParams(module, mappings);
         var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         
         var root = await document.GetSyntaxRootAsync(cancellationToken);

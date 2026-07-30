@@ -41,7 +41,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -60,7 +61,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -81,7 +83,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -101,7 +104,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -137,7 +141,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -154,7 +159,8 @@ public static class Tests_WGSL
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
-        var result  = CodeFixer.CreateShaderParams(module);
+        var mappings= TestWgslUtils.LoadTestMappings();
+        var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(module.Structs.Count,       Is.EqualTo(12));
         Assert.That(module.Bindings.Count,      Is.EqualTo(11));
