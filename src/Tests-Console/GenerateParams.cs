@@ -36,4 +36,8 @@ public static partial class GenerateParams
     
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void Shadow();
+    
+    
+    [Shader("~/shaders/tests/testStructs.wgsl",  vertex: "main")]
+    private static partial void TestStructs();
 }
