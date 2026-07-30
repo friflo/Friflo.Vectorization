@@ -113,21 +113,20 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage":
-                var type = TypeGenerator.GetBindingType(module, binding);
-                if (type == null) {
-                    continue;
-                }
-                TypeGenerator.TryGetKnownCSharpType(type, typeMap, out var csType);
-                var bufferType = binding.AccessMode == "read" ? "InBuffer" : "InOutBuffer";
-                parameters.Add(new MethodParam(binding, "[storage]", $"{bufferType}<{csType}>"));
-                break;
             case "uniform":
-                type = TypeGenerator.GetBindingType(module, binding);
+                var type = TypeGenerator.GetBindingType(module, binding, out bool isArray);
                 if (type == null) {
                     continue;
                 }
-                TypeGenerator.TryGetKnownCSharpType(type, typeMap, out csType);
-                parameters.Add(new MethodParam(binding, "[uniform]", $"in {csType}"));
+                TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
+                if (isArray) {
+                    var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
+                    paramType = $"{bufferType}<{paramType}>";
+                } else {
+                    paramType = $"in {paramType}";
+                }
+                var bindingType = binding.AddressSpace == "storage" ? "[storage]" : "[uniform]";
+                parameters.Add(new MethodParam(binding, bindingType, paramType));
                 break;
             case "":
                 AppendWgslType(parameters, binding);

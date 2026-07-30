@@ -19,8 +19,9 @@ public readonly struct ShaderTypesResult
 
 public static class TypeGenerator
 {
-    internal static WgslType GetBindingType(WgslModule module, WgslBinding binding)
+    internal static WgslType GetBindingType(WgslModule module, WgslBinding binding, out bool isArray)
     {
+        isArray = false;
         switch (binding.AddressSpace)
         {
             case "uniform":
@@ -31,6 +32,7 @@ public static class TypeGenerator
                 if (type != null && type.Fields.Count == 1) {
                     var fieldType = type.Fields[0].WgslType;
                     if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
+                        isArray = true;
                         return fieldType.Generics.Arg_0;
                     }
                 }
@@ -52,8 +54,8 @@ public static class TypeGenerator
             {
                 case "uniform":
                 case "storage":
-                    var type = GetBindingType(module, binding);
-                    if (!TryGetKnownCSharpType(type, typeMap, out _)) {
+                    var type = GetBindingType(module, binding, out var isArray);
+                    if (!TryGetKnownCSharpType(type, typeMap, ref isArray, out _)) {
                         exportTypes.Add(type.Name);
                     }
                     break;
@@ -74,7 +76,8 @@ public static class TypeGenerator
             sb.Append($"    [StructLayout(LayoutKind.Sequential)]\n");
             sb.Append($"    public struct {type.Name} {{\n");
             foreach (var field in type.Fields) {
-                TryGetKnownCSharpType(field.WgslType, typeMap, out var csType);
+                bool isArray = false;
+                TryGetKnownCSharpType(field.WgslType, typeMap, ref isArray, out var csType);
                 sb.Append($"        public {csType} {field.Name};\n");
             }
             sb.Append("    }\n");
@@ -91,11 +94,14 @@ public static class TypeGenerator
         };
     }
     
-    internal static bool TryGetKnownCSharpType(WgslType type, CSharpIdentifier[] typeMap, out string csType)
+    internal static bool TryGetKnownCSharpType(WgslType type, CSharpIdentifier[] typeMap, ref bool isArray, out string csType)
     {
         var info = WgslTypeInfo.GetTypeInfo(type);
         if (info.typeCode == CsTypeCode.None) {
-            csType = info.IsArray ? info.elementType : type.ToString();
+            if (info.IsArray) {
+                isArray = true;    
+            }
+            csType  = info.IsArray ? info.elementType : type.ToString();
             return false;
         }
         csType = typeMap[(int)info.typeCode].Name;
