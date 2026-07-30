@@ -135,7 +135,7 @@ public static class TypeMappings
             var value = span.Slice(valStart, pos - valStart).Trim().ToString();
 
             // Consume line breaks so pos actually increments
-            while (pos < length && (span[pos] == '\n' || span[pos] == '\r')) pos++;
+            if (pos < length && (span[pos] == '\n' || span[pos] == '\r')) pos++;
 
             var mapping = GetTypeMapping(key, value, line, out error);
             if (error.IsSet) {
