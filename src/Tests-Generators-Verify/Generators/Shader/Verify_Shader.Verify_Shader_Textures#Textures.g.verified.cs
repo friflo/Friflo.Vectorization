@@ -118,7 +118,7 @@ public partial class ShaderExample
     private const  ulong        _Textures_GPU_layout_1_Key        =  0x2946de09149f7eb0;
     private const  ulong        _Textures_GPU_layout_2_Key        =  0x449d00dd04f3a3d9;
 
-    private static ulong        _Textures_GPU_WgslHash            => 0xdfedd3c4778a619cUL;  // support Hot-Reload
+    private static ulong        _Textures_GPU_WgslHash            => 0x73e787664095409dUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _Textures_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)

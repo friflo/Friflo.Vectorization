@@ -43,7 +43,7 @@ public partial class ShaderExample
 
     private static readonly int _NoLayouts_GPU_ShaderId            =  ShaderRegistry.NewShaderId("NoLayouts");
 
-    private static ulong        _NoLayouts_GPU_WgslHash            => 0x3f0b7c32bbfa9a08UL;  // support Hot-Reload
+    private static ulong        _NoLayouts_GPU_WgslHash            => 0xb2e80e5b502e4461UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _NoLayouts_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
