@@ -18,7 +18,7 @@ public static class Tests_WGSL_Lab
     [Test]
     public static void Tests_WGSL_Lab_FixedSizeArray()
     {
-        var array = new Vector2i_Array_8();
+        var array = new Vector2i_array_8();
         array[0] = new Vector2i(0, 42);
         array[7] = new Vector2i(7, 42);
         
@@ -63,7 +63,7 @@ public static class Tests_WGSL_Lab
     /// Fixed size array with 8 elements for use by a uniform with <see cref="WgslAlignment.std140"/>
     [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
     [StructLayout(LayoutKind.Explicit, Size = 128)]
-    private struct Vector2i_Array_8
+    private struct Vector2i_array_8
     {
         public int Length => 8;
         
