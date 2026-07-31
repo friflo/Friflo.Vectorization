@@ -127,7 +127,7 @@ public struct DirectStorage (float someValue)
 [StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct Vector3_Array_16
 {
-    public const int  Length = 16;
+    public int  Length => 16;
     [FieldOffset(0)]  private Vector3 _element0;
     
     public ref Vector3 this[int index] {
@@ -149,7 +149,7 @@ file partial class _info;
 [StructLayout(LayoutKind.Explicit, Size = 128)]
 public struct Vector2i_Array_8_Std140
 {
-    public const int  Length = 8;
+    public int  Length => 8;
     [FieldOffset(0)]  private Vector2i _element0;
     
     public ref Vector2i this[int index] {
@@ -167,7 +167,7 @@ public struct Vector2i_Array_8_Std140
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct Vector2i_Array_8
 {
-    public const int  Length = 8;
+    public int  Length => 8;
     [FieldOffset(0)]  private Vector2i _element0;
     
     public ref Vector2i this[int index] {

@@ -56,7 +56,7 @@ public struct SmallData (uint id_and_pad, float value)
 [StructLayout(LayoutKind.Explicit, Size = 48)]
 public struct float_Array_3_Std140
 {
-    public const int  Length = 3;
+    public int  Length => 3;
     [FieldOffset(0)]  private float _element0;
     
     public ref float this[int index] {
@@ -74,7 +74,7 @@ public struct float_Array_3_Std140
 [StructLayout(LayoutKind.Explicit, Size = 12)]
 public struct float_Array_3
 {
-    public const int  Length = 3;
+    public int  Length => 3;
     [FieldOffset(0)]  private float _element0;
     
     public ref float this[int index] {
@@ -92,7 +92,7 @@ public struct float_Array_3
 [StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct SmallData_Array_2
 {
-    public const int  Length = 2;
+    public int  Length => 2;
     [FieldOffset(0)]  private SmallData _element0;
     
     public ref SmallData this[int index] {

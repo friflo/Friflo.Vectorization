@@ -315,7 +315,7 @@ public sealed partial class TypeGen
                 [StructLayout(LayoutKind.Explicit, Size = {{sizeInBytes}})]
                 public struct {{typeName}}
                 {
-                    public const int  Length = {{arraySize}};
+                    public int  Length => {{arraySize}};
                     [FieldOffset(0)]  private {{elementType}} _element0;
                     
                     public ref {{elementType}} this[int index] {

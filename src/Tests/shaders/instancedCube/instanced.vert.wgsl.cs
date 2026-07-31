@@ -22,7 +22,7 @@ public struct Uniforms (in Matrix4x4_Array_16 modelViewProjectionMatrix)
 [StructLayout(LayoutKind.Explicit, Size = 1024)]
 public struct Matrix4x4_Array_16
 {
-    public const int  Length = 16;
+    public int  Length => 16;
     [FieldOffset(0)]  private Matrix4x4 _element0;
     
     public ref Matrix4x4 this[int index] {

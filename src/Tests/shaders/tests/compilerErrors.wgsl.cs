@@ -100,7 +100,7 @@ public struct HasUnmappedElementType (in vec3h_Array_4_Std140 unmappedElementTyp
 [StructLayout(LayoutKind.Explicit, Size = 0)]
 public struct MissingElementType_Array_4
 {
-    public const int  Length = 4;
+    public int  Length => 4;
     [FieldOffset(0)]  private MissingElementType _element0;
     
     public ref MissingElementType this[int index] {
@@ -119,7 +119,7 @@ public struct MissingElementType_Array_4
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct vec3h_Array_4_Std140
 {
-    public const int  Length = 4;
+    public int  Length => 4;
     [FieldOffset(0)]  private vec3h _element0;
     
     public ref vec3h this[int index] {

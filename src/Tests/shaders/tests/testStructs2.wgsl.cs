@@ -22,7 +22,7 @@ public struct FixeSizeArray (in Vector2i_Array_16_Std140 vectors)
 [StructLayout(LayoutKind.Explicit, Size = 256)]
 public struct Vector2i_Array_16_Std140
 {
-    public const int  Length = 16;
+    public int  Length => 16;
     [FieldOffset(0)]  private Vector2i _element0;
     
     public ref Vector2i this[int index] {
