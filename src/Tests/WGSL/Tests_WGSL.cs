@@ -168,18 +168,18 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (RenderPass pass, RenderConfig config,
-                    [Map(0, 1)] [uniform]   in TestStruct                       uniform1,
-                    [Map(0, 2)] [uniform]   in StructWithStructs                uniform2,
-                    [Map(0, 3)] [uniform]   in Outer                            uniform3,
-                    [Map(0, 4)] [uniform]   in FixeSizeArrayStruct1             uniform4,
-                    [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2             uniform5,
-                    [Map(0, 6)] [uniform]   in VectorInUniform                  uniform6,
-                    [Map(0, 7)] [storage]   InBuffer<VectorInStorage>           storage7,
-                    [Map(0, 8)] [uniform]   in Particle                         uniform8,
-                    [Map(0, 9)] [uniform]   in Vector4_array_8_std140           uniform9,
-                    [Map(0,10)] [uniform]   in DirectUniform1                   uniform10,
-                    [Map(0,11)] [uniform]   in DirectUniform2_array_8_std140    uniform11,
-                    [Map(0,12)] [storage]   InBuffer<DirectStorage>             storage12)
+                    [Map(0, 1)] [uniform]   in TestStruct               uniform1,
+                    [Map(0, 2)] [uniform]   in StructWithStructs        uniform2,
+                    [Map(0, 3)] [uniform]   in Outer                    uniform3,
+                    [Map(0, 4)] [uniform]   in FixeSizeArrayStruct1     uniform4,
+                    [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2     uniform5,
+                    [Map(0, 6)] [uniform]   in VectorInUniform          uniform6,
+                    [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
+                    [Map(0, 8)] [uniform]   in Particle                 uniform8,
+                    [Map(0, 9)] [uniform]   in Vector4_UniArr_8         uniform9,
+                    [Map(0,10)] [uniform]   in DirectUniform1           uniform10,
+                    [Map(0,11)] [uniform]   in DirectUniform2_UniArr_8  uniform11,
+                    [Map(0,12)] [storage]   InBuffer<DirectStorage>     storage12)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """
