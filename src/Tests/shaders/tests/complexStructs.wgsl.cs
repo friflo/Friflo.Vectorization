@@ -11,14 +11,14 @@ namespace Shaders.Tests;
 
 
 [Source("~/shaders/tests/complexStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 128)]
-public struct EdgeCaseUniform (uint header, float_array_3 scalars, in Vector2 padded_vec, in SubItem nested, uint tail_flag)
+[StructLayout(LayoutKind.Explicit, Size = 160)]
+public struct EdgeCaseUniform (uint header, in float_array_3_std140 scalars, in Vector2 padded_vec, in SubItem nested, uint tail_flag)
 {
-    [FieldOffset(  0)]  public  uint          header     = header;
-    [FieldOffset(  4)]  public  float_array_3 scalars    = scalars;
-    [FieldOffset( 16)]  public  Vector2       padded_vec = padded_vec;
-    [FieldOffset( 48)]  public  SubItem       nested     = nested;
-    [FieldOffset( 96)]  public  uint          tail_flag  = tail_flag;
+    [FieldOffset(  0)]  public  uint                 header     = header;
+    [FieldOffset( 16)]  public  float_array_3_std140 scalars    = scalars;
+    [FieldOffset( 64)]  public  Vector2              padded_vec = padded_vec;
+    [FieldOffset( 96)]  public  SubItem              nested     = nested;
+    [FieldOffset(128)]  public  uint                 tail_flag  = tail_flag;
 }
 
 

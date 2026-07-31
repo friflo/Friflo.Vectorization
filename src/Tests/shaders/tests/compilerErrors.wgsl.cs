@@ -32,7 +32,7 @@ public struct HasInvalidPrimitive (vec3<i16> invalidVec3)
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 4)]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct InconsistentStruct (int value1)
 {
     [FieldOffset(  0)]  public  int value1 = value1;
@@ -72,7 +72,7 @@ file partial class _info;
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 8)]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
 public struct HasUnmappedType (vec3h unmappedType)
 {
     [FieldOffset(  0)]  public  vec3h unmappedType = unmappedType;  // INFO: 'vec3h' requires mapping in 'wgsl-types.ini'
@@ -80,18 +80,18 @@ public struct HasUnmappedType (vec3h unmappedType)
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct HasMissingElementType (MissingElementType_array_4 missingElementType)
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct HasMissingElementType (in MissingElementType_array_4 missingElementType)
 {
     [FieldOffset(  0)]  public  MissingElementType_array_4 missingElementType = missingElementType;
 }
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct HasUnmappedElementType (in vec3h_array_4 unmappedElementType)
+[StructLayout(LayoutKind.Explicit, Size = 64)]
+public struct HasUnmappedElementType (in vec3h_array_4_std140 unmappedElementType)
 {
-    [FieldOffset(  0)]  public  vec3h_array_4 unmappedElementType = unmappedElementType;
+    [FieldOffset(  0)]  public  vec3h_array_4_std140 unmappedElementType = unmappedElementType;
 }
 
 

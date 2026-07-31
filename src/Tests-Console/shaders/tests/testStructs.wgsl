@@ -62,11 +62,7 @@ struct Particle {
                 count : u32,  // 4 Bytes
 }
 
-struct DirectUniform1 {
-    someValue: f32
-}
-
-struct DirectUniform2 {
+struct DirectUniform {
     someValue: f32
 }
 
@@ -80,12 +76,11 @@ struct DirectStorage {
 @group(0) @binding(3)   var<uniform>        uniform3 : Outer;
 @group(0) @binding(4)   var<uniform>        uniform4 : FixeSizeArrayStruct1;
 @group(0) @binding(5)   var<uniform>        uniform5 : FixeSizeArrayStruct2;
-@group(0) @binding(6)   var<uniform>        uniform6 : VectorInUniform;         // intentional error
+@group(0) @binding(6)   var<uniform>        uniform6 : VectorInUniform;
 @group(0) @binding(7)   var<storage, read>  storage7 : VectorInStorage;
 @group(0) @binding(8)   var<uniform>        uniform8 : Particle;
-@group(0) @binding(9)   var<uniform>        uniform9 : array<vec4<f32>, 8>;
-@group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform1>;   // intentional error
-@group(0) @binding(11)  var<uniform>        uniform11: array<DirectUniform2, 8>;
-@group(0) @binding(12)  var<storage>        storage12: array<DirectStorage>;
+@group(0) @binding(9)   var<uniform>        uniform9 : array<vec4<f32>>;
+@group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform>;
+@group(0) @binding(11)  var<storage>        storage11: array<DirectStorage>;
 
 
