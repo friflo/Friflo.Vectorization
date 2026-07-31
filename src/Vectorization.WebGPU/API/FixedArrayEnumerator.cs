@@ -102,7 +102,7 @@ internal static class FixedArrayDebugViewUtils
 {
     internal static int GetCount(object target, Type type)
     {
-        var lengthField = type.GetField("Length", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+        var lengthField = type.GetProperty("Length", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
         if (lengthField == null) {
             return 0;
         }

@@ -22,9 +22,9 @@ public static class Tests_WGSL_Lab
         array[0] = new Vector2i(0, 42);
         array[7] = new Vector2i(7, 42);
         
-        
-        Assert.That(array[0], Is.EqualTo(new Vector2i(0, 42)));
-        Assert.That(array[7], Is.EqualTo(new Vector2i(7, 42)));
+        Assert.That(array.Length,   Is.EqualTo(8));
+        Assert.That(array[0],       Is.EqualTo(new Vector2i(0, 42)));
+        Assert.That(array[7],       Is.EqualTo(new Vector2i(7, 42)));
 
 
         int step = 0;
@@ -65,7 +65,7 @@ public static class Tests_WGSL_Lab
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     private struct Vector2i_Array_8
     {
-        public const int Length = 8;
+        public int Length => 8;
         
         [FieldOffset(0)]  private Vector2i _element0; // size 8 byte. But <uniform> requires stride 16
         
