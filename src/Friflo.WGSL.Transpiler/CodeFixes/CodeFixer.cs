@@ -105,27 +105,30 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage": {
-                var type = GetBindingType(module, binding, out WgslParamType paramType);
-                if (type == null) {
-                    continue;
-                }
-                var csType = GetParameterType(type, typeMap, ref paramType);
+                var type        = GetStorageBindingType(module, binding, out _);
+                var csType      = GetParameterType(type, typeMap, out _);
                 var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
-                csType = $"{bufferType}<{csType}>";
+                csType          = $"{bufferType}<{csType}>";
                 parameters.Add(new MethodParam(binding, "[storage]", csType));
                 break;
             }
             case "uniform": {
-                var type = GetBindingType(module, binding, out WgslParamType paramType);
-                if (type == null) {
-                    continue;
+                var type        = binding.WgslType;
+                string comment  = null;
+                var csType      = GetParameterType(type, typeMap, out var info);
+                switch (info.paramType) {
+                    case WgslParamType.DynamicArray: 
+                        comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
+                        csType = $"in {csType}";
+                        break;
+                    case WgslParamType.FixedSizeArray:
+                        csType = $"in {csType}_array_{info.arraySize}_std140";
+                        break;
+                    case WgslParamType.None:
+                        csType = $"in {csType}";
+                        break;
                 }
-                string comment = null;
-                var csType = GetParameterType(type, typeMap, ref paramType);
-                if (paramType == WgslParamType.DynamicArray) {
-                    comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
-                }
-                parameters.Add(new MethodParam(binding, "[uniform]", $"in {csType}", comment));
+                parameters.Add(new MethodParam(binding, "[uniform]", csType, comment));
                 break;
             }
             case "":
@@ -135,33 +138,28 @@ public static partial class CodeFixer
         }
     }
     
-    private static WgslType GetBindingType(WgslModule module, WgslBinding binding, out WgslParamType paramType)
+    private static WgslType GetStorageBindingType(WgslModule module, WgslBinding binding, out WgslParamType paramType)
     {
         paramType = WgslParamType.None;
-        switch (binding.AddressSpace)
-        {
-            case "uniform":
-            case "storage":
-                var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
-                // FIX_C89_STRUCT_HACK
-                // In case a struct contains exactly one field return the field type 
-                if (type != null && type.Fields.Count == 1) {
-                    var fieldType = type.Fields[0].WgslType;
-                    if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
-                        paramType = WgslParamType.DynamicArray;
-                        return fieldType.Generics.Arg_0;
-                    }
-                }
-                return binding.WgslType;
+
+        var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+        // FIX_C89_STRUCT_HACK
+        // In case a struct contains exactly one field return the field type 
+        if (type != null && type.Fields.Count == 1) {
+            var fieldType = type.Fields[0].WgslType;
+            var info = WgslTypeInfo.GetTypeInfo(fieldType);
+            paramType = info.paramType;
+            if (paramType == WgslParamType.DynamicArray) {
+                return fieldType.Generics.Arg_0;
+            }
         }
-        return null;
+        return binding.WgslType;
     }
     
-    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, ref WgslParamType paramType)
+    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, out WgslTypeInfo info)
     {
-        var info = WgslTypeInfo.GetTypeInfo(type);
+        info = WgslTypeInfo.GetTypeInfo(type);
         if (info.typeCode == CsTypeCode.None) {
-            paramType = info.paramType;
             return info.IsArray ? info.elementType : type.ToString();
         }
         return typeMap[(int)info.typeCode].Name;
