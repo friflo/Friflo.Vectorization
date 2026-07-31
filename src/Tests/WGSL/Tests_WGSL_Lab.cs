@@ -60,14 +60,14 @@ public static class Tests_WGSL_Lab
     }
     
     
-    /// Fixed size array with 8 elements for use by a uniform with <see cref="WgslAlignment.std140"/>
+    /// Fixed size array with 8 elements for use by a uniform
     [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     private struct Vector2i_array_8
     {
         public int Length => 8;
         
-        [FieldOffset(0)]  private Vector2i _element0; // size 8 byte. But <uniform> requires stride 16
+        [FieldOffset(0)]  private Vector2i _element0;
         
         public ref Vector2i this[int index]
         {

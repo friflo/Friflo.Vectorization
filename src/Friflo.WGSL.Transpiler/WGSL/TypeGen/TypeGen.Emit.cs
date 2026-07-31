@@ -145,7 +145,7 @@ public sealed partial class TypeGen
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
             AddNamespace(csharpType);
         }
-        var layout = AssignFieldLayouts(fields, alignment);
+        var layout = AssignFieldLayouts(fields);
         foreach (var csharpField in fields) {
             var modifier = csharpField.size <= 16 ? "" : "in ";
             sb.Append($"{modifier}{csharpField.type.identifier.Name} {csharpField.name}, ");
@@ -209,58 +209,47 @@ public sealed partial class TypeGen
         return csharpType;
     }
     
-    private static TypeLayout AssignFieldLayouts(CSharpField[] fields, WgslAlignment alignment)
+    private static TypeLayout AssignFieldLayouts(CSharpField[] fields)
     {
         int currentOffset  = 0;
         int maxStructAlign = 1;
+
         for (int n = 0; n < fields.Length; n++)
         {
-            var field   = fields[n];
-            TypeLayout layout;
+            var field    = fields[n];
             var typeCode = field.type.info.typeCode;
+            TypeLayout layout;
 
-            // retrieve base layout (struct oder wgsl type: i32, f32, vec3<f32>, mat4x4<f32>, ...)
+            // 1. Retrieve base layout (struct or WGSL primitive type)
             if (typeCode == CsTypeCode.WgslStruct) {
                 var csharpStruct = field.type.csharpStruct;
                 
-                // Rebound nested struct layout with the same alignment mode
                 if (csharpStruct.fields == null) {
-                    layout = csharpStruct.layout; // element layout of struct in a fixed size array
+                    layout = csharpStruct.layout;
                 } else {
-                    layout = AssignFieldLayouts(csharpStruct.fields, alignment);
-                }
-                
-                // In std140 (Uniform), nested structs are rounded up to at least 16-byte alignment
-                if (alignment == WgslAlignment.std140) {
-                    int structAlign = Math.Max(layout.align, 16);
-                    layout = new TypeLayout(layout.size, structAlign);
+                    layout = AssignFieldLayouts(csharpStruct.fields);
                 }
             } else {
                 layout = typeCode.Layout;
             }
 
-            // adjust layout if FixedSizeArray
+            // 2. Adjust layout if FixedSizeArray
             if (field.type.info.paramType == WgslParamType.FixedSizeArray) {
                 int elementSize   = layout.size;
                 int elementAlign  = layout.align;
                 int arrayCount    = field.type.info.arraySize;
                 
-                // Calculate natural stride
+                // In WGSL, array stride is always elementSize rounded up to elementAlign.
+                // Array alignment is always equal to elementAlignment.
                 int elementStride = (elementSize + (elementAlign - 1)) & ~(elementAlign - 1);
                 int arrayAlign    = elementAlign;
-                
-                // In std140 (Uniform), both array element stride AND array alignment are at least 16 bytes
-                if (alignment == WgslAlignment.std140) {
-                    elementStride = Math.Max(elementStride, 16);
-                    arrayAlign    = Math.Max(arrayAlign, 16);
-                }
-                int arraySize = elementStride * arrayCount;
+                int arraySize     = elementStride * arrayCount;
+
                 layout = new TypeLayout(arraySize, arrayAlign);
             }
 
-            // apply WGSL @size and @align overrides
+            // 3. Apply WGSL @size and @align overrides
             int fieldSize  = field.wgslSize.HasValue  ? Math.Max(field.wgslSize.Value,  layout.size)  : layout.size;
-            // @align must only increase layout.align
             int fieldAlign = field.wgslAlign.HasValue ? Math.Max(field.wgslAlign.Value, layout.align) : layout.align;
             
             layout = new TypeLayout(fieldSize, fieldAlign);
@@ -276,12 +265,7 @@ public sealed partial class TypeGen
             currentOffset += layout.size;
         }
 
-        // In std140 (Uniform), outer struct alignment is rounded up to at least 16 bytes
-        if (alignment == WgslAlignment.std140) {
-            maxStructAlign = Math.Max(maxStructAlign, 16);
-        }
-
-        // Struct size must be padded to a multiple of its alignment (struct stride)
+        // WGSL Struct size must be padded to a multiple of its max member alignment
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
         return new TypeLayout(finalStructSize, maxStructAlign);
     }
@@ -306,8 +290,8 @@ public sealed partial class TypeGen
             ? type.csharpStruct.layout
             : typeCode.Layout;
         
-        var stride          = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
-        var typeName        = $"{identifier.Name}_array_{arraySize}{(isStd140 ? "_std140" : "")}";
+        var stride          = GetFixedSizeArrayStride(layout);
+        var typeName        = $"{identifier.Name}_array_{arraySize}";
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
         
@@ -351,22 +335,14 @@ public sealed partial class TypeGen
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }
     
-    private static int GetFixedSizeArrayStride(TypeLayout layout, WgslAlignment alignment, out bool isStd140)
+    private static int GetFixedSizeArrayStride(TypeLayout layout)
     {
         int elementSize  = layout.size;
         int elementAlign = layout.align;
 
-        // std430 (Storage): stride is elementSize rounded up to elementAlign
-        int strideStd430 = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
-
-        // std140 (Uniform): element alignment is elevated to at least 16 bytes
-        int requiredAlignStd140 = Math.Max(16, elementAlign);
-        int strideStd140        = (elementSize + requiredAlignStd140 - 1) & ~(requiredAlignStd140 - 1);
-
-        // Array requires std140 layout variant if stride differs from std430
-        isStd140 = alignment == WgslAlignment.std140 && strideStd140 != strideStd430;
-
-        return alignment == WgslAlignment.std140 ? strideStd140 : strideStd430;
+        // In WGSL, array stride is strictly element size rounded up to element alignment.
+        // Unlike GLSL std140, WGSL does not elevate primitive array elements to 16-byte alignment in uniform buffers.
+        return (elementSize + elementAlign - 1) & ~(elementAlign - 1);
     }
     
     private static void EmitStructWithDynamicArrayField(

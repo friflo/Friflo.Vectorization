@@ -122,7 +122,7 @@ public static partial class CodeFixer
                         csType = $"in {csType}";
                         break;
                     case WgslParamType.FixedSizeArray:
-                        csType = $"in {csType}_array_{info.arraySize}_std140";
+                        csType = $"in {csType}_array_{info.arraySize}";
                         break;
                     case WgslParamType.None:
                         csType = $"in {csType}";

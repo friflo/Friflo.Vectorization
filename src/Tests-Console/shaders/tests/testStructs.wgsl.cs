@@ -76,12 +76,12 @@ public struct FixeSizeArrayStruct2 (Vector3 value1, in Vector3_array_16 vectors,
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 160)]
-public struct VectorInUniform (Vector2i uniform_vector2i, in Vector2i_array_8_std140 uniform_vectors2i, Vector2u uniform_vector2u)
+[StructLayout(LayoutKind.Explicit, Size = 80)]
+public struct VectorInUniform (Vector2i uniform_vector2i, in Vector2i_array_8 uniform_vectors2i, Vector2u uniform_vector2u)
 {
-    [FieldOffset(  0)]  public  Vector2i                uniform_vector2i  = uniform_vector2i;
-    [FieldOffset( 16)]  public  Vector2i_array_8_std140 uniform_vectors2i = uniform_vectors2i;
-    [FieldOffset(144)]  public  Vector2u                uniform_vector2u  = uniform_vector2u;
+    [FieldOffset(  0)]  public  Vector2i         uniform_vector2i  = uniform_vector2i;
+    [FieldOffset(  8)]  public  Vector2i_array_8 uniform_vectors2i = uniform_vectors2i;
+    [FieldOffset( 72)]  public  Vector2u         uniform_vector2u  = uniform_vector2u;
 }
 
 
@@ -108,7 +108,7 @@ public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
 
 
 [Source("~/shaders/tests/testStructs.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 16)]
+[StructLayout(LayoutKind.Explicit, Size = 4)]
 public struct DirectUniform (float someValue)
 {
     [FieldOffset(  0)]  public  float someValue = someValue;
