@@ -15,16 +15,10 @@ public partial class Renderer : IRenderer
     // --- IDisposable fields
     private readonly    GpuBuffer<float>        verticesBuffer;
     private             GpuTexture?             depthTexture;
-    private readonly    GpuBuffer<Uniforms>     mvpMatricesData;
     
-    private readonly    bool useUniformBuffer = true; // true == original WebGPU JS example 
-    // true:  Uniform Buffer - WebGPU standard limit (max 64 KiB -> max 1,024 instances / 32 x 32 grid)
-    // false: Storage Buffer - Supports massive data loads (min 128 MiB -> over 2 million instances)
-    //        Tip for max FPS: Update transformations via Compute Shader directly on GPU to eliminate CPU loop math and PCIe transfer of .Write().
     
     public void OnShutdown()
     {
-        mvpMatricesData.Dispose();
         depthTexture?.Dispose();
         verticesBuffer.Dispose();
     }
@@ -38,8 +32,6 @@ public partial class Renderer : IRenderer
         verticesBuffer = device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write();
         
-        var bufferType  = useUniformBuffer ? BufferType.Uniform : BufferType.Storage;
-        mvpMatricesData = device.CreateBuffer<Uniforms>(numInstances, default, "mvpMatricesData", BufferProfile.StaticIn, bufferType);
         const float step = 4.0f;
 
         // Initialize the matrix data for every instance.
@@ -89,9 +81,10 @@ public partial class Renderer : IRenderer
     private   readonly  Wgpu                    wgpu;
     private   readonly  RenderConfig            config;
     private   readonly  PerfLog                 perfLog             = new();
-    private   const     int                     xCount              = 4; // 32  1400
-    private   const     int                     yCount              = 4; // 32  1400
+    private   const     int                     xCount              = 4; // max 32 x 32  limited byte uniform buffer size (max 64 KiB >= 32 * 32 * 64 bytes)
+    private   const     int                     yCount              = 4;
     private   const     int                     numInstances        = xCount * yCount;
+    private             Matrix4x4_Array_16      mvpMatricesData;
     private   readonly  Matrix4x4[]             modelMatrices       = new Matrix4x4[numInstances];
     private   readonly  Matrix4x4               viewMatrix          = Matrix4x4.CreateTranslation(new Vector3(0, 0, -12));
     private   readonly  Stopwatch               stopwatch           = Stopwatch.StartNew();
@@ -127,13 +120,12 @@ public partial class Renderer : IRenderer
     {
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
         int i = 0;
-        var mvpMatrices = mvpMatricesData.In().Span;
         for (int x = 0; x < xCount; x++) {
             for (int y = 0; y < yCount; y++) {
                 var rawAxis     = new Vector3(MathF.Sin((x + 0.5f) * now), MathF.Cos((y + 0.5f) * now), 0f);
                 var axis        = Vector3.Normalize(rawAxis);   // JS: mat4.rotate() normalize the axis internally
                 var modelMatrix = Matrix4x4.CreateFromAxisAngle(axis, 1f) * modelMatrices[i];
-                mvpMatrices[i].modelViewProjectionMatrix  = modelMatrix * viewMatrix * projectionMatrix;
+                mvpMatricesData[i] = modelMatrix * viewMatrix * projectionMatrix;
                 i++;
             }
         }
@@ -148,24 +140,13 @@ public partial class Renderer : IRenderer
         UpdateTransformationMatrix(frame.Width, frame.Height, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
-        
-        if (useUniformBuffer) {
-            RenderCubes(pass, config, mvpMatricesData.In().Write(), verticesBuffer.In());
-        } else {
-            RenderCubesStorage(pass, config, mvpMatricesData.In().Write(), verticesBuffer.In());
-        }
+
+        RenderCubes(pass, config, mvpMatricesData, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")] 
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     private static partial void RenderCubes(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Uniforms> 	uniforms,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
-    
-    // Alternative Shader method with [BindStorage(0, 0)] to use a Storage Buffer
-	[Shader("~/shaders/instancedCube/instanced.storage.vert.wgsl",  vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",              fragment: "main")]
-    private static partial void RenderCubesStorage(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [storage]           [DrawInstance]  InBuffer<Uniforms> 	uniforms,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+        [Map(0, 0)] [uniform]           [DrawInstance]  in Matrix4x4_Array_16 	mvpMatrices,
+                    [VertexBuffer(0)]   [Draw]          InBuffer<float>         verticesBuffer);
 }

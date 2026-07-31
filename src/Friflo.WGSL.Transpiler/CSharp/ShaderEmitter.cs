@@ -424,9 +424,15 @@ $$"""
             drawArgs = drawArgsParameter;
         } else if (!isIndirect) {
 			// attribute: DrawInstanceAttribute
-            var instanceName = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
-            if (instanceName != null) {
-            	drawArgs = $"DrawArgs.InstanceCount({instanceName})";
+            var drawInstanceParam = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance);
+            var drawInstanceName = drawInstanceParam.Name;
+            if (drawInstanceName != null) {
+                if (drawInstanceParam.IsBuffer) {
+            	    drawArgs = $"DrawArgs.InstanceCount({drawInstanceName})";
+                } else {
+                    // parameter is a fixed size array struct
+                    drawArgs = $"DrawArgs.InstanceCount({drawInstanceName}.Length)";
+                }
         	}
 		}
         var paramName = drawParam.Name;

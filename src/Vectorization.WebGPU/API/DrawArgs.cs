@@ -54,6 +54,11 @@ public struct DrawArgs
     {
         return new DrawArgs { instanceCount = buffer.Length };
     }
+    
+    public static DrawArgs InstanceCount(int instanceCount)
+    {
+        return new DrawArgs { instanceCount = instanceCount };
+    }
 }
 
 /// <summary>
