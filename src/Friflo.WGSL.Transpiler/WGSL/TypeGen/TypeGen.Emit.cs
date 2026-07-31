@@ -107,7 +107,11 @@ public sealed partial class TypeGen
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
+            var alignment = binding.AddressSpace == "storage" ? WgslAlignment.std430 : WgslAlignment.std140;
             if (typeName == "array") {
+                if (binding.WgslType.Generics.Length == 2) {
+                    var csharpType = GetCSharpType(binding.WgslType, alignment);
+                }
                 typeName = binding.WgslType.Generics.Arg_0?.Name;
                 if (typeName == null) continue;
             }
@@ -115,7 +119,6 @@ public sealed partial class TypeGen
                 continue;
             }
             requiredStructs.Add(typeName);
-            var alignment = binding.AddressSpace == "storage" ? WgslAlignment.std430 : WgslAlignment.std140;
             CreateStruct(wgslStruct, alignment);
         }
     }

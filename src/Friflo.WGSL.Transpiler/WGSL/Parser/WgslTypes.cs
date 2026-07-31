@@ -57,7 +57,6 @@ public class WgslStruct
 {
     public string           Name        { get; set; } = string.Empty;
     public List<WgslField>  Fields      { get; set; } = [];
-    public string           sourcePath;
     
     public override string ToString() => Name;
 }

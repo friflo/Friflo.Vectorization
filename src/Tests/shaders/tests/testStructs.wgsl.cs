@@ -131,3 +131,21 @@ public struct DirectStorage (float someValue)
 }
 
 
+[DebuggerTypeProxy(typeof(FixedArrayDebugView<DirectUniform2>))]
+[StructLayout(LayoutKind.Explicit, Size = 128)]
+public struct DirectUniform2_array_8
+{
+    public int  Length => 8;
+    [FieldOffset(0)]  private DirectUniform2 _element0;
+    
+    public ref DirectUniform2 this[int index] {
+        [UnscopedRef] get {
+            if ((uint)index >= 8) throw new IndexOutOfRangeException();
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
+        }
+    }
+    
+    [UnscopedRef] public FixedArrayEnumerator<DirectUniform2> GetEnumerator() => new(ref _element0, 16, 128);
+}
+
+

@@ -302,7 +302,6 @@ public static class FastWgslParser
         {
             Name = nameSpan.ToString(),
             Fields = fields,
-            sourcePath = sourcePath
         };
         return true;
     }
