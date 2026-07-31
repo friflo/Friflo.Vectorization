@@ -185,7 +185,6 @@ public static class Tests_WGSL
             """
                 // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.
                 #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform1>
-                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform11: array<DirectUniform2, 8>
                 // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
             
             """));

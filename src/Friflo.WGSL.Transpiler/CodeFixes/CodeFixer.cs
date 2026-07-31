@@ -105,27 +105,27 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage": {
-                var type = GetBindingType(module, binding, out bool isArray);
+                var type = GetBindingType(module, binding, out WgslParamType paramType);
                 if (type == null) {
                     continue;
                 }
-                var paramType = GetParameterType(type, typeMap, ref isArray);
+                var csType = GetParameterType(type, typeMap, ref paramType);
                 var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
-                paramType = $"{bufferType}<{paramType}>";
-                parameters.Add(new MethodParam(binding, "[storage]", paramType));
+                csType = $"{bufferType}<{csType}>";
+                parameters.Add(new MethodParam(binding, "[storage]", csType));
                 break;
             }
             case "uniform": {
-                var type = GetBindingType(module, binding, out bool isArray);
+                var type = GetBindingType(module, binding, out WgslParamType paramType);
                 if (type == null) {
                     continue;
                 }
                 string comment = null;
-                var paramType = GetParameterType(type, typeMap, ref isArray);
-                if (isArray) {
+                var csType = GetParameterType(type, typeMap, ref paramType);
+                if (paramType == WgslParamType.DynamicArray) {
                     comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
                 }
-                parameters.Add(new MethodParam(binding, "[uniform]", $"in {paramType}", comment));
+                parameters.Add(new MethodParam(binding, "[uniform]", $"in {csType}", comment));
                 break;
             }
             case "":
@@ -135,9 +135,9 @@ public static partial class CodeFixer
         }
     }
     
-    private static WgslType GetBindingType(WgslModule module, WgslBinding binding, out bool isArray)
+    private static WgslType GetBindingType(WgslModule module, WgslBinding binding, out WgslParamType paramType)
     {
-        isArray = false;
+        paramType = WgslParamType.None;
         switch (binding.AddressSpace)
         {
             case "uniform":
@@ -148,7 +148,7 @@ public static partial class CodeFixer
                 if (type != null && type.Fields.Count == 1) {
                     var fieldType = type.Fields[0].WgslType;
                     if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
-                        isArray = true;
+                        paramType = WgslParamType.DynamicArray;
                         return fieldType.Generics.Arg_0;
                     }
                 }
@@ -157,13 +157,11 @@ public static partial class CodeFixer
         return null;
     }
     
-    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, ref bool isArray)
+    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, ref WgslParamType paramType)
     {
         var info = WgslTypeInfo.GetTypeInfo(type);
         if (info.typeCode == CsTypeCode.None) {
-            if (info.IsArray) {
-                isArray = true;    
-            }
+            paramType = info.paramType;
             return info.IsArray ? info.elementType : type.ToString();
         }
         return typeMap[(int)info.typeCode].Name;
