@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
 
 
 // ReSharper disable once CheckNamespace
