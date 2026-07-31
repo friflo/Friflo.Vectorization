@@ -36,6 +36,11 @@ struct HasUnmappedElementType {
     unmappedElementType: array<vec3h, 4>
 }
 
+struct RedefinedUniform {
+  // other RedefinedUniform struct uses: array<mat4x4f, 16>
+  mvps : array<mat4x4f>,
+}
+
 
 @group(0) @binding(0)   var<uniform> emptyStruct    : EmptyStruct;
 @group(0) @binding(1)   var<uniform> uniform1       : HasMissingType;
@@ -45,5 +50,6 @@ struct HasUnmappedElementType {
 @group(0) @binding(5)   var<uniform> unmappedType   : HasUnmappedType;
 @group(0) @binding(6)   var<uniform> uniform6       : HasMissingElementType;
 @group(0) @binding(7)   var<uniform> uniform7       : HasUnmappedElementType;
+@group(0) @binding(8)   var<uniform> uniform8       : RedefinedUniform;
 
 

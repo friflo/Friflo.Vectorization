@@ -167,12 +167,14 @@ public sealed partial class TypeGen
         
         if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
             var alreadyDeclared = source == curStruct.source;
-            localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = alreadyDeclared });
-            return curStruct;
+            if (alreadyDeclared) {
+                localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = true });
+                return curStruct;
+            }
         }
         var csharpStruct = new CSharpStruct { name = structName, source = source, fields = fields, layout = layout };
-        structMap.Add(fullQualifiedName, csharpStruct);
-        localStructs.Add(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
+        structMap.TryAdd(fullQualifiedName, csharpStruct);
+        localStructs.TryAdd(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
         return csharpStruct;
     }
     
