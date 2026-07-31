@@ -50,11 +50,6 @@ public struct DrawArgs
         this.firstInstance  = firstInstance;
     }
     
-    public static DrawArgs InstanceCount<T>(in InBuffer<T> buffer) where T : unmanaged
-    {
-        return new DrawArgs { instanceCount = buffer.Length };
-    }
-    
     public static DrawArgs InstanceCount(int instanceCount)
     {
         return new DrawArgs { instanceCount = instanceCount };

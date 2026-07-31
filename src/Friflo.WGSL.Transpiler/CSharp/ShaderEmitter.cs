@@ -424,15 +424,10 @@ $$"""
             drawArgs = drawArgsParameter;
         } else if (!isIndirect) {
 			// attribute: DrawInstanceAttribute
-            var drawInstanceParam = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance);
-            var drawInstanceName = drawInstanceParam.Name;
+            var drawInstanceName = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
             if (drawInstanceName != null) {
-                if (drawInstanceParam.IsBuffer) {
-            	    drawArgs = $"DrawArgs.InstanceCount({drawInstanceName})";
-                } else {
-                    // parameter is a fixed size array struct
-                    drawArgs = $"DrawArgs.InstanceCount({drawInstanceName}.Length)";
-                }
+                // parameter is a buffer or a fixed size array uniform
+                drawArgs = $"DrawArgs.InstanceCount({drawInstanceName}.Length)";
         	}
 		}
         var paramName = drawParam.Name;
