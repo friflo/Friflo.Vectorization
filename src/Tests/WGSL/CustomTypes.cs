@@ -1,9 +1,7 @@
-﻿// ReSharper disable CheckNamespace
-
-using Friflo.WGSL.Transpiler.CSharp;
-
+﻿
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
+// ReSharper disable CheckNamespace
 namespace CustomTypes;
 
 #pragma warning disable CS0169 // Field is never used

@@ -2,8 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
 
 // file contains structs created by:  CommandRecorder
 
