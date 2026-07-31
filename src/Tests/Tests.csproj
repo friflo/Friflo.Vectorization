@@ -55,8 +55,8 @@
     <ItemGroup>
       <Compile Remove ="shaders/tests/compilerErrors*.wgsl.cs" />
       <None    Include="shaders/tests/compilerErrors*.wgsl.cs" />
-      <Compile Remove ="gen/global/vec3h_array_4_std140.wgsl.cs" />
-      <None    Include="gen/global/vec3h_array_4_std140.wgsl.cs" />
+      <Compile Remove ="gen/global/vec3h_UniArr_4.wgsl.cs" />
+      <None    Include="gen/global/vec3h_UniArr_4.wgsl.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="*.csproj.lscache" />

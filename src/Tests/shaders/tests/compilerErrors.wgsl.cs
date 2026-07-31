@@ -81,24 +81,24 @@ public struct HasUnmappedType (vec3h unmappedType)
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct HasMissingElementType (in MissingElementType_array_4 missingElementType)
+public struct HasMissingElementType (in MissingElementType_UniArr_4 missingElementType)
 {
-    [FieldOffset(  0)]  public  MissingElementType_array_4 missingElementType = missingElementType;
+    [FieldOffset(  0)]  public  MissingElementType_UniArr_4 missingElementType = missingElementType;
 }
 
 
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct HasUnmappedElementType (in vec3h_array_4_std140 unmappedElementType)
+public struct HasUnmappedElementType (in vec3h_UniArr_4 unmappedElementType)
 {
-    [FieldOffset(  0)]  public  vec3h_array_4_std140 unmappedElementType = unmappedElementType;
+    [FieldOffset(  0)]  public  vec3h_UniArr_4 unmappedElementType = unmappedElementType;
 }
 
 
 // WGSL error - missing type: 'MissingElementType'
 [DebuggerTypeProxy(typeof(FixedArrayDebugView<MissingElementType>))]
 [StructLayout(LayoutKind.Explicit, Size = 0)]
-public struct MissingElementType_array_4
+public struct MissingElementType_UniArr_4
 {
     public int  Length => 4;
     [FieldOffset(0)]  private MissingElementType _element0;

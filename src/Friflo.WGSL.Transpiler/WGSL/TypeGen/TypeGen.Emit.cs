@@ -306,8 +306,9 @@ public sealed partial class TypeGen
             ? type.csharpStruct.layout
             : typeCode.Layout;
         
-        var stride          = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
-        var typeName        = $"{identifier.Name}_array_{arraySize}{(isStd140 ? "_std140" : "")}";
+        var stride          = GetFixedSizeArrayStride(layout, alignment, out _);
+        var arrayName       = alignment == WgslAlignment.std140 ? "_UniArr_" : "_Array_";
+        var typeName        = $"{identifier.Name}{arrayName}{arraySize}";
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
         
