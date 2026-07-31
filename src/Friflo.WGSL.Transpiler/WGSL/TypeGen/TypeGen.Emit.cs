@@ -107,10 +107,9 @@ public sealed partial class TypeGen
         }
         foreach (var binding in module.Bindings) {
             var typeName = binding.WgslType.Name;
-            var alignment = binding.AddressSpace == "storage" ? WgslAlignment.std430 : WgslAlignment.std140;
             if (typeName == "array") {
                 if (binding.WgslType.Generics.Length == 2) {
-                    var csharpType = GetCSharpType(binding.WgslType, alignment);
+                    var csharpType = GetCSharpType(binding.WgslType);
                 }
                 typeName = binding.WgslType.Generics.Arg_0?.Name;
                 if (typeName == null) continue;
@@ -119,11 +118,11 @@ public sealed partial class TypeGen
                 continue;
             }
             requiredStructs.Add(typeName);
-            CreateStruct(wgslStruct, alignment);
+            CreateStruct(wgslStruct);
         }
     }
     
-    private CSharpStruct CreateStruct(WgslStruct wgslStruct, WgslAlignment alignment)
+    private CSharpStruct CreateStruct(WgslStruct wgslStruct)
     {
         var structName  = wgslStruct.Name;
         if (localStructs.TryGetValue(structName, out var localStruct)) {
@@ -139,7 +138,7 @@ public sealed partial class TypeGen
         
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
-            var csharpType  = GetCSharpType(field.WgslType, alignment);
+            var csharpType  = GetCSharpType(field.WgslType);
             fields[n]       = new CSharpField { name = field.Name, type = csharpType, wgslAlign = field.Align, wgslSize = field.Size };
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
@@ -183,7 +182,7 @@ public sealed partial class TypeGen
         return csharpStruct;
     }
     
-    private CSharpType GetCSharpType(WgslType type, WgslAlignment alignment)
+    private CSharpType GetCSharpType(WgslType type)
     {
         var info = WgslTypeInfo.GetTypeInfo(type);
         
@@ -192,7 +191,7 @@ public sealed partial class TypeGen
             var typeName = info.IsArray ? info.elementType : type.ToString();
             if (wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
                 requiredStructs.Add(wgslStruct.Name);
-                var csharpStruct = CreateStruct(wgslStruct, alignment);
+                var csharpStruct = CreateStruct(wgslStruct);
                 var structInfo = new WgslTypeInfo(CsTypeCode.WgslStruct, info.paramType, info.arraySize, info.elementType);
                 csharpType = new CSharpType(typeName, Resolved, structInfo, csharpStruct);
             } else {
@@ -204,7 +203,7 @@ public sealed partial class TypeGen
             csharpType = new CSharpType(typeIdentifier, info, null);
         }
         if (info.paramType == WgslParamType.FixedSizeArray) {
-            return EmitFixedSizeArray(csharpType, alignment);
+            return EmitFixedSizeArray(csharpType);
         }
         return csharpType;
     }
@@ -278,7 +277,7 @@ public sealed partial class TypeGen
         }
     }
     
-    private CSharpType EmitFixedSizeArray(CSharpType type, WgslAlignment alignment)
+    private CSharpType EmitFixedSizeArray(CSharpType type)
     {
         var arraySize   = type.info.arraySize;
         var typeCode    = type.info.typeCode;

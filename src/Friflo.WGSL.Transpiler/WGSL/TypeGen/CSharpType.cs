@@ -99,22 +99,6 @@ internal struct FixedSizeArray
     public override string          ToString() => Name.ToString();
 }
 
-public enum WgslAlignment
-{
-    // WGSL Storage Buffer Layout (similar to GLSL std430) - Goal: compact data storage for large data sets
-    // - f32, u32, i32 -> align  4, size  4
-    // - vec2          -> align  8, size  8
-    // - vec3          -> align 16, size 12
-    // - vec4          -> align 16, size 16
-    // - Arrays store elements at their natural alignment stride
-    std430, // For storage buffers: var<storage, read> binding0 : StorageStruct;
-
-    // WGSL Uniform Buffer Layout (similar to GLSL std140) - Goal: Fast parallel access on GPU on small data sets
-    // - Same scalar/vector alignment as std430, PLUS:
-    // - Array elements are padded to a minimum 16-byte stride (e.g. array<vec2f> or array<f32>)
-    // - Nested struct offsets and outer struct sizes are rounded up to multiples of 16
-    std140, // For uniform buffers: var<uniform> binding1 : UniformStruct;
-}
 
 
 
