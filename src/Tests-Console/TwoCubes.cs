@@ -116,13 +116,13 @@ public partial class Renderer : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
-        RenderCube(pass, config, uniforms1, verticesBuffer.In());
-        RenderCube(pass, config, uniforms2, verticesBuffer.In());
+        RenderTwoCubes(pass, config, uniforms1, verticesBuffer.In());
+        RenderTwoCubes(pass, config, uniforms2, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
-    private static partial void RenderCube(RenderPass pass, RenderConfig config,
+    private static partial void RenderTwoCubes(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]                   in Uniforms     uniforms,
                     [VertexBuffer(0)] [Draw]    InBuffer<float> verticesBuffer);
 }

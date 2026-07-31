@@ -10,7 +10,7 @@ namespace Shaders.TwoCubes;
 
 public partial class Renderer
 {
-    private static void Pattern_RenderCube(
+    private static void Pattern_RenderTwoCubes(
         RenderPass      pass,
         RenderConfig    config,
         in Matrix4x4    modelViewProjectionMatrix,

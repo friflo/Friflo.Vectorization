@@ -15,9 +15,13 @@ public static partial class GenerateParams
     public static partial void DrawTrianglesEmpty();
     
     
+    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
+    private static partial void Shadow();
+    
+    
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
-    public static partial void RenderCubeEmpty();
+    public static partial void ShadowMappingRender();
     
     
     [Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")] 
@@ -27,20 +31,11 @@ public static partial class GenerateParams
     
 	[Shader("~/shaders/basic.vert.wgsl",								vertex:   "main")]
 	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",	fragment: "main")]
-    private static partial void RenderCube();
+    private static partial void RenderTexturedCube();
     
     
 	[Shader("~/shaders/testTextureTypes.frag.wgsl",  fragment: "main")]
     public static partial void Tests_WGSL_Generate_textures();
-    
-    
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",		fragment: "main")]
-    public static partial void Tests_WGSL_GenerateTypes_4();
-
-    
-    [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
-    private static partial void Shadow();
     
     
     [Shader("~/shaders/tests/testStructs.wgsl",  vertex: "main")]

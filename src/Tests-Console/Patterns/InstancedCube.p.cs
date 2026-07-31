@@ -10,7 +10,7 @@ namespace Shaders.InstancedCube;
 
 public partial class Renderer
 {
-    private static void Pattern_RenderCubes(
+    private static void Pattern_RenderInstancedCubes(
         RenderPass          pass,
         RenderConfig        config,
         InBuffer<Matrix4x4> mvpMatrices,

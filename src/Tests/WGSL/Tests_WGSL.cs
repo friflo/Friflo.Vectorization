@@ -77,8 +77,8 @@ public static class Tests_WGSL
     
     
     [Test]
-	[Shader("~/shaders/basic.vert.wgsl",                  vertex:   "main")]
-	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",  fragment: "main")]
+	[Shader("~/shaders/basic.vert.wgsl",                                vertex:   "main")]
+	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",   fragment: "main")]
     public static void Tests_WGSL_Generate_texture_2d()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
@@ -135,9 +135,9 @@ public static class Tests_WGSL
     }
     
     [Test]
-    [Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
-    public static void Tests_WGSL_Generate_UniformMatrix4x4()
+    [Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
+    public static void Tests_WGSL_Generate_FixedSizeArrayUniform()
     {
         var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);

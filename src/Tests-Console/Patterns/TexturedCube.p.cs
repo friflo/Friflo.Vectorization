@@ -9,7 +9,7 @@ namespace Shaders.TexturedCube;
 
 public partial class Renderer
 {
-    private static void Pattern_RenderCube(
+    private static void Pattern_RenderTexturedCube(
         RenderPass      pass,
         RenderConfig    config,
         in Uniforms   	uniforms,
