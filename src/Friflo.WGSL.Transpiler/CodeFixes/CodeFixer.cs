@@ -105,23 +105,23 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage": {
-                var type = TypeGenerator.GetBindingType(module, binding, out bool isArray);
+                var type = GetBindingType(module, binding, out bool isArray);
                 if (type == null) {
                     continue;
                 }
-                TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
+                var paramType = GetParameterType(type, typeMap, ref isArray);
                 var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
                 paramType = $"{bufferType}<{paramType}>";
                 parameters.Add(new MethodParam(binding, "[storage]", paramType));
                 break;
             }
             case "uniform": {
-                var type = TypeGenerator.GetBindingType(module, binding, out bool isArray);
+                var type = GetBindingType(module, binding, out bool isArray);
                 if (type == null) {
                     continue;
                 }
                 string comment = null;
-                TypeGenerator.TryGetKnownCSharpType(type, typeMap, ref isArray, out var paramType);
+                var paramType = GetParameterType(type, typeMap, ref isArray);
                 if (isArray) {
                     comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
                 }
@@ -133,6 +133,40 @@ public static partial class CodeFixer
                 break;
             }
         }
+    }
+    
+    private static WgslType GetBindingType(WgslModule module, WgslBinding binding, out bool isArray)
+    {
+        isArray = false;
+        switch (binding.AddressSpace)
+        {
+            case "uniform":
+            case "storage":
+                var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
+                // FIX_C89_STRUCT_HACK
+                // In case a struct contains exactly one field return the field type 
+                if (type != null && type.Fields.Count == 1) {
+                    var fieldType = type.Fields[0].WgslType;
+                    if (fieldType.Name == "array" && fieldType.Generics.Length == 1) {
+                        isArray = true;
+                        return fieldType.Generics.Arg_0;
+                    }
+                }
+                return binding.WgslType;
+        }
+        return null;
+    }
+    
+    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, ref bool isArray)
+    {
+        var info = WgslTypeInfo.GetTypeInfo(type);
+        if (info.typeCode == CsTypeCode.None) {
+            if (info.IsArray) {
+                isArray = true;    
+            }
+            return info.IsArray ? info.elementType : type.ToString();
+        }
+        return typeMap[(int)info.typeCode].Name;
     }
     
     private static void AppendWgslType(List<MethodParam> parameters, WgslBinding binding)
