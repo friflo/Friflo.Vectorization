@@ -60,7 +60,7 @@ public static class Tests_WGSL_Lab
     }
     
     
-    /// Fixed size array with 8 elements for use by a uniform with <see cref="WgslAlignment.std140"/>
+    /// Fixed size array with 8 elements for use by a uniform with <see crefArrayStride.PadTo16Bytes40"/>
     [DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     private struct Vector2i_array_8
