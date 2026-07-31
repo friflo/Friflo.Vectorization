@@ -20,8 +20,8 @@ struct EdgeCaseStorage {
                         packed_floats:  array<f32, 3>,
                         position:       vec3f,
                         struct_array:   array<SmallData, 2>,
-    @align(16) @size(12)end_marker:     u32,
-   }
+  @align(16) @size(12)  end_marker:     u32,
+}
 
 struct SmallData {
     id_and_pad: u32,
