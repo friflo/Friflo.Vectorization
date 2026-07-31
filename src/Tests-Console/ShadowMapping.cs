@@ -202,15 +202,15 @@ public partial class Renderer : IRenderer
         scene.cameraViewProjMatrix = cameraViewProj;
 
         using (var pass = frame.BeginRenderPass(shadowPassDescriptor)) {
-            Shadow(pass, shadowConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
+            RenderShadowMap(pass, shadowConfig, scene, model, vertexBuffer.In(), indexBuffer.In());
         }
         using (var pass = frame.BeginRenderPass(renderPassDescriptor)) {
-            Render(pass, renderConfig, scene, shadowDepthTextureView, sampler, model, vertexBuffer.In(), indexBuffer.In());
+            RenderScene(pass, renderConfig, scene, shadowDepthTextureView, sampler, model, vertexBuffer.In(), indexBuffer.In());
         }
     }
     
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
-    private static partial void Shadow(RenderPass pass, RenderConfig config,
+    private static partial void RenderShadowMap(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]               in Scene            scene,
         [Map(1, 0)] [uniform]               in Model            model,
                     [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
@@ -218,7 +218,7 @@ public partial class Renderer : IRenderer
     
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
-    private static partial void Render(RenderPass pass, RenderConfig config,
+    private static partial void RenderScene(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]               in Scene            scene,
         [Map(0, 1)] [texture_depth_2d]      GpuTextureView      textureView,
         [Map(0, 2)] [sampler_comparison]    GpuSampler          sampler,

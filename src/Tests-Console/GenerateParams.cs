@@ -16,12 +16,12 @@ public static partial class GenerateParams
     
     
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
-    private static partial void Shadow();
+    private static partial void RenderShadowMap();
     
     
 	[Shader("~/shaders/shadowMapping/vertex.wgsl",    vertex:   "main")]
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
-    public static partial void ShadowMappingRender();
+    public static partial void RenderScene();
     
     
     [Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")] 

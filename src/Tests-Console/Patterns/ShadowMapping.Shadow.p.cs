@@ -10,7 +10,7 @@ namespace Shaders.ShadowMapping;
 
 public partial class Renderer
 {
-    private static void Pattern_Shadow(
+    private static void Pattern_RenderShadowMap(
         RenderPass          pass,
         RenderConfig        config,
         in Scene            scene,
