@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 
@@ -11,11 +9,6 @@ using Friflo.WGSL.Transpiler.WGSL;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 namespace Friflo.WGSL.Transpiler.CodeFixes;
 
-public readonly struct ShaderTypesResult
-{
-    public required string  Types       { get; init; }
-    public required string  Comments    { get; init; }
-}
 
 public static class TypeGenerator
 {
@@ -41,58 +34,6 @@ public static class TypeGenerator
         return null;
     }
     
-    public static ShaderTypesResult GenerateCSharpTypes(WgslModule module, TypeMapping[] mappings)
-    {
-        var typeMap = TypeMapping.CreateTypeMap(mappings);
-        
-        var exportTypes = new HashSet<string>();
-
-        foreach (WgslBinding binding in module.Bindings)
-        {
-            // Generate only custom C# types used in bindings
-            switch (binding.AddressSpace)
-            {
-                case "uniform":
-                case "storage":
-                    var type = GetBindingType(module, binding, out var isArray);
-                    if (!TryGetKnownCSharpType(type, typeMap, ref isArray, out _)) {
-                        exportTypes.Add(type.Name);
-                    }
-                    break;
-            }
-        }
-
-        var sb = new StringBuilder();
-        bool addedStructs = false;
-        foreach (var name in exportTypes)
-        {
-            var type = module.Structs.FirstOrDefault(s => s.Name == name);
-            if (type == null) {
-                continue;
-            }
-            addedStructs = true;
-            // var path        = "~/shaders/basic.vert.wgsl";
-            sb.Append($"    [Source(\"~/{type.sourcePath}\")]\n");
-            sb.Append($"    [StructLayout(LayoutKind.Sequential)]\n");
-            sb.Append($"    public struct {type.Name} {{\n");
-            foreach (var field in type.Fields) {
-                bool isArray = false;
-                TryGetKnownCSharpType(field.WgslType, typeMap, ref isArray, out var csType);
-                sb.Append($"        public {csType} {field.Name};\n");
-            }
-            sb.Append("    }\n");
-            sb.Append("    \n");
-        }
-        
-        var comments = "    // [ ]  Remove if you can reuse existing struct types\n";
-        if (!addedStructs) {
-            comments = "    // (i)  wgsl bindings do not use custom structs\n";
-        }
-        return new ShaderTypesResult {
-            Types       = sb.ToString(),
-            Comments    = comments
-        };
-    }
     
     internal static bool TryGetKnownCSharpType(WgslType type, CSharpIdentifier[] typeMap, ref bool isArray, out string csType)
     {

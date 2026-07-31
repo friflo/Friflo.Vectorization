@@ -26,14 +26,6 @@ public readonly struct ShaderParamsResult
 
 public static partial class CodeFixer
 {
-    private static (string vsEntry, string fsEntry) GetEntryPoints(CsMethod method, ImmutableArray<WgslFile> files)
-    {
-        foreach (var shader in method.Shaders) {
-            
-        }
-        return default;
-    }
-    
     public static WgslModule ParseWgslFiles(WgslFile[] files)
     {
         var fullModule = new WgslModule();

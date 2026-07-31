@@ -41,7 +41,6 @@ public static class VerifyShaderUtils
         var options = compilation.Options.WithSpecificDiagnosticOptions(
             new Dictionary<string, ReportDiagnostic> {
                 { "WGPU003", ReportDiagnostic.Suppress },
-                { "WGPU004", ReportDiagnostic.Suppress },
                 { "WGPU007", ReportDiagnostic.Suppress }
             });
         return compilation.WithOptions(options);
