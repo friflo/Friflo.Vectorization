@@ -3,7 +3,7 @@ struct VertexData {
 }
 
 @group(2) @binding(0) var<storage> uniforms : VertexData;
-@group(2) @binding(1) var<uniform> vertices : VertexData;
+@group(2) @binding(1) var<uniform> vertices : VertexData;   // intentional error
 
 @group(1) @binding(0) var sampler0: sampler;
 @group(1) @binding(1) var sampler1: sampler_comparison;

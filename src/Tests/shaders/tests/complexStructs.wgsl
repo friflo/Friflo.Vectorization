@@ -60,5 +60,5 @@ struct SmallData {
 }                          // total size: 8, max align: 4
 
 
-@group(0) @binding(0)   var<uniform>        edgeCaseUniform : EdgeCaseUniform;
+@group(0) @binding(0)   var<uniform>        edgeCaseUniform : EdgeCaseUniform;  // intentional error
 @group(0) @binding(1)   var<storage, read>  edgeCaseStorage : EdgeCaseStorage;

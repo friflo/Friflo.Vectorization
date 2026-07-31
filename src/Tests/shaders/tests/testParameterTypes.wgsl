@@ -2,7 +2,7 @@ struct Uniforms {
   modelViewProjectionMatrix : array<mat4x4f>,
 }
 
-@group(2) @binding(0) var<uniform> uniforms : Uniforms;
+@group(2) @binding(0) var<uniform> uniforms : Uniforms;  // intentional error
 @group(2) @binding(1) var<storage> vertices : Uniforms;
 
 

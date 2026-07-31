@@ -27,7 +27,7 @@ struct VertexOutput {
 fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
     var out: VertexOutput;
     
-    let vertex = mesh_data.triangles[vertex_id];
+    let vertex = mesh_data.triangles[vertex_id];   // intentional error
     
     // pass transformed position and color and add model_offset
     out.clip_position = vertex.position + vec4<f32>(model_offset, 0.0, 0.0);    
