@@ -109,7 +109,15 @@ public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct DirectUniform (float someValue)
+public struct DirectUniform1 (float someValue)
+{
+    [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct DirectUniform2 (float someValue)
 {
     [FieldOffset(  0)]  public  float someValue = someValue;
 }
@@ -120,6 +128,24 @@ public struct DirectUniform (float someValue)
 public struct DirectStorage (float someValue)
 {
     [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
+[DebuggerTypeProxy(typeof(FixedArrayDebugView<DirectUniform2>))]
+[StructLayout(LayoutKind.Explicit, Size = 128)]
+public struct DirectUniform2_UniArr_8
+{
+    public int  Length => 8;
+    [FieldOffset(0)]  private DirectUniform2 _element0;
+    
+    public ref DirectUniform2 this[int index] {
+        [UnscopedRef] get {
+            if ((uint)index >= 8) throw new IndexOutOfRangeException();
+            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
+        }
+    }
+    
+    [UnscopedRef] public FixedArrayEnumerator<DirectUniform2> GetEnumerator() => new(ref _element0, 16, 128);
 }
 
 
