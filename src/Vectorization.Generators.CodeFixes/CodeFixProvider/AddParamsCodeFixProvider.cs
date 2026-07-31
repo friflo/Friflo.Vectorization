@@ -54,7 +54,7 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         Diagnostic          diagnostic,
         CancellationToken   cancellationToken)
     {
-        var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties, out _);
+        var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties);
         if (wgslFiles == null) {
             return document;
         }
