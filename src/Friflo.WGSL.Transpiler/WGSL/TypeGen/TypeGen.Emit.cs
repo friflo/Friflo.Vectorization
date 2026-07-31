@@ -8,6 +8,7 @@ using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -20,14 +21,15 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public sealed partial class TypeGen
 {
-    private readonly    Dictionary<string, CSharpStruct>    structMap               = new();
-    private readonly    Dictionary<string, LocalStruct>     localStructs            = new();
-    private readonly    Dictionary<string, WgslStruct>      wgslStructs             = new();
-    private readonly    HashSet<string>                     requiredStructs         = [];
-    private readonly    HashSet<string>                     emittedStructs          = [];
+    private readonly    Dictionary<string, CSharpStruct>    structMap                   = new();
+    private readonly    Dictionary<string, LocalStruct>     localStructs                = new();
+    private readonly    Dictionary<string, WgslStruct>      wgslStructs                 = new();
+    private readonly    HashSet<string>                     requiredStructs             = [];
+    private readonly    HashSet<string>                     emittedStructs              = [];
     //
-    private readonly    StringBuilder                       fixedSizedArrays        = new();
-    private readonly    HashSet<string>                     fixedSizedArrayTypes    = [];
+    private readonly    StringBuilder                       fixedSizedArrayBuilder      = new();
+    private readonly    Dictionary<string, FixedSizeArray>  globalFixedSizedArrayTypes  = new();
+    private readonly    Dictionary<string, FixedSizeArray>  localFixedSizedArrayTypes   = new();
 
     private             WgslModule                          module;
     private             string                              fileNamespace;
@@ -301,12 +303,16 @@ public sealed partial class TypeGen
             ? type.csharpStruct.layout
             : typeCode.Layout;
         
-        var stride      = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
-        var typeName    = $"{identifier.Name}_Array_{arraySize}{(isStd140 ? "_Std140" : "")}";
+        var stride          = GetFixedSizeArrayStride(layout, alignment, out bool isStd140);
+        var typeName        = $"{identifier.Name}_array_{arraySize}{(isStd140 ? "_std140" : "")}";
+        var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
-        var sb = fixedSizedArrays;
         
-        if (fixedSizedArrayTypes.Add(typeName))
+        var sb = fixedSizedArrayBuilder;
+        sb.Clear();
+        var fixedSizedArrays = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct ? localFixedSizedArrayTypes : globalFixedSizedArrayTypes;
+        
+        if (!fixedSizedArrays.ContainsKey(qualifiedName))
         {
             var sizeInBytes = stride * arraySize;
             var elementType = identifier.Name;
@@ -329,15 +335,15 @@ public sealed partial class TypeGen
                     
                     [UnscopedRef] public FixedArrayEnumerator<{{elementType}}> GetEnumerator() => new(ref _element0, {{stride}}, {{sizeInBytes}});
                 }
-                """);
+                """).Append(LineFeeds);
+            fixedSizedArrays.Add(qualifiedName, new FixedSizeArray { Name = typeName, Namespace = identifier.Namespace, source = sb.ToString() });
         } else {
             sb.Append( // language=csharp
                 $$"""
                 /// Skipped identical duplicate of  <see cref="{{typeName}}"/>
                 file partial class _info;
-                """);
+                """).Append(LineFeeds);
         }
-        sb.Append(LineFeeds);
         var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }

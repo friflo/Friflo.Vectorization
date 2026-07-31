@@ -12,10 +12,10 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/complexStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 160)]
-public struct EdgeCaseUniform (uint header, in float_Array_3_Std140 scalars, in Vector2 padded_vec, in SubItem nested, uint tail_flag)
+public struct EdgeCaseUniform (uint header, in float_array_3_std140 scalars, in Vector2 padded_vec, in SubItem nested, uint tail_flag)
 {
     [FieldOffset(  0)]  public  uint                 header     = header;
-    [FieldOffset( 16)]  public  float_Array_3_Std140 scalars    = scalars;
+    [FieldOffset( 16)]  public  float_array_3_std140 scalars    = scalars;
     [FieldOffset( 64)]  public  Vector2              padded_vec = padded_vec;
     [FieldOffset( 96)]  public  SubItem              nested     = nested;
     [FieldOffset(128)]  public  uint                 tail_flag  = tail_flag;
@@ -33,12 +33,12 @@ public struct SubItem (uint flag, Vector3 direction)
 
 [Source("~/shaders/tests/complexStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct EdgeCaseStorage (uint packed_header, float_Array_3 packed_floats, Vector3 position, SmallData_Array_2 struct_array, uint end_marker)
+public struct EdgeCaseStorage (uint packed_header, float_array_3 packed_floats, Vector3 position, SmallData_array_2 struct_array, uint end_marker)
 {
     [FieldOffset(  0)]  public  uint              packed_header = packed_header;
-    [FieldOffset(  4)]  public  float_Array_3     packed_floats = packed_floats;
+    [FieldOffset(  4)]  public  float_array_3     packed_floats = packed_floats;
     [FieldOffset( 16)]  public  Vector3           position      = position;
-    [FieldOffset( 28)]  public  SmallData_Array_2 struct_array  = struct_array;
+    [FieldOffset( 28)]  public  SmallData_array_2 struct_array  = struct_array;
     [FieldOffset( 48)]  public  uint              end_marker    = end_marker;
 }
 
@@ -52,45 +52,9 @@ public struct SmallData (uint id_and_pad, float value)
 }
 
 
-[DebuggerTypeProxy(typeof(FixedArrayDebugView<float>))]
-[StructLayout(LayoutKind.Explicit, Size = 48)]
-public struct float_Array_3_Std140
-{
-    public int  Length => 3;
-    [FieldOffset(0)]  private float _element0;
-    
-    public ref float this[int index] {
-        [UnscopedRef] get {
-            if ((uint)index >= 3) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
-        }
-    }
-    
-    [UnscopedRef] public FixedArrayEnumerator<float> GetEnumerator() => new(ref _element0, 16, 48);
-}
-
-
-[DebuggerTypeProxy(typeof(FixedArrayDebugView<float>))]
-[StructLayout(LayoutKind.Explicit, Size = 12)]
-public struct float_Array_3
-{
-    public int  Length => 3;
-    [FieldOffset(0)]  private float _element0;
-    
-    public ref float this[int index] {
-        [UnscopedRef] get {
-            if ((uint)index >= 3) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 4);
-        }
-    }
-    
-    [UnscopedRef] public FixedArrayEnumerator<float> GetEnumerator() => new(ref _element0, 4, 12);
-}
-
-
 [DebuggerTypeProxy(typeof(FixedArrayDebugView<SmallData>))]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct SmallData_Array_2
+public struct SmallData_array_2
 {
     public int  Length => 2;
     [FieldOffset(0)]  private SmallData _element0;

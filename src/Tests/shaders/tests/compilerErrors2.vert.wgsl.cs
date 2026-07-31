@@ -12,13 +12,9 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/compilerErrors2.vert.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 1024)]
-public struct RedefinedUniform (in Matrix4x4_Array_16 mvps)
+public struct RedefinedUniform (in Matrix4x4_array_16 mvps)
 {
-    [FieldOffset(  0)]  public  Matrix4x4_Array_16 mvps = mvps;
+    [FieldOffset(  0)]  public  Matrix4x4_array_16 mvps = mvps;
 }
-
-
-/// Skipped identical duplicate of  <see cref="Matrix4x4_Array_16"/>
-file partial class _info;
 
 

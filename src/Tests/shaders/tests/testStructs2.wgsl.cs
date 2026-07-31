@@ -12,27 +12,9 @@ namespace Shaders.Tests;
 
 [Source("~/shaders/tests/testStructs2.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 256)]
-public struct FixeSizeArray (in Vector2i_Array_16_Std140 vectors)
+public struct FixeSizeArray (in Vector2i_array_16_std140 vectors)
 {
-    [FieldOffset(  0)]  public  Vector2i_Array_16_Std140 vectors = vectors;
-}
-
-
-[DebuggerTypeProxy(typeof(FixedArrayDebugView<Vector2i>))]
-[StructLayout(LayoutKind.Explicit, Size = 256)]
-public struct Vector2i_Array_16_Std140
-{
-    public int  Length => 16;
-    [FieldOffset(0)]  private Vector2i _element0;
-    
-    public ref Vector2i this[int index] {
-        [UnscopedRef] get {
-            if ((uint)index >= 16) throw new IndexOutOfRangeException();
-            return ref Unsafe.AddByteOffset(ref _element0, (nint)index * 16);
-        }
-    }
-    
-    [UnscopedRef] public FixedArrayEnumerator<Vector2i> GetEnumerator() => new(ref _element0, 16, 256);
+    [FieldOffset(  0)]  public  Vector2i_array_16_std140 vectors = vectors;
 }
 
 

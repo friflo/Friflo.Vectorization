@@ -39,10 +39,10 @@ public readonly struct TypeMapping
             if ((int)value >= length) continue;
             MapType(map, value, "", value.ToString(), Unmapped);
         }
-        MapType(map, CsTypeCode.f16,     "",                "Half",        Resolved);
-        MapType(map, CsTypeCode.f32,     "",                "float",       Resolved);
-        MapType(map, CsTypeCode.i32,     "",                "int",         Resolved);
-        MapType(map, CsTypeCode.u32,     "",                "uint",        Resolved);
+        MapType(map, CsTypeCode.f16,     "System",          "Half",        Resolved);
+        MapType(map, CsTypeCode.f32,     "System",          "float",       Resolved);
+        MapType(map, CsTypeCode.i32,     "System",          "int",         Resolved);
+        MapType(map, CsTypeCode.u32,     "System",          "uint",        Resolved);
         
         MapType(map, CsTypeCode.vec2f,   "System.Numerics", "Vector2",     Resolved);
         MapType(map, CsTypeCode.vec3f,   "System.Numerics", "Vector3",     Resolved);

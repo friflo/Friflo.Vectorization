@@ -90,6 +90,15 @@ internal struct LocalStruct
     public override string          ToString() => csharpStruct.name ;
 }
 
+internal struct FixedSizeArray
+{
+    public required string          Name;
+    public required string          Namespace;
+    public required string          source;
+    
+    public override string          ToString() => Name.ToString();
+}
+
 public enum WgslAlignment
 {
     // WGSL Storage Buffer Layout (similar to GLSL std430) - Goal: compact data storage for large data sets
