@@ -20,6 +20,11 @@ public static partial class GenerateParams
     public static partial void RenderCubeEmpty();
     
     
+    [Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")] 
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
+    private static partial void RenderInstancedCubes();
+    
+    
 	[Shader("~/shaders/basic.vert.wgsl",								vertex:   "main")]
 	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",	fragment: "main")]
     private static partial void RenderCube();

@@ -141,12 +141,12 @@ public partial class Renderer : IRenderer
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
 
-        RenderCubes(pass, config, mvpMatricesData, verticesBuffer.In());
+        RenderInstancedCubes(pass, config, mvpMatricesData, verticesBuffer.In());
     }
     
 	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")] 
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
-    private static partial void RenderCubes(RenderPass pass, RenderConfig config,
+    private static partial void RenderInstancedCubes(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]           [DrawInstance]  in Matrix4x4_Array_16 	mvpMatrices,
                     [VertexBuffer(0)]   [Draw]          InBuffer<float>         verticesBuffer);
 }
