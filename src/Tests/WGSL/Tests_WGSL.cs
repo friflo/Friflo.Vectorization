@@ -162,8 +162,8 @@ public static class Tests_WGSL
         var mappings= TestWgslUtils.LoadTestMappings();
         var result  = CodeFixer.CreateShaderParams(module, mappings);
         
-        Assert.That(module.Structs.Count,       Is.EqualTo(12));
-        Assert.That(module.Bindings.Count,      Is.EqualTo(11));
+        Assert.That(module.Structs.Count,       Is.EqualTo(13));
+        Assert.That(module.Bindings.Count,      Is.EqualTo(12));
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -177,13 +177,15 @@ public static class Tests_WGSL
                     [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
                     [Map(0, 8)] [uniform]   in Particle                 uniform8,
                     [Map(0, 9)] [uniform]   in Vector4                  uniform9,
-                    [Map(0,10)] [uniform]   in DirectUniform            uniform10,
-                    [Map(0,11)] [storage]   InBuffer<DirectStorage>     storage11)
+                    [Map(0,10)] [uniform]   in DirectUniform1           uniform10,
+                    [Map(0,11)] [uniform]   in DirectUniform2           uniform11,
+                    [Map(0,12)] [storage]   InBuffer<DirectStorage>     storage12)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """
                 // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.
-                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform>
+                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform1>
+                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform11: array<DirectUniform2, 8>
                 // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
             
             """));

@@ -109,7 +109,15 @@ public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 16)]
-public struct DirectUniform (float someValue)
+public struct DirectUniform1 (float someValue)
+{
+    [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct DirectUniform2 (float someValue)
 {
     [FieldOffset(  0)]  public  float someValue = someValue;
 }
