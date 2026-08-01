@@ -1,8 +1,11 @@
-﻿using Friflo.WGSL.Transpiler.CSharp;
+﻿using System;
+using System.Numerics;
+using Friflo.Vectorization.WebGPU;
+using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
 
-
+// ReSharper disable UseObjectOrCollectionInitializer
 // ReSharper disable once InconsistentNaming
 namespace Tests.WGSL;
 
@@ -35,5 +38,50 @@ public static class Tests_GenerateTypes
             var typeEmitter = new TypeGen();
             typeEmitter.EmitAllStructs(files, projectDir, mappings, errors);
         }
+    }
+    
+    
+    [Test]
+    public static void Tests_WGSL_generated_fixed_size_array()
+    {
+        var array = new Vector4_UniArr_8();
+        array[0] = new Vector4(0, 42, 0, 0);
+        array[7] = new Vector4(7, 42, 0, 0);
+        
+        Assert.That(array.Length,   Is.EqualTo(8));
+        Assert.That(array[0],       Is.EqualTo(new Vector4(0, 42, 0, 0)));
+        Assert.That(array[7],       Is.EqualTo(new Vector4(7, 42, 0, 0)));
+
+
+        int step = 0;
+        foreach (ref var item in array)
+        {
+            switch (step) {
+                case 0:  Assert.That(item, Is.EqualTo(new Vector4(0, 42, 0, 0))); break;
+                case 7:  Assert.That(item, Is.EqualTo(new Vector4(7, 42, 0, 0))); break;
+            }
+            step++;
+        }
+        Assert.That(step, Is.EqualTo(8));
+        
+        var enumerator = array.GetEnumerator();
+        var current = enumerator.Current;  // Direct call return first element
+        Assert.That(current, Is.EqualTo(new Vector4(0, 42, 0, 0)));
+        
+        while (enumerator.MoveNext()) {
+            _ = enumerator.Current;
+        }
+        var last = enumerator.Current;
+        Assert.That(last, Is.EqualTo(new Vector4(7, 42, 0, 0)));
+        
+        Assert.Throws<IndexOutOfRangeException>(() => _ = array[-1]);
+        Assert.Throws<IndexOutOfRangeException>(() => _ = array[8]);
+        
+        
+        var debugView = new FixedArrayDebugView<Vector4>(array);
+        var items = debugView.Items;
+        Assert.That(items.Length, Is.EqualTo(8));
+        Assert.That(items[0], Is.EqualTo(new Vector4(0, 42, 0, 0)));
+        Assert.That(items[7], Is.EqualTo(new Vector4(7, 42, 0, 0)));
     }
 }
