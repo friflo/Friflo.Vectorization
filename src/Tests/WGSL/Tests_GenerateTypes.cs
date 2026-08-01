@@ -58,11 +58,13 @@ public static class Tests_GenerateTypes
         {
             switch (step) {
                 case 0:  Assert.That(item, Is.EqualTo(new Vector4(0, 42, 0, 0))); break;
+                case 1:  item = new Vector4(1, 42, 0, 0);                         break;
                 case 7:  Assert.That(item, Is.EqualTo(new Vector4(7, 42, 0, 0))); break;
             }
             step++;
         }
-        Assert.That(step, Is.EqualTo(8));
+        Assert.That(step,       Is.EqualTo(8));
+        Assert.That(array[1],   Is.EqualTo(new Vector4(1, 42, 0, 0)));
         
         var enumerator = array.GetEnumerator();
         var current = enumerator.Current;  // Direct call return first element
