@@ -118,7 +118,7 @@ public static partial class CodeFixer
                 var csType      = GetParameterType(type, typeMap, out var info);
                 switch (info.paramType) {
                     case WgslParamType.DynamicArray: 
-                        comment = $"#error A uniform must not use dynamic sized buffers. See:  {binding}";
+                        comment = $"#warning A uniform must not use dynamic sized buffers. See:  {binding}";
                         csType = $"in {csType}";
                         break;
                     case WgslParamType.FixedSizeArray:

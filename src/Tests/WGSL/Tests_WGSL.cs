@@ -185,7 +185,7 @@ public static class Tests_WGSL
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """
                 // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.
-                #error A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform1>
+                #warning A uniform must not use dynamic sized buffers. See:  var<uniform> uniform10: array<DirectUniform1>
                 // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
             
             """));
