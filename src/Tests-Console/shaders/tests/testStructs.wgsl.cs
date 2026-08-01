@@ -125,7 +125,15 @@ public struct DirectUniform2 (float someValue)
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 4)]
-public struct DirectStorage (float someValue)
+public struct DirectStorage1 (float someValue)
+{
+    [FieldOffset(  0)]  public  float someValue = someValue;
+}
+
+
+[Source("~/shaders/tests/testStructs.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 4)]
+public struct DirectStorage2 (float someValue)
 {
     [FieldOffset(  0)]  public  float someValue = someValue;
 }

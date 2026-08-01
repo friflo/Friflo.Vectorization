@@ -110,8 +110,8 @@ public sealed partial class TypeGen
             var addressSpace    = binding.AddressSpace;
             var wgslType        = binding.WgslType;
             if (addressSpace == "storage" && wgslType.Name == "array" && wgslType.Generics.Length == 2) {
-                // Skip: not useful to create a fixed size array for a storage buffer
-                continue;
+                // Skip creation of fixed size array. Create only the referenced element type
+                wgslType = wgslType.Generics.Arg_0;
             }
             var alignment = addressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
             GetCSharpType(wgslType, alignment); // calls CreateStruct() if referencing one

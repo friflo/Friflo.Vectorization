@@ -70,7 +70,11 @@ struct DirectUniform2 {
     someValue: f32
 }
 
-struct DirectStorage {
+struct DirectStorage1 {
+    someValue: f32
+}
+
+struct DirectStorage2 {
     someValue: f32
 }
 
@@ -86,7 +90,7 @@ struct DirectStorage {
 @group(0) @binding(9)   var<uniform>        uniform9 : array<vec4<f32>, 8>;
 @group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform1>;   // intentional error
 @group(0) @binding(11)  var<uniform>        uniform11: array<DirectUniform2, 8>;
-@group(0) @binding(12)  var<storage>        storage12: array<DirectStorage>;
-@group(0) @binding(13)  var<storage>        storage13: array<DirectStorage, 8>;
+@group(0) @binding(12)  var<storage>        storage12: array<DirectStorage1>;
+@group(0) @binding(13)  var<storage>        storage13: array<DirectStorage2, 8>;
 
 
