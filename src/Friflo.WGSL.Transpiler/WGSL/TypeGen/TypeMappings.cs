@@ -23,11 +23,13 @@ public readonly struct ToolError(int? line, string code, string message)
     public override string ToString() => IsSet ? $"'{code}': {message}" : "OK";
 }
 
+#if FILE_IO
+
 public static class TypeMappings
 {
     public const string MappingPath = "wgsl-types.ini";
         
-    
+
     public static TypeMapping[] LoadTypeMappings(string path, out ToolError[] errors)
     {
         try {
@@ -45,7 +47,7 @@ public static class TypeMappings
             return [];
         }
     }
-    
+
     private static TypeMapping MappingError(int line, string code, string message, List<ToolError> errors)
     {
         errors.Add(new ToolError(line, code, message));
@@ -149,3 +151,5 @@ public static class TypeMappings
         return mappings.ToArray();
     }
 }
+
+#endif

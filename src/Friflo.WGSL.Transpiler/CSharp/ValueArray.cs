@@ -83,9 +83,9 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public static class ValueArrayExtensions
+internal static class ValueArrayExtensions
 {
-    public static ValueArray<TSource> ToValueArray<TSource>(this IEnumerable<TSource> items) where TSource : IEquatable<TSource>
+    internal static ValueArray<TSource> ToValueArray<TSource>(this IEnumerable<TSource> items) where TSource : IEquatable<TSource>
     {
         if (items is ValueArray<TSource>)
         {

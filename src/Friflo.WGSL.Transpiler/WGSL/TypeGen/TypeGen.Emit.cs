@@ -30,6 +30,9 @@ public sealed partial class TypeGen
     private readonly    StringBuilder                       fixedSizedArrayBuilder      = new();
     private readonly    Dictionary<string, FixedSizeArray>  globalFixedSizedArrayTypes  = new();
     private readonly    Dictionary<string, FixedSizeArray>  localFixedSizedArrayTypes   = new();
+    
+    private readonly    HashSet<string>                     additionalNamespaces    = [];
+
 
     private             WgslModule                          module;
     private             string                              fileNamespace;
@@ -345,6 +348,15 @@ public sealed partial class TypeGen
         }
         var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
         return new CSharpType(typeName, Created, type.info, csharpArray);
+    }
+    
+    private void AddNamespace(in CSharpType csharpType)
+    {
+        if (csharpType.identifier.Namespace == "" ||
+            csharpType.identifier.Namespace == "System") {
+            return;
+        }
+        additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
     private static int GetFixedSizeArrayStride(TypeLayout layout, ArrayStride arrayStride)

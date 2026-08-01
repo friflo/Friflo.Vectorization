@@ -51,7 +51,15 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all" />
+    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj" PrivateAssets="all" />
+    
+    <!-- <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all" /> -->
+    <!-- Add Transpiler via source files instead of ProjectReference to prevent:
+         1. Error CS2012 : Cannot open 'Friflo.WGSL.Transpiler.dll' for writing - The process cannot access the file 'Friflo.WGSL.Transpiler.dll' because it is being used by another process. 
+         2. The hassle involved deploying the additional Friflo.WGSL.Transpiler.dll "to analyzers/dotnet/cs" -->
+    <Compile Include="../Friflo.WGSL.Transpiler/**/*.cs"
+             Exclude="../Friflo.WGSL.Transpiler/obj/**/*.cs;../Friflo.WGSL.Transpiler/*.cs"
+             LinkBase="Transpiler" />
   </ItemGroup>
   <PropertyGroup>
     <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>

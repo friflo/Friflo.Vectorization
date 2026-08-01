@@ -13,9 +13,9 @@ using Friflo.WGSL.Transpiler.CSharp;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-public static class DictionaryExtensions
+internal static class DictionaryExtensions
 {
-    public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+    internal static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
     {
         if (dictionary.ContainsKey(key))
         {
@@ -25,10 +25,7 @@ public static class DictionaryExtensions
         dictionary.Add(key, value);
         return true;
     }
-}
-
-public static class WgslUtils
-{
+    
     public static ImmutableDictionary<string, string> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string projDir, ValueArray<CsShader> shaders)
     {
         var builder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -49,7 +46,13 @@ public static class WgslUtils
         }
         return builder.ToImmutable();
     }
-    
+}
+
+
+#if FILE_IO
+
+public static class WgslUtils
+{
     public static WgslFile[] CreateWgslFiles(ImmutableDictionary<string, string> properties)
     {
         var list = new List<WgslFile>();
@@ -115,3 +118,6 @@ public static class WgslUtils
         return list.ToArray();
     }
 }
+
+#endif
+

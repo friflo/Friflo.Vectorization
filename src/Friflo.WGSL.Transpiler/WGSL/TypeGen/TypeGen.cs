@@ -16,13 +16,15 @@ using System.Text;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
+#if FILE_IO
+
 public sealed partial class TypeGen
 {
     private readonly    StringBuilder   fileBuilder             = new ();
     private readonly    StringBuilder   body                    = new();
     //
-    private readonly    HashSet<string> additionalNamespaces    = [];
     
+
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
         var path = Path.Combine(projDir, "debug.txt");
@@ -48,15 +50,6 @@ public sealed partial class TypeGen
             parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
         }
         return $"{string.Join(".", parts)}";
-    }
-    
-    private void AddNamespace(in CSharpType csharpType)
-    {
-        if (csharpType.identifier.Namespace == "" ||
-            csharpType.identifier.Namespace == "System") {
-            return;
-        }
-        additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, TypeMapping[] mappings, ToolError[] errors)
@@ -95,7 +88,7 @@ public sealed partial class TypeGen
         
         UpdateFiles(projDir, files);
     }
-    
+
     private void EmitFixedSizeArrays(List<(string, string)> files)
     {
         foreach (var fixedSizedArrayType in globalFixedSizedArrayTypes)
@@ -215,3 +208,5 @@ public sealed partial class TypeGen
         return fileBuilder.ToString();
     }
 }
+
+#endif
