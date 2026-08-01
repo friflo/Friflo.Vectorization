@@ -105,7 +105,7 @@ public static partial class CodeFixer
             switch (binding.AddressSpace)
             {
             case "storage": {
-                var type        = GetStorageBindingType(module, binding, out _);
+                var type        = GetStorageBindingType(module, binding);
                 var csType      = GetParameterType(type, typeMap, out _);
                 var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
                 csType          = $"{bufferType}<{csType}>";
@@ -138,17 +138,15 @@ public static partial class CodeFixer
         }
     }
     
-    private static WgslType GetStorageBindingType(WgslModule module, WgslBinding binding, out WgslParamType paramType)
+    private static WgslType GetStorageBindingType(WgslModule module, WgslBinding binding)
     {
-        paramType = WgslParamType.None;
-
         var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
         // FIX_C89_STRUCT_HACK
         // In case a struct contains exactly one field return the field type 
         if (type != null && type.Fields.Count == 1) {
             var fieldType = type.Fields[0].WgslType;
             var info = WgslTypeInfo.GetTypeInfo(fieldType);
-            paramType = info.paramType;
+            var paramType = info.paramType;
             if (paramType == WgslParamType.DynamicArray) {
                 return fieldType.Generics.Arg_0;
             }
