@@ -105,21 +105,10 @@ public sealed partial class TypeGen
         foreach (var wgslStruct in structs) {
             wgslStructs.TryAdd(wgslStruct.Name, wgslStruct);
         }
-        foreach (var binding in module.Bindings) {
-            var typeName = binding.WgslType.Name;
+        foreach (var binding in module.Bindings)
+        {
             var alignment = binding.AddressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
-            if (typeName == "array") {
-                if (binding.WgslType.Generics.Length == 2) {
-                    var csharpType = GetCSharpType(binding.WgslType, alignment);
-                }
-                typeName = binding.WgslType.Generics.Arg_0?.Name;
-                if (typeName == null) continue;
-            }
-            if (!wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
-                continue;
-            }
-            requiredStructs.Add(typeName);
-            CreateStruct(wgslStruct, alignment);
+            GetCSharpType(binding.WgslType, alignment); // calls CreateStruct() if referencing one
         }
     }
     
@@ -306,7 +295,7 @@ public sealed partial class TypeGen
             ? type.csharpStruct.layout
             : typeCode.Layout;
         
-        var stride          = GetFixedSizeArrayStride(layout, arrayStride, out _);
+        var stride          = GetFixedSizeArrayStride(layout, arrayStride);
         var arrayName       = arrayStride == ArrayStride.PadTo16Bytes ? "_UniArr_" : "_Array_";
         var typeName        = $"{identifier.Name}{arrayName}{arraySize}";
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
@@ -352,20 +341,20 @@ public sealed partial class TypeGen
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }
     
-    private static int GetFixedSizeArrayStride(TypeLayout layout, ArrayStride arrayStride, out bool isPadTo16)
+    private static int GetFixedSizeArrayStride(TypeLayout layout, ArrayStride arrayStride)
     {
         int elementSize  = layout.size;
         int elementAlign = layout.align;
 
-        // std430 (Storage): stride is elementSize rounded up to elementAlign
-        int strideNatural = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
+        // ArrayStride.Natural (Storage):      stride is elementSize rounded up to elementAlign
+        int strideNatural       = (elementSize + elementAlign - 1) & ~(elementAlign - 1);
 
-        // std140 (Uniform): element alignment is elevated to at least 16 bytes
+        // ArrayStride.PadTo16Bytes (Uniform): element alignment is elevated to at least 16 bytes
         int requiredAlignPad16  = Math.Max(16, elementAlign);
         int stridePad16         = (elementSize + requiredAlignPad16 - 1) & ~(requiredAlignPad16 - 1);
 
         // Array requires PadTo16Bytes layout variant if stride differs from strideNatural
-        isPadTo16 = arrayStride == ArrayStride.PadTo16Bytes && stridePad16 != strideNatural;
+        // isPadTo16 = arrayStride == ArrayStride.PadTo16Bytes && stridePad16 != strideNatural;
 
         return arrayStride == ArrayStride.PadTo16Bytes ? stridePad16 : strideNatural;
     }
