@@ -4,9 +4,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using TestConsole;
 
-
 // ReSharper disable InconsistentNaming
-// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 namespace Shaders.InstancedCube;
 
