@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 

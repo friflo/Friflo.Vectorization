@@ -96,7 +96,7 @@ internal struct FixedSizeArray
     public required string          Namespace;
     public required string          source;
     
-    public override string          ToString() => Name.ToString();
+    public override string          ToString() => Name;
 }
 
 /// <summary>

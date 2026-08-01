@@ -6,6 +6,7 @@ using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.WGSL.Transpiler.WGSL;
