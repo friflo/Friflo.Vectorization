@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Friflo.Vectorization.WebGPU;
 using System.Numerics;
 
-namespace global;
+
 
 
 [Source("~/global.wgsl")]

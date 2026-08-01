@@ -38,7 +38,7 @@ public sealed partial class TypeGen
     private static string PathToNamespace(string path)
     {
         var dir = Path.GetDirectoryName(path);
-        if (string.IsNullOrEmpty(dir)) return "global";
+        if (string.IsNullOrEmpty(dir)) return "";
 
         var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < parts.Length; i++)
@@ -101,14 +101,16 @@ public sealed partial class TypeGen
         foreach (var fixedSizedArrayType in globalFixedSizedArrayTypes)
         {
             var generatedType = fixedSizedArrayType.Value;
-            var ns = generatedType.Namespace == "" ? "global" : generatedType.Namespace;
-            var fileName = $"gen/{ns}/{generatedType.Name}.wgsl.cs";
+            var ns       = generatedType.Namespace;
+            var fileName = ns == "" ? $"gen/{generatedType.Name}.wgsl.cs"
+                                    : $"gen/{ns}/{generatedType.Name}.wgsl.cs";
+            var nsDecl   = ns == "" ? "" : $"namespace {ns};";
             fileBuilder.Clear();
             EmitFileHeader(fileName);
             fileBuilder.Append( // language=csharp
                 $"""
                 
-                namespace {ns};
+                {nsDecl}
                 
                 
                 {fixedSizedArrayType.Value.source}
@@ -191,10 +193,11 @@ public sealed partial class TypeGen
             foreach (var fixedSizedArrayType in localFixedSizedArrayTypes) {
                 body.Append(fixedSizedArrayType.Value.source);
             }
+            var nsDecl   = fileNamespace == "" ? "" : $"namespace {fileNamespace};";
             fileBuilder.Append( // language=csharp
                 $"""
                 
-                namespace {fileNamespace};
+                {nsDecl}
                 
                 
                 {body}
