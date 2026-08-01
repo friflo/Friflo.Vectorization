@@ -87,5 +87,6 @@ struct DirectStorage {
 @group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform1>;   // intentional error
 @group(0) @binding(11)  var<uniform>        uniform11: array<DirectUniform2, 8>;
 @group(0) @binding(12)  var<storage>        storage12: array<DirectStorage>;
+@group(0) @binding(13)  var<storage>        storage13: array<DirectStorage, 8>;
 
 

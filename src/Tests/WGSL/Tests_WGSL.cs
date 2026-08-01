@@ -163,7 +163,7 @@ public static class Tests_WGSL
         var result  = CodeFixer.CreateShaderParams(module, mappings);
         
         Assert.That(module.Structs.Count,       Is.EqualTo(13));
-        Assert.That(module.Bindings.Count,      Is.EqualTo(12));
+        Assert.That(module.Bindings.Count,      Is.EqualTo(13));
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(0));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -179,7 +179,8 @@ public static class Tests_WGSL
                     [Map(0, 9)] [uniform]   in Vector4_UniArr_8         uniform9,
                     [Map(0,10)] [uniform]   in DirectUniform1           uniform10,
                     [Map(0,11)] [uniform]   in DirectUniform2_UniArr_8  uniform11,
-                    [Map(0,12)] [storage]   InBuffer<DirectStorage>     storage12)
+                    [Map(0,12)] [storage]   InBuffer<DirectStorage>     storage12,
+                    [Map(0,13)] [storage]   InBuffer<DirectStorage>     storage13)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """

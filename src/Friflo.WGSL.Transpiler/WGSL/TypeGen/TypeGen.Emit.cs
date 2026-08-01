@@ -107,8 +107,14 @@ public sealed partial class TypeGen
         }
         foreach (var binding in module.Bindings)
         {
-            var alignment = binding.AddressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
-            GetCSharpType(binding.WgslType, alignment); // calls CreateStruct() if referencing one
+            var addressSpace    = binding.AddressSpace;
+            var wgslType        = binding.WgslType;
+            if (addressSpace == "storage" && wgslType.Name == "array" && wgslType.Generics.Length == 2) {
+                // Skip: not useful to create a fixed size array for a storage buffer
+                continue;
+            }
+            var alignment = addressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
+            GetCSharpType(wgslType, alignment); // calls CreateStruct() if referencing one
         }
     }
     
