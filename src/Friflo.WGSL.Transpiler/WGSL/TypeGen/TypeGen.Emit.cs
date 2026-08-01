@@ -53,7 +53,7 @@ public sealed partial class TypeGen
             if (!emittedStructs.Add(structName)) {
                 sb.Append( // language=csharp
                     $"""
-                    #error Duplicate identifier '{structName}'
+                    #warning Duplicate identifier '{structName}'
                     [Source("~/{normalizedPath}")]
                     file partial class _info;
                     """).Append(LineFeeds);
@@ -71,7 +71,7 @@ public sealed partial class TypeGen
             if (fields.Length == 0) {
                 sb.Append( // language=csharp
                     $"""
-                    #error Struct '{structName}' must contain at least one member. Empty structs are not allowed in WGSL.
+                    #warning Struct '{structName}' must contain at least one member. Empty structs are not allowed in WGSL.
                     [Source("~/{normalizedPath}")]
                     file partial class _info;
                     """).Append(LineFeeds);
@@ -379,7 +379,7 @@ public sealed partial class TypeGen
         
         sb.Append( // language=csharp
 $"""
-#error Unsupported Struct Layout in '{path}'
+#warning Unsupported Struct Layout in '{path}'
 [Source("~/{path}")]
 /*
 Struct '{structName}' contains header fields alongside a dynamic array ('{elementType}').

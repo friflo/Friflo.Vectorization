@@ -10,7 +10,7 @@ using System.Numerics;
 namespace Shaders.Tests;
 
 
-#error Struct 'EmptyStruct' must contain at least one member. Empty structs are not allowed in WGSL.
+#warning Struct 'EmptyStruct' must contain at least one member. Empty structs are not allowed in WGSL.
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 file partial class _info;
 
@@ -39,12 +39,12 @@ public struct InconsistentStruct (int value1)
 }
 
 
-#error Duplicate identifier 'InconsistentStruct'
+#warning Duplicate identifier 'InconsistentStruct'
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 file partial class _info;
 
 
-#error Unsupported Struct Layout in 'shaders/tests/compilerErrors.wgsl'
+#warning Unsupported Struct Layout in 'shaders/tests/compilerErrors.wgsl'
 [Source("~/shaders/tests/compilerErrors.wgsl")]
 /*
 Struct 'DynamicSizedStruct' contains header fields alongside a dynamic array ('array<vec3f>').
