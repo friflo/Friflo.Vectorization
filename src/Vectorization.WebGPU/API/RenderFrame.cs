@@ -157,10 +157,10 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
-    public              PipelineContext                 Context     => recorder;
-    public              bool                            IsNull      => recorder == null;
+    public              PipelineContext                 ComputeContext  => recorder;
+    public              bool                            IsNull          => recorder == null;
 
-    public   override   string                          ToString()  => TextureStatus.ToString(); 
+    public   override   string                          ToString()      => TextureStatus.ToString(); 
 
     internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, int width, int height) {
         View                = view;

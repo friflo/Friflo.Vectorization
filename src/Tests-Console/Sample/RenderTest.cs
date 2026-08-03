@@ -77,7 +77,7 @@ public partial class Renderer : IRenderer
         var timeUniform = new TimeUniform(time);
         myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
         
-        DeformVertices(frame.Context, data.InOut(), timeUniform);
+        DeformVertices(frame.ComputeContext, data.InOut(), timeUniform);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
