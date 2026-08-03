@@ -19,3 +19,11 @@ public struct VertexData (Vector4 position, Vector4 color)
 }
 
 
+[Source("~/shaders/renderTest/deform.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct TimeUniform (float time)
+{
+    [FieldOffset(  0)]  public  float time = time;
+}
+
+

@@ -66,8 +66,9 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
+        var timeUniform = new TimeUniform(time);
         
-        DeformVertices(frame.Context, data.InOut(), time);
+        DeformVertices(frame.Context, data.InOut(), timeUniform);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
@@ -91,7 +92,7 @@ public partial class Renderer : IRenderer
     [Shader("~/shaders/renderTest/deform.wgsl")]
     private static partial void DeformVertices(PipelineContext context,
         [Map(0, 0)] [storage]           InOutBuffer<VertexData> vertices,
-        [Map(1, 0)] [uniform]           float                   time);
+        [Map(1, 0)] [uniform]           TimeUniform             uniform);
 }
 
 

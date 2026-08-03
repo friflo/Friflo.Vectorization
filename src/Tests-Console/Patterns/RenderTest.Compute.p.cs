@@ -11,7 +11,7 @@ public partial class Renderer
     private static partial void DeformVertices(
         PipelineContext         context,
         InOutBuffer<VertexData> vertices,
-        float                   time)
+        TimeUniform             uniform)
 	{
         return;
 		var recorder	= (CommandRecorder)context;
@@ -39,7 +39,7 @@ public partial class Renderer
         pass_.SetBindGroup(0, bindGroup0);
         
         // --- bind group 1
-        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, time, pipelineCache, "DeformVertices_bindGroup_1"u8);
+        pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, uniform, pipelineCache, "DeformVertices_bindGroup_1"u8);
         
         // --- compute
         pass_.DispatchWorkgroups((vertices.Length + 63) / 64, 1, 1);
@@ -97,28 +97,30 @@ public partial class Renderer
     private static ReadOnlySpan<byte>DeformVertices_GPU_Shader() =>
 """
 struct VertexData {
-    position: vec4<f32>,
-    color: vec4<f32>,
+    position:   vec4<f32>,
+    color:      vec4<f32>,
 }
 
-@group(0) @binding(0) var<storage, read_write>  vertices:   array<VertexData>;
-@group(1) @binding(0) var<storage, read>        time:       f32;
+struct TimeUniform {
+    time: f32,
+}
+
+@group(0) @binding(0) var<storage, read_write> vertices: array<VertexData>;
+@group(1) @binding(0) var<uniform>              timeData: TimeUniform;
 
 @compute @workgroup_size(64)
 fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let index = global_id.x;
-    
-    // Safety check: Nicht über das Array hinaus schreiben
+    let index = global_id.x;    
+
     if (index >= arrayLength(&vertices)) {
         return;
     }
-
-    // Beispiel-Manipulation: Schwingung der Y-Position basierend auf X & Zeit
-    let base_x = vertices[index].position.x;
-    vertices[index].position.y += sin(time * 3.0 + base_x * 4.0) * 0.005;
-
-    // Optional: Ändere sanft die Alpha- oder Farbwerte
-    vertices[index].color.r = 0.5 + 0.5 * sin(time + base_x);
+	// oscillate y position based on x & time
+    let t = timeData.time;
+    vertices[index].position.y += sin(t * 3.0 + vertices[index].position.x * 4.0) * 0.005;
+    
+    // Optional: change vertex colors
+    // vertices[index].color.r = 0.5 + 0.5 * sin(time + base_x);
 }
 """u8;
     
