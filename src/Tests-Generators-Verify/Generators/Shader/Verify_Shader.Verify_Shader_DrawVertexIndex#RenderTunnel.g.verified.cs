@@ -21,7 +21,7 @@ public partial struct ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_RenderTunnel_GPU_ShaderId, "RenderTunnel_encoder"u8);
+		recorder.InitShader(_RenderTunnel_GPU_ShaderId);
 
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_RenderTunnel_GPU_ShaderId, config, _RenderTunnel_GPU_WgslHash);

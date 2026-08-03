@@ -22,7 +22,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_Multiple_IndexBuffer_parameters_GPU_ShaderId, "Multiple_IndexBuffer_parameters_encoder"u8);
+		recorder.InitShader(_Multiple_IndexBuffer_parameters_GPU_ShaderId);
 
         recorder.RequireRead     (indexBuffer1);
         recorder.RequireRead     (indexBuffer2);

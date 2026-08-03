@@ -22,7 +22,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_DrawInstanced_GPU_ShaderId, "DrawInstanced_encoder"u8);
+		recorder.InitShader(_DrawInstanced_GPU_ShaderId);
 
         recorder.RequireRead     (mvpMatrices);
         recorder.RequireRead     (verticesBuffer);

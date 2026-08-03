@@ -25,7 +25,7 @@ public partial class Renderer
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(Render_GPU_ShaderId, "Render_encoder"u8);
+		recorder.InitShader(Render_GPU_ShaderId);
         
         recorder.RequireRead(verticesBuffer);
         recorder.RequireRead(indexBuffer);

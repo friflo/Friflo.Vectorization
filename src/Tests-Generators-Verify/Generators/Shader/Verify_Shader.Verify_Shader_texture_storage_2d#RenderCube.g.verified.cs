@@ -24,7 +24,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_RenderCube_GPU_ShaderId, "RenderCube_encoder"u8);
+		recorder.InitShader(_RenderCube_GPU_ShaderId);
 
         recorder.RequireRead     (vertices);
         

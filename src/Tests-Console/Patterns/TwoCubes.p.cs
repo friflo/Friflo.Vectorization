@@ -21,7 +21,7 @@ public partial class Renderer
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(TextureTest_GPU_ShaderId, "TextureTest_encoder"u8);
+		recorder.InitShader(TextureTest_GPU_ShaderId);
         
         recorder.RequireRead(verticesBuffer);
 

@@ -40,7 +40,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_Textures_GPU_ShaderId, "Textures_encoder"u8);
+		recorder.InitShader(_Textures_GPU_ShaderId);
 
         recorder.RequireRead     (vertices1);
         recorder.RequireRead     (vertices2);

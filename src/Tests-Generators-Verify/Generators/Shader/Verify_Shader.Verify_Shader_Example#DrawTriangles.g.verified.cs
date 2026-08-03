@@ -23,7 +23,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_DrawTriangles_GPU_ShaderId, "DrawTriangles_encoder"u8);
+		recorder.InitShader(_DrawTriangles_GPU_ShaderId);
 
         recorder.RequireRead     (triangles);
         

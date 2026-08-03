@@ -23,7 +23,7 @@ public partial class Renderer
         
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(Shadow_GPU_ShaderId, "Shadow_encoder"u8);
+		recorder.InitShader(Shadow_GPU_ShaderId);
         
         recorder.RequireRead(verticesBuffer);
         recorder.RequireRead(indexBuffer);

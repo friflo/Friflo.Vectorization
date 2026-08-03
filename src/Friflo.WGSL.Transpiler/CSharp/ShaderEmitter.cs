@@ -149,7 +149,7 @@ $$"""
 {{buffers}}
         var pass_       = {{passName}}.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init({{methodName_GPU}}_ShaderId, "{{methodName}}_encoder"u8);
+		recorder.InitShader({{methodName_GPU}}_ShaderId);
 {{bufferInit}}
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, {{configName}}, {{methodName_GPU}}_WgslHash);

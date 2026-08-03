@@ -172,7 +172,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             throw new InvalidOperationException("RenderFrame is null");
         }
         if (recorder.currentEncoder.handle == null) {
-            recorder.Init(0, "RenderEncoder"u8);		// TODO fix this hack
+            recorder.InitShader(0);		// TODO fix this hack
         }
         
         Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[descriptor.colorAttachments.Length];

@@ -20,7 +20,7 @@ public partial class ShaderExample
 
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
-		recorder.Init(_TestTextureTypes_GPU_ShaderId, "TestTextureTypes_encoder"u8);
+		recorder.InitShader(_TestTextureTypes_GPU_ShaderId);
 
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_TestTextureTypes_GPU_ShaderId, config, _TestTextureTypes_GPU_WgslHash);
