@@ -8,6 +8,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  WgpuDevice
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.WebGPU.Runtime;
@@ -116,14 +117,16 @@ public readonly struct WgpuShader
     public readonly string path;
     public readonly string vert;
     public readonly string frag;
+    public readonly string compute;
     
     public override string ToString() => path;
     
-    public WgpuShader(string path, string vert = null, string frag = null)
+    public WgpuShader(string path, string vert = null, string frag = null, string compute = null)
     {
-        this.path = path;
-        this.vert = vert;
-        this.frag = frag;
+        this.path       = path;
+        this.vert       = vert;
+        this.frag       = frag;
+        this.compute    = compute;
     }
 }
 

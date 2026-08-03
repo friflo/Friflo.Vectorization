@@ -69,8 +69,9 @@ public sealed unsafe partial  class WgpuDevice
         entry= null;
         foreach (var shader in shaders) {
             switch (shaderType) {
-                case ShaderType.Vertex:     if (shader.vert != null) entry = shader.vert;  break;
-                case ShaderType.Fragment:   if (shader.frag != null) entry = shader.frag;  break;
+                case ShaderType.Vertex:     if (shader.vert    != null) entry = shader.vert;    break;
+                case ShaderType.Fragment:   if (shader.frag    != null) entry = shader.frag;    break;
+                case ShaderType.Compute:    if (shader.compute != null) entry = shader.compute; break;
             }
         }
         var wgslSource = GetFullWgsl(type, shaders, shaderType);
@@ -171,9 +172,52 @@ public sealed unsafe partial  class WgpuDevice
         }
     }
     
+    public WgpuComputePipeline CreateComputePipeline(
+        Span<WgpuBindGroupLayout>   layouts,
+        Type                        type,
+        WgpuShader[]                shader,
+        ReadOnlySpan<byte>          labelName)
+    {
+        nativeAllocator.Clear();
+        var csModule = CreateShaderModule(type, shader, ShaderType.Compute, out var csEntry, labelName);
+        
+        var csEntryView = nativeAllocator.StringToNative(csEntry);
+        
+        fixed (byte*                pLabelName = labelName)
+        fixed (WgpuBindGroupLayout* layoutsPtr = layouts)
+        {
+            var label = WgpuUtils.FromPtrSpan(pLabelName, labelName);
+            
+            var layoutDesc = new PipelineLayoutDescriptor {
+                label                   = label,
+                bindGroupLayoutCount    = (uint)layouts.Length,
+                bindGroupLayouts        = (BindGroupLayout**)layoutsPtr
+            };
+            var pipelineLayout = wgpuDeviceCreatePipelineLayout(DevicePtr, &layoutDesc);
+            
+            var computeDesc = new ComputePipelineDescriptor {
+                label       = label,
+                layout      = pipelineLayout,
+                compute     = new ComputeState {
+                    module      = csModule.handle,
+                    entryPoint  = csEntryView
+                }
+            };
+            try {
+                var handle = wgpuDeviceCreateComputePipeline(DevicePtr, &computeDesc);
+                return new WgpuComputePipeline(handle);
+            } finally {
+                nativeAllocator.Clear();
+                if (pipelineLayout != null)     wgpuPipelineLayoutRelease(pipelineLayout);
+                csModule.Dispose();
+            }
+        }
+    }
+    
     enum ShaderType {
         Vertex,
-        Fragment
+        Fragment,
+        Compute
     }
     
     public WgpuRenderPipeline CreateRenderPipeline(
