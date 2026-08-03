@@ -102,7 +102,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_InverseSqrt_GPU_KernelId, "InverseSqrt"u8);
+        recorder.InitKernel(_InverseSqrt_GPU_KernelId, "InverseSqrt"u8);
 
         recorder.RequireReadWrite(position);
 

@@ -188,7 +188,7 @@ $$""""
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init({{methodName_GPU}}_KernelId, "{{methodName}}"u8);
+        recorder.InitKernel({{methodName_GPU}}_KernelId, "{{methodName}}"u8);
 {{bufferInit}}
 
         using var pass = recorder.BeginComputePass("{{methodName}}"u8);

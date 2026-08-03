@@ -118,7 +118,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Move_GPU_KernelId, "Move"u8);
+        recorder.InitKernel(_Move_GPU_KernelId, "Move"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (velocity);

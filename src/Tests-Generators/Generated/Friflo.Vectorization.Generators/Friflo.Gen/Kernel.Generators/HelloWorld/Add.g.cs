@@ -125,7 +125,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Add_GPU_KernelId, "Add"u8);
+        recorder.InitKernel(_Add_GPU_KernelId, "Add"u8);
 
         recorder.RequireRead     (a);
         recorder.RequireRead     (b);

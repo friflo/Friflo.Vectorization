@@ -112,7 +112,7 @@ namespace VerifyVectorize
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Sign_GPU_KernelId, "Kernel_Sign"u8);
+        recorder.InitKernel(_Kernel_Sign_GPU_KernelId, "Kernel_Sign"u8);
 
         recorder.RequireReadWrite(position);
 

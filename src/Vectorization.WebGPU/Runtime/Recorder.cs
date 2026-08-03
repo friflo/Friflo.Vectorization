@@ -48,7 +48,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
 
     public   override   string                  ToString()          => $"newPass: {createNewPass}";
 
-    public void Init(int id, ReadOnlySpan<byte> encoderLabel)
+    public void InitKernel(int id, ReadOnlySpan<byte> encoderLabel)
     {
         if (currentEncoder.handle == null) {
             fixed (byte* labelPtr = encoderLabel) {

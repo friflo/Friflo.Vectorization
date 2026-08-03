@@ -154,7 +154,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Arithmetic_GPU_KernelId, "Arithmetic"u8);
+        recorder.InitKernel(_Arithmetic_GPU_KernelId, "Arithmetic"u8);
 
         recorder.RequireReadWrite(position);
         recorder.RequireRead     (velocity);

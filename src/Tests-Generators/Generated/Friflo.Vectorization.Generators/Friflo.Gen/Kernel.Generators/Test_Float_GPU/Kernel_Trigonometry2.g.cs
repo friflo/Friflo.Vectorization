@@ -117,7 +117,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Kernel_Trigonometry2_GPU_KernelId, "Kernel_Trigonometry2"u8);
+        recorder.InitKernel(_Kernel_Trigonometry2_GPU_KernelId, "Kernel_Trigonometry2"u8);
 
         recorder.RequireReadWrite(position);
 

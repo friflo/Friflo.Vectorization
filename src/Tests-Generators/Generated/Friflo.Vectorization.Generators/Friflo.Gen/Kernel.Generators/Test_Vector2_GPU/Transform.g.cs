@@ -119,7 +119,7 @@ namespace Kernel.Generators
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Transform_GPU_KernelId, "Transform"u8);
+        recorder.InitKernel(_Transform_GPU_KernelId, "Transform"u8);
 
         recorder.RequireReadWrite(position);
 

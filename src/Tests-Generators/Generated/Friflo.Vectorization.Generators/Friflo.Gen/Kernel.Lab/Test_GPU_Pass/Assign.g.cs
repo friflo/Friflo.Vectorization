@@ -112,7 +112,7 @@ namespace Kernel.Lab
     {
         var device   = (WgpuDevice)buffers.device;
         var recorder = device.Recorder;
-        recorder.Init(_Assign_GPU_KernelId, "Assign"u8);
+        recorder.InitKernel(_Assign_GPU_KernelId, "Assign"u8);
 
         recorder.RequireReadWrite(output);
         recorder.RequireRead     (input);
