@@ -194,7 +194,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult IterateSdl3()
     {
-        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface, wgpu.Width, wgpu.Height);
+        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface, wgpu.Width, wgpu.Height, "frame-encoder"u8);
         if (frame.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }

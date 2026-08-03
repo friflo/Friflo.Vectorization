@@ -72,9 +72,6 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
     
     public void InitShader(int id)
     {
-        if (currentEncoder.handle == null) {
-            currentEncoder  = device.CreateEncoder(default);
-        }
         traceNewKernel  = kernelId != id;
         createNewPass   = kernelSeq == 0; // kernelId != id;
         kernelId        = id;

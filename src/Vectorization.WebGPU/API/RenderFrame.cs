@@ -22,20 +22,28 @@ namespace Friflo.Vectorization.WebGPU;
 
 public static partial class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, int width, int height)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, int width, int height, ReadOnlySpan<byte> encoderLabel)
     {
         if (surface.handle == null) {
             throw new InvalidOperationException("WgpuSurface is null");
         }
         var recorder = (CommandRecorder)context;
+        if (recorder.currentEncoder.handle != null) {
+            throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
+        }
         SurfaceTexture surfaceTexture;
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
         if (surfaceTexture.texture == null) {
-            return new RenderFrame(default, null, surfaceTexture.status, null, width, height);  //   surfaceTexture.texture == null   if window minimized
+            // surfaceTexture.texture == null   if window minimized
+            return new RenderFrame(default, null, surfaceTexture.status, null, width, height);
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new GpuTextureView(handle, null);
         
+        fixed (byte* labelPtr = encoderLabel) {
+            var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
+            recorder.currentEncoder = recorder.Device.CreateEncoder(label);
+        }
         return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, width, height);
     }
 }
@@ -171,10 +179,6 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         if (recorder == null) {
             throw new InvalidOperationException("RenderFrame is null");
         }
-        if (recorder.currentEncoder.handle == null) {
-            recorder.InitShader(0);		// TODO fix this hack
-        }
-        
         Span<RenderPassColorAttachment> colorAttachments = stackalloc RenderPassColorAttachment[descriptor.colorAttachments.Length];
 
         for (int n = 0; n < colorAttachments.Length; n++) {
