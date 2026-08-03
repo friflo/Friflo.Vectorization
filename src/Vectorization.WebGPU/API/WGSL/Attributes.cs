@@ -73,7 +73,7 @@ public sealed class DrawInstanceAttribute : Attribute;
 #endregion
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class ComputeAttribute : Attribute;
+public sealed class DispatchAttribute : Attribute;
 
 #region ---------- GpuBuffer<> parameter Attributes
 
