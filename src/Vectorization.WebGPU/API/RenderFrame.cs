@@ -202,6 +202,8 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
             colorAttachmentCount    = (uint)colorAttachments.Length,
             depthStencilAttachment  = pDepthStencilAttachment
         };
+        recorder.FinishPass(); // finish compute pass if still open
+        
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
             renderPassDesc.colorAttachments = pAttachments;
             var passEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);

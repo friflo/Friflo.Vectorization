@@ -33,13 +33,13 @@ public partial class Renderer : IRenderer
 
     private static readonly VertexData[] Vertices =
     [
-        new(new Vector4(-0.5f,  0.5f, 1.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
-        new(new Vector4(-0.5f, -0.5f, 0.0f, 1), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),  // Bottom-Left
-        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
+        new(new Vector4(-0.5f,  0.5f, 0, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
+        new(new Vector4(-0.5f, -0.5f, 0, 1), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),  // Bottom-Left
+        new(new Vector4( 0.5f, -0.5f, 0, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
         
-        new(new Vector4(-0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
-        new(new Vector4( 0.5f, -0.5f, 0.0f, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
-        new(new Vector4( 0.5f,  0.5f, 0.0f, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
+        new(new Vector4(-0.5f,  0.5f, 0, 1), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // Top-Left
+        new(new Vector4( 0.5f, -0.5f, 0, 1), new Vector4(0.9f, 0.0f, 0.0f, 1.0f)),  // Bottom-Right
+        new(new Vector4( 0.5f,  0.5f, 0, 1), new Vector4(1.0f, 1.0f, 1.0f, 1.0f))   // Top-Right
     ];
 
     // --- non-disposable fields
@@ -61,19 +61,28 @@ public partial class Renderer : IRenderer
         };
     }
     
+    protected static Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    {
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        var view = Matrix4x4.CreateRotationY(MathF.Sin(time))
+                 * Matrix4x4.CreateTranslation(0, 0, -1.5f);
+        return view * proj;
+    }
+    
     public virtual void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         var timeUniform = new TimeUniform(time);
+        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
         
         DeformVertices(frame.Context, data.InOut(), timeUniform);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
-        var model_offset 		= new Vector2(0.1f * MathF.Cos(time * 2), 0);
+        var model_offset 		= new Vector2(0, 0.2f * MathF.Cos(time * 2));
         wormhood.iResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
         wormhood.iTime          = time;
         

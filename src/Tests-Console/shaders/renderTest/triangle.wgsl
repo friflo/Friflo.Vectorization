@@ -10,8 +10,9 @@ struct TriangleStorage {
 
 // --- uniform structs
 struct MyUniforms {
-    tint_color:   vec4<f32>,
-    model_offset: vec4<f32>,
+    modelViewProjectionMatrix : mat4x4f,
+    tint_color :                vec4<f32>,
+    model_offset :              vec4<f32>,
 }
 
 
@@ -33,7 +34,7 @@ fn vs_main(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
     let vertex = mesh_data.triangles[vertex_id];
     
     // pass transformed position and color and add model_offset
-    out.clip_position = vertex.position + vec4<f32>(model_offset, 0.0, 0.0);    
+    out.clip_position = myUniforms.modelViewProjectionMatrix * (vertex.position + vec4<f32>(model_offset, 0.0, 0.0));    
     out.color 		  = vertex.color * myUniforms.tint_color;
     
     return out;

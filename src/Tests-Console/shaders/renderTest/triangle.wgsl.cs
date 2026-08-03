@@ -15,11 +15,12 @@ file partial class _info;
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct MyUniforms (Vector4 tint_color, Vector4 model_offset)
+[StructLayout(LayoutKind.Explicit, Size = 96)]
+public struct MyUniforms (in Matrix4x4 modelViewProjectionMatrix, Vector4 tint_color, Vector4 model_offset)
 {
-    [FieldOffset(  0)]  public  Vector4 tint_color   = tint_color;
-    [FieldOffset( 16)]  public  Vector4 model_offset = model_offset;
+    [FieldOffset(  0)]  public  Matrix4x4 modelViewProjectionMatrix = modelViewProjectionMatrix;
+    [FieldOffset( 64)]  public  Vector4   tint_color                = tint_color;
+    [FieldOffset( 80)]  public  Vector4   model_offset              = model_offset;
 }
 
 
