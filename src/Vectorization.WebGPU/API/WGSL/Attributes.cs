@@ -22,9 +22,10 @@ namespace Friflo.Vectorization.WebGPU;
 public sealed class ShaderAttribute : Attribute
 {
     /// <param name="wgslPath">Relative path - with prefix <c>~/</c> to the .wgsl source file.</param>
-    /// <param name="vertex">Name of the <c>@vertex</c> shader entry point function.</param>
+    /// <param name="vertex"  >Name of the <c>@vertex</c> shader entry point function.</param>
     /// <param name="fragment">Name of the <c>@fragment</c> shader entry point function.</param>
-    public ShaderAttribute([PathReference] string wgslPath, string vertex = null, string fragment = null) { }
+    /// <param name="compute" >Name of the <c>@compute</c> shader entry point function.</param>
+    public ShaderAttribute([PathReference] string wgslPath, string vertex = null, string fragment = null, string compute = null) { }
 }
 
 #endregion
@@ -71,7 +72,8 @@ public sealed class DrawInstanceAttribute : Attribute;
 
 #endregion
 
-
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class ComputeAttribute : Attribute;
 
 #region ---------- GpuBuffer<> parameter Attributes
 
