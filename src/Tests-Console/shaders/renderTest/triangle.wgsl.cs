@@ -10,13 +10,8 @@ using System.Numerics;
 namespace Shaders.RenderTest;
 
 
-[Source("~/shaders/renderTest/triangle.wgsl")]
-[StructLayout(LayoutKind.Explicit, Size = 32)]
-public struct VertexData (Vector4 position, Vector4 color)
-{
-    [FieldOffset(  0)]  public  Vector4 position = position;
-    [FieldOffset( 16)]  public  Vector4 color    = color;
-}
+/// Skipped identical duplicate of  <see cref="VertexData"/>
+file partial class _info;
 
 
 [Source("~/shaders/renderTest/triangle.wgsl")]

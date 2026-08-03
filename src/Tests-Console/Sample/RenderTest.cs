@@ -67,6 +67,8 @@ public partial class Renderer : IRenderer
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
         
+        DeformVertices(frame.Context, data.InOut(), time);
+        
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
@@ -83,6 +85,13 @@ public partial class Renderer : IRenderer
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
         [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
         [Map(2, 1)] [uniform]           Vector2                 model_offset);
+    
+    
+    [NoEmit]
+    [Shader("~/shaders/renderTest/deform.wgsl")]
+    private static partial void DeformVertices(PipelineContext context,
+        [Map(0, 0)] [storage]           InOutBuffer<VertexData> vertices,
+        [Map(1, 0)] [uniform]           float                   time);
 }
 
 
