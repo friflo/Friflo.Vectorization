@@ -108,7 +108,7 @@ namespace Kernel.Lab
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
             recorder.BindGroupEntryBuffer(0, input.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "ReadOnly_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.layouts[0], "ReadOnly_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

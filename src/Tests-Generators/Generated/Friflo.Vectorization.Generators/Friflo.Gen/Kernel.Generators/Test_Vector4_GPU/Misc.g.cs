@@ -183,7 +183,7 @@ namespace Kernel.Generators
         {
             recorder.BindGroupEntryBuffer(0, position.Buffer);
             recorder.BindGroupEntryBuffer(1, velocity.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Misc_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.layouts[0], "Misc_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

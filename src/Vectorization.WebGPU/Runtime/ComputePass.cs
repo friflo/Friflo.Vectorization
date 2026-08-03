@@ -67,8 +67,8 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
     {
         var rec = recorder;
         if (!bindGroup.IsCreated) {
-            var entry   = rec.CreateUniformBindGroupEntry<T>(binding); // always binding: 0  in ComputePass
-            bindGroup   = rec.CreateBindGroupInternal(pipelineCache.uniformLayout, entry, groupLabel);
+            var entry   = rec.CreateUniformBindGroupEntry<T>(binding); // always binding: 0  for [Kernel] methods
+            bindGroup   = rec.CreateBindGroupInternal(pipelineCache.layouts[(int)groupIndex], entry, groupLabel);
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
         uint offset         = rec.uniformOffset;

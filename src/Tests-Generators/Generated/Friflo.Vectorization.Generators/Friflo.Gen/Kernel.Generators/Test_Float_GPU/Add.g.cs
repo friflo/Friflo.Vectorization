@@ -132,7 +132,7 @@ namespace Kernel.Generators
         {
             recorder.BindGroupEntryBuffer(0, dst.Buffer);
             recorder.BindGroupEntryBuffer(1, src.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "Add_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.layouts[0], "Add_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

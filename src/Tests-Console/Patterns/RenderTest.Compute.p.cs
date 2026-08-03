@@ -33,7 +33,7 @@ public partial class Renderer
         var key_0 = vertices.Handle;
         if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup0)) {
             recorder.BindGroupEntryBuffer(0, vertices.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.bufferLayout, "DeformVertices_bindGroup_0"u8);
+            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DeformVertices_bindGroup_0"u8);
             bindGroupCache.bindGroup_0.Add(key_0, bindGroup0);
         }
         pass_.SetBindGroup(0, bindGroup0);
@@ -84,7 +84,7 @@ public partial class Renderer
         var pipeline = device.CreateComputePipeline(layouts, typeof(Renderer), DeformVertices_GPU_Shaders, "DeformVertices_pipeline"u8);
         
         var bindGroupCache = new DeformVertices_GPU_Cache();
-        return ref device.CreatePipelineCache(DeformVertices_GPU_ShaderId, DeformVertices_GPU_WgslHash, pipeline, layout_0, layout_1, bindGroupCache);
+        return ref device.CreatePipelineCache(DeformVertices_GPU_ShaderId, DeformVertices_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
     private static readonly WgpuShader[] DeformVertices_GPU_Shaders = [

@@ -130,7 +130,7 @@ namespace VerifyVectorize
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {
             recorder.BindGroupEntryBuffer(0, position.Buffer);
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "MoveExample_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.layouts[0], "MoveExample_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);

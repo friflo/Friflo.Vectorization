@@ -204,7 +204,7 @@ $$""""
         var key = {{bufferKey}};
         if (!bindGroupCache.bufferGroup.TryGetValue(key, out var bufferGroup))
         {{{bufferBindEntries}}
-            bufferGroup = recorder.CreateBindGroup(pipelineCache.bufferLayout, "{{methodName}}_buffers"u8);
+            bufferGroup = recorder.CreateBindGroup(pipelineCache.layouts[0], "{{methodName}}_buffers"u8);
             bindGroupCache.bufferGroup.Add(key, bufferGroup);
         }
         pass.SetBindGroup(0, bufferGroup);
