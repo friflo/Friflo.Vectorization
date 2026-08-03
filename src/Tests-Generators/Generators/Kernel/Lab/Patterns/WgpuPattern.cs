@@ -56,7 +56,7 @@ public static class WgpuPattern
             output_off  = output.Offset,
             bias        = bias
         };
-        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "MultiplyAdd_uniforms"u8);
+        pass.SetBindGroupUniform(1, 0, ref bindGroupCache.uniformGroup, uniforms, pipelineCache, "MultiplyAdd_uniforms"u8);
             
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

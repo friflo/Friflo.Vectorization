@@ -63,11 +63,11 @@ public readonly unsafe ref struct WgpuComputePass : IDisposable
         recorder.lastBufferBindGroup = bindGroup.handle;
     }
     
-    public void SetUniformBindGroup<T>(uint groupIndex, ref WgpuBindGroup bindGroup, in ComputeCache pipelineCache, T uniform, ReadOnlySpan<byte> groupLabel) where T : unmanaged
+    public void SetBindGroupUniform<T>(uint groupIndex, int binding, ref WgpuBindGroup bindGroup, in T uniform, in ComputeCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = recorder;
         if (!bindGroup.IsCreated) {
-            var entry   = rec.CreateUniformBindGroupEntry<T>(0); // always binding: 0  in ComputePass
+            var entry   = rec.CreateUniformBindGroupEntry<T>(binding); // always binding: 0  in ComputePass
             bindGroup   = rec.CreateBindGroupInternal(pipelineCache.uniformLayout, entry, groupLabel);
         }
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);

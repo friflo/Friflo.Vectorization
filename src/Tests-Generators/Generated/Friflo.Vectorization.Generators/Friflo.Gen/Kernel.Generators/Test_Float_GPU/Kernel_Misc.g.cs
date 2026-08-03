@@ -217,7 +217,7 @@ namespace Kernel.Generators
             velocity_off    = velocity.Offset,
             value           = value,
         };
-        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "Kernel_Misc_uniforms"u8);
+        pass.SetBindGroupUniform(1, 0, ref bindGroupCache.uniformGroup, uniforms, pipelineCache, "Kernel_Misc_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

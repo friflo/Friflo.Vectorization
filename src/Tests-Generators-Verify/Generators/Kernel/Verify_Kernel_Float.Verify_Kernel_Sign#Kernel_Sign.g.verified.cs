@@ -140,7 +140,7 @@ namespace VerifyVectorize
             position_off    = position.Offset,
             value           = value,
         };
-        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "Kernel_Sign_uniforms"u8);
+        pass.SetBindGroupUniform(1, 0, ref bindGroupCache.uniformGroup, uniforms, pipelineCache, "Kernel_Sign_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }

@@ -144,7 +144,7 @@ namespace Kernel.Generators
             count           = buffers.length,
             position_off    = position.Offset,
         };
-        pass.SetUniformBindGroup(1, ref bindGroupCache.uniformGroup, pipelineCache, uniforms, "Kernel_Trigonometry2_uniforms"u8);
+        pass.SetBindGroupUniform(1, 0, ref bindGroupCache.uniformGroup, uniforms, pipelineCache, "Kernel_Trigonometry2_uniforms"u8);
         
         pass.DispatchWorkgroups((buffers.length + 63) / 64, 1, 1);
     }
