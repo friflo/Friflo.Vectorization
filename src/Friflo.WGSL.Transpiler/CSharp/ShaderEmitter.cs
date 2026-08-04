@@ -137,29 +137,75 @@ public sealed class ShaderEmitter
         }
         if (addedBuffer) body.Append("        \n");
         
-        // --- draw
-        EmitDraw(body, method);
-        
         var className   = method.DeclaringType.Name;
-        var passName    = method.Parameters[0].Name;
-        var configName  = method.Parameters[1].Name;
-
-        // language=csharp
-        var code =
+        
+        if (isCompute)
+        {
+            EmitCompute(body, method);
+            
+            // language=csharp
+            return
 $$"""
 {{header}}
     {
 {{buffers}}
-{{(isCompute ?
-$"""
-        var recorder = (CommandRecorder)computeContext;
-        recorder.InitKernel({methodName_GPU}_ShaderId, "{methodName}_pipeline"u8);
-""":
-$"""
-        var pass_       = {passName}.Internal;
+        var recorder	= (CommandRecorder)computeContext;
+		recorder.InitKernel(DeformVertices_GPU_ShaderId, "{{methodName}}_pipeline"u8);
+{{bufferInit}}
+        
+        using var pass_ = recorder.BeginComputePass("{{methodName}}"u8);
+        
+        ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, {{methodName_GPU}}_WgslHash);
+        if (!pipelineCache.IsCreated) {
+            pipelineCache = ref {{methodName_GPU}}_CreatePipelineCache(recorder.Device);
+        }
+        pass_.SetPipeline(pipelineCache.computePipeline);
+        
+        var bindGroupCache = ({{methodName_GPU}}_Cache)pipelineCache.bindGroupCache;
+
+{{body}}    }
+
+    private sealed class {{methodName_GPU}}_Cache : BindGroupCache
+    {
+{{bindGroupMembers}}
+        protected override void Clear() {
+{{bindGroupClear}}        }
+    }
+
+    private static readonly int {{methodName_GPU}}_ShaderId            =  ShaderRegistry.NewShaderId("{{methodName}}");
+{{layoutKeys}}
+    private static ulong        {{methodName_GPU}}_WgslHash            => 0x{{wgslHash:x}}UL;  // support Hot-Reload
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static ref readonly ComputeCache {{methodName_GPU}}_CreatePipelineCache(WgpuDevice device)
+    {
+        Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[{{layoutArray.Length}}];
+{{bindGroupLayouts}}        var pipeline = device.CreateComputePipeline(layouts, typeof({{className}}), {{methodName_GPU}}_Shaders, "{{methodName}}_pipeline"u8);
+
+        var bindGroupCache = new {{methodName_GPU}}_Cache();
+        return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
+    }
+    
+{{shaderResources}}
+}
+""";
+        }
+        
+        // --- draw
+        EmitDraw(body, method);
+        
+        var passName    = method.Parameters[0].Name;
+        var configName  = method.Parameters[1].Name;
+
+        // language=csharp
+        return
+$$"""
+{{header}}
+    {
+{{buffers}}
+        var pass_       = {{passName}}.Internal;
         var recorder    = pass_.Recorder;
-        recorder.InitShader({methodName_GPU}_ShaderId);
-""")}}
+        recorder.InitShader({{methodName_GPU}}_ShaderId);
 {{bufferInit}}
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, {{configName}}, {{methodName_GPU}}_WgslHash);
@@ -196,7 +242,6 @@ $"""
 {{shaderResources}}
 }
 """;
-        return code;
     }
     
     private void EmitBindGroupCaching(int group, CsParameter[] resources)
@@ -401,6 +446,12 @@ $"""
                 body.Append($"            recorder.BindGroupEntryTexture({index}, {binding.Name});\n");
                 return;
         }
+    }
+    
+    private static void EmitCompute(StringBuilder body, in CsMethod method)
+    {
+        body.Append("        // --- compute\n");
+        body.Append("        pass_.DispatchWorkgroups((vertices.Length + 63) / 64, 1, 1);\n");  // TODO  implement
     }
     
     private static void EmitDraw(StringBuilder body, in CsMethod method)
