@@ -256,7 +256,7 @@ public static partial class CodeFixer
             var computeEntry = module.EntryPoints.Find(ep => ep.Stage == "compute");
             var workgroupSize = computeEntry?.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");
             var args = workgroupSize == null ? "64, 1, 1" : string.Join(", ", workgroupSize.Args);
-            sb.Append($"    // [ ]  Add [Dispatch({args})] to the storage buffer parameter used to execute DispatchWorkgroups().\n");
+            sb.Append($"    // [ ]  Add [Dispatch({args})] to the parameter that defines the total item count for DispatchWorkgroups().\n");
         } else {
             sb.Append("    // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
         }

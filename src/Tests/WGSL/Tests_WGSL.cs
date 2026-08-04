@@ -211,7 +211,7 @@ public static class Tests_WGSL
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """
-                // [ ]  Add [Dispatch(64, 1, 1)] to the storage buffer parameter used to execute DispatchWorkgroups().
+                // [ ]  Add [Dispatch(64, 1, 1)] to the parameter that defines the total item count for DispatchWorkgroups().
             
             """));
     }
