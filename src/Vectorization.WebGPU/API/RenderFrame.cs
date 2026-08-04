@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU.Runtime;
@@ -157,7 +158,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
-    public              PipelineContext                 ComputeContext  => recorder;
+    public              PipelineContext                 ComputeContext { [DebuggerStepThrough] get => recorder; }
     public              bool                            IsNull          => recorder == null;
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 
