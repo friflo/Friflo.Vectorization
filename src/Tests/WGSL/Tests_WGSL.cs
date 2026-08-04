@@ -206,7 +206,7 @@ public static class Tests_WGSL
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (PipelineContext computeContext,
-                    [Map(0, 0)] [storage]   InBuffer<VertexData>    vertices,
+                    [Map(0, 0)] [storage]   InOutBuffer<VertexData> vertices,
                     [Map(1, 0)] [uniform]   in TimeUniform          timeData)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp

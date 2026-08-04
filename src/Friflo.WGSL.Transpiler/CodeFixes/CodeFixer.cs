@@ -112,7 +112,7 @@ public static partial class CodeFixer
             case "storage": {
                 var type        = GetStorageBindingType(module, binding);
                 var csType      = GetParameterType(type, typeMap, out _);
-                var bufferType  = binding.AccessMode == "write" ? "InOutBuffer" : "InBuffer";
+                var bufferType  = binding.AccessMode is "write" or "read_write" ? "InOutBuffer" : "InBuffer";
                 csType          = $"{bufferType}<{csType}>";
                 parameters.Add(new MethodParam(binding, "[storage]", csType));
                 break;
