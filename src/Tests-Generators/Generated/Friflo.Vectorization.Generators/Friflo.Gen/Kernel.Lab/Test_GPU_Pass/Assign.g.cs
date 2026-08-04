@@ -192,7 +192,7 @@ namespace Kernel.Lab
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Assign"u8);
         
         var bindGroupCache = new _Assign_GPU_Cache();
-        return ref device.CreatePipelineCache(_Assign_GPU_KernelId, _Assign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Assign_GPU_KernelId, _Assign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Assign_GPU_Shader() =>

@@ -165,7 +165,7 @@ namespace Kernel.Lab
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "ReadOnly"u8);
         
         var bindGroupCache = new _ReadOnly_GPU_Cache();
-        return ref device.CreatePipelineCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_ReadOnly_GPU_KernelId, _ReadOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _ReadOnly_GPU_Shader() =>

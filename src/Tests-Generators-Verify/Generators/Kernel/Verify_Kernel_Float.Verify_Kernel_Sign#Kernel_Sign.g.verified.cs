@@ -189,7 +189,7 @@ namespace VerifyVectorize
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Sign"u8);
         
         var bindGroupCache = new _Kernel_Sign_GPU_Cache();
-        return ref device.CreatePipelineCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Kernel_Sign_GPU_KernelId, _Kernel_Sign_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Sign_GPU_Shader() =>

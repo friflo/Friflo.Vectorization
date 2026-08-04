@@ -200,7 +200,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Clamp"u8);
         
         var bindGroupCache = new _Kernel_Clamp_GPU_Cache();
-        return ref device.CreatePipelineCache(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Kernel_Clamp_GPU_KernelId, _Kernel_Clamp_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Clamp_GPU_Shader() =>

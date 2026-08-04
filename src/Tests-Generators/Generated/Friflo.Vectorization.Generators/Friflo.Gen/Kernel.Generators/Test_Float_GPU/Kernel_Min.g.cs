@@ -192,7 +192,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Min"u8);
         
         var bindGroupCache = new _Kernel_Min_GPU_Cache();
-        return ref device.CreatePipelineCache(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Kernel_Min_GPU_KernelId, _Kernel_Min_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Min_GPU_Shader() =>

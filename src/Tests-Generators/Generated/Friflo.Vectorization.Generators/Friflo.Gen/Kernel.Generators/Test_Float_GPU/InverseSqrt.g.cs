@@ -177,7 +177,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "InverseSqrt"u8);
         
         var bindGroupCache = new _InverseSqrt_GPU_Cache();
-        return ref device.CreatePipelineCache(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_InverseSqrt_GPU_KernelId, _InverseSqrt_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _InverseSqrt_GPU_Shader() =>

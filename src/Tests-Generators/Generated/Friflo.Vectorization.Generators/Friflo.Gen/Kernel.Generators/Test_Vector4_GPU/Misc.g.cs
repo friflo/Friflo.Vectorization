@@ -245,7 +245,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Misc"u8);
         
         var bindGroupCache = new _Misc_GPU_Cache();
-        return ref device.CreatePipelineCache(_Misc_GPU_KernelId, _Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Misc_GPU_KernelId, _Misc_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Misc_GPU_Shader() =>

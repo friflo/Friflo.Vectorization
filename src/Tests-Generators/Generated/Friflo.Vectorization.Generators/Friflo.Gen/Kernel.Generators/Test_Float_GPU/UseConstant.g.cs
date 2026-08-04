@@ -178,7 +178,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "UseConstant"u8);
         
         var bindGroupCache = new _UseConstant_GPU_Cache();
-        return ref device.CreatePipelineCache(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_UseConstant_GPU_KernelId, _UseConstant_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _UseConstant_GPU_Shader() =>

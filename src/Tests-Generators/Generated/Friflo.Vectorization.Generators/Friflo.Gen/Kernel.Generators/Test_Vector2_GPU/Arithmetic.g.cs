@@ -234,7 +234,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Arithmetic"u8);
         
         var bindGroupCache = new _Arithmetic_GPU_Cache();
-        return ref device.CreatePipelineCache(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Arithmetic_GPU_KernelId, _Arithmetic_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Arithmetic_GPU_Shader() =>

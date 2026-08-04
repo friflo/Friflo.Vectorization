@@ -196,7 +196,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Transform"u8);
         
         var bindGroupCache = new _Transform_GPU_Cache();
-        return ref device.CreatePipelineCache(_Transform_GPU_KernelId, _Transform_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Transform_GPU_KernelId, _Transform_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Transform_GPU_Shader() =>

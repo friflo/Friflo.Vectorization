@@ -185,7 +185,7 @@ $$"""
 {{bindGroupLayouts}}        var pipeline = device.CreateComputePipeline(layouts, typeof({{className}}), {{methodName_GPU}}_Shaders, "{{methodName}}_pipeline"u8);
 
         var bindGroupCache = new {{methodName_GPU}}_Cache();
-        return ref device.CreatePipelineCache({{methodName_GPU}}_ShaderId, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
+        return ref device.CreateComputeCache({{methodName_GPU}}_ShaderId, {{methodName_GPU}}_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
 {{shaderResources}}

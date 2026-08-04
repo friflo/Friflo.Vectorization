@@ -189,7 +189,7 @@ namespace VerifyVectorize
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MoveExample"u8);
         
         var bindGroupCache = new _MoveExample_GPU_Cache();
-        return ref device.CreatePipelineCache(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_MoveExample_GPU_KernelId, _MoveExample_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _MoveExample_GPU_Shader() =>

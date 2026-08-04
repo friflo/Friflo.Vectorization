@@ -106,7 +106,7 @@ public static class WgpuPattern
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "MultiplyAdd"u8);
         
         var bindGroupCache = new MultiplyAdd_GPU_Cache();
-        return ref device.CreatePipelineCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(MultiplyAdd_GPU_KernelId, MultiplyAdd_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     // TODO in future the shader should be created at compile time. The binary will be "stored" as generated file (in memory)

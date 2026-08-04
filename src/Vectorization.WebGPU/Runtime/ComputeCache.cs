@@ -80,7 +80,7 @@ public sealed partial  class WgpuDevice
     
     private static readonly ComputeCache MissingComputeCache = default;
     
-    public ref readonly ComputeCache CreatePipelineCache(
+    public ref readonly ComputeCache CreateComputeCache(
         int                 kernelId,
         ulong               wgslHash,
         WgpuComputePipeline computePipeline,
@@ -97,7 +97,7 @@ public sealed partial  class WgpuDevice
         return ref cache;
     }
     
-    public ref readonly ComputeCache CreatePipelineCache(
+    public ref readonly ComputeCache CreateComputeCache(
         int                                         kernelId,
         ulong                                       wgslHash,
         WgpuComputePipeline                         computePipeline,

@@ -192,7 +192,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Multiply"u8);
         
         var bindGroupCache = new _Multiply_GPU_Cache();
-        return ref device.CreatePipelineCache(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Multiply_GPU_KernelId, _Multiply_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Multiply_GPU_Shader() =>

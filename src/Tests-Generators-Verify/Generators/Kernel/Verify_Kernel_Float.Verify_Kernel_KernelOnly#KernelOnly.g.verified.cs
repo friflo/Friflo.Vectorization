@@ -126,7 +126,7 @@ namespace VerifyVectorize
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "KernelOnly"u8);
         
         var bindGroupCache = new _KernelOnly_GPU_Cache();
-        return ref device.CreatePipelineCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_KernelOnly_GPU_KernelId, _KernelOnly_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _KernelOnly_GPU_Shader() =>

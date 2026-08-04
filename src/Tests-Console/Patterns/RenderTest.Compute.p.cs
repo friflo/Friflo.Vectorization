@@ -84,7 +84,7 @@ public partial class Renderer
         var pipeline = device.CreateComputePipeline(layouts, typeof(Renderer), DeformVertices_GPU_Shaders, "DeformVertices_pipeline"u8);
         
         var bindGroupCache = new DeformVertices_GPU_Cache();
-        return ref device.CreatePipelineCache(DeformVertices_GPU_ShaderId, DeformVertices_GPU_WgslHash, pipeline, layouts, bindGroupCache);
+        return ref device.CreateComputeCache(DeformVertices_GPU_ShaderId, DeformVertices_GPU_WgslHash, pipeline, layouts, bindGroupCache);
     }
     
     private static readonly WgpuShader[] DeformVertices_GPU_Shaders = [

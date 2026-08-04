@@ -256,7 +256,7 @@ $$""""
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "{{methodName}}"u8);
         
         var bindGroupCache = new {{methodName_GPU}}_Cache();
-        return ref device.CreatePipelineCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache({{methodName_GPU}}_KernelId, {{methodName_GPU}}_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> {{methodName_GPU}}_Shader() =>

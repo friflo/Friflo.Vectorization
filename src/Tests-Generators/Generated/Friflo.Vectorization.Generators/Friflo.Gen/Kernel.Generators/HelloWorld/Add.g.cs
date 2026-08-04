@@ -210,7 +210,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Add"u8);
         
         var bindGroupCache = new _Add_GPU_Cache();
-        return ref device.CreatePipelineCache(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Add_GPU_KernelId, _Add_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Add_GPU_Shader() =>

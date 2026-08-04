@@ -192,7 +192,7 @@ namespace Kernel.Generators
         var pipeline            = device.CreateComputePipeline(shaderModule, bufferLayout, uniformLayout, "Kernel_Trigonometry2"u8);
         
         var bindGroupCache = new _Kernel_Trigonometry2_GPU_Cache();
-        return ref device.CreatePipelineCache(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
+        return ref device.CreateComputeCache(_Kernel_Trigonometry2_GPU_KernelId, _Kernel_Trigonometry2_GPU_WgslHash, pipeline, bufferLayout, uniformLayout, bindGroupCache);
     }
 
     private static ReadOnlySpan<byte> _Kernel_Trigonometry2_GPU_Shader() =>
