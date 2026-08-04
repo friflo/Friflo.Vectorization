@@ -10,7 +10,7 @@ struct TimeUniform {
 @group(0) @binding(0) var<storage, read_write> vertices: array<VertexData>;
 @group(1) @binding(0) var<uniform>              timeData: TimeUniform;
 
-@compute @workgroup_size(64)
+@compute @workgroup_size(64, 1, 1)
 fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;    
 

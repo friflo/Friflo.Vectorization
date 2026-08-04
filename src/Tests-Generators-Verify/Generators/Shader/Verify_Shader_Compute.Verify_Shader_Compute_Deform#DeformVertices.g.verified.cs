@@ -65,7 +65,7 @@ public partial class ShaderExample
     private const  ulong        _DeformVertices_GPU_layout_0_Key        =  0x8d1cce904a3cf317;
     private const  ulong        _DeformVertices_GPU_layout_1_Key        =  0x8475539045585a6c;
 
-    private static ulong        _DeformVertices_GPU_WgslHash            => 0x2eab34411b7f6852UL;  // support Hot-Reload
+    private static ulong        _DeformVertices_GPU_WgslHash            => 0xc10b80751ba2e3faUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly ComputeCache _DeformVertices_GPU_CreatePipelineCache(WgpuDevice device)

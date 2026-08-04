@@ -107,9 +107,18 @@ public record WgslBinding
     }
 }
 
+public class WgslAttribute
+{
+    public  string          Name       { get; set; } = string.Empty;
+    public  string[]        Args       { get; set; } = [];
+
+    public  override string ToString() => $"@{Name}";
+}
+
 public class WgslEntryPoint
 {
     public  string           Stage      { get; set; } = string.Empty;
+    public  WgslAttribute[]  Attributes { get; set; } = [];
     public  string           Name       { get; set; } = string.Empty;
     public  List<WgslParam>  Parameters { get; set; } = [];
     public  WgslType         ReturnType { get; set; } = new();

@@ -179,7 +179,7 @@ public static class FastWgslParser
             }
             else
             {
-                // unknown / ignored token  -> skip 1 char
+                // unknown / ignored token -> skip 1 char
                 scanner.SkipChar();
             }
         }
@@ -288,10 +288,10 @@ public static class FastWgslParser
             {
                 var fieldType = ParseType(ref scanner);
                 fields.Add(new WgslField { 
-                    Name 		= fieldName.ToString(), 
-                    WgslType 	= fieldType,
-                    Align 		= align,
-                    Size 		= size
+                    Name       = fieldName.ToString(), 
+                    WgslType   = fieldType,
+                    Align      = align,
+                    Size       = size
                 });
             }
             scanner.Match(',');
@@ -359,20 +359,32 @@ public static class FastWgslParser
         return true;
     }
 
-    // --- Entry Point Parser (@vertex, @fragment, @compute) ---
-// --- Entry Point Parser (@vertex, @fragment, @compute) ---
+    // --- Entry Point Parser (@vertex, @fragment, @compute @workgroup_size(...) fn ...) ---
     private static bool TryParseEntryPoint(ref WgslScanner scanner, out WgslEntryPoint result)
     {
         result = null!;
-        if (!scanner.Match('@')) return false;
+        scanner.SkipWhitespaceAndComments();
+        if (scanner.PeekChar() != '@') return false;
 
-        var stageSpan = scanner.ReadIdentifier();
-        string stage = stageSpan.ToString();
+        var attributes = new List<WgslAttribute>();
+        string stage = string.Empty;
 
-        if (stage != "vertex" && stage != "fragment" && stage != "compute")
-            return false;
+        // Collect all function attributes (e.g., @compute, @workgroup_size(64, 1, 1))
+        while (scanner.PeekChar() == '@')
+        {
+            var attr = TryParseAttribute(ref scanner);
+            if (attr == null) break;
 
-        SkipAttributes(ref scanner);
+            attributes.Add(attr);
+
+            if (attr.Name is "vertex" or "fragment" or "compute")
+            {
+                stage = attr.Name;
+            }
+        }
+
+        // Must have at least one stage attribute (@vertex, @fragment, or @compute)
+        if (string.IsNullOrEmpty(stage)) return false;
 
         if (!scanner.Match("fn")) return false;
 
@@ -384,7 +396,7 @@ public static class FastWgslParser
         while (!scanner.IsEof && !scanner.Match(')'))
         {
             // Parse optional parameter attributes (e.g., @location(0) or @builtin(...))
-            var attributeStr = TryReadFullAttribute(ref scanner);
+            var attributeStr = TryReadFullAttributeString(ref scanner);
 
             var paramName = scanner.ReadIdentifier();
             if (!paramName.IsEmpty && scanner.Match(':'))
@@ -413,6 +425,7 @@ public static class FastWgslParser
         result = new WgslEntryPoint
         {
             Stage = stage,
+            Attributes = attributes.ToArray(),
             Name = name,
             Parameters = parameters,
             ReturnType = returnType
@@ -420,8 +433,59 @@ public static class FastWgslParser
         return true;
     }
 
-    // Helper to capture full attribute string like "@location(0)"
-    private static string TryReadFullAttribute(ref WgslScanner scanner)
+    // Helper to parse a structured attribute like @workgroup_size(64, 1, 1) or @compute
+    private static WgslAttribute? TryParseAttribute(ref WgslScanner scanner)
+    {
+        scanner.SkipWhitespaceAndComments();
+        if (!scanner.Match('@')) return null;
+
+        var nameSpan = scanner.ReadIdentifier();
+        if (nameSpan.IsEmpty) return null;
+
+        string name = nameSpan.ToString();
+        var args = new List<string>();
+
+        if (scanner.Match('('))
+        {
+            int startPos = scanner.Position;
+            int depth = 1;
+
+            while (!scanner.IsEof && depth > 0)
+            {
+                char c = scanner.PeekChar();
+                if (c == '(') depth++;
+                else if (c == ')') depth--;
+
+                if (depth == 0)
+                {
+                    // Slice argument content inside parentheses
+                    var rawArgs = scanner.SliceFrom(startPos);
+                    scanner.SkipChar(); // Consume closing ')'
+
+                    string[] splitArgs = rawArgs.ToString().Split(',');
+                    for (int i = 0; i < splitArgs.Length; i++)
+                    {
+                        var trimmed = splitArgs[i].Trim();
+                        if (!string.IsNullOrEmpty(trimmed))
+                        {
+                            args.Add(trimmed);
+                        }
+                    }
+                    break;
+                }
+                scanner.SkipChar();
+            }
+        }
+
+        return new WgslAttribute
+        {
+            Name = name,
+            Args = args.ToArray()
+        };
+    }
+
+    // Helper to capture full raw attribute string like "@location(0)" for parameters
+    private static string TryReadFullAttributeString(ref WgslScanner scanner)
     {
         scanner.SkipWhitespaceAndComments();
         if (scanner.PeekChar() != '@') return string.Empty;
@@ -443,8 +507,7 @@ public static class FastWgslParser
             }
         }
 
-        // Return the exact substring slice as string
-        return scanner.SliceFrom(startPos).ToString(); // Or handle via scanner slice
+        return scanner.SliceFrom(startPos).ToString();
     }
 
     private static void SkipBracedBlock(ref WgslScanner scanner)
