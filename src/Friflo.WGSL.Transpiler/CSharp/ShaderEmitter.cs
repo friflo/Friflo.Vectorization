@@ -29,7 +29,6 @@ public sealed class ShaderEmitter
     private readonly    string          methodName;
     private readonly    string          methodName_GPU;
     private readonly    CsMethod        method;
-    private readonly    bool            isCompute;
     
     private readonly    StringBuilder   body                = new ();
     // - bind group creation
@@ -44,8 +43,6 @@ public sealed class ShaderEmitter
         this.method     = method;
         methodName      = method.Name;
         methodName_GPU  = $"_{methodName}_GPU{method.Hash}";
-        var parameters  = method.Parameters;
-        isCompute       = parameters.Length > 0 && parameters[0].Type.Name == "PipelineContext";
     }
     
     
@@ -140,9 +137,9 @@ public sealed class ShaderEmitter
         
         var className   = method.DeclaringType.Name;
         
-        if (isCompute)
+        if (method.WorkgroupSize.HasValue)
         {
-            EmitCompute(body, method);
+            EmitCompute(body, method, method.WorkgroupSize.Value);
             var contextName    = method.Parameters[0].Name;
             
             // language=csharp
@@ -353,7 +350,7 @@ $$"""
                 layoutKey ^= AddLayout(bindGroupLayouts, binding);  layoutKey *= Prime;
                 bindGroupLayouts.Append("\n");
             }
-            var shaderStage = isCompute ? "ShaderStage.Compute" : "ShaderStage.Vertex | ShaderStage.Fragment";
+            var shaderStage = method.WorkgroupSize != null ? "ShaderStage.Compute" : "ShaderStage.Vertex | ShaderStage.Fragment";
             bindGroupLayouts.Append($"            layout_{group} = device.CreateBindGroupLayout({shaderStage}, {methodName_GPU}_layout_{group}_Key, \"{methodName}_layout_{group}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
             bindGroupLayouts.Append($"        layouts[{group}] = layout_{group};\n");
@@ -451,17 +448,15 @@ $$"""
         }
     }
     
-    private static void EmitCompute(StringBuilder body, in CsMethod method)
+    private static void EmitCompute(StringBuilder body, in CsMethod method, CsWorkgroupSize size)
     {
         body.Append("        // --- compute\n");
-        var methodParameters = method.Parameters;
-        var dispatchParam = methodParameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.Dispatch);
+        var dispatchParam = method.Parameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.Dispatch);
         if (dispatchParam.Name == null) {
             return;
         }
-        var args = dispatchParam.DispatchArgs;
-        int x = args.workgroupCountX;
-        body.Append($"        pass_.DispatchWorkgroups(({dispatchParam.Name}.Length + {x - 1}) / {x}, {args.workgroupCountY}, {args.workgroupCountZ});\n");
+        int x = size.workgroupCountX;
+        body.Append($"        pass_.DispatchWorkgroups(({dispatchParam.Name}.Length + {x - 1}) / {x}, {size.workgroupCountY}, {size.workgroupCountZ});\n");
     }
     
     private static void EmitDraw(StringBuilder body, in CsMethod method)

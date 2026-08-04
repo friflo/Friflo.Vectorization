@@ -74,11 +74,18 @@ public sealed class DrawInstanceAttribute : Attribute;
 
 
 
-[AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DispatchAttribute : Attribute
+#region ---------- Compute method / parameter Attributes
+
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class WorkgroupSizeAttribute : Attribute
 {
-    public DispatchAttribute(int workgroupCountX, int workgroupCountY = 1, int workgroupCountZ = 1) { }
+    public WorkgroupSizeAttribute(int workgroupCountX, int workgroupCountY = 1, int workgroupCountZ = 1) { }
 }
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class DispatchAttribute : Attribute;
+
+#endregion
 
 
 

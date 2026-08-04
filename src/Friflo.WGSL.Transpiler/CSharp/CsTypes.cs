@@ -55,6 +55,7 @@ public record CsMethod
     public required     ValueArray<CsParameter> Parameters      { get; init; }
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
     public required     CsModifier              Modifier        { get; init; }
+    public required     CsWorkgroupSize?        WorkgroupSize   { get; init; }
     //
     [Browse(Never)] public required SrcLoc      MethodLoc       { get; init; }
     
@@ -153,7 +154,7 @@ public enum CsWorkloadAttribute
     // Index
 }
 
-public readonly record struct CsDispatchArgs
+public readonly record struct CsWorkgroupSize
 {
     public required                 int     workgroupCountX { get; init; }
     public required                 int     workgroupCountY { get; init; }
@@ -178,7 +179,6 @@ public readonly record struct CsParameter
     public required     CsBindGroup         BindGroup           { get; init; }
     public required     int                 VertexBufferSlot    { get; init; }
     public required     CsAttrEnum          AttrEnum            { get; init; }
-    public required     CsDispatchArgs      DispatchArgs        { get; init; }
     //
     [Browse(Never)] public required SrcLoc  TypeLoc             { get; init; }
     [Browse(Never)] public required SrcLoc  GenericArgLoc       { get; init; }

@@ -31,8 +31,10 @@ internal static partial class ShaderGenerator
         var shaderAttributes = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
         //
         var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
+        
+        var workgroupSize = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.WorkgroupSizeAttribute");
 
-        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex, diagnostics);
+        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex, workgroupSize, diagnostics);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
 
@@ -45,6 +47,7 @@ internal static partial class ShaderGenerator
         string              hash,
         List<AttributeData> shaderAttributes,
         AttributeData?      drawVertexIndexAttr,
+        AttributeData?      workgroupSizeAttr,
         Diagnostics         diagnostics)
     {
         var types               = new Dictionary<ITypeSymbol, CsTypeInfo>(SymbolEqualityComparer.Default);
@@ -59,17 +62,17 @@ internal static partial class ShaderGenerator
             var attributes          = paramSymbol.GetAttributes();
             var paramAttribute      = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
             var workloadAttribute   = CsWorkloadAttribute.None;
-            var dispatchArgs        = default(CsDispatchArgs);
-            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
-                workloadAttribute = CsWorkloadAttribute.Draw;
-            }
-            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
-                workloadAttribute = CsWorkloadAttribute.DrawInstance;
-            }
-            var dispatchAttrData = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute");
-            if (dispatchAttrData != null) {
-                workloadAttribute   = CsWorkloadAttribute.Dispatch;
-                dispatchArgs        = GetDispatchArgs(dispatchAttrData);
+            if (workgroupSizeAttr == null) {
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
+                    workloadAttribute = CsWorkloadAttribute.Draw;
+                }
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
+                    workloadAttribute = CsWorkloadAttribute.DrawInstance;
+                }
+            } else {
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute")) {
+                    workloadAttribute   = CsWorkloadAttribute.Dispatch;
+                }
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
             var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
@@ -86,7 +89,6 @@ internal static partial class ShaderGenerator
                     enum1               = e1,
                     enum2               = e2,
                 },
-                DispatchArgs        = dispatchArgs,
                 NameLoc             = nameLoc,
                 TypeLoc             = typeLoc,
                 GenericArgLoc       = genericArgLoc,
@@ -143,6 +145,8 @@ internal static partial class ShaderGenerator
         
         var typeInfos =  types.Values.Where(ti => ti.TypeCode > CsTypeCode.None && ti.TypeCode <= CsTypeCode.CSharpStruct).ToValueArray();
         
+        CsWorkgroupSize? workgroupSize = workgroupSizeAttr == null ? null : GetWorkgroupSize(workgroupSizeAttr);
+        
         return new CsMethod {
             Name            = methodSymbol.Name,
             Hash            = hash, 
@@ -152,15 +156,16 @@ internal static partial class ShaderGenerator
             DrawVertexIndex = drawVertexIndex,
             TypeInfos       = typeInfos, 
             Modifier        = modifier,
+            WorkgroupSize   = workgroupSize,
             MethodLoc       = methodSymbol.GetSymbolLoc()
         };
     }
 
 
-    private static CsDispatchArgs GetDispatchArgs(AttributeData dispatchAttrData)
+    private static CsWorkgroupSize GetWorkgroupSize(AttributeData dispatchAttrData)
     {
         var args = dispatchAttrData.ConstructorArguments;
-        return new CsDispatchArgs {
+        return new CsWorkgroupSize {
             workgroupCountX = args[0].Value is int x ? x : 0,
             workgroupCountY = args[1].Value is int y ? y : 0,
             workgroupCountZ = args[2].Value is int z ? z : 0

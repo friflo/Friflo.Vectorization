@@ -49,9 +49,10 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
+    [WorkgroupSize(64, 1, 1)]
     private static partial void DeformVertices(PipelineContext computeContext,
-        [Map(0, 0)] [storage] [Dispatch(64)]    InOutBuffer<VertexData> vertices,
-        [Map(1, 0)] [uniform]                   TimeUniform             uniform);
+        [Map(0, 0)] [storage] [Dispatch]    InOutBuffer<VertexData> vertices,
+        [Map(1, 0)] [uniform]               TimeUniform             uniform);
         
     public struct VertexData (Vector4 position, Vector4 color)
     {
