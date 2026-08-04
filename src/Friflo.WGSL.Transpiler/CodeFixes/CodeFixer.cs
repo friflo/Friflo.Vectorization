@@ -37,23 +37,30 @@ public static partial class CodeFixer
         return fullModule;
     }
     
-    public static ImmutableArray<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files)
+    public static ImmutableArray<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files, out string workload)
     {
+        workload = "draw";
         var result = new List<WgslFile>();
         foreach (var shader in method.Shaders) 
         {
             var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) continue;
+            if (shader.compute != null) workload = "compute";
             result.Add(file with { NormalizedPath = shader.path });
         }
         return result.ToImmutableArray();
     }
     
-    public static ShaderParamsResult CreateShaderParams(WgslModule module, TypeMapping[] mappings)
+    public static ShaderParamsResult CreateShaderParams(WgslModule module, TypeMapping[] mappings, bool isCompute)
     {
         var typeMap = TypeMapping.CreateTypeMap(mappings);
         var sb      = new StringBuilder();
-        sb.Append("(RenderPass pass, RenderConfig config,");
+        
+        if (isCompute) {
+            sb.Append("(PipelineContext computeContext,");
+        } else {
+            sb.Append("(RenderPass pass, RenderConfig config,");
+        }
         
         var parameters  = new List<MethodParam>();
         
@@ -66,7 +73,7 @@ public static partial class CodeFixer
         
         AppendParameters(sb, parameters);
         
-        var comments = CreateComments(parameters);
+        var comments = CreateComments(parameters, module, isCompute);
         
         return new ShaderParamsResult {
             Parameters  = sb.ToString(),
@@ -242,16 +249,25 @@ public static partial class CodeFixer
         parameters.Add(new MethodParam("[VertexBuffer(0)]", "InBuffer<float>", parameterName, $"// [ ]  Adjust the generic type of '{parameterName}' to your vertex struct."));
     }
     
-    private static string CreateComments(List<MethodParam> parameters)
+    private static string CreateComments(List<MethodParam> parameters, WgslModule module, bool isCompute)
     {
         var sb = new StringBuilder();
-        sb.Append("    // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
+        if (isCompute) {
+            var computeEntry = module.EntryPoints.Find(ep => ep.Stage == "compute");
+            var workgroupSize = computeEntry?.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");
+            var args = workgroupSize == null ? "64, 1, 1" : string.Join(", ", workgroupSize.Args);
+            sb.Append($"    // [ ]  Add [Dispatch({args})] to the storage buffer parameter used to execute DispatchWorkgroups().\n");
+        } else {
+            sb.Append("    // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
+        }
         
         foreach (var param in parameters) {
             if (param.comment == null)  continue;
             sb.Append($"    {param.comment}\n");
         }
-        sb.Append("    // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.\n"); // This cannot be inferred from wgsl.
+        if (!isCompute) {
+            sb.Append("    // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.\n"); // This cannot be inferred from wgsl.
+        }
         return sb.ToString();
     }
 }

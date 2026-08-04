@@ -55,15 +55,18 @@ public class AddParamsCodeFixProvider : CodeFixProvider
         CancellationToken   cancellationToken)
     {
         var wgslFiles = WgslUtils.CreateWgslFiles(diagnostic.Properties);
-        if (wgslFiles == null) {
-            return document;
-        }
+
         if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir)) {
             return document;
         }
+        if (!diagnostic.Properties.TryGetValue("workload", out var workload)) {
+            return document;
+        }
+        bool isCompute = workload == "compute";
+
         var module      = CodeFixer.ParseWgslFiles(wgslFiles);
         var mappings    = TypeMappings.LoadTypeMappings($"{projDir}/{TypeMappings.MappingPath}", out _);
-        var paramsResult= CodeFixer.CreateShaderParams(module, mappings);
+        var paramsResult= CodeFixer.CreateShaderParams(module, mappings, isCompute);
         var newParams   = SyntaxFactory.ParseParameterList(paramsResult.Parameters);
         
         var root = await document.GetSyntaxRootAsync(cancellationToken);

@@ -28,8 +28,9 @@ public static class TestWgslUtils
         return reader.ReadToEnd();
     }
     
-    public static WgslFile[] GetShaders(Type type, [CallerMemberName] string callerName = "")
+    public static WgslFile[] GetShaders(Type type, out bool isCompute, [CallerMemberName] string callerName = "")
     {
+        isCompute = false;
         var methodInfo = type.GetMethod(callerName);
         if (methodInfo == null) throw new InvalidOperationException("Could not find method " + callerName);
         
@@ -42,6 +43,8 @@ public static class TestWgslUtils
             var args = data.ConstructorArguments;
             var path = (string)args[0].Value;
             if (!path!.StartsWith("~/")) throw new InvalidOperationException("expect path starts with ~/ - path:" + path);
+            var compute = (string)args[3].Value;
+            if (compute != null) isCompute = true;
             
             path = path.Substring(2);
             var resourceName = "Tests." + path.Replace('/', '.'); 

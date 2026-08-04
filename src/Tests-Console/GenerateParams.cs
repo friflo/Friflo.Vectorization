@@ -15,6 +15,10 @@ public static partial class GenerateParams
     public static partial void DrawTrianglesEmpty();
     
     
+	[Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
+    private static partial void DeformVertices();
+    
+    
     [Shader("~/shaders/shadowMapping/vertexShadow.wgsl",  vertex: "main")]
     private static partial void RenderShadowMap();
     

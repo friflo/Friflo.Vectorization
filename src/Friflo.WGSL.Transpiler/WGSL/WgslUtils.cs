@@ -28,7 +28,7 @@ internal static class DictionaryExtensions
         return true;
     }
     
-    public static ImmutableDictionary<string, string?> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string? projDir, ValueArray<CsShader> shaders)
+    public static ImmutableDictionary<string, string?> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string? projDir, string workload)
     {
         var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 
@@ -41,11 +41,7 @@ internal static class DictionaryExtensions
         if (projDir != null) {
             builder.Add("proj_dir", projDir);
         }
-        if (shaders.Length > 0) {
-            var shaderStrings = shaders.Select(s => s.path);
-            var shadersJoined = string.Join("|", shaderStrings);
-            builder.Add("shader_files", shadersJoined);
-        }
+        builder.Add("workload", workload);
         return builder.ToImmutable();
     }
 }
