@@ -459,7 +459,9 @@ $$"""
         if (dispatchParam.Name == null) {
             return;
         }
-        body.Append($"        pass_.DispatchWorkgroups(({dispatchParam.Name}.Length + 63) / 64, 1, 1);\n");  // TODO  implement
+        var args = dispatchParam.DispatchArgs;
+        int x = args.workgroupCountX;
+        body.Append($"        pass_.DispatchWorkgroups(({dispatchParam.Name}.Length + {x - 1}) / {x}, {args.workgroupCountY}, {args.workgroupCountZ});\n");
     }
     
     private static void EmitDraw(StringBuilder body, in CsMethod method)

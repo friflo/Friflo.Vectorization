@@ -153,6 +153,13 @@ public enum CsWorkloadAttribute
     // Index
 }
 
+public readonly record struct CsDispatchArgs
+{
+    public required                 int     workgroupCountX { get; init; }
+    public required                 int     workgroupCountY { get; init; }
+    public required                 int     workgroupCountZ { get; init; }
+}
+
 public readonly record struct CsBindGroup
 {
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
@@ -171,6 +178,7 @@ public readonly record struct CsParameter
     public required     CsBindGroup         BindGroup           { get; init; }
     public required     int                 VertexBufferSlot    { get; init; }
     public required     CsAttrEnum          AttrEnum            { get; init; }
+    public required     CsDispatchArgs      DispatchArgs        { get; init; }
     //
     [Browse(Never)] public required SrcLoc  TypeLoc             { get; init; }
     [Browse(Never)] public required SrcLoc  GenericArgLoc       { get; init; }

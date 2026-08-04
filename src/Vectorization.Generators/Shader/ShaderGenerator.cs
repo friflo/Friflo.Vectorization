@@ -59,14 +59,17 @@ internal static partial class ShaderGenerator
             var attributes          = paramSymbol.GetAttributes();
             var paramAttribute      = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
             var workloadAttribute   = CsWorkloadAttribute.None;
+            var dispatchArgs        = default(CsDispatchArgs);
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
                 workloadAttribute = CsWorkloadAttribute.Draw;
             }
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
                 workloadAttribute = CsWorkloadAttribute.DrawInstance;
             }
-            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute")) {
-                workloadAttribute = CsWorkloadAttribute.Dispatch;
+            var dispatchAttrData = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute");
+            if (dispatchAttrData != null) {
+                workloadAttribute   = CsWorkloadAttribute.Dispatch;
+                dispatchArgs        = GetDispatchArgs(dispatchAttrData);
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
             var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
@@ -83,6 +86,7 @@ internal static partial class ShaderGenerator
                     enum1               = e1,
                     enum2               = e2,
                 },
+                DispatchArgs        = dispatchArgs,
                 NameLoc             = nameLoc,
                 TypeLoc             = typeLoc,
                 GenericArgLoc       = genericArgLoc,
@@ -151,9 +155,18 @@ internal static partial class ShaderGenerator
             MethodLoc       = methodSymbol.GetSymbolLoc()
         };
     }
-    
 
-    
+
+    private static CsDispatchArgs GetDispatchArgs(AttributeData dispatchAttrData)
+    {
+        var args = dispatchAttrData.ConstructorArguments;
+        return new CsDispatchArgs {
+            workgroupCountX = args[0].Value is int x ? x : 0,
+            workgroupCountY = args[1].Value is int y ? y : 0,
+            workgroupCountZ = args[2].Value is int z ? z : 0
+        };
+    }
+
     private static CsEnum Enum(TypedConstant typedConstant)
     {
         if (typedConstant.Kind == TypedConstantKind.Enum && typedConstant.Type is INamedTypeSymbol enumType) {
