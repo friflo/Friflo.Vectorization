@@ -163,7 +163,8 @@ public sealed class ShaderGen : IIncrementalGenerator
         var location = method.MethodLoc.GetFreshLocation(compilation);
         if (generateParameters)
         {
-            var filteredFiles = CodeFixer.FilterFiles(method, files, out string workload);
+            var filteredFiles = CodeFixer.FilterFiles(method, files);
+            var workload    = method.WorkgroupSize != null ? "compute" : "draw";
             var properties  = DictionaryExtensions.CreateDictionary(filteredFiles, projDir, workload);
             
             var diagnostic 	= Diagnostic.Create(Errors.MissingParameters, location, messageArgs: method.Name, properties: properties);

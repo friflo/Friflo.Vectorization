@@ -13,7 +13,7 @@ public static class Tests_WGSL
     [Shader("~/shaders/renderTest/triangle.wgsl")]
     public static void Tests_WGSL_Parse_triangle()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out _);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
@@ -26,7 +26,7 @@ public static class Tests_WGSL
     [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl")]
     public static void Tests_WGSL_Parse_raymarcher_no_texture()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out _);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         
         Assert.AreEqual(4, module.Structs.Count);
@@ -39,10 +39,10 @@ public static class Tests_WGSL
 	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static void Tests_WGSL_GenerateParameters()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -59,10 +59,10 @@ public static class Tests_WGSL
 	[Shader("~/shaders/shadowMapping/fragment.wgsl",  fragment: "main")]
     public static void Tests_WGSL_GenerateSamplerTextureView()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
@@ -81,10 +81,10 @@ public static class Tests_WGSL
 	[Shader("~/shaders/texturedCube/sampleTextureMixColor.frag.wgsl",   fragment: "main")]
     public static void Tests_WGSL_Generate_texture_2d()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -102,10 +102,10 @@ public static class Tests_WGSL
 	[Shader("~/shaders/tests/testTextureTypes.frag.wgsl",  fragment: "main")]
     public static void Tests_WGSL_Generate_textures()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -139,10 +139,10 @@ public static class Tests_WGSL
 	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     public static void Tests_WGSL_Generate_FixedSizeArrayUniform()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(module.EntryPoints.Count,    Is.EqualTo(2));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
@@ -157,10 +157,10 @@ public static class Tests_WGSL
     [Shader("~/shaders/tests/testStructs.wgsl")]
     public static void Tests_WGSL_Generate_TestStructs()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, false);
         
         Assert.That(module.Structs.Count,       Is.EqualTo(13));
         Assert.That(module.Bindings.Count,      Is.EqualTo(13));
@@ -195,10 +195,10 @@ public static class Tests_WGSL
     [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
     public static void Tests_WGSL_Generate_Compute()
     {
-        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL), out var isCompute);
+        var files   = TestWgslUtils.GetShaders(typeof(Tests_WGSL));
         var module  = CodeFixer.ParseWgslFiles(files);
         var mappings= TestWgslUtils.LoadTestMappings();
-        var result  = CodeFixer.CreateShaderParams(module, mappings, isCompute);
+        var result  = CodeFixer.CreateShaderParams(module, mappings, true);
         
         Assert.That(module.Structs.Count,       Is.EqualTo(2));
         Assert.That(module.Bindings.Count,      Is.EqualTo(2));
@@ -211,7 +211,7 @@ public static class Tests_WGSL
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp
             """
-                // [ ]  Add [Dispatch(64, 1, 1)] to the parameter that defines the total item count for DispatchWorkgroups().
+                // [ ]  Add [Dispatch] to the parameter that defines the total item count for DispatchWorkgroups().
             
             """));
     }

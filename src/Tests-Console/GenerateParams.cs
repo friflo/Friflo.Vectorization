@@ -16,6 +16,7 @@ public static partial class GenerateParams
     
     
 	[Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
+	[WorkgroupSize(64)]
     private static partial void DeformVertices();
     
     

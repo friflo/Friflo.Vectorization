@@ -37,15 +37,13 @@ public static partial class CodeFixer
         return fullModule;
     }
     
-    public static ImmutableArray<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files, out string workload)
+    public static ImmutableArray<WgslFile> FilterFiles(CsMethod method, ImmutableArray<WgslFile> files)
     {
-        workload = "draw";
         var result = new List<WgslFile>();
         foreach (var shader in method.Shaders) 
         {
             var file = files.FirstOrDefault(f => f.NormalizedPath.EndsWith(shader.path));
             if (file.NormalizedPath == null) continue;
-            if (shader.compute != null) workload = "compute";
             result.Add(file with { NormalizedPath = shader.path });
         }
         return result.ToImmutableArray();
@@ -253,10 +251,7 @@ public static partial class CodeFixer
     {
         var sb = new StringBuilder();
         if (isCompute) {
-            var computeEntry = module.EntryPoints.Find(ep => ep.Stage == "compute");
-            var workgroupSize = computeEntry?.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");
-            var args = workgroupSize == null ? "64, 1, 1" : string.Join(", ", workgroupSize.Args);
-            sb.Append($"    // [ ]  Add [Dispatch({args})] to the parameter that defines the total item count for DispatchWorkgroups().\n");
+            sb.Append("    // [ ]  Add [Dispatch] to the parameter that defines the total item count for DispatchWorkgroups().\n");
         } else {
             sb.Append("    // [ ]  Add [Draw] to the vertex buffer parameter used to execute the draw call.\n");
         }
