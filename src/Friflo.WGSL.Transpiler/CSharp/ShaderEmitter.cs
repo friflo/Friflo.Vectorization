@@ -454,7 +454,12 @@ $$"""
     private static void EmitCompute(StringBuilder body, in CsMethod method)
     {
         body.Append("        // --- compute\n");
-        body.Append("        pass_.DispatchWorkgroups((vertices.Length + 63) / 64, 1, 1);\n");  // TODO  implement
+        var methodParameters = method.Parameters;
+        var dispatchParam = methodParameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.Dispatch);
+        if (dispatchParam.Name == null) {
+            return;
+        }
+        body.Append($"        pass_.DispatchWorkgroups(({dispatchParam.Name}.Length + 63) / 64, 1, 1);\n");  // TODO  implement
     }
     
     private static void EmitDraw(StringBuilder body, in CsMethod method)
@@ -468,7 +473,7 @@ $$"""
 
         var methodParameters = method.Parameters;
         // attribute: DrawAttribute
-        var drawParam = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
+        var drawParam = methodParameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.Draw);
         if (drawParam.Name == null) {
             return;
         }
@@ -488,7 +493,7 @@ $$"""
             drawArgs = drawArgsParameter;
         } else if (!isIndirect) {
             // attribute: DrawInstanceAttribute
-            var drawInstanceName = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
+            var drawInstanceName = methodParameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.DrawInstance).Name;
             if (drawInstanceName != null) {
                 // parameter is a buffer or a fixed size array uniform
                 drawArgs = $"DrawArgs.InstanceCount({drawInstanceName}.Length)";

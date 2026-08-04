@@ -55,37 +55,40 @@ internal static partial class ShaderGenerator
         
         for (int n = 0; n <  methodParameters.Length; n++)
         {
-            var paramSymbol     = methodParameters[n];
-            var attributes      = paramSymbol.GetAttributes();
-            var paramAttribute  = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
-            var drawAttribute   = CsDrawAttribute.None;
+            var paramSymbol         = methodParameters[n];
+            var attributes          = paramSymbol.GetAttributes();
+            var paramAttribute      = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
+            var workloadAttribute   = CsWorkloadAttribute.None;
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
-                drawAttribute = CsDrawAttribute.Draw;
+                workloadAttribute = CsWorkloadAttribute.Draw;
             }
             if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
-                drawAttribute = CsDrawAttribute.DrawInstance;
+                workloadAttribute = CsWorkloadAttribute.DrawInstance;
+            }
+            if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute")) {
+                workloadAttribute = CsWorkloadAttribute.Dispatch;
             }
             var type = MapType(types, paramSymbol.Type, paramAttribute != None);
             var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
             var (attrLoc, arg0Loc, arg1Loc) 		= attributeData.GetParamSrcLocs();
             
             parameters[n] = new CsParameter {
-                Name            = paramSymbol.Name,
-                DrawAttribute   = drawAttribute,
-                Type            = type,
-                ParamAttribute  = paramAttribute,
-                BindGroup       = bindGroup,
-                VertexBufferSlot= vbs,
+                Name                = paramSymbol.Name,
+                WorkloadAttribute   = workloadAttribute,
+                Type                = type,
+                ParamAttribute      = paramAttribute,
+                BindGroup           = bindGroup,
+                VertexBufferSlot    = vbs,
                 AttrEnum = new CsAttrEnum {
-                    enum1           = e1,
-                    enum2           = e2,
+                    enum1               = e1,
+                    enum2               = e2,
                 },
-                NameLoc         = nameLoc,
-                TypeLoc         = typeLoc,
-                GenericArgLoc   = genericArgLoc,
-                AttrLoc         = attrLoc,
-                AttrArg0Loc     = arg0Loc,
-                AttrArg1Loc     = arg1Loc
+                NameLoc             = nameLoc,
+                TypeLoc             = typeLoc,
+                GenericArgLoc       = genericArgLoc,
+                AttrLoc             = attrLoc,
+                AttrArg0Loc         = arg0Loc,
+                AttrArg1Loc         = arg1Loc
             };
             var modifierType = paramSymbol.RefKind switch {
                 RefKind.In  => "in ",

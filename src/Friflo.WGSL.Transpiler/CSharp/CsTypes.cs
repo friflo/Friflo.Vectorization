@@ -144,11 +144,12 @@ public enum CsParamAttribute
     texture_depth_cube_array        // WGPU attribute:  texture_depth_cube_array
 }
 
-public enum CsDrawAttribute
+public enum CsWorkloadAttribute
 {
     None,
     Draw,               // WGPU attribute:  DrawAttribute
     DrawInstance,       // WGPU attribute:  DrawInstanceAttribute
+    Dispatch,           // WGPU attribute:  DispatchAttribute
     // Index
 }
 
@@ -163,20 +164,20 @@ public readonly record struct CsBindGroup
 
 public readonly record struct CsParameter
 {
-    public required     string              Name            { get; init; }
-    public required     CsDrawAttribute     DrawAttribute   { get; init; }
-    public required     CsParamAttribute    ParamAttribute  { get; init; }
-    public required     CsType              Type            { get; init; }
-    public required     CsBindGroup         BindGroup       { get; init; }
-    public required     int                 VertexBufferSlot{ get; init; }
-    public required     CsAttrEnum          AttrEnum        { get; init; }
+    public required     string              Name                { get; init; }
+    public required     CsWorkloadAttribute WorkloadAttribute   { get; init; }
+    public required     CsParamAttribute    ParamAttribute      { get; init; }
+    public required     CsType              Type                { get; init; }
+    public required     CsBindGroup         BindGroup           { get; init; }
+    public required     int                 VertexBufferSlot    { get; init; }
+    public required     CsAttrEnum          AttrEnum            { get; init; }
     //
-    [Browse(Never)] public required SrcLoc  TypeLoc         { get; init; }
-    [Browse(Never)] public required SrcLoc  GenericArgLoc   { get; init; }
-    [Browse(Never)] public required SrcLoc  NameLoc         { get; init; }
-    [Browse(Never)] public required SrcLoc  AttrLoc         { get; init; }
-    [Browse(Never)] public required SrcLoc  AttrArg0Loc     { get; init; }
-    [Browse(Never)] public required SrcLoc  AttrArg1Loc     { get; init; }
+    [Browse(Never)] public required SrcLoc  TypeLoc             { get; init; }
+    [Browse(Never)] public required SrcLoc  GenericArgLoc       { get; init; }
+    [Browse(Never)] public required SrcLoc  NameLoc             { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrLoc             { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrArg0Loc         { get; init; }
+    [Browse(Never)] public required SrcLoc  AttrArg1Loc         { get; init; }
     
     public override     string              ToString()      => AppendString(new StringBuilder()).ToString();
     

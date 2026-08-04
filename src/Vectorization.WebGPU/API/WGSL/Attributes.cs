@@ -72,8 +72,15 @@ public sealed class DrawInstanceAttribute : Attribute;
 
 #endregion
 
+
+
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class DispatchAttribute : Attribute;
+public sealed class DispatchAttribute : Attribute
+{
+    public DispatchAttribute(int workgroupCountX, int workgroupCountY = 1, int workgroupCountZ = 1) { }
+}
+
+
 
 #region ---------- GpuBuffer<> parameter Attributes
 
