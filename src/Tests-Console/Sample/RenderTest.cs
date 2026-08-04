@@ -99,7 +99,7 @@ public partial class Renderer : IRenderer
     
     [NoEmit]
     [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
-    private static partial void DeformVertices(PipelineContext context,
+    private static partial void DeformVertices(PipelineContext computeContext,
         [Map(0, 0)] [storage] [Dispatch] InOutBuffer<VertexData> vertices,
         [Map(1, 0)] [uniform]            TimeUniform             uniform);
 }

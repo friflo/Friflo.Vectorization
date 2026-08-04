@@ -9,12 +9,12 @@ namespace Shaders.RenderTest;
 public partial class Renderer
 {
     private static partial void DeformVertices(
-        PipelineContext         context,
+        PipelineContext         computeContext,
         InOutBuffer<VertexData> vertices,
         TimeUniform             uniform)
 	{
 
-        var recorder	= (CommandRecorder)context;
+        var recorder	= (CommandRecorder)computeContext;
 		recorder.InitKernel(DeformVertices_GPU_ShaderId, "DeformVertices_pipeline"u8);
         
         recorder.RequireReadWrite(vertices);

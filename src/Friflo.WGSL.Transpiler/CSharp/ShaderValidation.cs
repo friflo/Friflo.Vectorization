@@ -66,15 +66,18 @@ public static class ShaderValidation
         
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
-        if (parameters.Length == 1) {
-            diags.Method(method.MethodLoc, method, "missing required parameters  ->  require (RenderPass pass, RenderConfig config)", DiagType.Error);
-        }
-        else if (parameters.Length > 1) {
-            if (parameters[0].Type.Name != "RenderPass") {
-                diags.Method(parameters[0].TypeLoc, method, $"invalid first parameter type: {parameters[0].Type.Name}  ->  expected RenderPass", DiagType.Error);
+        var isCompute = parameters.Length > 0 && parameters[0].Type.Name == "PipelineContext";
+        if (!isCompute) {
+            if (parameters.Length == 1) {
+                diags.Method(method.MethodLoc, method, "missing required parameters  ->  require (RenderPass pass, RenderConfig config)", DiagType.Error);
             }
-            if (parameters[1].Type.Name != "RenderConfig") {
-                diags.Method(parameters[1].TypeLoc, method, $"invalid second parameter type: {parameters[1].Type.Name}  ->  expected RenderConfig", DiagType.Error);
+            else if (parameters.Length > 1) {
+                if (parameters[0].Type.Name != "RenderPass") {
+                    diags.Method(parameters[0].TypeLoc, method, $"invalid first parameter type: {parameters[0].Type.Name}  ->  expected RenderPass", DiagType.Error);
+                }
+                if (parameters[1].Type.Name != "RenderConfig") {
+                    diags.Method(parameters[1].TypeLoc, method, $"invalid second parameter type: {parameters[1].Type.Name}  ->  expected RenderConfig", DiagType.Error);
+                }
             }
         }
         

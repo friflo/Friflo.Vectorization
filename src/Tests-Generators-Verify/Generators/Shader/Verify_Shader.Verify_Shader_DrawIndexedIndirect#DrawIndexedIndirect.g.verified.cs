@@ -25,8 +25,8 @@ public partial class ShaderExample
     {
 
         var pass_       = pass.Internal;
-		var recorder	= pass_.Recorder;
-		recorder.InitShader(_DrawIndexedIndirect_GPU_ShaderId);
+        var recorder    = pass_.Recorder;
+        recorder.InitShader(_DrawIndexedIndirect_GPU_ShaderId);
 
         recorder.RequireRead     (indirectBuffer);
         recorder.RequireRead     (verticesBuffer);

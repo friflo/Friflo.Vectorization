@@ -29,6 +29,7 @@ public sealed class ShaderEmitter
     private readonly    string          methodName;
     private readonly    string          methodName_GPU;
     private readonly    CsMethod        method;
+    private readonly    bool            isCompute;
     
     private readonly    StringBuilder   body                = new ();
     // - bind group creation
@@ -42,7 +43,9 @@ public sealed class ShaderEmitter
     {
         this.method     = method;
         methodName      = method.Name;
-        methodName_GPU  = $"_{methodName}_GPU{method.Hash}"; 
+        methodName_GPU  = $"_{methodName}_GPU{method.Hash}";
+        var parameters  = method.Parameters;
+        isCompute       = parameters.Length > 0 && parameters[0].Type.Name == "PipelineContext";
     }
     
     
@@ -147,9 +150,16 @@ $$"""
 {{header}}
     {
 {{buffers}}
-        var pass_       = {{passName}}.Internal;
-		var recorder	= pass_.Recorder;
-		recorder.InitShader({{methodName_GPU}}_ShaderId);
+{{(isCompute ?
+$"""
+        var recorder = (CommandRecorder)computeContext;
+        recorder.InitKernel({methodName_GPU}_ShaderId, "{methodName}_pipeline"u8);
+""":
+$"""
+        var pass_       = {passName}.Internal;
+        var recorder    = pass_.Recorder;
+        recorder.InitShader({methodName_GPU}_ShaderId);
+""")}}
 {{bufferInit}}
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache({{methodName_GPU}}_ShaderId, {{configName}}, {{methodName_GPU}}_WgslHash);
@@ -406,8 +416,8 @@ $$"""
         // attribute: DrawAttribute
         var drawParam = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.Draw);
         if (drawParam.Name == null) {
-        	return;
-		}
+            return;
+        }
         var (drawArgsParameter, isArray) = GetDrawArgsParameter(methodParameters);
         var (isIndirect, isIndexed)      = IsIndirectBufferParameter(drawParam);
 
@@ -415,7 +425,7 @@ $$"""
         
         var indent = "";
         if (isArray) {
-			// case: Instanced Batching  (aka: CPU-driven Multi-Draw or Batch-Rendering)
+            // case: Instanced Batching  (aka: CPU-driven Multi-Draw or Batch-Rendering)
             indent = "    ";
             body.Append($"        foreach(var {drawArgsParameter}Item in {drawArgsParameter}) {{\n");
             drawArgsParameter += "Item";
@@ -423,13 +433,13 @@ $$"""
         if (drawArgsParameter != null) {
             drawArgs = drawArgsParameter;
         } else if (!isIndirect) {
-			// attribute: DrawInstanceAttribute
+            // attribute: DrawInstanceAttribute
             var drawInstanceName = methodParameters.FirstOrDefault(p => p.DrawAttribute == CsDrawAttribute.DrawInstance).Name;
             if (drawInstanceName != null) {
                 // parameter is a buffer or a fixed size array uniform
                 drawArgs = $"DrawArgs.InstanceCount({drawInstanceName}.Length)";
-        	}
-		}
+            }
+        }
         var paramName = drawParam.Name;
         var suffix    = isIndirect ? "Indirect" : "";
         
@@ -449,8 +459,8 @@ $$"""
                 break;
         }
         if (isArray) {
-        	body.Append("        }\n");
-    	}
+            body.Append("        }\n");
+        }
     }
     
     private static (bool isIndirect, bool isIndexed) IsIndirectBufferParameter(in CsParameter drawParam)

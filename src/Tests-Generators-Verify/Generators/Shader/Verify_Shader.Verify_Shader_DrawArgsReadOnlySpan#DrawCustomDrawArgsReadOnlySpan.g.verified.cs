@@ -22,8 +22,8 @@ public partial class ShaderExample
     {
 
         var pass_       = pass.Internal;
-		var recorder	= pass_.Recorder;
-		recorder.InitShader(_DrawCustomDrawArgsReadOnlySpan_GPU_ShaderId);
+        var recorder    = pass_.Recorder;
+        recorder.InitShader(_DrawCustomDrawArgsReadOnlySpan_GPU_ShaderId);
 
         recorder.RequireRead     (mvpMatrices);
         recorder.RequireRead     (verticesBuffer);

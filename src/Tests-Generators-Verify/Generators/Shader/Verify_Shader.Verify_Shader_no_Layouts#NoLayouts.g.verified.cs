@@ -19,8 +19,8 @@ public partial class ShaderExample
     {
 
         var pass_       = pass.Internal;
-		var recorder	= pass_.Recorder;
-		recorder.InitShader(_NoLayouts_GPU_ShaderId);
+        var recorder    = pass_.Recorder;
+        recorder.InitShader(_NoLayouts_GPU_ShaderId);
 
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_NoLayouts_GPU_ShaderId, config, _NoLayouts_GPU_WgslHash);
