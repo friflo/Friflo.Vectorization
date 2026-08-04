@@ -34,9 +34,9 @@ public sealed partial class TypeGen
     private readonly    HashSet<string>                     additionalNamespaces    = [];
 
 
-    private             WgslModule                          module;
-    private             string                              fileNamespace;
-    private             CSharpIdentifier[]                  TypeMap;
+    private             WgslModule                          module          = new();
+    private             string                              fileNamespace   = "";
+    private             CSharpIdentifier[]                  TypeMap         = [];
 
     private const string  LineFeeds = "\n\n\n";
         
@@ -71,7 +71,7 @@ public sealed partial class TypeGen
                 continue;
             }
             var fields = localStruct.csharpStruct.fields;
-            if (fields.Length == 0) {
+            if (fields == null || fields.Length == 0) {
                 sb.Append( // language=csharp
                     $"""
                     #warning Struct '{structName}' must contain at least one member. Empty structs are not allowed in WGSL.
@@ -86,7 +86,9 @@ public sealed partial class TypeGen
             if (arrayField.name != null) {
                 if (fields.Length > 1) {
                     var binding = module.Bindings.FirstOrDefault(b => b.WgslType.Name == structName);
-                    EmitStructWithDynamicArrayField(sb, binding, localStruct.csharpStruct, arrayField, normalizedPath);
+                    if (binding != null) {
+                        EmitStructWithDynamicArrayField(sb, binding, localStruct.csharpStruct, arrayField, normalizedPath);
+                    }
                 }
                 continue;
             }
@@ -187,7 +189,7 @@ public sealed partial class TypeGen
         
         CSharpType csharpType;
         if (info.typeCode == CsTypeCode.None) {
-            var typeName = info.IsArray ? info.elementType : type.ToString();
+            var typeName = info.IsArray ? info.elementType! : type.ToString();
             if (wgslStructs.TryGetValue(typeName, out var wgslStruct)) {
                 requiredStructs.Add(wgslStruct.Name);
                 var csharpStruct = CreateStruct(wgslStruct, arrayStride);
@@ -219,7 +221,7 @@ public sealed partial class TypeGen
 
             // retrieve base layout (struct oder wgsl type: i32, f32, vec3<f32>, mat4x4<f32>, ...)
             if (typeCode == CsTypeCode.WgslStruct) {
-                var csharpStruct = field.type.csharpStruct;
+                var csharpStruct = field.type.csharpStruct!;
                 
                 // Rebound nested struct layout with the same alignment mode
                 if (csharpStruct.fields == null) {
@@ -301,7 +303,7 @@ public sealed partial class TypeGen
             : TypeMap[(int)typeCode];
         
         var layout = typeCode == CsTypeCode.WgslStruct
-            ? type.csharpStruct.layout
+            ? type.csharpStruct!.layout
             : typeCode.Layout;
         
         var stride          = GetFixedSizeArrayStride(layout, arrayStride);

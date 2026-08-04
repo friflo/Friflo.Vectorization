@@ -23,11 +23,11 @@ public readonly struct WgslTypeInfo
     public readonly CsTypeCode      typeCode;
     public readonly WgslParamType   paramType;
     public readonly int             arraySize;
-    public readonly string          elementType; // != null if struct or typo
+    public readonly string?         elementType; // != null if struct or typo
     
     public bool IsArray => paramType == WgslParamType.FixedSizeArray || paramType == WgslParamType.DynamicArray;
     
-    public override string      ToString()
+    public override string?      ToString()
     {
         var typeName = typeCode == CsTypeCode.None ? elementType : typeCode.ToString();
         return paramType switch {
@@ -41,7 +41,7 @@ public readonly struct WgslTypeInfo
         this.typeCode       = typeCode;
     }
     
-    internal WgslTypeInfo(CsTypeCode typeCode, WgslParamType paramType, int arraySize, string elementType) {
+    internal WgslTypeInfo(CsTypeCode typeCode, WgslParamType paramType, int arraySize, string? elementType) {
         this.typeCode       = typeCode;
         this.paramType      = paramType;
         this.arraySize      = arraySize;

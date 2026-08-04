@@ -8,6 +8,7 @@
     <RootNamespace>Friflo.WGSL.Transpiler</RootNamespace>
     <AssemblyName>Friflo.WGSL.Transpiler</AssemblyName>
     <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
     
     <!-- packaging -->
     <PackageVersion>0.0.0</PackageVersion>

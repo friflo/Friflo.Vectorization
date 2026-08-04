@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+// ReSharper disable ReplaceWithStringIsNullOrEmpty
 namespace Friflo.WGSL.Transpiler.CodeFixes;
 
 internal static class WgslTextureFormat
 {
-    internal static string MapWgslStorageFormatToEnumName(string wgslFormat)
+    internal static string MapWgslStorageFormatToEnumName(string? wgslFormat)
     {
-        if (string.IsNullOrEmpty(wgslFormat)) return "Undefined";
+        if (wgslFormat == null || wgslFormat == "") return "Undefined";
 
         return wgslFormat switch
         {

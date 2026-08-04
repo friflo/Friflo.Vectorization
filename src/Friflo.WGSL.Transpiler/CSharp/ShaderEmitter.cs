@@ -81,7 +81,7 @@ public sealed class ShaderEmitter
         var buffers     = new StringBuilder();
         var bufferInit  = new StringBuilder();
         var layouts     = new List<BindGroupLayout>();
-        BindGroupLayout curBindGroupLayout = null;
+        BindGroupLayout? curBindGroupLayout = null;
         
         foreach (var bindGroup in bindGroups)
         {
@@ -317,7 +317,7 @@ $$"""
         }
     }
     
-    private void EmitBindGroups(BindGroupLayout[] layouts)
+    private void EmitBindGroups(BindGroupLayout?[] layouts)
     {
         for (int group = 0; group < layouts.Length; group++)
         {

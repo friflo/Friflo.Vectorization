@@ -56,10 +56,14 @@ public static class ShaderValidation
                 diags.Shader(shader.pathLoc, shader, $"file not found", DiagType.Error);
                 continue;
             }
-            foreach (var error in file.Module.Errors) {
+            var module = file.Module;
+            if (module == null) {
+                continue;
+            }
+            foreach (var error in module.Errors) {
                 diags.Shader(shader.attrLoc, shader, $"WGSL parser error - {error}", DiagType.Warn);
             }
-            foreach (var binding in file.Module.Bindings) {
+            foreach (var binding in module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
             }
         }
@@ -357,7 +361,7 @@ public static class ShaderValidation
         }
     }
     
-    private static string GetWgslTypeError(CsType type, ValueArray<CsTypeInfo> typeInfos)
+    private static string? GetWgslTypeError(CsType type, ValueArray<CsTypeInfo> typeInfos)
     {
         if (type.TypeCode.IsBuffer) {
             var generic = type.Generics;

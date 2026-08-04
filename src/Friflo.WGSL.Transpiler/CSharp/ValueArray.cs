@@ -25,7 +25,7 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 /// <typeparam name="T">The unmanaged value type of the elements.</typeparam>
 public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>  where T : IEquatable<T>
 {
-    internal readonly T[] _array;
+    internal readonly T[]? _array;
 
     public override string ToString() => $"{typeof(T).Name}[{Length}]";
 
@@ -59,7 +59,7 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
         return _array.AsSpan().SequenceEqual(other._array.AsSpan());
     }
 
-    public override bool Equals(object obj) => obj is ValueArray<T> other && Equals(other);
+    public override bool Equals(object? obj) => obj is ValueArray<T> other && Equals(other);
 
     public override int GetHashCode()
     {

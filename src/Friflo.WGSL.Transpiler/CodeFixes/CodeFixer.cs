@@ -114,7 +114,7 @@ public static partial class CodeFixer
             }
             case "uniform": {
                 var type        = binding.WgslType;
-                string comment  = null;
+                string? comment  = null;
                 var csType      = GetParameterType(type, typeMap, out var info);
                 switch (info.paramType) {
                     case WgslParamType.DynamicArray: 
@@ -158,7 +158,7 @@ public static partial class CodeFixer
     {
         info = WgslTypeInfo.GetTypeInfo(type);
         if (info.typeCode == CsTypeCode.None) {
-            return info.IsArray ? info.elementType : type.ToString();
+            return info.IsArray ? info.elementType! : type.ToString();
         }
         return typeMap[(int)info.typeCode].Name;
     }

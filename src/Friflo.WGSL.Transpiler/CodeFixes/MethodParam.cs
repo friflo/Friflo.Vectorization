@@ -22,11 +22,11 @@ public static partial class CodeFixer
         public readonly string      attribute;
         public readonly string      type;
         public readonly string      name;
-        public readonly string      comment;
+        public readonly string?     comment;
 
         public override string ToString() => name;
 
-        internal MethodParam(WgslBinding binding, string attribute, string type, string comment = null)
+        internal MethodParam(WgslBinding binding, string attribute, string type, string? comment = null)
         {
             bindGroup       = new BindGroup(binding.Group, binding.Binding);    
             this.attribute  = attribute;

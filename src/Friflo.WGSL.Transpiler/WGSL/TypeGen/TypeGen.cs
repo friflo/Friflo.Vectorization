@@ -158,7 +158,7 @@ public sealed partial class TypeGen
             """);
     }
     
-    private string EmitFile(WgslFile file)
+    private string? EmitFile(WgslFile file)
     {
         var normalizedPath = file.NormalizedPath;
         try {
