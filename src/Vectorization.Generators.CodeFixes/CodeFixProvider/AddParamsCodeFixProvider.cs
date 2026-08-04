@@ -23,7 +23,7 @@ namespace Friflo.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddParamsCodeFixProvider)), Shared]
 public class AddParamsCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds => ["WGPU003"];
+    public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create("WGPU003");
 
     public override FixAllProvider? GetFixAllProvider() => null; // null -> fix only specific method - was: WellKnownFixAllProviders.BatchFixer; 
 

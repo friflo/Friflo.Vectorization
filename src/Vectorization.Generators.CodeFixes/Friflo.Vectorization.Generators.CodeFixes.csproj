@@ -83,6 +83,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" />
+    <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" PrivateAssets="all"/>
   </ItemGroup>
 </Project>
