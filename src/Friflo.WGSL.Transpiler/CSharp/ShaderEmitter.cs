@@ -61,8 +61,9 @@ public sealed class ShaderEmitter
         shaderResources.Append($"    private static readonly WgpuShader[] {methodName_GPU}_Shaders = [\n");
         foreach (var shader in method.Shaders) {
             shaderResources.Append($"        new(\"{shader.path}\"");
-            if (shader.vert != null) shaderResources.Append($", vert: \"{shader.vert}\"");
-            if (shader.frag != null) shaderResources.Append($", frag: \"{shader.frag}\"");
+            if (shader.vert != null)    shaderResources.Append($", vert: \"{shader.vert}\"");
+            if (shader.frag != null)    shaderResources.Append($", frag: \"{shader.frag}\"");
+            if (shader.compute != null) shaderResources.Append($", compute: \"{shader.compute}\"");
             shaderResources.Append("),\n");
         }
         shaderResources.Append($"    ];\n");
@@ -142,6 +143,7 @@ public sealed class ShaderEmitter
         if (isCompute)
         {
             EmitCompute(body, method);
+            var contextName    = method.Parameters[0].Name;
             
             // language=csharp
             return
@@ -149,8 +151,8 @@ $$"""
 {{header}}
     {
 {{buffers}}
-        var recorder	= (CommandRecorder)computeContext;
-		recorder.InitKernel(DeformVertices_GPU_ShaderId, "{{methodName}}_pipeline"u8);
+        var recorder	= (CommandRecorder){{contextName}};
+		recorder.InitKernel({{methodName_GPU}}_ShaderId, "{{methodName}}_pipeline"u8);
 {{bufferInit}}
         
         using var pass_ = recorder.BeginComputePass("{{methodName}}"u8);
@@ -351,7 +353,8 @@ $$"""
                 layoutKey ^= AddLayout(bindGroupLayouts, binding);  layoutKey *= Prime;
                 bindGroupLayouts.Append("\n");
             }
-            bindGroupLayouts.Append($"            layout_{group} = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, {methodName_GPU}_layout_{group}_Key, \"{methodName}_layout_{group}\"u8);\n");
+            var shaderStage = isCompute ? "ShaderStage.Compute" : "ShaderStage.Vertex | ShaderStage.Fragment";
+            bindGroupLayouts.Append($"            layout_{group} = device.CreateBindGroupLayout({shaderStage}, {methodName_GPU}_layout_{group}_Key, \"{methodName}_layout_{group}\"u8);\n");
             bindGroupLayouts.Append("        }\n");
             bindGroupLayouts.Append($"        layouts[{group}] = layout_{group};\n");
             bindGroupLayouts.Append("        \n");

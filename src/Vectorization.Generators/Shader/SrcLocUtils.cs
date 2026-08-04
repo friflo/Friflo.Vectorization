@@ -22,7 +22,7 @@ public static class SrcLocUtils
         return location.GetSrcLoc();
     }
     
-    public static (SrcLoc attrLoc, SrcLoc pathLoc, SrcLoc vertLoc, SrcLoc fragLoc)
+    public static (SrcLoc attrLoc, SrcLoc pathLoc, SrcLoc vertLoc, SrcLoc fragLoc, SrcLoc computeLoc)
         GetShaderSrcLocs(this AttributeData attributeData)
     {
         if (attributeData.ApplicationSyntaxReference == null) {
@@ -31,8 +31,9 @@ public static class SrcLocUtils
         var attributeSyntax = (AttributeSyntax)attributeData.ApplicationSyntaxReference.GetSyntax();
         var args = attributeSyntax.ArgumentList!.Arguments;
         
-        SrcLoc vertLoc = default;
-        SrcLoc fragLoc = default;
+        SrcLoc vertLoc      = default;
+        SrcLoc fragLoc      = default;
+        SrcLoc computeLoc   = default;
         
         for(int n = 1; n < args.Count; n++)
         {
@@ -44,11 +45,15 @@ public static class SrcLocUtils
             if (arg.NameColon.Name.Identifier.Text == "fragment") {
                 fragLoc = arg.Expression.GetLocation().GetSrcLoc();
             }
+            if (arg.NameColon.Name.Identifier.Text == "compute") {
+                computeLoc = arg.Expression.GetLocation().GetSrcLoc();
+            }
         }
         return (attributeSyntax.GetLocation().GetSrcLoc(),
                 args[0].Expression.GetLocation().GetSrcLoc(),
                 vertLoc,
-                fragLoc);
+                fragLoc,
+                computeLoc);
     }
     
     public static (SrcLoc attrLoc, SrcLoc arg0Loc, SrcLoc arg1Loc)

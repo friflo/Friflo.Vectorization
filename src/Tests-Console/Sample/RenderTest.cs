@@ -97,7 +97,6 @@ public partial class Renderer : IRenderer
         [Map(2, 1)] [uniform]           Vector2                 model_offset);
     
     
-    [NoEmit]
     [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
     private static partial void DeformVertices(PipelineContext computeContext,
         [Map(0, 0)] [storage] [Dispatch] InOutBuffer<VertexData> vertices,

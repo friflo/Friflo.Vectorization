@@ -8,7 +8,7 @@ namespace Shaders.RenderTest;
 
 public partial class Renderer
 {
-    private static partial void DeformVertices(
+    private static void Pattern_DeformVertices(
         PipelineContext         computeContext,
         InOutBuffer<VertexData> vertices,
         TimeUniform             uniform)

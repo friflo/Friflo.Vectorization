@@ -120,15 +120,17 @@ internal static partial class ShaderGenerator
                 diagnostics.ReportDiagnosticSymbol(Errors.ShaderError, shader.AttributeClass, "Expect shader path");
                 path = "";
             }
-            var (attrLoc, pathLoc, vertLoc, fragLoc) = shader.GetShaderSrcLocs();
+            var (attrLoc, pathLoc, vertLoc, fragLoc, computeLoc) = shader.GetShaderSrcLocs();
             shaders[i] = new CsShader {
-                path    = path,
-                vert    = (string)args[1].Value!,
-                frag    = (string)args[2].Value!,
-                attrLoc = attrLoc,
-                pathLoc = pathLoc,
-                vertLoc = vertLoc,
-                fragLoc = fragLoc
+                path        = path,
+                vert        = (string)args[1].Value!,
+                frag        = (string)args[2].Value!,
+                compute     = (string)args[3].Value!,
+                attrLoc     = attrLoc,
+                pathLoc     = pathLoc,
+                vertLoc     = vertLoc,
+                fragLoc     = fragLoc,
+                computeLoc  = computeLoc
             };
         }
         

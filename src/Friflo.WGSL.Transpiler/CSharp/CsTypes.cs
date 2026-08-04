@@ -25,11 +25,13 @@ public readonly record struct CsShader
     public required                 string  path     { get; init; }
     public required                 string  vert     { get; init; }
     public required                 string  frag     { get; init; }
+    public required                 string  compute  { get; init; }
     //
-    [Browse(Never)] public required SrcLoc  attrLoc  { get; init; }
-    [Browse(Never)] public required SrcLoc  pathLoc  { get; init; }
-    [Browse(Never)] public required SrcLoc  vertLoc  { get; init; }
-    [Browse(Never)] public required SrcLoc  fragLoc  { get; init; }
+    [Browse(Never)] public required SrcLoc  attrLoc     { get; init; }
+    [Browse(Never)] public required SrcLoc  pathLoc     { get; init; }
+    [Browse(Never)] public required SrcLoc  vertLoc     { get; init; }
+    [Browse(Never)] public required SrcLoc  fragLoc     { get; init; }
+    [Browse(Never)] public required SrcLoc  computeLoc  { get; init; }
 }
 
 
