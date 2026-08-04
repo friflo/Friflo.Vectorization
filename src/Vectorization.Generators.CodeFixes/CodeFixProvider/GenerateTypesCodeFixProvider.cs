@@ -43,7 +43,7 @@ public class GenerateTypesCodeFixProvider : CodeFixProvider
     private static async Task<Document> InsertTypesAsync(
         Document document, MethodDeclarationSyntax _, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
-        if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir)) {
+        if (!diagnostic.Properties.TryGetValue("proj_dir", out var projDir) || projDir == null) {
             return document;
         }
         

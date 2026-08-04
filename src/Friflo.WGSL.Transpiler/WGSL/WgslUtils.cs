@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+// ReSharper disable RedundantUsingDirective
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -26,9 +28,9 @@ internal static class DictionaryExtensions
         return true;
     }
     
-    public static ImmutableDictionary<string, string> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string projDir, ValueArray<CsShader> shaders)
+    public static ImmutableDictionary<string, string?> CreateDictionary(ImmutableArray<WgslFile> wgslFiles, string? projDir, ValueArray<CsShader> shaders)
     {
-        var builder = ImmutableDictionary.CreateBuilder<string, string>();
+        var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 
         builder.Add("wgsl_length", wgslFiles.Length.ToString());
         for (int i = 0; i < wgslFiles.Length; i++)
@@ -53,7 +55,7 @@ internal static class DictionaryExtensions
 
 public static class WgslUtils
 {
-    public static WgslFile[] CreateWgslFiles(ImmutableDictionary<string, string> properties)
+    public static WgslFile[] CreateWgslFiles(ImmutableDictionary<string, string?> properties)
     {
         var list = new List<WgslFile>();
 
