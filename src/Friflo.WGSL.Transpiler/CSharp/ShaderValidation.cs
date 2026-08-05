@@ -133,7 +133,7 @@ public static class ShaderValidation
         }
         
         private void WorkgroupSize(CsWorkgroupSize workgroupSize, string message, DiagType type) {
-            var error = $"[WorkgroupSize] - {message}";
+            var error = $"[WorkgroupSize()] - {message}";
             diags.Add(new ValidationDiag(workgroupSize.attrLoc, error, type));
         }
                 

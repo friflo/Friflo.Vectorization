@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [WorkgroupSize] - Mismatch with @workgroup_size(64) parameters in WGSL.,
+      Message: [WorkgroupSize()] - Mismatch with @workgroup_size(64) parameters in WGSL.,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
