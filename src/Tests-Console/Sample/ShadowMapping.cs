@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using TestConsole;
@@ -68,7 +68,7 @@ public partial class Renderer : IRenderer
         // and the color rendering pipeline.
         var vertexBuffers = new[] {
             new GpuVertexBufferLayout {
-                arrayStride = Marshal.SizeOf<Vector3>() * 2,
+                arrayStride = Unsafe.SizeOf<Vector3>() * 2,
                 attributes = [
                     new GpuVertexAttribute {
                         // position
@@ -79,7 +79,7 @@ public partial class Renderer : IRenderer
                     new GpuVertexAttribute {
                         // normal
                         shaderLocation  = 1,
-                        offset          = Marshal.SizeOf<Vector3>(),
+                        offset          = Unsafe.SizeOf<Vector3>(),
                         format          = VertexFormat.Float32x3
                     }
                 ]
