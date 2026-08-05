@@ -302,6 +302,25 @@ public partial class ShaderExample
     }
     
     [Test]
+    public static async Task  Verify_Shader_Error_invalid_method_parameter()
+    {
+        await Verify(
+"""
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl")]
+    [WorkgroupSize(64)]
+    private static partial void InvalidMethodParameter(int i);
+}
+""");
+    }
+    
+    [Test]
     public static async Task  Verify_Shader_Error_invalid_csharp_structs()
     {
         await Verify(

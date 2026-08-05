@@ -79,8 +79,12 @@ public static class ShaderValidation
         
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
-        var isCompute = parameters.Length > 0 && parameters[0].Type.Name == "PipelineContext";
-        if (!isCompute) {
+        var isCompute = method.WorkgroupSize != null;
+        if (isCompute) {
+            if (parameters.Length > 0 && parameters[0].Type.Name != "PipelineContext") {
+                diags.Method(method.MethodLoc, method, "invalid parameter  ->  expect (PipelineContext computeContext)", DiagType.Error);
+            }
+        } else {
             if (parameters.Length == 1) {
                 diags.Method(method.MethodLoc, method, "missing required parameters  ->  require (RenderPass pass, RenderConfig config)", DiagType.Error);
             }
