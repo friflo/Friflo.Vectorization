@@ -474,5 +474,45 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_expect_InOutBuffer()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
+    [WorkgroupSize(64, 1, 1)]
+    private static partial void ExpectInOutBuffer(PipelineContext computeContext,
+        [Map(0, 0)] [storage] [Dispatch]    InBuffer<VertexData>    vertices,
+        [Map(0, 1)] [uniform]               TestAddUniform          testUniform,
+        [Map(1, 0)] [uniform]               TimeUniform             uniform);
+        
+    public struct VertexData (Vector4 position, Vector4 color)
+    {
+        public  Vector4 position = position;
+        public  Vector4 color    = color;
+    }
+    
+    public struct TestAddUniform (float frequency)
+    {
+        public  float frequency = frequency;
+    }
+
+    public struct TimeUniform (float time)
+    {
+        public  float time = time;
+    }
+}
+""");
+    }
 
 }

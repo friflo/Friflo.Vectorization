@@ -107,10 +107,11 @@ public static class ShaderValidation
         var bindings = new Dictionary<(int,int), CsParameter>();
         foreach (var parameter in parameters)
         {
+            WgslBinding? wgslBinding = null;
             if (parameter.IsBindGroupEntry) {
-                ValidateBinding(parameter, bindings, wgslBindings, diags);
+                wgslBinding = ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            ValidateParameter(parameter, diags, method.TypeInfos);
+            ValidateParameter(parameter, wgslBinding, diags, method.TypeInfos);
         }
         
         if (parameters.Length > 0) {
@@ -186,12 +187,13 @@ public static class ShaderValidation
         }
     }
     
-    private static void ValidateBinding(
+    private static WgslBinding? ValidateBinding(
         in CsParameter                      parameter,
         Dictionary<(int,int), CsParameter>  bindings,
         Dictionary<(int,int), WgslBinding>  wgslBindings,
         List<ValidationDiag>                diags)
     {
+        var wgslBinding = default(WgslBinding);
         var bindGroup = parameter.BindGroup;
         if (bindGroup.group < 0 || bindGroup.group >= 4) {
             diags.Map(bindGroup.attrLoc, parameter, $"group must be in range: 0 - 3. was: {bindGroup.group}", DiagType.Error);
@@ -203,12 +205,13 @@ public static class ShaderValidation
             diags.Map(bindGroup.attrLoc, parameter, "binding already exists", DiagType.Error);
         }
         else {
-            if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out var wgslBinding)) {
+            if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out wgslBinding)) {
                 diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
             } else {
                 ValidateBindingType(parameter, wgslBinding, diags);
             }
         }
+        return wgslBinding;
     }
 
     
@@ -287,22 +290,26 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateWgslElement(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
         if (GetGenericType(parameter).TypeCode.IsWgslType) {
+            var accessMode = wgslBinding?.AccessMode;
+            if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
+                diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
+            }
             return;
         }
-        diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos); 
+        diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
     }
     
-    private static void ValidateParameter(in CsParameter parameter, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
         var type = parameter.Type;
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, diags, typeInfos);
+                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
@@ -313,7 +320,7 @@ public static class ShaderValidation
             
             case storage:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, diags, typeInfos);
+                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -325,7 +332,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, diags, typeInfos);
+                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
