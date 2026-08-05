@@ -82,7 +82,7 @@ public static class ShaderValidation
         var isCompute = method.WorkgroupSize != null;
         if (isCompute) {
             if (parameters.Length > 0 && parameters[0].Type.Name != "PipelineContext") {
-                diags.Method(method.MethodLoc, method, "invalid parameter  ->  expect (PipelineContext computeContext)", DiagType.Error);
+                diags.Method(method.MethodLoc, method, "invalid first parameter  ->  expect (PipelineContext computeContext)", DiagType.Error);
             }
         } else {
             if (parameters.Length == 1) {

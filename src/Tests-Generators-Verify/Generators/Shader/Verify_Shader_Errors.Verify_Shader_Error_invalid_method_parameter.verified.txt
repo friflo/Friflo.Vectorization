@@ -13,7 +13,7 @@
       }
     },
     {
-      Message: InvalidMethodParameter - invalid parameter  ->  expect (PipelineContext computeContext),
+      Message: InvalidMethodParameter - invalid first parameter  ->  expect (PipelineContext computeContext),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
