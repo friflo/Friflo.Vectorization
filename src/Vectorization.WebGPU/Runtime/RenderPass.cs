@@ -16,36 +16,32 @@ namespace Friflo.Vectorization.WebGPU.Runtime;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly unsafe ref struct RenderPassInternal
 {
-    public   readonly   CommandRecorder       Recorder;
-    private  readonly   RenderPassEncoder*    handle;
+    public   readonly   CommandRecorder     Recorder;
+    private  readonly   RenderPassEncoder*  handle;
     
-    internal RenderPassInternal(RenderPassEncoder* handle, CommandRecorder recorder) {
-        this.handle = handle;
+    public  override    string              ToString() => handle != null ? "Created" : "null";
+    
+    // ------------ aligned methods: RenderPassInternal, WgpuComputePass ------------
+    
+    internal RenderPassInternal(CommandRecorder recorder, RenderPassEncoder* handle) {
         Recorder    = recorder;
+        this.handle = handle;
     }
 
-    public void SetPipeline(WgpuRenderPipeline renderPipeline)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetPipeline(WgpuRenderPipeline pipeline)
     {
-        wgpuRenderPassEncoderSetPipeline(handle, renderPipeline.handle);
+        wgpuRenderPassEncoderSetPipeline(handle, pipeline.handle);
     }
 
-    /// <summary>Used without preceding <see cref="AddUniform"/> call. </summary>
+    /// <summary>Set bind group without a uniform. </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBindGroup(uint groupIndex, WgpuBindGroup bindGroup)
     {
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 0, null);
     }
 
-    /// <summary>Used with preceding <see cref="AddUniform"/> calls. </summary>
-    public void SetBindGroupUniforms(uint groupIndex, WgpuBindGroup bindGroup)
-    {
-        var rec     = Recorder;
-        var count   = rec.uniformOffsetsCount;
-        rec.uniformOffsetsCount = 0;
-        fixed(uint* offsets = rec.uniformOffsets) {
-            wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, count, offsets);
-        }
-    }
-    
+    /// <summary> A sequence of these calls are finished with <see cref="SetBindGroupUniforms"/>. </summary>
     public void AddUniform<T>(in T uniform) where T : unmanaged
     {
         uint alignedSize    = ((uint)sizeof(T) + (CommandRecorder.UniformAlignment - 1)) & ~(CommandRecorder.UniformAlignment - 1);
@@ -62,7 +58,18 @@ public readonly unsafe ref struct RenderPassInternal
         } */
     }
     
-    /// <summary> Set bind group with a uniform for a group layout with only a single layout single entry. </summary>
+    /// <summary>Used with preceding <see cref="AddUniform"/> calls. </summary>
+    public void SetBindGroupUniforms(uint groupIndex, WgpuBindGroup bindGroup)
+    {
+        var rec     = Recorder;
+        var count   = rec.uniformOffsetsCount;
+        rec.uniformOffsetsCount = 0;
+        fixed(uint* offsets = rec.uniformOffsets) {
+            wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, count, offsets);
+        }
+    }
+    
+    /// <summary> Set bind group with a single uniform. Create / cache bind group. </summary>
     public void SetBindGroupUniform<T>(uint groupIndex, int binding, ref WgpuBindGroup bindGroup, in T uniform, in PipelineCache pipelineCache, ReadOnlySpan<byte> groupLabel) where T : unmanaged
     {
         var rec = Recorder;
@@ -83,6 +90,10 @@ public readonly unsafe ref struct RenderPassInternal
         wgpuRenderPassEncoderSetBindGroup(handle, groupIndex, bindGroup.handle, 1, &offset);
     }
 
+    
+    
+    // -------------------- pass specific methods --------------------
+    
     /// <summary>
     /// See <see cref="VertexBufferAttribute"/> documentation for setting <c>arrayStride</c> in a <see cref="GpuVertexBufferLayout"/>.  
     /// </summary>

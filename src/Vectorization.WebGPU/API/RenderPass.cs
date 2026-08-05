@@ -20,7 +20,7 @@ public unsafe ref struct RenderPass : IDisposable
     
     [EditorBrowsable(EditorBrowsableState.Never)]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public RenderPassInternal Internal => new (handle, Recorder);
+    public RenderPassInternal Internal => new (Recorder, handle);
 
     
     internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
