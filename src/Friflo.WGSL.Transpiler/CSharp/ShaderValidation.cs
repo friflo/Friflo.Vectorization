@@ -421,7 +421,7 @@ public static class ShaderValidation
         }
         var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
         if (entryPoint == null) {
-            diags.WorkgroupSize(size, $"entry point '{entryName}' not found.", DiagType.Error);
+            diags.WorkgroupSize(size, $"entry point '{entryName}' not found in WGSL.", DiagType.Error);
             return;
         }
         var workgroup_size = entryPoint.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");

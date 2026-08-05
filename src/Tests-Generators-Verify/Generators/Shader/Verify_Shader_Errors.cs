@@ -343,4 +343,67 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_missing_compute_parameter()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl")]
+    [WorkgroupSize(64, 1, 2)]
+    private static partial void MissingComputeParameter();
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_missing_entry_point()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_unknown")]
+    [WorkgroupSize(64, 1, 2)]
+    private static partial void MissingEntryPoint();
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_invalid_WorkgroupSize()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_main")]
+    [WorkgroupSize(64, 1, 2)]
+    private static partial void InvalidWorkgroupSize();
+}
+""");
+    }
 }
