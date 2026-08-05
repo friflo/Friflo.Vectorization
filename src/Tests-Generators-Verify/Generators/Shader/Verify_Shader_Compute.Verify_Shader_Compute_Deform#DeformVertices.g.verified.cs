@@ -16,6 +16,7 @@ public partial class ShaderExample
     private static partial void DeformVertices(
         PipelineContext             computeContext,
         InOutBuffer<VertexData>     vertices,
+        TestAddUniform              testUniform,
         TimeUniform                 uniform)
     {
 
@@ -38,10 +39,12 @@ public partial class ShaderExample
         var key_0 = vertices.Handle;
         if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
             recorder.BindGroupEntryBuffer(0, vertices.Buffer);
+            recorder.BindGroupEntryUniform<TestAddUniform>(1);
             bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DeformVertices_bindGroup_0"u8);
             bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
         }
-        pass_.SetBindGroup(0, bindGroup_0);
+        pass_.AddUniform(testUniform);
+        pass_.SetBindGroupUniforms(0, bindGroup_0);
         
         // --- bind group 1
         pass_.SetBindGroupUniform(1, 0, ref bindGroupCache.bindGroup_1, uniform, pipelineCache,"DeformVertices_bindGroup_1"u8);
@@ -62,10 +65,10 @@ public partial class ShaderExample
     }
 
     private static readonly int _DeformVertices_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DeformVertices");
-    private const  ulong        _DeformVertices_GPU_layout_0_Key        =  0x8d1cce904a3cf317;
+    private const  ulong        _DeformVertices_GPU_layout_0_Key        =  0xe4005f69d574a486;
     private const  ulong        _DeformVertices_GPU_layout_1_Key        =  0x8475539045585a6c;
 
-    private static ulong        _DeformVertices_GPU_WgslHash            => 0xa95cb4969aa1584aUL;  // support Hot-Reload
+    private static ulong        _DeformVertices_GPU_WgslHash            => 0xda29fb0ebb6f232UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly ComputeCache _DeformVertices_GPU_CreatePipelineCache(WgpuDevice device)
@@ -74,6 +77,7 @@ public partial class ShaderExample
         var layout_0 = device.GetBindGroupLayout(_DeformVertices_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutBuffer(0, BufferBindingType.Storage);
+            device.BindGroupLayoutUniform(1);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Compute, _DeformVertices_GPU_layout_0_Key, "DeformVertices_layout_0"u8);
         }
         layouts[0] = layout_0;

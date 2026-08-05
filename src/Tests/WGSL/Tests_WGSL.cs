@@ -200,13 +200,14 @@ public static class Tests_WGSL
         var mappings= TestWgslUtils.LoadTestMappings();
         var result  = CodeFixer.CreateShaderParams(module, mappings, true);
         
-        Assert.That(module.Structs.Count,       Is.EqualTo(2));
-        Assert.That(module.Bindings.Count,      Is.EqualTo(2));
+        Assert.That(module.Structs.Count,       Is.EqualTo(3));
+        Assert.That(module.Bindings.Count,      Is.EqualTo(3));
         Assert.That(module.EntryPoints.Count,   Is.EqualTo(1));
         Assert.That(result.Parameters, Is.EqualTo( // language=csharp
             """
             (PipelineContext computeContext,
                     [Map(0, 0)] [storage]   InOutBuffer<VertexData> vertices,
+                    [Map(0, 1)] [uniform]   in TestAddUniform       testAddUniform,
                     [Map(1, 0)] [uniform]   in TimeUniform          timeData)
             """));
         Assert.That(result.Comments, Is.EqualTo( // language=csharp

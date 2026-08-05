@@ -74,10 +74,11 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        var timeUniform = new TimeUniform(time);
         myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
         
-        DeformVertices(frame.ComputeContext, data.InOut(), timeUniform);
+        var timeUniform = new TimeUniform(time);
+        var testUniform = new TestAddUniform(10);
+        DeformVertices(frame.ComputeContext, data.InOut(), testUniform, timeUniform);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         
@@ -101,6 +102,7 @@ public partial class Renderer : IRenderer
     [WorkgroupSize(64)]
     private static partial void DeformVertices(PipelineContext computeContext,
         [Map(0, 0)] [storage] [Dispatch]    InOutBuffer<VertexData> vertices,
+        [Map(0, 1)] [uniform]               TestAddUniform          testUniform,
         [Map(1, 0)] [uniform]               TimeUniform             uniform);
 }
 
