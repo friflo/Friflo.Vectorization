@@ -165,10 +165,12 @@ internal static partial class ShaderGenerator
     private static CsWorkgroupSize GetWorkgroupSize(AttributeData dispatchAttrData)
     {
         var args = dispatchAttrData.ConstructorArguments;
+        var loc  = dispatchAttrData.GetAttributeLoc();
         return new CsWorkgroupSize {
             workgroupCountX = args[0].Value is int x ? x : 0,
             workgroupCountY = args[1].Value is int y ? y : 0,
-            workgroupCountZ = args[2].Value is int z ? z : 0
+            workgroupCountZ = args[2].Value is int z ? z : 0,
+            attrLoc         = loc
         };
     }
 

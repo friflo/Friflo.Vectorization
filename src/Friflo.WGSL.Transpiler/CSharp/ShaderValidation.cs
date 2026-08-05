@@ -48,6 +48,8 @@ public static class ShaderValidation
     {
         var diags           = new List<ValidationDiag>();
         var wgslBindings    = new Dictionary<(int,int), WgslBinding>();
+        var computeModule   = default(WgslModule?);
+        var computeEntry    = default(string?);
         
         foreach (var shader in  method.Shaders)
         {
@@ -57,6 +59,10 @@ public static class ShaderValidation
                 continue;
             }
             var module = file.Module;
+            if (shader.compute != null) {
+                computeEntry    = shader.compute;
+                computeModule   = module;
+            }
             if (module == null) {
                 continue;
             }
@@ -67,6 +73,7 @@ public static class ShaderValidation
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
             }
         }
+        ValidateWorkgroupSize(method, computeModule, computeEntry, diags);
         
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
@@ -117,6 +124,11 @@ public static class ShaderValidation
         private void Shader(SrcLoc srcLoc, in CsShader shader, string message, DiagType type) {
             var error = $"[Shader(\"{shader.path}\")] - {message}";
             diags.Add(new ValidationDiag(srcLoc, error, type));
+        }
+        
+        private void WorkgroupSize(CsWorkgroupSize workgroupSize, string message, DiagType type) {
+            var error = $"[WorkgroupSize] - {message}";
+            diags.Add(new ValidationDiag(workgroupSize.attrLoc, error, type));
         }
                 
         private void Method(SrcLoc srcLoc, CsMethod method, string message, DiagType type) {
@@ -395,6 +407,41 @@ public static class ShaderValidation
             }
         }
         return type;
+    }
+    
+    private static void ValidateWorkgroupSize(CsMethod method, WgslModule? module, string? entryName, List<ValidationDiag> diags)
+    {
+        if (!method.WorkgroupSize.HasValue) {
+            return;
+        }
+        var size = method.WorkgroupSize.Value;
+        if (module == null || entryName == null) {
+            diags.WorkgroupSize(size, "requires [Shader()] with compute parameter.", DiagType.Error);
+            return;
+        }
+        var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
+        if (entryPoint == null) {
+            diags.WorkgroupSize(size, $"entry point '{entryName}' not found.", DiagType.Error);
+            return;
+        }
+        var workgroup_size = entryPoint.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");
+        if (workgroup_size == null) {
+            diags.WorkgroupSize(size, "missing @workgroup_size() attribute in WGSL.", DiagType.Error);
+            return;
+        }
+        var args = workgroup_size.Args;
+        int arg_0 = 0;
+        int arg_1 = 1;
+        int arg_2 = 1;
+        
+        if (args.Length > 0) int.TryParse(args[0], out arg_0);
+        if (args.Length > 1) int.TryParse(args[1], out arg_1); 
+        if (args.Length > 2) int.TryParse(args[2], out arg_2);
+        
+        if (arg_0 != size.workgroupCountX || arg_1 != size.workgroupCountY ||  arg_2 != size.workgroupCountZ) {
+            var parameters = string.Join(", ", args);
+            diags.WorkgroupSize(size, $"Mismatch with @workgroup_size({parameters}) parameters in WGSL.", DiagType.Error);
+        }
     }
 }
 

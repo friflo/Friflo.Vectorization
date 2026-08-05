@@ -159,6 +159,8 @@ public readonly record struct CsWorkgroupSize
     public required                 int     workgroupCountX { get; init; }
     public required                 int     workgroupCountY { get; init; }
     public required                 int     workgroupCountZ { get; init; }
+    
+    [Browse(Never)] public required SrcLoc  attrLoc { get; init; }
 }
 
 public readonly record struct CsBindGroup
