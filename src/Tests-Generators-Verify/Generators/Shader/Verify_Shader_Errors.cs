@@ -188,7 +188,7 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/parser-crash.vert.wgsl",              vertex:   "main")]
+	[Shader("~/shaders/parser-crash.vert.wgsl")]
     private static partial void WgslParser_Exception();
 }
 """);
@@ -349,8 +349,6 @@ public partial class ShaderExample
     {
         await Verify(
 """
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
@@ -365,34 +363,12 @@ public partial class ShaderExample
 """);
     }
     
-    [Test]
-    public static async Task  Verify_Shader_Error_missing_entry_point()
-    {
-        await Verify(
-"""
-using System.Numerics;
-using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
-
-namespace VerifyShader;
-
-public partial class ShaderExample
-{
-    [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_unknown")]
-    [WorkgroupSize(64, 1, 2)]
-    private static partial void MissingEntryPoint();
-}
-""");
-    }
     
     [Test]
     public static async Task  Verify_Shader_Error_invalid_WorkgroupSize()
     {
         await Verify(
 """
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
@@ -406,4 +382,78 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_missing_entry_compute()
+    {
+        await Verify(
+"""
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", compute: "cs_unknown")]
+    [WorkgroupSize(64, 1, 2)]
+    private static partial void MissingEntryPoint();
+}
+""");
+    }
+        
+    [Test]
+    public static async Task  Verify_Shader_Error_missing_entry_fragment()
+    {
+        await Verify(
+"""
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", fragment: "fs_main")]
+    private static partial void MissingEntryFragment();
+}
+""");
+    }
+        
+    [Test]
+    public static async Task  Verify_Shader_Error_missing_entry_vertex()
+    {
+        await Verify(
+"""
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", fragment: "vs_main")]
+    private static partial void MissingEntryVertex();
+}
+""");
+    }
+        
+    [Test]
+    public static async Task  Verify_Shader_Error_expect_fragment_attribute()
+    {
+        await Verify(
+"""
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/deform.wgsl", fragment: "cs_main")]
+    private static partial void ExpectFragmentAttribute();
+}
+""");
+    }
+
 }

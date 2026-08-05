@@ -1,0 +1,16 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: [Shader("shaders/renderTest/deform.wgsl")] - expect @fragment attribute on entry point 'cs_main' in WGSL.,
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

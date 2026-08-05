@@ -69,6 +69,8 @@ public static class ShaderValidation
             foreach (var error in module.Errors) {
                 diags.Shader(shader.attrLoc, shader, $"WGSL parser error - {error}", DiagType.Warn);
             }
+            ValidateShader(shader, module, diags);
+            
             foreach (var binding in module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
             }
@@ -409,6 +411,26 @@ public static class ShaderValidation
         return type;
     }
     
+    private static void ValidateShader(CsShader shader, WgslModule module, List<ValidationDiag> diags)
+    {
+        if (shader.vert    != null) ValidateEntryPoint(shader, "vertex",   shader.vert,    shader.vertLoc,    module, diags);
+        if (shader.frag    != null) ValidateEntryPoint(shader, "fragment", shader.frag,    shader.fragLoc,    module, diags);
+        if (shader.compute != null) ValidateEntryPoint(shader, "compute",  shader.compute, shader.computeLoc, module, diags);
+    }
+    
+    private static void ValidateEntryPoint(CsShader shader, string stage, string entryName, SrcLoc loc, WgslModule module, List<ValidationDiag> diags)
+    {
+        var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
+        if (entryPoint == null) {
+            diags.Shader(loc, shader, $"entry point '{entryName}' not found in WGSL.", DiagType.Error);
+            return;
+        }
+        if (entryPoint.Stage != stage) {
+            diags.Shader(loc, shader, $"expect @{stage} attribute on entry point '{entryName}' in WGSL.", DiagType.Error);
+            return;
+        }
+    }
+    
     private static void ValidateWorkgroupSize(CsMethod method, WgslModule? module, string? entryName, List<ValidationDiag> diags)
     {
         if (!method.WorkgroupSize.HasValue) {
@@ -421,7 +443,7 @@ public static class ShaderValidation
         }
         var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
         if (entryPoint == null) {
-            diags.WorkgroupSize(size, $"entry point '{entryName}' not found in WGSL.", DiagType.Error);
+            // diags.WorkgroupSize(size, $"entry point '{entryName}' not found in WGSL.", DiagType.Error);
             return;
         }
         var workgroup_size = entryPoint.Attributes.FirstOrDefault(attr => attr.Name == "workgroup_size");

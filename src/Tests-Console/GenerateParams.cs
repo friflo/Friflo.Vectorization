@@ -43,6 +43,6 @@ public static partial class GenerateParams
     public static partial void Tests_WGSL_Generate_textures();
     
     
-    [Shader("~/shaders/tests/testStructs.wgsl",  vertex: "main")]
+    [Shader("~/shaders/tests/testStructs.wgsl")]
     private static partial void TestStructs();
 }

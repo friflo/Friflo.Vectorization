@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [WorkgroupSize] - entry point 'cs_unknown' not found in WGSL.,
+      Message: [Shader("shaders/renderTest/deform.wgsl")] - entry point 'fs_main' not found in WGSL.,
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
