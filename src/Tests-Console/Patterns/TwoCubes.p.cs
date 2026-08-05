@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -13,7 +12,7 @@ public partial class Renderer
     private static void Pattern_RenderTwoCubes(
         RenderPass      pass,
         RenderConfig    config,
-        in Matrix4x4    modelViewProjectionMatrix,
+        in Uniforms     uniforms,
         InBuffer<float> verticesBuffer)
 	{
         var buffers =
@@ -34,7 +33,7 @@ public partial class Renderer
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
         // --- bind group 0
-        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, modelViewProjectionMatrix, pipelineCache, "TextureTest_bindGroup_0"u8);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, uniforms, pipelineCache, "TextureTest_bindGroup_0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
