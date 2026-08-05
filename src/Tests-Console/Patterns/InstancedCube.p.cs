@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.GPU.Runtime;
 using Friflo.Vectorization.WebGPU;
@@ -13,8 +12,9 @@ public partial class Renderer
     private static void Pattern_RenderInstancedCubes(
         RenderPass          pass,
         RenderConfig        config,
-        InBuffer<Matrix4x4> mvpMatrices,
-        InBuffer<float>     verticesBuffer)
+        in Uniforms 	    uniforms,
+        InBuffer<float>     verticesBuffer,
+        DrawArgs            args)
 	{
         var buffers =
         GpuBuffers.Create(verticesBuffer,   nameof(verticesBuffer));
@@ -23,8 +23,8 @@ public partial class Renderer
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
 		recorder.InitShader(TextureTest_GPU_ShaderId);
+        
         recorder.RequireRead(verticesBuffer);
-        recorder.RequireRead(mvpMatrices);
 
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(TextureTest_GPU_ShaderId, config, TextureTest_GPU_WgslHash);
         if (!pipelineCache.IsCreated) {
@@ -35,26 +35,20 @@ public partial class Renderer
         var bindGroupCache = (TextureTest_GPU_Cache)pipelineCache.bindGroupCache;
         
         // --- bind group 0
-        var key_0 = mvpMatrices.Handle;
-        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup0)) {
-            recorder.BindGroupEntryBuffer(0, mvpMatrices.Buffer);
-            bindGroup0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "TextureTest_bindGroup_0"u8);
-            bindGroupCache.bindGroup_0.Add(key_0, bindGroup0);
-        }
-        pass_.SetBindGroup(0, bindGroup0);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, uniforms, pipelineCache, "TextureTest_bindGroup_0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0); // slot: 0 - [VertexBuffer(0)]  references:  desc.VertexState.buffers[0]
    
         // --- draw
-        pass_.Draw(verticesBuffer, 0, config, DrawArgs.InstanceCount(mvpMatrices.Length));
+        pass_.Draw(verticesBuffer, 0, config, args);
 	}
     
     private sealed class TextureTest_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup>    bindGroup_0 = new ();
+        internal    WgpuBindGroup    bindGroup_0;
         
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_0);
         }
     }
     
@@ -70,7 +64,7 @@ public partial class Renderer
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(TextureTest_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
+            device.BindGroupLayoutUniform(0);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, TextureTest_GPU_layout_0_Key, "TextureTest_layout_0"u8);
         }
         layouts[0] = layout_0;
@@ -82,7 +76,7 @@ public partial class Renderer
     }
     
     private static readonly WgpuShader[] TextureTest_GPU_Shaders = [
-        new("shaders/instanced.vert.wgsl",           vert: "main"),
-        new("shaders/vertexPositionColor.frag.wgsl", frag: "main"),
+        new("shaders/instancedCube/instanced.vert.wgsl",    vert: "main"),
+        new("shaders/vertexPositionColor.frag.wgsl",        frag: "main"),
     ];
 }
