@@ -154,6 +154,7 @@ public enum CsWorkloadAttribute
     // Index
 }
 
+// WGPU attribute:  WorkgroupSizeAttribute
 public readonly record struct CsWorkgroupSize
 {
     public required                 int     workgroupCountX { get; init; }
@@ -163,6 +164,7 @@ public readonly record struct CsWorkgroupSize
     [Browse(Never)] public required SrcLoc  attrLoc { get; init; }
 }
 
+// WGPU attribute:  MapAttribute
 public readonly record struct CsBindGroup
 {
     /// <summary>Also used for slot in [VertexBuffer(slot)] </summary>
