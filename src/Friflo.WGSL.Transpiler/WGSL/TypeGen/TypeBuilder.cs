@@ -34,15 +34,21 @@ public sealed class TypeBuilder
     private             string                              fileNamespace   = "";
     private readonly    CSharpIdentifier[]                  typeMap;
     private             TypeGen?                            typeGen;
-    private             Dictionary<(int, int), CSharpType>? bindingTypes    = null;
+    private             Dictionary<(int, int), CSharpType>? bindingTypes;
     
     internal            string                              FileNamespace   => fileNamespace;
 
     private const string  LineFeeds = "\n\n\n";
         
-    internal TypeBuilder(CSharpIdentifier[] typeMap)
+    internal TypeBuilder(CSharpIdentifier[] typeMap, Dictionary<(int, int), CSharpType>? bindingTypes)
     {
-        this.typeMap = typeMap;
+        this.typeMap        = typeMap;
+        this.bindingTypes   = bindingTypes;
+    }
+    
+    public void AddModuleType(WgslModule wgslModule, string path)
+    {
+        CreateStructs(wgslModule, path, null);
     }
     
     internal void EmitStructs(StringBuilder sb, string normalizedPath)

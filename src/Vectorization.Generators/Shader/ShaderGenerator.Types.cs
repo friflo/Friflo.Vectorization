@@ -25,6 +25,7 @@ internal static partial class ShaderGenerator
                 Name        = typeInfo.Identifier.Name,
                 Namespace   = typeInfo.Identifier.Namespace,
                 TypeCode    = typeInfo.TypeCode,
+                TypeSize    = typeInfo.LayoutSize, 
                 Generics    = default,
                 IsArray     = false,
             };
@@ -34,6 +35,7 @@ internal static partial class ShaderGenerator
             Name        = type.Name,
             Namespace   = type.Namespace,
             TypeCode    = CsTypeCode.None,
+            TypeSize    = -1,
             Generics    = default,
             IsArray     = false
         };
@@ -82,6 +84,7 @@ internal static partial class ShaderGenerator
                         Name        = fieldTypeInfo.Identifier.Name,
                         Namespace   = fieldTypeInfo.Identifier.Namespace,
                         TypeCode    = fieldTypeInfo.TypeCode,
+                        TypeSize    = fieldTypeInfo.LayoutSize, 
                         Generics    = default,
                         IsArray     = false
                     },

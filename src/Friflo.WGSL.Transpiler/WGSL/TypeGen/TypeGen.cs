@@ -56,7 +56,7 @@ public sealed class TypeGen
             File.WriteAllText(errorFilePath, sb.ToString(), new UTF8Encoding(false));
         }
         var typeMap = TypeMapping.CreateTypeMap(mappings);
-        var typeBuilder = new TypeBuilder(typeMap);
+        var typeBuilder = new TypeBuilder(typeMap, null);
 
         
         for (int n = 0; n < wgslFiles.Length; n++) {

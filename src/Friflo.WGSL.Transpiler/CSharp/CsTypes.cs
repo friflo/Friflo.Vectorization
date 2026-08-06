@@ -263,6 +263,7 @@ public readonly record struct CsType
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
     public required     bool                IsArray     { get; init; }
     public required     CsTypeCode          TypeCode    { get; init; }
+    public required     int                 TypeSize    { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();
     

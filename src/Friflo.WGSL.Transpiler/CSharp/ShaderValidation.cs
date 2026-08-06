@@ -51,6 +51,10 @@ public static class ShaderValidation
         var computeModule   = default(WgslModule?);
         var computeEntry    = default(string?);
         
+        var bindingTypes    = new Dictionary<(int, int), CSharpType>();
+        var typeMap         = TypeMapping.CreateTypeMap([]);
+        var typeBuilder     = new TypeBuilder(typeMap, bindingTypes);
+        
         foreach (var shader in  method.Shaders)
         {
             var file = files.FirstOrDefault(file => file.NormalizedPath.EndsWith(shader.path));
@@ -70,6 +74,7 @@ public static class ShaderValidation
                 diags.Shader(shader.attrLoc, shader, $"WGSL parser error - {error}", DiagType.Warn);
             }
             ValidateShader(shader, module, diags);
+            typeBuilder.AddModuleType(module, shader.path);
             
             foreach (var binding in module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
@@ -108,10 +113,13 @@ public static class ShaderValidation
         foreach (var parameter in parameters)
         {
             WgslBinding? wgslBinding = null;
+            CSharpType csharpType = default;
             if (parameter.IsBindGroupEntry) {
+                var bindGroup = parameter.BindGroup;
+                bindingTypes.TryGetValue((bindGroup.group, bindGroup.binding), out csharpType);
                 wgslBinding = ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            ValidateParameter(parameter, wgslBinding, diags, method.TypeInfos);
+            ValidateParameter(parameter, wgslBinding, csharpType, diags, method.TypeInfos);
         }
         
         if (parameters.Length > 0) {
@@ -290,26 +298,33 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
-        if (GetGenericType(parameter).TypeCode.IsWgslType) {
+        var csType = GetGenericType(parameter);
+        if (csType.TypeCode.IsWgslType) {
             var accessMode = wgslBinding?.AccessMode;
             if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
                 diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
+            }
+            if (parameter.IsBindGroupEntry) {
+                if (bindingType.Size != csType.TypeSize) {
+                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {csType.TypeSize}";
+                    // diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
+                }
             }
             return;
         }
         diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
     }
     
-    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
         var type = parameter.Type;
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType, diags, typeInfos);
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
@@ -320,7 +335,7 @@ public static class ShaderValidation
             
             case storage:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType, diags, typeInfos);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -332,7 +347,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, wgslBinding, diags, typeInfos);
+                    ValidateWgslElement(in parameter, wgslBinding, default, diags, typeInfos);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
