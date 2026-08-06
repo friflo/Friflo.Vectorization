@@ -77,24 +77,6 @@ public record CsMethod
     }
 }
 
-public readonly record struct CsAttribute
-{
-    public required     CsTypeIdentifier            Type    { get; init; }
-    public required     ValueArray<CsAttributeArg>  Args    { get; init; }
-    
-    public override     string                      ToString() => Type.ToString();
-}
-
-public readonly record struct CsAttributeArg
-{
-    public required     string  Name        { get; init; }
-    public required     string  Value       { get; init; } // string or int
-
-    public override     string  ToString()  => $"{Value} ({Name})";
-
-    public CsAttributeArg() { }
-}
-
 public readonly record struct CsEnum {
     public required     string  Name   { get; init; }
     public required     ulong   Value  { get; init; }
