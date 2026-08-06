@@ -129,28 +129,52 @@ public sealed partial class TypeGen
         if (localStructs.TryGetValue(structName, out var localStruct)) {
             return localStruct.csharpStruct;
         }
-        var length      = wgslStruct.Fields.Count;
-        var fields      = new CSharpField[length];
-        var sb          = new StringBuilder();
-        sb.Append($"\npublic struct {structName} (");
-        
-        var maxTypeWidth  = 0;
-        var maxFieldWidth = 0;
+        var length  = wgslStruct.Fields.Count;
+        var fields  = new CSharpField[length];
         
         for (int n = 0; n < length; n++) {
             var field       = wgslStruct.Fields[n];
             var csharpType  = GetCSharpType(field.WgslType, arrayStride);
             fields[n]       = new CSharpField { name = field.Name, type = csharpType, wgslAlign = field.Align, wgslSize = field.Size };
-            maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
-            maxFieldWidth   = Math.Max(maxFieldWidth, field.Name.Length);
-            AddNamespace(csharpType);
         }
         var layout = AssignFieldLayouts(fields, arrayStride);
+        
+        var source = EmitStruct(structName, fields);
+        
+        var fullQualifiedName = $"{fileNamespace}-{structName}";
+        
+        if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
+            var alreadyDeclared = source == curStruct.source;
+            if (alreadyDeclared) {
+                localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = true });
+                return curStruct;
+            }
+        }
+        var csharpStruct = new CSharpStruct { name = structName, source = source, fields = fields, layout = layout };
+        structMap.TryAdd(fullQualifiedName, csharpStruct);
+        localStructs.TryAdd(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
+        return csharpStruct;
+    }
+    
+    private string EmitStruct(string structName, CSharpField[] fields)
+    {
+        var sb = new StringBuilder();
+        sb.Append($"\npublic struct {structName} (");
+        
+        var maxTypeWidth  = 0;
+        var maxFieldWidth = 0;
+        
+        foreach (var field in fields) {
+            var csharpType  = field.type;
+            maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
+            maxFieldWidth   = Math.Max(maxFieldWidth, field.name.Length);
+            AddNamespace(csharpType);
+        }
         foreach (var csharpField in fields) {
             var modifier = csharpField.size <= 16 ? "" : "in ";
             sb.Append($"{modifier}{csharpField.type.identifier.Name} {csharpField.name}, ");
         }
-        if (length > 0) {
+        if (fields.Length > 0) {
             sb.Length -= 2;
         }
         sb.Append(")\n");
@@ -166,21 +190,7 @@ public sealed partial class TypeGen
             sb.Append("\n");
         }
         sb.Append("}").Append(LineFeeds);
-        var source = sb.ToString();
-        
-        var fullQualifiedName   = $"{fileNamespace}-{structName}";
-        
-        if (structMap.TryGetValue(fullQualifiedName, out var curStruct)) {
-            var alreadyDeclared = source == curStruct.source;
-            if (alreadyDeclared) {
-                localStructs.Add(curStruct.name, new LocalStruct { csharpStruct = curStruct, alreadyDeclared = true });
-                return curStruct;
-            }
-        }
-        var csharpStruct = new CSharpStruct { name = structName, source = source, fields = fields, layout = layout };
-        structMap.TryAdd(fullQualifiedName, csharpStruct);
-        localStructs.TryAdd(csharpStruct.name, new LocalStruct { csharpStruct = csharpStruct, alreadyDeclared = false });
-        return csharpStruct;
+        return sb.ToString();
     }
     
     private CSharpType GetCSharpType(WgslType type, ArrayStride arrayStride)
