@@ -16,14 +16,17 @@ using System.Text;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-#if FILE_IO
-
-public sealed partial class TypeGen
+public sealed class TypeGen
 {
-    private readonly    StringBuilder   fileBuilder             = new ();
-    private readonly    StringBuilder   body                    = new();
+    private  readonly   StringBuilder   fileBuilder             = new ();
+    private  readonly   StringBuilder   body                    = new();
     //
-    
+    internal readonly   StringBuilder                       fixedSizedArrayBuilder      = new();
+    internal readonly   Dictionary<string, FixedSizeArray>  globalFixedSizedArrayTypes  = new();
+    internal readonly   Dictionary<string, FixedSizeArray>  localFixedSizedArrayTypes   = new();
+    internal readonly   HashSet<string>                     additionalNamespaces        = [];
+
+#if FILE_IO
 
     private static void DebugInputs(WgslFile[] wgslFiles, string projDir)
     {
@@ -67,7 +70,9 @@ public sealed partial class TypeGen
             }
             File.WriteAllText(errorFilePath, sb.ToString(), new UTF8Encoding(false));
         }
-        TypeMap = TypeMapping.CreateTypeMap(mappings);
+        var typeMap = TypeMapping.CreateTypeMap(mappings);
+        var typeBuilder = new TypeBuilder(typeMap);
+
         
         for (int n = 0; n < wgslFiles.Length; n++) {
             var path =  wgslFiles[n].NormalizedPath.Substring(projDir.Length + 1);
@@ -80,7 +85,7 @@ public sealed partial class TypeGen
         var files = new List<(string, string)>();
         foreach (var file in wgslFiles)
         {
-            var content = EmitFile(file);
+            var content = EmitFile(file, typeBuilder);
             if (content == null) continue;
             files.Add((file.NormalizedPath + ".cs", content));
         }
@@ -158,25 +163,26 @@ public sealed partial class TypeGen
             """);
     }
     
-    private string? EmitFile(WgslFile file)
+    private string? EmitFile(WgslFile file, TypeBuilder typeBuilder)
     {
         var normalizedPath = file.NormalizedPath;
         try {
             // --- clear state first!
             fileBuilder.Clear();
             body.Clear();
-            localStructs.Clear();
-            requiredStructs.Clear();
-            emittedStructs.Clear();
-            wgslStructs.Clear();
+
+            var fileNamespace = PathToNamespace(normalizedPath);
+            
             localFixedSizedArrayTypes.Clear();
             additionalNamespaces.Clear();
-            fileNamespace = PathToNamespace(normalizedPath);
             
             // --- process after
             EmitFileHeader(normalizedPath + ".cs");
-            module = FastWgslParser.ParseWgsl(file.Content, normalizedPath);
-            EmitStructs(body, normalizedPath);
+            var module = FastWgslParser.ParseWgsl(file.Content, normalizedPath);
+            
+            typeBuilder.CreateStructs(module, fileNamespace, this);
+            typeBuilder.EmitStructs(body, normalizedPath);
+            
             if (body.Length == 0 && localFixedSizedArrayTypes.Count == 0) {
                 return null;
             }
@@ -207,6 +213,7 @@ public sealed partial class TypeGen
         }
         return fileBuilder.ToString();
     }
+    
+    #endif
 }
 
-#endif

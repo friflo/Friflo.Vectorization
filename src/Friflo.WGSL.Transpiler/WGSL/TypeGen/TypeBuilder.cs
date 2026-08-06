@@ -19,7 +19,7 @@ using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 namespace Friflo.WGSL.Transpiler.WGSL;
 
 
-public sealed partial class TypeGen
+public sealed class TypeBuilder
 {
     private readonly    Dictionary<string, CSharpStruct>    structMap                   = new();
     private readonly    Dictionary<string, LocalStruct>     localStructs                = new();
@@ -27,23 +27,20 @@ public sealed partial class TypeGen
     private readonly    HashSet<string>                     requiredStructs             = [];
     private readonly    HashSet<string>                     emittedStructs              = [];
     //
-    private readonly    StringBuilder                       fixedSizedArrayBuilder      = new();
-    private readonly    Dictionary<string, FixedSizeArray>  globalFixedSizedArrayTypes  = new();
-    private readonly    Dictionary<string, FixedSizeArray>  localFixedSizedArrayTypes   = new();
-    
-    private readonly    HashSet<string>                     additionalNamespaces    = [];
-
-
     private             WgslModule                          module          = new();
     private             string                              fileNamespace   = "";
-    private             CSharpIdentifier[]                  TypeMap         = [];
+    private readonly    CSharpIdentifier[]                  typeMap;
+    private             TypeGen?                            typeGen;
 
     private const string  LineFeeds = "\n\n\n";
         
-    
-    private void EmitStructs(StringBuilder sb, string normalizedPath)
+    internal TypeBuilder(CSharpIdentifier[] typeMap)
     {
-        CreateStructs();
+        this.typeMap = typeMap;
+    }
+    
+    internal void EmitStructs(StringBuilder sb, string normalizedPath)
+    {
         if (requiredStructs.Count == 0) {
             return;
         }
@@ -101,8 +98,16 @@ public sealed partial class TypeGen
         }
     }
     
-    private void CreateStructs()
+    internal void CreateStructs(WgslModule wgslModule, string ns, TypeGen? typeGenerator)
     {
+        localStructs.Clear();
+        requiredStructs.Clear();
+        emittedStructs.Clear();
+        wgslStructs.Clear();
+        typeGen         = typeGenerator;
+        module          = wgslModule;
+        fileNamespace   = ns;
+        
         var structs  = module.Structs;
         if (module.Bindings.Count == 0 || structs.Count == 0) {
             return;
@@ -210,7 +215,7 @@ public sealed partial class TypeGen
                 csharpType = new CSharpType(typeName, NotFound, info, null);
             }
         } else {
-            var typeIdentifier = TypeMap[(int)info.typeCode];
+            var typeIdentifier = typeMap[(int)info.typeCode];
             csharpType = new CSharpType(typeIdentifier, info, null);
         }
         if (info.paramType == WgslParamType.FixedSizeArray) {
@@ -320,11 +325,14 @@ public sealed partial class TypeGen
     
     private string EmitFixedSizeArray(TypeLayout layout, CSharpType type, ArrayStride arrayStride)
     {
+        if (typeGen == null) {
+            return "FIXED_SIZE_ARRAY";
+        }
         var arraySize   = type.info.arraySize;
         var typeCode    = type.info.typeCode;
         var identifier  = typeCode is CsTypeCode.WgslStruct or CsTypeCode.None
             ? type.identifier
-            : TypeMap[(int)typeCode];
+            : typeMap[(int)typeCode];
         
         var arrayName       = arrayStride == ArrayStride.PadTo16Bytes ? "_UniArr_" : "_Array_";
         var typeName        = $"{identifier.Name}{arrayName}{arraySize}";
@@ -333,9 +341,10 @@ public sealed partial class TypeGen
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
         
-        var sb = fixedSizedArrayBuilder;
+        var sb = typeGen.fixedSizedArrayBuilder;
         sb.Clear();
-        var fixedSizedArrays = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct ? localFixedSizedArrayTypes : globalFixedSizedArrayTypes;
+        var fixedSizedArrays = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct
+            ? typeGen.localFixedSizedArrayTypes : typeGen.globalFixedSizedArrayTypes;
         
         if (!fixedSizedArrays.ContainsKey(qualifiedName))
         {
@@ -374,11 +383,13 @@ public sealed partial class TypeGen
     
     private void AddNamespace(in CSharpType csharpType)
     {
+        if (typeGen == null) return;
+        
         if (csharpType.identifier.Namespace == "" ||
             csharpType.identifier.Namespace == "System") {
             return;
         }
-        additionalNamespaces.Add(csharpType.identifier.Namespace);
+        typeGen.additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
     private static int GetFixedSizeArrayStride(TypeLayout layout, ArrayStride arrayStride)
