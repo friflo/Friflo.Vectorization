@@ -40,21 +40,6 @@ public sealed class TypeGen
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
     }
     
-    private static string PathToNamespace(string path)
-    {
-        var dir = Path.GetDirectoryName(path);
-        if (string.IsNullOrEmpty(dir)) return "";
-
-        var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < parts.Length; i++)
-        {
-            var p = parts[i];
-            var rest = p.Length > 1 ? p.Substring(1) : "";
-            parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
-        }
-        return $"{string.Join(".", parts)}";
-    }
-    
     public void EmitAllStructs(WgslFile[] wgslFiles, string projDir, TypeMapping[] mappings, ToolError[] errors)
     {
         wgslFiles = wgslFiles.ToArray();
@@ -170,9 +155,6 @@ public sealed class TypeGen
             // --- clear state first!
             fileBuilder.Clear();
             body.Clear();
-
-            var fileNamespace = PathToNamespace(normalizedPath);
-            
             localFixedSizedArrayTypes.Clear();
             additionalNamespaces.Clear();
             
@@ -180,7 +162,7 @@ public sealed class TypeGen
             EmitFileHeader(normalizedPath + ".cs");
             var module = FastWgslParser.ParseWgsl(file.Content, normalizedPath);
             
-            typeBuilder.CreateStructs(module, fileNamespace, this);
+            typeBuilder.CreateStructs(module, normalizedPath, this);
             typeBuilder.EmitStructs(body, normalizedPath);
             
             if (body.Length == 0 && localFixedSizedArrayTypes.Count == 0) {
@@ -192,7 +174,8 @@ public sealed class TypeGen
             foreach (var fixedSizedArrayType in localFixedSizedArrayTypes) {
                 body.Append(fixedSizedArrayType.Value.source);
             }
-            var nsDecl   = fileNamespace == "" ? "" : $"namespace {fileNamespace};";
+            var fileNamespace   = typeBuilder.FileNamespace;
+            var nsDecl          = fileNamespace == "" ? "" : $"namespace {fileNamespace};";
             fileBuilder.Append( // language=csharp
                 $"""
                 

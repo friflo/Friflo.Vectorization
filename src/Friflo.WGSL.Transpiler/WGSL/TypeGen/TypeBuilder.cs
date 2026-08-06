@@ -3,11 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Friflo.WGSL.Transpiler.CSharp;
 using static Friflo.WGSL.Transpiler.WGSL.TypeResolution;
 
+// ReSharper disable MergeIntoPattern
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable InlineTemporaryVariable
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -21,16 +24,18 @@ namespace Friflo.WGSL.Transpiler.WGSL;
 
 public sealed class TypeBuilder
 {
-    private readonly    Dictionary<string, CSharpStruct>    structMap                   = new();
-    private readonly    Dictionary<string, LocalStruct>     localStructs                = new();
-    private readonly    Dictionary<string, WgslStruct>      wgslStructs                 = new();
-    private readonly    HashSet<string>                     requiredStructs             = [];
-    private readonly    HashSet<string>                     emittedStructs              = [];
+    private readonly    Dictionary<string, CSharpStruct>    structMap       = new();
+    private readonly    Dictionary<string, LocalStruct>     localStructs    = new();
+    private readonly    Dictionary<string, WgslStruct>      wgslStructs     = new();
+    private readonly    HashSet<string>                     requiredStructs = [];
+    private readonly    HashSet<string>                     emittedStructs  = [];
     //
     private             WgslModule                          module          = new();
     private             string                              fileNamespace   = "";
     private readonly    CSharpIdentifier[]                  typeMap;
     private             TypeGen?                            typeGen;
+    
+    internal            string                              FileNamespace   => fileNamespace;
 
     private const string  LineFeeds = "\n\n\n";
         
@@ -97,8 +102,23 @@ public sealed class TypeBuilder
             sb.Append(localStruct.csharpStruct.source);
         }
     }
-    
-    internal void CreateStructs(WgslModule wgslModule, string ns, TypeGen? typeGenerator)
+
+    private static string PathToNamespace(string path)
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (string.IsNullOrEmpty(dir)) return "";
+
+        var parts = dir.Split(['/', '\\', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var p = parts[i];
+            var rest = p.Length > 1 ? p.Substring(1) : "";
+            parts[i] = (char.IsDigit(p[0]) ? "_" : "") + char.ToUpperInvariant(p[0]) + rest;
+        }
+        return $"{string.Join(".", parts)}";
+    }
+
+    internal void CreateStructs(WgslModule wgslModule, string normalizedPath, TypeGen? typeGenerator)
     {
         localStructs.Clear();
         requiredStructs.Clear();
@@ -106,7 +126,7 @@ public sealed class TypeBuilder
         wgslStructs.Clear();
         typeGen         = typeGenerator;
         module          = wgslModule;
-        fileNamespace   = ns;
+        fileNamespace   = PathToNamespace(normalizedPath);
         
         var structs  = module.Structs;
         if (module.Bindings.Count == 0 || structs.Count == 0) {
