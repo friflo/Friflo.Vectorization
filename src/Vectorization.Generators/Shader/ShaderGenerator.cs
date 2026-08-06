@@ -298,31 +298,6 @@ internal static partial class ShaderGenerator
         };
     }
 
-    private static CsAttribute MapAttribute(AttributeData attributeData)
-    {
-        var args = new List<CsAttributeArg>();
-
-        foreach (var constructorArg in attributeData.ConstructorArguments)
-        {
-            args.Add(new CsAttributeArg {
-                Name    = string.Empty,
-                Value   = constructorArg.Value?.ToString() ?? "null"
-            });
-        }
-        // NamedArguments required for [StructLayout()] & [FieldOffset()]
-        foreach (var namedArg in attributeData.NamedArguments)
-        {
-            args.Add(new CsAttributeArg {
-                Name    = namedArg.Key,
-                Value   = namedArg.Value.Value?.ToString() ?? "null"
-            });
-        }
-        return new CsAttribute {
-            Type = GetIdentifier(attributeData.AttributeClass),
-            Args = args.ToValueArray()
-        };
-    }
-    
     private static string GetNamespace(ITypeSymbol? symbol)
     {
         return symbol?.ContainingNamespace?.IsGlobalNamespace == false

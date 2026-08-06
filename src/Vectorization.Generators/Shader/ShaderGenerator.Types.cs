@@ -75,11 +75,23 @@ internal static partial class ShaderGenerator
             foreach (var fieldSymbol in fieldSymbols)
             {
                 var fieldTypeInfo   = GetTypeInfo(types, fieldSymbol.Type); // recursive call
-                
-                var fieldAttributes = fieldSymbol.GetAttributes().Select(MapAttribute).ToValueArray();
-                
+                var fieldAttributes = fieldSymbol.GetAttributes();
+                var fieldOffset     = -1;
+                if (fieldAttributes.Length > 0) {
+                    var fieldOffsetData = fieldAttributes.FirstOrDefault(data => data.AttributeClass?.Name == "FieldOffsetAttribute");
+                    if (fieldOffsetData != null) {
+                        var constructorArgs = fieldOffsetData.ConstructorArguments;
+                        if (constructorArgs.Length == 1) {
+                            var arg_0 = constructorArgs[0];
+                            if (arg_0.Type != null && arg_0.Type.SpecialType == SpecialType.System_Int32) {
+                                fieldOffset = (int)arg_0.Value!;
+                            }
+                        }
+                    }
+                }
                 fieldList.Add(new CsField {
                     Name        = fieldSymbol.Name,
+                    FieldOffset = fieldOffset,
                     Type        = new CsType {
                         Name        = fieldTypeInfo.Identifier.Name,
                         Namespace   = fieldTypeInfo.Identifier.Namespace,
@@ -87,8 +99,7 @@ internal static partial class ShaderGenerator
                         TypeSize    = fieldTypeInfo.LayoutSize, 
                         Generics    = default,
                         IsArray     = false
-                    },
-                    Attributes  = fieldAttributes
+                    }
                 });
             }
             fields = fieldList.ToValueArray();
