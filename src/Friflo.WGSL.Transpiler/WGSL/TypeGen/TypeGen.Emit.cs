@@ -214,7 +214,7 @@ public sealed partial class TypeGen
             csharpType = new CSharpType(typeIdentifier, info, null);
         }
         if (info.paramType == WgslParamType.FixedSizeArray) {
-            return EmitFixedSizeArray(csharpType, arrayStride);
+            return CreateFixedSizeArray(csharpType, arrayStride);
         }
         return csharpType;
     }
@@ -304,7 +304,21 @@ public sealed partial class TypeGen
         }
     }
     
-    private CSharpType EmitFixedSizeArray(CSharpType type, ArrayStride arrayStride)
+    private CSharpType CreateFixedSizeArray(CSharpType type, ArrayStride arrayStride)
+    {
+        var typeCode = type.info.typeCode;
+        
+        var layout = typeCode == CsTypeCode.WgslStruct
+            ? type.csharpStruct!.layout
+            : typeCode.Layout;
+        
+        var typeName = EmitFixedSizeArray(layout, type, arrayStride);
+
+        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
+        return new CSharpType(typeName, Created, type.info, csharpArray);
+    }
+    
+    private string EmitFixedSizeArray(TypeLayout layout, CSharpType type, ArrayStride arrayStride)
     {
         var arraySize   = type.info.arraySize;
         var typeCode    = type.info.typeCode;
@@ -312,13 +326,10 @@ public sealed partial class TypeGen
             ? type.identifier
             : TypeMap[(int)typeCode];
         
-        var layout = typeCode == CsTypeCode.WgslStruct
-            ? type.csharpStruct!.layout
-            : typeCode.Layout;
-        
-        var stride          = GetFixedSizeArrayStride(layout, arrayStride);
         var arrayName       = arrayStride == ArrayStride.PadTo16Bytes ? "_UniArr_" : "_Array_";
         var typeName        = $"{identifier.Name}{arrayName}{arraySize}";
+        
+        var stride          = GetFixedSizeArrayStride(layout, arrayStride);
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
         
@@ -358,8 +369,7 @@ public sealed partial class TypeGen
                 file partial class _info;
                 """).Append(LineFeeds);
         }
-        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
-        return new CSharpType(typeName, Created, type.info, csharpArray);
+        return typeName;
     }
     
     private void AddNamespace(in CSharpType csharpType)
