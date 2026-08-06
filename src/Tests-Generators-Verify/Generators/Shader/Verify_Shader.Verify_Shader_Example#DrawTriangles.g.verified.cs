@@ -17,7 +17,7 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         InBuffer<VertexData>        triangles,
-        in MyUniform                myUniform,
+        in MyUniforms               myUniform,
         Vector2                     model_offset)
     {
 
@@ -46,7 +46,7 @@ public partial class ShaderExample
         
         // --- bind group 2
         if (!bindGroupCache.bindGroup_2.IsCreated) {
-            recorder.BindGroupEntryUniform<MyUniform>(0);
+            recorder.BindGroupEntryUniform<MyUniforms>(0);
             recorder.BindGroupEntryUniform<Vector2>(1);
             bindGroupCache.bindGroup_2 = recorder.CreateBindGroup(pipelineCache.layouts[2], "DrawTriangles_bindGroup_2"u8);
         }

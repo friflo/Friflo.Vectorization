@@ -55,17 +55,20 @@ public partial class ShaderExample
         [Map(0, 1)] [uniform]               TestAddUniform          testUniform,
         [Map(1, 0)] [uniform]               TimeUniform             uniform);
         
+    [StructLayout(LayoutKind.Sequential, Size = 32)]
     public struct VertexData (Vector4 position, Vector4 color)
     {
         public  Vector4 position = position;
         public  Vector4 color    = color;
     }
     
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct TestAddUniform (float frequency)
     {
         public  float frequency = frequency;
     }
 
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct TimeUniform (float time)
     {
         public  float time = time;

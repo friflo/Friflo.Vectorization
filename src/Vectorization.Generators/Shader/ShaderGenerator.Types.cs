@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MergeIntoPattern
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable once CheckNamespace
@@ -49,9 +51,10 @@ internal static partial class ShaderGenerator
         
         if (CsTypeCode.None != typeCode || !isValueType)
         {
+            var layoutSize = typeCode.IsWgslType ? typeCode.Layout.size : -1;
             typeInfo = new CsTypeInfo {
                 Identifier  = type,
-                Attributes  = default,
+                LayoutSize  = layoutSize,
                 Fields      = default,
                 TypeCode    = typeCode
             };
@@ -59,8 +62,6 @@ internal static partial class ShaderGenerator
             return typeInfo;
         }
 
-        var attributesData  = typeSymbol.GetAttributes().Select(MapAttribute).ToArray();
-        
         ValueArray<CsField> fields = default;
         if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
         {
@@ -102,9 +103,24 @@ internal static partial class ShaderGenerator
                 break;
             }
         }
+        var attributes   = typeSymbol.GetAttributes();
+        var structLayout = attributes.FirstOrDefault(data => data.AttributeClass?.Name == "StructLayoutAttribute");
+        var structSize 	 = -1;
+        if (structLayout != null) {
+            var constructorArgs = structLayout.ConstructorArguments;
+            var layoutKind = (LayoutKind)constructorArgs[0].Value!;
+            if (layoutKind is LayoutKind.Explicit or LayoutKind.Sequential) {
+                if (constructorArgs.Length > 1) {
+                    int.TryParse((string)constructorArgs[1].Value!, out structSize);
+                } else {
+                    var size = structLayout.NamedArguments.FirstOrDefault(arg => arg.Key == "Size");
+                    structSize = size.Value.IsNull ? -1 : (int)size.Value.Value!;
+                }
+            }
+        }
         typeInfo = new CsTypeInfo {
             Identifier  = type,
-            Attributes  = attributesData.ToValueArray(),
+            LayoutSize  = structSize, 
             Fields      = fields,
             TypeCode    = typeCode
         };

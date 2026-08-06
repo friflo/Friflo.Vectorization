@@ -215,7 +215,7 @@ public readonly record struct CsParameter
 public readonly record struct CsTypeInfo
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     ValueArray<CsAttribute> Attributes  { get; init; }
+    public required     int                     LayoutSize  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; init; }
     public required     CsTypeCode              TypeCode    { get; init; }
     

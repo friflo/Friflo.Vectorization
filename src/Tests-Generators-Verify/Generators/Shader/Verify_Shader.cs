@@ -51,13 +51,13 @@ public partial class ShaderExample
     [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
     public static partial void DrawTriangles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
-        [Map(2, 0)] [uniform]           in MyUniform            myUniform,
+        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
         [Map(2, 1)] [uniform]           Vector2                 model_offset);
         
-    [StructLayout(LayoutKind.Sequential, Size = 16)]
-    public struct MyUniform
+    [StructLayout(LayoutKind.Explicit, Size = 16)]
+    public struct MyUniforms (Vector4 tint_color)
     {
-        public Vector4 	tint_color;
+        [FieldOffset(  0)]  public  Vector4 tint_color = tint_color;
     }
 
     [StructLayout(LayoutKind.Sequential, Size = 32)]
@@ -371,14 +371,15 @@ public partial class ShaderExample
                     [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
                     [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
     
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Scene {
-        public Matrix4x4   lightViewProjMatrix;
-        public Matrix4x4   cameraViewProjMatrix;
-        public Vector3     lightPos;
+    [StructLayout(LayoutKind.Sequential, Size = 144)]
+    public struct Scene
+    {
+        public  Matrix4x4 lightViewProjMatrix;
+        public  Matrix4x4 cameraViewProjMatrix;
+        public  Vector3   lightPos;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
     public struct Model {
         public Matrix4x4   modelMatrix;
     }
@@ -410,14 +411,14 @@ public partial class ShaderExample
                     [VertexBuffer(0)]       InBuffer<Vector3>   verticesBuffer,
                     [IndexBuffer] [Draw]    InBuffer<ushort>    indexBuffer);
     
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 144)]
     public struct Scene {
         public Matrix4x4   lightViewProjMatrix;
         public Matrix4x4   cameraViewProjMatrix;
         public Vector3     lightPos;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
     public struct Model {
         public Matrix4x4   modelMatrix;
     }
@@ -448,14 +449,15 @@ public partial class ShaderExample
                     [IndexBuffer]       InBuffer<ushort>            indexBuffer,
                                         DrawIndirectArgs            args);
     
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Scene {
-        public Matrix4x4   lightViewProjMatrix;
-        public Matrix4x4   cameraViewProjMatrix;
-        public Vector3     lightPos;
+    [StructLayout(LayoutKind.Sequential, Size = 144)]
+    public struct Scene
+    {
+        public  Matrix4x4 lightViewProjMatrix;
+        public  Matrix4x4 cameraViewProjMatrix;
+        public  Vector3   lightPos;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
     public struct Model {
         public Matrix4x4   modelMatrix;
     }
@@ -485,14 +487,14 @@ public partial class ShaderExample
                     [VertexBuffer(0)]   InBuffer<Vector3>   verticesBuffer,
                                         DrawIndirectArgs    args);
     
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 144)]
     public struct Scene {
         public Matrix4x4   lightViewProjMatrix;
         public Matrix4x4   cameraViewProjMatrix;
         public Vector3     lightPos;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
     public struct Model {
         public Matrix4x4   modelMatrix;
     }

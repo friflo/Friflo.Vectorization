@@ -34,6 +34,7 @@ public sealed class TypeBuilder
     private             string                              fileNamespace   = "";
     private readonly    CSharpIdentifier[]                  typeMap;
     private             TypeGen?                            typeGen;
+    private             Dictionary<(int, int), CSharpType>? bindingTypes    = null;
     
     internal            string                              FileNamespace   => fileNamespace;
 
@@ -144,7 +145,12 @@ public sealed class TypeBuilder
                 wgslType = wgslType.Generics.Arg_0;
             }
             var alignment = addressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
-            GetCSharpType(wgslType, alignment); // calls CreateStruct() if referencing one
+            var csharpType = GetCSharpType(wgslType, alignment); // calls CreateStruct() if referencing one
+            
+            // Add binding types to enable type size check at validation 
+            if (bindingTypes != null && binding.AddressSpace is "storage" or "uniform") {
+                bindingTypes.TryAdd((binding.Group, binding.Binding), csharpType);
+            }
         }
     }
     
