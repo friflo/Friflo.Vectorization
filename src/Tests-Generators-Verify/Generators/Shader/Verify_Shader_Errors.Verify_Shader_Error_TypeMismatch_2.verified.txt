@@ -1,0 +1,16 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: [storage] triangles - Type mismatch: WGSL expects 'VertexData' (32 bytes) - was: 'Vector2' (8 bytes),
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

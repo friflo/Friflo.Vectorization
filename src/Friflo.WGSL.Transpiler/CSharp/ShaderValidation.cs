@@ -310,7 +310,7 @@ public static class ShaderValidation
             if (parameter.IsBindGroupEntry && bindingType.Size.HasValue) {
                 var expectedSize = bindingType.Size.Value;
                 if (expectedSize != csType.TypeLayout.Size) {
-                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {expectedSize}";
+                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.info.GetElementName()}' ({expectedSize} bytes) - was: '{csType}' ({csType.TypeLayout.Size} bytes)";
                     diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
                 }
             }

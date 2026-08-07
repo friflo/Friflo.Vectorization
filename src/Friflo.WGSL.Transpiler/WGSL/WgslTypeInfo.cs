@@ -36,6 +36,17 @@ public readonly struct WgslTypeInfo
             _                               => typeName
         };
     }
+    
+    public string? GetElementName()
+    {
+        if (typeCode == CsTypeCode.WgslStruct) {
+            return elementType;
+        }
+        if (typeCode.IsWgslType) {
+            return typeCode.ToString();
+        }
+        return null;
+    }
 
     private WgslTypeInfo(CsTypeCode typeCode) {
         this.typeCode       = typeCode;

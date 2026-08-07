@@ -536,4 +536,59 @@ public partial class ShaderExample
 """);
     }
 
+    [Test]
+    public static async Task  Verify_Shader_Error_TypeMismatch()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void TypeMismatch(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<int>           triangles,
+        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
+        [Map(2, 1)] [uniform]           Vector2                 model_offset);
+        
+    public struct MyUniforms (Vector4 tint_color)
+    {
+        public  Vector4 tint_color = tint_color;
+    }
+}
+""");
+    }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_TypeMismatch_2()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void TypeMismatch_2(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<Vector2>           triangles,
+        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
+        [Map(2, 1)] [uniform]           Vector2                 model_offset);
+        
+    public struct MyUniforms (Vector4 tint_color)
+    {
+        public  Vector4 tint_color = tint_color;
+    }
+}
+""");
+    }
 }
