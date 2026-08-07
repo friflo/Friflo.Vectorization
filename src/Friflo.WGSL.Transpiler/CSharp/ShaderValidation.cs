@@ -307,8 +307,8 @@ public static class ShaderValidation
                 diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
             }
             if (parameter.IsBindGroupEntry) {
-                if (bindingType.Size != csType.TypeSize) {
-                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {csType.TypeSize}";
+                if (bindingType.Size != csType.TypeLayout.Size) {
+                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {csType.TypeLayout}";
                     // diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
                 }
             }

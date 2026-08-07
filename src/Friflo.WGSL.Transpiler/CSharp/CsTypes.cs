@@ -197,7 +197,7 @@ public readonly record struct CsParameter
 public readonly record struct CsTypeInfo
 {
     public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     int                     LayoutSize  { get; init; }
+    public required     CsTypeLayout            TypeLayout  { get; init; }
     public required     ValueArray<CsField>     Fields      { get; init; }
     public required     CsTypeCode              TypeCode    { get; init; }
     
@@ -237,6 +237,17 @@ public readonly record struct CsTypeIdentifier
     }
 }
 
+public readonly record struct CsTypeLayout
+{
+    public readonly int     Size;
+    public readonly int     Pack;
+    
+    public CsTypeLayout(int size, int pack) {
+        Size = size;
+        Pack = pack;
+    }
+}
+
 public readonly record struct CsType
 {
     public required     string              Name        { get; init; }
@@ -244,7 +255,7 @@ public readonly record struct CsType
     public required     ValueArray<CsType>  Generics    { get; init; } // generic type arguments
     public required     bool                IsArray     { get; init; }
     public required     CsTypeCode          TypeCode    { get; init; }
-    public required     int                 TypeSize    { get; init; }
+    public required     CsTypeLayout        TypeLayout  { get; init; }
 
     public override     string              ToString() => AppendString(new StringBuilder()).ToString();
     

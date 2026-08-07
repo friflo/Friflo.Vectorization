@@ -25,7 +25,7 @@ internal static partial class ShaderGenerator
                 Name        = typeInfo.Identifier.Name,
                 Namespace   = typeInfo.Identifier.Namespace,
                 TypeCode    = typeInfo.TypeCode,
-                TypeSize    = typeInfo.LayoutSize, 
+                TypeLayout  = typeInfo.TypeLayout, 
                 Generics    = default,
                 IsArray     = false,
             };
@@ -35,7 +35,7 @@ internal static partial class ShaderGenerator
             Name        = type.Name,
             Namespace   = type.Namespace,
             TypeCode    = CsTypeCode.None,
-            TypeSize    = -1,
+            TypeLayout  = default,
             Generics    = default,
             IsArray     = false
         };
@@ -53,10 +53,9 @@ internal static partial class ShaderGenerator
         
         if (CsTypeCode.None != typeCode || !isValueType)
         {
-            var layoutSize = typeCode.IsWgslType ? typeCode.Layout.size : -1;
             typeInfo = new CsTypeInfo {
                 Identifier  = type,
-                LayoutSize  = layoutSize,
+                TypeLayout  = default,
                 Fields      = default,
                 TypeCode    = typeCode
             };
@@ -86,13 +85,13 @@ internal static partial class ShaderGenerator
                         Name        = fieldTypeInfo.Identifier.Name,
                         Namespace   = fieldTypeInfo.Identifier.Namespace,
                         TypeCode    = fieldTypeInfo.TypeCode,
-                        TypeSize    = fieldTypeInfo.LayoutSize, 
+                        TypeLayout  = fieldTypeInfo.TypeLayout,
                         Generics    = default,
                         IsArray     = false
                     }
                 });
                 if (typeLayout.Size == 0) {
-                    structSize += fieldTypeInfo.LayoutSize;
+                    structSize += fieldTypeInfo.TypeLayout.Size;
                 }
             }
             fields = fieldList.ToValueArray();
@@ -112,7 +111,7 @@ internal static partial class ShaderGenerator
         }
         typeInfo = new CsTypeInfo {
             Identifier  = type,
-            LayoutSize  = structSize, 
+            TypeLayout  = new CsTypeLayout(structSize, 0),
             Fields      = fields,
             TypeCode    = typeCode
         };
