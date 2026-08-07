@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Friflo.Vectorization.Generators.Shader;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
@@ -66,8 +65,13 @@ internal static partial class ShaderGenerator
         }
 
         ValueArray<CsField> fields = default;
+        int structSize = 0;
         if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
         {
+            var typeLayout = semanticInfo.GetTypeLayout(typeSymbol);
+            if (typeLayout.Size == 0) {
+                structSize = typeLayout.Size;
+            }
             // recursion only for struct types
             var fieldSymbols = structSymbol.GetMembers()
                 .OfType<IFieldSymbol>()
@@ -76,23 +80,8 @@ internal static partial class ShaderGenerator
             foreach (var fieldSymbol in fieldSymbols)
             {
                 var fieldTypeInfo   = GetTypeInfo(semanticInfo, fieldSymbol.Type); // recursive call
-                var fieldAttributes = fieldSymbol.GetAttributes();
-                var fieldOffset     = -1;
-                if (fieldAttributes.Length > 0) {
-                    var fieldOffsetData = fieldAttributes.FirstOrDefault(data => data.AttributeClass?.Name == "FieldOffsetAttribute");
-                    if (fieldOffsetData != null) {
-                        var constructorArgs = fieldOffsetData.ConstructorArguments;
-                        if (constructorArgs.Length == 1) {
-                            var arg_0 = constructorArgs[0];
-                            if (arg_0.Type != null && arg_0.Type.SpecialType == SpecialType.System_Int32) {
-                                fieldOffset = (int)arg_0.Value!;
-                            }
-                        }
-                    }
-                }
                 fieldList.Add(new CsField {
                     Name        = fieldSymbol.Name,
-                    FieldOffset = fieldOffset,
                     Type        = new CsType {
                         Name        = fieldTypeInfo.Identifier.Name,
                         Namespace   = fieldTypeInfo.Identifier.Namespace,
@@ -102,6 +91,9 @@ internal static partial class ShaderGenerator
                         IsArray     = false
                     }
                 });
+                if (typeLayout.Size == 0) {
+                    structSize += fieldTypeInfo.LayoutSize;
+                }
             }
             fields = fieldList.ToValueArray();
         }
@@ -116,21 +108,6 @@ internal static partial class ShaderGenerator
                 }
                 typeCode = CsTypeCode.CSharpStruct;
                 break;
-            }
-        }
-        var attributes   = typeSymbol.GetAttributes();
-        var structLayout = attributes.FirstOrDefault(data => data.AttributeClass?.Name == "StructLayoutAttribute");
-        var structSize 	 = -1;
-        if (structLayout != null) {
-            var constructorArgs = structLayout.ConstructorArguments;
-            var layoutKind = (LayoutKind)constructorArgs[0].Value!;
-            if (layoutKind is LayoutKind.Explicit or LayoutKind.Sequential) {
-                if (constructorArgs.Length > 1) {
-                    int.TryParse((string)constructorArgs[1].Value!, out structSize);
-                } else {
-                    var size = structLayout.NamedArguments.FirstOrDefault(arg => arg.Key == "Size");
-                    structSize = size.Value.IsNull ? -1 : (int)size.Value.Value!;
-                }
             }
         }
         typeInfo = new CsTypeInfo {

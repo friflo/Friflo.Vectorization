@@ -487,7 +487,7 @@ public partial class ShaderExample
                     [VertexBuffer(0)]   InBuffer<Vector3>   verticesBuffer,
                                         DrawIndirectArgs    args);
     
-    [StructLayout(LayoutKind.Sequential, Size = 144)]
+    // [StructLayout(LayoutKind.Sequential, Size = 144)]
     public struct Scene {
         public Matrix4x4   lightViewProjMatrix;
         public Matrix4x4   cameraViewProjMatrix;

@@ -207,7 +207,6 @@ public readonly record struct CsTypeInfo
 public readonly record struct CsField
 {
     public required     string                  Name        { get; init; }
-    public required     int                     FieldOffset { get; init; }
     public required     CsType                  Type        { get; init; }
 
     public override string ToString()

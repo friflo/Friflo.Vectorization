@@ -3,6 +3,7 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
@@ -31,25 +32,29 @@ internal class SemanticInfo
         this.semanticModel = semanticModel;
     }
     
-    internal CsTypeInfo GetTypeInfo(ITypeSymbol typeSymbol)
+    internal TypeLayout GetTypeLayout(ITypeSymbol typeSymbol)
     {
-        if (types.TryGetValue(typeSymbol, out var typeInfo)) {
-            return typeInfo;
-        }
         var assemblySymbol = typeSymbol.ContainingAssembly;
         if (!assemblyInfos.TryGetValue(assemblySymbol, out var assemblyInfo)) {
             assemblyInfo = CreateAssemblyInfo(assemblySymbol);
             assemblyInfos.Add(assemblySymbol, assemblyInfo);
         }
-        if (assemblyInfo == null) {
+        if (assemblyInfo != null) {
+            var ns = typeSymbol.ContainingNamespace.ToDisplayString();
+            assemblyInfo.typeLayouts.TryGetValue((ns, typeSymbol.Name), out var layout);
+            return layout;
+        }
+        var attributes   = typeSymbol.GetAttributes();
+        var structLayout = attributes.FirstOrDefault(data => data.AttributeClass?.Name == "StructLayoutAttribute");
+        if (structLayout == null) {
             return default;
         }
-        var ns = typeSymbol.ContainingNamespace.ToDisplayString();
-        assemblyInfo.typeLayouts.TryGetValue((ns, typeSymbol.Name), out var layout);
-        if (layout.IsDefault) {
-            
-        }
-        return default;
+        var namedArguments = structLayout.NamedArguments;
+        var size = namedArguments.FirstOrDefault(arg => arg.Key == "Size");
+        var pack = namedArguments.FirstOrDefault(arg => arg.Key == "Pack");
+        return new TypeLayout(
+            size.Value.IsNull ? 0 : (int)size.Value.Value!,
+            pack.Value.IsNull ? 0 : (int)pack.Value.Value!);
     }
     
     private AssemblyInfo? CreateAssemblyInfo(IAssemblySymbol assemblySymbol)
