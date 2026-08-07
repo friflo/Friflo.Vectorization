@@ -256,14 +256,14 @@ public sealed class TypeBuilder
         return csharpType;
     }
     
-    private static TypeLayout AssignFieldLayouts(CSharpField[] fields, ArrayStride arrayStride)
+    private static WgslTypeLayout AssignFieldLayouts(CSharpField[] fields, ArrayStride arrayStride)
     {
         int currentOffset  = 0;
         int maxStructAlign = 1;
         for (int n = 0; n < fields.Length; n++)
         {
             var field   = fields[n];
-            TypeLayout layout;
+            WgslTypeLayout layout;
             var typeCode = field.type.info.typeCode;
 
             // retrieve base layout (struct oder wgsl type: i32, f32, vec3<f32>, mat4x4<f32>, ...)
@@ -280,7 +280,7 @@ public sealed class TypeBuilder
                 // In std140 (Uniform), nested structs are rounded up to at least 16-byte alignment
                 if (arrayStride == ArrayStride.PadTo16Bytes) {
                     int structAlign = Math.Max(layout.align, 16);
-                    layout = new TypeLayout(layout.size, structAlign);
+                    layout = new WgslTypeLayout(layout.size, structAlign);
                 }
             } else {
                 layout = typeCode.Layout;
@@ -302,7 +302,7 @@ public sealed class TypeBuilder
                     arrayAlign    = Math.Max(arrayAlign, 16);
                 }
                 int arraySize = elementStride * arrayCount;
-                layout = new TypeLayout(arraySize, arrayAlign);
+                layout = new WgslTypeLayout(arraySize, arrayAlign);
             }
 
             // apply WGSL @size and @align overrides
@@ -310,7 +310,7 @@ public sealed class TypeBuilder
             // @align must only increase layout.align
             int fieldAlign = field.wgslAlign.HasValue ? Math.Max(field.wgslAlign.Value, layout.align) : layout.align;
             
-            layout = new TypeLayout(fieldSize, fieldAlign);
+            layout = new WgslTypeLayout(fieldSize, fieldAlign);
 
             // Track maximum alignment to determine total struct alignment
             maxStructAlign = Math.Max(maxStructAlign, layout.align);
@@ -330,7 +330,7 @@ public sealed class TypeBuilder
 
         // Struct size must be padded to a multiple of its alignment (struct stride)
         int finalStructSize = (currentOffset + (maxStructAlign - 1)) & ~(maxStructAlign - 1);
-        return new TypeLayout(finalStructSize, maxStructAlign);
+        return new WgslTypeLayout(finalStructSize, maxStructAlign);
     }
     
     private static void AppendTypeComment(StringBuilder sb, CSharpIdentifier identifier, string head, string tail)
@@ -355,7 +355,7 @@ public sealed class TypeBuilder
         return new CSharpType(typeName, Created, type.info, csharpArray);
     }
     
-    private string EmitFixedSizeArray(TypeLayout layout, CSharpType type, ArrayStride arrayStride)
+    private string EmitFixedSizeArray(WgslTypeLayout layout, CSharpType type, ArrayStride arrayStride)
     {
         if (typeGen == null) {
             return "FIXED_SIZE_ARRAY";
@@ -424,7 +424,7 @@ public sealed class TypeBuilder
         typeGen.additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
-    private static int GetFixedSizeArrayStride(TypeLayout layout, ArrayStride arrayStride)
+    private static int GetFixedSizeArrayStride(WgslTypeLayout layout, ArrayStride arrayStride)
     {
         int elementSize  = layout.size;
         int elementAlign = layout.align;

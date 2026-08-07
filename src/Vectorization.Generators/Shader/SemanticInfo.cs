@@ -4,10 +4,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
-using TypeLayout = System.Reflection.Metadata.TypeLayout;
+
 
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UseNullPropagation

@@ -54,14 +54,14 @@ public enum CsTypeCode
     GpuTextureView
 }
 
-public readonly struct TypeLayout
+public readonly struct WgslTypeLayout
 {
     public readonly int     size;
     public readonly int     align;
 
     public override string  ToString() => $"size: {size}  align: {align}";
 
-    internal TypeLayout(int size, int align)
+    internal WgslTypeLayout(int size, int align)
     {
         this.size  = size;
         this.align = align;
@@ -82,7 +82,7 @@ public static class CsExtensions
     
     extension (CsTypeCode typeCode)
     {
-        public TypeLayout Layout => TypeSizes[(int)typeCode];
+        public WgslTypeLayout Layout => TypeLayouts[(int)typeCode];
     }
     
     extension (ValueArray<CsTypeInfo> typeInfos)
@@ -98,76 +98,73 @@ public static class CsExtensions
         } 
     }
     
-    private static readonly TypeLayout[] TypeSizes;
+    private static readonly WgslTypeLayout[] TypeLayouts;
     
-    private static void SetLayout(TypeLayout[] typeSizes, CsTypeCode code, int size, int align)
+    private static void SetLayout(WgslTypeLayout[] layouts, CsTypeCode code, int size, int align)
     {
-        typeSizes[(int)code] = new TypeLayout(size, align);
+        layouts[(int)code] = new WgslTypeLayout(size, align);
     } 
         
     static CsExtensions()
     {
         const int length = (int)CsTypeCode.WgslStruct;
-        var sizes = TypeSizes = new TypeLayout [length];
+        var layouts = TypeLayouts = new WgslTypeLayout [length];
         
         // --- Scalars
-        SetLayout(sizes, CsTypeCode.f16, 2, 2);
-        SetLayout(sizes, CsTypeCode.f32, 4, 4);
-        SetLayout(sizes, CsTypeCode.i32, 4, 4);
-        SetLayout(sizes, CsTypeCode.u32, 4, 4);
+        SetLayout(layouts, CsTypeCode.f16, 2, 2);
+        SetLayout(layouts, CsTypeCode.f32, 4, 4);
+        SetLayout(layouts, CsTypeCode.i32, 4, 4);
+        SetLayout(layouts, CsTypeCode.u32, 4, 4);
 
 
         // --- 2-Component Vectors
-        SetLayout(sizes, CsTypeCode.vec2h,  4,  4); // 2x f16
-        SetLayout(sizes, CsTypeCode.vec2f,  8,  8); // 2x f32
-        SetLayout(sizes, CsTypeCode.vec2i,  8,  8); // 2x i32
-        SetLayout(sizes, CsTypeCode.vec2u,  8,  8); // 2x u32
+        SetLayout(layouts, CsTypeCode.vec2h,  4,  4); // 2x f16
+        SetLayout(layouts, CsTypeCode.vec2f,  8,  8); // 2x f32
+        SetLayout(layouts, CsTypeCode.vec2i,  8,  8); // 2x i32
+        SetLayout(layouts, CsTypeCode.vec2u,  8,  8); // 2x u32
 
         // --- 3-Component Vectors (Payload size, buffer alignment is padded)
-        SetLayout(sizes, CsTypeCode.vec3h,  6,  8); // 3x f16 (8 bytes alignment)
-        SetLayout(sizes, CsTypeCode.vec3f, 12, 16); // 3x f32 (16 bytes alignment)
-        SetLayout(sizes, CsTypeCode.vec3i, 12, 16); // 3x i32 (16 bytes alignment)
-        SetLayout(sizes, CsTypeCode.vec3u, 12, 16); // 3x u32 (16 bytes alignment)
+        SetLayout(layouts, CsTypeCode.vec3h,  6,  8); // 3x f16 (8 bytes alignment)
+        SetLayout(layouts, CsTypeCode.vec3f, 12, 16); // 3x f32 (16 bytes alignment)
+        SetLayout(layouts, CsTypeCode.vec3i, 12, 16); // 3x i32 (16 bytes alignment)
+        SetLayout(layouts, CsTypeCode.vec3u, 12, 16); // 3x u32 (16 bytes alignment)
 
         // --- 4-Component Vectors
-        SetLayout(sizes, CsTypeCode.vec4h,  8,  8); // 4x f16
-        SetLayout(sizes, CsTypeCode.vec4f, 16, 16); // 4x f32
-        SetLayout(sizes, CsTypeCode.vec4i, 16, 16); // 4x i32
-        SetLayout(sizes, CsTypeCode.vec4u, 16, 16); // 4x u32
+        SetLayout(layouts, CsTypeCode.vec4h,  8,  8); // 4x f16
+        SetLayout(layouts, CsTypeCode.vec4f, 16, 16); // 4x f32
+        SetLayout(layouts, CsTypeCode.vec4i, 16, 16); // 4x i32
+        SetLayout(layouts, CsTypeCode.vec4u, 16, 16); // 4x u32
 
 
         // --- 2xN Matrices (Columns x Rows)
-        SetLayout(sizes, CsTypeCode.mat2x2h,  8,  4); // 2x vec2h
-        SetLayout(sizes, CsTypeCode.mat2x2f, 16,  8); // 2x vec2f
+        SetLayout(layouts, CsTypeCode.mat2x2h,  8,  4); // 2x vec2h
+        SetLayout(layouts, CsTypeCode.mat2x2f, 16,  8); // 2x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat2x3h, 16,  8); // 2x vec3h (Stride: 8)
-        SetLayout(sizes, CsTypeCode.mat2x3f, 32, 16); // 2x vec3f (Stride: 16)
+        SetLayout(layouts, CsTypeCode.mat2x3h, 16,  8); // 2x vec3h (Stride: 8)
+        SetLayout(layouts, CsTypeCode.mat2x3f, 32, 16); // 2x vec3f (Stride: 16)
 
-        SetLayout(sizes, CsTypeCode.mat2x4h, 16,  8); // 2x vec4h
-        SetLayout(sizes, CsTypeCode.mat2x4f, 32, 16); // 2x vec4f
+        SetLayout(layouts, CsTypeCode.mat2x4h, 16,  8); // 2x vec4h
+        SetLayout(layouts, CsTypeCode.mat2x4f, 32, 16); // 2x vec4f
 
         // --- 3xN Matrices
-        SetLayout(sizes, CsTypeCode.mat3x2h, 12,  4); // 3x vec2h
-        SetLayout(sizes, CsTypeCode.mat3x2f, 24,  8); // 3x vec2f
+        SetLayout(layouts, CsTypeCode.mat3x2h, 12,  4); // 3x vec2h
+        SetLayout(layouts, CsTypeCode.mat3x2f, 24,  8); // 3x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat3x3h, 24,  8); // 3x vec3h (Stride: 8)
-        SetLayout(sizes, CsTypeCode.mat3x3f, 48, 16); // 3x vec3f (Stride: 16)
+        SetLayout(layouts, CsTypeCode.mat3x3h, 24,  8); // 3x vec3h (Stride: 8)
+        SetLayout(layouts, CsTypeCode.mat3x3f, 48, 16); // 3x vec3f (Stride: 16)
 
-        SetLayout(sizes, CsTypeCode.mat3x4h, 24,  8); // 3x vec4h
-        SetLayout(sizes, CsTypeCode.mat3x4f, 48, 16); // 3x vec4f
+        SetLayout(layouts, CsTypeCode.mat3x4h, 24,  8); // 3x vec4h
+        SetLayout(layouts, CsTypeCode.mat3x4f, 48, 16); // 3x vec4f
 
         // --- 4xN Matrices
-        SetLayout(sizes, CsTypeCode.mat4x2h, 16,  4); // 4x vec2h
-        SetLayout(sizes, CsTypeCode.mat4x2f, 32,  8); // 4x vec2f
+        SetLayout(layouts, CsTypeCode.mat4x2h, 16,  4); // 4x vec2h
+        SetLayout(layouts, CsTypeCode.mat4x2f, 32,  8); // 4x vec2f
 
-        SetLayout(sizes, CsTypeCode.mat4x3h, 32,  8); // 4x vec3h (Stride: 8)
-        SetLayout(sizes, CsTypeCode.mat4x3f, 64, 16); // 4x vec3f (Stride: 16)
+        SetLayout(layouts, CsTypeCode.mat4x3h, 32,  8); // 4x vec3h (Stride: 8)
+        SetLayout(layouts, CsTypeCode.mat4x3f, 64, 16); // 4x vec3f (Stride: 16)
 
-        SetLayout(sizes, CsTypeCode.mat4x4h, 32,  8); // 4x vec4h
-        SetLayout(sizes, CsTypeCode.mat4x4f, 64, 16); // 4x vec4f
+        SetLayout(layouts, CsTypeCode.mat4x4h, 32,  8); // 4x vec4h
+        SetLayout(layouts, CsTypeCode.mat4x4f, 64, 16); // 4x vec4f
     }
-    
-
-
 }
 
