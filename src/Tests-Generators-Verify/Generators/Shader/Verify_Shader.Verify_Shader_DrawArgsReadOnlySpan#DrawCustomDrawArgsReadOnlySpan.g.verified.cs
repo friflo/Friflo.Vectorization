@@ -16,7 +16,7 @@ public partial class ShaderExample
     private static partial void DrawCustomDrawArgsReadOnlySpan(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Matrix4x4>         mvpMatrices,
+        in Uniforms                 uniforms,
         InBuffer<float>             verticesBuffer,
         ReadOnlySpan<DrawArgs>      customArgs)
     {
@@ -25,7 +25,6 @@ public partial class ShaderExample
         var recorder    = pass_.Recorder;
         recorder.InitShader(_DrawCustomDrawArgsReadOnlySpan_GPU_ShaderId);
 
-        recorder.RequireRead     (mvpMatrices);
         recorder.RequireRead     (verticesBuffer);
         
         ref readonly var pipelineCache = ref recorder.Device.GetPipelineCache(_DrawCustomDrawArgsReadOnlySpan_GPU_ShaderId, config, _DrawCustomDrawArgsReadOnlySpan_GPU_WgslHash);
@@ -37,13 +36,7 @@ public partial class ShaderExample
         var bindGroupCache = (_DrawCustomDrawArgsReadOnlySpan_GPU_Cache)pipelineCache.bindGroupCache;
 
         // --- bind group 0
-        var key_0 = mvpMatrices.Handle;
-        if (!bindGroupCache.bindGroup_0.TryGetValue(key_0, out var bindGroup_0)) {
-            recorder.BindGroupEntryBuffer(0, mvpMatrices.Buffer);
-            bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "DrawCustomDrawArgsReadOnlySpan_bindGroup_0"u8);
-            bindGroupCache.bindGroup_0.Add(key_0, bindGroup_0);
-        }
-        pass_.SetBindGroup(0, bindGroup_0);
+        pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, uniforms, pipelineCache,"DrawCustomDrawArgsReadOnlySpan_bindGroup_0"u8);
         
         pass_.SetVertexBuffer(verticesBuffer, 0);
         
@@ -55,15 +48,15 @@ public partial class ShaderExample
 
     private sealed class _DrawCustomDrawArgsReadOnlySpan_GPU_Cache : BindGroupCache
     {
-        internal readonly   Dictionary<nint, WgpuBindGroup> bindGroup_0 = new ();
+        internal            WgpuBindGroup bindGroup_0;
 
         protected override void Clear() {
-            ReleaseBindGroups(bindGroup_0);
+            ReleaseBindGroup(ref bindGroup_0);
         }
     }
 
     private static readonly int _DrawCustomDrawArgsReadOnlySpan_GPU_ShaderId            =  ShaderRegistry.NewShaderId("DrawCustomDrawArgsReadOnlySpan");
-    private const  ulong        _DrawCustomDrawArgsReadOnlySpan_GPU_layout_0_Key        =  0xad2bca77479a0a64;
+    private const  ulong        _DrawCustomDrawArgsReadOnlySpan_GPU_layout_0_Key        =  0xad2eca77479f2364;
 
     private static ulong        _DrawCustomDrawArgsReadOnlySpan_GPU_WgslHash            => 0x7bea408b45888bf2UL;  // support Hot-Reload
 
@@ -73,7 +66,7 @@ public partial class ShaderExample
         Span<WgpuBindGroupLayout> layouts = stackalloc WgpuBindGroupLayout[1];
         var layout_0 = device.GetBindGroupLayout(_DrawCustomDrawArgsReadOnlySpan_GPU_layout_0_Key);
         if (!layout_0.IsCreated) {
-            device.BindGroupLayoutBuffer(0, BufferBindingType.Uniform);
+            device.BindGroupLayoutUniform(0);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _DrawCustomDrawArgsReadOnlySpan_GPU_layout_0_Key, "DrawCustomDrawArgsReadOnlySpan_layout_0"u8);
         }
         layouts[0] = layout_0;

@@ -1,5 +1,5 @@
 struct VertexData {
-  vertices : array<vec3f>,
+  vertices : array<vec4f>,
 }
 
 @group(2) @binding(0) var<storage> uniforms : VertexData;

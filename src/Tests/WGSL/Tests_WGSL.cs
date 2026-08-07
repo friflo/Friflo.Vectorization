@@ -129,7 +129,7 @@ public static class Tests_WGSL
                     [Map(0,15)] [texture_depth_cube_array]                                      GpuTextureView      texture15,
                     [Map(1, 0)] [sampler]                                                       GpuSampler          sampler0,
                     [Map(1, 1)] [sampler_comparison]                                            GpuSampler          sampler1,
-                    [Map(2, 0)] [storage]                                                       InBuffer<Vector3>   uniforms,
+                    [Map(2, 0)] [storage]                                                       InBuffer<Vector4>   uniforms,
                     [Map(2, 1)] [uniform]                                                       in VertexData       vertices)
             """));
     }

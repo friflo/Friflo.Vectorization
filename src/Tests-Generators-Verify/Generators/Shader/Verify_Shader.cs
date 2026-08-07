@@ -128,26 +128,40 @@ public partial class ShaderExample
 }
 """);
     }
-    
+    const string Uniforms =
+"""
+[StructLayout(LayoutKind.Explicit, Size = 1024)]
+public struct Uniforms (in Matrix4x4_UniArr_16 modelViewProjectionMatrix)
+{
+    [FieldOffset(  0)]  public  Matrix4x4_UniArr_16 modelViewProjectionMatrix = modelViewProjectionMatrix;
+}
+
+[StructLayout(LayoutKind.Explicit, Size = 1024)]
+public struct Matrix4x4_UniArr_16
+{
+    [FieldOffset(0)]  private Matrix4x4 _element0;
+}
+""";
     [Test]
     public static async Task  Verify_Shader_DrawInstanced()
     {
         await Verify(
-"""
+$$"""
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
+{{Uniforms}}
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     private static partial void DrawInstanced(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+        [Map(0, 0)] [uniform]                   in Uniforms 	uniforms,
+                    [VertexBuffer(0)] [Draw]    InBuffer<float> verticesBuffer);
 }
 """);
     }
@@ -156,22 +170,23 @@ public partial class ShaderExample
     public static async Task  Verify_Shader_DrawArgs()
     {
         await Verify(
-"""
+$$"""
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
+{{Uniforms}}
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     private static partial void DrawCustomDrawArgs(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer,
-                                                        DrawArgs customArgs = default);
+        [Map(0, 0)] [uniform]                   in Uniforms 	uniforms,
+                    [VertexBuffer(0)]   [Draw]  InBuffer<float> verticesBuffer,
+                                                DrawArgs        customArgs = default);
 }
 """);
     }
@@ -180,7 +195,7 @@ public partial class ShaderExample
     public static async Task  Verify_Shader_DrawArgsReadOnlySpan()
     {
         await Verify(
-"""
+$$"""
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -188,15 +203,16 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
+{{Uniforms}}
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     private static partial void DrawCustomDrawArgsReadOnlySpan(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4>     mvpMatrices,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>         verticesBuffer,
-                                                        ReadOnlySpan<DrawArgs>  customArgs = default);
+        [Map(0, 0)] [uniform]                   in Uniforms 	        uniforms,
+                    [VertexBuffer(0)]   [Draw]  InBuffer<float>         verticesBuffer,
+                                                ReadOnlySpan<DrawArgs>  customArgs = default);
 }
 """);
     }
@@ -205,7 +221,7 @@ public partial class ShaderExample
     public static async Task  Verify_Shader_DrawArgsArray()
     {
         await Verify(
-"""
+$$"""
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -213,15 +229,16 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
+{{Uniforms}}
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
+	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",  vertex:   "main")]
+	[Shader("~/shaders/vertexPositionColor.frag.wgsl",      fragment: "main")]
     private static partial void DrawCustomDrawArgsArray(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer,
-                                                        DrawArgs[]          customArgs = default);
+        [Map(0, 0)] [uniform]                   in Uniforms 	uniforms,
+                    [VertexBuffer(0)] [Draw]    InBuffer<float> verticesBuffer,
+                                                DrawArgs[]      customArgs = default);
 }
 """);
     }
@@ -517,8 +534,8 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testTextureTypes.frag.wgsl")]
     private static partial void Textures(RenderPass pass, RenderConfig config,
-        [Map(2, 0)] [storage]                                                       InBuffer<Vector3>   vertices1,
-        [Map(2, 1)] [uniform]                                                       InBuffer<Vector3>   vertices2,
+        [Map(2, 0)] [storage]                                                       InBuffer<Vector4>   vertices1,
+        [Map(2, 1)] [uniform]                                                       InBuffer<Vector4>   vertices2,
 
         [Map(0, 0)] [texture_1d(ST.f32)]                                            GpuTextureView  texture0,
         [Map(0, 1)] [texture_2d(ST.f32)]                                            GpuTextureView  texture1,

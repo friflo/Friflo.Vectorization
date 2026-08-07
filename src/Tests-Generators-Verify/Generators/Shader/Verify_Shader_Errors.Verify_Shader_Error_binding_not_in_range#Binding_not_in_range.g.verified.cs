@@ -13,10 +13,10 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    private static partial void Binding_not_in_range(
+    public static partial void Binding_not_in_range(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Matrix4x4>         mvpMatrices,
-        InBuffer<Matrix4x4>         mvpMatrices2,
-        InBuffer<float>             verticesBuffer) { }
+        InBuffer<VertexData>        triangles,
+        in MyUniforms               myUniform,
+        Vector2                     model_offset) { }
 }

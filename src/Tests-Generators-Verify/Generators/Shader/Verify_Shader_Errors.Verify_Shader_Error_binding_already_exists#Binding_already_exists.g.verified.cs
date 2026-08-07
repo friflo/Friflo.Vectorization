@@ -13,10 +13,11 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    private static partial void Binding_already_exists(
+    public static partial void Binding_already_exists(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Matrix4x4>         mvpMatrices,
-        InBuffer<Matrix4x4>         mvpMatrices2,
-        InBuffer<float>             verticesBuffer) { }
+        InBuffer<VertexData>        triangles,
+        InBuffer<VertexData>        triangles2,
+        in MyUniforms               myUniform,
+        Vector2                     model_offset) { }
 }

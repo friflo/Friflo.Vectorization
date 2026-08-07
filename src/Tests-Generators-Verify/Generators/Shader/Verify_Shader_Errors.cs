@@ -140,12 +140,23 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
-    private static partial void Binding_already_exists(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
-        [Map(0, 0)] [uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void Binding_already_exists(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>    triangles2,
+        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
+        [Map(2, 1)] [uniform]           Vector2                 model_offset);
+        
+    public struct MyUniforms (Vector4 tint_color)
+    {
+        public  Vector4 tint_color = tint_color;
+    }
+
+    public struct VertexData(Vector4 position, Vector4 color)
+    {
+        public Vector4 	position    = position;
+        public Vector4 	color       = color;
+    }
 }
 """);
     }
@@ -164,12 +175,22 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-	[Shader("~/shaders/instancedCube/instanced.vert.wgsl",              vertex:   "main")]
-	[Shader("~/shaders/vertexPositionColor.frag.wgsl",    fragment: "main")]
-    private static partial void Binding_not_in_range(RenderPass pass, RenderConfig config,
-        [Map(-1, 0)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices,
-        [Map(0,640)][uniform]           [DrawInstance]  InBuffer<Matrix4x4> mvpMatrices2,
-                    [VertexBuffer(0)]   [Draw]          InBuffer<float>     verticesBuffer);
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void Binding_not_in_range(RenderPass pass, RenderConfig config,
+        [Map(-1,  0)] [storage] [Draw]    InBuffer<VertexData>    triangles,
+        [Map(2, 640)] [uniform]           in MyUniforms           myUniform,
+        [Map(2,   1)] [uniform]           Vector2                 model_offset);
+        
+    public struct MyUniforms (Vector4 tint_color)
+    {
+        public  Vector4 tint_color = tint_color;
+    }
+
+    public struct VertexData(Vector4 position, Vector4 color)
+    {
+        public Vector4 	position    = position;
+        public Vector4 	color       = color;
+    }
 }
 """);
     }
@@ -230,8 +251,8 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testTextureTypes.frag.wgsl")]
     private static partial void TexturesTypeMismatch(RenderPass pass, RenderConfig config,
-        [Map(2, 0)] [uniform]                                                       InBuffer<Vector3>   vertices1,
-        [Map(2, 1)] [storage]                                                       InBuffer<Vector3>   vertices2,
+        [Map(2, 0)] [uniform]                                                       InBuffer<Vector4>   vertices1,
+        [Map(2, 1)] [storage]                                                       InBuffer<Vector4>   vertices2,
         
         [Map(0, 0)] [texture_1d(ST.i32)]                                            GpuTextureView  texture0,
         [Map(0, 1)] [texture_2d(ST.u32)]                                            GpuTextureView  texture1,
