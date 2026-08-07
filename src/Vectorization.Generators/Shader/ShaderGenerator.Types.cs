@@ -203,7 +203,7 @@ internal static partial class ShaderGenerator
                     _ => CsTypeCode.None
                 };
             default:
-                return DetectWgslPrimitiveByLayout(symbol);
+                return CsTypeCode.None;
         }
     }
     

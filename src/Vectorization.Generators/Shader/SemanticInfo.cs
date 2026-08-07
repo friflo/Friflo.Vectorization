@@ -31,19 +31,25 @@ internal class SemanticInfo
         this.semanticModel = semanticModel;
     }
     
-    internal int GetSymbolSize(ITypeSymbol typeSymbol)
+    internal CsTypeInfo GetTypeInfo(ITypeSymbol typeSymbol)
     {
+        if (types.TryGetValue(typeSymbol, out var typeInfo)) {
+            return typeInfo;
+        }
         var assemblySymbol = typeSymbol.ContainingAssembly;
         if (!assemblyInfos.TryGetValue(assemblySymbol, out var assemblyInfo)) {
             assemblyInfo = CreateAssemblyInfo(assemblySymbol);
             assemblyInfos.Add(assemblySymbol, assemblyInfo);
         }
         if (assemblyInfo == null) {
-            return 0;
+            return default;
         }
         var ns = typeSymbol.ContainingNamespace.ToDisplayString();
         assemblyInfo.typeLayouts.TryGetValue((ns, typeSymbol.Name), out var layout);
-        return layout.Size;
+        if (layout.IsDefault) {
+            
+        }
+        return default;
     }
     
     private AssemblyInfo? CreateAssemblyInfo(IAssemblySymbol assemblySymbol)
