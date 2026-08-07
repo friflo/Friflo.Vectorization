@@ -134,7 +134,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         }
     }
     
-    private static ShaderMethodResult GenerateShader(SemanticModel _, ISymbol targetSymbol)
+    private static ShaderMethodResult GenerateShader(SemanticModel semanticModel, ISymbol targetSymbol)
     {
         if (targetSymbol is not IMethodSymbol blueprintMethod) {
             return new ShaderMethodResult([]);
@@ -145,7 +145,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         // var methodSignature = methodSymbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
         // var hash = "_" + GeneratorUtils.GetMd5Hash(methodSignature).Substring(0, 4); // 8 chars is usually enough
         
-        var result = ShaderGenerator.CreateShaderMethod(blueprintMethod, hash, diagnostics);
+        var result = ShaderGenerator.CreateShaderMethod(blueprintMethod, hash, semanticModel, diagnostics);
         if (result == null) {
             return new ShaderMethodResult(diagnostics.List);
         }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Friflo.Vectorization.Generators.Shader;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 
@@ -17,10 +18,10 @@ namespace Friflo;
     
 internal static partial class ShaderGenerator
 {
-    private static CsType GetType(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
+    private static CsType GetType(SemanticInfo semanticInfo, ITypeSymbol typeSymbol, bool getFields)
     {
         if (getFields) {
-            var typeInfo = GetTypeInfo(types, typeSymbol);
+            var typeInfo = GetTypeInfo(semanticInfo, typeSymbol);
             return new CsType {
                 Name        = typeInfo.Identifier.Name,
                 Namespace   = typeInfo.Identifier.Namespace,
@@ -42,9 +43,9 @@ internal static partial class ShaderGenerator
     }
     
     
-    private static CsTypeInfo GetTypeInfo(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol)
+    private static CsTypeInfo GetTypeInfo(SemanticInfo semanticInfo, ITypeSymbol typeSymbol)
     {
-        if (types.TryGetValue(typeSymbol, out var typeInfo)) {
+        if (semanticInfo.types.TryGetValue(typeSymbol, out var typeInfo)) {
             return typeInfo;
         }
         var type        = GetIdentifier(typeSymbol);
@@ -60,7 +61,7 @@ internal static partial class ShaderGenerator
                 Fields      = default,
                 TypeCode    = typeCode
             };
-            types.Add(typeSymbol, typeInfo);
+            semanticInfo.types.Add(typeSymbol, typeInfo);
             return typeInfo;
         }
 
@@ -74,7 +75,7 @@ internal static partial class ShaderGenerator
             var fieldList = new List<CsField>();
             foreach (var fieldSymbol in fieldSymbols)
             {
-                var fieldTypeInfo   = GetTypeInfo(types, fieldSymbol.Type); // recursive call
+                var fieldTypeInfo   = GetTypeInfo(semanticInfo, fieldSymbol.Type); // recursive call
                 var fieldAttributes = fieldSymbol.GetAttributes();
                 var fieldOffset     = -1;
                 if (fieldAttributes.Length > 0) {
@@ -138,7 +139,7 @@ internal static partial class ShaderGenerator
             Fields      = fields,
             TypeCode    = typeCode
         };
-        types.Add(typeSymbol, typeInfo);
+        semanticInfo.types.Add(typeSymbol, typeInfo);
         return typeInfo;
     }
     

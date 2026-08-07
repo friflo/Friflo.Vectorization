@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Friflo.Vectorization.Generators;
+using Friflo.Vectorization.Generators.Shader;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
@@ -20,7 +21,7 @@ namespace Friflo;
     
 internal static partial class ShaderGenerator
 {
-    internal static ShaderMethodResult? CreateShaderMethod(IMethodSymbol methodSymbol, string hash, Diagnostics diagnostics)
+    internal static ShaderMethodResult? CreateShaderMethod(IMethodSymbol methodSymbol, string hash, SemanticModel semanticModel, Diagnostics diagnostics)
     {
         var methodAttributes  = methodSymbol.GetAttributes();
 
@@ -33,8 +34,10 @@ internal static partial class ShaderGenerator
         var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
         
         var workgroupSize = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.WorkgroupSizeAttribute");
+        
+        var semanticInfo = new SemanticInfo(semanticModel);
 
-        var method      = CreateCsMethod(methodSymbol, hash, shaderAttributes,  drawVertexIndex, workgroupSize, diagnostics);
+        var method      = CreateCsMethod(semanticInfo, methodSymbol, hash, shaderAttributes,  drawVertexIndex, workgroupSize, diagnostics);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
 
@@ -43,6 +46,7 @@ internal static partial class ShaderGenerator
 
 
     private static CsMethod CreateCsMethod(
+        SemanticInfo        semanticInfo,
         IMethodSymbol       methodSymbol,
         string              hash,
         List<AttributeData> shaderAttributes,
@@ -50,8 +54,7 @@ internal static partial class ShaderGenerator
         AttributeData?      workgroupSizeAttr,
         Diagnostics         diagnostics)
     {
-        var types               = new Dictionary<ITypeSymbol, CsTypeInfo>(SymbolEqualityComparer.Default);
-        var declaringType       = MapType(types, methodSymbol.ContainingType, false);
+        var declaringType       = MapType(semanticInfo, methodSymbol.ContainingType, false);
         var methodParameters    = methodSymbol.Parameters;
         var parameters          = new CsParameter    [methodParameters.Length];
         var paramModifiers      = new CsParamModifier[methodParameters.Length];
@@ -74,7 +77,7 @@ internal static partial class ShaderGenerator
                     workloadAttribute   = CsWorkloadAttribute.Dispatch;
                 }
             }
-            var type = MapType(types, paramSymbol.Type, paramAttribute != None);
+            var type = MapType(semanticInfo, paramSymbol.Type, paramAttribute != None);
             var (nameLoc, typeLoc, genericArgLoc) 	= paramSymbol.GetParameterLocs();
             var (attrLoc, arg0Loc, arg1Loc) 		= attributeData.GetParamSrcLocs();
             
@@ -143,7 +146,7 @@ internal static partial class ShaderGenerator
             };
         }
         
-        var typeInfos =  types.Values.Where(ti => ti.TypeCode > CsTypeCode.None && ti.TypeCode <= CsTypeCode.CSharpStruct).ToValueArray();
+        var typeInfos = semanticInfo.types.Values.Where(ti => ti.TypeCode > CsTypeCode.None && ti.TypeCode <= CsTypeCode.CSharpStruct).ToValueArray();
         
         CsWorkgroupSize? workgroupSize = workgroupSizeAttr == null ? null : GetWorkgroupSize(workgroupSizeAttr);
         
@@ -272,14 +275,14 @@ internal static partial class ShaderGenerator
         return attr;
     }
 
-    private static CsType MapType(Dictionary<ITypeSymbol, CsTypeInfo> types, ITypeSymbol typeSymbol, bool getFields)
+    private static CsType MapType(SemanticInfo semanticInfo, ITypeSymbol typeSymbol, bool getFields)
     {
         bool isArray = false;
         if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol) {
             isArray = true;
             typeSymbol = arrayTypeSymbol.ElementType;
         }
-        var type = GetType(types, typeSymbol, getFields);
+        var type = GetType(semanticInfo, typeSymbol, getFields);
 
         var genericTypes = new List<CsType>();
 
@@ -288,7 +291,7 @@ internal static partial class ShaderGenerator
             bool getFieldTypes = type.TypeCode.IsBuffer;
             foreach (var typeArg in namedType.TypeArguments)
             {
-                var fieldType = GetType(types, typeArg, getFieldTypes);
+                var fieldType = GetType(semanticInfo, typeArg, getFieldTypes);
                 genericTypes.Add(fieldType);
             }
         }
