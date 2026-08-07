@@ -308,7 +308,7 @@ public static class ShaderValidation
             }
             if (parameter.IsBindGroupEntry) {
                 if (bindingType.Size != csType.TypeLayout.Size) {
-                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {csType.TypeLayout}";
+                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - wgsl expect Type size: {bindingType.Size} was: {csType.TypeLayout.Size}";
                     // diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
                 }
             }

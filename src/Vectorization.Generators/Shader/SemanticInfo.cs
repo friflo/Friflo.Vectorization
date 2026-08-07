@@ -33,7 +33,7 @@ internal class SemanticInfo
         this.semanticModel = semanticModel;
     }
     
-    internal CsTypeLayout GetTypeLayout(ITypeSymbol typeSymbol)
+    internal TypeLayout GetTypeLayout(ITypeSymbol typeSymbol)
     {
         var assemblySymbol = typeSymbol.ContainingAssembly;
         if (!assemblyInfos.TryGetValue(assemblySymbol, out var assemblyInfo)) {
@@ -43,7 +43,7 @@ internal class SemanticInfo
         if (assemblyInfo != null) {
             var ns = typeSymbol.ContainingNamespace.ToDisplayString();
             assemblyInfo.typeLayouts.TryGetValue((ns, typeSymbol.Name), out var layout);
-            return new CsTypeLayout(layout.Size, layout.PackingSize);
+            return new TypeLayout(layout.Size, layout.PackingSize);
         }
         var attributes   = typeSymbol.GetAttributes();
         var structLayout = attributes.FirstOrDefault(data => data.AttributeClass?.Name == "StructLayoutAttribute");
@@ -53,7 +53,7 @@ internal class SemanticInfo
         var namedArguments = structLayout.NamedArguments;
         var size = namedArguments.FirstOrDefault(arg => arg.Key == "Size");
         var pack = namedArguments.FirstOrDefault(arg => arg.Key == "Pack");
-        return new CsTypeLayout(
+        return new TypeLayout(
             size.Value.IsNull ? 0 : (int)size.Value.Value!,
             pack.Value.IsNull ? 0 : (int)pack.Value.Value!);
     }

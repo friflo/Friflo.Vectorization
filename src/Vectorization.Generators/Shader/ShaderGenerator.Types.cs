@@ -47,15 +47,15 @@ internal static partial class ShaderGenerator
         if (semanticInfo.types.TryGetValue(typeSymbol, out var typeInfo)) {
             return typeInfo;
         }
-        var type        = GetIdentifier(typeSymbol);
-        var typeCode    = GetTypeCode(typeSymbol);
+        var type                    = GetIdentifier(typeSymbol);
+        var (size, align, typeCode) = GetTypeCode(typeSymbol);
         var isValueType = typeSymbol.IsValueType;
         
         if (CsTypeCode.None != typeCode || !isValueType)
         {
             typeInfo = new CsTypeInfo {
                 Identifier  = type,
-                TypeLayout  = default,
+                TypeLayout  = new CsTypeLayout(size, align),
                 Fields      = default,
                 TypeCode    = typeCode
             };
@@ -64,13 +64,15 @@ internal static partial class ShaderGenerator
         }
 
         ValueArray<CsField> fields = default;
-        int structSize = 0;
+        int  structSize     = 0;
+        int  maxAlign       = 1;
+        
         if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
         {
-            var typeLayout = semanticInfo.GetTypeLayout(typeSymbol);
-            if (typeLayout.Size == 0) {
-                structSize = typeLayout.Size;
-            }
+            var typeLayout  = semanticInfo.GetTypeLayout(typeSymbol);
+            structSize      = typeLayout.Size;
+            var calcSize    = typeLayout.Size == 0;
+
             // recursion only for struct types
             var fieldSymbols = structSymbol.GetMembers()
                 .OfType<IFieldSymbol>()
@@ -78,7 +80,7 @@ internal static partial class ShaderGenerator
             var fieldList = new List<CsField>();
             foreach (var fieldSymbol in fieldSymbols)
             {
-                var fieldTypeInfo   = GetTypeInfo(semanticInfo, fieldSymbol.Type); // recursive call
+                var fieldTypeInfo = GetTypeInfo(semanticInfo, fieldSymbol.Type); // recursive call
                 fieldList.Add(new CsField {
                     Name        = fieldSymbol.Name,
                     Type        = new CsType {
@@ -90,9 +92,12 @@ internal static partial class ShaderGenerator
                         IsArray     = false
                     }
                 });
-                if (typeLayout.Size == 0) {
-                    structSize += fieldTypeInfo.TypeLayout.Size;
+                if (!calcSize) {
+                    continue;
                 }
+                var fieldLayout = fieldTypeInfo.TypeLayout;
+                maxAlign        = Math.Max(maxAlign, fieldLayout.Align);
+                structSize     += fieldLayout.Size;
             }
             fields = fieldList.ToValueArray();
         }
@@ -111,7 +116,7 @@ internal static partial class ShaderGenerator
         }
         typeInfo = new CsTypeInfo {
             Identifier  = type,
-            TypeLayout  = new CsTypeLayout(structSize, 0),
+            TypeLayout  = new CsTypeLayout(structSize, maxAlign),
             Fields      = fields,
             TypeCode    = typeCode
         };
@@ -120,31 +125,33 @@ internal static partial class ShaderGenerator
     }
     
     
-    private static CsTypeCode GetTypeCode(ITypeSymbol symbol)
+    private static (int size, int align, CsTypeCode) GetTypeCode(ITypeSymbol symbol)
     {
-        var typeCode = symbol.SpecialType switch {
-            SpecialType.System_Object 	    => CsTypeCode.Object,
-            SpecialType.System_Enum 	    => CsTypeCode.Enum,
-            SpecialType.System_ValueType    => CsTypeCode.ValueType,
-            SpecialType.System_Boolean 	    => CsTypeCode.Bool,         // WGSL type (not in buffers)
-            SpecialType.System_Char 	    => CsTypeCode.Char,
-            SpecialType.System_SByte 	    => CsTypeCode.SByte,
-            SpecialType.System_Byte 	    => CsTypeCode.Byte,
-            SpecialType.System_Int16 	    => CsTypeCode.Int16,
-            SpecialType.System_UInt16 	    => CsTypeCode.UInt16,
-            SpecialType.System_Int32 	    => CsTypeCode.i32,          // WGSL type
-            SpecialType.System_UInt32	    => CsTypeCode.u32,          // WGSL type
-            SpecialType.System_Int64 	    => CsTypeCode.Int64,
-            SpecialType.System_UInt64 	    => CsTypeCode.UInt64,
-            SpecialType.System_Decimal	    => CsTypeCode.Decimal,
-            SpecialType.System_Single 	    => CsTypeCode.f32,          // WGSL type
-            SpecialType.System_Double 	    => CsTypeCode.Double,
-            SpecialType.System_String 	    => CsTypeCode.String,
-            SpecialType.System_DateTime     => CsTypeCode.DateTime,
-            _                               => CsTypeCode.None
+        (int size, int align, CsTypeCode typeCode) = symbol.SpecialType switch {
+            SpecialType.System_Object 	    => (0, 0, CsTypeCode.Object),
+            SpecialType.System_Enum 	    => (0, 0, CsTypeCode.Enum),
+            SpecialType.System_ValueType    => (0, 0, CsTypeCode.ValueType),
+            SpecialType.System_Boolean 	    => (0, 0, CsTypeCode.Bool),         // WGSL type (not in buffers)
+            SpecialType.System_Char 	    => (0, 0, CsTypeCode.Char),
+            //
+            SpecialType.System_SByte 	    => (1, 1, CsTypeCode.SByte),
+            SpecialType.System_Byte 	    => (1, 1, CsTypeCode.Byte),
+            SpecialType.System_Int16 	    => (2, 2, CsTypeCode.Int16),
+            SpecialType.System_UInt16 	    => (2, 2, CsTypeCode.UInt16),
+            SpecialType.System_Int32 	    => (4, 4, CsTypeCode.i32),          // WGSL type
+            SpecialType.System_UInt32	    => (4, 4, CsTypeCode.u32),          // WGSL type
+            SpecialType.System_Int64 	    => (8, 8, CsTypeCode.Int64),
+            SpecialType.System_UInt64 	    => (8, 8, CsTypeCode.UInt64),
+            SpecialType.System_Single 	    => (4, 4, CsTypeCode.f32),          // WGSL type
+            SpecialType.System_Double 	    => (8, 8, CsTypeCode.Double),
+            //
+            SpecialType.System_Decimal	    => (0, 0, CsTypeCode.Decimal),
+            SpecialType.System_String 	    => (0, 0, CsTypeCode.String),
+            SpecialType.System_DateTime     => (0, 0, CsTypeCode.DateTime),
+            _                               => (0, 0, CsTypeCode.None)
         };
         if (typeCode != CsTypeCode.None) {
-            return typeCode;
+            return (size, align, typeCode);
         }
         var ns          = GetNamespace(symbol);
         var symbolName  = symbol.Name;
@@ -152,155 +159,34 @@ internal static partial class ShaderGenerator
         {
             case "System":
                 return symbolName switch {
-                    "Half"                  =>  CsTypeCode.f16,         // WGSL type
-                    "Span"                  =>  CsTypeCode.Span,
-                    "ReadOnlySpan"          =>  CsTypeCode.ReadOnlySpan,
-                    _ => CsTypeCode.None
+                    "Half"                  => (2, 2, CsTypeCode.f16),         // WGSL type
+                    "Span"                  => (0, 0, CsTypeCode.Span),
+                    "ReadOnlySpan"          => (0, 0, CsTypeCode.ReadOnlySpan),
+                    _                       => (0, 0, CsTypeCode.None)
                 };
             case "System.Numerics":
                 return symbolName switch {
-                    "Vector2"               =>  CsTypeCode.vec2f,       // WGSL type
-                    "Vector3"               =>  CsTypeCode.vec3f,       // WGSL type
-                    "Vector4"               =>  CsTypeCode.vec4f,       // WGSL type
-                    "Matrix3x2"             =>  CsTypeCode.mat3x2f,     // WGSL type
-                    "Matrix4x4"             =>  CsTypeCode.mat4x4f,     // WGSL type
-                    _                       =>  CsTypeCode.None
+                    "Vector2"               => ( 8, 4, CsTypeCode.vec2f),       // WGSL type
+                    "Vector3"               => (12, 4, CsTypeCode.vec3f),       // WGSL type
+                    "Vector4"               => (16, 4, CsTypeCode.vec4f),       // WGSL type
+                    "Matrix3x2"             => (24, 4, CsTypeCode.mat3x2f),     // WGSL type
+                    "Matrix4x4"             => (64, 4, CsTypeCode.mat4x4f),     // WGSL type
+                    _                       => ( 0, 0, CsTypeCode.None)
                 };
             case "Friflo.Vectorization.GPU":
                 return symbolName switch {
-                    "InBuffer"              =>  CsTypeCode.InBuffer,
-                    "InOutBuffer"           =>  CsTypeCode.InOutBuffer,
-                    _ => CsTypeCode.None
+                    "InBuffer"              => (0, 0, CsTypeCode.InBuffer),
+                    "InOutBuffer"           => (0, 0, CsTypeCode.InOutBuffer),
+                    _                       => (0, 0, CsTypeCode.None)
                 };
             case "Friflo.Vectorization.WebGPU":
                 return symbolName switch {
-                    "GpuSampler"            =>  CsTypeCode.GpuSampler,
-                    "GpuTextureView"        =>  CsTypeCode.GpuTextureView,
-                    _ => CsTypeCode.None
+                    "GpuSampler"            => (0, 0, CsTypeCode.GpuSampler),
+                    "GpuTextureView"        => (0, 0, CsTypeCode.GpuTextureView),
+                    _                       => (0, 0, CsTypeCode.None)
                 };
             default:
-                return CsTypeCode.None;
+                return (0, 0, CsTypeCode.None);
         }
-    }
-    
-    
-    // Duck typing - detect WGSL types from their layout: E.g. a struct with 3 float fields is a vec3f
-    private static CsTypeCode DetectWgslPrimitiveByLayout(ITypeSymbol symbol)
-    {
-        if (!symbol.IsValueType || symbol.TypeKind == TypeKind.Enum) {
-            return CsTypeCode.None;
-        }
-
-        var fields = symbol.GetMembers()
-                           .OfType<IFieldSymbol>()
-                           .Where(f => !f.IsStatic)
-                           .ToArray();
-
-        if (fields.Length == 0) {
-            return CsTypeCode.None;
-        }
-
-        // Detect base type: f32, f16, i32, u32 OR vector columns (vec2f, vec3f, vec4f ...)
-        var baseType = GetTypeCode(fields[0].Type);
-
-        // Check that all fields have the same scalar/vector type
-        for (int i = 1; i < fields.Length; i++) {
-            if (GetTypeCode(fields[i].Type) != baseType) {
-                return CsTypeCode.None;
-            }
-        }
-
-        var name = symbol.Name;
-
-        // Pattern-Matching via base type and field count
-        return (baseType, fields.Length) switch
-        {
-            // --- Matrices composed of Vector Columns (e.g. struct Mat3x3 { vec3f c0, c1, c2; })
-            (CsTypeCode.vec2f, 2) => CsTypeCode.mat2x2f,
-            (CsTypeCode.vec2f, 3) => CsTypeCode.mat3x2f,
-            (CsTypeCode.vec2f, 4) => CsTypeCode.mat4x2f,
-
-            (CsTypeCode.vec3f, 2) => CsTypeCode.mat2x3f,
-            (CsTypeCode.vec3f, 3) => CsTypeCode.mat3x3f,
-            (CsTypeCode.vec3f, 4) => CsTypeCode.mat4x3f,
-
-            (CsTypeCode.vec4f, 2) => CsTypeCode.mat2x4f,
-            (CsTypeCode.vec4f, 3) => CsTypeCode.mat3x4f,
-            (CsTypeCode.vec4f, 4) => CsTypeCode.mat4x4f,
-
-            (CsTypeCode.vec2h, 2) => CsTypeCode.mat2x2h,
-            (CsTypeCode.vec2h, 3) => CsTypeCode.mat3x2h,
-            (CsTypeCode.vec2h, 4) => CsTypeCode.mat4x2h,
-
-            (CsTypeCode.vec3h, 2) => CsTypeCode.mat2x3h,
-            (CsTypeCode.vec3h, 3) => CsTypeCode.mat3x3h,
-            (CsTypeCode.vec3h, 4) => CsTypeCode.mat4x3h,
-
-            (CsTypeCode.vec4h, 2) => CsTypeCode.mat2x4h,
-            (CsTypeCode.vec4h, 3) => CsTypeCode.mat3x4h,
-            (CsTypeCode.vec4h, 4) => CsTypeCode.mat4x4h,
-
-            // --- Float 32-bit (f32)
-            // Vectors
-            (CsTypeCode.f32, 2)  => CsTypeCode.vec2f,
-            (CsTypeCode.f32, 3)  => CsTypeCode.vec3f,
-            (CsTypeCode.f32, 4)  => IsMatrixName(name, fields)          ? CsTypeCode.mat2x2f : CsTypeCode.vec4f,
-            // Rectangular matrices
-            (CsTypeCode.f32, 6)  => IsTransposedMatrixName(name, "3x2") ? CsTypeCode.mat3x2f : CsTypeCode.mat2x3f,
-            (CsTypeCode.f32, 8)  => IsTransposedMatrixName(name, "4x2") ? CsTypeCode.mat4x2f : CsTypeCode.mat2x4f,
-            (CsTypeCode.f32, 12) => IsTransposedMatrixName(name, "4x3") ? CsTypeCode.mat4x3f : CsTypeCode.mat3x4f,
-            // Quadratic matrices
-            (CsTypeCode.f32, 9)  => CsTypeCode.mat3x3f,
-            (CsTypeCode.f32, 16) => CsTypeCode.mat4x4f,
-
-            // --- Float 16-bit (f16 / Half)
-            // Vectors
-            (CsTypeCode.f16, 2)  => CsTypeCode.vec2h,
-            (CsTypeCode.f16, 3)  => CsTypeCode.vec3h,
-            (CsTypeCode.f16, 4)  => IsMatrixName(name, fields)          ? CsTypeCode.mat2x2h : CsTypeCode.vec4h,
-            // Rectangular matrices
-            (CsTypeCode.f16, 6)  => IsTransposedMatrixName(name, "3x2") ? CsTypeCode.mat3x2h : CsTypeCode.mat2x3h,
-            (CsTypeCode.f16, 8)  => IsTransposedMatrixName(name, "4x2") ? CsTypeCode.mat4x2h : CsTypeCode.mat2x4h,
-            (CsTypeCode.f16, 12) => IsTransposedMatrixName(name, "4x3") ? CsTypeCode.mat4x3h : CsTypeCode.mat3x4h,
-            // Quadratic matrices
-            (CsTypeCode.f16, 9)  => CsTypeCode.mat3x3h,
-            (CsTypeCode.f16, 16) => CsTypeCode.mat4x4h,
-
-            // --- Signed Integer 32-bit (i32)
-            (CsTypeCode.i32, 2)  => CsTypeCode.vec2i,
-            (CsTypeCode.i32, 3)  => CsTypeCode.vec3i,
-            (CsTypeCode.i32, 4)  => CsTypeCode.vec4i,
-
-            // --- Unsigned Integer 32-bit (u32)
-            (CsTypeCode.u32, 2)  => CsTypeCode.vec2u,
-            (CsTypeCode.u32, 3)  => CsTypeCode.vec3u,
-            (CsTypeCode.u32, 4)  => CsTypeCode.vec4u,
-
-            _                    => CsTypeCode.None
-        };
-    }
-
-    private static bool IsMatrixName(string name, IFieldSymbol[] fields)
-    {
-        if (name.IndexOf("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
-            name.IndexOf("matrix", StringComparison.OrdinalIgnoreCase) >= 0) {
-            return true;
-        }
-
-        foreach (var f in fields) {
-            var fieldName = f.Name;
-            if (fieldName.IndexOf   ("mat",    StringComparison.OrdinalIgnoreCase) >= 0 ||
-                fieldName.IndexOf   ("matrix", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                fieldName.StartsWith("m",      StringComparison.OrdinalIgnoreCase))     // e.g. m11, m12, m21, m22
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static bool IsTransposedMatrixName(string name, string targetDimension)
-    {
-        return name.IndexOf(targetDimension, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

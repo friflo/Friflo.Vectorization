@@ -240,11 +240,11 @@ public readonly record struct CsTypeIdentifier
 public readonly record struct CsTypeLayout
 {
     public readonly int     Size;
-    public readonly int     Pack;
+    public readonly int     Align;
     
-    public CsTypeLayout(int size, int pack) {
-        Size = size;
-        Pack = pack;
+    public CsTypeLayout(int size, int align) {
+        Size    = size;
+        Align   = align;
     }
 }
 
