@@ -15,7 +15,8 @@ public readonly struct CSharpType
     public readonly WgslTypeInfo        info;
     public readonly CSharpStruct?       csharpStruct; // != null if struct
     
-    public          int                 Size        => GetSize();
+    /// <summary> returns null for default <see cref="CSharpType"/> </summary>
+    public          int?                Size        => GetSize();
     public override string              ToString()  => identifier.ToString();
 
     internal CSharpType(string typeName, TypeResolution resolution, WgslTypeInfo info, CSharpStruct? csharpStruct) {
@@ -30,7 +31,7 @@ public readonly struct CSharpType
         this.csharpStruct   = csharpStruct;
     }
     
-    private int GetSize()
+    private int? GetSize()
     {
         var typeCode = info.typeCode;
         if (typeCode == CsTypeCode.WgslStruct) {
@@ -39,7 +40,7 @@ public readonly struct CSharpType
         if (typeCode.IsWgslType) {
             return typeCode.Layout.size;
         }
-        return -1;
+        return null;
     }
 }
 

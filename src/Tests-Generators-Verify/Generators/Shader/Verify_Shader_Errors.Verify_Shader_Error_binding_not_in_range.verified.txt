@@ -13,18 +13,6 @@
       }
     },
     {
-      Message: [storage] triangles - wgsl expect Type size: -1 was: 32,
-      Severity: Error,
-      Descriptor: {
-        Id: WGPU005,
-        Title: Shader Validation Error,
-        MessageFormat: {0},
-        Category: WGPU,
-        DefaultSeverity: Error,
-        IsEnabledByDefault: true
-      }
-    },
-    {
       Message: [Map(2, 640)] myUniform - binding must be in range: 0 - 639. was: 640,
       Severity: Error,
       Descriptor: {
