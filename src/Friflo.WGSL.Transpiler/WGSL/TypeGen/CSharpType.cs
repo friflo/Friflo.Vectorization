@@ -3,6 +3,7 @@
 
 using Friflo.WGSL.Transpiler.CSharp;
 
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
@@ -29,6 +30,18 @@ public readonly struct CSharpType
         this.identifier     = identifier;
         this.info           = info;
         this.csharpStruct   = csharpStruct;
+    }
+    
+    public string GetWgslTypeName()
+    {
+        var typeCode = info.typeCode;
+        if (typeCode == CsTypeCode.WgslStruct) {
+            return identifier.Name;
+        }
+        if (typeCode.IsWgslType) {
+            return typeCode.ToString();
+        }
+        return "UNKNOWN";
     }
     
     private int? GetSize()

@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [uniform] myUniform - Type mismatch: WGSL expects '' (16 bytes) - was: 'int' (4 bytes),
+      Message: [uniform] myUniform - Type mismatch: WGSL expects 'MyUniforms' (16 bytes) - was: 'int' (4 bytes),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
