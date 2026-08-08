@@ -31,19 +31,20 @@ public readonly struct CSharpType
         this.info           = info;
         this.csharpStruct   = csharpStruct;
     }
-    
-    public string GetWgslTypeName()
-    {
-        var typeCode = info.typeCode;
-        if (typeCode == CsTypeCode.WgslStruct) {
-            return identifier.Name;
+
+    public string WgslTypeName {
+        get {
+            var typeCode = info.typeCode;
+            if (typeCode == CsTypeCode.WgslStruct) {
+                return identifier.Name;
+            }
+            if (typeCode.IsWgslType) {
+                return typeCode.ToString();
+            }
+            return identifier.Name; // original WGSL type in case of WGSL error
         }
-        if (typeCode.IsWgslType) {
-            return typeCode.ToString();
-        }
-        return identifier.Name; // original WGSL type in case of WGSL error
     }
-    
+
     private int? GetSize()
     {
         var typeCode = info.typeCode;

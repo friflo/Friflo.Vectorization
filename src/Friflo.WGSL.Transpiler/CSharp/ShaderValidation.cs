@@ -317,7 +317,7 @@ public static class ShaderValidation
             if (parameter.IsBindGroupEntry && bindingType.Size.HasValue) {
                 var expectedSize = bindingType.Size.Value;
                 if (expectedSize != csType.TypeLayout.Size) {
-                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.GetWgslTypeName()}' ({expectedSize} bytes) - was: '{csType}' ({csType.TypeLayout.Size} bytes)";
+                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{csType}' ({csType.TypeLayout.Size} bytes)";
                     diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
                 }
             }
@@ -340,7 +340,7 @@ public static class ShaderValidation
                     if (bindingType.Size.HasValue) {
                         var expectedSize = bindingType.Size.Value;
                         if (expectedSize != type.TypeLayout.Size) {
-                            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.GetWgslTypeName()}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
+                            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
                             diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
                         }
                     }
