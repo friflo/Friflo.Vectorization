@@ -70,8 +70,12 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ValueArray<T>(T[] array) => new(array.AsSpan());
 
-    public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)(_array ?? Array.Empty<T>())).GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    // ---------- Enumerator ----------
+    public ReadOnlySpan<T>.Enumerator GetEnumerator() => new ReadOnlySpan<T>(_array).GetEnumerator();
+    
+    // --- IEnumerable / IEnumerable<>
+    IEnumerator<T>     IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
+    IEnumerator           IEnumerable.GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
 }
 
 /// <summary>
