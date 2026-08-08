@@ -155,10 +155,11 @@ public sealed class TypeBuilder
             
             // Add binding types to enable type size check at validation 
             if (bindingTypes != null && binding.AddressSpace is "storage" or "uniform") {
-                var csharpStruct = csharpType.csharpStruct; 
-                if (csharpStruct?.fields?.Length == 1) {
-                    var type = csharpStruct.fields[0].type;
-                    if (type.info.IsArray) {
+                var fields = csharpType.csharpStruct?.fields; 
+                // use element type if struct contains a single field with a dynamic array
+                if (fields?.Length == 1) {
+                    var type = fields[0].type;
+                    if (type.info.paramType == WgslParamType.DynamicArray) {
                         csharpType = type;
                     }
                 }
