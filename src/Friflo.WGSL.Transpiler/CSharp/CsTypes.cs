@@ -78,16 +78,16 @@ public record CsMethod
 }
 
 public readonly record struct CsEnum {
-    public required     string  Name   { get; init; }
-    public required     ulong   Value  { get; init; }
+    public required     string      Name   { get; init; }
+    public required     ulong       Value  { get; init; }
     
-    public override     string  ToString() => Name;
+    public override     string      ToString() => Name;
 }
 
 public readonly record struct CsAttrEnum
 {
-    public required     CsEnum  enum1   { get; init; } // WGSL enum:  ST,    WGPU enum:  TextureFormat
-    public required     CsEnum  enum2   { get; init; } // WGSL enum:  TSA
+    public required     CsEnum      enum1   { get; init; } // WGSL enum:  ST,    WGPU enum:  TextureFormat
+    public required     CsEnum      enum2   { get; init; } // WGSL enum:  TSA
 }
 
 public enum CsParamAttribute
@@ -196,18 +196,18 @@ public readonly record struct CsParameter
 
 public readonly record struct CsTypeInfo
 {
-    public required     CsTypeIdentifier        Identifier  { get; init; }
-    public required     CsTypeLayout            TypeLayout  { get; init; }
-    public required     ValueArray<CsField>     Fields      { get; init; }
-    public required     CsTypeCode              TypeCode    { get; init; }
+    public required     CsTypeIdentifier    Identifier  { get; init; }
+    public required     CsTypeLayout        TypeLayout  { get; init; }
+    public required     ValueArray<CsField> Fields      { get; init; }
+    public required     CsTypeCode          TypeCode    { get; init; }
     
-    public override     string                  ToString() => Identifier.Name;
+    public override     string              ToString() => Identifier.Name;
 }
 
 public readonly record struct CsField
 {
-    public required     string                  Name        { get; init; }
-    public required     CsType                  Type        { get; init; }
+    public required     string              Name        { get; init; }
+    public required     CsType              Type        { get; init; }
 
     public override string ToString()
     {
@@ -239,8 +239,8 @@ public readonly record struct CsTypeIdentifier
 
 public readonly record struct CsTypeLayout
 {
-    public readonly int     Size;
-    public readonly int     Align;
+    public readonly     int     Size;
+    public readonly     int     Align;
     
     public CsTypeLayout(int size, int align) {
         Size    = size;
