@@ -34,6 +34,9 @@ public static class Tests_GenerateTypes
 
         var files = WgslUtils.LoadShaderFilesRecursive(projectDir);
         
+        // WGSL files: 22   total: 23.834 bytes - commented TypeGen.UpdateFiles();
+        // iterations:  10_000  -> duration:  3.36 sec
+        //              50_000  -> duration: 11.66 sec
         for (int n = 0; n < 1; n++) {
             var typeEmitter = new TypeGen();
             typeEmitter.EmitAllStructs(files, projectDir, mappings, errors);
