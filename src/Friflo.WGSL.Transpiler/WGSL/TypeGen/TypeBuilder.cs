@@ -34,7 +34,7 @@ public sealed class TypeBuilder
     private             string                              fileNamespace   = "";
     private readonly    CSharpIdentifier[]                  typeMap;
     private             TypeGen?                            typeGen;
-    private             Dictionary<(int, int), CSharpType>? bindingTypes;
+    private readonly    Dictionary<(int, int), CSharpType>? bindingTypes;
     
     internal            string                              FileNamespace   => fileNamespace;
 
