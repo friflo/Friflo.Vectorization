@@ -539,7 +539,7 @@ public partial class ShaderExample
     }
 
     [Test]
-    public static async Task  Verify_Shader_Error_TypeMismatch()
+    public static async Task  Verify_Shader_Error_storage_TypeMismatch()
     {
         await Verify(
 """
@@ -553,10 +553,10 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    public static partial void TypeMismatch(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [storage] [Draw]    InBuffer<int>           triangles,
-        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
-        [Map(2, 1)] [uniform]           Vector2                 model_offset);
+    public static partial void StorageTypeMismatch(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<int>   triangles,
+        [Map(2, 0)] [uniform]           in MyUniforms   myUniform,
+        [Map(2, 1)] [uniform]           Vector2         model_offset);
         
     public struct MyUniforms (Vector4 tint_color)
     {
@@ -567,7 +567,7 @@ public partial class ShaderExample
     }
     
     [Test]
-    public static async Task  Verify_Shader_Error_TypeMismatch_2()
+    public static async Task  Verify_Shader_Error_storage_TypeMismatch_2()
     {
         await Verify(
 """
@@ -581,10 +581,10 @@ namespace VerifyShader;
 public partial class ShaderExample
 {
     [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    public static partial void TypeMismatch_2(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [storage] [Draw]    InBuffer<Vector2>           triangles,
-        [Map(2, 0)] [uniform]           in MyUniforms           myUniform,
-        [Map(2, 1)] [uniform]           Vector2                 model_offset);
+    public static partial void StorageTypeMismatch_2(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<Vector2>   triangles,
+        [Map(2, 0)] [uniform]           in MyUniforms       myUniform,
+        [Map(2, 1)] [uniform]           Vector2             model_offset);
         
     public struct MyUniforms (Vector4 tint_color)
     {

@@ -128,7 +128,7 @@ public partial class ShaderExample
 }
 """);
     }
-    const string Uniforms =
+    private const string UniformsSource = // language=csharp
 """
 [StructLayout(LayoutKind.Explicit, Size = 1024)]
 public struct Uniforms (in Matrix4x4_UniArr_16 modelViewProjectionMatrix)
@@ -153,7 +153,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
-{{Uniforms}}
+{{UniformsSource}}
 
 public partial class ShaderExample
 {
@@ -177,7 +177,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
-{{Uniforms}}
+{{UniformsSource}}
 
 public partial class ShaderExample
 {
@@ -203,7 +203,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
-{{Uniforms}}
+{{UniformsSource}}
 
 public partial class ShaderExample
 {
@@ -229,7 +229,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
 namespace VerifyShader;
-{{Uniforms}}
+{{UniformsSource}}
 
 public partial class ShaderExample
 {

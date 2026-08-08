@@ -1,4 +1,4 @@
-﻿//HintName: VerifyShader/ShaderExample/TypeMismatch_2.g.cs
+﻿//HintName: VerifyShader/ShaderExample/StorageTypeMismatch.g.cs
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -13,10 +13,10 @@ namespace VerifyShader;
 
 public partial class ShaderExample
 {
-    public static partial void TypeMismatch_2(
+    public static partial void StorageTypeMismatch(
         RenderPass                  pass,
         RenderConfig                config,
-        InBuffer<Vector2>           triangles,
+        InBuffer<int>               triangles,
         in MyUniforms               myUniform,
         Vector2                     model_offset) { }
 }
