@@ -593,4 +593,33 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_uniform_TypeMismatch()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    public static partial void StorageTypeMismatch_2(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [storage] [Draw]    InBuffer<VertexData>   triangles,
+        [Map(2, 0)] [uniform]           int                     myUniform,
+        [Map(2, 1)] [uniform]           Vector3                 model_offset);
+    
+    public struct VertexData(Vector4 position, Vector4 color)
+    {
+        public Vector4 	position    = position;
+        public Vector4 	color       = color;
+    }
+}
+""");
+    }
 }

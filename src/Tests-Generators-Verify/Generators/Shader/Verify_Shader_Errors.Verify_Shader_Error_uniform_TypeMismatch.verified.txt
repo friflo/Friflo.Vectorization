@@ -1,0 +1,28 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: [uniform] myUniform - Type mismatch: WGSL expects '' (16 bytes) - was: 'int' (4 bytes),
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Message: [uniform] model_offset - Type mismatch: WGSL expects 'vec2f' (8 bytes) - was: 'Vector3' (12 bytes),
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
