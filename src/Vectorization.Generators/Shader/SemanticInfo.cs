@@ -4,12 +4,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using Microsoft.CodeAnalysis;
 
-
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable UseNullPropagation
 // ReSharper disable ConvertToPrimaryConstructor
@@ -76,6 +77,9 @@ internal class SemanticInfo
             foreach (var handle in reader.TypeDefinitions)
             {
                 var typeDef = reader.GetTypeDefinition(handle);
+                if (!IsStruct(reader, typeDef)) {
+                    continue;
+                }
                 var name    = reader.GetString(typeDef.Name);
                 var ns      = reader.GetString(typeDef.Namespace);
                 var layout  = typeDef.GetLayout();
@@ -83,5 +87,34 @@ internal class SemanticInfo
             }
         }
         return info;
+    }
+    
+    private static bool IsStruct(MetadataReader reader, TypeDefinition typeDef)
+    {
+        var attrs = typeDef.Attributes;
+        if ((attrs & TypeAttributes.Sealed) == 0 || 
+            (attrs & TypeAttributes.ClassSemanticsMask) == TypeAttributes.Interface)
+        {
+            return false;
+        }
+
+        var baseHandle = typeDef.BaseType;
+        if (baseHandle.IsNil) return false;
+        
+        var comparer = reader.StringComparer;
+        switch (baseHandle.Kind)
+        {
+            case HandleKind.TypeReference: {
+                var typeRef = reader.GetTypeReference((TypeReferenceHandle)baseHandle);
+                return comparer.Equals(typeRef.Name,            "ValueType") && 
+                       comparer.Equals(typeRef.Namespace,       "System");
+            }
+            case HandleKind.TypeDefinition: {
+                var baseTypeDef = reader.GetTypeDefinition((TypeDefinitionHandle)baseHandle);
+                return comparer.Equals(baseTypeDef.Name,        "ValueType") && 
+                       comparer.Equals(baseTypeDef.Namespace,   "System");
+            }
+        }
+        return false;
     }
 }
