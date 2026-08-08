@@ -41,7 +41,7 @@ public readonly struct CSharpType
         if (typeCode.IsWgslType) {
             return typeCode.ToString();
         }
-        return "UNKNOWN";
+        return identifier.Name; // original WGSL type in case of WGSL error
     }
     
     private int? GetSize()
