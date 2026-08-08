@@ -33,7 +33,7 @@ public sealed class TypeBuilder
     private             WgslModule                          module          = new();
     private             string                              fileNamespace   = "";
     private readonly    CSharpIdentifier[]                  typeMap;
-    private             TypeGen?                            typeGen;
+    private readonly    TypeGen?                            typeGen;
     private readonly    Dictionary<(int, int), CSharpType>? bindingTypes;
     
     internal            string                              FileNamespace   => fileNamespace;
@@ -46,9 +46,15 @@ public sealed class TypeBuilder
         this.bindingTypes   = bindingTypes;
     }
     
+    internal TypeBuilder(CSharpIdentifier[] typeMap, TypeGen typeGen)
+    {
+        this.typeMap    = typeMap;
+        this.typeGen    = typeGen;
+    }
+    
     public void AddModuleType(WgslModule wgslModule, string path)
     {
-        CreateStructs(wgslModule, path, null);
+        CreateStructs(wgslModule, path);
     }
     
     internal void EmitStructs(StringBuilder sb, string normalizedPath)
@@ -125,13 +131,12 @@ public sealed class TypeBuilder
         return $"{string.Join(".", parts)}";
     }
 
-    internal void CreateStructs(WgslModule wgslModule, string normalizedPath, TypeGen? typeGenerator)
+    internal void CreateStructs(WgslModule wgslModule, string normalizedPath)
     {
         localStructs.Clear();
         requiredStructs.Clear();
         emittedStructs.Clear();
         wgslStructs.Clear();
-        typeGen         = typeGenerator;
         module          = wgslModule;
         fileNamespace   = PathToNamespace(normalizedPath);
         

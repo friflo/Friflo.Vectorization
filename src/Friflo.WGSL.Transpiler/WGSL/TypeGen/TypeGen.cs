@@ -56,7 +56,7 @@ public sealed class TypeGen
             File.WriteAllText(errorFilePath, sb.ToString(), new UTF8Encoding(false));
         }
         var typeMap = TypeMapping.CreateTypeMap(mappings);
-        var typeBuilder = new TypeBuilder(typeMap, null);
+        var typeBuilder = new TypeBuilder(typeMap, this);
 
         
         for (int n = 0; n < wgslFiles.Length; n++) {
@@ -162,7 +162,7 @@ public sealed class TypeGen
             EmitFileHeader(normalizedPath + ".cs");
             var module = FastWgslParser.ParseWgsl(file.Content, normalizedPath);
             
-            typeBuilder.CreateStructs(module, normalizedPath, this);
+            typeBuilder.CreateStructs(module, normalizedPath);
             typeBuilder.EmitStructs(body, normalizedPath);
             
             if (body.Length == 0 && localFixedSizedArrayTypes.Count == 0) {
