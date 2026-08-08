@@ -307,6 +307,13 @@ public static class ShaderValidation
             if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
                 diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
             }
+            var fields = bindingType.csharpStruct?.fields; 
+            if (fields?.Length == 1) {
+                var elementType = fields[0].type;
+                if (elementType.info.paramType == WgslParamType.DynamicArray) {
+                    bindingType = elementType; // use element type if struct contains a single field with dynamic array type 
+                }
+            }
             if (parameter.IsBindGroupEntry && bindingType.Size.HasValue) {
                 var expectedSize = bindingType.Size.Value;
                 if (expectedSize != csType.TypeLayout.Size) {
