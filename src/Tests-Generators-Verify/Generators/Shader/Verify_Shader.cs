@@ -262,7 +262,7 @@ public partial struct ShaderExample
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform] in Uniforms    uniforms);
         
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Size = 48)]
     public struct Uniforms
     {
         public  Vector3     IResolution;
@@ -297,7 +297,7 @@ namespace VerifyShader {
     }
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 4)]
+[StructLayout(LayoutKind.Sequential, Size = 8)]
 public struct GlobalUniform
 {
     public int 	value;
@@ -503,7 +503,7 @@ public partial class ShaderExample
                     [VertexBuffer(0)]   InBuffer<Vector3>   verticesBuffer,
                                         DrawIndirectArgs    args);
     
-    // [StructLayout(LayoutKind.Sequential, Size = 144)]
+    [StructLayout(LayoutKind.Sequential, Size = 144)]
     public struct Scene {
         public Matrix4x4   lightViewProjMatrix;
         public Matrix4x4   cameraViewProjMatrix;

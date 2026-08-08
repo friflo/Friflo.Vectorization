@@ -523,11 +523,13 @@ public partial class ShaderExample
         public  Vector4 color    = color;
     }
     
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct TestAddUniform (float frequency)
     {
         public  float frequency = frequency;
     }
 
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct TimeUniform (float time)
     {
         public  float time = time;

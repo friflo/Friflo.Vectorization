@@ -330,6 +330,13 @@ public static class ShaderValidation
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
+                    if (bindingType.Size.HasValue) {
+                        var expectedSize = bindingType.Size.Value;
+                        if (expectedSize != type.TypeLayout.Size) {
+                            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.info.GetElementName()}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
+                            diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
+                        }
+                    }
                     return;
                 }
                 diags.WgslTypeRequirement(parameter, parameter.TypeLoc, typeInfos);
