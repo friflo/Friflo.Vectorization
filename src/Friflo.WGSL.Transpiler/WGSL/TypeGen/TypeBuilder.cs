@@ -195,6 +195,9 @@ public sealed class TypeBuilder
     
     private string EmitStruct(string structName, CSharpField[] fields)
     {
+        if (typeGen == null) {
+            return "NO_SOURCE_STRUCT";
+        }
         var sb = new StringBuilder();
         sb.Append($"\npublic struct {structName} (");
         
@@ -358,7 +361,7 @@ public sealed class TypeBuilder
     private string EmitFixedSizeArray(WgslTypeLayout layout, CSharpType type, ArrayStride arrayStride)
     {
         if (typeGen == null) {
-            return "FIXED_SIZE_ARRAY";
+            return "NO_SOURCE_FIXED_SIZE_ARRAY";
         }
         var arraySize   = type.info.arraySize;
         var typeCode    = type.info.typeCode;
