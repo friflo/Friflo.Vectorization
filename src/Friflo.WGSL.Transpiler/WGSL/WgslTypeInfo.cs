@@ -109,7 +109,7 @@ public readonly struct WgslTypeInfo
         return new WgslTypeInfo(code);
     }
 
-    internal static WgslTypeInfo GetTypeInfo(WgslType type)
+    internal static WgslTypeInfo GetTypeInfo(WgslType? type)
     {
         if (type == null) {
             return new WgslTypeInfo(CsTypeCode.None);

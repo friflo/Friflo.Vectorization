@@ -32,18 +32,18 @@ public class WgslModule
 
 public struct WgslTypeGenerics
 {
-    public WgslType Arg_0;  // type name like f32, vec3<f32>, ... or a struct name
-    public WgslType Arg_1;  // size of an array
+    public              WgslType?   Arg_0;  // type name like f32, vec3<f32>, ... or a struct name
+    public              WgslType?   Arg_1;  // size of an array
     
-    public int Length => Arg_1 != null ? 2 : Arg_0 != null ? 1 : 0;
+    public              int         Length => Arg_1 != null ? 2 : Arg_0 != null ? 1 : 0;
 }
 
 public record WgslType
 {
-    public  string                  Name        { get; set; } = string.Empty;
-    public  WgslTypeGenerics        Generics    { get; set; }
+    public  required    string              Name     { get; set; }
+    public              WgslTypeGenerics    Generics { get; set; }
 
-    public override string ToString()
+    public  override    string              ToString()
     {
         switch (Generics.Length) {
             case 0:     return Name;
@@ -55,33 +55,33 @@ public record WgslType
 
 public class WgslStruct
 {
-    public string           Name        { get; set; } = string.Empty;
-    public List<WgslField>  Fields      { get; set; } = [];
+    public  required    string      Name            { get; set; }
+    public  required    WgslField[] Fields          { get; set; }
     
-    public override string ToString() => Name;
+    public  override    string      ToString()  => Name;
 }
 
 public class WgslField
 {
-    public  string      Name            { get; set; } = string.Empty;
-    public  WgslType    WgslType        { get; set; } = new();
-    public  int?        Align           { get; set; }
-    public  int?        Size            { get; set; }
+    public  required    string      Name            { get; set; }
+    public  required    WgslType    WgslType        { get; set; }
+    public  required    int?        Align           { get; set; }
+    public  required    int?        Size            { get; set; }
     
-    public override string ToString() => Name;
+    public  override    string      ToString()      => Name;
 }
 
 public record WgslBinding
 {
-    public  int         Group           { get; set; }
-    public  int         Binding         { get; set; }
-    public  string      Name            { get; set; } = string.Empty;
-    public  WgslType    WgslType        { get; set; } = new();
+    public  required    int         Group           { get; set; }
+    public  required    int         Binding         { get; set; }
+    public  required    string      Name            { get; set; }
+    public  required    WgslType    WgslType        { get; set; }
     
-    public  string      AddressSpace    { get; set; } = string.Empty; // e.g. "storage", "uniform", "private"
-    public  string      AccessMode      { get; set; } = string.Empty;   // e.g. "read", "write", "read_write"
+    public  required    string      AddressSpace    { get; set; }   // e.g. "storage", "uniform", "private"
+    public  required    string      AccessMode      { get; set; }   // e.g. "read", "write", "read_write"
     
-    public override string ToString() => AsString();
+    public  override    string      ToString()      => AsString();
     
     public string AsString()
     {
@@ -94,14 +94,13 @@ public record WgslBinding
         return $"var<{AddressSpace}, {AccessMode}> {Name}: {WgslType}";
     }
     
-    public string GetGenericNameAt(int index)
+    public string? GetGenericNameAt(int index)
     {
-        if (WgslType == null) return string.Empty;
         var generics = WgslType.Generics;
         if (index >= generics.Length) return string.Empty;
         switch (index) {
-            case 0: return generics.Arg_0.Name;
-            case 1: return generics.Arg_1.Name;
+            case 0: return generics.Arg_0?.Name;
+            case 1: return generics.Arg_1?.Name;
         }
         return string.Empty;
     }
@@ -109,28 +108,28 @@ public record WgslBinding
 
 public class WgslAttribute
 {
-    public  string          Name       { get; set; } = string.Empty;
-    public  string[]        Args       { get; set; } = [];
+    public  required    string          Name        { get; set; }
+    public  required    string[]        Args        { get; set; }
 
-    public  override string ToString() => $"@{Name}";
+    public  override    string          ToString() => $"@{Name}";
 }
 
 public class WgslEntryPoint
 {
-    public  string           Stage      { get; set; } = string.Empty;
-    public  WgslAttribute[]  Attributes { get; set; } = [];
-    public  string           Name       { get; set; } = string.Empty;
-    public  List<WgslParam>  Parameters { get; set; } = [];
-    public  WgslType         ReturnType { get; set; } = new();
+    public  required    string          Stage       { get; set; }
+    public  required    WgslAttribute[] Attributes  { get; set; }
+    public  required    string          Name        { get; set; }
+    public  required    List<WgslParam> Parameters  { get; set; }
+    public  required    WgslType        ReturnType  { get; set; }
 
-    public  override string ToString() => $"{Name}  @{Stage}";
+    public  override    string          ToString() => $"{Name}  @{Stage}";
 }
 
 public class WgslParam
 {
-    public  string          Attribute   { get; set; } = string.Empty;
-    public  string          Name        { get; set; } = string.Empty;
-    public  WgslType        WgslType    { get; set; } = new();
+    public  required    string          Attribute   { get; set; }
+    public  required    string          Name        { get; set; }
+    public  required    WgslType        WgslType    { get; set; }
     
-    public  override string ToString() => Name;
+    public  override    string          ToString()  => Name;
 }

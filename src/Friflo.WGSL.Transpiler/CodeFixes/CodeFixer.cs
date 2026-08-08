@@ -143,12 +143,12 @@ public static partial class CodeFixer
         }
     }
     
-    private static WgslType GetStorageBindingType(WgslModule module, WgslBinding binding)
+    private static WgslType? GetStorageBindingType(WgslModule module, WgslBinding binding)
     {
         var type = module.Structs.FirstOrDefault(s => s.Name == binding.WgslType.Name);
         // FIX_C89_STRUCT_HACK
         // In case a struct contains exactly one field return the field type 
-        if (type != null && type.Fields.Count == 1) {
+        if (type != null && type.Fields.Length == 1) {
             var fieldType = type.Fields[0].WgslType;
             var info = WgslTypeInfo.GetTypeInfo(fieldType);
             var paramType = info.paramType;
@@ -159,11 +159,11 @@ public static partial class CodeFixer
         return binding.WgslType;
     }
     
-    private static string GetParameterType(WgslType type, CSharpIdentifier[] typeMap, out WgslTypeInfo info)
+    private static string GetParameterType(WgslType? type, CSharpIdentifier[] typeMap, out WgslTypeInfo info)
     {
         info = WgslTypeInfo.GetTypeInfo(type);
         if (info.typeCode == CsTypeCode.None) {
-            return info.IsArray ? info.elementType! : type.ToString();
+            return info.IsArray ? info.elementType! : type?.ToString() ?? "";
         }
         return typeMap[(int)info.typeCode].Name;
     }
@@ -174,8 +174,8 @@ public static partial class CodeFixer
         var name        = wgslType.Name;
         var generics    = wgslType.Generics;
         var length      = generics.Length;
-        var arg0        = length > 0 ? generics.Arg_0.Name : null;
-        var arg1        = length > 1 ? generics.Arg_1.Name : null;
+        var arg0        = length > 0 ? generics.Arg_0?.Name : null;
+        var arg1        = length > 1 ? generics.Arg_1?.Name : null;
 
         switch (name)
         {

@@ -153,7 +153,7 @@ public sealed class TypeBuilder
             var wgslType        = binding.WgslType;
             if (addressSpace == "storage" && wgslType.Name == "array" && wgslType.Generics.Length == 2) {
                 // Skip creation of fixed size array. Create only the referenced element type
-                wgslType = wgslType.Generics.Arg_0;
+                wgslType = wgslType.Generics.Arg_0!; // Arg_0! Length == 2
             }
             var alignment = addressSpace == "storage" ? ArrayStride.Natural : ArrayStride.PadTo16Bytes;
             var csharpType = GetCSharpType(wgslType, alignment); // calls CreateStruct() if referencing one
@@ -171,7 +171,7 @@ public sealed class TypeBuilder
         if (localStructs.TryGetValue(structName, out var localStruct)) {
             return localStruct.csharpStruct;
         }
-        var length  = wgslStruct.Fields.Count;
+        var length  = wgslStruct.Fields.Length;
         var fields  = new CSharpField[length];
         
         for (int n = 0; n < length; n++) {

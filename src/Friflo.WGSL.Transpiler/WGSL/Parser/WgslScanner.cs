@@ -191,7 +191,7 @@ public static class FastWgslParser
     private static WgslType ParseType(ref WgslScanner scanner)
     {
         var nameSpan = scanner.ReadIdentifier();
-        if (nameSpan.IsEmpty) return new WgslType();
+        if (nameSpan.IsEmpty) return new WgslType { Name = "missing_type" };
 
         var wgslType = new WgslType { Name = nameSpan.ToString() };
 
@@ -300,8 +300,8 @@ public static class FastWgslParser
 
         result = new WgslStruct
         {
-            Name = nameSpan.ToString(),
-            Fields = fields,
+            Name 	= nameSpan.ToString(),
+            Fields 	= fields.ToArray(),
         };
         return true;
     }
@@ -412,7 +412,7 @@ public static class FastWgslParser
             scanner.Match(',');
         }
 
-        WgslType returnType = new WgslType();
+        var returnType = new WgslType { Name = "VOID" };
         if (scanner.Match("->"))
         {
             SkipAttributes(ref scanner);
