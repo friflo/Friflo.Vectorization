@@ -49,7 +49,7 @@ internal static partial class ShaderGenerator
         }
         var type                    = GetIdentifier(typeSymbol);
         var (size, align, typeCode) = GetTypeCode(typeSymbol);
-        var isValueType = typeSymbol.IsValueType;
+        var isValueType             = typeSymbol.IsValueType;
         
         if (CsTypeCode.None != typeCode || !isValueType)
         {
