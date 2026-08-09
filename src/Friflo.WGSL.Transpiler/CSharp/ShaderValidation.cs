@@ -327,9 +327,10 @@ public static class ShaderValidation
         if (!bindingType.Size.HasValue) {
             return;
         }
-        var expectedSize = bindingType.Size.Value;
-        if (expectedSize != type.TypeLayout.Size) {
-            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
+        var expectedSize    = bindingType.Size.Value;
+        var csharpSize      = type.TypeLayout.Size;
+        if (expectedSize != csharpSize) {
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
             diags.Add(new ValidationDiag(loc, error, DiagType.Error));
         }
     }
