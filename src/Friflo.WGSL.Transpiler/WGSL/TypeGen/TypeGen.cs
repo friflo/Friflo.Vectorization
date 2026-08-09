@@ -21,10 +21,10 @@ public sealed class TypeGen
     private  readonly   StringBuilder   fileBuilder             = new ();
     private  readonly   StringBuilder   body                    = new();
     //
-    internal readonly   StringBuilder                       fixedSizedArrayBuilder      = new();
-    internal readonly   Dictionary<string, FixedSizeArray>  globalFixedSizedArrayTypes  = new();
-    internal readonly   Dictionary<string, FixedSizeArray>  localFixedSizedArrayTypes   = new();
-    internal readonly   HashSet<string>                     additionalNamespaces        = [];
+    internal readonly   List<string>                        newStructTypes          = [];
+    internal readonly   StringBuilder                       newStructTypeBuilder    = new();
+    internal readonly   Dictionary<string, FixedSizeArray>  fixedSizedArrayTypes    = new();
+    internal readonly   HashSet<string>                     additionalNamespaces    = [];
 
 #if FILE_IO
 
@@ -81,9 +81,12 @@ public sealed class TypeGen
 
     private void EmitFixedSizeArrays(List<(string, string)> files)
     {
-        foreach (var fixedSizedArrayType in globalFixedSizedArrayTypes)
+        foreach (var fixedSizedArrayType in fixedSizedArrayTypes)
         {
             var generatedType = fixedSizedArrayType.Value;
+            if (generatedType.source == null) {
+                continue;
+            }
             var ns       = generatedType.Namespace;
             var fileName = ns == "" ? $"gen/{generatedType.Name}.wgsl.cs"
                                     : $"gen/{ns}/{generatedType.Name}.wgsl.cs";
@@ -96,7 +99,7 @@ public sealed class TypeGen
                 {nsDecl}
                 
                 
-                {fixedSizedArrayType.Value.source}
+                {generatedType.source}
                 """);
             files.Add((fileName, fileBuilder.ToString()));
         }
@@ -155,7 +158,7 @@ public sealed class TypeGen
             // --- clear state first!
             fileBuilder.Clear();
             body.Clear();
-            localFixedSizedArrayTypes.Clear();
+            newStructTypes.Clear();
             additionalNamespaces.Clear();
             
             // --- process after
@@ -165,14 +168,14 @@ public sealed class TypeGen
             typeBuilder.CreateStructs(module, normalizedPath);
             typeBuilder.EmitStructs(body, normalizedPath);
             
-            if (body.Length == 0 && localFixedSizedArrayTypes.Count == 0) {
+            if (body.Length == 0 && newStructTypes.Count == 0) {
                 return null;
             }
             foreach (var ns in additionalNamespaces) {
                 fileBuilder.Append($"using {ns};\n");
             }
-            foreach (var fixedSizedArrayType in localFixedSizedArrayTypes) {
-                body.Append(fixedSizedArrayType.Value.source);
+            foreach (var newStructType in newStructTypes) {
+                body.Append(newStructType);
             }
             var fileNamespace   = typeBuilder.FileNamespace;
             var nsDecl          = fileNamespace == "" ? "" : $"namespace {fileNamespace};";

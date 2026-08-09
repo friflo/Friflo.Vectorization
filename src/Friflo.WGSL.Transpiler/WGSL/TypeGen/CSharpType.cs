@@ -47,12 +47,13 @@ public readonly struct CSharpType
 
     private int? GetSize()
     {
-        var typeCode = info.typeCode;
+        var typeCode    = info.typeCode;
+        var itemCount   = info.paramType == WgslParamType.FixedSizeArray ? info.arraySize : 1;
         if (typeCode == CsTypeCode.WgslStruct) {
-            return csharpStruct!.layout.size;
+            return itemCount * csharpStruct!.layout.size;
         }
         if (typeCode.IsWgslType) {
-            return typeCode.Layout.size;
+            return itemCount * typeCode.Layout.size;
         }
         return null;
     }

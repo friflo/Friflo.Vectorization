@@ -381,12 +381,11 @@ public sealed class TypeBuilder
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
         AddNamespace(type);
         
-        var sb = typeGen.fixedSizedArrayBuilder;
+        var isCustomStruct  = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct;
+        var sb = typeGen.newStructTypeBuilder;
         sb.Clear();
-        var fixedSizedArrays = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct
-            ? typeGen.localFixedSizedArrayTypes : typeGen.globalFixedSizedArrayTypes;
         
-        if (!fixedSizedArrays.ContainsKey(qualifiedName))
+        if (!typeGen.fixedSizedArrayTypes.ContainsKey(qualifiedName))
         {
             var sizeInBytes = stride * arraySize;
             var elementType = identifier.Name;
@@ -410,13 +409,22 @@ public sealed class TypeBuilder
                     [UnscopedRef] public FixedArrayEnumerator<{{elementType}}> GetEnumerator() => new(ref _element0, {{stride}}, {{sizeInBytes}});
                 }
                 """).Append(LineFeeds);
-            fixedSizedArrays.Add(qualifiedName, new FixedSizeArray { Name = typeName, Namespace = identifier.Namespace, source = sb.ToString() });
+            var source = sb.ToString();
+            if (isCustomStruct) {
+                typeGen.newStructTypes.Add(source);
+                typeGen.fixedSizedArrayTypes.Add(qualifiedName, default);
+            } else {
+                typeGen.fixedSizedArrayTypes.Add(qualifiedName, new FixedSizeArray { Name = typeName, Namespace = identifier.Namespace, source = source });    
+            }
         } else {
-            sb.Append( // language=csharp
-                $$"""
-                /// Skipped identical duplicate of  <see cref="{{typeName}}"/>
-                file partial class _info;
-                """).Append(LineFeeds);
+            if (isCustomStruct) {
+                sb.Append( // language=csharp
+                    $$"""
+                    /// Skipped identical duplicate of  <see cref="{{typeName}}"/>
+                    file partial class _info;
+                    """).Append(LineFeeds);
+                typeGen.newStructTypes.Add(sb.ToString());
+            }
         }
         return typeName;
     }
