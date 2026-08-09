@@ -301,8 +301,8 @@ public static class ShaderValidation
     
     private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
     {
-        var csType = GetGenericType(parameter);
-        if (csType.TypeCode.IsWgslType) {
+        var type = GetGenericType(parameter);
+        if (type.TypeCode.IsWgslType) {
             var accessMode = wgslBinding?.AccessMode;
             if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
                 diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
@@ -314,16 +314,24 @@ public static class ShaderValidation
                     bindingType = elementType; // use element type if struct contains a single field with dynamic array type 
                 }
             }
-            if (parameter.IsBindGroupEntry && bindingType.Size.HasValue) {
-                var expectedSize = bindingType.Size.Value;
-                if (expectedSize != csType.TypeLayout.Size) {
-                    var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{csType}' ({csType.TypeLayout.Size} bytes)";
-                    diags.Add(new ValidationDiag(parameter.GenericArgLoc, error, DiagType.Error));
-                }
+            if (parameter.IsBindGroupEntry) {
+                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, diags);
             }
             return;
         }
         diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
+    }
+    
+    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, List<ValidationDiag> diags)
+    {
+        if (!bindingType.Size.HasValue) {
+            return;
+        }
+        var expectedSize = bindingType.Size.Value;
+        if (expectedSize != type.TypeLayout.Size) {
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
+            diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+        }
     }
     
     private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
@@ -337,13 +345,7 @@ public static class ShaderValidation
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
-                    if (bindingType.Size.HasValue) {
-                        var expectedSize = bindingType.Size.Value;
-                        if (expectedSize != type.TypeLayout.Size) {
-                            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({type.TypeLayout.Size} bytes)";
-                            diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
-                        }
-                    }
+                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, diags);
                     return;
                 }
                 diags.WgslTypeRequirement(parameter, parameter.TypeLoc, typeInfos);
