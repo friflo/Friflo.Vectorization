@@ -315,14 +315,14 @@ public static class ShaderValidation
                 }
             }
             if (parameter.IsBindGroupEntry) {
-                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, diags);
+                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, diags, typeInfos);
             }
             return;
         }
         diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
     }
     
-    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, List<ValidationDiag> diags)
+    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, List<ValidationDiag> diags, ValueArray<CsTypeInfo> _)
     {
         if (!bindingType.Size.HasValue) {
             return;
@@ -332,6 +332,7 @@ public static class ShaderValidation
         if (expectedSize != csharpSize) {
             var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
             diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+            return;
         }
     }
     
@@ -346,7 +347,7 @@ public static class ShaderValidation
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
-                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, diags);
+                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, diags, typeInfos);
                     return;
                 }
                 diags.WgslTypeRequirement(parameter, parameter.TypeLoc, typeInfos);

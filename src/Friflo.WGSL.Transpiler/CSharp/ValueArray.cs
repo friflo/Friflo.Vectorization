@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -23,6 +24,7 @@ namespace Friflo.WGSL.Transpiler.CSharp;
 /// via implicit conversion.
 /// </remarks>
 /// <typeparam name="T">The unmanaged value type of the elements.</typeparam>
+[DebuggerTypeProxy(typeof(ValueArrayDebugView<>))]
 public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>  where T : IEquatable<T>
 {
     internal readonly T[]? _array;
@@ -86,6 +88,19 @@ public readonly struct ValueArray<T> : IEquatable<ValueArray<T>>, IEnumerable<T>
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
     IEnumerator       IEnumerable.GetEnumerator() => ((IEnumerable<T>)(_array ?? [])).GetEnumerator();
 }
+
+
+internal class ValueArrayDebugView<T> where T : IEquatable<T>
+{
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public Array?   Items;
+        
+    internal ValueArrayDebugView(ValueArray<T> valueArray)
+    {
+        Items = valueArray._array;
+    }
+}
+
 
 internal static class ValueArrayExtensions
 {
