@@ -9,6 +9,7 @@ using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
+// ReSharper disable DuplicatedStatements
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
@@ -307,7 +308,7 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, Context cx)
+    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, in Context cx)
     {
         var type = GetGenericType(parameter);
         if (type.TypeCode.IsWgslType) {
@@ -323,14 +324,14 @@ public static class ShaderValidation
                 }
             }
             if (parameter.IsBindGroupEntry) {
-                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, cx);
+                ValidateLayout(parameter, bindingType, type, parameter.GenericArgLoc, cx);
             }
             return;
         }
         cx.diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, cx.typeInfos);
     }
     
-    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, Context cx)
+    private static void ValidateLayout(in CsParameter parameter, in CSharpType bindingType, in CsType type, SrcLoc loc, in Context cx)
     {
         if (!bindingType.Size.HasValue) {
             return;
@@ -342,9 +343,39 @@ public static class ShaderValidation
             cx.diags.Add(new ValidationDiag(loc, error, DiagType.Error));
             return;
         }
+        if (!ValidateLayoutType(bindingType, type, cx)) {
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Field mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
+            cx.diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+            return;
+        }
     }
     
-    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, Context cx)
+    private static bool ValidateLayoutType(in CSharpType source, in CsType target, in Context cx)
+    {
+        if (source.info.paramType == WgslParamType.FixedSizeArray) {
+            return source.Size == target.TypeLayout.Size;
+        }
+        if (source.info.typeCode == CsTypeCode.WgslStruct)
+        {
+            var sourceFields = source.csharpStruct!.fields!;
+            var targetName   = target.Name; 
+            var typeInfo     = cx.typeInfos.FirstOrDefault(ti => ti.Identifier.Name == targetName);
+            
+            if (typeInfo.Identifier.Name == targetName) {
+                for (var n = 0; n < sourceFields.Length; n++) {
+                    var sourceField = sourceFields[n];
+                    var targetField = typeInfo.Fields[n];
+                    if (!ValidateLayoutType(sourceField.type, targetField.Type, cx)) {
+                        return false; 
+                    }
+                }
+            }
+            return true;
+        }
+        return true; // source.info.typeCode == target.TypeCode;     TODO
+    }
+    
+    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, in Context cx)
     {
         var type    = parameter.Type;
         var diags   = cx.diags;
@@ -357,7 +388,7 @@ public static class ShaderValidation
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
-                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, cx);
+                    ValidateLayout(parameter, bindingType, type, parameter.TypeLoc, cx);
                     return;
                 }
                 diags.WgslTypeRequirement(parameter, parameter.TypeLoc, cx.typeInfos);

@@ -368,8 +368,7 @@ public sealed class TypeBuilder
         if (typeGen != null) {
             EmitFixedSizeArray(typeGen, typeName, identifier, layout, type, arrayStride);
         }
-        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
-        return new CSharpType(typeName, Created, type.info, csharpArray);
+        return new CSharpType(typeName, Created, type.info, type.csharpStruct);
     }
     
     private static void EmitFixedSizeArray(

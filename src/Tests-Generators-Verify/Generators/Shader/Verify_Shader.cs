@@ -300,14 +300,14 @@ namespace VerifyShader {
 [StructLayout(LayoutKind.Sequential, Size = 8)]
 public struct GlobalUniform
 {
-    public int 	value;
+    public Vector2 	value;
 }
 
 namespace Other.Namespace {
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform
     {
-        public Vector4 	tint_color;
+        public Vector2 	tint_color;
     }
 }
 

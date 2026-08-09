@@ -103,10 +103,10 @@ public struct DrawIndirectArgs
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Indirect
 {
-    public  int     vertexCount;    // uint
-    public  int     instanceCount;  // uint
-    public  int     firstVertex;    // uint
-    public  int     firstInstance;  // uint
+    public  uint    vertexCount;
+    public  uint    instanceCount;
+    public  uint    firstVertex;
+    public  uint    firstInstance;
 }
 
 /// <summary>
@@ -117,9 +117,9 @@ public struct Indirect
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct IndexedIndirect
 {
-    public  int     indexCount;     // uint
-    public  int     instanceCount;  // uint
-    public  int     firstIndex;     // uint
-    public  int     baseVertex;     // int
-    public  int     firstInstance;  // uint
+    public  uint    indexCount;
+    public  uint    instanceCount;
+    public  uint    firstIndex;
+    public  int     baseVertex;
+    public  uint    firstInstance;
 }
