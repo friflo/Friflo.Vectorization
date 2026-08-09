@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Message: [uniform] uniform0 - Type mismatch: WGSL expects 'vec4f' (128 bytes) - was: 'int' (4 bytes),
+      Message: [uniform] uniform0 - Type mismatch: WGSL expects 'array<vec4f, 8>' (128 bytes) - was: 'int' (4 bytes),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,
@@ -13,7 +13,7 @@
       }
     },
     {
-      Message: [uniform] uniform1 - Type mismatch: WGSL expects 'NO_SOURCE_FIXED_SIZE_ARRAY' (128 bytes) - was: 'float' (4 bytes),
+      Message: [uniform] uniform1 - Type mismatch: WGSL expects 'array<DirectUniform2, 8>' (128 bytes) - was: 'float' (4 bytes),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

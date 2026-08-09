@@ -35,6 +35,14 @@ public readonly struct CSharpType
     public string WgslTypeName {
         get {
             var typeCode = info.typeCode;
+            if (info.paramType == WgslParamType.FixedSizeArray) {
+                if (typeCode == CsTypeCode.WgslStruct) {
+                    return $"array<{info.elementType}, {info.arraySize}>";
+                }
+                if (typeCode.IsWgslType) {
+                    return $"array<{typeCode.ToString()}, {info.arraySize}>";
+                }
+            }
             if (typeCode == CsTypeCode.WgslStruct) {
                 return identifier.Name;
             }

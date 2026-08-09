@@ -213,7 +213,7 @@ public sealed class TypeBuilder
             var csharpType  = field.type;
             maxTypeWidth    = Math.Max(maxTypeWidth, csharpType.identifier.Name.Length);
             maxFieldWidth   = Math.Max(maxFieldWidth, field.name.Length);
-            AddNamespace(csharpType);
+            typeGen.AddNamespace(csharpType);
         }
         foreach (var csharpField in fields) {
             var modifier = csharpField.size <= 16 ? "" : "in ";
@@ -357,29 +357,35 @@ public sealed class TypeBuilder
             ? type.csharpStruct!.layout
             : typeCode.Layout;
         
-        var typeName = EmitFixedSizeArray(layout, type, arrayStride);
-
-        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
-        return new CSharpType(typeName, Created, type.info, csharpArray);
-    }
-    
-    private string EmitFixedSizeArray(WgslTypeLayout layout, CSharpType type, ArrayStride arrayStride)
-    {
-        if (typeGen == null) {
-            return "NO_SOURCE_FIXED_SIZE_ARRAY";
-        }
         var arraySize   = type.info.arraySize;
-        var typeCode    = type.info.typeCode;
         var identifier  = typeCode is CsTypeCode.WgslStruct or CsTypeCode.None
             ? type.identifier
             : typeMap[(int)typeCode];
         
-        var arrayName       = arrayStride == ArrayStride.PadTo16Bytes ? "_UniArr_" : "_Array_";
-        var typeName        = $"{identifier.Name}{arrayName}{arraySize}";
+        var arrayName   = arrayStride == ArrayStride.PadTo16Bytes ? "_UniArr_" : "_Array_";
+        var typeName    = $"{identifier.Name}{arrayName}{arraySize}";
+        
+        if (typeGen != null) {
+            EmitFixedSizeArray(typeGen, typeName, identifier, layout, type, arrayStride);
+        }
+        var csharpArray = new CSharpStruct{ name = typeName, source = null, fields = null, layout = layout }; 
+        return new CSharpType(typeName, Created, type.info, csharpArray);
+    }
+    
+    private static void EmitFixedSizeArray(
+        TypeGen             typeGen,
+        string              typeName,
+        CSharpIdentifier    identifier,
+        WgslTypeLayout      layout,
+        CSharpType          type,
+        ArrayStride         arrayStride)
+    {
+        var arraySize = type.info.arraySize;
+        var typeCode  = type.info.typeCode;
         
         var stride          = GetFixedSizeArrayStride(layout, arrayStride);
         var qualifiedName   = $"{identifier.Namespace}-{typeName}";
-        AddNamespace(type);
+        typeGen.AddNamespace(type);
         
         var isCustomStruct  = typeCode == CsTypeCode.None || typeCode == CsTypeCode.WgslStruct;
         var sb = typeGen.newStructTypeBuilder;
@@ -426,18 +432,6 @@ public sealed class TypeBuilder
                 typeGen.newStructTypes.Add(sb.ToString());
             }
         }
-        return typeName;
-    }
-    
-    private void AddNamespace(in CSharpType csharpType)
-    {
-        if (typeGen == null) return;
-        
-        if (csharpType.identifier.Namespace == "" ||
-            csharpType.identifier.Namespace == "System") {
-            return;
-        }
-        typeGen.additionalNamespaces.Add(csharpType.identifier.Namespace);
     }
     
     private static int GetFixedSizeArrayStride(WgslTypeLayout layout, ArrayStride arrayStride)

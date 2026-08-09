@@ -24,7 +24,16 @@ public sealed class TypeGen
     internal readonly   List<string>                        newStructTypes          = [];
     internal readonly   StringBuilder                       newStructTypeBuilder    = new();
     internal readonly   Dictionary<string, FixedSizeArray>  fixedSizedArrayTypes    = new();
-    internal readonly   HashSet<string>                     additionalNamespaces    = [];
+    private  readonly   HashSet<string>                     additionalNamespaces    = [];
+    
+    internal void AddNamespace(in CSharpType csharpType)
+    {
+        if (csharpType.identifier.Namespace == "" ||
+            csharpType.identifier.Namespace == "System") {
+            return;
+        }
+        additionalNamespaces.Add(csharpType.identifier.Namespace);
+    }
 
 #if FILE_IO
 
