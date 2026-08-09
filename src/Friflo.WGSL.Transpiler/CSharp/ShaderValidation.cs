@@ -110,7 +110,9 @@ public static class ShaderValidation
                 diags.Map(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters", DiagType.Warn);    
             }
         }
-        var bindings = new Dictionary<(int,int), CsParameter>();
+        var bindings    = new Dictionary<(int,int), CsParameter>();
+        var cx          = new Context{ diags = diags, typeInfos = method.TypeInfos };
+        
         foreach (var parameter in parameters)
         {
             WgslBinding? wgslBinding = null;
@@ -120,7 +122,7 @@ public static class ShaderValidation
                 bindingTypes.TryGetValue((bindGroup.group, bindGroup.binding), out csharpType);
                 wgslBinding = ValidateBinding(parameter, bindings, wgslBindings, diags);
             }
-            ValidateParameter(parameter, wgslBinding, csharpType, diags, method.TypeInfos);
+            ValidateParameter(parameter, wgslBinding, csharpType, cx);
         }
         
         if (parameters.Length > 0) {
@@ -133,6 +135,12 @@ public static class ShaderValidation
             }
         }
         return diags;
+    }
+    
+    internal struct Context
+    {
+        internal required   List<ValidationDiag>    diags       { get; init; }
+        internal required   ValueArray<CsTypeInfo>  typeInfos   { get; init; }
     }
     
     extension(List<ValidationDiag> diags)
@@ -299,13 +307,13 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, Context cx)
     {
         var type = GetGenericType(parameter);
         if (type.TypeCode.IsWgslType) {
             var accessMode = wgslBinding?.AccessMode;
             if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
-                diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
+                cx.diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
             }
             var fields = bindingType.csharpStruct?.fields; 
             if (fields?.Length == 1) {
@@ -315,14 +323,14 @@ public static class ShaderValidation
                 }
             }
             if (parameter.IsBindGroupEntry) {
-                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, diags, typeInfos);
+                ValidateLayout(parameter, type, bindingType, parameter.GenericArgLoc, cx);
             }
             return;
         }
-        diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
+        cx.diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, cx.typeInfos);
     }
     
-    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, List<ValidationDiag> diags, ValueArray<CsTypeInfo> _)
+    private static void ValidateLayout(in CsParameter parameter, in CsType type, in CSharpType bindingType, SrcLoc loc, Context cx)
     {
         if (!bindingType.Size.HasValue) {
             return;
@@ -331,31 +339,33 @@ public static class ShaderValidation
         var csharpSize      = type.TypeLayout.Size;
         if (expectedSize != csharpSize) {
             var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
-            diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+            cx.diags.Add(new ValidationDiag(loc, error, DiagType.Error));
             return;
         }
     }
     
-    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, List<ValidationDiag> diags, ValueArray<CsTypeInfo> typeInfos)
+    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, Context cx)
     {
-        var type = parameter.Type;
+        var type    = parameter.Type;
+        var diags   = cx.diags;
+        
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(parameter, wgslBinding, bindingType, diags, typeInfos);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType, cx);
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
-                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, diags, typeInfos);
+                    ValidateLayout(parameter, type, bindingType, parameter.TypeLoc, cx);
                     return;
                 }
-                diags.WgslTypeRequirement(parameter, parameter.TypeLoc, typeInfos);
+                diags.WgslTypeRequirement(parameter, parameter.TypeLoc, cx.typeInfos);
                 return;
             
             case storage:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(parameter, wgslBinding, bindingType, diags, typeInfos);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType, cx);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -367,7 +377,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, wgslBinding, default, diags, typeInfos);
+                    ValidateWgslElement(in parameter, wgslBinding, default, cx);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
