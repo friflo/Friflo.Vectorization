@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 using System.Text;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
@@ -240,11 +241,12 @@ public readonly record struct CsTypeIdentifier
 public readonly record struct CsTypeLayout
 {
     public readonly     int     Size;
-    public readonly     int     Align;
+    public readonly     int     Align;  // always >= 1
     
     public CsTypeLayout(int size, int align) {
         Size    = size;
         Align   = align;
+        Debug.Assert(align > 0);
     }
 }
 

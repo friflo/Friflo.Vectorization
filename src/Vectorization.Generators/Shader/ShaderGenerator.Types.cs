@@ -8,6 +8,8 @@ using Friflo.Vectorization.Generators.Shader;
 using Friflo.WGSL.Transpiler.CSharp;
 using Microsoft.CodeAnalysis;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable InconsistentNaming
 // ReSharper disable MergeIntoPattern
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
@@ -49,6 +51,7 @@ internal static partial class ShaderGenerator
         }
         var type                    = GetIdentifier(typeSymbol);
         var (size, align, typeCode) = GetTypeCode(typeSymbol);
+        align = Math.Max(align, 1);
         var isValueType             = typeSymbol.IsValueType;
         
         if (CsTypeCode.None != typeCode || !isValueType)
@@ -69,15 +72,12 @@ internal static partial class ShaderGenerator
         
         if (isValueType && typeSymbol is INamedTypeSymbol structSymbol)
         {
-            var typeLayout  = semanticInfo.GetTypeLayout(typeSymbol);
-            structSize      = typeLayout.Size;
-            var calcSize    = typeLayout.Size == 0;
-
             // recursion only for struct types
+            var fieldList    = new List<CsField>();
             var fieldSymbols = structSymbol.GetMembers()
                 .OfType<IFieldSymbol>()
                 .Where(fieldSymbol => !fieldSymbol.IsStatic);
-            var fieldList = new List<CsField>();
+            
             foreach (var fieldSymbol in fieldSymbols)
             {
                 var fieldTypeInfo = GetTypeInfo(semanticInfo, fieldSymbol.Type); // recursive call
@@ -92,12 +92,12 @@ internal static partial class ShaderGenerator
                         IsArray     = false
                     }
                 });
-                if (!calcSize) {
-                    continue;
-                }
-                var fieldLayout = fieldTypeInfo.TypeLayout;
-                maxAlign        = Math.Max(maxAlign, fieldLayout.Align);
-                structSize     += fieldLayout.Size;
+            }
+            
+            var typeLayout  = semanticInfo.GetTypeLayout(typeSymbol);
+            structSize      = typeLayout.Size;
+            if (structSize == 0) {
+                structSize = GetSequentialLayoutSize(fieldList, ref maxAlign, typeLayout.PackingSize);
             }
             fields = fieldList.ToValueArray();
         }
@@ -122,6 +122,27 @@ internal static partial class ShaderGenerator
         };
         semanticInfo.types.Add(typeSymbol, typeInfo);
         return typeInfo;
+    }
+    
+    private static int GetSequentialLayoutSize(List<CsField> fields, ref int maxAlign, int pack)
+    {
+        int currentOffset = 0;
+        foreach (var fieldSymbol in fields)
+        {
+            var fieldLayout = fieldSymbol.Type.TypeLayout;
+            var fieldAlign  = pack > 0 ? Math.Min(pack, fieldLayout.Align) : fieldLayout.Align;
+            maxAlign        = Math.Max(maxAlign, fieldAlign);
+            int remainder   = currentOffset % fieldAlign; // fieldAlign always >= 1
+            if (remainder != 0) {
+                currentOffset += fieldAlign - remainder;
+            }
+            currentOffset   += fieldLayout.Size;
+        }
+        int endPadding = currentOffset % maxAlign;  // maxAlign always >= 1
+        if (endPadding != 0) {
+            currentOffset += maxAlign - endPadding;
+        }
+        return currentOffset == 0 ? 1 : currentOffset;
     }
     
     
