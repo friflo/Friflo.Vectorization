@@ -18,7 +18,8 @@ public partial class ShaderExample
         RenderConfig                config,
         in Point4                   uniform0,
         in Point3                   uniform1,
-        in Vector3                  uniform2)
+        in Vector3                  uniform2,
+        in Uniform2Fields           uniform3)
     {
 
         var pass_       = pass.Internal;
@@ -39,11 +40,13 @@ public partial class ShaderExample
             recorder.BindGroupEntryUniform<Point4>(0);
             recorder.BindGroupEntryUniform<Point3>(1);
             recorder.BindGroupEntryUniform<Vector3>(2);
+            recorder.BindGroupEntryUniform<Uniform2Fields>(3);
             bindGroupCache.bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "ConcreteTypes_bindGroup_0"u8);
         }
         pass_.AddUniform(uniform0);
         pass_.AddUniform(uniform1);
         pass_.AddUniform(uniform2);
+        pass_.AddUniform(uniform3);
         pass_.SetBindGroupUniforms(0, bindGroupCache.bindGroup_0);
         
         // --- draw
@@ -59,9 +62,9 @@ public partial class ShaderExample
     }
 
     private static readonly int _ConcreteTypes_GPU_ShaderId            =  ShaderRegistry.NewShaderId("ConcreteTypes");
-    private const  ulong        _ConcreteTypes_GPU_layout_0_Key        =  0x3f735313111c1e87;
+    private const  ulong        _ConcreteTypes_GPU_layout_0_Key        =  0xa200f071e99ebb24;
 
-    private static ulong        _ConcreteTypes_GPU_WgslHash            => 0xdfb06915e0648acbUL;  // support Hot-Reload
+    private static ulong        _ConcreteTypes_GPU_WgslHash            => 0xdc65534cea2e8539UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _ConcreteTypes_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -72,6 +75,7 @@ public partial class ShaderExample
             device.BindGroupLayoutUniform(0);
             device.BindGroupLayoutUniform(1);
             device.BindGroupLayoutUniform(2);
+            device.BindGroupLayoutUniform(3);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _ConcreteTypes_GPU_layout_0_Key, "ConcreteTypes_layout_0"u8);
         }
         layouts[0] = layout_0;

@@ -18,5 +18,6 @@ public partial class ShaderExample
         RenderConfig                config,
         in Point4                   uniform0,
         in Point3                   uniform1,
-        in UniformPoint             uniform2) { }
+        in UniformPoint             uniform2,
+        in Uniform3Fields           uniform3) { }
 }

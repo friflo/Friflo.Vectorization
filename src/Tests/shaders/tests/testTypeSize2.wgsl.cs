@@ -18,3 +18,12 @@ public struct Point4f (Vector4 vector4)
 }
 
 
+[Source("~/shaders/tests/testTypeSize2.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 16)]
+public struct Uniform2Fields (int field1, int field2)
+{
+    [FieldOffset(  0)]  public  int field1 = field1;
+    [FieldOffset(  4)]  public  int field2 = field2;
+}
+
+

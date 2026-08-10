@@ -311,6 +311,9 @@ public sealed class ShaderValidation
         {
             var sourceFields = source.csharpStruct!.fields;
             if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
+                if (sourceFields.Length != typeInfo.Fields.Length) {
+                    return false;
+                }
                 sourcePath.Push();
                 targetPath.Push();
                 for (var n = 0; n < sourceFields.Length; n++) {

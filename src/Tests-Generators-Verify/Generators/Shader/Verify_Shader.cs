@@ -622,9 +622,10 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testTypeSize2.wgsl")]
     public static partial void ConcreteTypes(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]   in Point4   uniform0,
-        [Map(0, 1)] [uniform]   in Point3   uniform1,
-        [Map(0, 2)] [uniform]   in Vector3  uniform2);
+        [Map(0, 0)] [uniform]   in Point4           uniform0,
+        [Map(0, 1)] [uniform]   in Point3           uniform1,
+        [Map(0, 2)] [uniform]   in Vector3          uniform2,
+        [Map(0, 3)] [uniform]   in Uniform2Fields   uniform3);
     
     public struct Point4
     {
@@ -639,6 +640,12 @@ public partial class ShaderExample
         public  uint x;
         public  uint y;
         public  uint z;
+    }
+    
+    [StructLayout(LayoutKind.Sequential, Size = 16)]
+    public struct Uniform2Fields {
+        public  int field1;
+        public  int field2;
     }
 }
 """);
