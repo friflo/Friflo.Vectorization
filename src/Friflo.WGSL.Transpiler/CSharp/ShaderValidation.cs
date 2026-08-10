@@ -299,9 +299,8 @@ public sealed class ShaderValidation
                     sourcePath.SetTail(sourceField.name);
                     targetPath.SetTail(targetField.Name);
                     if (!ValidateLayoutType(sourceField.type, targetField.Type)) {
-                        return false; 
+                        return false;
                     }
-
                 }
                 sourcePath.Pop();
                 targetPath.Pop();

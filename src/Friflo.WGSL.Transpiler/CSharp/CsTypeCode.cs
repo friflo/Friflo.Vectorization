@@ -2,6 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 
+using static Friflo.WGSL.Transpiler.CSharp.CsTypeCode;
+
 // ReSharper disable InconsistentNaming
 namespace Friflo.WGSL.Transpiler.CSharp;
 
@@ -56,15 +58,29 @@ public enum CsTypeCode
 
 public readonly struct WgslTypeLayout
 {
-    public readonly int     size;
-    public readonly int     align;
+    public readonly int         size;
+    public readonly int         align;
 
     public override string  ToString() => $"size: {size}  align: {align}";
 
     internal WgslTypeLayout(int size, int align)
     {
-        this.size  = size;
-        this.align = align;
+        this.size           = size;
+        this.align          = align;
+    }
+}
+
+public readonly struct WgslTypeDim
+{
+    public readonly CsTypeCode  scalarType;
+    public readonly int         scalarCount;
+
+    public override string  ToString() => $"type: {scalarType}  count: {scalarCount}";
+
+    internal WgslTypeDim(CsTypeCode scalarType, int scalarCount)
+    {
+        this.scalarType     = scalarType;
+        this.scalarCount    = scalarCount;
     }
 }
 
@@ -72,17 +88,18 @@ public static class CsExtensions
 {
     extension (CsTypeCode typeCode)
     {
-        public bool IsWgslType => typeCode is > CsTypeCode.None and <= CsTypeCode.WgslStruct;
+        public bool IsWgslType => typeCode is > None and <= WgslStruct;
     }
     
     extension (CsTypeCode typeCode)
     {
-        public bool IsBuffer   => typeCode is CsTypeCode.InBuffer or CsTypeCode.InOutBuffer; 
+        public bool IsBuffer   => typeCode is InBuffer or InOutBuffer; 
     }
     
     extension (CsTypeCode typeCode)
     {
-        public WgslTypeLayout Layout => TypeLayouts[(int)typeCode];
+        public WgslTypeLayout   Layout      => TypeLayouts   [(int)typeCode];
+        public WgslTypeDim      Dimension   => TypeDimensions[(int)typeCode];
     }
     
     extension (ValueArray<CsTypeInfo> typeInfos)
@@ -99,72 +116,75 @@ public static class CsExtensions
     }
     
     private static readonly WgslTypeLayout[] TypeLayouts;
+    private static readonly WgslTypeDim[]    TypeDimensions;
     
-    private static void SetLayout(WgslTypeLayout[] layouts, CsTypeCode code, int size, int align)
+    private static void SetLayout(WgslTypeLayout[] layouts, WgslTypeDim[] dim, CsTypeCode code, int size, int align, CsTypeCode scalarType, int scalarCount)
     {
-        layouts[(int)code] = new WgslTypeLayout(size, align);
+        layouts[(int)code]  = new WgslTypeLayout(size, align);
+        dim[(int)code]      = new WgslTypeDim(scalarType, scalarCount);
     } 
         
     static CsExtensions()
     {
-        const int length = (int)CsTypeCode.WgslStruct;
-        var layouts = TypeLayouts = new WgslTypeLayout [length];
+        const int length = (int)WgslStruct;
+        var layouts = TypeLayouts    = new WgslTypeLayout [length];
+        var dim     = TypeDimensions = new WgslTypeDim [length];
         
         // --- Scalars
-        SetLayout(layouts, CsTypeCode.f16, 2, 2);
-        SetLayout(layouts, CsTypeCode.f32, 4, 4);
-        SetLayout(layouts, CsTypeCode.i32, 4, 4);
-        SetLayout(layouts, CsTypeCode.u32, 4, 4);
+        SetLayout(layouts, dim, f16, 2, 2, f16, 1);
+        SetLayout(layouts, dim, f32, 4, 4, f32, 1);
+        SetLayout(layouts, dim, i32, 4, 4, i32, 1);
+        SetLayout(layouts, dim, u32, 4, 4, u32, 1);
 
 
         // --- 2-Component Vectors
-        SetLayout(layouts, CsTypeCode.vec2h,  4,  4); // 2x f16
-        SetLayout(layouts, CsTypeCode.vec2f,  8,  8); // 2x f32
-        SetLayout(layouts, CsTypeCode.vec2i,  8,  8); // 2x i32
-        SetLayout(layouts, CsTypeCode.vec2u,  8,  8); // 2x u32
+        SetLayout(layouts, dim, vec2h,  4,  4, f16, 2); // 2x f16
+        SetLayout(layouts, dim, vec2f,  8,  8, f32, 2); // 2x f32
+        SetLayout(layouts, dim, vec2i,  8,  8, i32, 2); // 2x i32
+        SetLayout(layouts, dim, vec2u,  8,  8, u32, 2); // 2x u32
 
         // --- 3-Component Vectors (Payload size, buffer alignment is padded)
-        SetLayout(layouts, CsTypeCode.vec3h,  6,  8); // 3x f16 (8 bytes alignment)
-        SetLayout(layouts, CsTypeCode.vec3f, 12, 16); // 3x f32 (16 bytes alignment)
-        SetLayout(layouts, CsTypeCode.vec3i, 12, 16); // 3x i32 (16 bytes alignment)
-        SetLayout(layouts, CsTypeCode.vec3u, 12, 16); // 3x u32 (16 bytes alignment)
+        SetLayout(layouts, dim, vec3h,  6,  8, f16, 3); // 3x f16 (8 bytes alignment)
+        SetLayout(layouts, dim, vec3f, 12, 16, f32, 3); // 3x f32 (16 bytes alignment)
+        SetLayout(layouts, dim, vec3i, 12, 16, i32, 3); // 3x i32 (16 bytes alignment)
+        SetLayout(layouts, dim, vec3u, 12, 16, u32, 3); // 3x u32 (16 bytes alignment)
 
         // --- 4-Component Vectors
-        SetLayout(layouts, CsTypeCode.vec4h,  8,  8); // 4x f16
-        SetLayout(layouts, CsTypeCode.vec4f, 16, 16); // 4x f32
-        SetLayout(layouts, CsTypeCode.vec4i, 16, 16); // 4x i32
-        SetLayout(layouts, CsTypeCode.vec4u, 16, 16); // 4x u32
+        SetLayout(layouts, dim, vec4h,  8,  8, f16, 4); // 4x f16
+        SetLayout(layouts, dim, vec4f, 16, 16, f32, 4); // 4x f32
+        SetLayout(layouts, dim, vec4i, 16, 16, i32, 4); // 4x i32
+        SetLayout(layouts, dim, vec4u, 16, 16, u32, 4); // 4x u32
 
 
         // --- 2xN Matrices (Columns x Rows)
-        SetLayout(layouts, CsTypeCode.mat2x2h,  8,  4); // 2x vec2h
-        SetLayout(layouts, CsTypeCode.mat2x2f, 16,  8); // 2x vec2f
+        SetLayout(layouts, dim, mat2x2h,  8,  4, f16, 4); // 2x vec2h
+        SetLayout(layouts, dim, mat2x2f, 16,  8, f32, 4); // 2x vec2f
 
-        SetLayout(layouts, CsTypeCode.mat2x3h, 16,  8); // 2x vec3h (Stride: 8)
-        SetLayout(layouts, CsTypeCode.mat2x3f, 32, 16); // 2x vec3f (Stride: 16)
+        SetLayout(layouts, dim, mat2x3h, 16,  8, f16, 6); // 2x vec3h (Stride: 8)
+        SetLayout(layouts, dim, mat2x3f, 32, 16, f32, 6); // 2x vec3f (Stride: 16)
 
-        SetLayout(layouts, CsTypeCode.mat2x4h, 16,  8); // 2x vec4h
-        SetLayout(layouts, CsTypeCode.mat2x4f, 32, 16); // 2x vec4f
+        SetLayout(layouts, dim, mat2x4h, 16,  8, f16, 8); // 2x vec4h
+        SetLayout(layouts, dim, mat2x4f, 32, 16, f32, 8); // 2x vec4f
 
         // --- 3xN Matrices
-        SetLayout(layouts, CsTypeCode.mat3x2h, 12,  4); // 3x vec2h
-        SetLayout(layouts, CsTypeCode.mat3x2f, 24,  8); // 3x vec2f
+        SetLayout(layouts, dim, mat3x2h, 12,  4, f16, 6); // 3x vec2h
+        SetLayout(layouts, dim, mat3x2f, 24,  8, f32, 6); // 3x vec2f
 
-        SetLayout(layouts, CsTypeCode.mat3x3h, 24,  8); // 3x vec3h (Stride: 8)
-        SetLayout(layouts, CsTypeCode.mat3x3f, 48, 16); // 3x vec3f (Stride: 16)
+        SetLayout(layouts, dim, mat3x3h, 24,  8, f16, 9); // 3x vec3h (Stride: 8)
+        SetLayout(layouts, dim, mat3x3f, 48, 16, f32, 9); // 3x vec3f (Stride: 16)
 
-        SetLayout(layouts, CsTypeCode.mat3x4h, 24,  8); // 3x vec4h
-        SetLayout(layouts, CsTypeCode.mat3x4f, 48, 16); // 3x vec4f
+        SetLayout(layouts, dim, mat3x4h, 24,  8, f16, 12); // 3x vec4h
+        SetLayout(layouts, dim, mat3x4f, 48, 16, f32, 12); // 3x vec4f
 
         // --- 4xN Matrices
-        SetLayout(layouts, CsTypeCode.mat4x2h, 16,  4); // 4x vec2h
-        SetLayout(layouts, CsTypeCode.mat4x2f, 32,  8); // 4x vec2f
+        SetLayout(layouts, dim, mat4x2h, 16,  4, f16, 8); // 4x vec2h
+        SetLayout(layouts, dim, mat4x2f, 32,  8, f32, 8); // 4x vec2f
 
-        SetLayout(layouts, CsTypeCode.mat4x3h, 32,  8); // 4x vec3h (Stride: 8)
-        SetLayout(layouts, CsTypeCode.mat4x3f, 64, 16); // 4x vec3f (Stride: 16)
+        SetLayout(layouts, dim, mat4x3h, 32,  8, f16, 12); // 4x vec3h (Stride: 8)
+        SetLayout(layouts, dim, mat4x3f, 64, 16, f32, 12); // 4x vec3f (Stride: 16)
 
-        SetLayout(layouts, CsTypeCode.mat4x4h, 32,  8); // 4x vec4h
-        SetLayout(layouts, CsTypeCode.mat4x4f, 64, 16); // 4x vec4f
+        SetLayout(layouts, dim, mat4x4h, 32,  8, f16, 16); // 4x vec4h
+        SetLayout(layouts, dim, mat4x4f, 64, 16, f32, 16); // 4x vec4f
     }
 }
 
