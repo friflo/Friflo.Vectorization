@@ -104,14 +104,16 @@ public static class CsExtensions
     
     extension (ValueArray<CsTypeInfo> typeInfos)
     {
-        public CsTypeInfo FindTypeInfo(string @namespace, string name)
+        public bool TryGetTypeInfo(string @namespace, string name, out CsTypeInfo value)
         {
             foreach (var typeInfo in typeInfos) {
                 if (typeInfo.Identifier.Name == name &&  typeInfo.Identifier.Namespace == @namespace) {
-                    return typeInfo;
+                    value = typeInfo;
+                    return true;
                 }
             }
-            return default;
+            value = default;
+            return false;
         }
     }
     

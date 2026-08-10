@@ -149,8 +149,10 @@ internal static class ValidationExtensions
     {
         if (type.TypeCode is CsTypeCode.WgslStruct or CsTypeCode.CSharpStruct && path.Count < 10)
         {
-            var ti = typeInfos.FindTypeInfo(type.Namespace, type.Name);
-            foreach (var field in ti.Fields) {
+            if (!typeInfos.TryGetTypeInfo(type.Namespace, type.Name, out var typeInfo)) {
+                return type;
+            }
+            foreach (var field in typeInfo.Fields) {
                 path.Push(field.Name);
                 var fieldType = GetErrorPath(field.Type, path, typeInfos);
                 if (!fieldType.TypeCode.IsWgslType) {

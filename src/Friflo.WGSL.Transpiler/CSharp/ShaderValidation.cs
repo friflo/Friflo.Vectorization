@@ -288,9 +288,7 @@ public sealed class ShaderValidation
         if (source.info.typeCode == CsTypeCode.WgslStruct)
         {
             var sourceFields = source.csharpStruct!.fields;
-            var typeInfo     = typeInfos.FindTypeInfo(target.Namespace, target.Name);
-            
-            if (typeInfo.Identifier.Name != null) {
+            if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
                 sourcePath.Push();
                 targetPath.Push();
                 for (var n = 0; n < sourceFields.Length; n++) {
@@ -311,11 +309,12 @@ public sealed class ShaderValidation
             return true;
         }
         if (target.TypeCode == CsTypeCode.WgslStruct) {
-            var typeInfo = typeInfos.FindTypeInfo(target.Namespace, target.Name);
-            if (typeInfo.Fields.Length == 1) {
-                var targetField = typeInfo.Fields[0];
-                targetPath.Push(targetField.Name);
-                return ValidateLayoutType(source, targetField.Type);
+            if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
+				if (typeInfo.Fields.Length == 1) {
+	                var targetField = typeInfo.Fields[0];
+	                targetPath.Push(targetField.Name);
+	                return ValidateLayoutType(source, targetField.Type);
+            	}
             }
         }
         int scalarCount = 0;
@@ -332,8 +331,8 @@ public sealed class ShaderValidation
     {
         if (target.TypeCode == CsTypeCode.WgslStruct)
         {
-            var typeInfo = typeInfos.FindTypeInfo(target.Namespace, target.Name);
-            if (typeInfo.Identifier.Name != null) {
+            if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo))
+            {
                 foreach (var field in typeInfo.Fields)
                 {
                     if (field.Type.TypeCode == CsTypeCode.WgslStruct) {
