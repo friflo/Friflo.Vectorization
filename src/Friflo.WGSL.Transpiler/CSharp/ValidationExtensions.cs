@@ -40,9 +40,10 @@ internal struct FieldPath
     private             int         pathLength;
     internal            string?     type;
     
+    internal            int     Length                  => pathLength;
     internal            void    Push()                  => pathLength++;
     internal            void    Push(string field)      => path[pathLength++]   = field;
-    internal            void    Pop ()                  => pathLength--;
+    internal            void    SetLength(int length)   => pathLength = length;
     internal            void    SetTail(string field)   => path[pathLength - 1] = field;
     
     public FieldPath() { }

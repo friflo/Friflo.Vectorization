@@ -279,6 +279,9 @@ public sealed class ShaderValidation
     
     private bool ValidateLayoutType(CSharpType source, CsType target)
     {
+        var startSrcLen = sourcePath.Length;
+        var startDstLen = targetPath.Length;
+
         // If source type is a struct with a single field - validate its field
         while (source.info.typeCode == CsTypeCode.WgslStruct && source.info.paramType != WgslParamType.FixedSizeArray) {
             var fields = source.csharpStruct!.fields;
@@ -303,7 +306,7 @@ public sealed class ShaderValidation
                         return ValidateLayoutType(elementType, targetField.Type);
                     }
                 }
-                return true;
+                return Success();
             }
             return LeafTypesError(source, target);
         }
@@ -325,32 +328,37 @@ public sealed class ShaderValidation
                         return false;
                     }
                 }
-                sourcePath.Pop();
-                targetPath.Pop();
             }
-            return true;
+            return Success();
         }
         if (source.info.typeCode == target.TypeCode) {
-            return true;
+            return Success();
         }
         // If target type is a struct with a single file validate its field types
         if (target.TypeCode == CsTypeCode.WgslStruct) {
             if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
-				if (typeInfo.Fields.Length == 1) {
-	                var targetField = typeInfo.Fields[0];
-	                targetPath.Push(targetField.Name);
-	                return ValidateLayoutType(source, targetField.Type);
-            	}
+                if (typeInfo.Fields.Length == 1) {
+                    var targetField = typeInfo.Fields[0];
+                    targetPath.Push(targetField.Name);
+                    return ValidateLayoutType(source, targetField.Type);
+                }
             }
         }
         int scalarCount = 0;
         var dim = source.info.typeCode.Dimension;
         if (CountScalarFields(target, dim.scalarType, ref scalarCount)) {
             if (scalarCount == dim.scalarCount) {
-                return true;
+                return Success();
             }
         }
         return LeafTypesError(source, target);
+
+        bool Success() {
+            // Ensure invariant:  Restore original path lengths to their values when method was entered
+            sourcePath.SetLength(startSrcLen);
+            targetPath.SetLength(startDstLen);
+            return true;
+        }
     }
     
     private bool CountScalarFields(in CsType target, CsTypeCode scalarType, ref int scalarCount)
