@@ -318,7 +318,45 @@ public sealed class ShaderValidation
                 return ValidateLayoutType(source, targetField.Type);
             }
         }
+        int scalarCount = 0;
+        var dim = source.info.typeCode.Dimension;
+        if (CountScalarFields(target, dim.scalarType, ref scalarCount)) {
+            if (scalarCount == dim.scalarCount) {
+                return true;
+            }
+        }
         return SetLeafTypes(source, target);
+    }
+    
+    private bool CountScalarFields(in CsType target, CsTypeCode scalarType, ref int scalarCount)
+    {
+        if (target.TypeCode == CsTypeCode.WgslStruct)
+        {
+            var typeInfo = typeInfos.FindTypeInfo(target.Namespace, target.Name);
+            if (typeInfo.Identifier.Name != null) {
+                foreach (var field in typeInfo.Fields)
+                {
+                    if (field.Type.TypeCode == CsTypeCode.WgslStruct) {
+                        if (!CountScalarFields(field.Type, scalarType, ref scalarCount)) {
+                            return false;
+                        }
+                    }
+                    if (field.Type.TypeCode != scalarType) {
+                        return false;
+                    }
+                    scalarCount++;
+                }
+            }
+            return true;
+        }
+        if (target.TypeCode.IsWgslType) {
+            var dim = target.TypeCode.Dimension;
+            if (dim.scalarType == scalarType) {
+                scalarCount += dim.scalarCount;
+                return true;
+            }
+        }
+        return false;
     }
     
     private void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType)
