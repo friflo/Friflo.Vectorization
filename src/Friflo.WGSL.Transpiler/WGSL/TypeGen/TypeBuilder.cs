@@ -141,7 +141,7 @@ public sealed class TypeBuilder
         fileNamespace   = PathToNamespace(normalizedPath);
         
         var structs  = module.Structs;
-        if (module.Bindings.Count == 0 || structs.Count == 0) {
+        if (typeGen != null && (module.Bindings.Count == 0 || structs.Count == 0)) {
             return;
         }
         foreach (var wgslStruct in structs) {

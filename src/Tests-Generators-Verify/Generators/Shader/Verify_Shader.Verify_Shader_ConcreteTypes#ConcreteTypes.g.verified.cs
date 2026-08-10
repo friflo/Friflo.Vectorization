@@ -16,8 +16,8 @@ public partial class ShaderExample
     public static partial void ConcreteTypes(
         RenderPass                  pass,
         RenderConfig                config,
-        in Point4_int               uniform0,
-        in Point3_uint              uniform1)
+        in Point4                   uniform0,
+        in Point3                   uniform1)
     {
 
         var pass_       = pass.Internal;
@@ -35,8 +35,8 @@ public partial class ShaderExample
 
         // --- bind group 0
         if (!bindGroupCache.bindGroup_0.IsCreated) {
-            recorder.BindGroupEntryUniform<Point4_int>(0);
-            recorder.BindGroupEntryUniform<Point3_uint>(1);
+            recorder.BindGroupEntryUniform<Point4>(0);
+            recorder.BindGroupEntryUniform<Point3>(1);
             bindGroupCache.bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "ConcreteTypes_bindGroup_0"u8);
         }
         pass_.AddUniform(uniform0);
@@ -58,7 +58,7 @@ public partial class ShaderExample
     private static readonly int _ConcreteTypes_GPU_ShaderId            =  ShaderRegistry.NewShaderId("ConcreteTypes");
     private const  ulong        _ConcreteTypes_GPU_layout_0_Key        =  0xa139fedadba26e2d;
 
-    private static ulong        _ConcreteTypes_GPU_WgslHash            => 0xae11839c0c314a16UL;  // support Hot-Reload
+    private static ulong        _ConcreteTypes_GPU_WgslHash            => 0x3e417fe229c77f1fUL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _ConcreteTypes_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)

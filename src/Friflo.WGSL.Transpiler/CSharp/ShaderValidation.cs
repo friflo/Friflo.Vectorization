@@ -271,19 +271,31 @@ public sealed class ShaderValidation
         }
     }
     
-    private bool SetLeafTypes(in CSharpType source, in CsType target) {
+    private bool LeafTypesError(in CSharpType source, in CsType target) {
         sourcePath.type = source.ToString();
         targetPath.type = target.ToString();
         return false;
     }
     
-    private bool ValidateLayoutType(in CSharpType source, in CsType target)
+    private bool ValidateLayoutType(CSharpType source, CsType target)
     {
+        // If source type is a struct with a single field - validate its field
+        while (source.info.typeCode == CsTypeCode.WgslStruct && source.info.paramType != WgslParamType.FixedSizeArray) {
+            var fields = source.csharpStruct!.fields;
+            if (fields.Length == 1) {
+                var field = fields[0];
+                sourcePath.Push(field.name);
+                source = field.type;
+                continue;
+            }
+            break;
+        }
+        
         if (source.info.paramType == WgslParamType.FixedSizeArray) {
             if (source.Size == target.TypeLayout.Size) {
                 return true;
             }
-            return SetLeafTypes(source, target);
+            return LeafTypesError(source, target);
         }
         if (source.info.typeCode == CsTypeCode.WgslStruct)
         {
@@ -308,6 +320,7 @@ public sealed class ShaderValidation
         if (source.info.typeCode == target.TypeCode) {
             return true;
         }
+        // If target type is a struct with a single file validate its field types
         if (target.TypeCode == CsTypeCode.WgslStruct) {
             if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
 				if (typeInfo.Fields.Length == 1) {
@@ -324,7 +337,7 @@ public sealed class ShaderValidation
                 return true;
             }
         }
-        return SetLeafTypes(source, target);
+        return LeafTypesError(source, target);
     }
     
     private bool CountScalarFields(in CsType target, CsTypeCode scalarType, ref int scalarCount)

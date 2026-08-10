@@ -644,4 +644,41 @@ public partial class ShaderExample
 }
 """);
     }
+    
+    [Test]
+    public static async Task  Verify_Shader_Error_ConcreteTypes()
+    {
+        await Verify(
+"""
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Friflo.Vectorization.GPU;
+using Friflo.Vectorization.WebGPU;
+
+namespace VerifyShader;
+
+public partial class ShaderExample
+{
+    [Shader("~/shaders/tests/testTypeSize2.wgsl")]
+    public static partial void ConcreteTypes(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]   in Point4              uniform0,
+        [Map(0, 1)] [uniform]   in Point3              uniform1);
+    
+    public struct Point4
+    {
+        public  int x;
+        public  int y;
+        public uint z;
+        public  int w;
+    }
+    
+    public struct Point3
+    {
+        public  int x;
+        public  int y;
+        public  int z;
+    }
+}
+""");
+    }
 }
