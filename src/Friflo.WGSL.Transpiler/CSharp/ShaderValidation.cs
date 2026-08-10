@@ -291,8 +291,17 @@ public sealed class ShaderValidation
             break;
         }
         
-        if (source.info.paramType == WgslParamType.FixedSizeArray) {
+        if (source.info.paramType == WgslParamType.FixedSizeArray)
+        {
             if (source.Size == target.TypeLayout.Size) {
+                if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
+                    if (typeInfo.Fields.Length == 1) {
+                        var elementType = new CSharpType("Item", TypeResolution.Resolved,
+                            new WgslTypeInfo(source.info.typeCode, WgslParamType.None, 0, source.info.elementType), source.csharpStruct);
+                        var field = typeInfo.Fields[0];
+                        return ValidateLayoutType(elementType, field.Type);
+                    }
+                }
                 return true;
             }
             return LeafTypesError(source, target);

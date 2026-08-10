@@ -639,8 +639,14 @@ public partial class ShaderExample
 {
     [Shader("~/shaders/tests/testTypeSize.wgsl")]
     public static partial void FixedSizeArrays(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]   in int      uniform0,
-        [Map(0, 1)] [uniform]   in float    uniform1);
+        [Map(0, 0)] [uniform]   in int          uniform0,
+        [Map(0, 1)] [uniform]   in Int_UniArr_8 uniform1);
+    
+    [StructLayout(LayoutKind.Explicit, Size = 128)]
+    public struct Int_UniArr_8
+    {
+        [FieldOffset(0)]  private int _element0;
+    }
 }
 """);
     }

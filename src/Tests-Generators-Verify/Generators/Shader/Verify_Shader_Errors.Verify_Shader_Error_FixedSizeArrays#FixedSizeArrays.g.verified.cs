@@ -17,5 +17,5 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         in int                      uniform0,
-        in float                    uniform1) { }
+        in Int_UniArr_8             uniform1) { }
 }
