@@ -34,16 +34,18 @@ public readonly struct ValidationDiag
 }
 
 
-internal class FieldPath
+internal struct FieldPath
 {
-    private readonly   string[]    path        = new string[10];
-    private            int         pathLength;
-    internal           string?     type;
+    private  readonly   string[]    path        = new string[10];
+    private             int         pathLength;
+    internal            string?     type;
     
-    internal void Push()                => pathLength++;
-    internal void Push(string field)    => path[pathLength++]   = field;
-    internal void Pop ()                => pathLength--;
-    internal void SetTail(string field) => path[pathLength - 1] = field;
+    internal            void    Push()                  => pathLength++;
+    internal            void    Push(string field)      => path[pathLength++]   = field;
+    internal            void    Pop ()                  => pathLength--;
+    internal            void    SetTail(string field)   => path[pathLength - 1] = field;
+    
+    public FieldPath() { }
     
     internal void Reset() {
         pathLength  = 0;

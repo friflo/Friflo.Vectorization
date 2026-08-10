@@ -23,8 +23,8 @@ public sealed class ShaderValidation
 {
     private  readonly   List<ValidationDiag>    diags       = [];
     private  readonly   ValueArray<CsTypeInfo>  typeInfos;
-    private  readonly   FieldPath               sourcePath  = new();
-    private  readonly   FieldPath               targetPath  = new();
+    private             FieldPath               sourcePath  = new();
+    private             FieldPath               targetPath  = new();
     
     public ShaderValidation(ValueArray<CsTypeInfo> typeInfos)
     {
