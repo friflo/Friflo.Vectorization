@@ -86,7 +86,7 @@ public sealed class TypeBuilder
                 continue;
             }
             var fields = localStruct.csharpStruct.fields;
-            if (fields == null || fields.Length == 0) {
+            if (fields.Length == 0) {
                 sb.Append( // language=csharp
                     $"""
                     #warning Struct '{structName}' must contain at least one member. Empty structs are not allowed in WGSL.
@@ -279,11 +279,7 @@ public sealed class TypeBuilder
                 var csharpStruct = field.type.csharpStruct!;
                 
                 // Rebound nested struct layout with the same alignment mode
-                if (csharpStruct.fields == null) {
-                    layout = csharpStruct.layout; // element layout of struct in a fixed size array
-                } else {
-                    layout = AssignFieldLayouts(csharpStruct.fields, arrayStride);
-                }
+                layout = AssignFieldLayouts(csharpStruct.fields, arrayStride);
                 
                 // In std140 (Uniform), nested structs are rounded up to at least 16-byte alignment
                 if (arrayStride == ArrayStride.PadTo16Bytes) {

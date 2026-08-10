@@ -287,7 +287,7 @@ public sealed class ShaderValidation
         }
         if (source.info.typeCode == CsTypeCode.WgslStruct)
         {
-            var sourceFields = source.csharpStruct!.fields!;
+            var sourceFields = source.csharpStruct!.fields;
             var typeInfo     = typeInfos.FindTypeInfo(target.Namespace, target.Name);
             
             if (typeInfo.Identifier.Name != null) {

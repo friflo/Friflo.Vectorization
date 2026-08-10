@@ -113,7 +113,7 @@ public class CSharpStruct
 {
     public required string          name;
     public required string?         source;
-    public required CSharpField[]?  fields;
+    public required CSharpField[]   fields;
     public required WgslTypeLayout  layout; // if created for a FixedSizeArray the element layout
     
     public override string          ToString() => $"{name}  -  size: {layout.size}  align: {layout.align}";
