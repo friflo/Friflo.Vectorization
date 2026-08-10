@@ -23,6 +23,18 @@
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }
+    },
+    {
+      Message: [uniform] uniform2 - Type mismatch: WGSL expects 'UniformWithArray.vectors' (array<vec4f, 8>) - was: 'UniformWithArray.vectors._element0' (int),
+      Severity: Error,
+      Descriptor: {
+        Id: WGPU005,
+        Title: Shader Validation Error,
+        MessageFormat: {0},
+        Category: WGPU,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
     }
   ]
 }

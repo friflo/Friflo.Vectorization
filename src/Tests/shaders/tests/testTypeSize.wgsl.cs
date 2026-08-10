@@ -14,6 +14,14 @@ namespace Shaders.Tests;
 file partial class _info;
 
 
+[Source("~/shaders/tests/testTypeSize.wgsl")]
+[StructLayout(LayoutKind.Explicit, Size = 128)]
+public struct UniformWithArray (in Vector4_UniArr_8 vectors)
+{
+    [FieldOffset(  0)]  public  Vector4_UniArr_8 vectors = vectors;
+}
+
+
 /// Skipped identical duplicate of  <see cref="DirectUniform2_UniArr_8"/>
 file partial class _info;
 

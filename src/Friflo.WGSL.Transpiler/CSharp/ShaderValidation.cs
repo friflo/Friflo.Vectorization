@@ -296,7 +296,7 @@ public sealed class ShaderValidation
             if (source.Size == target.TypeLayout.Size) {
                 if (typeInfos.TryGetTypeInfo(target.Namespace, target.Name, out var typeInfo)) {
                     if (typeInfo.Fields.Length == 1) {
-                        var elementType = new CSharpType("Item", TypeResolution.Resolved,
+                        var elementType = new CSharpType(source.WgslTypeName, TypeResolution.Resolved,
                             new WgslTypeInfo(source.info.typeCode, WgslParamType.None, 0, source.info.elementType), source.csharpStruct);
                         var targetField = typeInfo.Fields[0];
                         targetPath.Push(targetField.Name);

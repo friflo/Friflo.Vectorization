@@ -17,7 +17,8 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         in Vector4_UniArr_8         uniform0,
-        in DirectUniform2_UniArr_8  uniform1)
+        in DirectUniform2_UniArr_8  uniform1,
+        in UniformWithArray         uniform2)
     {
 
         var pass_       = pass.Internal;
@@ -37,10 +38,12 @@ public partial class ShaderExample
         if (!bindGroupCache.bindGroup_0.IsCreated) {
             recorder.BindGroupEntryUniform<Vector4_UniArr_8>(0);
             recorder.BindGroupEntryUniform<DirectUniform2_UniArr_8>(1);
+            recorder.BindGroupEntryUniform<UniformWithArray>(2);
             bindGroupCache.bindGroup_0 = recorder.CreateBindGroup(pipelineCache.layouts[0], "FixedSizeArrays_bindGroup_0"u8);
         }
         pass_.AddUniform(uniform0);
         pass_.AddUniform(uniform1);
+        pass_.AddUniform(uniform2);
         pass_.SetBindGroupUniforms(0, bindGroupCache.bindGroup_0);
         
         // --- draw
@@ -56,9 +59,9 @@ public partial class ShaderExample
     }
 
     private static readonly int _FixedSizeArrays_GPU_ShaderId            =  ShaderRegistry.NewShaderId("FixedSizeArrays");
-    private const  ulong        _FixedSizeArrays_GPU_layout_0_Key        =  0xa139fedadba26e2d;
+    private const  ulong        _FixedSizeArrays_GPU_layout_0_Key        =  0x3f735313111c1e87;
 
-    private static ulong        _FixedSizeArrays_GPU_WgslHash            => 0x822a0d23f1a8eca7UL;  // support Hot-Reload
+    private static ulong        _FixedSizeArrays_GPU_WgslHash            => 0xce509b4928d6832UL;  // support Hot-Reload
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static ref readonly PipelineCache _FixedSizeArrays_GPU_CreatePipelineCache(WgpuDevice device, RenderConfig config)
@@ -68,6 +71,7 @@ public partial class ShaderExample
         if (!layout_0.IsCreated) {
             device.BindGroupLayoutUniform(0);
             device.BindGroupLayoutUniform(1);
+            device.BindGroupLayoutUniform(2);
             layout_0 = device.CreateBindGroupLayout(ShaderStage.Vertex | ShaderStage.Fragment, _FixedSizeArrays_GPU_layout_0_Key, "FixedSizeArrays_layout_0"u8);
         }
         layouts[0] = layout_0;

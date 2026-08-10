@@ -576,7 +576,8 @@ public partial class ShaderExample
     [Shader("~/shaders/tests/testTypeSize.wgsl")]
     public static partial void FixedSizeArrays(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]   in Vector4_UniArr_8         uniform0,
-        [Map(0, 1)] [uniform]   in DirectUniform2_UniArr_8  uniform1);
+        [Map(0, 1)] [uniform]   in DirectUniform2_UniArr_8  uniform1,
+        [Map(0, 2)] [uniform]   in UniformWithArray         uniform2);
         
     [StructLayout(LayoutKind.Explicit, Size = 16)]
     public struct DirectUniform2 (float someValue)
@@ -587,15 +588,19 @@ public partial class ShaderExample
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     public struct Vector4_UniArr_8
     {
-        public int  Length => 8;
         [FieldOffset(0)]  private Vector4 _element0;
     }
     
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     public struct DirectUniform2_UniArr_8
     {
-        public int  Length => 8;
         [FieldOffset(0)]  private DirectUniform2 _element0;
+    }
+    
+    [StructLayout(LayoutKind.Explicit, Size = 128)]
+    public struct UniformWithArray (in Vector4_UniArr_8 vectors)
+    {
+        [FieldOffset(  0)]  public  Vector4_UniArr_8 vectors = vectors;
     }
 }
 """);
