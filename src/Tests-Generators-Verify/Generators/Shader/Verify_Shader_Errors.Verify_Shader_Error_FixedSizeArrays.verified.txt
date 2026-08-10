@@ -13,7 +13,7 @@
       }
     },
     {
-      Message: [uniform] uniform1 - Type mismatch: WGSL expects 'array<DirectUniform2, 8>.someValue' (float) - was: 'Int_UniArr_8' (int),
+      Message: [uniform] uniform1 - Type mismatch: WGSL expects 'array<DirectUniform2, 8>.someValue' (float) - was: 'Int_UniArr_8._element0' (int),
       Severity: Error,
       Descriptor: {
         Id: WGPU005,

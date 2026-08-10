@@ -298,8 +298,9 @@ public sealed class ShaderValidation
                     if (typeInfo.Fields.Length == 1) {
                         var elementType = new CSharpType("Item", TypeResolution.Resolved,
                             new WgslTypeInfo(source.info.typeCode, WgslParamType.None, 0, source.info.elementType), source.csharpStruct);
-                        var field = typeInfo.Fields[0];
-                        return ValidateLayoutType(elementType, field.Type);
+                        var targetField = typeInfo.Fields[0];
+                        targetPath.Push(targetField.Name);
+                        return ValidateLayoutType(elementType, targetField.Type);
                     }
                 }
                 return true;
