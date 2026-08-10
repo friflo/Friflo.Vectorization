@@ -94,7 +94,8 @@ public sealed class ShaderGen : IIncrementalGenerator
                     }
                 }
             }
-            var diags = ShaderValidation.Validate(method, files);
+            var validation = new ShaderValidation(method.TypeInfos);
+            var diags = validation.Validate(method, files);
             
             foreach (var diag in diags) {
 	            var location = diag.srcLoc.GetFreshLocation(compilation);

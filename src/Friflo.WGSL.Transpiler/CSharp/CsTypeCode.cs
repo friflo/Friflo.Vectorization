@@ -95,7 +95,7 @@ public static class CsExtensions
                 }
             }
             return default;
-        } 
+        }
     }
     
     private static readonly WgslTypeLayout[] TypeLayouts;

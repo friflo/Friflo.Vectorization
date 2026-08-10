@@ -4,51 +4,36 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using Friflo.WGSL.Transpiler.WGSL;
 using static Friflo.WGSL.Transpiler.CSharp.CsParamAttribute;
 
-// ReSharper disable DuplicatedStatements
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable MergeIntoPattern
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
-// ReSharper disable MergeIntoLogicalPattern
 // ReSharper disable InvertIf
+// ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable InconsistentNaming
-// ReSharper disable DuplicatedSwitchSectionBodies
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable ConvertToPrimaryConstructor
-// ReSharper disable PossibleMultipleEnumeration
 namespace Friflo.WGSL.Transpiler.CSharp;
 
-public enum DiagType
+
+
+public sealed class ShaderValidation
 {
-    Error,
-    Warn
-}
-
-public readonly struct ValidationDiag
-{
-    public readonly     SrcLoc      srcLoc;
-    public readonly     string      message;
-    public readonly     DiagType    type;
-
-    public override string  ToString() => message;
-
-    public ValidationDiag(SrcLoc srcLoc, string  message,  DiagType type)
+    private  readonly   List<ValidationDiag>    diags       = [];
+    private  readonly   ValueArray<CsTypeInfo>  typeInfos;
+    private  readonly   FieldPath               sourcePath  = new();
+    private  readonly   FieldPath               targetPath  = new();
+    
+    public ShaderValidation(ValueArray<CsTypeInfo> typeInfos)
     {
-        this.srcLoc     = srcLoc;
-        this.message    = message;
-        this.type       = type;
+        this.typeInfos = typeInfos;
     }
-}
-
-public static class ShaderValidation
-{
-    public static List<ValidationDiag> Validate(CsMethod method, ImmutableArray<WgslFile> files)
+    
+    
+    public List<ValidationDiag> Validate(CsMethod method, ImmutableArray<WgslFile> files)
     {
-        var diags           = new List<ValidationDiag>();
         var wgslBindings    = new Dictionary<(int,int), WgslBinding>();
         var computeModule   = default(WgslModule?);
         var computeEntry    = default(string?);
@@ -75,14 +60,14 @@ public static class ShaderValidation
             foreach (var error in module.Errors) {
                 diags.Shader(shader.attrLoc, shader, $"WGSL parser error - {error}", DiagType.Warn);
             }
-            ValidateShader(shader, module, diags);
+            ValidateShader(shader, module);
             typeBuilder.AddModuleType(module, shader.path);
             
             foreach (var binding in module.Bindings) {
                 wgslBindings.TryAdd((binding.Group, binding.Binding), binding);
             }
         }
-        ValidateWorkgroupSize(method, computeModule, computeEntry, diags);
+        ValidateWorkgroupSize(method, computeModule, computeEntry);
         
         // parameters.Length == 0  must compile and execute to enable fast prototyping
         var parameters = method.Parameters;
@@ -111,8 +96,7 @@ public static class ShaderValidation
                 diags.Map(parameter.AttrLoc, parameter, "Shader method must not have multiple [IndexBuffer] parameters", DiagType.Warn);    
             }
         }
-        var bindings    = new Dictionary<(int,int), CsParameter>();
-        var cx          = new Context{ diags = diags, typeInfos = method.TypeInfos };
+        var bindings = new Dictionary<(int,int), CsParameter>();
         
         foreach (var parameter in parameters)
         {
@@ -121,9 +105,9 @@ public static class ShaderValidation
             if (parameter.IsBindGroupEntry) {
                 var bindGroup = parameter.BindGroup;
                 bindingTypes.TryGetValue((bindGroup.group, bindGroup.binding), out csharpType);
-                wgslBinding = ValidateBinding(parameter, bindings, wgslBindings, diags);
+                wgslBinding = ValidateBinding(parameter, bindings, wgslBindings);
             }
-            ValidateParameter(parameter, wgslBinding, csharpType, cx);
+            ValidateParameter(parameter, wgslBinding, csharpType);
         }
         
         if (parameters.Length > 0) {
@@ -138,78 +122,11 @@ public static class ShaderValidation
         return diags;
     }
     
-    internal struct Context
-    {
-        internal required   List<ValidationDiag>    diags       { get; init; }
-        internal required   ValueArray<CsTypeInfo>  typeInfos   { get; init; }
-    }
     
-    extension(List<ValidationDiag> diags)
-    {
-        private void Shader(SrcLoc srcLoc, in CsShader shader, string message, DiagType type) {
-            var error = $"[Shader(\"{shader.path}\")] - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error, type));
-        }
-        
-        private void WorkgroupSize(CsWorkgroupSize workgroupSize, string message, DiagType type) {
-            var error = $"[WorkgroupSize()] - {message}";
-            diags.Add(new ValidationDiag(workgroupSize.attrLoc, error, type));
-        }
-                
-        private void Method(SrcLoc srcLoc, CsMethod method, string message, DiagType type) {
-            var error = $"{method.Name} - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error, type));
-        }
-
-        private void Map(SrcLoc srcLoc, in CsParameter parameter, string message, DiagType type) {
-            var bg = parameter.BindGroup;
-            var error = $"[Map({bg.group}, {bg.binding})] {parameter.Name} - {message}";
-            diags.Add(new ValidationDiag(srcLoc, error, type));
-        }
-        
-        private void Mismatch(SrcLoc loc, in CsParameter parameter, WgslBinding wgslBinding, string message)
-        {
-            var sb = new StringBuilder();
-            sb.Append($"wgsl {message}: C# [");
-            sb.Append(parameter.ParamAttribute);
-            var start = sb.Length;
-            var arg_0 = parameter.AttrEnum.enum1.Name;
-            if (!string.IsNullOrEmpty(arg_0)) {
-                sb.Append("(");
-                sb.Append(arg_0);
-            }
-            var arg_1 = parameter.AttrEnum.enum2.Name;
-            if (!string.IsNullOrEmpty(arg_1)) {
-                sb.Append(", ");
-                sb.Append(arg_1);
-            }
-            if (sb.Length > start) {
-                sb.Append(")");
-            }
-            sb.Append("]  ->  ");
-            sb.Append(wgslBinding.AsString());
-            diags.Map(loc, parameter, sb.ToString(), DiagType.Warn);
-        }
-        
-        private void TypeRequirement(in CsParameter parameter, string expectedType)
-        {
-            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type requirement: {expectedType} - was: {parameter.Type.Name}";
-            diags.Add(new ValidationDiag(parameter.TypeLoc, error, DiagType.Error));
-        }
-        
-        private void WgslTypeRequirement(in CsParameter parameter, SrcLoc typeLoc, ValueArray<CsTypeInfo> typeInfos)
-        {
-            var error = GetWgslTypeError(parameter.Type, typeInfos);
-            var msg = $"[{parameter.ParamAttribute}] {parameter.Name} - require WGSL Type (int, float, Vector3, ...) - was: {error}";
-            diags.Add(new ValidationDiag(typeLoc, msg, DiagType.Error));
-        }
-    }
-    
-    private static WgslBinding? ValidateBinding(
+    private WgslBinding? ValidateBinding(
         in CsParameter                      parameter,
         Dictionary<(int,int), CsParameter>  bindings,
-        Dictionary<(int,int), WgslBinding>  wgslBindings,
-        List<ValidationDiag>                diags)
+        Dictionary<(int,int), WgslBinding>  wgslBindings)
     {
         var wgslBinding = default(WgslBinding);
         var bindGroup = parameter.BindGroup;
@@ -226,14 +143,14 @@ public static class ShaderValidation
             if (!wgslBindings.TryGetValue((bindGroup.group,  bindGroup.binding), out wgslBinding)) {
                 diags.Map(parameter.BindGroup.attrLoc, parameter, "binding not declared in wgsl", DiagType.Warn);
             } else {
-                ValidateBindingType(parameter, wgslBinding, diags);
+                ValidateBindingType(parameter, wgslBinding);
             }
         }
         return wgslBinding;
     }
 
     
-    private static void ValidateBindingType(in CsParameter parameter, WgslBinding wgslBinding, List<ValidationDiag> diags)
+    private void ValidateBindingType(in CsParameter parameter, WgslBinding wgslBinding)
     {
         var paramType = parameter.ParamAttribute.ToString();
         switch (parameter.ParamAttribute)
@@ -308,13 +225,13 @@ public static class ShaderValidation
         return generics.Length == 1 ? generics[0] : default;
     }
     
-    private static void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, in Context cx)
+    private void ValidateWgslElement(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType)
     {
         var type = GetGenericType(parameter);
         if (type.TypeCode.IsWgslType) {
             var accessMode = wgslBinding?.AccessMode;
             if (parameter.IsReadOnlyBuffer && (accessMode == "write" || accessMode == "read_write")) {
-                cx.diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
+                diags.TypeRequirement(parameter, $"access mode '{accessMode}' requires InOutBuffer<>");
             }
             var fields = bindingType.csharpStruct?.fields; 
             if (fields?.Length == 1) {
@@ -324,14 +241,14 @@ public static class ShaderValidation
                 }
             }
             if (parameter.IsBindGroupEntry) {
-                ValidateLayout(parameter, bindingType, type, parameter.GenericArgLoc, cx);
+                ValidateLayout(parameter, bindingType, type, parameter.GenericArgLoc);
             }
             return;
         }
-        cx.diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, cx.typeInfos);
+        diags.WgslTypeRequirement(parameter, parameter.GenericArgLoc, typeInfos);
     }
     
-    private static void ValidateLayout(in CsParameter parameter, in CSharpType bindingType, in CsType type, SrcLoc loc, in Context cx)
+    private void ValidateLayout(in CsParameter parameter, in CSharpType bindingType, in CsType type, SrcLoc loc)
     {
         if (!bindingType.Size.HasValue) {
             return;
@@ -340,63 +257,92 @@ public static class ShaderValidation
         var csharpSize      = type.TypeLayout.Size;
         if (expectedSize != csharpSize) {
             var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
-            cx.diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+            diags.Add(new ValidationDiag(loc, error, DiagType.Error));
             return;
         }
-        if (!ValidateLayoutType(bindingType, type, cx)) {
-            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Field mismatch: WGSL expects '{bindingType.WgslTypeName}' ({expectedSize} bytes) - was: '{type}' ({csharpSize} bytes)";
-            cx.diags.Add(new ValidationDiag(loc, error, DiagType.Error));
+        sourcePath.Reset();
+        targetPath.Reset();
+        
+        if (!ValidateLayoutType(bindingType, type)) {
+            var error = $"[{parameter.ParamAttribute}] {parameter.Name} - Type mismatch: WGSL expects " +
+                        $"'{bindingType.WgslTypeName}{sourcePath}' ({sourcePath.type}) - was: '{type}{targetPath}' ({targetPath.type})";
+            diags.Add(new ValidationDiag(loc, error, DiagType.Error));
             return;
         }
     }
     
-    private static bool ValidateLayoutType(in CSharpType source, in CsType target, in Context cx)
+    private bool SetLeafTypes(in CSharpType source, in CsType target) {
+        sourcePath.type = source.ToString();
+        targetPath.type = target.ToString();
+        return false;
+    }
+    
+    private bool ValidateLayoutType(in CSharpType source, in CsType target)
     {
         if (source.info.paramType == WgslParamType.FixedSizeArray) {
-            return source.Size == target.TypeLayout.Size;
+            if (source.Size == target.TypeLayout.Size) {
+                return true;
+            }
+            return SetLeafTypes(source, target);
         }
         if (source.info.typeCode == CsTypeCode.WgslStruct)
         {
             var sourceFields = source.csharpStruct!.fields!;
-            var targetName   = target.Name; 
-            var typeInfo     = cx.typeInfos.FirstOrDefault(ti => ti.Identifier.Name == targetName);
+            var typeInfo     = typeInfos.FindTypeInfo(target.Namespace, target.Name);
             
-            if (typeInfo.Identifier.Name == targetName) {
+            if (typeInfo.Identifier.Name != null) {
+                sourcePath.Push();
+                targetPath.Push();
                 for (var n = 0; n < sourceFields.Length; n++) {
                     var sourceField = sourceFields[n];
                     var targetField = typeInfo.Fields[n];
-                    if (!ValidateLayoutType(sourceField.type, targetField.Type, cx)) {
+                    sourcePath.SetTail(sourceField.name);
+                    targetPath.SetTail(targetField.Name);
+                    if (!ValidateLayoutType(sourceField.type, targetField.Type)) {
                         return false; 
                     }
+
                 }
+                sourcePath.Pop();
+                targetPath.Pop();
             }
             return true;
         }
-        return true; // source.info.typeCode == target.TypeCode;     TODO
+        if (source.info.typeCode == target.TypeCode) {
+            return true;
+        }
+        if (target.TypeCode == CsTypeCode.WgslStruct) {
+            var typeInfo = typeInfos.FindTypeInfo(target.Namespace, target.Name);
+            if (typeInfo.Fields.Length == 1) {
+                var targetField = typeInfo.Fields[0];
+                targetPath.Push(targetField.Name);
+                return ValidateLayoutType(source, targetField.Type);
+            }
+        }
+        return SetLeafTypes(source, target);
     }
     
-    private static void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType, in Context cx)
+    private void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType)
     {
         var type    = parameter.Type;
-        var diags   = cx.diags;
         
         switch (parameter.ParamAttribute)
         {
             case uniform:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(parameter, wgslBinding, bindingType, cx);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType);
                     return;
                 }
                 if (type.TypeCode.IsWgslType) {
-                    ValidateLayout(parameter, bindingType, type, parameter.TypeLoc, cx);
+                    ValidateLayout(parameter, bindingType, type, parameter.TypeLoc);
                     return;
                 }
-                diags.WgslTypeRequirement(parameter, parameter.TypeLoc, cx.typeInfos);
+                diags.WgslTypeRequirement(parameter, parameter.TypeLoc, typeInfos);
                 return;
             
             case storage:
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(parameter, wgslBinding, bindingType, cx);
+                    ValidateWgslElement(parameter, wgslBinding, bindingType);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -408,7 +354,7 @@ public static class ShaderValidation
                     diags.Map(parameter.AttrLoc, parameter, $"slot must be in range 0 - 15. was: {slot}", DiagType.Error);
                 }
                 if (parameter.IsBuffer) {
-                    ValidateWgslElement(in parameter, wgslBinding, default, cx);
+                    ValidateWgslElement(in parameter, wgslBinding, default);
                     return;
                 }
                 diags.TypeRequirement(parameter, "InBuffer<> or InOutBuffer<>");
@@ -462,50 +408,14 @@ public static class ShaderValidation
         }
     }
     
-    private static string? GetWgslTypeError(CsType type, ValueArray<CsTypeInfo> typeInfos)
+    private void ValidateShader(CsShader shader, WgslModule module)
     {
-        if (type.TypeCode.IsBuffer) {
-            var generic = type.Generics;
-            if (generic.Length == 1) {
-                type = generic[0];
-            }
-        }
-        if (type.TypeCode.IsWgslType) {
-            return null;
-        }
-        var path        = new Stack<string>();
-        var errorType   = GetErrorPath(type, path, typeInfos);
-        if (path.Count == 0) {
-            return errorType.Name;
-        }
-        return $"{errorType.Name} at {type.Name}.{string.Join(".", path.Reverse())}";
+        if (shader.vert    != null) ValidateEntryPoint(shader, "vertex",   shader.vert,    shader.vertLoc,    module);
+        if (shader.frag    != null) ValidateEntryPoint(shader, "fragment", shader.frag,    shader.fragLoc,    module);
+        if (shader.compute != null) ValidateEntryPoint(shader, "compute",  shader.compute, shader.computeLoc, module);
     }
     
-    private static CsType GetErrorPath(in CsType type, Stack<string> path, ValueArray<CsTypeInfo> typeInfos)
-    {
-        if ((type.TypeCode == CsTypeCode.WgslStruct || type.TypeCode == CsTypeCode.CSharpStruct) && path.Count < 10)
-        {
-            var ti = typeInfos.FindTypeInfo(type.Namespace, type.Name);
-            foreach (var field in ti.Fields) {
-                path.Push(field.Name);
-                var fieldType = GetErrorPath(field.Type, path, typeInfos);
-                if (!fieldType.TypeCode.IsWgslType) {
-                    return fieldType;
-                }
-                path.Pop();
-            }
-        }
-        return type;
-    }
-    
-    private static void ValidateShader(CsShader shader, WgslModule module, List<ValidationDiag> diags)
-    {
-        if (shader.vert    != null) ValidateEntryPoint(shader, "vertex",   shader.vert,    shader.vertLoc,    module, diags);
-        if (shader.frag    != null) ValidateEntryPoint(shader, "fragment", shader.frag,    shader.fragLoc,    module, diags);
-        if (shader.compute != null) ValidateEntryPoint(shader, "compute",  shader.compute, shader.computeLoc, module, diags);
-    }
-    
-    private static void ValidateEntryPoint(CsShader shader, string stage, string entryName, SrcLoc loc, WgslModule module, List<ValidationDiag> diags)
+    private void ValidateEntryPoint(CsShader shader, string stage, string entryName, SrcLoc loc, WgslModule module)
     {
         var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
         if (entryPoint == null) {
@@ -518,7 +428,7 @@ public static class ShaderValidation
         }
     }
     
-    private static void ValidateWorkgroupSize(CsMethod method, WgslModule? module, string? entryName, List<ValidationDiag> diags)
+    private void ValidateWorkgroupSize(CsMethod method, WgslModule? module, string? entryName)
     {
         if (!method.WorkgroupSize.HasValue) {
             return;

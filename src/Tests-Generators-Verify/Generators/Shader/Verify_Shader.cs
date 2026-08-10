@@ -307,7 +307,7 @@ namespace Other.Namespace {
     [StructLayout(LayoutKind.Sequential, Size = 16)]
     public struct MyUniform
     {
-        public Vector2 	tint_color;
+        public Vector4 	tint_color;
     }
 }
 
