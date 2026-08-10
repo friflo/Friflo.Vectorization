@@ -17,5 +17,6 @@ public partial class ShaderExample
         RenderPass                  pass,
         RenderConfig                config,
         in Point4                   uniform0,
-        in Point3                   uniform1) { }
+        in Point3                   uniform1,
+        in UniformPoint             uniform2) { }
 }
