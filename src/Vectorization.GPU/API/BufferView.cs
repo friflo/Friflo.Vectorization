@@ -85,8 +85,8 @@ public readonly struct InView<T> where T : unmanaged
     public   readonly   int             Length;
     
     /// <summary>
-    /// Gets a <see cref="ReadOnlySpan{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
-    /// This view provides restricted, read-only access to the mapped host memory.
+    /// Gets a <see cref="Span{T}"/> representing the CPU-side host memory slice defined by this view.<br/>
+    /// This view provides restricted, read-only access for the GPU.
     /// </summary>
     public              Span<T>         Span        =>  Buffer.hostMemory.Span.Slice(Offset, Length);
     
