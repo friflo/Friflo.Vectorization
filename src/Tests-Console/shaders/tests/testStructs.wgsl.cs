@@ -97,7 +97,7 @@ public struct VectorInStorage (Vector2i storage_vector2i, in Vector2i_Array_8 st
 
 [Source("~/shaders/tests/testStructs.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct Particle (uint a, uint flags, float speed, in uint id, uint count)
+public struct TestParticle (uint a, uint flags, float speed, in uint id, uint count)
 {
     [FieldOffset(  0)]  public  uint  a     = a;
     [FieldOffset( 16)]  public  uint  flags = flags;

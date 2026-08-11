@@ -175,7 +175,7 @@ public static class Tests_WGSL
                     [Map(0, 5)] [uniform]   in FixeSizeArrayStruct2     uniform5,
                     [Map(0, 6)] [uniform]   in VectorInUniform          uniform6,
                     [Map(0, 7)] [storage]   InBuffer<VectorInStorage>   storage7,
-                    [Map(0, 8)] [uniform]   in Particle                 uniform8,
+                    [Map(0, 8)] [uniform]   in TestParticle             uniform8,
                     [Map(0, 9)] [uniform]   in Vector4_UniArr_8         uniform9,
                     [Map(0,10)] [uniform]   in DirectUniform1           uniform10,
                     [Map(0,11)] [uniform]   in DirectUniform2_UniArr_8  uniform11,

@@ -54,7 +54,7 @@ struct VectorInStorage {
 }
 
 
-struct Particle {
+struct TestParticle {
                 a     : u32,  // 4 Bytes (Offset 0..3)
     @align(16)  flags : u32,  // 4 Bytes (normales align: 4, with @align(16) force: 16)
                 speed : f32,  // 4 Bytes
@@ -82,7 +82,7 @@ struct DirectStorage {
 @group(0) @binding(5)   var<uniform>        uniform5 : FixeSizeArrayStruct2;
 @group(0) @binding(6)   var<uniform>        uniform6 : VectorInUniform;         // intentional error
 @group(0) @binding(7)   var<storage, read>  storage7 : VectorInStorage;
-@group(0) @binding(8)   var<uniform>        uniform8 : Particle;
+@group(0) @binding(8)   var<uniform>        uniform8 : TestParticle;
 @group(0) @binding(9)   var<uniform>        uniform9 : array<vec4<f32>, 8>;
 @group(0) @binding(10)  var<uniform>        uniform10: array<DirectUniform1>;   // intentional error
 @group(0) @binding(11)  var<uniform>        uniform11: array<DirectUniform2, 8>;
