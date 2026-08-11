@@ -289,7 +289,7 @@ public sealed class ShaderValidation
         return true;
     }
     
-    private bool ValidateLayoutType(CSharpType source, CsType target)
+    private bool ValidateLayoutType(CSharpType source, in CsType target)
     {
         var pathsLength = new StartLengths(sourcePath.Length, targetPath.Length);
 
@@ -396,7 +396,7 @@ public sealed class ShaderValidation
         return false;
     }
     
-    private void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, CSharpType bindingType)
+    private void ValidateParameter(in CsParameter parameter, WgslBinding? wgslBinding, in CSharpType bindingType)
     {
         var type    = parameter.Type;
         
@@ -482,14 +482,14 @@ public sealed class ShaderValidation
         }
     }
     
-    private void ValidateShader(CsShader shader, WgslModule module)
+    private void ValidateShader(in CsShader shader, WgslModule module)
     {
         if (shader.vert    != null) ValidateEntryPoint(shader, "vertex",   shader.vert,    shader.vertLoc,    module);
         if (shader.frag    != null) ValidateEntryPoint(shader, "fragment", shader.frag,    shader.fragLoc,    module);
         if (shader.compute != null) ValidateEntryPoint(shader, "compute",  shader.compute, shader.computeLoc, module);
     }
     
-    private void ValidateEntryPoint(CsShader shader, string stage, string entryName, SrcLoc loc, WgslModule module)
+    private void ValidateEntryPoint(in CsShader shader, string stage, string entryName, SrcLoc loc, WgslModule module)
     {
         var entryPoint = module.EntryPoints.FirstOrDefault(ep => ep.Name == entryName);
         if (entryPoint == null) {
