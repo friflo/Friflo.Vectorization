@@ -139,12 +139,8 @@ public sealed class TypeBuilder
         wgslStructs.Clear();
         module          = wgslModule;
         fileNamespace   = PathToNamespace(normalizedPath);
-        
-        var structs  = module.Structs;
-        if (typeGen != null && (module.Bindings.Count == 0 || structs.Count == 0)) {
-            return;
-        }
-        foreach (var wgslStruct in structs) {
+
+        foreach (var wgslStruct in module.Structs) {
             wgslStructs.TryAdd(wgslStruct.Name, wgslStruct);
         }
         foreach (var binding in module.Bindings)
