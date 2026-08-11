@@ -26,32 +26,32 @@ fn cs_main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     var p = particles[index];
 
-    // Restlaufzeit verringern
+    // reduce remaining time
     p.position.w -= frameData.deltaTime;
 
-    // Respawn bei Ablauf der Lebenszeit
+    // respawn if life time expired
     if (p.position.w <= 0.0) {
         let seed = vec2<f32>(f32(index), frameData.time);
         
-        // Startpunkt unten mittig mit kleiner Streuung
+        // start point at bottom / centered with small spread
         p.position = vec4<f32>(
             (rand(seed + vec2<f32>(1.0, 0.0)) - 0.5) * 0.05,
             -0.5,
             0.0,
-            1.5 + rand(seed + vec2<f32>(2.0, 0.0)) * 1.0 // 1.5s bis 2.5s Leben
+            1.5 + rand(seed + vec2<f32>(2.0, 0.0)) * 1.0 // 1.5s bis 2.5s life time
         );
 
-        // Breite Ausfächerung nach oben und zu den Seiten
+        // Spread to top, left and right
         let speedX = (rand(seed + vec2<f32>(3.0, 0.0)) - 0.5) * 1.6;
         let speedY = rand(seed + vec2<f32>(4.0, 0.0)) * 0.9 + 0.6;
         let speedZ = (rand(seed + vec2<f32>(5.0, 0.0)) - 0.5) * 0.4;
 
         p.velocity = vec4<f32>(speedX, speedY, speedZ, 0.0);
     } else {
-        // Schwerkraft-Einwirkung
+        // gravity
         p.velocity.y -= 0.7 * frameData.deltaTime; 
         
-        // Position aktualisieren
+        // update position
         p.position = vec4<f32>(
             p.position.xyz + p.velocity.xyz * frameData.deltaTime,
             p.position.w

@@ -26,7 +26,7 @@ fn vs_main(
 ) -> VertexOutput {
     let particle = particles[instanceIndex];
 
-    // Billboard Quad (Deutliche Größe für gute Sichtbarkeit)
+    // Billboard Quad
     var offsets = array<vec2<f32>, 6>(
         vec2<f32>(-0.008,  0.008),
         vec2<f32>(-0.008, -0.008),
@@ -52,7 +52,7 @@ fn vs_main(
     out.clip_position = vec4<f32>(pos.x, pos.y, pos.z, 1.0);
     out.uv = uvs[vertexIndex];
 
-    // Farbverlauf basierend auf Restlebensdauer (Orange -> Rot -> Transparent)
+    // color gradient based on remaining life time (orange -> red -> transparent)
     let lifeProgress = clamp(particle.position.w / 2.5, 0.0, 1.0);
     let red   = 1.0;
     let green = lifeProgress * 0.6;
@@ -65,7 +65,7 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    // Weicher Glow
+    // smooth glow
     let dist = length(in.uv - vec2<f32>(0.5));
     if (dist > 0.5) {
         discard;

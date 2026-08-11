@@ -17,25 +17,24 @@ Requirements:
 */
 public partial class Renderer : IRenderer
 {
-    private readonly GpuBuffer<Particle> particleBuffer;
-    private readonly InView<Particle>    particleView;
-    private readonly PerfLog             perfLog      = new();
-    private readonly Stopwatch           stopwatch    = Stopwatch.StartNew();
-    private readonly Wgpu                wgpu;
+    private readonly GpuBuffer<Particle>        particleBuffer;
+    private readonly InView<Particle>           particleView;
+    private readonly PerfLog                    perfLog      = new();
+    private readonly Stopwatch                  stopwatch    = Stopwatch.StartNew();
+    private readonly Wgpu                       wgpu;
     
-    private readonly GpuRenderPassDescriptor renderPassDescriptor = new() { colorAttachments = [default] };
-    private float lastTime;
+    private readonly GpuRenderPassDescriptor    renderPassDescriptor = new() { colorAttachments = [default] };
+    private          float                      lastTime;
     
-    public const int ParticleCount = 100_000;
+    private const int ParticleCount = 100_000;
 
     public Renderer(Wgpu wgpu)
     {
         this.wgpu = wgpu;
 
-        // Initiale Partikeldaten erzeugen
         var initialParticles = GenerateInitialParticles(ParticleCount);
 
-        // Puffer ist sowohl Compute Read/Write als auch Draw Source
+        // Buffer is used by Compute Read/Write and Rendering 
         particleBuffer = wgpu.Device.CreateBuffer(initialParticles, "particles", BufferProfile.InOut);
         particleView   = particleBuffer.In(0, ParticleCount);
     }
@@ -101,14 +100,12 @@ public partial class Renderer : IRenderer
 
     [Shader("~/shaders/particles/update.wgsl", compute: "cs_main")]
     [WorkgroupSize(256)]
-    private static partial void UpdateParticles(
-        PipelineContext computeContext,
+    private static partial void UpdateParticles(PipelineContext computeContext,
         [Map(0, 0)] [storage] [Dispatch] InOutBuffer<Particle> particles,
         [Map(0, 1)] [uniform]            FrameUniform          frameData);
 
     [Shader("~/shaders/particles/render.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    private static partial void DrawParticles(
-        RenderPass pass, RenderConfig config,
+    private static partial void DrawParticles(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [storage] [Draw]    InBuffer<Particle>  particles,
         [Map(1, 0)] [uniform]           FrameUniform        frameData,
                                         DrawArgs            args);
