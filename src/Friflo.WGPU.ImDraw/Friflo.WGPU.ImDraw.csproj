@@ -1,0 +1,103 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>library</OutputType>
+    <TargetFramework>net8</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Friflo.WGPU.ImDraw</RootNamespace>
+    <AssemblyName>Friflo.WGPU.ImDraw</AssemblyName>
+    <LangVersion>14.0</LangVersion>
+    
+    <!--
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    -->
+
+    <!-- packaging -->
+    <PackageVersion>0.0.0</PackageVersion>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+
+    <Title>"ImDraw for friflo WGPU</Title>
+    <Authors>Ullrich Praetz</Authors>
+    <Description>Immediate Mode API for friflo WGPU - https://github.com/friflo/Friflo.Vectorization</Description>
+    <Copyright>Ullrich Praetz</Copyright>
+    <PackageProjectUrl>https://github.com/friflo/Friflo.Vectorization</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/friflo/Friflo.Vectorization</RepositoryUrl>
+    <PackageTags>vectorization, gpu, gpu-compute, csharp, dotnet, WebGPU, wpgu-native</PackageTags>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>package-icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>false</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedAllSources>true</EmbedAllSources>
+    <!-- packaging: end -->
+  </PropertyGroup>
+
+  <!-- packaging -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
+    <!-- <PackageReference Include="JetBrains.Annotations"       Version="2026.2.0" PrivateAssets="All"/> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\package-icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+  </PropertyGroup>
+  <!-- packaging: end -->
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <CompilerVisibleProperty Include="MSBuildProjectDirectory" />  
+    <EmbeddedResource Include="shaders\**\*.wgsl" />
+    <!-- <AdditionalFiles  Include="shaders\**\*.wgsl" /> -->
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- workaround for: https://youtrack.jetbrains.com/issue/RIDER-141199 -->  
+    <AdditionalFileItemNames>$(AdditionalFileItemNames);EmbeddedResource</AdditionalFileItemNames>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="*.csproj.lscache" />
+  </ItemGroup>
+  
+  
+  
+  
+  <ItemGroup>
+    <!-- Ensures Transpiler is build first -->
+    <ProjectReference Include="../Friflo.WGSL.Transpiler/Friflo.WGSL.Transpiler.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>    
+  <Target Name="RunTranspiler" BeforeTargets="BeforeBuild">
+    <!-- Ensures Transpiler.dll exsists in bin folder for local development -->
+    <MSBuild Projects="../Friflo.WGSL.Transpiler/Friflo.WGSL.Transpiler.csproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net8.0" />
+      
+    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Friflo.WGSL.Transpiler/bin/$(Configuration)/net8.0/Friflo.WGSL.Transpiler.dll&quot; &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
+</Project>

@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGSL.Transpiler", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.Generators.CodeFixes", "src\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj", "{1AD07C07-E282-44D4-9780-069FEBD22DB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGPU.ImDraw", "src\Friflo.WGPU.ImDraw\Friflo.WGPU.ImDraw.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{1AD07C07-E282-44D4-9780-069FEBD22DB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AD07C07-E282-44D4-9780-069FEBD22DB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AD07C07-E282-44D4-9780-069FEBD22DB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
