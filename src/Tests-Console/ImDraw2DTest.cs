@@ -25,7 +25,7 @@ public class ImRenderer : IRenderer
     public ImRenderer(Wgpu wgpu)
     {
         var device = wgpu.Device;
-        batcher = new Batcher2D((WgpuDevice)device, wgpu.Config.Descriptor.FragmentState.Value.targets[0].format);
+        batcher = new Batcher2D((WgpuDevice)device, wgpu.Config.Descriptor.FragmentState.Value.targets[0].format, FilterMode.Nearest);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png");

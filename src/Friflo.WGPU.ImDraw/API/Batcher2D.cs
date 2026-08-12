@@ -7,6 +7,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -34,12 +35,31 @@ public sealed partial class Batcher2D : IDisposable
         defaultWhiteTexture.Dispose();
         defaultSampler.Dispose();
     }
+    
+    /// <summary>
+    /// Comfort constructor to quickly specify filtering (Nearest / Linear).
+    /// </summary>
+    public Batcher2D(
+        WgpuDevice      device,
+        TextureFormat   targetFormat,
+        FilterMode      filterMode,
+        int             maxVertices = 60_000)
+        : this (device, targetFormat, new GpuSamplerDescriptor {
+            label           = "Batcher2D Sampler",
+            magFilter       = filterMode,
+            minFilter       = filterMode,
+            mipmapFilter    = filterMode == FilterMode.Nearest ? MipmapFilterMode.Nearest : MipmapFilterMode.Linear
+        }, maxVertices)
+    { }
 
+    /// <summary>
+    /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
+    /// </summary>
     public Batcher2D(
         WgpuDevice              device,
         TextureFormat           targetFormat,
-        int                     maxVertices         = 60_000,
-        GpuSamplerDescriptor?   samplerDescriptor   = null)
+        GpuSamplerDescriptor?   samplerDescriptor   = null,
+        int                     maxVertices         = 60_000)
     {
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
@@ -74,8 +94,8 @@ public sealed partial class Batcher2D : IDisposable
         defaultWhiteTextureView = defaultWhiteTexture.CreateView();
         
         defaultSampler = device.CreateSampler(samplerDescriptor ?? new GpuSamplerDescriptor {
-            label       = "Batcher2D Sampler", 
-            magFilter   = FilterMode.Linear,  
+            label       = "Batcher2D Sampler",
+            magFilter   = FilterMode.Linear,
             minFilter   = FilterMode.Linear
         });
         
