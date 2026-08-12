@@ -11,7 +11,7 @@ namespace TestConsole;
 
 public class ImRenderer : IRenderer
 {
-    private readonly    Batcher2D               batcher;
+    private readonly    Batch2D                 batch;
     private readonly    GpuTexture              myTexture;
     private readonly    GpuTextureView          myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
@@ -19,13 +19,13 @@ public class ImRenderer : IRenderer
     
     public void OnShutdown() {
         myTexture.Dispose();
-        batcher.Dispose();
+        batch.Dispose();
     }
     
     public ImRenderer(Wgpu wgpu)
     {
         var device = wgpu.Device;
-        batcher = new Batcher2D(device, wgpu.SwapChainFormat, FilterMode.Nearest);
+        batch = new Batch2D(device, wgpu.SwapChainFormat, FilterMode.Nearest);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png");
@@ -52,7 +52,7 @@ public class ImRenderer : IRenderer
     {
         perfLog.Trace(5000);
         
-        using var draw = batcher.BeginDraw2D(frame, renderPassDescriptor);
+        using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
         draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
         draw.Rectangle(new Vector2(frame.Width - 100, frame.Height - 100), new Vector2(99, 99), 0xFFFFFFFF);

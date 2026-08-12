@@ -14,7 +14,7 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
-public sealed partial class Batcher2D : IDisposable
+public sealed partial class Batch2D : IDisposable
 {
     internal readonly   RenderConfig        config;
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
@@ -39,7 +39,7 @@ public sealed partial class Batcher2D : IDisposable
     /// <summary>
     /// Comfort constructor to quickly specify filtering (Nearest / Linear).
     /// </summary>
-    public Batcher2D(
+    public Batch2D(
         GpuDevice       device,
         TextureFormat   targetFormat,
         FilterMode      filterMode,
@@ -55,7 +55,7 @@ public sealed partial class Batcher2D : IDisposable
     /// <summary>
     /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
     /// </summary>
-    public Batcher2D(
+    public Batch2D(
         GpuDevice               device,
         TextureFormat           targetFormat,
         GpuSamplerDescriptor?   samplerDescriptor   = null,

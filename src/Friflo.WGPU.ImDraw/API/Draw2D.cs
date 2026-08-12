@@ -17,7 +17,7 @@ namespace Friflo.WGPU.ImDraw;
 
 public ref struct Draw2D : IDisposable
 {
-    private readonly Batcher2D  batcher;
+    private readonly Batch2D    batch;
     private          RenderPass pass;
 
     
@@ -26,10 +26,10 @@ public ref struct Draw2D : IDisposable
         pass.Dispose();
     }
     
-    internal Draw2D(Batcher2D batcherBatcher, RenderPass pass)
+    internal Draw2D(Batch2D batch, RenderPass pass)
     {
-        batcher = batcherBatcher;
-        this.pass = pass;
+        this.batch  = batch;
+        this.pass   = pass;
     }
     
     public void Rectangle(in Vector2 position, in Vector2 size, uint color)
@@ -61,7 +61,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, uint color, GpuTextureView? texture = null)
     {
-        var bat = batcher;
+        var bat = batch;
         var texView = texture ?? bat.defaultWhiteTextureView;
         
         // flush if full (4 vertices per quad) or texture changed
@@ -93,17 +93,17 @@ public ref struct Draw2D : IDisposable
     
     public void SetViewport(float width, float height)
     {
-        if (batcher.vertexStart != batcher.vertexCount) {
+        if (batch.vertexStart != batch.vertexCount) {
             Flush();
         }
         var proj = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
-        batcher.uniforms = new ImUniforms { projection = proj };
+        batch.uniforms = new ImUniforms { projection = proj };
     }
 
     public void Flush()
     {
-        var bat = batcher;
-        if (batcher.vertexStart == bat.vertexCount) {
+        var bat = batch;
+        if (batch.vertexStart == bat.vertexCount) {
             return;
         }
         
@@ -116,7 +116,7 @@ public ref struct Draw2D : IDisposable
         var vertexView = bat.vertexBuffer.In(bat.vertexStart, bat.vertexCount);
         var indexView  = bat.indexBuffer.In(0, indexCount);
         
-        Batcher2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
+        Batch2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
         
         bat.vertexStart = bat.vertexCount;
     }
