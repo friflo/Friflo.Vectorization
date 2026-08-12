@@ -14,7 +14,7 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
-public ref struct Draw2D : IDisposable
+public ref partial struct Draw2D : IDisposable
 {
     private readonly    Batcher2D   batcher;
     private             RenderPass  pass;
