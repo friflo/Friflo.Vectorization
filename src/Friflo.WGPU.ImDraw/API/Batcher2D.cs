@@ -7,7 +7,7 @@ using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -35,7 +35,11 @@ public sealed partial class Batcher2D : IDisposable
         defaultSampler.Dispose();
     }
 
-    public Batcher2D(WgpuDevice device, in GpuRenderPipelineDescriptor descriptor, int maxVertices = 60_000)
+    public Batcher2D(
+        WgpuDevice              device,
+        TextureFormat           targetFormat,
+        int                     maxVertices         = 60_000,
+        GpuSamplerDescriptor?   samplerDescriptor   = null)
     {
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
@@ -57,7 +61,6 @@ public sealed partial class Batcher2D : IDisposable
         indexBuffer = device.CreateBuffer(indices, "Batcher2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
         
-        
         // --- Texture
         defaultWhiteTexture = device.CreateTexture(new GpuTextureDescriptor {
             label   = "white1x1",
@@ -70,49 +73,28 @@ public sealed partial class Batcher2D : IDisposable
         
         defaultWhiteTextureView = defaultWhiteTexture.CreateView();
         
-        defaultSampler = device.CreateSampler(new GpuSamplerDescriptor {
-            magFilter = FilterMode.Linear,  // TODO  use magFilter/minFilter = Nearest for pixel art  
-            minFilter = FilterMode.Linear
+        defaultSampler = device.CreateSampler(samplerDescriptor ?? new GpuSamplerDescriptor {
+            label       = "Batcher2D Sampler", 
+            magFilter   = FilterMode.Linear,  
+            minFilter   = FilterMode.Linear
         });
         
-        var desc = descriptor;
+        var desc = new GpuRenderPipelineDescriptor();
         desc.VertexState.buffers = [
             new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
-                arrayStride = 20,           // size:    Vertex2D
+                arrayStride = 20,           // Vertex2D (size)
                 attributes = [
-                    new GpuVertexAttribute {
-                        shaderLocation = 0, // draw2d.wgsl:  @location(0) position : vec4f
-                        offset = 0,         // offset:  Vertex2D.position 
-                        format = VertexFormat.Float32x2
-                    },
-                    new GpuVertexAttribute {
-                        shaderLocation = 1,
-                        offset = 8,         // offset:  Vertex2D.uv
-                        format = VertexFormat.Float32x2
-                    },
-                    new GpuVertexAttribute {
-                        shaderLocation = 2,
-                        offset = 16,        // offset:  Vertex2D.color
-                        format = VertexFormat.Unorm8x4
-                    },
+                    new GpuVertexAttribute { shaderLocation = 0, offset =  0, format = VertexFormat.Float32x2 },    // Vertex2D.position 
+                    new GpuVertexAttribute { shaderLocation = 1, offset =  8, format = VertexFormat.Float32x2 },    // Vertex2D.uv
+                    new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4 }      // Vertex2D.color
                 ]
         }];
-        
-        var targetFormat = descriptor.FragmentState.Value.targets[0].format;
         desc.FragmentState = new GpuFragmentState{ targets = [
             new GpuColorTargetState {
                 format = targetFormat, // TextureFormat.BGRA8Unorm / RGBA8Unorm
                 blend = new GpuBlendState {
-                    color = new GpuBlendComponent {
-                        srcFactor = BlendFactor.SrcAlpha,
-                        dstFactor = BlendFactor.OneMinusSrcAlpha,
-                        operation = BlendOperation.Add
-                    },
-                    alpha = new GpuBlendComponent {
-                        srcFactor = BlendFactor.One,
-                        dstFactor = BlendFactor.OneMinusSrcAlpha,
-                        operation = BlendOperation.Add
-                    }
+                    color = new GpuBlendComponent { srcFactor = BlendFactor.SrcAlpha, dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add },
+                    alpha = new GpuBlendComponent { srcFactor = BlendFactor.One,      dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add }
                 }
             }
         ]};
