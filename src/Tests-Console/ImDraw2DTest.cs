@@ -25,7 +25,7 @@ public class ImRenderer : IRenderer
     public ImRenderer(Wgpu wgpu)
     {
         var device = wgpu.Device;
-        batcher = new Batcher2D((WgpuDevice)device, wgpu.SwapChainFormat, FilterMode.Nearest);
+        batcher = new Batcher2D(device, wgpu.SwapChainFormat, FilterMode.Nearest);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png");
@@ -57,18 +57,18 @@ public class ImRenderer : IRenderer
         draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
         draw.Rectangle(new Vector2(frame.Width - 100, frame.Height - 100), new Vector2(99, 99), 0xFFFFFFFF);
         
-        draw.Rectangle(new Vector2(200, 50), new Vector2(100, 100), Color32.Red);
-        draw.Rectangle(new Vector2(400, 50), new Vector2(100, 100), Color32.Green);
-        draw.Rectangle(new Vector2(600, 50), new Vector2(100, 100), Color32.Blue);
+        draw.Rectangle(new Vector2(200, 50), new Vector2(50, 50), Color32.Red);
+        draw.Rectangle(new Vector2(300, 50), new Vector2(50, 50), Color32.Green);
+        draw.Rectangle(new Vector2(400, 50), new Vector2(50, 50), Color32.Blue);
         
         // --- sprites
-        draw.DrawSprite(new Vector2( 50, 200), new Vector2(256, 256), myTextureView);
-        draw.DrawSprite(new Vector2(350, 200), new Vector2(256, 256), myTextureView, uvMin: new Vector2(1f, 0f), uvMax: new Vector2(0f, 1f)); // flipped sprite
+        draw.DrawSprite(new Vector2( 50, 150), new Vector2(256, 256), myTextureView);
+        draw.DrawSprite(new Vector2(200, 150), new Vector2(256, 256), myTextureView, uvMin: new Vector2(1f, 0f), uvMax: new Vector2(0f, 1f)); // flipped sprite
         
         var srcPos  = new Vector2(6 * 64, 2 * 64);  // tile pos in Sheet (6,2)        
         var srcSize = new Vector2(64, 64);          // 64x64 Tile
         var texSize = new Vector2(1024, 1024);      // texture-size
-        draw.DrawSprite(new Vector2(650, 200), new Vector2(32, 32), myTextureView, srcPos, srcSize, texSize);
+        draw.DrawSprite(new Vector2(500, 50), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
         
         draw.Flush(); // redundant - kept for debugging
     }

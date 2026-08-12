@@ -40,7 +40,7 @@ public sealed partial class Batcher2D : IDisposable
     /// Comfort constructor to quickly specify filtering (Nearest / Linear).
     /// </summary>
     public Batcher2D(
-        WgpuDevice      device,
+        GpuDevice       device,
         TextureFormat   targetFormat,
         FilterMode      filterMode,
         int             maxVertices = 60_000)
@@ -56,7 +56,7 @@ public sealed partial class Batcher2D : IDisposable
     /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
     /// </summary>
     public Batcher2D(
-        WgpuDevice              device,
+        GpuDevice               device,
         TextureFormat           targetFormat,
         GpuSamplerDescriptor?   samplerDescriptor   = null,
         int                     maxVertices         = 60_000)
