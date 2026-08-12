@@ -21,8 +21,9 @@ public sealed partial class Batcher2D : IDisposable
     private  readonly   GpuTexture          defaultWhiteTexture;
     internal readonly   GpuTextureView      defaultWhiteTextureView; // views are owned / disposed by their texture
     internal readonly   GpuSampler          defaultSampler;
-    internal            int                 vertexCount;
     internal            ImUniforms          uniforms;
+    internal            int                 vertexStart; // start of next Draw()
+    internal            int                 vertexCount;
     internal            GpuTextureView?     currentTextureView;
 
 
@@ -127,6 +128,11 @@ public sealed partial class Batcher2D : IDisposable
         descriptor.colorAttachments[0].view = frame.View;
         
         var pass = frame.BeginRenderPass(descriptor);
+        
+        // reset batcher state
+        vertexStart         = 0;
+        vertexCount         = 0;
+        currentTextureView  = null;
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);

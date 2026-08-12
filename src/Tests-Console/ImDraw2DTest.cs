@@ -65,9 +65,11 @@ public class ImRenderer : IRenderer
         draw.DrawSprite(new Vector2( 50, 200), new Vector2(256, 256), myTextureView);
         draw.DrawSprite(new Vector2(350, 200), new Vector2(256, 256), myTextureView, uvMin: new Vector2(1f, 0f), uvMax: new Vector2(0f, 1f)); // flipped sprite
         
-        /* var srcPos  = new Vector2(6 * 64, 2 * 64);  // tile pos in Sheet (6,2)        
+        var srcPos  = new Vector2(6 * 64, 2 * 64);  // tile pos in Sheet (6,2)        
         var srcSize = new Vector2(64, 64);          // 64x64 Tile
         var texSize = new Vector2(1024, 1024);      // texture-size
-        draw.DrawSprite(new Vector2(650, 200), new Vector2(32, 32), myTextureView, srcPos, srcSize, texSize); */
+        draw.DrawSprite(new Vector2(650, 200), new Vector2(32, 32), myTextureView, srcPos, srcSize, texSize);
+        
+        draw.Flush(); // redundant - kept for debugging
     }
 }
