@@ -462,18 +462,11 @@ $$"""
     private static void EmitDraw(StringBuilder body, in CsMethod method)
     {
         body.Append("        // --- draw\n");
-        if (method.DrawVertexIndex != null) {
-            var dvi = method.DrawVertexIndex.Value;
-            body.Append($"        pass_.Draw(new DrawArgs({dvi.vertexCount}, {dvi.instanceCount}, {dvi.firstVertex}, {dvi.firstInstance}));\n");
-            return;
-        }
 
         var methodParameters = method.Parameters;
         // attribute: DrawAttribute
         var drawParam = methodParameters.FirstOrDefault(p => p.WorkloadAttribute == CsWorkloadAttribute.Draw);
-        if (drawParam.Name == null) {
-            return;
-        }
+        
         var (drawArgsParameter, isArray) = GetDrawArgsParameter(methodParameters);
         var (isIndirect, isIndexed)      = IsIndirectBufferParameter(drawParam);
 
@@ -512,6 +505,11 @@ $$"""
                 break;
             case IndexBuffer:
                 body.Append($"{indent}        pass_.DrawIndexed{suffix}({paramName}, {drawArgs});\n");
+                break;
+            case None:
+                if (drawArgsParameter != null) {
+                    body.Append($"{indent}        pass_.Draw{suffix}({drawArgs});\n");
+                }
                 break;
         }
         if (isArray) {

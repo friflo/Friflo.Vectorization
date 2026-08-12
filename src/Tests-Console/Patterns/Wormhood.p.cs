@@ -11,7 +11,8 @@ public static partial class Wormhood
     public static void Pattern_RenderTunnel(
         RenderPass      pass,
         RenderConfig    config,
-        in Uniforms   	uniforms)
+        in Uniforms   	uniforms,
+        DrawArgs        args)
 	{
         var pass_       = pass.Internal;
 		var recorder	= pass_.Recorder;
@@ -29,7 +30,7 @@ public static partial class Wormhood
         pass_.SetBindGroupUniform(0, 0, ref bindGroupCache.bindGroup_0, uniforms, pipelineCache, "Wormhood_bindGroup_0"u8);
         
         // --- draw
-        pass_.Draw(new DrawArgs(3, 1, 0, 0));
+        pass_.Draw(args);
 	}
     
     private sealed class Wormhood_GPU_Cache : BindGroupCache

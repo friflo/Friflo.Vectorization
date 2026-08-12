@@ -34,16 +34,6 @@ public sealed class ShaderAttribute : Attribute
 
 #region ---------- Draw method / parameter Attributes
 
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class DrawVertexIndexAttribute : Attribute
-{
-    public DrawVertexIndexAttribute(
-        uint vertexCount    = 3, 
-        uint instanceCount  = 1, 
-        uint firstVertex    = 0, 
-        uint firstInstance  = 0) { }
-}
-
 /// <summary>
 /// Marks the buffer that provides the vertex data for the draw command.<br/>
 /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/draw">MDN: Draw()</a> for reference.

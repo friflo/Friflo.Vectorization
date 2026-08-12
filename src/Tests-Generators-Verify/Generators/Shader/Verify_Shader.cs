@@ -258,9 +258,9 @@ namespace VerifyShader;
 public partial struct ShaderExample
 {
     [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl")]
-    [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform] in Uniforms    uniforms);
+        [Map(0, 0)] [uniform]   in Uniforms uniforms,
+                                DrawArgs    args);
         
     [StructLayout(LayoutKind.Sequential, Size = 48)]
     public struct Uniforms

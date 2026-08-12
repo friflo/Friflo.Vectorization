@@ -136,7 +136,7 @@ public readonly unsafe ref struct RenderPassInternal
         wgpuRenderPassEncoderDraw(handle, (uint)vertexCount, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);
     }
     
-    /// <summary> Used if method is annotated <see cref="DrawVertexIndexAttribute"/>. </summary>
+    /// <summary> Used for methods using no [Draw] parameter.</summary>
     public void Draw(DrawArgs args)
     {
         wgpuRenderPassEncoderDraw(handle, (uint)args.count, (uint)args.instanceCount, (uint)args.first, (uint)args.firstInstance);

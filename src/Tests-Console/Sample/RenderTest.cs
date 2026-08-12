@@ -87,7 +87,7 @@ public partial class Renderer : IRenderer
         wormhood.iResolution    = new Vector3(frame.Width, frame.Height, 1.0f);
         wormhood.iTime          = time;
         
-        Wormhood.RenderTunnel(pass, wgpu.Config, wormhood);
+        Wormhood.RenderTunnel(pass, wgpu.Config, wormhood, new DrawArgs(3));
         DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
     }
 
@@ -112,7 +112,7 @@ public static partial class Wormhood
 {
     [Shader("~/shaders/renderTest/full_screen_triangle.wgsl",    vertex:   "vs_main")]
     [Shader("~/shaders/renderTest/raymarcher_no_texture.wgsl",   fragment: "fs_main")] // https://www.shadertoy.com/view/MdcSRj
-    [DrawVertexIndex(3, 1)]
     public static partial void RenderTunnel(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform] in ShadertoyUniforms uniforms);
+        [Map(0, 0)] [uniform]   in ShadertoyUniforms    uniforms,
+                                DrawArgs                args);
 }

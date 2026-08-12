@@ -29,15 +29,12 @@ internal static partial class ShaderGenerator
         if (noEmit) {
             return null;
         }
-        var shaderAttributes = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
-        //
-        var drawVertexIndex = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.DrawVertexIndexAttribute");
-        
-        var workgroupSize = GeneratorUtils.GetAttributeData(methodAttributes, "Friflo.Vectorization.WebGPU.WorkgroupSizeAttribute");
+        var shaderAttributes    = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
+        var workgroupSize       = GeneratorUtils.GetAttributeData (methodAttributes, "Friflo.Vectorization.WebGPU.WorkgroupSizeAttribute");
         
         var semanticInfo = new SemanticInfo(semanticModel);
 
-        var method      = CreateCsMethod(semanticInfo, methodSymbol, hash, shaderAttributes,  drawVertexIndex, workgroupSize, diagnostics);
+        var method      = CreateCsMethod(semanticInfo, methodSymbol, hash, shaderAttributes,  workgroupSize, diagnostics);
         
         var fileName    = GeneratorUtils.CreateFileName(methodSymbol, hash);
 
@@ -50,7 +47,6 @@ internal static partial class ShaderGenerator
         IMethodSymbol       methodSymbol,
         string              hash,
         List<AttributeData> shaderAttributes,
-        AttributeData?      drawVertexIndexAttr,
         AttributeData?      workgroupSizeAttr,
         Diagnostics         diagnostics)
     {
@@ -108,16 +104,6 @@ internal static partial class ShaderGenerator
             paramModifiers[n] = new CsParamModifier { type = modifierType };
         }
         
-        CsDrawVertexIndex?  drawVertexIndex = null;
-        if (drawVertexIndexAttr != null) {
-            var args = drawVertexIndexAttr.ConstructorArguments;
-            drawVertexIndex = new CsDrawVertexIndex {
-                vertexCount     = (uint)args[0].Value!,
-                instanceCount   = (uint)args[1].Value!,
-                firstVertex     = (uint)args[2].Value!,
-                firstInstance   = (uint)args[3].Value!
-            };
-        }
         var modifier = CreateMethodModifier(methodSymbol, paramModifiers);
         
         var shaders = new CsShader[shaderAttributes.Count];
@@ -156,7 +142,6 @@ internal static partial class ShaderGenerator
             DeclaringType   = declaringType,
             Parameters      = parameters.ToValueArray(),
             Shaders         = shaders.ToValueArray(),
-            DrawVertexIndex = drawVertexIndex,
             TypeInfos       = typeInfos, 
             Modifier        = modifier,
             WorkgroupSize   = workgroupSize,

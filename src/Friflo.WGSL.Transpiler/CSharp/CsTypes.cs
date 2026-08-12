@@ -36,22 +36,11 @@ public readonly record struct CsShader
 }
 
 
-// WGPU attribute:  DrawVertexIndexAttribute
-public readonly record struct CsDrawVertexIndex
-{
-    public required     uint    vertexCount     { get; init; }
-    public required     uint    instanceCount   { get; init; }
-    public required     uint    firstVertex     { get; init; }
-    public required     uint    firstInstance   { get; init; }
-}
-
-
 public record CsMethod
 {
     public required     string                  Name            { get; init; }
     public required     string                  Hash            { get; init; }
     public required     ValueArray<CsShader>    Shaders         { get; init; }
-    public required     CsDrawVertexIndex?      DrawVertexIndex { get; init; }
     public required     CsType                  DeclaringType   { get; init; }
     public required     ValueArray<CsParameter> Parameters      { get; init; }
     public required     ValueArray<CsTypeInfo>  TypeInfos       { get; init; }
