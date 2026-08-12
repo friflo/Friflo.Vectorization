@@ -100,6 +100,17 @@ public sealed partial class Batcher2D : IDisposable
         config = desc.CreateConfig("Batcher2D Config");
     }
     
+    public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
+    {
+        descriptor.colorAttachments[0].view = frame.View;
+        
+        var pass = frame.BeginRenderPass(descriptor);
+        
+        var draw = new Draw2D(this, pass);
+        draw.SetViewport(frame.Width, frame.Height);
+        return draw;
+    }
+    
     [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
     internal static partial void Draw(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]                   in ImUniforms       globals,

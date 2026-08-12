@@ -13,17 +13,18 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
-public readonly ref struct Draw2D : IDisposable
+public ref struct Draw2D : IDisposable
 {
-    private readonly Batcher2D      batcher;
-    private readonly RenderPass     pass;   // RenderPass is ref struct
+    private readonly    Batcher2D   batcher;
+    private             RenderPass  pass;
 
     
     public void Dispose() {
         Flush();
+        pass.Dispose();
     }
     
-    public Draw2D(Batcher2D batcherBatcher, RenderPass pass)
+    internal Draw2D(Batcher2D batcherBatcher, RenderPass pass)
     {
         batcher     = batcherBatcher;
         this.pass   = pass;

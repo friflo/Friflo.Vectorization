@@ -33,21 +33,13 @@ public class ImRenderer : IRenderer
     
     public void OnFrame(in RenderFrame frame)
     {
-        renderPassDescriptor.colorAttachments[0].view = frame.View;
+        using var draw = batcher.BeginDraw2D(frame, renderPassDescriptor);
         
-        using var pass  = frame.BeginRenderPass(renderPassDescriptor);
-        using var draw  = new Draw2D(batcher, pass);
-        
-        draw.SetViewport(frame.Width, frame.Height);
-        
-
         draw.Rectangle(new Vector2(1, 1), new Vector2(40, 40), 0xFFFFFFFF);
         draw.Rectangle(new Vector2(frame.Width - 41, frame.Height - 41), new Vector2(40, 40), 0xFFFFFFFF);
         
         draw.Rectangle(new Vector2(100, 50), new Vector2(100, 100), Color32.Red);
         draw.Rectangle(new Vector2(300, 50), new Vector2(100, 100), Color32.Green);
         draw.Rectangle(new Vector2(500, 50), new Vector2(100, 100), Color32.Blue);
-        
-        draw.Flush(); // redundant call
     }
 }
