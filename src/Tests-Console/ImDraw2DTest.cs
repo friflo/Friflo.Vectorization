@@ -11,7 +11,8 @@ namespace TestConsole;
 public class ImRenderer : IRenderer
 {
     private readonly    Batcher2D               batcher;
-    protected           GpuRenderPassDescriptor renderPassDescriptor= new () { colorAttachments = [ default ] };
+    private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
+    private readonly    PerfLog                 perfLog                 = new();
     
     public void OnShutdown() {
         batcher.Dispose();
@@ -33,6 +34,8 @@ public class ImRenderer : IRenderer
     
     public void OnFrame(in RenderFrame frame)
     {
+        perfLog.Trace(5000);
+        
         using var draw = batcher.BeginDraw2D(frame, renderPassDescriptor);
         
         draw.Rectangle(new Vector2(1, 1), new Vector2(40, 40), 0xFFFFFFFF);
