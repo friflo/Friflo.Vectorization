@@ -9,10 +9,10 @@ using System.Runtime.InteropServices;
 namespace Friflo.WGPU.ImDraw;
 
 
-[StructLayout(LayoutKind.Sequential, Size = 32)]
+[StructLayout(LayoutKind.Sequential, Pack = 1, Size = 20)]
 public struct Vertex2D
 {
-    public  Vector2 Position;   // 8
-    public  Vector2 UV;         // 8
-    public  uint    Color;      // 4 (Rgba8Pack)
+    public  Vector2 position;   // 8
+    public  Vector2 uv;         // 8
+    public  uint    color;      // 4 (Rgba8Pack)
 }

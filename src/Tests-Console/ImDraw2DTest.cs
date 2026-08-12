@@ -11,15 +11,15 @@ namespace TestConsole;
 public class ImRenderer : IRenderer
 {
     private readonly    Batcher2D               batcher;
-    private readonly    RenderConfig            config;
     protected           GpuRenderPassDescriptor renderPassDescriptor= new () { colorAttachments = [ default ] };
     
-    public void OnShutdown() { }
+    public void OnShutdown() {
+        batcher.Dispose();
+    }
     
     public ImRenderer(Wgpu wgpu)
     {
-        batcher = new Batcher2D((WgpuDevice)wgpu.Device);
-        config  = wgpu.Config;
+        batcher = new Batcher2D((WgpuDevice)wgpu.Device, wgpu.Config.Descriptor);
     }
     
     public void OnWindowChanged(int width, int height)
@@ -31,17 +31,20 @@ public class ImRenderer : IRenderer
         };
     }
     
-    public virtual void OnFrame(in RenderFrame frame)
+    public void OnFrame(in RenderFrame frame)
     {
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         
-        using var pass      = frame.BeginRenderPass(renderPassDescriptor);
-        using var draw2D    = new Draw2D(batcher, pass, config);
+        using var pass  = frame.BeginRenderPass(renderPassDescriptor);
+        using var draw  = new Draw2D(batcher, pass);
         
-        draw2D.Rectangle(new Vector2(0, 0),     new Vector2(0.5f, 0.5f), 0xFF0000FF);
-        draw2D.Rectangle(new Vector2(10, 10),   new Vector2(  10,   10), 0xFF0000FF);
-        draw2D.Rectangle(new Vector2(100, 100), new Vector2( 100,  100), 0xFF0000FF);
+        draw.SetViewport(frame.Width, frame.Height);
         
-        draw2D.Flush();
+        draw.Rectangle(new Vector2(  0,   0), new Vector2(0.5f, 0.5f), 0xFF0000FF);
+        draw.Rectangle(new Vector2( 10,  10), new Vector2(  10,   10), 0xFF0000FF);
+        draw.Rectangle(new Vector2(100, 100), new Vector2( 100,  100), 0xFF0000FF);
+        draw.Rectangle(new Vector2(300, 100), new Vector2( 100,  100), 0xFF0000FF);
+        
+        draw.Flush(); // redundant call
     }
 }
