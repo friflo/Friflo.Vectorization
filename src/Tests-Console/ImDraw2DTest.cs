@@ -40,10 +40,13 @@ public class ImRenderer : IRenderer
         
         draw.SetViewport(frame.Width, frame.Height);
         
-        draw.Rectangle(new Vector2(  0,   0), new Vector2(0.5f, 0.5f), 0xFF0000FF);
-        draw.Rectangle(new Vector2( 10,  10), new Vector2(  10,   10), 0xFF0000FF);
-        draw.Rectangle(new Vector2(100, 100), new Vector2( 100,  100), 0xFF0000FF);
-        draw.Rectangle(new Vector2(300, 100), new Vector2( 100,  100), 0xFF0000FF);
+
+        draw.Rectangle(new Vector2(1, 1), new Vector2(40, 40), 0xFFFFFFFF);
+        draw.Rectangle(new Vector2(frame.Width - 41, frame.Height - 41), new Vector2(40, 40), 0xFFFFFFFF);
+        
+        draw.Rectangle(new Vector2(100, 50), new Vector2(100, 100), 0xFF0000FF);
+        draw.Rectangle(new Vector2(300, 50), new Vector2(100, 100), 0xFF00FF00);
+        draw.Rectangle(new Vector2(500, 50), new Vector2(100, 100), 0xFFFF0000);
         
         draw.Flush(); // redundant call
     }
