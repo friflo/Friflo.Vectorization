@@ -41,21 +41,22 @@ public ref struct Draw2D : IDisposable
         var bat = batcher;
         texture ??= bat.defaultWhiteTextureView;
         
-        if (bat.vertexCount + 6 > bat.vertexBuffer.Length || (bat.currentTextureView != null && bat.currentTextureView.Value.Handle != texture.Value.Handle)) {
+        // flush if full (4 vertices per quad) or texture changed
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || (bat.currentTextureView != null && bat.currentTextureView.Value.Handle != texture.Value.Handle)) {
             Flush();
         }
         bat.currentTextureView = texture;
 
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 6).Span;
+        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
         
-        // fill Quad with two triangles (TL, TR, BL / TR, BR, BL)
+        // fill 4 quad vertices (TL, TR, BR, BL)
         FillQuad(span, position, size, color);
 
-        bat.vertexCount += 6;
+        bat.vertexCount += 4;
     }
     
     /// <summary>
-    /// Fills a 6-vertex span representing two triangles for a quad (TL, TR, BL, TR, BR, BL).
+    /// Fills a 4-vertex span for an indexed quad (TL, TR, BR, BL).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FillQuad(Span<Vertex2D> span, in Vector2 position, in Vector2 size, uint color)
@@ -69,15 +70,10 @@ public ref struct Draw2D : IDisposable
         span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = new Vector2(0f, 0f), color = color };
         // V1: Top-Right
         span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(1f, 0f), color = color };
-        // V2: Bottom-Left
-        span[2] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(0f, 1f), color = color };
-
-        // V3: Top-Right (reused)
-        span[3] = span[1];
-        // V4: Bottom-Right
-        span[4] = new Vertex2D { position = new Vector2(x2, y2), uv = new Vector2(1f, 1f), color = color };
-        // V5: Bottom-Left (reused)
-        span[5] = span[2];
+        // V2: Bottom-Right
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = new Vector2(1f, 1f), color = color };
+        // V3: Bottom-Left
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(0f, 1f), color = color };
     }
     
     public void SetViewport(float width, float height)
@@ -93,12 +89,17 @@ public ref struct Draw2D : IDisposable
     {
         var bat = batcher;
         if (bat.vertexCount == 0) return;
+        
+        int quadCount  = bat.vertexCount / 4;
+        int indexCount = quadCount * 6;
 
         bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
 
-        var texture = bat.currentTextureView ?? bat.defaultWhiteTextureView;
+        var texture     = bat.currentTextureView ?? bat.defaultWhiteTextureView;
+        var vertexView  = bat.vertexBuffer.In(0, bat.vertexCount);
+        var indexView   = bat.indexBuffer.In(0, indexCount);
         
-        Batcher2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, bat.vertexBuffer.In(0, bat.vertexCount));
+        Batcher2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
         
         bat.vertexCount = 0;
     }
