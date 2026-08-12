@@ -80,13 +80,13 @@ public ref struct Draw2D : IDisposable
         float y2 = position.Y + size.Y;
 
         // V0: Top-Left
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin, color = color };
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color };
         // V1: Top-Right
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y), color = color };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color };
         // V2: Bottom-Right
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax, color = color };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color };
         // V3: Bottom-Left
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y), color = color };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color };
 
         bat.vertexCount += 4;
     }
@@ -118,6 +118,6 @@ public ref struct Draw2D : IDisposable
         
         Batcher2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
         
-        bat.vertexStart =  bat.vertexCount;
+        bat.vertexStart = bat.vertexCount;
     }
 }
