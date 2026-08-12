@@ -54,12 +54,12 @@ public class ImRenderer : IRenderer
         
         using var draw = batcher.BeginDraw2D(frame, renderPassDescriptor);
         
-        draw.Rectangle(new Vector2(1, 1), new Vector2(40, 40), 0xFFFFFFFF);
-        draw.Rectangle(new Vector2(frame.Width - 41, frame.Height - 41), new Vector2(40, 40), 0xFFFFFFFF);
+        draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
+        draw.Rectangle(new Vector2(frame.Width - 100, frame.Height - 100), new Vector2(99, 99), 0xFFFFFFFF);
         
-        draw.Rectangle(new Vector2(100, 50), new Vector2(100, 100), Color32.Red);
-        draw.Rectangle(new Vector2(300, 50), new Vector2(100, 100), Color32.Green);
-        draw.Rectangle(new Vector2(500, 50), new Vector2(100, 100), Color32.Blue);
+        draw.Rectangle(new Vector2(200, 50), new Vector2(100, 100), Color32.Red);
+        draw.Rectangle(new Vector2(400, 50), new Vector2(100, 100), Color32.Green);
+        draw.Rectangle(new Vector2(600, 50), new Vector2(100, 100), Color32.Blue);
         
         // --- sprites
         draw.DrawSprite(new Vector2( 50, 200), new Vector2(256, 256), myTextureView);
