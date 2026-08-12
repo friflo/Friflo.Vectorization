@@ -8,7 +8,6 @@ using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
 
-// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -71,8 +70,8 @@ public sealed partial class Batcher2D : IDisposable
         defaultWhiteTextureView = defaultWhiteTexture.CreateView();
         
         defaultSampler = device.CreateSampler(new GpuSamplerDescriptor {
-            magFilter = FilterMode.Linear,  // TODO  use Nearest for pixel art  
-            minFilter = FilterMode.Linear   // TODO  use Nearest for pixel art
+            magFilter = FilterMode.Linear,  // TODO  use magFilter/minFilter = Nearest for pixel art  
+            minFilter = FilterMode.Linear
         });
         
         var desc = descriptor;

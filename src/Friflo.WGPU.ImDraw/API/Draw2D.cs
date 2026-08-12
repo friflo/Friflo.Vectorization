@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
