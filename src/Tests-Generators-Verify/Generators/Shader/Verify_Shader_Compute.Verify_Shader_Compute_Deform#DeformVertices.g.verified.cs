@@ -21,7 +21,7 @@ public partial class ShaderExample
     {
 
         var recorder	= (CommandRecorder)computeContext;
-		recorder.InitKernel(_DeformVertices_GPU_ShaderId, "DeformVertices_pipeline"u8);
+		recorder.InitKernel(_DeformVertices_GPU_ShaderId, "DeformVertices_encoder"u8);
 
         recorder.RequireReadWrite(vertices);
         

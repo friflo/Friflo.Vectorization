@@ -149,7 +149,7 @@ $$"""
     {
 {{buffers}}
         var recorder	= (CommandRecorder){{contextName}};
-		recorder.InitKernel({{methodName_GPU}}_ShaderId, "{{methodName}}_pipeline"u8);
+		recorder.InitKernel({{methodName_GPU}}_ShaderId, "{{methodName}}_encoder"u8);
 {{bufferInit}}
         
         using var pass_ = recorder.BeginComputePass("{{methodName}}"u8);
