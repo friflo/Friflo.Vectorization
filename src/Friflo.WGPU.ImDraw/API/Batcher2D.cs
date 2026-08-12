@@ -17,29 +17,91 @@ namespace Friflo.WGPU.ImDraw;
 
 public sealed partial class Batcher2D : IDisposable
 {
-    private readonly    GpuBuffer<Vertex2D> vertexBuffer;
-//  private readonly    ushort[]            indices = [];
-    private             int                 vertexCount;
-    private             ImUniforms          uniforms;
-    
-    public Batcher2D(WgpuDevice device, int maxVertices = 60_000)
+    internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
+    private  readonly   GpuTexture          defaultWhiteTexture;
+    internal readonly   GpuTextureView      defaultWhiteTextureView;
+    internal readonly   GpuSampler          defaultSampler;
+    internal            int                 vertexCount;
+    internal            ImUniforms          uniforms;
+    internal            GpuTextureView?     currentTextureView;
+
+
+    public void Dispose()
     {
-        vertexBuffer = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batcher2D", BufferProfile.InOut); 
+        vertexBuffer.Dispose();
+        defaultWhiteTexture.Dispose();
+        defaultSampler.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuad(in Vector2 position, in Vector2 size, uint color)
+    public Batcher2D(WgpuDevice device, int maxVertices = 60_000)
     {
-        if (vertexCount + 6 > vertexBuffer.Length) {
+        vertexBuffer        = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batcher2D", BufferProfile.InOut);
+        defaultWhiteTexture = device.CreateTexture(new GpuTextureDescriptor {
+            label   = "white1x1",
+            size    = [1, 1],
+            format  = TextureFormat.RGBA8Unorm,
+            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst});
+        
+        ReadOnlySpan<byte> whitePixel = [255, 255, 255, 255];
+        defaultWhiteTexture.Write(whitePixel, bytesPerRow: 4, rowsPerImage: 1, writeSize: new GpuExtent3D(1, 1, 1));
+        
+        defaultWhiteTextureView = defaultWhiteTexture.CreateView();
+        
+        defaultSampler = device.CreateSampler(new GpuSamplerDescriptor {
+            magFilter = FilterMode.Linear,  // TODO  use Nearest for pixel art  
+            minFilter = FilterMode.Linear   // TODO  use Nearest for pixel art
+        });
+    }
+    
+    [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    internal static partial void Draw(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]                   in ImUniforms       globals,
+        [Map(0, 1)] [texture_2d(ST.f32)]        GpuTextureView      texture,
+        [Map(0, 2)] [sampler]                   GpuSampler          sampler,
+                    [VertexBuffer(0)] [Draw]    InBuffer<Vertex2D>  vertices);
+    
+    // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
+}
+
+
+
+public readonly ref struct Draw2D : IDisposable
+{
+    private readonly Batcher2D      batcher;
+    private readonly RenderPass     pass;   // RenderPass is ref struct
+    private readonly RenderConfig   config; // handle struct (size: 4 bytes)
+
+    
+    public void Dispose() { }
+    
+    public Draw2D(Batcher2D batcherBatcher, RenderPass pass, RenderConfig config)
+    {
+        batcher     = batcherBatcher;
+        this.pass   = pass;
+        this.config = config;
+    }
+    
+    public void Rectangle(in Vector2 position, in Vector2 size, uint color)
+    {
+        DrawQuad(position, size, color);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawQuad(in Vector2 position, in Vector2 size, uint color, GpuTextureView? texture = null)
+    {
+        texture ??= batcher.defaultWhiteTextureView;
+        
+        if (batcher.vertexCount + 6 > batcher.vertexBuffer.Length || (batcher.currentTextureView != null && batcher.currentTextureView.Value.Handle != texture.Value.Handle)) {
             Flush();
         }
+        batcher.currentTextureView = texture;
 
-        var span = vertexBuffer.InOut(vertexCount, 6).Span;
+        var span = batcher.vertexBuffer.InOut(batcher.vertexCount, 6).Span;
         
         // fill Quad with two triangles (TL, TR, BL / TR, BR, BL)
         FillQuad(span, position, size, color);
 
-        vertexCount += 6;
+        batcher.vertexCount += 6;
     }
     
     /// <summary>
@@ -67,28 +129,23 @@ public sealed partial class Batcher2D : IDisposable
         // V5: Bottom-Left (reused)
         span[5] = span[2];
     }
+    
+    public void SetViewport(float width, float height)
+    {
+        var proj = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
+        batcher.uniforms = new ImUniforms { projection = proj };
+    }
 
     public void Flush()
     {
-        if (vertexCount == 0) return;
+        if (batcher.vertexCount == 0) return;
 
-        vertexBuffer.InOut(0, vertexCount).Write();
+        batcher.vertexBuffer.InOut(0, batcher.vertexCount).Write();
 
-        // call Draw Shader
-        Draw(default, default, uniforms, default, default, vertexBuffer.In());
+        var texture = batcher.currentTextureView ?? batcher.defaultWhiteTextureView;
         
-        vertexCount = 0;
+        Batcher2D.Draw(pass, config, batcher.uniforms, texture, batcher.defaultSampler, batcher.vertexBuffer.In(0, batcher.vertexCount));
+        
+        batcher.vertexCount = 0;
     }
-    
-    [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    private static partial void Draw(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]                   in ImUniforms       globals,
-        [Map(0, 1)] [texture_2d(ST.f32)]        GpuTextureView      texture,
-        [Map(0, 2)] [sampler]                   GpuSampler          sampler,
-                    [VertexBuffer(0)] [Draw]    InBuffer<Vertex2D>  vertices);
-    
-    // [ ]  If needed, add parameter: [IndexBuffer] InBuffer<ushort|uint> indices.
-
-
-    public void Dispose() => vertexBuffer.Dispose();
 }

@@ -11,6 +11,9 @@ using System.Runtime.CompilerServices;
 namespace Friflo.WGPU.ImDraw;
 
 
+
+
+/*
 public static class Draw2D
 {
     [ThreadStatic]
@@ -29,4 +32,4 @@ public static class Draw2D
         _currentBatcher?.Flush();
         _currentBatcher = null;
     }
-}
+} */

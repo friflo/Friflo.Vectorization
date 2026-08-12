@@ -27,6 +27,12 @@ public struct GpuExtent3D : IEnumerable<int>
     
     public GpuExtent3D() { }
     
+    public GpuExtent3D(int width, int height, int depthOrArrayLayers) {
+        this.width              = width;
+        this.height             = height;
+        this.depthOrArrayLayers = depthOrArrayLayers;
+    }
+    
     public IEnumerator<int> GetEnumerator() => throw new NotImplementedException();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
