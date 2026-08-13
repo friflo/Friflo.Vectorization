@@ -120,13 +120,13 @@ public class ImRenderer : IRenderer
     public static void DrawText(Draw2D draw)
     {
         var textSize = draw.MeasureString("wgpu");
-        draw.Rectangle(new Vector2(700, 50), textSize, Color32.Gray);
+        draw.RectangleLines(new Vector2(700, 50), textSize, 2, Color32.Gray);
         draw.DrawString("wgpu", new Vector2(700, 50), Color32.White);
         
-        draw.Rectangle(new Vector2(850, 50), new Vector2(150, 48), Color32.Gray);
+        draw.RectangleLines(new Vector2(850, 50), new Vector2(150, 48), 2, Color32.Gray);
         draw.DrawStringAligned("right", new Vector2(1000, 50), TextAlignment.Right, Color32.Yellow);
 
-        draw.Rectangle(new Vector2(1050, 50), new Vector2(150, 48), Color32.Gray);
+        draw.RectangleLines(new Vector2(1050, 50), new Vector2(150, 48), 2, Color32.Gray);
         draw.DrawStringTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
     }
 }
