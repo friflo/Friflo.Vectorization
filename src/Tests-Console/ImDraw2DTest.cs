@@ -132,5 +132,11 @@ public class ImRenderer : IRenderer
         draw.RectangleLines(new Vector2(750, 150), new Vector2(200, 200), 2, Color32.Gray);
         var lineCount = draw.DrawStringWrapped("long text with word wrapping", new Vector2(750, 150), 200, Color32.CornflowerBlue);
         Debug.Assert(lineCount == 3);
+        
+        var btnPos  = new Vector2(1000, 150);
+        var btnSize = new Vector2(150,  50);
+
+        draw.Rectangle(btnPos, btnSize, Color32.DarkGray);
+        draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White);
     }
 }

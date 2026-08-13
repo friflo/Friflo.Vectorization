@@ -20,13 +20,6 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
-public enum TextAlignment
-{
-    Left,
-    Center,
-    Right
-}
-
 public ref struct Draw2D : IDisposable
 {
     private readonly Batch2D    batch;
@@ -389,6 +382,66 @@ public ref struct Draw2D : IDisposable
             alignedPos.X -= size.X;
 
         DrawString(text, alignedPos, color, font);
+    }
+    
+    /// <summary>
+    /// Draws text aligned horizontally and vertically within a target bounding rectangle.
+    /// Supports multi-line text and optional word wrapping.
+    /// Allocation-free (GC-friendly).
+    /// </summary>
+    public void DrawStringInRect(
+        ReadOnlySpan<char> text, 
+        Vector2 position, 
+        Vector2 size, 
+        TextAlignment horizontalAlignment, 
+        VerticalAlignment verticalAlignment, 
+        Color32 color, 
+        Font? font = null, 
+        bool wordWrap = false)
+    {
+        if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
+        font ??= batch.GetDefaultFont();
+
+        float effectiveMaxWidth = wordWrap ? size.X : float.MaxValue;
+
+        // Pass 1: Count lines to calculate total block height
+        int lineCount = 0;
+        foreach (ReadOnlySpan<char> _ in GetWrappedLines(text, effectiveMaxWidth, font)) {
+            lineCount++;
+        }
+
+        if (lineCount == 0) return;
+
+        float totalHeight = lineCount * font.lineHeight;
+
+        // Calculate vertical starting Y position
+        float startY = verticalAlignment switch
+        {
+            VerticalAlignment.Middle => position.Y + (size.Y - totalHeight) * 0.5f,
+            VerticalAlignment.Bottom => position.Y + size.Y - totalHeight,
+            _                        => position.Y // Top
+        };
+
+        // Pass 2: Draw each line horizontally aligned
+        float currentY = startY;
+
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, effectiveMaxWidth, font))
+        {
+            float lineX = position.X;
+
+            if (horizontalAlignment != TextAlignment.Left)
+            {
+                float lineWidth = MeasureString(line, font).X;
+
+                if (horizontalAlignment == TextAlignment.Center)
+                    lineX += (size.X - lineWidth) * 0.5f;
+                else if (horizontalAlignment == TextAlignment.Right)
+                    lineX += size.X - lineWidth;
+            }
+
+            DrawString(line, new Vector2(lineX, currentY), color, font);
+            currentY += font.lineHeight;
+        }
     }
     
     /// <summary>

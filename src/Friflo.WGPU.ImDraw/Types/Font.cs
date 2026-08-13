@@ -16,6 +16,20 @@ using StbImageSharp;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
+public enum TextAlignment
+{
+    Left,
+    Center,
+    Right
+}
+
+public enum VerticalAlignment
+{
+    Top,
+    Middle,
+    Bottom
+}
+
 
 public struct GlyphInfo
 {
