@@ -60,6 +60,8 @@ public class ImRenderer : IRenderer
         lastTime        = currentTime;
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
+        
+        // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
         draw.SetTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime));
         

@@ -20,10 +20,12 @@ namespace Friflo.WGPU.ImDraw;
 
 public enum BlendState
 {
-    Alpha,      // Standard transparent - default 
-    Opaque,     // new Pixel overwrite old completely
-    Additive,   // Glow, light, particles
-    Multiply,   // Shadow, Tint
+    /** Standard transparent (default) */               Alpha,  
+    /** Overwrites pixels completely (no blending) */   Opaque,
+    /** Glow, light, particles (SrcAlpha + One) */      Additive,
+    /** Shadows, tinting (Zero + Src) */                Multiply,
+    /** Add colors directly */                          AddColors,
+    /** Subtract colors directly */                     SubtractColors
 } 
 
 
@@ -111,7 +113,7 @@ public sealed partial class Batch2D : IDisposable
     // TextureFormat.BGRA8Unorm / RGBA8Unorm
     private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
     {
-        var configs = new RenderConfig[4];
+        var configs = new RenderConfig[6];
         var desc = new GpuRenderPipelineDescriptor();
         desc.VertexState.buffers = [
             new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
@@ -126,7 +128,7 @@ public sealed partial class Batch2D : IDisposable
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.None
         };
-        for (int index = 0; index < 4; index++) {
+        for (int index = 0; index < configs.Length; index++) {
             var blendIndex  = (BlendState)index;
             var blend       = CreateBlendState(blendIndex);
             desc.FragmentState = new GpuFragmentState{ targets = [ new GpuColorTargetState { format = targetFormat, blend  = blend }]};
@@ -153,6 +155,14 @@ public sealed partial class Batch2D : IDisposable
             };
             case BlendState.Multiply: return new GpuBlendState {
                 color = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.Src, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.One, operation = BlendOperation.Add }
+            };
+            case BlendState.AddColors: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.Src,        dstFactor = BlendFactor.One, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.One, operation = BlendOperation.Add }
+            };
+            case BlendState.SubtractColors: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.One,        dstFactor = BlendFactor.One, operation = BlendOperation.ReverseSubtract },
                 alpha = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.One, operation = BlendOperation.Add }
             };
         }
