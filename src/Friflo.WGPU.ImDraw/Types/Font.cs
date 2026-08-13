@@ -48,7 +48,7 @@ public class Font : IDisposable
 
     public void Dispose()
     {
-        fontTexture.Dispose();
+        fontTexture.Dispose(); // GpuTexture support multi Dispose()
     }
 
     public bool TryGetGlyph(char c, out GlyphInfo glyph) => glyphs.TryGetValue(c, out glyph);
@@ -66,7 +66,7 @@ public class Font : IDisposable
             {
                 lineHeight = ParseValue(line, "lineHeight=");
             }
-            else if (line.StartsWith("char "))
+            else if (line.StartsWith("char") && line.Length > 4 && char.IsWhiteSpace(line[4]))
             {
                 char id = (char)ParseValue(line, "id=");
                 var glyph = new GlyphInfo
