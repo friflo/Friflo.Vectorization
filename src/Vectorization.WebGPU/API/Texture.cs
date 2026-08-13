@@ -146,6 +146,12 @@ public sealed unsafe class GpuTexture : IDisposable
         viewCount++;
         return new GpuTextureView(view, this);
     }
+    
+    internal GpuTextureViewDescriptor FindViewDescriptor(TextureView* view)
+    {
+        var index = viewHandles.IndexOf((nint)view);
+        return viewDescriptors[index];
+    }
 }
 
 /// <summary> manage type for:  <see cref="TextureViewDescriptor"/>. </summary>
@@ -171,8 +177,9 @@ public record struct GpuTextureViewDescriptor
 /// </summary>
 public readonly unsafe struct GpuTextureView
 {
-    internal readonly   TextureView*    handle;
-    private  readonly   GpuTexture      texture;
+    internal readonly   TextureView*                handle;
+    private  readonly   GpuTexture                  texture;
+    private             GpuTextureViewDescriptor    Descriptor => texture.FindViewDescriptor(handle); // only for debugging
 
     public   override   string          ToString() => texture?.Label; 
 
