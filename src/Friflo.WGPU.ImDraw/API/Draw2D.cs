@@ -33,6 +33,8 @@ public ref struct Draw2D : IDisposable
         this.pass   = pass;
     }
     
+#region Quads / Sprites
+
     public void Rectangle(in Vector2 position, in Vector2 size, uint color)
     {
         DrawQuad(position, size, new Vector2(0f, 0f), new Vector2(1f, 1f), color, null);
@@ -156,7 +158,131 @@ public ref struct Draw2D : IDisposable
 
         bat.vertexCount += 4;
     }
-    
+#endregion
+
+
+#region Primitives / Shapes
+    /// <summary>
+    /// Helper to submit raw 4-point quad vertices using the default white texture.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, uint color)
+    {
+        var bat = batch;
+        var texView = bat.defaultWhiteTextureView;
+
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
+            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
+        {
+            Flush();
+        }
+        bat.currentTextureView = texView;
+
+        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
+        var uv = Vector2.Zero;
+
+        span[0] = new Vertex2D { position = v0, uv = uv, color = color };
+        span[1] = new Vertex2D { position = v1, uv = uv, color = color };
+        span[2] = new Vertex2D { position = v2, uv = uv, color = color };
+        span[3] = new Vertex2D { position = v3, uv = uv, color = color };
+
+        bat.vertexCount += 4;
+    }
+
+    /// <summary>
+    /// Draws a thick line segment between two points.
+    /// </summary>
+    public void Line(in Vector2 start, in Vector2 end, float thickness, uint color)
+    {
+        Vector2 dir = end - start;
+        float len = dir.Length();
+        if (len < 0.0001f) return;
+
+        // Normal vector perpendicular to the line
+        Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
+
+        DrawQuadRaw(
+            start + normal, // V0: Top-Left
+            end   + normal,   // V1: Top-Right
+            end   - normal,   // V2: Bottom-Right
+            start - normal, // V3: Bottom-Left
+            color
+        );
+    }
+
+    /// <summary>
+    /// Draws an un-filled rectangle outline.
+    /// </summary>
+    public void RectangleLines(in Vector2 position, in Vector2 size, float thickness, uint color)
+    {
+        float x = position.X;
+        float y = position.Y;
+        float w = size.X;
+        float h = size.Y;
+
+        // Top, Right, Bottom, Left edges
+        Rectangle(new Vector2(x, y), new Vector2(w, thickness), color);
+        Rectangle(new Vector2(x + w - thickness, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+        Rectangle(new Vector2(x, y + h - thickness), new Vector2(w, thickness), color);
+        Rectangle(new Vector2(x, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+    }
+
+    /// <summary>
+    /// Draws a filled circle (1 quad renders 2 pie-slices using the quad index pattern).
+    /// </summary>
+    public void Circle(in Vector2 center, float radius, uint color, int segments = 32)
+    {
+        if (segments < 3) segments = 3;
+        float step = MathF.PI * 2f / segments;
+
+        for (int i = 0; i < segments; i += 2)
+        {
+            float a0 = i * step;
+            float a1 = (i + 1) * step;
+            float a2 = (i + 2) * step;
+
+            Vector2 p0 = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+            Vector2 p1 = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+            Vector2 p2 = (i + 2 <= segments)
+                ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
+                : p1;
+
+            // Quad layout: (Center, P0, P1, P2) maps to 2 triangles: (Center, P0, P1) & (P1, P2, Center)
+            DrawQuadRaw(center, p0, p1, p2, color);
+        }
+    }
+
+    /// <summary>
+    /// Draws an un-filled circle outline.
+    /// </summary>
+    public void CircleLines(in Vector2 center, float radius, float thickness, uint color, int segments = 32)
+    {
+        if (segments < 3) segments = 3;
+        float step = MathF.PI * 2f / segments;
+        float halfThick = thickness * 0.5f;
+        float rInner = radius - halfThick;
+        float rOuter = radius + halfThick;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float a0 = i * step;
+            float a1 = (i + 1) * step;
+
+            Vector2 dir0 = new Vector2(MathF.Cos(a0), MathF.Sin(a0));
+            Vector2 dir1 = new Vector2(MathF.Cos(a1), MathF.Sin(a1));
+
+            DrawQuadRaw(
+                center + dir0 * rInner, // Inner Start
+                center + dir0 * rOuter, // Outer Start
+                center + dir1 * rOuter, // Outer End
+                center + dir1 * rInner, // Inner End
+                color
+            );
+        }
+    }
+#endregion
+
+
     public void SetViewport(float width, float height)
     {
         if (batch.vertexStart != batch.vertexCount) {

@@ -61,8 +61,16 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
+        DrawSprites(draw, deltaTime, frame.Width, frame.Height);
+        DrawShapes(draw);
+        
+        draw.Flush();
+    }
+    
+    public void DrawSprites(Draw2D draw, float deltaTime, int width, int height)
+    {
         draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
-        draw.Rectangle(new Vector2(frame.Width - 100, frame.Height - 100), new Vector2(99, 99), 0xFFFFFFFF);
+        draw.Rectangle(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
         
         draw.Rectangle(new Vector2(200, 50), new Vector2(50, 50), Color32.Red);
         draw.Rectangle(new Vector2(300, 50), new Vector2(50, 50), Color32.Green);
@@ -95,7 +103,16 @@ public class ImRenderer : IRenderer
             sourceRectSize: new Vector2(64, 64),
             textureSize:    new Vector2(1024, 1024)
         );
-        
-        draw.Flush(); // redundant - kept for debugging
+    }
+    
+    public static void DrawShapes(Draw2D draw)
+    {
+        draw.Line(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
+
+        draw.RectangleLines(new Vector2(500, 400), new Vector2(150, 80), thickness: 2f, color: 0xFFFF00FF);
+
+        draw.Circle(new Vector2(650, 200), radius: 40f, color: 0xFF00FFFF, segments: 32);
+
+        draw.CircleLines(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
     }
 }
