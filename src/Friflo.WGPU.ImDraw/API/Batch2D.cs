@@ -25,8 +25,10 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<ushort>   indexBuffer;
     private  readonly   GpuTexture          defaultWhiteTexture;
     internal readonly   GpuTextureView      defaultWhiteTextureView; // views are owned / disposed by their texture
-    internal readonly   GpuSampler          defaultSampler;
+    internal readonly   GpuSampler          samplerLinear;           // the default sampler
+    internal readonly   GpuSampler          samplerNearest;
     internal readonly   GpuDevice           device;
+    internal            GpuSampler          currentSampler;
     internal            Font?               defaultFont;
     internal            Vector2             viewport;
     internal            ImUniforms          uniforms;
@@ -41,32 +43,16 @@ public sealed partial class Batch2D : IDisposable
         vertexBuffer.Dispose();
         indexBuffer.Dispose();
         defaultWhiteTexture.Dispose();
-        defaultSampler.Dispose();
+        samplerLinear.Dispose();
+        samplerNearest.Dispose();
     }
     
-    /// <summary>
-    /// Comfort constructor to quickly specify filtering (Nearest / Linear).
-    /// </summary>
-    public Batch2D(
-        GpuDevice       device,
-        TextureFormat   targetFormat,
-        FilterMode      filterMode,
-        int             maxVertices = 60_000)
-        : this (device, targetFormat, new GpuSamplerDescriptor {
-            label           = "Batch2D Sampler",
-            magFilter       = filterMode,
-            minFilter       = filterMode,
-            mipmapFilter    = filterMode == FilterMode.Nearest ? MipmapFilterMode.Nearest : MipmapFilterMode.Linear
-        }, maxVertices)
-    { }
-
     /// <summary>
     /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
     /// </summary>
     public Batch2D(
         GpuDevice               device,
         TextureFormat           targetFormat,
-        GpuSamplerDescriptor?   samplerDescriptor   = null,
         int                     maxVertices         = 60_000)
     {
         this.device    = device;
@@ -103,11 +89,9 @@ public sealed partial class Batch2D : IDisposable
         
         defaultWhiteTextureView = defaultWhiteTexture.CreateView();
         
-        defaultSampler = device.CreateSampler(samplerDescriptor ?? new GpuSamplerDescriptor {
-            label       = "Batch2D Sampler",
-            magFilter   = FilterMode.Linear,
-            minFilter   = FilterMode.Linear
-        });
+        samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
+        samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
+        currentSampler = samplerLinear;
         
         var desc = new GpuRenderPipelineDescriptor();
         desc.VertexState.buffers = [
@@ -145,6 +129,7 @@ public sealed partial class Batch2D : IDisposable
         vertexStart         = 0;
         vertexCount         = 0;
         currentTextureView  = null;
+        currentSampler      = samplerLinear;
         viewport            = new Vector2(frame.Width, frame.Height);
         
         var draw = new Draw2D(this, pass);

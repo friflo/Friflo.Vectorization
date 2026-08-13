@@ -784,6 +784,16 @@ public ref struct Draw2D : IDisposable
         Flush();
         pass.SetScissorRect(0, 0, (int)batch.viewport.X, (int)batch.viewport.Y);
     }
+    
+    public void SetFilterMode(FilterMode filterMode)
+    {
+        var targetSampler = filterMode == FilterMode.Nearest ? batch.samplerNearest : batch.samplerLinear;
+
+        if (batch.currentSampler == targetSampler) return;
+
+        Flush();
+        batch.currentSampler = targetSampler;
+    }
 
     public void SetViewport(float width, float height)
     {
@@ -809,7 +819,7 @@ public ref struct Draw2D : IDisposable
         var texture    = bat.currentTextureView ?? bat.defaultWhiteTextureView;
         var indexView  = bat.indexBuffer.In(0, indexCount);
 
-        Batch2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
+        Batch2D.Draw(pass, bat.config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
 
         bat.vertexStart = bat.vertexCount;
     }
