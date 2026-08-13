@@ -46,7 +46,7 @@ public class Font : IDisposable
     public  readonly    float                       lineHeight;
     private readonly    Dictionary<char, GlyphInfo> glyphs;
     private readonly    GpuTexture                  fontTexture;
-    private readonly    string                      name;
+    public  readonly    string                      name;
 
     public  override    string                      ToString() => name;
 

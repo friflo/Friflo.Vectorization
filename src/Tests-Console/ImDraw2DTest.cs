@@ -144,5 +144,9 @@ public class ImRenderer : IRenderer
             draw.Rectangle(btnPos, btnSize, Color32.DarkGray);
             draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
+        
+        var font = draw.GetDefaultFont();
+        Debug.Assert(font.name == "Default Font");
+        Debug.Assert((int)font.lineHeight == 47);
     }
 }

@@ -22,9 +22,10 @@ namespace Friflo.WGPU.ImDraw;
 
 public ref struct Draw2D : IDisposable
 {
-    private readonly Batch2D    batch;
-    private          RenderPass pass;
+    private readonly    Batch2D     batch;
+    private             RenderPass  pass;
 
+    public              Font        GetDefaultFont() => batch.GetDefaultFont();
     
     public void Dispose() {
         Flush();
