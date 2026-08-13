@@ -61,30 +61,34 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
-        DrawSprites(draw, deltaTime, frame.Width, frame.Height);
-        DrawShapes(draw);
+        DrawSprites(draw, deltaTime);
+        DrawShapes(draw, frame.Width, frame.Height);
         DrawText(draw);
         
         draw.Flush();
     }
     
-    public void DrawSprites(Draw2D draw, float deltaTime, int width, int height)
+    public void DrawSprites(Draw2D draw, float deltaTime)
     {
-        draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
-        draw.Rectangle(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
-        
-        draw.Rectangle(new Vector2(200, 50), new Vector2(50, 50), Color32.Red);
-        draw.Rectangle(new Vector2(300, 50), new Vector2(50, 50), Color32.Green);
-        draw.Rectangle(new Vector2(400, 50), new Vector2(50, 50), Color32.Blue);
-        
         // --- sprites
         draw.DrawSprite(new Vector2( 50, 150), new Vector2(256, 256), myTextureView);
         draw.DrawSprite(new Vector2(200, 150), new Vector2(256, 256), myTextureView, uvMin: new Vector2(1f, 0f), uvMax: new Vector2(0f, 1f)); // flipped sprite
         
-        var srcPos  = new Vector2(6 * 64, 2 * 64);  // tile pos in Sheet (6,2)        
+        var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
         var srcSize = new Vector2(64, 64);          // 64x64 Tile
         var texSize = new Vector2(1024, 1024);      // texture-size
-        draw.DrawSprite(new Vector2(500, 50), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
+        draw.DrawSprite(new Vector2(400, 500), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
+        
+        var borders = new Vector4(8, 8, 8, 8);
+        draw.DrawSprite9SliceTiled(
+            position:       new Vector2(500, 500), 
+            size:           new Vector2(200, 100), 
+            texture:        myTextureView, 
+            sourceRectPos:  srcPos, 
+            sourceRectSize: srcSize, 
+            textureSize:    texSize, 
+            borderThickness:borders
+        );
         
         rotation += deltaTime;
         draw.DrawSprite(
@@ -95,7 +99,7 @@ public class ImRenderer : IRenderer
             texture:  myTextureView
         );
         draw.DrawSprite(
-            position:       new Vector2(620, 75),
+            position:       new Vector2(650, 75),
             size:           new Vector2(32, 32),
             rotation:       rotation,
             pivot:          new Vector2(0.5f, 1.0f),        // bottom center
@@ -104,17 +108,31 @@ public class ImRenderer : IRenderer
             sourceRectSize: new Vector2(64, 64),
             textureSize:    new Vector2(1024, 1024)
         );
+        
+        
     }
     
-    public static void DrawShapes(Draw2D draw)
+    public static void DrawShapes(Draw2D draw, int width, int height)
     {
+        draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
+        draw.Rectangle(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
+        
+        draw.Rectangle(new Vector2(150, 50), new Vector2(50, 50), Color32.Red);
+        draw.Rectangle(new Vector2(250, 50), new Vector2(50, 50), Color32.Green);
+        draw.Rectangle(new Vector2(350, 50), new Vector2(50, 50), Color32.Blue);
+        
+        draw.RectangleGradient(new Vector2(450, 50),new Vector2(50, 50), topLeft: Color32.Red, topRight: Color32.Green, bottomRight: Color32.Blue, bottomLeft:  Color32.White);
+        draw.RectangleGradientVertical(new Vector2(550, 50), new Vector2(50, 50), top: Color32.Red, bottom: Color32.Blue);
+        
         draw.Line(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
-
-        draw.RectangleLines(new Vector2(500, 400), new Vector2(150, 80), thickness: 2f, color: 0x00FF00FF);
 
         draw.Circle(new Vector2(650, 200), radius: 40f, color: 0x0000FFFF, segments: 32);
 
         draw.CircleLines(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
+        
+        draw.RectangleLines(new Vector2(500, 400), new Vector2(50, 80), thickness: 2f, color: 0x00FF00FF);
+        
+        draw.Triangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
     }
     
     public static void DrawText(Draw2D draw)
@@ -136,12 +154,12 @@ public class ImRenderer : IRenderer
         {
             var btnPos  = new Vector2(1000, 150);
             var btnSize = new Vector2(150,  50);
-            draw.Rectangle(btnPos, btnSize, Color32.DarkGray);
+            draw.RectangleRounded(btnPos, btnSize, 14, Color32.DarkGray);
             draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White);
         } {
             var btnPos  = new Vector2(1000, 250);
             var btnSize = new Vector2(150,  100);
-            draw.Rectangle(btnPos, btnSize, Color32.DarkGray);
+            draw.RectangleRounded(btnPos, btnSize, 14, Color32.DarkGray);
             draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
         

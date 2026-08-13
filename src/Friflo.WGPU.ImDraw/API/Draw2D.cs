@@ -44,6 +44,44 @@ public ref struct Draw2D : IDisposable
     {
         DrawQuad(position, size, new Vector2(0f, 0f), new Vector2(1f, 1f), color, null);
     }
+
+    /// <summary>
+    /// Draws a rectangle with per-corner gradient colors.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
+    {
+        var bat = batch;
+        var texView = bat.defaultWhiteTextureView;
+
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
+            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
+        {
+            Flush();
+        }
+        bat.currentTextureView = texView;
+
+        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
+
+        float x1 = position.X;
+        float y1 = position.Y;
+        float x2 = position.X + size.X;
+        float y2 = position.Y + size.Y;
+
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = Vector2.Zero, color = topLeft.Packed };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = Vector2.Zero, color = topRight.Packed };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = Vector2.Zero, color = bottomRight.Packed };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = Vector2.Zero, color = bottomLeft.Packed };
+
+        bat.vertexCount += 4;
+    }
+
+    /// <summary>
+    /// Draws a vertical gradient rectangle (top to bottom).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
+        => RectangleGradient(position, size, top, top, bottom, bottom);
     
     /// <summary>
     /// Draws a sprite using normal 0..1 UV coordinates.
@@ -89,6 +127,111 @@ public ref struct Draw2D : IDisposable
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+    }
+
+    /// <summary>
+    /// Draws a 9-slice sprite using the full texture where borders and center are tiled (repeated).
+    /// borderThickness: (Left, Top, Right, Bottom) in pixels.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawSprite9SliceTiled(
+        in Vector2      position, 
+        in Vector2      size, 
+        GpuTextureView  texture,
+        in Vector4      borderThickness, 
+        in Vector2      textureSize, 
+        Color32         color = default)
+    {
+        DrawSprite9SliceTiled(position, size, texture, Vector2.Zero, textureSize, textureSize, borderThickness, color);
+    }
+
+    /// <summary>
+    /// Draws a 9-slice sprite from a sub-region (Spritesheet/Atlas) where borders and center are tiled (repeated).
+    /// borderThickness: (Left, Top, Right, Bottom) in pixels.
+    /// </summary>
+    public void DrawSprite9SliceTiled(
+        in Vector2 position, 
+        in Vector2 size, 
+        GpuTextureView texture, 
+        in Vector2 sourceRectPos, 
+        in Vector2 sourceRectSize, 
+        in Vector2 textureSize, 
+        in Vector4 borderThickness, 
+        Color32 color = default)
+    {
+        if (color.Packed == 0) color = Color32.White;
+
+        float L = borderThickness.X;
+        float T = borderThickness.Y;
+        float R = borderThickness.Z;
+        float B = borderThickness.W;
+
+        float srcInnerW = sourceRectSize.X - L - R;
+        float srcInnerH = sourceRectSize.Y - T - B;
+
+        float destInnerW = size.X - L - R;
+        float destInnerH = size.Y - T - B;
+
+        // Schutz vor Division durch 0 oder ungültigen Werten
+        if (srcInnerW <= 0f || srcInnerH <= 0f) return;
+
+        // UV-Koordinaten des 3x3 Grid
+        Vector2 u0 = sourceRectPos / textureSize;
+        Vector2 u1 = (sourceRectPos + new Vector2(L, T)) / textureSize;
+        Vector2 u2 = (sourceRectPos + sourceRectSize - new Vector2(R, B)) / textureSize;
+        Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
+
+        // --- 1. Die 4 Ecken (Feste Größe) ---
+        DrawQuad(position, new Vector2(L, T), u0, u1, color, texture);
+        DrawQuad(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
+        DrawQuad(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
+        DrawQuad(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
+
+        // --- 2. Oberer & Unterer Rand (Horizontal gekachelt) ---
+        for (float x = 0; x < destInnerW; x += srcInnerW)
+        {
+            float drawW = MathF.Min(srcInnerW, destInnerW - x);
+            float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
+
+            // Oberer Rand
+            DrawQuad(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
+            // Unterer Rand
+            DrawQuad(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
+        }
+
+        // --- 3. Linker & Rechter Rand (Vertikal gekachelt) ---
+        for (float y = 0; y < destInnerH; y += srcInnerH)
+        {
+            float drawH = MathF.Min(srcInnerH, destInnerH - y);
+            float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
+
+            // Linker Rand
+            DrawQuad(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
+            // Rechter Rand
+            DrawQuad(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
+        }
+
+        // --- 4. Innenbereich / Mitte (2D-Raster gekachelt) ---
+        for (float x = 0; x < destInnerW; x += srcInnerW)
+        {
+            float drawW = MathF.Min(srcInnerW, destInnerW - x);
+            float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
+
+            for (float y = 0; y < destInnerH; y += srcInnerH)
+            {
+                float drawH = MathF.Min(srcInnerH, destInnerH - y);
+                float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
+
+                DrawQuad(
+                    new Vector2(position.X + L + x, position.Y + T + y),
+                    new Vector2(drawW, drawH),
+                    u1,
+                    new Vector2(uMaxX, uMaxY),
+                    color,
+                    texture
+                );
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -199,6 +342,15 @@ public ref struct Draw2D : IDisposable
     }
 
     /// <summary>
+    /// Draws a single filled triangle using a quad slot (duplicates 3rd vertex).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Triangle(in Vector2 v0, in Vector2 v1, in Vector2 v2, Color32 color)
+    {
+        DrawQuadRaw(v0, v1, v2, v2, color);
+    }
+
+    /// <summary>
     /// Draws a thick line segment between two points.
     /// </summary>
     public void Line(in Vector2 start, in Vector2 end, float thickness, Color32 color)
@@ -212,8 +364,8 @@ public ref struct Draw2D : IDisposable
 
         DrawQuadRaw(
             start + normal, // V0: Top-Left
-            end   + normal,   // V1: Top-Right
-            end   - normal,   // V2: Bottom-Right
+            end   + normal, // V1: Top-Right
+            end   - normal, // V2: Bottom-Right
             start - normal, // V3: Bottom-Left
             color
         );
@@ -234,6 +386,56 @@ public ref struct Draw2D : IDisposable
         Rectangle(new Vector2(x + w - thickness, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
         Rectangle(new Vector2(x, y + h - thickness), new Vector2(w, thickness), color);
         Rectangle(new Vector2(x, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+    }
+
+    /// <summary>
+    /// Draws a filled rounded rectangle.
+    /// </summary>
+    public void RectangleRounded(in Vector2 position, in Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
+    {
+        if (cornerRadius <= 0f) {
+            Rectangle(position, size, color);
+            return;
+        }
+
+        cornerRadius = MathF.Min(cornerRadius, MathF.Min(size.X, size.Y) * 0.5f);
+
+        // Inner Cross (3 Quads)
+        Rectangle(new Vector2(position.X + cornerRadius, position.Y), new Vector2(size.X - cornerRadius * 2f, size.Y), color);
+        Rectangle(new Vector2(position.X, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
+        Rectangle(new Vector2(position.X + size.X - cornerRadius, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
+
+        // 4 Corner Arcs
+        Vector2 tl = position + new Vector2(cornerRadius, cornerRadius);
+        Vector2 tr = position + new Vector2(size.X - cornerRadius, cornerRadius);
+        Vector2 br = position + new Vector2(size.X - cornerRadius, size.Y - cornerRadius);
+        Vector2 bl = position + new Vector2(cornerRadius, size.Y - cornerRadius);
+
+        DrawCornerArc(tl, cornerRadius, MathF.PI, MathF.PI * 1.5f, color, cornerSegments);
+        DrawCornerArc(tr, cornerRadius, MathF.PI * 1.5f, MathF.PI * 2f, color, cornerSegments);
+        DrawCornerArc(br, cornerRadius, 0f, MathF.PI * 0.5f, color, cornerSegments);
+        DrawCornerArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI, color, cornerSegments);
+    }
+
+    private void DrawCornerArc(in Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    {
+        if (segments < 1) segments = 1;
+        float step = (endAngle - startAngle) / segments;
+
+        for (int i = 0; i < segments; i += 2)
+        {
+            float a0 = startAngle + i * step;
+            float a1 = startAngle + (i + 1) * step;
+            float a2 = startAngle + (i + 2) * step;
+
+            Vector2 p0 = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+            Vector2 p1 = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+            Vector2 p2 = (i + 2 <= segments)
+                ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
+                : p1;
+
+            DrawQuadRaw(center, p0, p1, p2, color);
+        }
     }
 
     /// <summary>
@@ -392,15 +594,15 @@ public ref struct Draw2D : IDisposable
     /// Allocation-free (GC-friendly).
     /// </summary>
     public void DrawStringInRect(
-        ReadOnlySpan<char> 	text, 
-        Vector2 			position, 
-        Vector2 			size, 
-        TextAlignment 		horizontalAlignment, 
-        VerticalAlignment 	verticalAlignment, 
-        Color32 			color, 
-        Font? 				font = null, 
-        bool 				wordWrap = false,
-        float 				scale = 1.0f)
+        ReadOnlySpan<char>  text, 
+        Vector2           position, 
+        Vector2           size, 
+        TextAlignment      horizontalAlignment, 
+        VerticalAlignment   verticalAlignment, 
+        Color32           color, 
+        Font?            font = null, 
+        bool             wordWrap = false,
+        float            scale = 1.0f)
     {
         if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
         font ??= batch.GetDefaultFont();
@@ -568,6 +770,21 @@ public ref struct Draw2D : IDisposable
 
 #endregion
 
+
+#region State / Pipeline
+
+    /* public void SetScissor(in Rectangle scissorRect)
+    {
+        Flush();
+        pass.SetScissorRect(scissorRect);
+    }
+
+    public void ResetScissor()
+    {
+        Flush();
+        pass.ResetScissorRect();
+    } */
+
     public void SetViewport(float width, float height)
     {
         if (batch.vertexStart != batch.vertexCount) {
@@ -596,4 +813,6 @@ public ref struct Draw2D : IDisposable
 
         bat.vertexStart = bat.vertexCount;
     }
+
+#endregion
 }
