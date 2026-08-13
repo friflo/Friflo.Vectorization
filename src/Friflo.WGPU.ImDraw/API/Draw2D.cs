@@ -773,17 +773,17 @@ public ref struct Draw2D : IDisposable
 
 #region State / Pipeline
 
-    /* public void SetScissor(in Rectangle scissorRect)
+    public void SetScissor(Vector2 position, Vector2 size)
     {
         Flush();
-        pass.SetScissorRect(scissorRect);
+        pass.SetScissorRect((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
     }
 
     public void ResetScissor()
     {
         Flush();
-        pass.ResetScissorRect();
-    } */
+        pass.SetScissorRect(0, 0, (int)batch.viewport.X, (int)batch.viewport.Y);
+    }
 
     public void SetViewport(float width, float height)
     {

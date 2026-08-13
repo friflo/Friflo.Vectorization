@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.Vectorization.GPU;
@@ -27,6 +28,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuSampler          defaultSampler;
     internal readonly   GpuDevice           device;
     internal            Font?               defaultFont;
+    internal            Vector2             viewport;
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart; // start of next Draw()
     internal            int                 vertexCount;
@@ -143,6 +145,7 @@ public sealed partial class Batch2D : IDisposable
         vertexStart         = 0;
         vertexCount         = 0;
         currentTextureView  = null;
+        viewport            = new Vector2(frame.Width, frame.Height);
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);
