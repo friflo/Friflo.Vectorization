@@ -46,7 +46,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
-        color = color == 0 ? Color32.White : color;
+        if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
         DrawQuad(position, size, uvMin, uvMax, color, texture);
     }
@@ -57,7 +57,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
-        color = color == 0 ? Color32.White : color;
+        if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
         DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
@@ -68,7 +68,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
-        color = color == 0 ? Color32.White : color;
+        if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawQuad(position, size, uvMin, uvMax, color, texture);
@@ -80,8 +80,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
-        color = color == 0 ? Color32.White : color;
-        
+        if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
