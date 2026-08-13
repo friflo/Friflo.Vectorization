@@ -35,7 +35,7 @@ public ref struct Draw2D : IDisposable
     
 #region Quads / Sprites
 
-    public void Rectangle(in Vector2 position, in Vector2 size, uint color)
+    public void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
     {
         DrawQuad(position, size, new Vector2(0f, 0f), new Vector2(1f, 1f), color, null);
     }
@@ -44,8 +44,9 @@ public ref struct Draw2D : IDisposable
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, uint color = 0xFFFFFFFF, in Vector2 uvMin = default, Vector2 uvMax = default)
+    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
+        color = color == 0 ? Color32.White : color;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
         DrawQuad(position, size, uvMin, uvMax, color, texture);
     }
@@ -54,8 +55,9 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated sprite with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, uint color = 0xFFFFFFFF, in Vector2 uvMin = default, Vector2 uvMax = default)
+    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
+        color = color == 0 ? Color32.White : color;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
         DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
@@ -64,8 +66,9 @@ public ref struct Draw2D : IDisposable
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, uint color = 0xFFFFFFFF)
+    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
+        color = color == 0 ? Color32.White : color;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawQuad(position, size, uvMin, uvMax, color, texture);
@@ -75,15 +78,17 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, uint color = 0xFFFFFFFF)
+    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
+        color = color == 0 ? Color32.White : color;
+        
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, uint color, GpuTextureView? texture = null)
+    public void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         var bat = batch;
         var texView = texture ?? bat.defaultWhiteTextureView;
@@ -104,13 +109,13 @@ public ref struct Draw2D : IDisposable
         float y2 = position.Y + size.Y;
 
         // V0: Top-Left
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color };
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color.Packed };
         // V1: Top-Right
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
         // V2: Bottom-Right
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color.Packed };
         // V3: Bottom-Left
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
 
         bat.vertexCount += 4;
     }
@@ -119,7 +124,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, uint color, GpuTextureView? texture = null)
+    public void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         if (rotation == 0f) {
             DrawQuad(position - (pivot * size), size, uvMin, uvMax, color, texture);
@@ -148,13 +153,13 @@ public ref struct Draw2D : IDisposable
         float b = (1f - pivot.Y) * size.Y;
 
         // V0: Top-Left
-        span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = color };
+        span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = color.Packed };
         // V1: Top-Right
-        span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = color };
+        span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
         // V2: Bottom-Right
-        span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color };
+        span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color.Packed };
         // V3: Bottom-Left
-        span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color };
+        span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
 
         bat.vertexCount += 4;
     }
@@ -166,7 +171,7 @@ public ref struct Draw2D : IDisposable
     /// Helper to submit raw 4-point quad vertices using the default white texture.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, uint color)
+    public void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
     {
         var bat = batch;
         var texView = bat.defaultWhiteTextureView;
@@ -181,10 +186,10 @@ public ref struct Draw2D : IDisposable
         var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
         var uv = Vector2.Zero;
 
-        span[0] = new Vertex2D { position = v0, uv = uv, color = color };
-        span[1] = new Vertex2D { position = v1, uv = uv, color = color };
-        span[2] = new Vertex2D { position = v2, uv = uv, color = color };
-        span[3] = new Vertex2D { position = v3, uv = uv, color = color };
+        span[0] = new Vertex2D { position = v0, uv = uv, color = color.Packed };
+        span[1] = new Vertex2D { position = v1, uv = uv, color = color.Packed };
+        span[2] = new Vertex2D { position = v2, uv = uv, color = color.Packed };
+        span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
 
         bat.vertexCount += 4;
     }
@@ -192,7 +197,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a thick line segment between two points.
     /// </summary>
-    public void Line(in Vector2 start, in Vector2 end, float thickness, uint color)
+    public void Line(in Vector2 start, in Vector2 end, float thickness, Color32 color)
     {
         Vector2 dir = end - start;
         float len = dir.Length();
@@ -213,7 +218,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled rectangle outline.
     /// </summary>
-    public void RectangleLines(in Vector2 position, in Vector2 size, float thickness, uint color)
+    public void RectangleLines(in Vector2 position, in Vector2 size, float thickness, Color32 color)
     {
         float x = position.X;
         float y = position.Y;
@@ -230,7 +235,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a filled circle (1 quad renders 2 pie-slices using the quad index pattern).
     /// </summary>
-    public void Circle(in Vector2 center, float radius, uint color, int segments = 32)
+    public void Circle(in Vector2 center, float radius, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
@@ -255,7 +260,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled circle outline.
     /// </summary>
-    public void CircleLines(in Vector2 center, float radius, float thickness, uint color, int segments = 32)
+    public void CircleLines(in Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;

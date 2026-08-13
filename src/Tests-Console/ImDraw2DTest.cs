@@ -109,9 +109,9 @@ public class ImRenderer : IRenderer
     {
         draw.Line(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
 
-        draw.RectangleLines(new Vector2(500, 400), new Vector2(150, 80), thickness: 2f, color: 0xFFFF00FF);
+        draw.RectangleLines(new Vector2(500, 400), new Vector2(150, 80), thickness: 2f, color: 0x00FF00FF);
 
-        draw.Circle(new Vector2(650, 200), radius: 40f, color: 0xFF00FFFF, segments: 32);
+        draw.Circle(new Vector2(650, 200), radius: 40f, color: 0x0000FFFF, segments: 32);
 
         draw.CircleLines(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
     }
