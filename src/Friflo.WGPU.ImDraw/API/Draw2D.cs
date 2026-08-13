@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
+// ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -296,7 +297,6 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public void DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null )
     {
-        if (color.Packed == 0) color = Color32.White;
         font ??= batch.GetDefaultFont();
 
         Vector2 currentPos = position;
@@ -305,6 +305,10 @@ public ref struct Draw2D : IDisposable
         {
             char c = text[i];
 
+            // Ignore carriage return (\r\n Windows line endings)
+            if (c == '\r') {
+                continue;
+            }
             // Handle line breaks
             if (c == '\n') {
                 currentPos.X = position.X;
