@@ -296,7 +296,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
-    public void DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null )
+    public void DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
 
@@ -313,7 +313,7 @@ public ref struct Draw2D : IDisposable
             // Handle line breaks
             if (c == '\n') {
                 currentPos.X = position.X;
-                currentPos.Y += font.lineHeight;
+                currentPos.Y += font.lineHeight * scale;
                 continue;
             }
             if (!font.TryGetGlyph(c, out var glyph)) {
@@ -322,17 +322,18 @@ public ref struct Draw2D : IDisposable
             }
             // Render glyph if it has visible dimensions (skips spaces)
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
-                Vector2 renderPos = currentPos + glyph.offset;
-                DrawSprite(renderPos, glyph.sourceSize, font.textureView, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+                Vector2 renderPos = currentPos + (glyph.offset * scale);
+                Vector2 renderSize = glyph.sourceSize * scale;
+                DrawSprite(renderPos, renderSize, font.textureView, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
             }
-            currentPos.X += glyph.advance;
+            currentPos.X += glyph.advance * scale;
         }
     }
     
     /// <summary>
     /// Calculates the bounding box size (width and height) of a text string in pixels.
     /// </summary>
-    public Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null)
+    public Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
 
@@ -355,25 +356,25 @@ public ref struct Draw2D : IDisposable
             if (!font.TryGetGlyph(c, out var glyph)) {
                 if (!font.TryGetGlyph('?', out glyph)) continue;
             }
-            currentLineWidth += glyph.advance;
+            currentLineWidth += glyph.advance * scale;
         }
         maxWidth = MathF.Max(maxWidth, currentLineWidth);
         
-        return new Vector2(maxWidth, lineCount * font.lineHeight);
+        return new Vector2(maxWidth, lineCount * font.lineHeight * scale);
     }
     
     /// <summary>
     /// Draws text aligned relative to a bounding position or box.
     /// </summary>
-    public void DrawStringAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, Font? font = null)
+    public void DrawStringAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, Font? font = null, float scale = 1.0f)
     {
         if (alignment == TextAlignment.Left)
         {
-            DrawString(text, position, color, font);
+            DrawString(text, position, color, font, scale);
             return;
         }
 
-        Vector2 size = MeasureString(text, font);
+        Vector2 size = MeasureString(text, font, scale);
         Vector2 alignedPos = position;
 
         if (alignment == TextAlignment.Center)
@@ -381,7 +382,7 @@ public ref struct Draw2D : IDisposable
         else if (alignment == TextAlignment.Right)
             alignedPos.X -= size.X;
 
-        DrawString(text, alignedPos, color, font);
+        DrawString(text, alignedPos, color, font, scale);
     }
     
     /// <summary>
@@ -390,14 +391,15 @@ public ref struct Draw2D : IDisposable
     /// Allocation-free (GC-friendly).
     /// </summary>
     public void DrawStringInRect(
-        ReadOnlySpan<char> text, 
-        Vector2 position, 
-        Vector2 size, 
-        TextAlignment horizontalAlignment, 
-        VerticalAlignment verticalAlignment, 
-        Color32 color, 
-        Font? font = null, 
-        bool wordWrap = false)
+        ReadOnlySpan<char> 	text, 
+        Vector2 			position, 
+        Vector2 			size, 
+        TextAlignment 		horizontalAlignment, 
+        VerticalAlignment 	verticalAlignment, 
+        Color32 			color, 
+        Font? 				font = null, 
+        bool 				wordWrap = false,
+        float 				scale = 1.0f)
     {
         if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
         font ??= batch.GetDefaultFont();
@@ -406,13 +408,13 @@ public ref struct Draw2D : IDisposable
 
         // Pass 1: Count lines to calculate total block height
         int lineCount = 0;
-        foreach (ReadOnlySpan<char> _ in GetWrappedLines(text, effectiveMaxWidth, font)) {
+        foreach (ReadOnlySpan<char> _ in GetWrappedLines(text, effectiveMaxWidth, font, scale)) {
             lineCount++;
         }
 
         if (lineCount == 0) return;
 
-        float totalHeight = lineCount * font.lineHeight;
+        float totalHeight = lineCount * font.lineHeight * scale;
 
         // Calculate vertical starting Y position
         float startY = verticalAlignment switch
@@ -425,13 +427,13 @@ public ref struct Draw2D : IDisposable
         // Pass 2: Draw each line horizontally aligned
         float currentY = startY;
 
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, effectiveMaxWidth, font))
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, effectiveMaxWidth, font, scale))
         {
             float lineX = position.X;
 
             if (horizontalAlignment != TextAlignment.Left)
             {
-                float lineWidth = MeasureString(line, font).X;
+                float lineWidth = MeasureString(line, font, scale).X;
 
                 if (horizontalAlignment == TextAlignment.Center)
                     lineX += (size.X - lineWidth) * 0.5f;
@@ -439,8 +441,8 @@ public ref struct Draw2D : IDisposable
                     lineX += size.X - lineWidth;
             }
 
-            DrawString(line, new Vector2(lineX, currentY), color, font);
-            currentY += font.lineHeight;
+            DrawString(line, new Vector2(lineX, currentY), color, font, scale);
+            currentY += font.lineHeight * scale;
         }
     }
     
@@ -448,10 +450,10 @@ public ref struct Draw2D : IDisposable
     /// Truncates a string to fit within a maximum pixel width and appends '...'.
     /// Allocates a new string.
     /// </summary>
-    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
-        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font);
+        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         if (visibleLength >= text.Length)
             return text.ToString();
@@ -463,41 +465,41 @@ public ref struct Draw2D : IDisposable
     /// Draws text at position, automatically truncating with '...' if it exceeds maxWidth.
     /// Allocation-free (GC-friendly).
     /// </summary>
-    public void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null)
+    public void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
-        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font);
+        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         // If whole text fits, render normally
         if (visibleLength >= text.Length)
         {
-            DrawString(text, position, color, font);
+            DrawString(text, position, color, font, scale);
             return;
         }
 
         // Render visible substring directly without GC allocations
-        DrawString(text[..visibleLength], position, color, font);
+        DrawString(text[..visibleLength], position, color, font, scale);
 
         // Calculate position for '...' and render it
         Vector2 ellipsisPos = position;
         for (int i = 0; i < visibleLength; i++)
         {
             if (font.TryGetGlyph(text[i], out var glyph))
-                ellipsisPos.X += glyph.advance;
+                ellipsisPos.X += glyph.advance * scale;
         }
 
-        DrawString("...", ellipsisPos, color, font);
+        DrawString("...", ellipsisPos, color, font, scale);
     }
 
     /// <summary>
     /// Internal core logic: Determines how many characters fit before '...' must be appended.
     /// </summary>
-    private static int GetVisibleLengthWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font font)
+    private static int GetVisibleLengthWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font font, float scale = 1.0f)
     {
         if (!font.TryGetGlyph('.', out var dotGlyph))
             return text.Length;
 
-        float ellipsisWidth = dotGlyph.advance * 3f;
+        float ellipsisWidth = dotGlyph.advance * scale * 3f;
         float currentWidth = ellipsisWidth;
         int visibleLength = 0;
 
@@ -507,9 +509,10 @@ public ref struct Draw2D : IDisposable
             if (c == '\r' || c == '\n') break;
             if (!font.TryGetGlyph(c, out var glyph)) continue;
 
-            if (currentWidth + glyph.advance > maxWidth) break;
+            float advance = glyph.advance * scale;
+            if (currentWidth + advance > maxWidth) break;
 
-            currentWidth += glyph.advance;
+            currentWidth += advance;
             visibleLength++;
         }
 
@@ -519,22 +522,22 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Helper method to create the line enumerator.
     /// </summary>
-    public WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    public WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
-        return new WrappedLineEnumerator(text, maxWidth, font);
+        return new WrappedLineEnumerator(text, maxWidth, font, scale);
     }
 
     /// <summary>
     /// Wraps text by inserting line breaks ('\n'). Allocates a new string.
     /// </summary>
-    public string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    public string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
 
         var sb = new StringBuilder(text.Length);
 
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font)) {
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, scale)) {
             if (sb.Length > 0) sb.Append('\n');
             sb.Append(line);
         }
@@ -545,7 +548,7 @@ public ref struct Draw2D : IDisposable
     /// Draws word-wrapped text directly onto the screen.
     /// Allocation-free (GC-friendly).
     /// </summary>
-    public int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null)
+    public int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return 0;
         font ??= batch.GetDefaultFont();
@@ -553,10 +556,10 @@ public ref struct Draw2D : IDisposable
         Vector2 currentPos = position;
         int lineCount = 0;
 
-        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font))
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font, scale))
         {
-            DrawString(line, currentPos, color, font);
-            currentPos.Y += font.lineHeight;
+            DrawString(line, currentPos, color, font, scale);
+            currentPos.Y += font.lineHeight * scale;
             lineCount++;
         }
         return lineCount;

@@ -15,31 +15,33 @@ namespace Friflo.WGPU.ImDraw;
 /// </summary>
 public ref struct WrappedLineEnumerator
 {
-    private readonly    ReadOnlySpan<char> text;
-    private readonly    float   maxWidth;
-    private readonly    Font    font;
+    private readonly    ReadOnlySpan<char>  text;
+    private readonly    float               maxWidth;
+    private readonly    Font                font;
+    private readonly    float               scale;
 
-    private             int     lineStart;
-    private             int     index;
-    private             int     lastSpace;
-    private             float   currentLineWidth;
-    private             float   widthAtLastSpace;
-    private             bool    hasEnded;
+    private             int                 lineStart;
+    private             int                 index;
+    private             int                 lastSpace;
+    private             float               currentLineWidth;
+    private             float               widthAtLastSpace;
+    private             bool                hasEnded;
 
-    public ReadOnlySpan<char> Current { get; private set; }
+    public              ReadOnlySpan<char>  Current { get; private set; }
 
-    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, Font font)
+    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, Font font, float scale = 1.0f)
     {
-        this.text = text;
-        this.maxWidth = maxWidth;
-        this.font = font;
-        lineStart = 0;
-        index = 0;
-        lastSpace = -1;
-        currentLineWidth = 0f;
-        widthAtLastSpace = 0f;
-        hasEnded = text.IsEmpty || maxWidth <= 0f;
-        Current = default;
+        this.text               = text;
+        this.maxWidth           = maxWidth;
+        this.font               = font;
+        this.scale              = scale;
+        this.lineStart          = 0;
+        this.index              = 0;
+        this.lastSpace          = -1;
+        this.currentLineWidth   = 0f;
+        this.widthAtLastSpace   = 0f;
+        this.hasEnded           = text.IsEmpty || maxWidth <= 0f;
+        this.Current            = default;
     }
 
     public WrappedLineEnumerator GetEnumerator() => this;
@@ -57,10 +59,10 @@ public ref struct WrappedLineEnumerator
             // Explicit newline
             if (c == '\n')
             {
-                Current = text[lineStart..index];
+                Current          = text[lineStart..index];
                 index++;
-                lineStart = index;
-                lastSpace = -1;
+                lineStart        = index;
+                lastSpace        = -1;
                 currentLineWidth = 0f;
                 widthAtLastSpace = 0f;
                 return true;
@@ -71,40 +73,42 @@ public ref struct WrappedLineEnumerator
                 if (!font.TryGetGlyph('?', out glyph)) continue;
             }
 
+            float scaledAdvance = glyph.advance * scale;
+
             if (c == ' ')
             {
-                lastSpace = index;
-                widthAtLastSpace = currentLineWidth + glyph.advance;
+                lastSpace        = index;
+                widthAtLastSpace = currentLineWidth + scaledAdvance;
             }
 
             // Line width exceeded?
-            if (currentLineWidth + glyph.advance > maxWidth && currentLineWidth > 0f)
+            if (currentLineWidth + scaledAdvance > maxWidth && currentLineWidth > 0f)
             {
                 if (lastSpace != -1 && lastSpace >= lineStart)
                 {
                     // Break at last space
-                    Current = text[lineStart..lastSpace];
-                    lineStart = lastSpace + 1;
-                    currentLineWidth = (currentLineWidth + glyph.advance) - widthAtLastSpace;
-                    lastSpace = -1;
+                    Current          = text[lineStart..lastSpace];
+                    lineStart        = lastSpace + 1;
+                    currentLineWidth = (currentLineWidth + scaledAdvance) - widthAtLastSpace;
+                    lastSpace        = -1;
                 }
                 else
                 {
                     // Hard wrap inside word
-                    Current = text[lineStart..index];
-                    lineStart = index;
-                    currentLineWidth = glyph.advance;
+                    Current          = text[lineStart..index];
+                    lineStart        = index;
+                    currentLineWidth = scaledAdvance;
                 }
 
                 index++;
                 return true;
             }
 
-            currentLineWidth += glyph.advance;
+            currentLineWidth += scaledAdvance;
         }
 
         // Return trailing line
-        Current = text[lineStart..];
+        Current  = text[lineStart..];
         hasEnded = true;
         return true;
     }
