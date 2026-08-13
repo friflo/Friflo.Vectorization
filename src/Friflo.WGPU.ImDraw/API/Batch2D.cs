@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
@@ -45,7 +46,7 @@ public sealed partial class Batch2D : IDisposable
         FilterMode      filterMode,
         int             maxVertices = 60_000)
         : this (device, targetFormat, new GpuSamplerDescriptor {
-            label           = "Batcher2D Sampler",
+            label           = "Batch2D Sampler",
             magFilter       = filterMode,
             minFilter       = filterMode,
             mipmapFilter    = filterMode == FilterMode.Nearest ? MipmapFilterMode.Nearest : MipmapFilterMode.Linear
@@ -65,7 +66,7 @@ public sealed partial class Batch2D : IDisposable
         int maxQuads   = maxVertices / 4;
         int maxIndices = maxQuads * 6;
 
-        vertexBuffer = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batcher2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        vertexBuffer = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
 
         // generate quad indexes only once
         var indices = new ushort[maxIndices];
@@ -78,7 +79,7 @@ public sealed partial class Batch2D : IDisposable
             indices[i + 4] = (ushort)(v + 3);
             indices[i + 5] = (ushort)(v + 0);
         }
-        indexBuffer = device.CreateBuffer(indices, "Batcher2D Indices", BufferProfile.StaticIn, BufferType.Index);
+        indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
         
         // --- Texture
@@ -94,7 +95,7 @@ public sealed partial class Batch2D : IDisposable
         defaultWhiteTextureView = defaultWhiteTexture.CreateView();
         
         defaultSampler = device.CreateSampler(samplerDescriptor ?? new GpuSamplerDescriptor {
-            label       = "Batcher2D Sampler",
+            label       = "Batch2D Sampler",
             magFilter   = FilterMode.Linear,
             minFilter   = FilterMode.Linear
         });
@@ -102,17 +103,17 @@ public sealed partial class Batch2D : IDisposable
         var desc = new GpuRenderPipelineDescriptor();
         desc.VertexState.buffers = [
             new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
-                arrayStride = 20,           // Vertex2D (size)
+                arrayStride = Unsafe.SizeOf<Vertex2D>(),
                 attributes = [
                     new GpuVertexAttribute { shaderLocation = 0, offset =  0, format = VertexFormat.Float32x2 },    // Vertex2D.position 
                     new GpuVertexAttribute { shaderLocation = 1, offset =  8, format = VertexFormat.Float32x2 },    // Vertex2D.uv
-                    new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4 }      // Vertex2D.color
+                    new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4  }     // Vertex2D.color
                 ]
         }];
         desc.FragmentState = new GpuFragmentState{ targets = [
             new GpuColorTargetState {
                 format = targetFormat, // TextureFormat.BGRA8Unorm / RGBA8Unorm
-                blend = new GpuBlendState {
+                blend  = new GpuBlendState {
                     color = new GpuBlendComponent { srcFactor = BlendFactor.SrcAlpha, dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add },
                     alpha = new GpuBlendComponent { srcFactor = BlendFactor.One,      dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add }
                 }
@@ -122,7 +123,7 @@ public sealed partial class Batch2D : IDisposable
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.None
         };
-        config = desc.CreateConfig("Batcher2D Config");
+        config = desc.CreateConfig("Batch2D Config");
     }
     
     public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
