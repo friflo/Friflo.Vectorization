@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
@@ -460,6 +461,52 @@ public ref struct Draw2D : IDisposable
         }
 
         return visibleLength;
+    }
+    
+    /// <summary>
+    /// Helper method to create the line enumerator.
+    /// </summary>
+    public WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    {
+        font ??= batch.GetDefaultFont();
+        return new WrappedLineEnumerator(text, maxWidth, font);
+    }
+
+    /// <summary>
+    /// Wraps text by inserting line breaks ('\n'). Allocates a new string.
+    /// </summary>
+    public string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    {
+        if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
+
+        var sb = new StringBuilder(text.Length);
+
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font)) {
+            if (sb.Length > 0) sb.Append('\n');
+            sb.Append(line);
+        }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Draws word-wrapped text directly onto the screen.
+    /// Allocation-free (GC-friendly).
+    /// </summary>
+    public int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null)
+    {
+        if (text.IsEmpty || maxWidth <= 0f) return 0;
+        font ??= batch.GetDefaultFont();
+
+        Vector2 currentPos = position;
+        int lineCount = 0;
+
+        foreach (ReadOnlySpan<char> line in GetWrappedLines(text, maxWidth, font))
+        {
+            DrawString(line, currentPos, color, font);
+            currentPos.Y += font.lineHeight;
+            lineCount++;
+        }
+        return lineCount;
     }
 
 #endregion

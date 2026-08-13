@@ -128,5 +128,9 @@ public class ImRenderer : IRenderer
 
         draw.RectangleLines(new Vector2(1050, 50), new Vector2(150, 48), 2, Color32.Gray);
         draw.DrawStringTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
+        
+        draw.RectangleLines(new Vector2(750, 150), new Vector2(200, 200), 2, Color32.Gray);
+        var lineCount = draw.DrawStringWrapped("long text with word wrapping", new Vector2(750, 150), 200, Color32.CornflowerBlue);
+        Debug.Assert(lineCount == 3);
     }
 }
