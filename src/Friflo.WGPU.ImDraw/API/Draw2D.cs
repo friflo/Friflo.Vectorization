@@ -299,21 +299,20 @@ public ref struct Draw2D : IDisposable
     public void Flush()
     {
         var bat = batch;
-        if (batch.vertexStart == bat.vertexCount) {
+        int pendingVertices = bat.vertexCount - bat.vertexStart;
+        if (pendingVertices <= 0) {
             return;
         }
-        
-        int quadCount  = bat.vertexCount / 4;
-        int indexCount = quadCount * 6;
 
-        bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
+        int pendingQuads = pendingVertices / 4;
+        int indexCount   = pendingQuads * 6;
 
+        var vertexView = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices).Write();
         var texture    = bat.currentTextureView ?? bat.defaultWhiteTextureView;
-        var vertexView = bat.vertexBuffer.In(bat.vertexStart, bat.vertexCount);
         var indexView  = bat.indexBuffer.In(0, indexCount);
-        
+
         Batch2D.Draw(pass, bat.config, bat.uniforms, texture, bat.defaultSampler, vertexView, indexView);
-        
+
         bat.vertexStart = bat.vertexCount;
     }
 }
