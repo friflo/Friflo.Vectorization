@@ -121,8 +121,8 @@ public class ImRenderer : IRenderer
         draw.Rectangle(new Vector2(250, 50), new Vector2(50, 50), Color32.Green);
         draw.Rectangle(new Vector2(350, 50), new Vector2(50, 50), Color32.Blue);
         
-        draw.RectangleGradient(new Vector2(450, 50),new Vector2(50, 50), topLeft: Color32.Red, topRight: Color32.Green, bottomRight: Color32.Blue, bottomLeft:  Color32.White);
-        draw.RectangleGradientVertical(new Vector2(550, 50), new Vector2(50, 50), top: Color32.Red, bottom: Color32.Blue);
+        draw.RectangleGradient(new Vector2(450, 50),new Vector2(50, 50), topLeft: Color32.Red, topRight: Color32.White, bottomRight: Color32.Red, bottomLeft: Color32.Purple);
+        draw.RectangleGradientVertical(new Vector2(550, 50), new Vector2(50, 50), top: Color32.Red, bottom: Color32.Purple);
         
         draw.Line(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
 
