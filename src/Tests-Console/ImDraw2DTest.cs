@@ -61,9 +61,9 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
-        draw.DrawString("WGPU", new Vector2(700, 50), Color32.White);
         DrawSprites(draw, deltaTime, frame.Width, frame.Height);
         DrawShapes(draw);
+        DrawText(draw);
         
         draw.Flush();
     }
@@ -115,5 +115,18 @@ public class ImRenderer : IRenderer
         draw.Circle(new Vector2(650, 200), radius: 40f, color: 0x0000FFFF, segments: 32);
 
         draw.CircleLines(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
+    }
+    
+    public static void DrawText(Draw2D draw)
+    {
+        var textSize = draw.MeasureString("wgpu");
+        draw.Rectangle(new Vector2(700, 50), textSize, Color32.Gray);
+        draw.DrawString("wgpu", new Vector2(700, 50), Color32.White);
+        
+        draw.Rectangle(new Vector2(850, 50), new Vector2(150, 48), Color32.Gray);
+        draw.DrawStringAligned("right", new Vector2(1000, 50), TextAlignment.Right, Color32.Yellow);
+
+        draw.Rectangle(new Vector2(1050, 50), new Vector2(150, 48), Color32.Gray);
+        draw.DrawStringTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
     }
 }

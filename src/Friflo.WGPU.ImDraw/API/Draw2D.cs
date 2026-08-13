@@ -19,6 +19,13 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
+public enum TextAlignment
+{
+    Left,
+    Center,
+    Right
+}
+
 public ref struct Draw2D : IDisposable
 {
     private readonly Batch2D    batch;
@@ -326,6 +333,133 @@ public ref struct Draw2D : IDisposable
             }
             currentPos.X += glyph.advance;
         }
+    }
+    
+    /// <summary>
+    /// Calculates the bounding box size (width and height) of a text string in pixels.
+    /// </summary>
+    public Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null)
+    {
+        font ??= batch.GetDefaultFont();
+
+        float maxWidth = 0f;
+        float currentLineWidth = 0f;
+        int lineCount = 1;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (c == '\r') {
+                continue;
+            }
+            if (c == '\n') {
+                maxWidth = MathF.Max(maxWidth, currentLineWidth);
+                currentLineWidth = 0f;
+                lineCount++;
+                continue;
+            }
+            if (!font.TryGetGlyph(c, out var glyph)) {
+                if (!font.TryGetGlyph('?', out glyph)) continue;
+            }
+            currentLineWidth += glyph.advance;
+        }
+        maxWidth = MathF.Max(maxWidth, currentLineWidth);
+        
+        return new Vector2(maxWidth, lineCount * font.lineHeight);
+    }
+    
+    /// <summary>
+    /// Draws text aligned relative to a bounding position or box.
+    /// </summary>
+    public void DrawStringAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, Font? font = null)
+    {
+        if (alignment == TextAlignment.Left)
+        {
+            DrawString(text, position, color, font);
+            return;
+        }
+
+        Vector2 size = MeasureString(text, font);
+        Vector2 alignedPos = position;
+
+        if (alignment == TextAlignment.Center)
+            alignedPos.X -= size.X * 0.5f;
+        else if (alignment == TextAlignment.Right)
+            alignedPos.X -= size.X;
+
+        DrawString(text, alignedPos, color, font);
+    }
+    
+    /// <summary>
+    /// Truncates a string to fit within a maximum pixel width and appends '...'.
+    /// Allocates a new string.
+    /// </summary>
+    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null)
+    {
+        font ??= batch.GetDefaultFont();
+        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font);
+
+        if (visibleLength >= text.Length)
+            return text.ToString();
+
+        return string.Concat(text[..visibleLength], "...");
+    }
+
+    /// <summary>
+    /// Draws text at position, automatically truncating with '...' if it exceeds maxWidth.
+    /// Allocation-free (GC-friendly).
+    /// </summary>
+    public void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null)
+    {
+        font ??= batch.GetDefaultFont();
+        int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font);
+
+        // If whole text fits, render normally
+        if (visibleLength >= text.Length)
+        {
+            DrawString(text, position, color, font);
+            return;
+        }
+
+        // Render visible substring directly without GC allocations
+        DrawString(text[..visibleLength], position, color, font);
+
+        // Calculate position for '...' and render it
+        Vector2 ellipsisPos = position;
+        for (int i = 0; i < visibleLength; i++)
+        {
+            if (font.TryGetGlyph(text[i], out var glyph))
+                ellipsisPos.X += glyph.advance;
+        }
+
+        DrawString("...", ellipsisPos, color, font);
+    }
+
+    /// <summary>
+    /// Internal core logic: Determines how many characters fit before '...' must be appended.
+    /// </summary>
+    private static int GetVisibleLengthWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font font)
+    {
+        if (!font.TryGetGlyph('.', out var dotGlyph))
+            return text.Length;
+
+        float ellipsisWidth = dotGlyph.advance * 3f;
+        float currentWidth = ellipsisWidth;
+        int visibleLength = 0;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (c == '\r' || c == '\n') break;
+            if (!font.TryGetGlyph(c, out var glyph)) continue;
+
+            if (currentWidth + glyph.advance > maxWidth) break;
+
+            currentWidth += glyph.advance;
+            visibleLength++;
+        }
+
+        return visibleLength;
     }
 
 #endregion
