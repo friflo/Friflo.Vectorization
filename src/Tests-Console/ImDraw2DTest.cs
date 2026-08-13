@@ -61,6 +61,7 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
+        draw.DrawString("WGPU", new Vector2(700, 50), Color32.White);
         DrawSprites(draw, deltaTime, frame.Width, frame.Height);
         DrawShapes(draw);
         

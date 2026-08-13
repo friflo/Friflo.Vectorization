@@ -45,6 +45,7 @@
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
+    <PackageReference Include="StbImageSharp"     Version="2.30.15" />
     <!-- <PackageReference Include="JetBrains.Annotations"       Version="2026.2.0" PrivateAssets="All"/> -->
   </ItemGroup>
 
@@ -65,6 +66,10 @@
     <ProjectReference Include="..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
   </ItemGroup>
   
+  
+  <ItemGroup>
+      <EmbeddedResource Include="fonts/*.*" />
+  </ItemGroup>
   <ItemGroup>
     <CompilerVisibleProperty Include="MSBuildProjectDirectory" />  
     <EmbeddedResource Include="shaders\**\*.wgsl" />

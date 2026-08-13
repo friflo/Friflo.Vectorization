@@ -3,7 +3,9 @@
 
 
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
@@ -23,6 +25,8 @@ public sealed partial class Batch2D : IDisposable
     private  readonly   GpuTexture          defaultWhiteTexture;
     internal readonly   GpuTextureView      defaultWhiteTextureView; // views are owned / disposed by their texture
     internal readonly   GpuSampler          defaultSampler;
+    internal readonly   GpuDevice           device;
+    internal            Font?               defaultFont;
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart; // start of next Draw()
     internal            int                 vertexCount;
@@ -31,6 +35,7 @@ public sealed partial class Batch2D : IDisposable
 
     public void Dispose()
     {
+        defaultFont?.Dispose();
         vertexBuffer.Dispose();
         indexBuffer.Dispose();
         defaultWhiteTexture.Dispose();
@@ -62,6 +67,8 @@ public sealed partial class Batch2D : IDisposable
         GpuSamplerDescriptor?   samplerDescriptor   = null,
         int                     maxVertices         = 60_000)
     {
+        this.device    = device;
+        
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
         int maxIndices = maxQuads * 6;
@@ -149,5 +156,19 @@ public sealed partial class Batch2D : IDisposable
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
                     [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
                     [IndexBuffer]   [Draw]  InBuffer<ushort>    indices);
+
+    
+    public Font GetDefaultFont()
+    {
+        if (defaultFont != null) {
+            return defaultFont;
+        }
+        using var fontAtlas = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
+        var fntContent      = reader.ReadToEnd();
+        
+        return defaultFont = Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
+    }
 }
 

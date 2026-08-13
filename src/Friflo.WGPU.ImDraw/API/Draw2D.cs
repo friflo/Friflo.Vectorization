@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
+// ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -286,6 +288,43 @@ public ref struct Draw2D : IDisposable
     }
 #endregion
 
+
+#region Text
+
+    /// <summary>
+    /// Draws a text string using a bitmap font atlas.
+    /// </summary>
+    public void DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null )
+    {
+        if (color.Packed == 0) color = Color32.White;
+        font ??= batch.GetDefaultFont();
+
+        Vector2 currentPos = position;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+
+            // Handle line breaks
+            if (c == '\n') {
+                currentPos.X = position.X;
+                currentPos.Y += font.lineHeight;
+                continue;
+            }
+            if (!font.TryGetGlyph(c, out var glyph)) {
+                // Fallback for missing characters
+                if (!font.TryGetGlyph('?', out glyph)) continue;
+            }
+            // Render glyph if it has visible dimensions (skips spaces)
+            if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
+                Vector2 renderPos = currentPos + glyph.offset;
+                DrawSprite(renderPos, glyph.sourceSize, font.textureView, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+            }
+            currentPos.X += glyph.advance;
+        }
+    }
+
+#endregion
 
     public void SetViewport(float width, float height)
     {
