@@ -9,6 +9,7 @@ using System.Text;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MergeIntoPattern
@@ -838,6 +839,13 @@ public ref struct Draw2D : IDisposable
             projection = batch.currentTransform * batch.defaultOrtho 
         };
     }
+    
+    public void SetBlendState(BlendState blendState)
+    {
+        if (blendState == batch.currentBlendState) return;
+        Flush();
+        batch.currentBlendState = blendState;
+    }
 
     public void Flush()
     {
@@ -854,7 +862,7 @@ public ref struct Draw2D : IDisposable
         var texture    = bat.currentTextureView ?? bat.defaultWhiteTextureView;
         var indexView  = bat.indexBuffer.In(0, indexCount);
 
-        Batch2D.Draw(pass, bat.config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
+        Batch2D.Draw(pass, bat.renderConfigs[(int)bat.currentBlendState], bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
 
         bat.vertexStart = bat.vertexCount;
     }

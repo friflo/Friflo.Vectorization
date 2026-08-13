@@ -18,23 +18,33 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImDraw;
 
 
+public enum BlendState
+{
+    Alpha,      // Standard transparent - default 
+    Opaque,     // new Pixel overwrite old completely
+    Additive,   // Glow, light, particles
+    Multiply,   // Shadow, Tint
+} 
+
+
 public sealed partial class Batch2D : IDisposable
 {
-    internal readonly   RenderConfig        config;
+    internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<ushort>   indexBuffer;
     private  readonly   GpuTexture          defaultWhiteTexture;
-    internal readonly   GpuTextureView      defaultWhiteTextureView; // views are owned / disposed by their texture
-    internal readonly   GpuSampler          samplerLinear;           // the default sampler
+    internal readonly   GpuTextureView      defaultWhiteTextureView;    // views are owned / disposed by their texture
+    internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
     internal readonly   GpuDevice           device;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
+    internal            BlendState          currentBlendState;
     internal            GpuSampler          currentSampler;
     internal            Font?               defaultFont;
     internal            Vector2             viewport;
     internal            ImUniforms          uniforms;
-    internal            int                 vertexStart; // start of next Draw()
+    internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
     internal            GpuTextureView?     currentTextureView;
 
@@ -94,7 +104,14 @@ public sealed partial class Batch2D : IDisposable
         samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
         currentSampler = samplerLinear;
-        
+
+        renderConfigs = CreateRenderConfigs(targetFormat);
+    }
+    
+    // TextureFormat.BGRA8Unorm / RGBA8Unorm
+    private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
+    {
+        var configs = new RenderConfig[4];
         var desc = new GpuRenderPipelineDescriptor();
         desc.VertexState.buffers = [
             new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
@@ -105,21 +122,43 @@ public sealed partial class Batch2D : IDisposable
                     new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4  }     // Vertex2D.color
                 ]
         }];
-        desc.FragmentState = new GpuFragmentState{ targets = [
-            new GpuColorTargetState {
-                format = targetFormat, // TextureFormat.BGRA8Unorm / RGBA8Unorm
-                blend  = new GpuBlendState {
-                    color = new GpuBlendComponent { srcFactor = BlendFactor.SrcAlpha, dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add },
-                    alpha = new GpuBlendComponent { srcFactor = BlendFactor.One,      dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add }
-                }
-            }
-        ]};
         desc.PrimitiveState = new GpuPrimitiveState {
             topology    = PrimitiveTopology.TriangleList,
             cullMode    = CullMode.None
         };
-        config = desc.CreateConfig("Batch2D Config");
+        for (int index = 0; index < 4; index++) {
+            var blendIndex  = (BlendState)index;
+            var blend       = CreateBlendState(blendIndex);
+            desc.FragmentState = new GpuFragmentState{ targets = [ new GpuColorTargetState { format = targetFormat, blend  = blend }]};
+            configs[index] = desc.CreateConfig($"Batch2D: {blendIndex}"); // does not create any wgpu handle
+        }
+        return configs;
     }
+    
+    private static GpuBlendState CreateBlendState(BlendState blendIndex)
+    {
+        switch (blendIndex)
+        {
+            case BlendState.Alpha: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.SrcAlpha,   dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.One,        dstFactor = BlendFactor.OneMinusSrcAlpha, operation = BlendOperation.Add }
+            };
+            case BlendState.Opaque: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.One,        dstFactor = BlendFactor.Zero, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.One,        dstFactor = BlendFactor.Zero, operation = BlendOperation.Add }
+            };
+            case BlendState.Additive: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.SrcAlpha,   dstFactor = BlendFactor.One, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.One, operation = BlendOperation.Add }
+            };
+            case BlendState.Multiply: return new GpuBlendState {
+                color = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.Src, operation = BlendOperation.Add },
+                alpha = new GpuBlendComponent { srcFactor = BlendFactor.Zero,       dstFactor = BlendFactor.One, operation = BlendOperation.Add }
+            };
+        }
+        throw new ArgumentOutOfRangeException(nameof(blendIndex));        
+    }
+    
     
     public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
     {
@@ -134,6 +173,7 @@ public sealed partial class Batch2D : IDisposable
         currentSampler      = samplerLinear;
         viewport            = new Vector2(frame.Width, frame.Height);
         currentTransform    = Matrix4x4.Identity;
+        currentBlendState   = BlendState.Alpha;
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);
