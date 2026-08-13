@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Friflo.Vectorization.WebGPU;
 using Friflo.WGPU.ImDraw;
 using StbImageSharp;
@@ -15,6 +16,9 @@ public class ImRenderer : IRenderer
     private readonly    GpuTexture              myTexture;
     private readonly    GpuTextureView          myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
+    private readonly    Stopwatch               stopwatch               = Stopwatch.StartNew();
+    private             float                   lastTime;
+    private             float                   rotation;
     private readonly    PerfLog                 perfLog                 = new();
     
     public void OnShutdown() {
@@ -25,7 +29,7 @@ public class ImRenderer : IRenderer
     public ImRenderer(Wgpu wgpu)
     {
         var device = wgpu.Device;
-        batch = new Batch2D(device, wgpu.SwapChainFormat, FilterMode.Nearest);
+        batch = new Batch2D(device, wgpu.SwapChainFormat, FilterMode.Linear);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png");
@@ -51,6 +55,9 @@ public class ImRenderer : IRenderer
     public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(5000);
+        var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
+        var deltaTime   = currentTime - lastTime;
+        lastTime        = currentTime;
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
@@ -69,6 +76,25 @@ public class ImRenderer : IRenderer
         var srcSize = new Vector2(64, 64);          // 64x64 Tile
         var texSize = new Vector2(1024, 1024);      // texture-size
         draw.DrawSprite(new Vector2(500, 50), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
+        
+        rotation += deltaTime;
+        draw.DrawSprite(
+            position: new Vector2(100, 550),
+            size:     new Vector2(128, 128),
+            rotation: rotation,
+            pivot:    new Vector2(0.5f, 0.5f), // center
+            texture:  myTextureView
+        );
+        draw.DrawSprite(
+            position:       new Vector2(620, 75),
+            size:           new Vector2(32, 32),
+            rotation:       rotation,
+            pivot:          new Vector2(0.5f, 1.0f),        // bottom center
+            texture:        myTextureView,
+            sourceRectPos:  new Vector2(6 * 64, 2 * 64),    // tile in sheet
+            sourceRectSize: new Vector2(64, 64),
+            textureSize:    new Vector2(1024, 1024)
+        );
         
         draw.Flush(); // redundant - kept for debugging
     }
