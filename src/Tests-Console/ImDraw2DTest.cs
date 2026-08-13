@@ -61,8 +61,8 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
-        DrawSprites(draw, deltaTime);
         DrawShapes(draw, frame.Width, frame.Height);
+        DrawSprites(draw, deltaTime);
         DrawText(draw);
         
         draw.Flush();
@@ -74,22 +74,6 @@ public class ImRenderer : IRenderer
         draw.DrawSprite(new Vector2( 50, 150), new Vector2(256, 256), myTextureView);
         draw.DrawSprite(new Vector2(200, 150), new Vector2(256, 256), myTextureView, uvMin: new Vector2(1f, 0f), uvMax: new Vector2(0f, 1f)); // flipped sprite
         
-        var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-        var srcSize = new Vector2(64, 64);          // 64x64 Tile
-        var texSize = new Vector2(1024, 1024);      // texture-size
-        draw.DrawSprite(new Vector2(400, 500), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
-        
-        var borders = new Vector4(8, 8, 8, 8);
-        draw.DrawSprite9SliceTiled(
-            position:       new Vector2(500, 500), 
-            size:           new Vector2(200, 100), 
-            texture:        myTextureView, 
-            sourceRectPos:  srcPos, 
-            sourceRectSize: srcSize, 
-            textureSize:    texSize, 
-            borderThickness:borders
-        );
-        
         rotation += deltaTime;
         draw.DrawSprite(
             position: new Vector2(100, 550),
@@ -99,7 +83,7 @@ public class ImRenderer : IRenderer
             texture:  myTextureView
         );
         draw.DrawSprite(
-            position:       new Vector2(650, 75),
+            position:       new Vector2(275, 475),
             size:           new Vector2(32, 32),
             rotation:       rotation,
             pivot:          new Vector2(0.5f, 1.0f),        // bottom center
@@ -109,7 +93,21 @@ public class ImRenderer : IRenderer
             textureSize:    new Vector2(1024, 1024)
         );
         
+        var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
+        var srcSize = new Vector2(64, 64);          // 64x64 Tile
+        var texSize = new Vector2(1024, 1024);      // texture-size
+        draw.DrawSprite(new Vector2(350, 450), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
         
+        var borders = new Vector4(8, 8, 8, 8);
+        draw.DrawSprite9SliceTiled(
+            position:       new Vector2(250, 550), 
+            size:           new Vector2(200, 100), 
+            texture:        myTextureView, 
+            sourceRectPos:  srcPos, 
+            sourceRectSize: srcSize, 
+            textureSize:    texSize, 
+            borderThickness:borders
+        );
     }
     
     public static void DrawShapes(Draw2D draw, int width, int height)
