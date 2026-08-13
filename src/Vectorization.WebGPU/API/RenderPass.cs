@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Friflo.Vectorization.WebGPU.Runtime;
 using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 namespace Friflo.Vectorization.WebGPU;
@@ -17,15 +18,19 @@ public unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;
     private             RenderPassEncoder*  handle;
+    private  readonly   int                 viewWidth;
+    private  readonly   int                 viewHeight;
     
     [EditorBrowsable(EditorBrowsableState.Never)]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public RenderPassInternal Internal => new (Recorder, handle);
 
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder) {
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, float width, float height) {
         this.handle = handle;
         Recorder    = recorder;
+        viewWidth   = (int)width;
+        viewHeight  = (int)height;
     }
 
 #region --- rasterization & blending states
@@ -56,7 +61,14 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void SetScissorRect(int x, int y, int width, int height)
     {
-        wgpuRenderPassEncoderSetScissorRect(handle, (uint)x, (uint)y, (uint)width, (uint)height);
+        int x1 = Math.Clamp(x,          0, viewWidth);
+        int y1 = Math.Clamp(y,          0, viewHeight);
+        int x2 = Math.Clamp(x + width,  0, viewWidth);
+        int y2 = Math.Clamp(y + height, 0, viewHeight);
+
+        int clampedW = Math.Max(0, x2 - x1);
+        int clampedH = Math.Max(0, y2 - y1);
+        wgpuRenderPassEncoderSetScissorRect(handle, (uint)x1, (uint)y1, (uint)clampedW, (uint)clampedH);
     }
     
     /// <summary>
