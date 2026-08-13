@@ -182,5 +182,6 @@ public class ImRenderer : IRenderer
         var font = draw.GetDefaultFont();
         Debug.Assert(font.name == "Default Font");
         Debug.Assert((int)font.lineHeight == 47);
+        Debug.Assert(font.glyphs.Count == 191);
     }
 }

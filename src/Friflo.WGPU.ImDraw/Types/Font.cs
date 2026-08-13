@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -41,14 +42,14 @@ public struct GlyphInfo
 
 public class Font : IDisposable
 {
-    public  readonly    GpuTextureView              textureView;
-    public  readonly    Vector2                     textureSize;
-    public  readonly    float                       lineHeight;
-    private readonly    Dictionary<char, GlyphInfo> glyphs;
-    private readonly    GpuTexture                  fontTexture;
-    public  readonly    string                      name;
+    public  readonly    GpuTextureView                      textureView;
+    public  readonly    Vector2                             textureSize;
+    public  readonly    float                               lineHeight;
+    public  readonly    FrozenDictionary<char, GlyphInfo>   glyphs;
+    private readonly    GpuTexture                          fontTexture;
+    public  readonly    string                              name;
 
-    public  override    string                      ToString() => name;
+    public  override    string                              ToString() => name;
 
     private Font (GpuTexture fontTexture, GpuTextureView textureView, Vector2 textureSize, float lineHeight, Dictionary<char, GlyphInfo> glyphs, string name)
     {
@@ -56,7 +57,7 @@ public class Font : IDisposable
         this.textureView    = textureView;
         this.textureSize    = textureSize;
         this.lineHeight     = lineHeight;
-        this.glyphs         = glyphs;
+        this.glyphs         = glyphs.ToFrozenDictionary();
         this.name           = name;
     }
 
