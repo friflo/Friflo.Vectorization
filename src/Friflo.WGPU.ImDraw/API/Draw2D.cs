@@ -800,8 +800,43 @@ public ref struct Draw2D : IDisposable
         if (batch.vertexStart != batch.vertexCount) {
             Flush();
         }
-        var proj = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
-        batch.uniforms = new ImUniforms { projection = proj };
+
+        batch.viewport = new Vector2(width, height);
+        
+        // base projection for window size
+        batch.defaultOrtho = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
+        
+        // combine with current camera transform
+        UpdateUniforms();
+    }
+
+    public void SetTransform(in Matrix4x4 transform)
+    {
+        if (batch.currentTransform == transform) return;
+
+        if (batch.vertexStart != batch.vertexCount) {
+            Flush();
+        }
+
+        // store new camera matrix
+        batch.currentTransform = transform;
+
+        // combine with current viewport projection
+        UpdateUniforms();
+    }
+
+    public void ResetTransform()
+    {
+        SetTransform(Matrix4x4.Identity);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateUniforms()
+    {
+        // System.Numerics Row-Major: CustomTransform * DefaultOrtho
+        batch.uniforms = new ImUniforms { 
+            projection = batch.currentTransform * batch.defaultOrtho 
+        };
     }
 
     public void Flush()

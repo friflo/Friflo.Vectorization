@@ -61,11 +61,25 @@ public class ImRenderer : IRenderer
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
+        draw.SetTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime));
+        
         DrawShapes(draw, frame.Width, frame.Height);
         DrawSprites(draw, deltaTime);
         DrawText(draw);
         
         draw.Flush();
+    }
+    
+    private static Matrix4x4 CreateAnimatedTransform(float width, float height, float time)
+    {
+        var center = new Vector2(width * 0.5f, height * 0.5f);
+        var scale  = 1.0f + MathF.Sin(time * 2f) * 0.05f; // Sanftes Atmen
+        var angle  = MathF.Sin(time) * 0.03f;             // Leichtes Neigen
+
+        return Matrix4x4.CreateTranslation(-center.X, -center.Y, 0f)
+             * Matrix4x4.CreateRotationZ(angle)
+             * Matrix4x4.CreateScale(scale, scale, 1f)
+             * Matrix4x4.CreateTranslation(center.X, center.Y, 0f);
     }
     
     public void DrawSprites(Draw2D draw, float deltaTime)

@@ -28,6 +28,8 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuSampler          samplerLinear;           // the default sampler
     internal readonly   GpuSampler          samplerNearest;
     internal readonly   GpuDevice           device;
+    internal            Matrix4x4           defaultOrtho;
+    internal            Matrix4x4           currentTransform;
     internal            GpuSampler          currentSampler;
     internal            Font?               defaultFont;
     internal            Vector2             viewport;
@@ -131,6 +133,7 @@ public sealed partial class Batch2D : IDisposable
         currentTextureView  = null;
         currentSampler      = samplerLinear;
         viewport            = new Vector2(frame.Width, frame.Height);
+        currentTransform    = Matrix4x4.Identity;
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);
