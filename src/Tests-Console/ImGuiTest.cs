@@ -41,22 +41,19 @@ public class ImGuiRenderer : IRenderer
     public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(10000);
-        batch.NewFrame();
+        // batch.NewFrame();
         
-        using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
-        
-        var gui = draw.BeginGui();
+        using var gui = batch.BeginGui(frame, renderPassDescriptor);
+
         gui.BeginWindow("Test Window", new Vector2(100, 20), new Vector2(1000, 600), 0xaaaaaaff);
         
         gui.Label("hello GUI");
         if (gui.Button("hello")) {
-            Console.WriteLine("hello GUI");
+            Console.WriteLine("Clicked: hello");
         }
         if (gui.Button("world", 0x7777ffff)) {
-            Console.WriteLine("world");
+            Console.WriteLine("Clicked: world");
         }
         gui.EndWindow();
-        
-        draw.Flush();
     }
 }

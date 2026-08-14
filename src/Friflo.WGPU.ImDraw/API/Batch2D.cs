@@ -167,6 +167,12 @@ public sealed partial class Batch2D : IDisposable
         throw new ArgumentOutOfRangeException(nameof(blendIndex));        
     }
     
+    public DrawGui BeginGui(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
+    {
+        var draw = BeginDraw2D(frame, descriptor);
+        return draw.BeginGui();
+    }
+    
     
     public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
     {

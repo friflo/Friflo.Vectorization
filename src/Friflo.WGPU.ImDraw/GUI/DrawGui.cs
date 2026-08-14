@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Numerics;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -9,7 +10,7 @@ using System.Numerics;
 namespace Friflo.WGPU.ImDraw;
 
 
-public ref struct DrawGui
+public ref struct DrawGui : IDisposable
 {
     private readonly    Batch2D     batch;
     private             Draw2D      draw;
@@ -19,6 +20,11 @@ public ref struct DrawGui
         this.draw   = draw;
         this.batch  = batch;
         window      = null!;
+    }
+    
+    public void Dispose()
+    {
+        draw.Dispose();
     }
     
     public void BeginWindow(string title, Vector2 position, Vector2 size, Color32 color)
