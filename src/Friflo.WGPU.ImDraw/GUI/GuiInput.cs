@@ -21,7 +21,6 @@ public struct ImEvent
 
 internal class GuiInput
 {
-    internal    bool    isClicked;
     internal    bool    isMouseDown;
     internal    float   x;
     internal    float   y;
@@ -39,7 +38,6 @@ internal class GuiInput
                 y = ev.y;
                 break;
             case ImEventType.MouseButtonDown:
-                isClicked   = !isMouseDown;
                 isMouseDown = true;
                 break;
             case ImEventType.MouseButtonUp:

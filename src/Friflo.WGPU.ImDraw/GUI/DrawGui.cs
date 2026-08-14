@@ -68,13 +68,12 @@ public ref struct DrawGui
             input.hotItem = 0;
         }
 
-        if (input.hotItem == widgetId && batch.input.isMouseDown) {
+        if (input.hotItem == widgetId && input.isMouseDown) {
             input.activeItem = widgetId;
         }
 
         if (input.activeItem == widgetId) {
-            if (!batch.input.isMouseDown)
-            {
+            if (!input.isMouseDown) {
                 if (input.hotItem == widgetId) {
                     clicked = true;
                 }
@@ -84,8 +83,7 @@ public ref struct DrawGui
 
         if (input.activeItem == widgetId) {
             color = window.buttonDown;
-        }
-        else if (input.hotItem == widgetId) {
+        } else if (input.hotItem == widgetId) {
             color = window.buttonHover;
         }
         
