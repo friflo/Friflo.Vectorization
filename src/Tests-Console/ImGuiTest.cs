@@ -56,7 +56,7 @@ public class ImGuiRenderer : IRenderer
         gui.Label("");
         if(gui.Checkbox("checkbox", ref enabled))       Console.WriteLine("Clicked: checkbox");
         gui.Label("");
-        if (gui.Slider("Volume", ref volume, 0f, 1f))   Console.WriteLine($"Volume changed to: {volume}");
+        if (gui.Slider("Volume", ref volume, 0f, 1f))   Console.WriteLine($"Volume: changed");
         gui.Label("");
         
         gui.BeginHorizontal();

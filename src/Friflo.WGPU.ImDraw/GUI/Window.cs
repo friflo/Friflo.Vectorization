@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 // ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -32,11 +33,18 @@ internal class Window
     internal            Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
+    private  readonly   StringBuilder       sb          = new(512,512); // => first chunk: 512 chars
     
     internal readonly   Color32             textColor   = 0x000000ff;
     internal readonly   Color32             buttonColor = 0xddddddff;
     internal readonly   Color32             buttonHover = 0xeeeeeeff;
     internal readonly   Color32             buttonDown  = 0xbbbbbbff;
+    
+    internal StringBuilder Builder()
+    {
+        sb.Clear();
+        return sb;
+    }
 
     internal void ResetScope(string title)
     {

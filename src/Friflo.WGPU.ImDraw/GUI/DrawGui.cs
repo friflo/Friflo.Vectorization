@@ -171,8 +171,8 @@ public ref struct DrawGui : IDisposable
         
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
-        string labelText = $"{name}: {value:F1}";
-        draw.DrawStringInRect(labelText, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
+        var labelText = window.Builder().Append($"{name} ").AppendFormat(value, "F1");
+        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
 
         window.MoveCursor(totalSize);
         return changed;
