@@ -89,6 +89,50 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
         return widgetState == WidgetState.Clicked;
     }
+    
+    public bool Checkbox(string name, ref bool value, WidgetID id = default)
+    {
+        int parentHash = window.GetCurrentScopeHash();
+        int widgetId   = id.Resolve(name, parentHash);
+
+        var boxSize = 20f;
+        var textSize = draw.MeasureString(name);
+        var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
+
+        var isHover = window.IsHover(batch, totalSize);
+        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+
+        if (widgetState == WidgetState.Clicked) {
+            value = !value;
+        }
+
+        Color32 boxColor = window.buttonColor;
+        switch (widgetState)
+        {
+            case WidgetState.Down:
+                boxColor = window.buttonDown;
+                break;
+            case WidgetState.Hover:
+                boxColor = window.buttonHover;
+                break;
+        }
+
+        var boxRect = new Vector2(window.cursor.X, window.cursor.Y + (totalSize.Y - boxSize) / 2f);
+        draw.RectangleRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
+
+        if (value) {
+            var innerRect = new Vector2(boxRect.X + 5f, boxRect.Y + 5f);
+            draw.RectangleRounded(innerRect, new Vector2(boxSize - 10f, boxSize - 10f), 2, window.textColor);
+        }
+
+        var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
+        draw.DrawString(name, textPos, window.textColor);
+
+        window.MoveCursor(totalSize);
+
+        return widgetState == WidgetState.Clicked;
+    }
+
 #endregion
 
     

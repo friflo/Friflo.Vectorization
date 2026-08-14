@@ -13,6 +13,7 @@ public class ImGuiRenderer : IRenderer
     private readonly    Batch2D                 batch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
+    private             bool                    enabled;
     
     public void OnShutdown() {
         batch.Dispose();
@@ -48,14 +49,15 @@ public class ImGuiRenderer : IRenderer
         
         gui.Label("hello GUI");
         gui.Label("");
-        if (gui.Button("hello"))                Console.WriteLine("Clicked: hello");
-        if (gui.Button("world", 0x7777ffff))    Console.WriteLine("Clicked: world");
+        if (gui.Button("hello"))                    Console.WriteLine("Clicked: hello");
+        if (gui.Button("world", 0x7777ffff))        Console.WriteLine("Clicked: world");
         
         gui.Label("");
+        if(gui.Checkbox("checkbox", ref enabled))   Console.WriteLine("Clicked: checkbox");
         
         gui.BeginHorizontal();
-        if (gui.Button("Left"))         Console.WriteLine("Clicked: Left");
-        if (gui.Button("Right"))        Console.WriteLine("Clicked: Right");
+        if (gui.Button("Left"))                     Console.WriteLine("Clicked: Left");
+        if (gui.Button("Right"))                    Console.WriteLine("Clicked: Right");
         gui.EndHorizontal();
         
         gui.EndWindow();
