@@ -815,11 +815,9 @@ public ref struct Draw2D : IDisposable
 
     public void SetViewport(float width, float height)
     {
-        var bat = batch;
-        if (bat.vertexStart != bat.vertexCount) {
-            Flush();
-        }
+        Flush();
 
+        var bat = batch;
         bat.viewport = new Vector2(width, height);
         
         // base projection for window size
@@ -829,30 +827,42 @@ public ref struct Draw2D : IDisposable
         bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
-    public void SetTransform(in Matrix4x4 transform)
+    public void PushTransform(in Matrix4x4 transform)
+    {
+        var transformStack = batch.transformStack;
+        var parent    = transformStack.Count > 0 ? transformStack.Peek() : Matrix4x4.Identity;
+        var combined  = transform * parent;
+
+        transformStack.Push(combined);
+        ApplyTransform(combined);
+    }
+
+    public void PopTransform()
+    {
+        var transformStack = batch.transformStack;
+        if (transformStack.Count > 0) {
+            transformStack.Pop();
+        }
+        var targetTransform = transformStack.Count > 0 ? transformStack.Peek() : Matrix4x4.Identity;
+
+        ApplyTransform(targetTransform);
+    }
+
+    private void ApplyTransform(in Matrix4x4 transform)
     {
         var bat = batch;
         if (bat.currentTransform == transform) return;
 
-        if (bat.vertexStart != bat.vertexCount) {
-            Flush();
-        }
+        Flush();
 
-        // store new camera matrix
-        bat.currentTransform = transform;
-
-        // combine with current viewport projection
+        bat.currentTransform    = transform;
         bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
-    }
-
-    public void ResetTransform()
-    {
-        SetTransform(Matrix4x4.Identity);
     }
 
     public void SetBlendState(BlendState blendState)
     {
         if (blendState == batch.currentBlendState) return;
+        
         Flush();
         batch.currentBlendState = blendState;
     }

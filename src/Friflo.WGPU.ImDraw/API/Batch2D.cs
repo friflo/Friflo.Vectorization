@@ -36,7 +36,8 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<uint>     indexBuffer;
     
-    internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack = new();
+    internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack    = new();
+    internal readonly   Stack<Matrix4x4>                        transformStack  = new();
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;
@@ -179,6 +180,8 @@ public sealed partial class Batch2D : IDisposable
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
+        scissorStack.Clear();
+        transformStack.Clear();
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);

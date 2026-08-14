@@ -63,10 +63,12 @@ public class ImRenderer : IRenderer
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
-        draw.SetTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime));
+        draw.PushTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime));
         
         DrawShapes(draw, frame.Width, frame.Height);
         DrawSprites(draw, deltaTime);
+        draw.PopTransform();
+
         DrawText(draw);
         
         draw.Flush();
