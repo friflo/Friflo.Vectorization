@@ -35,7 +35,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<ushort>   indexBuffer;
     
-    // --- owned by DrawModule
+    // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
