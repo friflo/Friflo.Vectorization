@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -23,7 +24,7 @@ internal struct LayoutNode
 {
     internal LayoutDirection    direction;
     internal Vector2            startCursor;
-    internal Vector2            currentCursor;
+    internal Vector2            maxSize;
 }
 
 
@@ -54,7 +55,7 @@ internal class Window
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
         
-        layoutStack.Push(new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, currentCursor = cursor });
+        layoutStack.Push(new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, maxSize = Vector2.Zero });
     }
 
     internal void ClearScope()
@@ -70,15 +71,21 @@ internal class Window
 
     internal void PushLayout(LayoutDirection direction)
     {
-        layoutStack.Push(new LayoutNode { direction = direction, startCursor = cursor, currentCursor = cursor });
+        layoutStack.Push(new LayoutNode { 
+            direction   = direction, 
+            startCursor = cursor, 
+            maxSize     = Vector2.Zero 
+        });
     }
 
     internal void PopLayout()
     {
         if (layoutStack.Count > 1) {
             var finishedLayout = layoutStack.Pop();
-            // Advance the parent cursor past the completed container block
-            MoveCursor(new Vector2(finishedLayout.currentCursor.X - finishedLayout.startCursor.X, finishedLayout.currentCursor.Y - finishedLayout.startCursor.Y));
+            
+            cursor = finishedLayout.startCursor;
+
+            MoveCursor(finishedLayout.maxSize);
         }
     }
 
@@ -89,11 +96,13 @@ internal class Window
             
             if (layout.direction == LayoutDirection.Vertical) {
                 cursor.Y += size.Y + 6f;
+                layout.maxSize.X = Math.Max(layout.maxSize.X, size.X);
+                layout.maxSize.Y += size.Y + 6f;
             } else {
                 cursor.X += size.X + 6f;
+                layout.maxSize.X += size.X + 6f;
+                layout.maxSize.Y = Math.Max(layout.maxSize.Y, size.Y);
             }
-            layout.currentCursor = cursor;
-
             layoutStack.Push(layout);
         } else {
             cursor.Y += size.Y + 6f;
