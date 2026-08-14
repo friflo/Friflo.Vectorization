@@ -15,7 +15,7 @@ namespace Friflo.WGPU.ImDraw;
 internal sealed class DrawModule : IGpuDeviceModule
 {
     private  readonly   GpuDevice       device;
-    internal readonly   GpuSampler      samplerLinear;              // the default sampler
+    internal readonly   GpuSampler      samplerLinear;
     internal readonly   GpuSampler      samplerNearest;
     private  readonly   GpuTexture      defaultWhiteTexture;
     internal readonly   GpuTextureView  defaultWhiteTextureView;    // views are owned / disposed by their texture
