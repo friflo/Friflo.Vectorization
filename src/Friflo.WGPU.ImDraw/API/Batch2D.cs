@@ -33,7 +33,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   DrawModule          drawModule;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
-    internal readonly   GpuBuffer<ushort>   indexBuffer;
+    internal readonly   GpuBuffer<uint>     indexBuffer;
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;
@@ -82,15 +82,15 @@ public sealed partial class Batch2D : IDisposable
         vertexBuffer = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
 
         // generate quad indexes only once
-        var indices = new ushort[maxIndices];
+        var indices = new uint[maxIndices];
         for (int i = 0, v = 0; i < maxIndices; i += 6, v += 4)
         {
-            indices[i + 0] = (ushort)(v + 0);
-            indices[i + 1] = (ushort)(v + 1);
-            indices[i + 2] = (ushort)(v + 2);
-            indices[i + 3] = (ushort)(v + 2);
-            indices[i + 4] = (ushort)(v + 3);
-            indices[i + 5] = (ushort)(v + 0);
+            indices[i + 0] = (uint)(v + 0);
+            indices[i + 1] = (uint)(v + 1);
+            indices[i + 2] = (uint)(v + 2);
+            indices[i + 3] = (uint)(v + 2);
+            indices[i + 4] = (uint)(v + 3);
+            indices[i + 5] = (uint)(v + 0);
         }
         indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
@@ -188,6 +188,6 @@ public sealed partial class Batch2D : IDisposable
         [Map(0, 1)] [texture_2d(ST.f32)]    GpuTextureView      texture,
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
                     [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
-                    [IndexBuffer]   [Draw]  InBuffer<ushort>    indices);
+                    [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
 }
 
