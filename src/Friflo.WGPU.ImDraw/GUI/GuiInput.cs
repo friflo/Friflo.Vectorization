@@ -2,8 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 
-// ReSharper disable once CheckNamespace
 // ReSharper disable ConvertIfStatementToReturnStatement
+// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+// ReSharper disable once CheckNamespace
+// ReSharper disable ConvertSwitchStatementToSwitchExpression
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 namespace Friflo.WGPU.ImDraw;
 
 public enum ImEventType
@@ -28,7 +31,7 @@ public enum WidgetState
     Hover
 }
 
-internal class GuiInput
+public class GuiInput
 {
     private     bool    isMouseDown;
     internal    float   x;
