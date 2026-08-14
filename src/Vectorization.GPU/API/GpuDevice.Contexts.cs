@@ -15,10 +15,13 @@ using System.Threading;
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.GPU;
 
+public interface IGpuDeviceModule : IDisposable;
+
 public abstract partial class GpuDevice
 {
-    private  readonly   ContextPool                     pool            = new ();
-    private  readonly   ThreadLocal<PipelineContext>    threadContexts  = new (trackAllValues: true);
+    private  readonly   ContextPool                         pool            = new ();
+    private  readonly   ThreadLocal<PipelineContext>        threadContexts  = new (trackAllValues: true);
+    private  readonly   Dictionary<Type, IGpuDeviceModule>  deviceModules   = new();
 
     
     protected internal abstract PipelineContext NewPipelineContext();
@@ -62,6 +65,10 @@ public abstract partial class GpuDevice
         if (IsDisposed) {
             return;
         }
+        foreach (var (_, module) in deviceModules) {
+            module.Dispose();
+        }
+        deviceModules.Clear();
         
         List<string> leaks = null;
 
@@ -89,6 +96,24 @@ public abstract partial class GpuDevice
         threadContexts.Dispose();
         pool.Dispose();
         GC.SuppressFinalize(this);
+    }
+    
+    public bool TryGetModule<T>(out T subsystem) where T : class, IGpuDeviceModule
+    {
+        if (deviceModules.TryGetValue(typeof(T), out var value)) {
+            subsystem = (T)value;
+            return true;
+        }
+        subsystem = null;
+        return false;
+    }
+
+    public void AddModule<T>(T subsystem) where T : class, IGpuDeviceModule
+    {
+        var type = typeof(T);
+        if (!deviceModules.TryAdd(type, subsystem)) {
+            throw new InvalidOperationException($"Subsystem of Typ {type.Name} already registered.");
+        }
     }
 }
 

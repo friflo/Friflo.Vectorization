@@ -3,13 +3,12 @@
 
 
 using System;
-using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
+
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -31,14 +30,15 @@ public enum BlendState
 
 public sealed partial class Batch2D : IDisposable
 {
+    internal readonly   DrawModule          drawModule;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<ushort>   indexBuffer;
-    private  readonly   GpuTexture          defaultWhiteTexture;
-    internal readonly   GpuTextureView      defaultWhiteTextureView;    // views are owned / disposed by their texture
+    
+    // --- owned by DrawModule
+    internal readonly   GpuTextureView      defaultWhiteTextureView;
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
-    internal readonly   GpuDevice           device;
     internal            Font?               defaultFont;
     
     // --- Draw2D - state
@@ -55,13 +55,12 @@ public sealed partial class Batch2D : IDisposable
 
     public void Dispose()
     {
-        defaultFont?.Dispose();
         vertexBuffer.Dispose();
         indexBuffer.Dispose();
-        defaultWhiteTexture.Dispose();
-        samplerLinear.Dispose();
-        samplerNearest.Dispose();
     }
+    
+    public Font GetDefaultFont() => defaultFont ??= drawModule.GetDefaultFont();
+
     
     /// <summary>
     /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
@@ -71,7 +70,10 @@ public sealed partial class Batch2D : IDisposable
         TextureFormat           targetFormat,
         int                     maxVertices         = 60_000)
     {
-        this.device    = device;
+        if (!device.TryGetModule(out drawModule)) {
+            drawModule = new DrawModule(device);
+            device.AddModule(drawModule);
+        }
         
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
@@ -93,21 +95,10 @@ public sealed partial class Batch2D : IDisposable
         indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
         
-        // --- Texture
-        defaultWhiteTexture = device.CreateTexture(new GpuTextureDescriptor {
-            label   = "white1x1",
-            size    = [1, 1],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst});
-        
-        ReadOnlySpan<byte> whitePixel = [255, 255, 255, 255];
-        defaultWhiteTexture.Write(whitePixel, bytesPerRow: 4, rowsPerImage: 1, writeSize: new GpuExtent3D(1, 1, 1));
-        
-        defaultWhiteTextureView = defaultWhiteTexture.CreateView();
-        
-        samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
-        samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
-        currentSampler = samplerLinear;
+        defaultWhiteTextureView = drawModule.defaultWhiteTextureView;
+        samplerLinear           = drawModule.samplerLinear;
+        samplerNearest          = drawModule.samplerNearest;
+        currentSampler          = samplerLinear;
 
         renderConfigs = CreateRenderConfigs(targetFormat);
     }
@@ -198,19 +189,5 @@ public sealed partial class Batch2D : IDisposable
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
                     [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
                     [IndexBuffer]   [Draw]  InBuffer<ushort>    indices);
-
-    
-    public Font GetDefaultFont()
-    {
-        if (defaultFont != null) {
-            return defaultFont;
-        }
-        using var fontAtlas = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
-        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
-        var fntContent      = reader.ReadToEnd();
-        
-        return defaultFont = Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
-    }
 }
 
