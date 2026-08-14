@@ -50,18 +50,18 @@ public class ImGuiRenderer : IRenderer
         
         gui.Label("hello GUI");
         gui.Label("");
-        if (gui.Button("hello"))                        Console.WriteLine("Clicked: hello");
-        if (gui.Button("world", 0x7777ffff))            Console.WriteLine("Clicked: world");
+        if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+        if (gui.Button("world", 0x7777ffff))                Console.WriteLine("Clicked: world");
         
         gui.Label("");
-        if(gui.Checkbox("checkbox", ref enabled))       Console.WriteLine("Clicked: checkbox");
+        if(gui.Checkbox("checkbox", ref enabled))           Console.WriteLine("Clicked: checkbox");
         gui.Label("");
-        if (gui.Slider("Volume", ref volume, 0f, 1f))   Console.WriteLine($"Volume: changed");
+        if (gui.Slider("Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
         gui.Label("");
         
         gui.BeginHorizontal();
-        if (gui.Button("Left"))                         Console.WriteLine("Clicked: Left");
-        if (gui.Button("Right"))                        Console.WriteLine("Clicked: Right");
+        if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+        if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
         gui.EndHorizontal();
         
         gui.EndWindow();

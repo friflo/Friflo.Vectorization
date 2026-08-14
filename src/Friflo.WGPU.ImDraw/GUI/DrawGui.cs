@@ -52,7 +52,7 @@ public ref struct DrawGui : IDisposable
 
 #region Widgets
 
-    public void Label(string name, Color32 textColor = default)
+    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
         if (textColor.Packed == 0) textColor = window.textColor;
         
@@ -61,7 +61,7 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public bool Button(string name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
+    public bool Button(ReadOnlySpan<char> name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
     {
         if (color.Packed == 0)      color       = window.buttonColor;
         if (textColor.Packed == 0)  textColor   = window.textColor;
@@ -91,7 +91,7 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked;
     }
     
-    public bool Checkbox(string name, ref bool value, WidgetID id = default)
+    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, WidgetID id = default)
     {
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
@@ -134,7 +134,7 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked;
     }
     
-    public bool Slider(string name, ref float value, float min, float max, WidgetID id = default)
+    public bool Slider(ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
     {
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
@@ -171,7 +171,7 @@ public ref struct DrawGui : IDisposable
         
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
-        var labelText = window.Builder().Append($"{name} ").AppendFormat(value, "F1");
+        var labelText = window.Builder().Append($"{name} ").AppendFormat(value, format);
         draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
 
         window.MoveCursor(totalSize);
