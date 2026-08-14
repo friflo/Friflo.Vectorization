@@ -3,6 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
+// ReSharper disable ConvertIfStatementToReturnStatement
 namespace Friflo.WGPU.ImDraw;
 
 public enum ImEventType
@@ -19,29 +20,37 @@ public struct ImEvent
     public float        y;
 }
 
+public enum WidgetState
+{
+    None,
+    Clicked,
+    Down,
+    Hover
+}
+
 internal class GuiInput
 {
-    internal    bool    isMouseDown;
+    private     bool    isMouseDown;
     internal    float   x;
     internal    float   y;
     
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
-    internal    int     hotItem;
+    private     int     hotItem;
     
     /// <summary> The widget currently being interacted with (persists while mouse is held down) </summary>
-    internal    int     activeItem;
+    private     int     activeItem;
     
     public void AddEvent(in ImEvent ev)
     {
-switch (ev.type)
-    {
-        case ImEventType.MouseMotion:
-        case ImEventType.MouseButtonDown:
-        case ImEventType.MouseButtonUp:
-            x = ev.x;
-            y = ev.y;
-            break;
+        switch (ev.type)
+        {
+            case ImEventType.MouseMotion:
+            case ImEventType.MouseButtonDown:
+            case ImEventType.MouseButtonUp:
+                x = ev.x;
+                y = ev.y;
+                break;
         }
         switch (ev.type)
         {
@@ -52,5 +61,38 @@ switch (ev.type)
                 isMouseDown = false;
                 break;
         }
+    }
+    
+    
+    public WidgetState GetWidgetState(bool isHover, int widgetId)
+    {
+        if (isHover) {
+            if (activeItem == 0) {
+                hotItem = widgetId;
+            }
+        } else if (hotItem == widgetId) {
+            hotItem = 0;
+        }
+
+        if (hotItem == widgetId && isMouseDown) {
+            activeItem = widgetId;
+        }
+
+        if (activeItem == widgetId) {
+            if (!isMouseDown) {
+                activeItem = 0;
+                if (hotItem == widgetId) {
+                    return WidgetState.Clicked;
+                }
+            }
+        }
+
+        if (activeItem == widgetId) {
+            return WidgetState.Down;
+        }
+        if (hotItem == widgetId) {
+            return WidgetState.Hover;
+        }
+        return WidgetState.None;
     }
 }

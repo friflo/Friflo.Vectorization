@@ -58,7 +58,6 @@ public ref struct DrawGui : IDisposable
         if (color.Packed == 0)      color       = window.buttonColor;
         if (textColor.Packed == 0)  textColor   = window.textColor;
         
-        var input       = batch.input;
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
@@ -66,31 +65,17 @@ public ref struct DrawGui : IDisposable
         var clicked = false;
         var isHover = window.IsHover(batch, size);
 
-        if (isHover) {
-            if (input.activeItem == 0) {
-                input.hotItem = widgetId;
-            }
-        } else if (input.hotItem == widgetId) {
-            input.hotItem = 0;
-        }
-
-        if (input.hotItem == widgetId && input.isMouseDown) {
-            input.activeItem = widgetId;
-        }
-
-        if (input.activeItem == widgetId) {
-            if (!input.isMouseDown) {
-                if (input.hotItem == widgetId) {
-                    clicked = true;
-                }
-                input.activeItem = 0;
-            }
-        }
-
-        if (input.activeItem == widgetId) {
-            color = window.buttonDown;
-        } else if (input.hotItem == widgetId) {
-            color = window.buttonHover;
+        switch (batch.input.GetWidgetState(isHover, widgetId))
+        {
+            case WidgetState.Clicked:
+                clicked = true;
+                break;
+            case WidgetState.Down:
+                color = window.buttonDown;
+                break;
+            case WidgetState.Hover:
+                color = window.buttonHover;
+                break;
         }
         
         draw.RectangleRounded(window.cursor, size, 8, color);
