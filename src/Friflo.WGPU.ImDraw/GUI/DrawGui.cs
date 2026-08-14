@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
@@ -72,7 +73,7 @@ public ref struct DrawGui : IDisposable
 
         var widgetState = batch.input.GetWidgetState(isHover, widgetId);
         
-        switch (batch.input.GetWidgetState(isHover, widgetId))
+        switch (widgetState)
         {
             case WidgetState.Down:
                 color = window.buttonDown;

@@ -77,12 +77,16 @@ internal class Window
     internal void MoveCursor(Vector2 size)
     {
         if (layoutStack.Count > 0) {
-            var layout = layoutStack.Peek();
+            var layout = layoutStack.Pop();
+            
             if (layout.direction == LayoutDirection.Vertical) {
                 cursor.Y += size.Y + 6f;
             } else {
                 cursor.X += size.X + 6f;
             }
+            layout.currentCursor = cursor;
+
+            layoutStack.Push(layout);
         } else {
             cursor.Y += size.Y + 6f;
         }
