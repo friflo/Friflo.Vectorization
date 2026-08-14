@@ -1,4 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using System.Numerics;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
@@ -71,6 +72,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private Wgpu?                   wgpu;
     private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
+    private Vector2                 dpiScale;
     
     public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
@@ -171,11 +173,14 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         if (wgpu!.Width == pixelWidth && wgpu.Height == pixelHeight) {
             return;
         }
+        SDL.GetWindowSize(window, out int windowWidth, out int windowHeight);
         wgpu!.Width = pixelWidth;
         wgpu.Height = pixelHeight;
         if (pixelWidth == 0 || pixelHeight == 0) {
             return;
         }
+        dpiScale.X = pixelWidth  / (float)windowWidth;
+        dpiScale.Y = pixelHeight / (float)windowHeight;
         ConfigureSurface(pixelWidth, pixelHeight);
         renderer?.OnWindowChanged(pixelWidth, pixelHeight);
     }
@@ -224,13 +229,13 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
                 SetWindowIconFromResource();
                 break;
             case SDL.EventType.MouseMotion:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseMotion,     x = ev.Button.X, y = ev.Button.Y });
+                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseMotion,     x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
                 break;
             case SDL.EventType.MouseButtonUp:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonUp,   x = ev.Button.X, y = ev.Button.Y });
+                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonUp,   x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
                 break;
             case SDL.EventType.MouseButtonDown:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonDown, x = ev.Button.X, y = ev.Button.Y });
+                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonDown, x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
                 break;
         }
         return SDL.AppResult.Continue;
