@@ -38,6 +38,7 @@ public sealed partial class Batch2D : IDisposable
     
     internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack    = new();
     internal readonly   Stack<Matrix4x4>                        transformStack  = new();
+    internal readonly   Dictionary<string, Window>              windows = new();
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;

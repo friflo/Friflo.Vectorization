@@ -596,14 +596,14 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public void DrawStringInRect(
         ReadOnlySpan<char>  text, 
-        Vector2           position, 
-        Vector2           size, 
-        TextAlignment      horizontalAlignment, 
+        Vector2             position, 
+        Vector2             size, 
+        TextAlignment       horizontalAlignment, 
         VerticalAlignment   verticalAlignment, 
-        Color32           color, 
-        Font?            font = null, 
-        bool             wordWrap = false,
-        float            scale = 1.0f)
+        Color32             color, 
+        Font?               font = null, 
+        bool                wordWrap = false,
+        float               scale = 1.0f)
     {
         if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
         font ??= batch.GetDefaultFont();
@@ -885,6 +885,11 @@ public ref struct Draw2D : IDisposable
         Batch2D.Draw(pass, bat.renderConfigs[(int)bat.currentBlendState], bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
 
         bat.vertexStart = bat.vertexCount;
+    }
+    
+    public DrawGui BeginGui()
+    {
+        return new DrawGui(this, batch);
     }
 
 #endregion
