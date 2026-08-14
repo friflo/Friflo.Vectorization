@@ -500,7 +500,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
-    public void DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
+    public Vector2 DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
 
@@ -532,6 +532,7 @@ public ref struct Draw2D : IDisposable
             }
             currentPos.X += glyph.advance * scale;
         }
+        return new Vector2(currentPos.X - position.X, font.lineHeight * scale);
     }
     
     /// <summary>

@@ -40,9 +40,9 @@ public ref struct DrawGui
     {
         if (textColor.Packed == 0) textColor = window.textColor;
         
-        draw.DrawString(name, window.cursor, textColor);
+        var size = draw.DrawString(name, window.cursor, textColor);
         
-        window.MoveCursor();
+        window.MoveCursor(size);
     }
     
     public void Button(string name, Color32 color = default, Color32 textColor = default)
@@ -54,6 +54,6 @@ public ref struct DrawGui
         draw.RectangleRounded(window.cursor, size, 8, color);
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);
         
-        window.MoveCursor();
+        window.MoveCursor(size);
     }
 }
