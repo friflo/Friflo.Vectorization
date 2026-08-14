@@ -112,8 +112,8 @@ internal class Window
 
     internal bool IsHover(Batch2D batch, Vector2 size)
     {
-        var x = batch.input.x;
-        var y = batch.input.y;
+        var x = batch.input.mouse.X;
+        var y = batch.input.mouse.Y;
         if (cursor.X <= x && x <= cursor.X + size.X &&
             cursor.Y <= y && y <= cursor.Y + size.Y)
         {

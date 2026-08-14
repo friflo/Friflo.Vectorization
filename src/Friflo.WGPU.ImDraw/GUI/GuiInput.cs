@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Numerics;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
@@ -16,11 +17,10 @@ public enum ImEventType
     MouseButtonDown,
 }
 
-public struct ImEvent
+public readonly struct ImEvent (ImEventType type, Vector2 mouse)
 {
-    public ImEventType  type;
-    public float        x;
-    public float        y;
+    public readonly ImEventType  type    = type;
+    public readonly Vector2      mouse   = mouse;
 }
 
 public enum WidgetState
@@ -34,8 +34,7 @@ public enum WidgetState
 public class GuiInput
 {
     private     bool    isMouseDown;
-    internal    float   x;
-    internal    float   y;
+    internal    Vector2 mouse;
     
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
@@ -51,8 +50,7 @@ public class GuiInput
             case ImEventType.MouseMotion:
             case ImEventType.MouseButtonDown:
             case ImEventType.MouseButtonUp:
-                x = ev.x;
-                y = ev.y;
+                mouse = ev.mouse;
                 break;
         }
         switch (ev.type)

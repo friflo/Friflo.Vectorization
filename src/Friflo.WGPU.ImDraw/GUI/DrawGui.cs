@@ -148,7 +148,7 @@ public ref struct DrawGui : IDisposable
         bool changed = false;
 
         if (widgetState == WidgetState.Down) {
-            float t = Math.Clamp((batch.input.x - window.cursor.X) / width, 0f, 1f);
+            float t = Math.Clamp((batch.input.mouse.X - window.cursor.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
             
             if (newValue != value) {

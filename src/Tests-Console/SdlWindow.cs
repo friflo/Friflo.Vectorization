@@ -229,17 +229,19 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
                 SetWindowIconFromResource();
                 break;
             case SDL.EventType.MouseMotion:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseMotion,     x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
+                renderer?.OnEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));
                 break;
             case SDL.EventType.MouseButtonUp:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonUp,   x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
+                renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));
                 break;
             case SDL.EventType.MouseButtonDown:
-                renderer?.OnEvent(new  ImEvent { type = ImEventType.MouseButtonDown, x = dpiScale.X * ev.Button.X, y = dpiScale.Y * ev.Button.Y });
+                renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));
                 break;
         }
         return SDL.AppResult.Continue;
     }
+    
+    private Vector2 GetMouse(in SDL.Event ev) => new (dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
     
     private void Shutdown()
     {
