@@ -32,10 +32,15 @@ public class ImGuiRenderer : IRenderer
             clearValue  = [0.1, 0.1, 0.1, 1]
         };
     }
-    
+
+    public void OnEvent(in ImEvent ev)
+    {
+        batch.AddEvent(ev);
+    }
+
     public void OnFrame(in RenderFrame frame)
     {
-        perfLog.Trace(5000);
+        perfLog.Trace(10000);
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         
@@ -43,8 +48,12 @@ public class ImGuiRenderer : IRenderer
         gui.BeginWindow("Test Window", new Vector2(100, 20), new Vector2(1000, 600), 0xaaaaaaff);
         
         gui.Label("hello GUI");
-        gui.Button("hello");
-        gui.Button("world", 0x7777ffff);
+        if (gui.Button("hello")) {
+            Console.WriteLine("hello GUI");
+        }
+        if (gui.Button("world", 0x7777ffff)) {
+            Console.WriteLine("world");
+        }
         gui.EndWindow();
         
         draw.Flush();

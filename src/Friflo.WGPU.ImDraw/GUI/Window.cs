@@ -21,4 +21,17 @@ internal class Window
     {
         cursor.Y += size.Y + 13;
     }
+    
+    internal bool IsHover(Batch2D batch, Vector2 size)
+    {
+        var x = batch.input.x;
+        var y = batch.input.y;
+        if (cursor.X <= x && x <= cursor.X + size.X &&
+            cursor.Y <= y && y <= cursor.Y + size.Y)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -196,5 +196,25 @@ public sealed partial class Batch2D : IDisposable
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
                     [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
                     [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
+
+    
+    internal readonly GuiInput input = new();
+    
+    public void AddEvent(in ImEvent ev)
+    {
+        switch (ev.type)
+        {
+            case ImEventType.MouseMotion:
+                input.x = ev.x;
+                input.y = ev.y;
+                break;
+            case ImEventType.MouseButtonDown:
+                input.isMouseDown = true;
+                break;
+            case ImEventType.MouseButtonUp:
+                input.isMouseDown = false;
+                break;
+        }
+    }
 }
 

@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU.ImDraw;
 using SDL3;
 
 // ReSharper disable InconsistentNaming
@@ -18,6 +19,7 @@ public interface IRenderer
     public void OnWindowChanged(int width, int height) { }
     public void OnFrame        (in RenderFrame frame);
     public void OnShutdown();
+    public void OnEvent        (in ImEvent ev) { }
 }
 
 public class Wgpu
@@ -221,6 +223,15 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.SystemThemeChanged:
                 SetWindowIconFromResource();
                 break;
+            case SDL.EventType.MouseMotion:
+                HandleEvent(ImEventType.MouseMotion, new ImEvent { x = ev.Button.X, y =  ev.Button.Y });
+                break;
+            case SDL.EventType.MouseButtonUp:
+                HandleEvent(ImEventType.MouseButtonUp);
+                break;
+            case SDL.EventType.MouseButtonDown:
+                HandleEvent(ImEventType.MouseButtonDown);
+                break;
         }
         return SDL.AppResult.Continue;
     }
@@ -233,5 +244,10 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         wgpu = null;
         SDL.DestroyWindow(window);
         SDL.Quit();
+    }
+    
+    private void HandleEvent(ImEventType eventType, ImEvent ev = default) {
+        ev.type = eventType;
+        renderer?.OnEvent(ev);
     }
 }
