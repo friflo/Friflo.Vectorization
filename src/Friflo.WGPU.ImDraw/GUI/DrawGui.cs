@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -62,14 +63,12 @@ public ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var clicked = false;
         var isHover = window.IsHover(batch, size);
 
+        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+        
         switch (batch.input.GetWidgetState(isHover, widgetId))
         {
-            case WidgetState.Clicked:
-                clicked = true;
-                break;
             case WidgetState.Down:
                 color = window.buttonDown;
                 break;
@@ -82,6 +81,6 @@ public ref struct DrawGui : IDisposable
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);
         
         window.MoveCursor(size);
-        return clicked;
+        return widgetState == WidgetState.Clicked;
     }
 }
