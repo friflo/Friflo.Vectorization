@@ -47,12 +47,17 @@ public class ImGuiRenderer : IRenderer
         gui.BeginWindow("Test Window", new Vector2(100, 20), new Vector2(1000, 600), 0xaaaaaaff);
         
         gui.Label("hello GUI");
-        if (gui.Button("hello")) {
-            Console.WriteLine("Clicked: hello");
-        }
-        if (gui.Button("world", 0x7777ffff)) {
-            Console.WriteLine("Clicked: world");
-        }
+        gui.Label("");
+        if (gui.Button("hello"))                Console.WriteLine("Clicked: hello");
+        if (gui.Button("world", 0x7777ffff))    Console.WriteLine("Clicked: world");
+        
+        gui.Label("");
+        
+        gui.BeginHorizontal();
+        if (gui.Button("Left"))         Console.WriteLine("Clicked: Left");
+        if (gui.Button("Right"))        Console.WriteLine("Clicked: Right");
+        gui.EndHorizontal();
+        
         gui.EndWindow();
     }
 }

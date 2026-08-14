@@ -27,7 +27,8 @@ public ref struct DrawGui : IDisposable
     {
         draw.Dispose();
     }
-    
+
+#region Window
     public void BeginWindow(string title, Vector2 position, Vector2 size, Color32 color)
     {
         if (!batch.windows.TryGetValue(title, out window!)) {
@@ -44,7 +45,11 @@ public ref struct DrawGui : IDisposable
     {
         window.ClearScope();
     }
-    
+#endregion
+
+
+#region Widgets
+
     public void Label(string name, Color32 textColor = default)
     {
         if (textColor.Packed == 0) textColor = window.textColor;
@@ -83,4 +88,14 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
         return widgetState == WidgetState.Clicked;
     }
+#endregion
+
+    
+#region Layout
+    public void BeginVertical()     => window.PushLayout(LayoutDirection.Vertical);
+    public void EndVertical()       => window.PopLayout();
+    
+    public void BeginHorizontal()   => window.PushLayout(LayoutDirection.Horizontal);
+    public void EndHorizontal()     => window.PopLayout();
+#endregion
 }
