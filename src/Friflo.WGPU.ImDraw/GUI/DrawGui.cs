@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -131,6 +132,50 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(totalSize);
 
         return widgetState == WidgetState.Clicked;
+    }
+    
+    public bool Slider(string name, ref float value, float min, float max, WidgetID id = default)
+    {
+        int parentHash = window.GetCurrentScopeHash();
+        int widgetId   = id.Resolve(name, parentHash);
+
+        float width     = 200f;
+        float height    = 24f;
+        var totalSize   = new Vector2(width, height);
+
+        var isHover     = window.IsHover(batch, totalSize);
+        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+
+        bool changed = false;
+
+        if (widgetState == WidgetState.Down) {
+            float t = Math.Clamp((batch.input.x - window.cursor.X) / width, 0f, 1f);
+            float newValue = min + t * (max - min);
+            
+            if (newValue != value) {
+                value = newValue;
+                changed = true;
+            }
+        }
+
+        draw.RectangleRounded(window.cursor, totalSize, 6, window.buttonColor);
+
+        // fill bar
+        float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
+        var fillSize = new Vector2(width * tVal, height);
+        
+        Color32 barColor = window.buttonHover;
+        if (widgetState == WidgetState.Down) {
+            barColor = window.buttonDown;
+        }
+        
+        draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
+
+        string labelText = $"{name}: {value:F1}";
+        draw.DrawStringInRect(labelText, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
+
+        window.MoveCursor(totalSize);
+        return changed;
     }
 
 #endregion
