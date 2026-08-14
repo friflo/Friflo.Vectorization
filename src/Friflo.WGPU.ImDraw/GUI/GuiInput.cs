@@ -26,6 +26,9 @@ internal class GuiInput
     internal    float   x;
     internal    float   y;
     
+    // Hot/Active-State-Pattern
+    internal    int     hotItem;
+    internal    int     activeItem;
     
     public void AddEvent(in ImEvent ev)
     {

@@ -4,7 +4,7 @@
 
 using System.Numerics;
 
-
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
@@ -27,13 +27,15 @@ public ref struct DrawGui
             window = new Window();
             batch.windows.Add(title, window);
         }
+        window.ResetScope(title);
+        
         draw.RectangleRounded(position, size, 8, color);
         window.cursor = position + new Vector2(10, 10);
     }
     
     public void EndWindow()
     {
-        
+        window.ClearScope();
     }
     
     public void Label(string name, Color32 textColor = default)
@@ -45,19 +47,48 @@ public ref struct DrawGui
         window.MoveCursor(size);
     }
     
-    public bool Button(string name, Color32 color = default, Color32 textColor = default)
+    public bool Button(string name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
     {
         if (color.Packed == 0)      color       = window.buttonColor;
         if (textColor.Packed == 0)  textColor   = window.textColor;
         
+        var input       = batch.input;
+        int parentHash  = window.GetCurrentScopeHash();
+        int widgetId    = id.Resolve(name, parentHash);
+        
         var size    = draw.MeasureString(name);
         var clicked = false;
         var isHover = window.IsHover(batch, size);
+
         if (isHover) {
-            clicked = batch.input.isClicked;
-            batch.input.isClicked = false;
-            color = batch.input.isMouseDown ? window.buttonDown : window.buttonHover;
+            if (input.activeItem == 0) {
+                input.hotItem = widgetId;
+            }
+        } else if (input.hotItem == widgetId) {
+            input.hotItem = 0;
         }
+
+        if (input.hotItem == widgetId && batch.input.isMouseDown) {
+            input.activeItem = widgetId;
+        }
+
+        if (input.activeItem == widgetId) {
+            if (!batch.input.isMouseDown)
+            {
+                if (input.hotItem == widgetId) {
+                    clicked = true;
+                }
+                input.activeItem = 0;
+            }
+        }
+
+        if (input.activeItem == widgetId) {
+            color = window.buttonDown;
+        }
+        else if (input.hotItem == widgetId) {
+            color = window.buttonHover;
+        }
+        
         draw.RectangleRounded(window.cursor, size, 8, color);
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);
         
