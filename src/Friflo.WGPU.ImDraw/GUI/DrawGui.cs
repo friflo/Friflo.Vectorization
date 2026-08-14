@@ -50,13 +50,13 @@ public ref struct DrawGui
         if (color.Packed == 0)      color       = window.buttonColor;
         if (textColor.Packed == 0)  textColor   = window.textColor;
         
-        // if (batch.input.isMouseDown)
-        
+        var size    = draw.MeasureString(name);
         var clicked = false;
-        var size = draw.MeasureString(name);
-        if (window.IsHover(batch, size)) {
-            clicked = batch.input.isMouseDown;
-            // Console.WriteLine(name);
+        var isHover = window.IsHover(batch, size);
+        if (isHover) {
+            clicked = batch.input.isClicked;
+            batch.input.isClicked = false;
+            color = batch.input.isMouseDown ? window.buttonDown : window.buttonHover;
         }
         draw.RectangleRounded(window.cursor, size, 8, color);
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);

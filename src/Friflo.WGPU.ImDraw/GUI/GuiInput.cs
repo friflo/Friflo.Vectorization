@@ -21,7 +21,27 @@ public struct ImEvent
 
 internal class GuiInput
 {
+    internal    bool    isClicked;
     internal    bool    isMouseDown;
     internal    float   x;
     internal    float   y;
+    
+    
+    public void AddEvent(in ImEvent ev)
+    {
+        switch (ev.type)
+        {
+            case ImEventType.MouseMotion:
+                x = ev.x;
+                y = ev.y;
+                break;
+            case ImEventType.MouseButtonDown:
+                isClicked   = !isMouseDown;
+                isMouseDown = true;
+                break;
+            case ImEventType.MouseButtonUp:
+                isMouseDown = false;
+                break;
+        }
+    }
 }

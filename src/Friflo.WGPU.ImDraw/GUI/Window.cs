@@ -16,6 +16,8 @@ internal class Window
     
     internal readonly   Color32         textColor   = 0x000000ff;
     internal readonly   Color32         buttonColor = 0xddddddff;
+    internal readonly   Color32         buttonHover = 0xeeeeeeff;
+    internal readonly   Color32         buttonDown  = 0xccccccff;
     
     internal void MoveCursor(Vector2 size)
     {

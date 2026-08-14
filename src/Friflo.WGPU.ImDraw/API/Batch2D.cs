@@ -202,19 +202,7 @@ public sealed partial class Batch2D : IDisposable
     
     public void AddEvent(in ImEvent ev)
     {
-        switch (ev.type)
-        {
-            case ImEventType.MouseMotion:
-                input.x = ev.x;
-                input.y = ev.y;
-                break;
-            case ImEventType.MouseButtonDown:
-                input.isMouseDown = true;
-                break;
-            case ImEventType.MouseButtonUp:
-                input.isMouseDown = false;
-                break;
-        }
+        input.AddEvent(ev);
     }
 }
 
