@@ -41,6 +41,7 @@ public class ImGuiRenderer : IRenderer
     public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(10000);
+        batch.NewFrame();
         
         using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
         

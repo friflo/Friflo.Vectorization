@@ -26,7 +26,10 @@ internal class GuiInput
     internal    float   y;
     
     // Hot/Active-State-Pattern
+    /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
     internal    int     hotItem;
+    
+    /// <summary> The widget currently being interacted with (persists while mouse is held down) </summary>
     internal    int     activeItem;
     
     public void AddEvent(in ImEvent ev)
