@@ -210,13 +210,5 @@ public sealed partial class Batch2D : IDisposable
     {
         input.AddEvent(ev);
     }
-
-    /// <summary>
-    /// Must be called at the VERY START of the frame, BEFORE processing any widgets
-    /// </summary>
-    public void NewFrame()
-    {
-        input.hotItem = 0;
-    }
 }
 

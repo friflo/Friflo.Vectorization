@@ -41,7 +41,6 @@ public class ImGuiRenderer : IRenderer
     public void OnFrame(in RenderFrame frame)
     {
         perfLog.Trace(10000);
-        // batch.NewFrame();
         
         using var gui = batch.BeginGui(frame, renderPassDescriptor);
 
