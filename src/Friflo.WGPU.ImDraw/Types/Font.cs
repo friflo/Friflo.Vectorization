@@ -51,7 +51,13 @@ public class Font : IDisposable
 
     public  override    string                              ToString() => name;
 
-    private Font (GpuTexture fontTexture, GpuTextureView textureView, Vector2 textureSize, float lineHeight, Dictionary<char, GlyphInfo> glyphs, string name)
+    private Font (
+        GpuTexture                  fontTexture,
+        GpuTextureView              textureView,
+        Vector2                     textureSize,
+        float                       lineHeight,
+        Dictionary<char, GlyphInfo> glyphs,
+        string                      name)
     {
         this.fontTexture    = fontTexture;
         this.textureView    = textureView;
@@ -71,8 +77,9 @@ public class Font : IDisposable
     /// <summary>
     /// Parses a BMFont (.fnt text format) string and pairs it with the atlas texture.
     /// </summary>
-    private static void ReadBmFont(ReadOnlySpan<char> fntContent, Dictionary<char, GlyphInfo> glyphs, out float lineHeight)
+    private static Dictionary<char, GlyphInfo> ReadBmFont(ReadOnlySpan<char> fntContent, out float lineHeight)
     {
+        var glyphs = new Dictionary<char, GlyphInfo>();
         lineHeight = 0;
         foreach (var lineSpan in fntContent.EnumerateLines())
         {
@@ -94,6 +101,7 @@ public class Font : IDisposable
                 glyphs[id] = glyph;
             }
         }
+        return glyphs;
     }
 
     private static float ParseValue(ReadOnlySpan<char> line, ReadOnlySpan<char> key)
@@ -108,8 +116,7 @@ public class Font : IDisposable
 
     public static Font CreateFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
     {
-        var glyphs = new Dictionary<char, GlyphInfo>();
-        ReadBmFont(fntContent, glyphs, out float lineHeight);
+        var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
         var image   = ImageResult.FromStream(fontAtlas, ColorComponents.RedGreenBlueAlpha);
         var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
