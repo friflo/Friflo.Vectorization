@@ -134,13 +134,12 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked;
     }
     
-    public bool Slider(ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
+    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
     {
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
-        float width     = 200f;
-        float height    = 24f;
+        float height    = draw.GetDefaultFont().lineHeight;
         var totalSize   = new Vector2(width, height);
 
         var isHover     = window.IsHover(batch, totalSize);
@@ -158,7 +157,7 @@ public ref struct DrawGui : IDisposable
             }
         }
 
-        draw.RectangleRounded(window.cursor, totalSize, 6, window.buttonColor);
+        draw.RectangleRounded(window.cursor, totalSize, 6, window.sliderColor);
 
         // fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
@@ -171,7 +170,7 @@ public ref struct DrawGui : IDisposable
         
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
-        var labelText = window.Builder().Append($"{name} ").AppendFormat(value, format);
+        var labelText = window.Builder().AppendFormat(value, format);
         draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
 
         window.MoveCursor(totalSize);

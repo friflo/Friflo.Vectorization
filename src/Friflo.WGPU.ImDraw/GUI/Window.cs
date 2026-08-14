@@ -40,6 +40,7 @@ internal class Window
     internal readonly   Color32             buttonColor = 0xddddddff;
     internal readonly   Color32             buttonHover = 0xeeeeeeff;
     internal readonly   Color32             buttonDown  = 0xbbbbbbff;
+    internal readonly   Color32             sliderColor = 0xccccccff;
     
     internal StringBuilder Builder()
     {
