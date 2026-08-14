@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.Vectorization.WebGPU;
-using Shaders.Imdraw;
+
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToSwitchStatement
@@ -788,42 +788,45 @@ public ref struct Draw2D : IDisposable
     
     public void SetFilterMode(FilterMode filterMode)
     {
-        var targetSampler = filterMode == FilterMode.Nearest ? batch.samplerNearest : batch.samplerLinear;
+        var bat = batch;
+        var targetSampler = filterMode == FilterMode.Nearest ? bat.samplerNearest : bat.samplerLinear;
 
-        if (batch.currentSampler == targetSampler) return;
+        if (bat.currentSampler == targetSampler) return;
 
         Flush();
-        batch.currentSampler = targetSampler;
+        bat.currentSampler = targetSampler;
     }
 
     public void SetViewport(float width, float height)
     {
-        if (batch.vertexStart != batch.vertexCount) {
+        var bat = batch;
+        if (bat.vertexStart != bat.vertexCount) {
             Flush();
         }
 
-        batch.viewport = new Vector2(width, height);
+        bat.viewport = new Vector2(width, height);
         
         // base projection for window size
-        batch.defaultOrtho = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
+        bat.defaultOrtho = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
         
         // combine with current camera transform
-        UpdateUniforms();
+        bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
     public void SetTransform(in Matrix4x4 transform)
     {
-        if (batch.currentTransform == transform) return;
+        var bat = batch;
+        if (bat.currentTransform == transform) return;
 
-        if (batch.vertexStart != batch.vertexCount) {
+        if (bat.vertexStart != bat.vertexCount) {
             Flush();
         }
 
         // store new camera matrix
-        batch.currentTransform = transform;
+        bat.currentTransform = transform;
 
         // combine with current viewport projection
-        UpdateUniforms();
+        bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
     public void ResetTransform()
@@ -831,15 +834,6 @@ public ref struct Draw2D : IDisposable
         SetTransform(Matrix4x4.Identity);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UpdateUniforms()
-    {
-        // System.Numerics Row-Major: CustomTransform * DefaultOrtho
-        batch.uniforms = new ImUniforms { 
-            projection = batch.currentTransform * batch.defaultOrtho 
-        };
-    }
-    
     public void SetBlendState(BlendState blendState)
     {
         if (blendState == batch.currentBlendState) return;
