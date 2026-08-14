@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.Vectorization.GPU;
@@ -34,6 +35,8 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<uint>     indexBuffer;
+    
+    internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack = new();
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;

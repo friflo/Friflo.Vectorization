@@ -774,16 +774,32 @@ public ref struct Draw2D : IDisposable
 
 #region State / Pipeline
 
-    public void SetScissor(Vector2 position, Vector2 size)
+    public void PushScissor(Vector2 position, Vector2 size)
     {
+        var scissorStack = batch.scissorStack;
+        (Vector2 curPos, Vector2 curSize) = scissorStack.Count > 0 ? scissorStack.Peek() : (Vector2.Zero, batch.viewport);
+
+        var intersectPos    = Vector2.Max(curPos, position);
+        var curMax          = curPos + curSize;
+        var newMax          = position + size;
+        var intersectMax    = Vector2.Min(curMax, newMax);
+        var intersectSize   = Vector2.Max(Vector2.Zero, intersectMax - intersectPos);
+
+        scissorStack.Push((intersectPos, intersectSize));
+
         Flush();
-        pass.SetScissorRect((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+        pass.SetScissorRect((int)intersectPos.X, (int)intersectPos.Y, (int)intersectSize.X, (int)intersectSize.Y);
     }
 
-    public void ResetScissor()
+    public void PopScissor()
     {
+        var scissorStack = batch.scissorStack;
+        if (scissorStack.Count > 0) {
+            scissorStack.Pop();
+        }
+        (Vector2 pos, Vector2 size) = scissorStack.Count > 0 ? scissorStack.Peek() : (Vector2.Zero, batch.viewport);
         Flush();
-        pass.SetScissorRect(0, 0, (int)batch.viewport.X, (int)batch.viewport.Y);
+        pass.SetScissorRect((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
     }
     
     public void SetFilterMode(FilterMode filterMode)
