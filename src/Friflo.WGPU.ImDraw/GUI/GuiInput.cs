@@ -34,12 +34,17 @@ internal class GuiInput
     
     public void AddEvent(in ImEvent ev)
     {
+switch (ev.type)
+    {
+        case ImEventType.MouseMotion:
+        case ImEventType.MouseButtonDown:
+        case ImEventType.MouseButtonUp:
+            x = ev.x;
+            y = ev.y;
+            break;
+        }
         switch (ev.type)
         {
-            case ImEventType.MouseMotion:
-                x = ev.x;
-                y = ev.y;
-                break;
             case ImEventType.MouseButtonDown:
                 isMouseDown = true;
                 break;
