@@ -49,16 +49,21 @@ internal sealed class DrawModule : IGpuDeviceModule
         defaultFont?.Dispose();
     }
     
+    private readonly object fontLock = new();
+    
     public Font GetDefaultFont()
     {
         if (defaultFont != null) {
             return defaultFont;
         }
-        using var fontAtlas = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
-        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
-        var fntContent      = reader.ReadToEnd();
-        
-        return defaultFont = Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
+        lock (fontLock)
+        {
+            using var fontAtlas = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+            using var fntFile   = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+            using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
+            var fntContent      = reader.ReadToEnd();
+            
+            return defaultFont = Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
+        }
     }
 }
