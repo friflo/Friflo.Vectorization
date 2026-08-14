@@ -58,8 +58,8 @@ internal sealed class DrawModule : IGpuDeviceModule
         }
         lock (fontLock)
         {
-            using var fontAtlas = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-            using var fntFile   = typeof(Batch2D).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+            using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+            using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
             using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
             var fntContent      = reader.ReadToEnd();
             
