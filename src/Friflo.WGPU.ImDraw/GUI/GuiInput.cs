@@ -106,7 +106,9 @@ public class GuiInput
         }
 
         if (activeItem == widgetId) {
-            if (!isMouseDown) {
+            if (isMouseDown) {
+               focusedItem = widgetId; 
+            } else {
                 activeItem = 0;
                 if (hotItem == widgetId) {
                     return WidgetState.Clicked;
@@ -209,20 +211,22 @@ public class GuiInput
         
         foreach (var keyEvent in keyEvents)
         {
+            if (!keyEvent.isDown) {
+                continue;
+            }
             switch (keyEvent.code)
             {
                 case KeyCode.Tab:
-                    isTabPressed = keyEvent.isDown;
+                    isTabPressed = true;
                     isShiftDown  = (keyEvent.mod & KeyMod.Shift) != 0;
                     break;
-                case KeyCode.Left:      arrowDirection.X = keyEvent.isDown ? -1 : 0;    break;
-                case KeyCode.Right:     arrowDirection.X = keyEvent.isDown ? +1 : 0;    break;    
-                case KeyCode.Up:        arrowDirection.Y = keyEvent.isDown ? -1 : 0;    break;
-                case KeyCode.Down:      arrowDirection.Y = keyEvent.isDown ? +1 : 0;    break;
+                case KeyCode.Left:      arrowDirection.X = -1;    break;
+                case KeyCode.Right:     arrowDirection.X = +1;    break;    
+                case KeyCode.Up:        arrowDirection.Y = -1;    break;
+                case KeyCode.Down:      arrowDirection.Y = +1;    break;
                 //
-                case KeyCode.Space:     isSpacePressed  = keyEvent.isDown;   break;
-                case KeyCode.Return:    isReturnPressed = keyEvent.isDown;   break;
-                
+                case KeyCode.Space:     isSpacePressed  = true;   break;
+                case KeyCode.Return:    isReturnPressed = true;   break;
             }
         }
         keyEvents.Clear();

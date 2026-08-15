@@ -179,10 +179,17 @@ public ref struct DrawGui : IDisposable
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover 	= window.IsHover(totalSize);
+        var isHover = window.IsHover(totalSize);
+
+        // Register focus for 1D/2D navigation
+        var center      = window.cursor + totalSize * 0.5f;
+        bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
+
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
-        if (widgetState == WidgetState.Clicked) {
+        // Toggle value via mouse click or keyboard submit (Enter/Space)
+        bool clicked = widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
+        if (clicked) {
             value = !value;
         }
 
@@ -200,18 +207,22 @@ public ref struct DrawGui : IDisposable
         var boxRect = new Vector2(window.cursor.X, window.cursor.Y + (totalSize.Y - boxSize) / 2f);
         draw.RectangleRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
 
+        // Render blue focus outline on box
+        if (isFocused) {
+            var focusColor = new Color32(0, 122, 255);
+            draw.RectangleLines(boxRect, new Vector2(boxSize, boxSize), 4, focusColor);
+        }
         if (value) {
             var padding = boxSize / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
             draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, window.textColor);
         }
-
         var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
         draw.DrawString(name, textPos, window.textColor);
 
         window.MoveCursor(totalSize);
 
-        return widgetState == WidgetState.Clicked;
+        return clicked;
     }
     
     public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
@@ -224,6 +235,11 @@ public ref struct DrawGui : IDisposable
         var totalSize   = new Vector2(width, height);
 
         var isHover     = window.IsHover(totalSize);
+
+        // Register focus for 1D/2D navigation
+        var center      = window.cursor + totalSize * 0.5f;
+        bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
+
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
         bool changed = false;
@@ -237,10 +253,9 @@ public ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-
         draw.RectangleRounded(window.cursor, totalSize, 6, window.sliderColor);
 
-        // fill bar
+        // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
@@ -248,9 +263,13 @@ public ref struct DrawGui : IDisposable
         if (widgetState == WidgetState.Down) {
             barColor = window.buttonDown;
         }
-        
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
+        // Render blue focus outline
+        if (isFocused) {
+            Color32 focusColor = new Color32(0, 122, 255);
+            draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
+        }
         var labelText = window.Builder().AppendFormat(value, format);
         draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
 
