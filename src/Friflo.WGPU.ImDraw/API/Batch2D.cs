@@ -204,7 +204,7 @@ public sealed partial class Batch2D : IDisposable
                     [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
 
     
-    internal readonly GuiInput input = new();
+    public readonly GuiInput input = new();
     
     public void AddEvent(in ImEvent ev)
     {

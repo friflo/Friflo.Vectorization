@@ -31,16 +31,61 @@ public ref struct DrawGui : IDisposable
     }
 
 #region Window
-    public void BeginWindow(string title, Vector2 position, Vector2 size, Color32 color)
+    private Vector2? nextWindowPos;
+    private Vector2? nextWindowSize;
+
+    public void SetNextWindowPos(Vector2 position)
+    {
+        nextWindowPos = position;
+    }
+
+    public void SetNextWindowSize(Vector2 size)
+    {
+        nextWindowSize = size;
+    }
+    
+    public void BeginWindow(string title, Color32 color = default)
     {
         if (!batch.windows.TryGetValue(title, out window!)) {
-            window = new Window();
+            window = new Window {
+                position = nextWindowPos  ?? new Vector2(50, 50),
+                size     = nextWindowSize ?? new Vector2(300, 200)
+            };
             batch.windows.Add(title, window);
         }
+        nextWindowPos  = null;
+        nextWindowSize = null;
+
         window.ResetScope(title);
-        
-        draw.RectangleRounded(position, size, 8, color);
-        window.cursor = position + new Vector2(10, 10);
+
+        float titleBarHeight = batch.GetDefaultFont().lineHeight;
+        var titleBarSize = new Vector2(window.size.X, titleBarHeight);
+
+        int parentHash  = window.GetCurrentScopeHash();
+        int titleBarId  = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
+
+        bool isTitleHover = Window.IsHoverAt(batch, window.position, titleBarSize);
+        var titleState    = batch.input.GetWidgetState(isTitleHover, titleBarId);
+
+        if (titleState == WidgetState.Down) {
+            window.position += batch.input.MouseDelta;
+        }
+
+        if (color.Packed == 0) color = 0x222222ff;
+
+        draw.RectangleRounded(window.position, window.size, 8, color);
+
+        var headerColor = window.buttonColor;
+        if (titleState == WidgetState.Hover) headerColor = window.buttonHover;
+        if (titleState == WidgetState.Down)  headerColor = window.buttonDown;
+
+        draw.RectangleRounded(window.position, titleBarSize, 8, headerColor);
+
+        var fontHeight = draw.GetDefaultFont().lineHeight;
+        var textPos    = window.position + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
+        draw.DrawString(title, textPos, window.textColor);
+
+        window.cursor = window.position + new Vector2(10f, titleBarHeight + 10f);
     }
     
     public void EndWindow()
@@ -149,7 +194,7 @@ public ref struct DrawGui : IDisposable
         bool changed = false;
 
         if (widgetState == WidgetState.Down) {
-            float t = Math.Clamp((batch.input.mouse.X - window.cursor.X) / width, 0f, 1f);
+            float t = Math.Clamp((batch.input.Mouse.X - window.cursor.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
             
             if (newValue != value) {

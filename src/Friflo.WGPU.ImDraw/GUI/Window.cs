@@ -31,6 +31,9 @@ internal struct LayoutNode
 
 internal class Window
 {
+    internal            Vector2             position;
+    internal            Vector2             size;
+    
     internal            Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
@@ -109,16 +112,17 @@ internal class Window
             cursor.Y += size.Y + 6f;
         }
     }
+    
+    internal static bool IsHoverAt(Batch2D batch, Vector2 pos, Vector2 size)
+    {
+        var x = batch.input.Mouse.X;
+        var y = batch.input.Mouse.Y;
+        return pos.X <= x && x <= pos.X + size.X &&
+               pos.Y <= y && y <= pos.Y + size.Y;
+    }
 
     internal bool IsHover(Batch2D batch, Vector2 size)
     {
-        var x = batch.input.mouse.X;
-        var y = batch.input.mouse.Y;
-        if (cursor.X <= x && x <= cursor.X + size.X &&
-            cursor.Y <= y && y <= cursor.Y + size.Y)
-        {
-            return true;
-        }
-        return false;
+        return IsHoverAt(batch, cursor, size);;
     }
 }

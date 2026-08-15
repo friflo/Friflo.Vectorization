@@ -194,7 +194,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             alphaMode   = wgpu.AlphaMode,  // or CompositeAlphaMode.Opaque
             width       = pixelWidth,
             height      = pixelHeight,
-            presentMode = PresentMode.Immediate // Fifo = VSync
+            presentMode = PresentMode.Immediate // Fifo = VSync, Immediate = max
         };
         wgpu.Surface.Configure(surfaceConfig);
     }

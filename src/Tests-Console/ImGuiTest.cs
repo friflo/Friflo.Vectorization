@@ -13,7 +13,8 @@ public class ImGuiRenderer : IRenderer
     private readonly    Batch2D                 batch;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
-    private             bool                    enabled;
+    private             bool                    enabled1;
+    private             bool                    enabled2;
     private             float                   volume;
     
     public void OnShutdown() {
@@ -45,8 +46,11 @@ public class ImGuiRenderer : IRenderer
         perfLog.Trace(10000);
         
         using var gui = batch.BeginGui(frame, renderPassDescriptor);
+        batch.input.NewFrame();
 
-        gui.BeginWindow("Test Window", new Vector2(100, 20), new Vector2(1000, 600), 0xaaaaaaff);
+        gui.SetNextWindowPos(new Vector2(100, 20));
+        gui.SetNextWindowSize(new Vector2(500, 600));
+        gui.BeginWindow("Window 1", 0xaaaaaaff);
         
         gui.Label("hello GUI");
         gui.Label("");
@@ -54,7 +58,7 @@ public class ImGuiRenderer : IRenderer
         if (gui.Button("world", 0x7777ffff))                Console.WriteLine("Clicked: world");
         
         gui.Label("");
-        if(gui.Checkbox("checkbox", ref enabled))           Console.WriteLine("Clicked: checkbox");
+        if(gui.Checkbox("checkbox", ref enabled1))           Console.WriteLine("Clicked: checkbox");
         gui.Label("");
         if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
         gui.Label("");
@@ -64,6 +68,12 @@ public class ImGuiRenderer : IRenderer
         if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
         gui.EndHorizontal();
         
+        gui.EndWindow();
+        
+        gui.SetNextWindowPos(new Vector2(650, 20));
+        gui.SetNextWindowSize(new Vector2(500, 600));
+        gui.BeginWindow("Window 2", 0xaaaaaaff);
+        gui.Checkbox("checkbox", ref enabled2);
         gui.EndWindow();
     }
 }

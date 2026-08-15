@@ -34,7 +34,10 @@ public enum WidgetState
 public class GuiInput
 {
     private     bool    isMouseDown;
-    internal    Vector2 mouse;
+    public      Vector2 Mouse       { get; private set;}
+    public      Vector2 MouseDelta  { get; private set;}
+    private     Vector2 mouseLast;
+    
     
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
@@ -50,13 +53,13 @@ public class GuiInput
             case ImEventType.MouseMotion:
             case ImEventType.MouseButtonDown:
             case ImEventType.MouseButtonUp:
-                mouse = ev.mouse;
+                Mouse = ev.mouse;
                 break;
         }
         switch (ev.type)
         {
             case ImEventType.MouseButtonDown:
-                isMouseDown = true;
+                isMouseDown     = true;
                 break;
             case ImEventType.MouseButtonUp:
                 isMouseDown = false;
@@ -95,5 +98,11 @@ public class GuiInput
             return WidgetState.Hover;
         }
         return WidgetState.None;
+    }
+
+    public void NewFrame()
+    {
+        MouseDelta = Mouse - mouseLast;
+        mouseLast = Mouse;
     }
 }
