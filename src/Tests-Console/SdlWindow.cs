@@ -147,6 +147,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer = createRenderer(wgpu);
         SetWindowSize();
+        Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
     }
     
@@ -254,11 +255,46 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private void Shutdown()
     {
+        Sdl3Cursor.Shutdown();
         renderer?.OnShutdown();
         renderer = null;
         wgpu?.Shutdown();
         wgpu = null;
         SDL.DestroyWindow(window);
         SDL.Quit();
+    }
+}
+
+/// <summary>
+/// Only required to visualize window resize indicator with <see cref="Friflo.WGPU.ImDraw.GuiInput.CurrentCursor"/> .
+/// </summary>
+public static class Sdl3Cursor
+{
+    private static readonly Dictionary<MouseCursor, IntPtr> cursorCache         = new();
+    private static          MouseCursor                     currentCursorType   = MouseCursor.Arrow;
+
+    internal static void Init() {
+        cursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
+        cursorCache[MouseCursor.ResizeNS]   = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
+        cursorCache[MouseCursor.ResizeEW]   = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        cursorCache[MouseCursor.ResizeNWSE] = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
+        cursorCache[MouseCursor.ResizeNESW] = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
+    }
+    
+    internal static void Shutdown()
+    {
+        foreach (var handle in cursorCache.Values) {
+            if (handle != IntPtr.Zero) SDL.DestroyCursor(handle);
+        }
+        cursorCache.Clear();
+    }
+
+    public static void SetCursor(MouseCursor cursor)
+    {
+        if (cursor == currentCursorType) return;
+        if (cursorCache.TryGetValue(cursor, out IntPtr handle)) {
+            SDL.SetCursor(handle);
+            currentCursorType = cursor;
+        }
     }
 }

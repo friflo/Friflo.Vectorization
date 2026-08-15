@@ -163,8 +163,14 @@ internal class GuiWindow
         bool isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
         var state = input.GetWidgetState(isHoverOrActive, resizeId);
 
-        if (state == WidgetState.Down)
-        {
+        // Determine which edge determines the cursor
+        ResizeEdge effectiveEdge = activeResizeEdge != ResizeEdge.None ? activeResizeEdge : hoverEdge;
+
+        if (effectiveEdge != ResizeEdge.None) {
+            input.SetCursor(GetCursorForEdge(effectiveEdge));
+        }
+
+        if (state == WidgetState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
                 activeResizeEdge = hoverEdge;
             }
@@ -174,6 +180,18 @@ internal class GuiWindow
 
         activeResizeEdge = ResizeEdge.None;
         return false;
+    }
+
+    private static MouseCursor GetCursorForEdge(ResizeEdge edge)
+    {
+        return edge switch
+        {
+            ResizeEdge.Top      or ResizeEdge.Bottom        => MouseCursor.ResizeNS,
+            ResizeEdge.Left     or ResizeEdge.Right         => MouseCursor.ResizeEW,
+            ResizeEdge.TopLeft  or ResizeEdge.BottomRight   => MouseCursor.ResizeNWSE,
+            ResizeEdge.TopRight or ResizeEdge.BottomLeft    => MouseCursor.ResizeNESW,
+            _                                               => MouseCursor.Arrow
+        };
     }
 
     private ResizeEdge GetResizeEdge(Vector2 mousePos, float border)

@@ -78,3 +78,12 @@ public struct KeyEvent
 
     public override string ToString() => code.ToString();
 }
+
+public enum MouseCursor
+{
+    Arrow,
+    ResizeNS,     // Vertical   (Top / Bottom)
+    ResizeEW,     // Horizontal (Left / Right)
+    ResizeNWSE,   // Diagonal   (TopLeft / BottomRight)
+    ResizeNESW    // Diagonal   (TopRight / BottomLeft)
+}

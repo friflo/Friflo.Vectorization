@@ -53,6 +53,11 @@ public class GuiInput
     private             int                     currentFocusIndex = -1;
     private             int                     targetFocusIndex = -1;
     
+    public              MouseCursor             CurrentCursor { get; private set; } = MouseCursor.Arrow;
+
+    internal void SetCursor(MouseCursor cursor) {
+        CurrentCursor = cursor;
+    }
     
     private struct FocusableEntry {
         public int      id;
@@ -235,6 +240,8 @@ public class GuiInput
     
     public void NewFrame()
     {
+        CurrentCursor = MouseCursor.Arrow;
+        
         MouseDelta  = Mouse - mouseLast;
         mouseLast   = Mouse;
         
