@@ -15,14 +15,17 @@ namespace Friflo.WGPU.ImDraw;
 
 public ref struct DrawGui : IDisposable
 {
-    private readonly    Batch2D     batch;
-    private             Draw2D      draw;
-    private             Window      window;
+    private readonly    GuiInput    input;
+    private readonly    Gui         gui;
+    public              Draw2D      draw;
+    
+    private readonly    GuiWindow   Window      => gui.window;
+    private readonly    float       LineHeight  => draw.GetDefaultFont().lineHeight;
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw   = draw;
-        this.batch  = batch;
-        window      = null!;
+        input       = batch.input;
+        gui         = batch.gui;
     }
     
     public void Dispose()
@@ -31,44 +34,43 @@ public ref struct DrawGui : IDisposable
     }
 
 #region Window
-    private Vector2? nextWindowPos;
-    private Vector2? nextWindowSize;
 
-    public void SetNextWindowPos(Vector2 position)
+
+    public readonly void SetNextWindowPos(Vector2 position)
     {
-        nextWindowPos = position;
+        gui.nextWindowPos = position;
     }
 
-    public void SetNextWindowSize(Vector2 size)
+    public readonly void SetNextWindowSize(Vector2 size)
     {
-        nextWindowSize = size;
+        gui.nextWindowSize = size;
     }
     
-    public void BeginWindow(string title, Color32 color = default)
+    public readonly void BeginWindow(string title, Color32 color = default)
     {
-        if (!batch.windows.TryGetValue(title, out window!)) {
-            window = new Window {
-                position = nextWindowPos  ?? new Vector2(50, 50),
-                size     = nextWindowSize ?? new Vector2(300, 200)
+        if (!gui.windows.TryGetValue(title, out gui.window!)) {
+            gui.window = new GuiWindow {
+                position = gui.nextWindowPos  ?? new Vector2(50, 50),
+                size     = gui.nextWindowSize ?? new Vector2(300, 200)
             };
-            batch.windows.Add(title, window);
+            gui.windows.Add(title, gui.window);
         }
-        nextWindowPos  = null;
-        nextWindowSize = null;
-
+        gui.nextWindowPos  = null;
+        gui.nextWindowSize = null;
+        var window = Window;
         window.ResetScope(title);
 
-        float titleBarHeight = batch.GetDefaultFont().lineHeight;
+        float titleBarHeight = LineHeight;
         var titleBarSize = new Vector2(window.size.X, titleBarHeight);
 
         int parentHash  = window.GetCurrentScopeHash();
         int titleBarId  = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = Window.IsHoverAt(batch, window.position, titleBarSize);
-        var titleState    = batch.input.GetWidgetState(isTitleHover, titleBarId);
+        bool isTitleHover = GuiWindow.IsHoverAt(input, window.position, titleBarSize);
+        var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
-            window.position += batch.input.MouseDelta;
+            window.position += input.MouseDelta;
         }
 
         if (color.Packed == 0) color = 0x222222ff;
@@ -81,24 +83,25 @@ public ref struct DrawGui : IDisposable
 
         draw.RectangleRounded(window.position, titleBarSize, 8, headerColor);
 
-        var fontHeight = draw.GetDefaultFont().lineHeight;
+        var fontHeight = LineHeight;
         var textPos    = window.position + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawString(title, textPos, window.textColor);
 
         window.cursor = window.position + new Vector2(10f, titleBarHeight + 10f);
     }
     
-    public void EndWindow()
+    public readonly void EndWindow()
     {
-        window.ClearScope();
+        Window.ClearScope();
     }
 #endregion
 
 
 #region Widgets
 
-    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
+    public readonly void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
+        var window = Window;
         if (textColor.Packed == 0) textColor = window.textColor;
         
         var size = draw.DrawString(name, window.cursor, textColor);
@@ -106,8 +109,9 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public bool Button(ReadOnlySpan<char> name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
+    public readonly bool Button(ReadOnlySpan<char> name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
     {
+        var window = Window;
         if (color.Packed == 0)      color       = window.buttonColor;
         if (textColor.Packed == 0)  textColor   = window.textColor;
         
@@ -115,9 +119,9 @@ public ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(batch, size);
+        var isHover = window.IsHover(input, size);
 
-        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+        var widgetState = input.GetWidgetState(isHover, widgetId);
         
         switch (widgetState)
         {
@@ -136,23 +140,24 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked;
     }
     
-    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, WidgetID id = default)
+    public readonly bool Checkbox(ReadOnlySpan<char> name, ref bool value, WidgetID id = default)
     {
+        var window = Window;
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
-        var boxSize   = draw.GetDefaultFont().lineHeight;
+        var boxSize   = LineHeight;
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover = window.IsHover(batch, totalSize);
-        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+        var isHover = window.IsHover(input, totalSize);
+        var widgetState = input.GetWidgetState(isHover, widgetId);
 
         if (widgetState == WidgetState.Clicked) {
             value = !value;
         }
 
-        Color32 boxColor = window.buttonColor;
+        var boxColor = window.buttonColor;
         switch (widgetState)
         {
             case WidgetState.Down:
@@ -180,21 +185,22 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked;
     }
     
-    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
+    public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
     {
+        var window = Window;
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
-        float height    = draw.GetDefaultFont().lineHeight;
+        float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
 
-        var isHover     = window.IsHover(batch, totalSize);
-        var widgetState = batch.input.GetWidgetState(isHover, widgetId);
+        var isHover     = window.IsHover(input, totalSize);
+        var widgetState = input.GetWidgetState(isHover, widgetId);
 
         bool changed = false;
 
         if (widgetState == WidgetState.Down) {
-            float t = Math.Clamp((batch.input.Mouse.X - window.cursor.X) / width, 0f, 1f);
+            float t = Math.Clamp((input.Mouse.X - window.cursor.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
             
             if (newValue != value) {
@@ -209,7 +215,7 @@ public ref struct DrawGui : IDisposable
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        Color32 barColor = window.buttonHover;
+        var barColor = window.buttonHover;
         if (widgetState == WidgetState.Down) {
             barColor = window.buttonDown;
         }
@@ -227,10 +233,10 @@ public ref struct DrawGui : IDisposable
 
     
 #region Layout
-    public void BeginVertical()     => window.PushLayout(LayoutDirection.Vertical);
-    public void EndVertical()       => window.PopLayout();
+    public readonly void BeginVertical()     => Window.PushLayout(LayoutDirection.Vertical);
+    public readonly void EndVertical()       => Window.PopLayout();
     
-    public void BeginHorizontal()   => window.PushLayout(LayoutDirection.Horizontal);
-    public void EndHorizontal()     => window.PopLayout();
+    public readonly void BeginHorizontal()   => Window.PushLayout(LayoutDirection.Horizontal);
+    public readonly void EndHorizontal()     => Window.PopLayout();
 #endregion
 }

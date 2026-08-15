@@ -26,7 +26,7 @@ public ref struct Draw2D : IDisposable
     private readonly    Batch2D     batch;
     private             RenderPass  pass;
 
-    public              Font        GetDefaultFont() => batch.GetDefaultFont();
+    public  readonly    Font        GetDefaultFont() => batch.GetDefaultFont();
     
     public void Dispose() {
         Flush();
@@ -41,7 +41,7 @@ public ref struct Draw2D : IDisposable
     
 #region Quads / Sprites
 
-    public void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
+    public readonly void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
     {
         DrawQuad(position, size, new Vector2(0f, 0f), new Vector2(1f, 1f), color, null);
     }
@@ -50,7 +50,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a rectangle with per-corner gradient colors.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
+    public readonly void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
     {
         var bat = batch;
         var texView = bat.defaultWhiteTextureView;
@@ -81,14 +81,14 @@ public ref struct Draw2D : IDisposable
     /// Draws a vertical gradient rectangle (top to bottom).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
+    public readonly void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
         => RectangleGradient(position, size, top, top, bottom, bottom);
     
     /// <summary>
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
+    public readonly void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
@@ -99,7 +99,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated sprite with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
+    public readonly void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
@@ -110,7 +110,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
+    public readonly void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
@@ -122,7 +122,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
+    public readonly void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
     {
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
@@ -135,7 +135,7 @@ public ref struct Draw2D : IDisposable
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite9SliceTiled(
+    public readonly void DrawSprite9SliceTiled(
         in Vector2      position, 
         in Vector2      size, 
         GpuTextureView  texture,
@@ -150,7 +150,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a 9-slice sprite from a sub-region (Spritesheet/Atlas) where borders and center are tiled (repeated).
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
-    public void DrawSprite9SliceTiled(
+    public readonly void DrawSprite9SliceTiled(
         in Vector2 position, 
         in Vector2 size, 
         GpuTextureView texture, 
@@ -236,7 +236,7 @@ public ref struct Draw2D : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public readonly void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         var bat = batch;
         var texView = texture ?? bat.defaultWhiteTextureView;
@@ -272,7 +272,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public readonly void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         if (rotation == 0f) {
             DrawQuad(position - (pivot * size), size, uvMin, uvMax, color, texture);
@@ -319,7 +319,7 @@ public ref struct Draw2D : IDisposable
     /// Helper to submit raw 4-point quad vertices using the default white texture.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
+    public readonly void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
     {
         var bat = batch;
         var texView = bat.defaultWhiteTextureView;
@@ -346,7 +346,7 @@ public ref struct Draw2D : IDisposable
     /// Draws a single filled triangle using a quad slot (duplicates 3rd vertex).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Triangle(in Vector2 v0, in Vector2 v1, in Vector2 v2, Color32 color)
+    public readonly void Triangle(in Vector2 v0, in Vector2 v1, in Vector2 v2, Color32 color)
     {
         DrawQuadRaw(v0, v1, v2, v2, color);
     }
@@ -354,7 +354,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a thick line segment between two points.
     /// </summary>
-    public void Line(in Vector2 start, in Vector2 end, float thickness, Color32 color)
+    public readonly void Line(in Vector2 start, in Vector2 end, float thickness, Color32 color)
     {
         Vector2 dir = end - start;
         float len = dir.Length();
@@ -375,7 +375,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled rectangle outline.
     /// </summary>
-    public void RectangleLines(in Vector2 position, in Vector2 size, float thickness, Color32 color)
+    public readonly void RectangleLines(in Vector2 position, in Vector2 size, float thickness, Color32 color)
     {
         float x = position.X;
         float y = position.Y;
@@ -392,7 +392,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a filled rounded rectangle.
     /// </summary>
-    public void RectangleRounded(in Vector2 position, in Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
+    public readonly void RectangleRounded(in Vector2 position, in Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
     {
         if (cornerRadius <= 0f) {
             Rectangle(position, size, color);
@@ -418,7 +418,7 @@ public ref struct Draw2D : IDisposable
         DrawCornerArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI, color, cornerSegments);
     }
 
-    private void DrawCornerArc(in Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    private readonly void DrawCornerArc(in Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
@@ -442,7 +442,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a filled circle (1 quad renders 2 pie-slices using the quad index pattern).
     /// </summary>
-    public void Circle(in Vector2 center, float radius, Color32 color, int segments = 32)
+    public readonly void Circle(in Vector2 center, float radius, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
@@ -467,7 +467,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled circle outline.
     /// </summary>
-    public void CircleLines(in Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
+    public readonly void CircleLines(in Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
@@ -500,7 +500,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
-    public Vector2 DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
+    public readonly Vector2 DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
 
@@ -538,7 +538,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Calculates the bounding box size (width and height) of a text string in pixels.
     /// </summary>
-    public Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null, float scale = 1.0f)
+    public readonly Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
 
@@ -571,7 +571,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws text aligned relative to a bounding position or box.
     /// </summary>
-    public void DrawStringAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, Font? font = null, float scale = 1.0f)
+    public readonly void DrawStringAligned(ReadOnlySpan<char> text, Vector2 position, TextAlignment alignment, Color32 color, Font? font = null, float scale = 1.0f)
     {
         if (alignment == TextAlignment.Left)
         {
@@ -595,7 +595,7 @@ public ref struct Draw2D : IDisposable
     /// Supports multi-line text and optional word wrapping.
     /// Allocation-free (GC-friendly).
     /// </summary>
-    public void DrawStringInRect(
+    public readonly void DrawStringInRect(
         ReadOnlySpan<char>  text, 
         Vector2             position, 
         Vector2             size, 
@@ -655,7 +655,7 @@ public ref struct Draw2D : IDisposable
     /// Truncates a string to fit within a maximum pixel width and appends '...'.
     /// Allocates a new string.
     /// </summary>
-    public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
+    public readonly string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
@@ -670,7 +670,7 @@ public ref struct Draw2D : IDisposable
     /// Draws text at position, automatically truncating with '...' if it exceeds maxWidth.
     /// Allocation-free (GC-friendly).
     /// </summary>
-    public void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
+    public readonly void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
@@ -727,7 +727,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Helper method to create the line enumerator.
     /// </summary>
-    public WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
+    public readonly WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         font ??= batch.GetDefaultFont();
         return new WrappedLineEnumerator(text, maxWidth, font, scale);
@@ -736,7 +736,7 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Wraps text by inserting line breaks ('\n'). Allocates a new string.
     /// </summary>
-    public string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
+    public readonly string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
 
@@ -753,7 +753,7 @@ public ref struct Draw2D : IDisposable
     /// Draws word-wrapped text directly onto the screen.
     /// Allocation-free (GC-friendly).
     /// </summary>
-    public int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
+    public readonly int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return 0;
         font ??= batch.GetDefaultFont();
@@ -775,7 +775,7 @@ public ref struct Draw2D : IDisposable
 
 #region State / Pipeline
 
-    public void PushScissor(Vector2 position, Vector2 size)
+    public readonly void PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;
         (Vector2 curPos, Vector2 curSize) = scissorStack.Count > 0 ? scissorStack.Peek() : (Vector2.Zero, batch.viewport);
@@ -792,7 +792,7 @@ public ref struct Draw2D : IDisposable
         pass.SetScissorRect((int)intersectPos.X, (int)intersectPos.Y, (int)intersectSize.X, (int)intersectSize.Y);
     }
 
-    public void PopScissor()
+    public readonly void PopScissor()
     {
         var scissorStack = batch.scissorStack;
         if (scissorStack.Count > 0) {
@@ -803,7 +803,7 @@ public ref struct Draw2D : IDisposable
         pass.SetScissorRect((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
     }
     
-    public void SetFilterMode(FilterMode filterMode)
+    public readonly void SetFilterMode(FilterMode filterMode)
     {
         var bat = batch;
         var targetSampler = filterMode == FilterMode.Nearest ? bat.samplerNearest : bat.samplerLinear;
@@ -814,7 +814,7 @@ public ref struct Draw2D : IDisposable
         bat.currentSampler = targetSampler;
     }
 
-    public void SetViewport(float width, float height)
+    public readonly void SetViewport(float width, float height)
     {
         Flush();
 
@@ -828,7 +828,7 @@ public ref struct Draw2D : IDisposable
         bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
-    public void PushTransform(in Matrix4x4 transform)
+    public readonly void PushTransform(in Matrix4x4 transform)
     {
         var transformStack = batch.transformStack;
         var parent    = transformStack.Count > 0 ? transformStack.Peek() : Matrix4x4.Identity;
@@ -838,7 +838,7 @@ public ref struct Draw2D : IDisposable
         ApplyTransform(combined);
     }
 
-    public void PopTransform()
+    public readonly void PopTransform()
     {
         var transformStack = batch.transformStack;
         if (transformStack.Count > 0) {
@@ -849,7 +849,7 @@ public ref struct Draw2D : IDisposable
         ApplyTransform(targetTransform);
     }
 
-    private void ApplyTransform(in Matrix4x4 transform)
+    private readonly void ApplyTransform(in Matrix4x4 transform)
     {
         var bat = batch;
         if (bat.currentTransform == transform) return;
@@ -860,7 +860,7 @@ public ref struct Draw2D : IDisposable
         bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
-    public void SetBlendState(BlendState blendState)
+    public readonly void SetBlendState(BlendState blendState)
     {
         if (blendState == batch.currentBlendState) return;
         
@@ -868,7 +868,7 @@ public ref struct Draw2D : IDisposable
         batch.currentBlendState = blendState;
     }
 
-    public void Flush()
+    public readonly void Flush()
     {
         var bat = batch;
         int pendingVertices = bat.vertexCount - bat.vertexStart;
@@ -888,7 +888,7 @@ public ref struct Draw2D : IDisposable
         bat.vertexStart = bat.vertexCount;
     }
     
-    public DrawGui BeginGui()
+    public readonly DrawGui BeginGui()
     {
         return new DrawGui(this, batch);
     }

@@ -29,7 +29,7 @@ internal struct LayoutNode
 
 
 
-internal class Window
+internal class GuiWindow
 {
     internal            Vector2             position;
     internal            Vector2             size;
@@ -113,16 +113,16 @@ internal class Window
         }
     }
     
-    internal static bool IsHoverAt(Batch2D batch, Vector2 pos, Vector2 size)
+    internal static bool IsHoverAt(GuiInput input, Vector2 pos, Vector2 size)
     {
-        var x = batch.input.Mouse.X;
-        var y = batch.input.Mouse.Y;
+        var x = input.Mouse.X;
+        var y = input.Mouse.Y;
         return pos.X <= x && x <= pos.X + size.X &&
                pos.Y <= y && y <= pos.Y + size.Y;
     }
 
-    internal bool IsHover(Batch2D batch, Vector2 size)
+    internal bool IsHover(GuiInput input, Vector2 size)
     {
-        return IsHoverAt(batch, cursor, size);;
+        return IsHoverAt(input, cursor, size);
     }
 }

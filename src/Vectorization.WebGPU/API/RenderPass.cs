@@ -59,7 +59,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setScissorRect">MDN: SetScissorRect()</a> 
     /// </summary>
-    public void SetScissorRect(int x, int y, int width, int height)
+    public readonly void SetScissorRect(int x, int y, int width, int height)
     {
         int x1 = Math.Clamp(x,          0, viewWidth);
         int y1 = Math.Clamp(y,          0, viewHeight);
@@ -74,7 +74,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setViewport">MDN: SetViewport()</a> 
     /// </summary>
-    public void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
+    public readonly void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
     {
         wgpuRenderPassEncoderSetViewport(handle, x, y, width, height, minDepth, maxDepth);
     }

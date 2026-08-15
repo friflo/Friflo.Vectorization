@@ -38,7 +38,8 @@ public sealed partial class Batch2D : IDisposable
     
     internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack    = new();
     internal readonly   Stack<Matrix4x4>                        transformStack  = new();
-    internal readonly   Dictionary<string, Window>              windows = new();
+    internal readonly   Gui                 gui     = new();
+    public   readonly   GuiInput            input   = new();
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;
@@ -204,7 +205,6 @@ public sealed partial class Batch2D : IDisposable
                     [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
 
     
-    public readonly GuiInput input = new();
     
     public void AddEvent(in ImEvent ev)
     {
