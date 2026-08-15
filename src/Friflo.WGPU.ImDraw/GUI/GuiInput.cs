@@ -202,6 +202,11 @@ public class GuiInput
 
     private void HandleKeyEvents()
     {
+        isTabPressed    = false;
+        arrowDirection  = default;
+        isSpacePressed  = false;
+        isReturnPressed = false;
+        
         foreach (var keyEvent in keyEvents)
         {
             switch (keyEvent.code)
