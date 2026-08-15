@@ -136,6 +136,10 @@ public ref struct DrawGui : IDisposable
         var size    = draw.MeasureString(name);
         var isHover = window.IsHover(size);
 
+        // Calculate widget center & register for 1D/2D navigation
+        var center = window.cursor + size * 0.5f;
+        bool isFocused = input.RegisterFocusable(widgetId, center, out _);
+
         var widgetState = input.GetWidgetState(isHover, widgetId);
         
         switch (widgetState)
@@ -148,11 +152,21 @@ public ref struct DrawGui : IDisposable
                 break;
         }
         
+        // Render button background
         draw.RectangleRounded(window.cursor, size, 8, color);
+
+        if (isFocused) {
+            var focusColor = new Color32(0, 122, 255); // blue
+            draw.RectangleLines(window.cursor, size, 4, focusColor);
+        }
+
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);
         
         window.MoveCursor(size);
-        return widgetState == WidgetState.Clicked;
+
+        // Trigger click via mouse or keyboard (Enter/Space when focused)
+        bool isKeySubmitted = isFocused && input.IsSubmitPressed;
+        return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
     
     public readonly bool Checkbox(ReadOnlySpan<char> name, ref bool value, WidgetID id = default)

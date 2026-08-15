@@ -237,6 +237,15 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.MouseButtonDown:
                 renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));
                 break;
+            case SDL.EventType.KeyDown:
+                var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
+                renderer?.OnEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
+                break;
+            case SDL.EventType.KeyUp:
+                key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
+                renderer?.OnEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
+                break;
+
         }
         return SDL.AppResult.Continue;
     }
