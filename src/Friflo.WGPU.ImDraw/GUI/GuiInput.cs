@@ -70,11 +70,17 @@ public class GuiInput
     
     public WidgetState GetWidgetState(bool isHover, int widgetId)
     {
+        // Ignore all other widgets while another widget is currently active
+        if (activeItem != 0 && activeItem != widgetId) {
+            return WidgetState.None;
+        }
+
         if (isHover) {
             if (activeItem == 0) {
                 hotItem = widgetId;
             }
-        } else if (hotItem == widgetId) {
+        } else if (hotItem == widgetId && activeItem != widgetId) {
+            // Keep hotItem set while dragging outside the bounds
             hotItem = 0;
         }
 
@@ -99,7 +105,7 @@ public class GuiInput
         }
         return WidgetState.None;
     }
-
+    
     public void NewFrame()
     {
         MouseDelta = Mouse - mouseLast;
