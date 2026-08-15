@@ -883,11 +883,12 @@ public ref struct Draw2D : IDisposable
 
         int pendingQuads = pendingVertices / 4;
 
-        var texture    = bat.currentTextureView ?? bat.defaultWhiteTextureView;
-        var vertexView = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
-        var indexView  = bat.indexBuffer.In(0, pendingQuads * 6);
+        var texture     = bat.currentTextureView ?? bat.defaultWhiteTextureView;
+        var vertexView  = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
+        var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
+        var config      = bat.renderConfigs[(int)bat.currentBlendState];
 
-        Batch2D.Draw(pass, bat.renderConfigs[(int)bat.currentBlendState], bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
+        Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
 
         bat.vertexStart = bat.vertexCount;
     }
