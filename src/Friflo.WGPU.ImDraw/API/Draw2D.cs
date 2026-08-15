@@ -30,6 +30,11 @@ public ref struct Draw2D : IDisposable
     
     public void Dispose() {
         Flush();
+        var bat = batch;
+        if (bat.vertexCount > 0) {
+            // Upload vertexBuffer with a single wgpu call
+            bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
+        }
         pass.Dispose();
     }
     
@@ -877,11 +882,10 @@ public ref struct Draw2D : IDisposable
         }
 
         int pendingQuads = pendingVertices / 4;
-        int indexCount   = pendingQuads * 6;
 
-        var vertexView = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices).Write();
         var texture    = bat.currentTextureView ?? bat.defaultWhiteTextureView;
-        var indexView  = bat.indexBuffer.In(0, indexCount);
+        var vertexView = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
+        var indexView  = bat.indexBuffer.In(0, pendingQuads * 6);
 
         Batch2D.Draw(pass, bat.renderConfigs[(int)bat.currentBlendState], bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
 
