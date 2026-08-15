@@ -41,7 +41,17 @@ internal struct DrawCommand
     internal GpuSampler             sampler;
     internal RectVector2            scissor;
 
-    public override string ToString() => $"quads: {indexView.Length / 4}   {texture}";
+    public override string ToString() => $"zIndex: {zIndex}, {sequence}   quads: {indexView.Length / 4}   {texture}";
+}
+
+internal struct CmdSegment
+{
+    internal int    zIndex;
+    internal int    sequence;
+    internal int    index;
+    internal int    length;
+
+    public override string ToString() => $"zIndex: {zIndex}, {sequence}   [{index}, {length}]";
 }
 
 internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
@@ -64,6 +74,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<uint>     indexBuffer;
     
     internal readonly   List<DrawCommand>   drawCommands 	= [];
+    internal readonly   List<CmdSegment>    commandSegments = [];
     internal readonly   Stack<RectVector2>  scissorStack    = [];
     internal readonly   Stack<Matrix4x4>    transformStack  = [];
     internal readonly   Gui                 gui;
