@@ -865,11 +865,25 @@ public ref struct Draw2D : IDisposable
         batch.currentBlendState = blendState;
     }
     
-    public readonly void SetZIndex(int zIndex)
+    public readonly void PushZIndex(int zIndex)
     {
-        Flush();   // force new DrawCommand
-        batch.currentZIndex = zIndex;
-        batch.sortZIndex    = true;
+        var bat = batch;
+        bat.zIndexStack.Push(bat.currentZIndex);
+
+        Flush();
+        bat.currentZIndex = zIndex;
+        bat.sortZIndex    = true;
+    }
+
+    public readonly void PopZIndex()
+    {
+        var bat = batch;
+        if (bat.zIndexStack.Count == 0) return;
+
+        int prevZIndex = bat.zIndexStack.Pop();
+
+        Flush();
+        bat.currentZIndex = prevZIndex;
     }
 
     public readonly void Flush()

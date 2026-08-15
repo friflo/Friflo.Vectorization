@@ -77,6 +77,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   List<CmdSegment>    commandSegments = [];
     internal readonly   Stack<RectVector2>  scissorStack    = [];
     internal readonly   Stack<Matrix4x4>    transformStack  = [];
+    internal readonly   Stack<int>          zIndexStack     = [];
     internal readonly   Gui                 gui;
     public   readonly   GuiInput            input           = new();
     
@@ -238,9 +239,10 @@ public sealed partial class Batch2D : IDisposable
         currentZIndex       = 0;
         currentSequence     = 0;
 
+        drawCommands.Clear();
         scissorStack.Clear();
         transformStack.Clear();
-        drawCommands.Clear();
+        zIndexStack.Clear();
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);

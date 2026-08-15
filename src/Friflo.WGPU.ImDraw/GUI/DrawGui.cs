@@ -70,7 +70,7 @@ public ref struct DrawGui : IDisposable
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
             gui.FocusWindow(window);
         }
-        draw.SetZIndex(gui.windowOrder.IndexOf(window) + 1);  // +1, so 0 is background;
+        draw.PushZIndex(gui.windowOrder.IndexOf(window) + 1);  // +1, so 0 is background;
         
         window.ResetScope(title);
 
@@ -106,7 +106,7 @@ public ref struct DrawGui : IDisposable
     
     public readonly void EndWindow()
     {
-        draw.SetZIndex(0);
+        draw.PopZIndex();
         Window.ClearScope();
     }
 #endregion
