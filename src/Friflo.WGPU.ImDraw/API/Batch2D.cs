@@ -121,7 +121,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
-    internal            GpuTextureView?     currentTextureView;
+    internal            GpuTextureView      currentTextureView;
 
 
     public void Dispose()
@@ -251,7 +251,7 @@ public sealed partial class Batch2D : IDisposable
         // reset batcher state
         vertexStart         = 0;
         vertexCount         = 0;
-        currentTextureView  = null;
+        currentTextureView  = defaultWhiteTextureView;
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;

@@ -51,9 +51,7 @@ public ref struct Draw2D : IDisposable
         var bat = batch;
         var texView = bat.defaultWhiteTextureView;
 
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
-            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
-        {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
             Flush();
         }
         bat.currentTextureView = texView;
@@ -238,9 +236,7 @@ public ref struct Draw2D : IDisposable
         var texView = texture ?? bat.defaultWhiteTextureView;
         
         // flush if full (4 vertices per quad) or texture changed
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
-            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
-        {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
             Flush();
         }
         bat.currentTextureView = texView;
@@ -278,9 +274,7 @@ public ref struct Draw2D : IDisposable
         var bat = batch;
         var texView = texture ?? bat.defaultWhiteTextureView;
 
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
-            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
-        {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
             Flush();
         }
         bat.currentTextureView = texView;
@@ -320,9 +314,7 @@ public ref struct Draw2D : IDisposable
         var bat = batch;
         var texView = bat.defaultWhiteTextureView;
 
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length ||
-            (bat.currentTextureView.HasValue && bat.currentTextureView.Value.Handle != texView.Handle))
-        {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
             Flush();
         }
         bat.currentTextureView = texView;
@@ -896,7 +888,7 @@ public ref struct Draw2D : IDisposable
 
         int pendingQuads = pendingVertices / 4;
 
-        var texture     = bat.currentTextureView ?? bat.defaultWhiteTextureView;
+        var texture     = bat.currentTextureView;
         var vertexView  = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
