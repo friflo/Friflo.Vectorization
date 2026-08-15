@@ -50,8 +50,8 @@ public ref struct DrawGui : IDisposable
     {
         if (!gui.windows.TryGetValue(title, out gui.window!)) {
             gui.window = new GuiWindow(gui) {
-                position = gui.nextWindowPos  ?? new Vector2(50, 50),
-                size     = gui.nextWindowSize ?? new Vector2(300, 200)
+                pos     = gui.nextWindowPos  ?? new Vector2(50, 50),
+                size    = gui.nextWindowSize ?? new Vector2(300, 200)
             };
             gui.windows.Add(title, gui.window);
             gui.windowOrder.Add(gui.window);
@@ -60,48 +60,51 @@ public ref struct DrawGui : IDisposable
         gui.nextWindowSize = null;
         var window      = Window;
         
-        // hit test whole window
-        var windowSize = window.size;
-        bool isWindowHovered = window.IsHoverAt(window.position, windowSize);
+        // Hit test whole window
+        bool isWindowHovered = window.IsHoverAt(window.pos, window.size);
 
-        // if clicked -> Focus / update Z-Order
-        if (isWindowHovered && input.GetWidgetState(true, window.GetCurrentScopeHash()) == WidgetState.Down) {
+        // Focus window on click (WITHOUT capturing activeItem)
+        if (isWindowHovered && input.IsMouseDown) {
             // Note: Moving window to front here ensures that subsequent child widgets 
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
             gui.FocusWindow(window);
         }
-        draw.PushZIndex(gui.windowOrder.IndexOf(window) + 1);  // +1, so 0 is background;
+        draw.PushZIndex(gui.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
         
         window.ResetScope(title);
+        int parentHash = window.GetCurrentScopeHash();
 
+        // Process window resize
+        int resizeId 	= WidgetID.CombineHash(parentHash, "__resize".GetHashCode());
+        bool isResizing = window.ProcessResize(input, resizeId);
+
+        // Process title bar drag (strictly blocked while resizing)
         float titleBarHeight = LineHeight;
-        var titleBarSize = new Vector2(window.size.X, titleBarHeight);
+        var titleBarSize     = new Vector2(window.size.X, titleBarHeight);
+        int titleBarId       = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        int parentHash  = window.GetCurrentScopeHash();
-        int titleBarId  = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
-
-        bool isTitleHover = window.IsHoverAt(window.position, titleBarSize);
+        bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize);
         var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
-            window.position += input.MouseDelta;
+            window.pos += input.MouseDelta;
         }
 
+        // Render background & titlebar
         if (color.Packed == 0) color = 0x222222ff;
-
-        draw.RectangleRounded(window.position, window.size, 8, color);
+        draw.RectangleRounded(window.pos, window.size, 8, color);
 
         var headerColor = window.buttonColor;
         if (titleState == WidgetState.Hover) headerColor = window.buttonHover;
         if (titleState == WidgetState.Down)  headerColor = window.buttonDown;
 
-        draw.RectangleRounded(window.position, titleBarSize, 8, headerColor);
+        draw.RectangleRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
-        var textPos    = window.position + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
+        var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawString(title, textPos, window.textColor);
 
-        window.cursor = window.position + new Vector2(10f, titleBarHeight + 10f);
+        window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
     }
     
     public readonly void EndWindow()

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -27,13 +28,30 @@ internal struct LayoutNode
     internal Vector2            maxSize;
 }
 
+[Flags]
+public enum ResizeEdge
+{
+    None   = 0,
+    Top    = 1 << 0,
+    Bottom = 1 << 1,
+    Left   = 1 << 2,
+    Right  = 1 << 3,
+    
+    TopLeft     = Top    | Left,
+    TopRight    = Top    | Right,
+    BottomLeft  = Bottom | Left,
+    BottomRight = Bottom | Right
+}
+
 
 
 internal class GuiWindow
 {
     private  readonly   Gui                 gui;
-    internal            Vector2             position;
+    internal            Vector2             pos;
     internal            Vector2             size;
+    private  readonly   Vector2             minSize     = new(100f, 100f);
+    private             ResizeEdge          activeResizeEdge;
     
     internal            Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
@@ -118,12 +136,12 @@ internal class GuiWindow
         }
     }
     
-    internal bool IsHoverAt(Vector2 pos, Vector2 widgetSize)
+    internal bool IsHoverAt(Vector2 mousePos, Vector2 widgetSize)
     {
         var x = gui.input.Mouse.X;
         var y = gui.input.Mouse.Y;
-        bool isOverWidget = pos.X <= x && x <= pos.X + widgetSize.X &&
-                            pos.Y <= y && y <= pos.Y + widgetSize.Y;
+        bool isOverWidget = mousePos.X <= x && x <= mousePos.X + widgetSize.X &&
+                            mousePos.Y <= y && y <= mousePos.Y + widgetSize.Y;
         if (!isOverWidget) {
             return false;
         }
@@ -134,4 +152,73 @@ internal class GuiWindow
     {
         return IsHoverAt(cursor, widgetSize);
     }
+    
+#region resize
+
+    public bool ProcessResize(GuiInput input, int resizeId, float border = 6f)
+    {
+        ResizeEdge hoverEdge = GetResizeEdge(input.Mouse, border);
+
+        // Active state override: keep active while dragging even if mouse leaves border
+        bool isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
+        var state = input.GetWidgetState(isHoverOrActive, resizeId);
+
+        if (state == WidgetState.Down)
+        {
+            if (activeResizeEdge == ResizeEdge.None) {
+                activeResizeEdge = hoverEdge;
+            }
+            ApplyResize(input.MouseDelta, activeResizeEdge);
+            return true; // Strictly block titlebar dragging
+        }
+
+        activeResizeEdge = ResizeEdge.None;
+        return false;
+    }
+
+    private ResizeEdge GetResizeEdge(Vector2 mousePos, float border)
+    {
+        if (mousePos.X < pos.X - border || mousePos.X > pos.X + size.X + border ||
+            mousePos.Y < pos.Y - border || mousePos.Y > pos.Y + size.Y + border)
+        {
+            return ResizeEdge.None;
+        }
+
+        ResizeEdge edge = ResizeEdge.None;
+
+        if (mousePos.X <= pos.X + border)               edge |= ResizeEdge.Left;
+        else if (mousePos.X >= pos.X + size.X - border) edge |= ResizeEdge.Right;
+
+        if (mousePos.Y <= pos.Y + border)               edge |= ResizeEdge.Top;
+        else if (mousePos.Y >= pos.Y + size.Y - border) edge |= ResizeEdge.Bottom;
+
+        return edge;
+    }
+
+    private void ApplyResize(Vector2 delta, ResizeEdge edge)
+    {
+        // Horizontal: Right
+        if ((edge & ResizeEdge.Right) != 0) {
+            size.X = Math.Max(minSize.X, size.X + delta.X);
+        }
+        // Horizontal: Left
+        if ((edge & ResizeEdge.Left) != 0) {
+            float newWidth = Math.Max(minSize.X, size.X - delta.X);
+            pos.X += size.X - newWidth;
+            size.X = newWidth;
+        }
+        // Vertical: Bottom
+        if ((edge & ResizeEdge.Bottom) != 0) {
+            size.Y = Math.Max(minSize.Y, size.Y + delta.Y);
+        }
+        // Vertical: Top
+        if ((edge & ResizeEdge.Top) != 0)
+        {
+            float newHeight = Math.Max(minSize.Y, size.Y - delta.Y);
+            pos.Y += size.Y - newHeight;
+            size.Y = newHeight;
+        }
+    }
+#endregion
+
 }

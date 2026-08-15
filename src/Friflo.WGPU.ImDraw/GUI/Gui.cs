@@ -39,8 +39,8 @@ internal class Gui
         {
             var win = windowOrder[i];
             
-            if (screenPos.X >= win.position.X && screenPos.X <= win.position.X + win.size.X &&
-                screenPos.Y >= win.position.Y && screenPos.Y <= win.position.Y + win.size.Y)
+            if (screenPos.X >= win.pos.X && screenPos.X <= win.pos.X + win.size.X &&
+                screenPos.Y >= win.pos.Y && screenPos.Y <= win.pos.Y + win.size.Y)
             {
                 return win; // first window from top is target
             }

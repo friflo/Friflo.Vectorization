@@ -29,6 +29,7 @@ public class GuiInput
     private     bool        isSpacePressed;
     private     Vector2     arrowDirection;
     
+    public      bool        IsMouseDown     => isMouseDown;
     public      bool        IsSubmitPressed => isSpacePressed || isReturnPressed;
     
     // Hot/Active-State-Pattern
