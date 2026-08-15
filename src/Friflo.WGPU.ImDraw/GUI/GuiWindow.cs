@@ -93,36 +93,40 @@ internal class GuiWindow
         }
     }
 
-    internal void MoveCursor(Vector2 size)
+    internal void MoveCursor(Vector2 widgetSize)
     {
         if (layoutStack.Count > 0) {
             var layout = layoutStack.Pop();
             
             if (layout.direction == LayoutDirection.Vertical) {
-                cursor.Y += size.Y + 6f;
-                layout.maxSize.X = Math.Max(layout.maxSize.X, size.X);
-                layout.maxSize.Y += size.Y + 6f;
+                cursor.Y += widgetSize.Y + 6f;
+                layout.maxSize.X = Math.Max(layout.maxSize.X, widgetSize.X);
+                layout.maxSize.Y += widgetSize.Y + 6f;
             } else {
-                cursor.X += size.X + 6f;
-                layout.maxSize.X += size.X + 6f;
-                layout.maxSize.Y = Math.Max(layout.maxSize.Y, size.Y);
+                cursor.X += widgetSize.X + 6f;
+                layout.maxSize.X += widgetSize.X + 6f;
+                layout.maxSize.Y = Math.Max(layout.maxSize.Y, widgetSize.Y);
             }
             layoutStack.Push(layout);
         } else {
-            cursor.Y += size.Y + 6f;
+            cursor.Y += widgetSize.Y + 6f;
         }
     }
     
-    internal static bool IsHoverAt(GuiInput input, Vector2 pos, Vector2 size)
+    internal bool IsHoverAt(Gui gui, GuiInput input, Vector2 pos, Vector2 widgetSize)
     {
         var x = input.Mouse.X;
         var y = input.Mouse.Y;
-        return pos.X <= x && x <= pos.X + size.X &&
-               pos.Y <= y && y <= pos.Y + size.Y;
+        bool isOverWidget = pos.X <= x && x <= pos.X + widgetSize.X &&
+                            pos.Y <= y && y <= pos.Y + widgetSize.Y;
+        if (!isOverWidget) {
+            return false;
+        }
+        return gui.IsTopWindowAt(input.Mouse, this);
     }
 
-    internal bool IsHover(GuiInput input, Vector2 size)
+    internal bool IsHover(Gui gui, GuiInput input, Vector2 widgetSize)
     {
-        return IsHoverAt(input, cursor, size);
+        return IsHoverAt(gui, input, cursor, widgetSize);
     }
 }

@@ -54,10 +54,24 @@ public ref struct DrawGui : IDisposable
                 size     = gui.nextWindowSize ?? new Vector2(300, 200)
             };
             gui.windows.Add(title, gui.window);
+            gui.windowOrder.Add(gui.window);
         }
         gui.nextWindowPos  = null;
         gui.nextWindowSize = null;
-        var window = Window;
+        var window      = Window;
+        
+        // hit test whole window
+        var windowSize = window.size;
+        bool isWindowHovered = window.IsHoverAt(gui, input, window.position, windowSize);
+
+        // if clicked -> Focus / update Z-Order
+        if (isWindowHovered && input.GetWidgetState(true, window.GetCurrentScopeHash()) == WidgetState.Down) {
+            // Note: Moving window to front here ensures that subsequent child widgets 
+            //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
+            gui.FocusWindow(window);
+        }
+        draw.SetZIndex(gui.windowOrder.IndexOf(window) + 1);  // +1, so 0 is background;
+        
         window.ResetScope(title);
 
         float titleBarHeight = LineHeight;
@@ -66,7 +80,7 @@ public ref struct DrawGui : IDisposable
         int parentHash  = window.GetCurrentScopeHash();
         int titleBarId  = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = GuiWindow.IsHoverAt(input, window.position, titleBarSize);
+        bool isTitleHover = window.IsHoverAt(gui, input, window.position, titleBarSize);
         var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
@@ -92,6 +106,7 @@ public ref struct DrawGui : IDisposable
     
     public readonly void EndWindow()
     {
+        draw.SetZIndex(0);
         Window.ClearScope();
     }
 #endregion
@@ -119,7 +134,7 @@ public ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(input, size);
+        var isHover = window.IsHover(gui, input, size);
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
         
@@ -150,7 +165,7 @@ public ref struct DrawGui : IDisposable
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover = window.IsHover(input, totalSize);
+        var isHover = window.IsHover(gui, input, totalSize);
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
         if (widgetState == WidgetState.Clicked) {
@@ -194,7 +209,7 @@ public ref struct DrawGui : IDisposable
         float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
 
-        var isHover     = window.IsHover(input, totalSize);
+        var isHover     = window.IsHover(gui, input, totalSize);
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
         bool changed = false;

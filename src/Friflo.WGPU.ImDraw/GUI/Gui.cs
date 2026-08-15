@@ -10,10 +10,41 @@ namespace Friflo.WGPU.ImDraw;
 
 internal class Gui
 {
-    internal readonly   Dictionary<string, GuiWindow>  windows = new();
+    internal readonly   Dictionary<string, GuiWindow>   windows     = new();
+    internal readonly   List<GuiWindow>                 windowOrder = [];
     
+    private             GuiWindow?  focusedWindow;
     internal            GuiWindow   window = null!;
     
     internal            Vector2?    nextWindowPos;
     internal            Vector2?    nextWindowSize;
+    
+    internal void FocusWindow(GuiWindow win)
+    {
+        if (focusedWindow == win) return;
+
+        windowOrder.Remove(win);
+        windowOrder.Add(win);
+        focusedWindow = win;
+    }
+    
+    private GuiWindow? GetTopWindowAt(Vector2 screenPos)
+    {
+        for (int i = windowOrder.Count - 1; i >= 0; i--)
+        {
+            var win = windowOrder[i];
+            
+            if (screenPos.X >= win.position.X && screenPos.X <= win.position.X + win.size.X &&
+                screenPos.Y >= win.position.Y && screenPos.Y <= win.position.Y + win.size.Y)
+            {
+                return win; // first window from top is target
+            }
+        }
+        return null;
+    }
+
+    internal bool IsTopWindowAt(Vector2 screenPos, GuiWindow targetWindow)
+    {
+        return GetTopWindowAt(screenPos) == targetWindow;
+    }
 }

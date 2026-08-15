@@ -863,6 +863,13 @@ public ref struct Draw2D : IDisposable
         Flush();
         batch.currentBlendState = blendState;
     }
+    
+    public readonly void SetZIndex(int zIndex)
+    {
+        Flush();   // force new DrawCommand
+        batch.currentZIndex = zIndex;
+        batch.sortZIndex    = true;
+    }
 
     public readonly void Flush()
     {
@@ -883,6 +890,8 @@ public ref struct Draw2D : IDisposable
         // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
         bat.drawCommands.Add(new DrawCommand {
+            zIndex      = bat.currentZIndex,
+            sequence    = bat.currentSequence++, 
             texture     = texture,
             vertexView  = vertexView,
             indexView   = indexView,
@@ -901,10 +910,14 @@ public ref struct Draw2D : IDisposable
         {
             // Upload vertexBuffer with a single wgpu call
             bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
-            
+
+            var commands = bat.drawCommands;
+            if (bat.sortZIndex) {
+                commands.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
+            }
             var scissor = new RectVector2(Vector2.Zero, bat.viewport);
             
-            foreach (var cmd in bat.drawCommands) {
+            foreach (var cmd in commands) {
                 if (!cmd.scissor.Equals(scissor)) {
                     scissor = cmd.scissor;
                     pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    

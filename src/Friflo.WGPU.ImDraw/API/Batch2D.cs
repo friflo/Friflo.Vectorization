@@ -31,6 +31,8 @@ public enum BlendState
 
 internal struct DrawCommand
 {
+    internal int                    zIndex;
+    internal int                    sequence;
     internal GpuTextureView         texture;
     internal InOutView<Vertex2D>    vertexView;
     internal InView<uint>           indexView;
@@ -39,7 +41,7 @@ internal struct DrawCommand
     internal GpuSampler             sampler;
     internal RectVector2            scissor;
 
-    public override string ToString() => $"{texture}  {config}";
+    public override string ToString() => $"quads: {indexView.Length / 4}   {texture}";
 }
 
 internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
@@ -80,6 +82,9 @@ public sealed partial class Batch2D : IDisposable
     internal            BlendState          currentBlendState;
     internal            GpuSampler          currentSampler;
     internal            RectVector2         currentScissor;
+    internal            bool                sortZIndex;
+    internal            int                 currentZIndex;
+    internal            int                 currentSequence;
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
@@ -216,6 +221,9 @@ public sealed partial class Batch2D : IDisposable
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
         currentScissor      = new RectVector2 ( Vector2.Zero, new Vector2(frame.Width, frame.Height));
+        sortZIndex          = false;
+        currentZIndex       = 0;
+        currentSequence     = 0;
 
         scissorStack.Clear();
         transformStack.Clear();
