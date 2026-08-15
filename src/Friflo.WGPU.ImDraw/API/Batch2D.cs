@@ -26,7 +26,32 @@ public enum BlendState
     /** Shadows, tinting (Zero + Src) */                Multiply,
     /** Add colors directly */                          AddColors,
     /** Subtract colors directly */                     SubtractColors
-} 
+}
+
+
+internal struct DrawCommand
+{
+    internal GpuTextureView         texture;
+    internal InOutView<Vertex2D>    vertexView;
+    internal InView<uint>           indexView;
+    internal RenderConfig           config;
+    internal ImUniforms             uniforms;
+    internal GpuSampler             sampler;
+    internal RectVector2            scissor;
+
+    public override string ToString() => $"{texture}  {config}";
+}
+
+internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
+{
+    internal readonly Vector2    pos     = pos;
+    internal readonly Vector2    size    = size;
+
+    public override string ToString()       => $"{pos} {size}";
+
+    public bool Equals(RectVector2 other)   => pos == other.pos && size == other.size;
+}
+
 
 
 public sealed partial class Batch2D : IDisposable
@@ -36,10 +61,11 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<uint>     indexBuffer;
     
-    internal readonly   Stack<(Vector2 Position, Vector2 Size)> scissorStack    = new();
-    internal readonly   Stack<Matrix4x4>                        transformStack  = new();
-    internal readonly   Gui                 gui     = new();
-    public   readonly   GuiInput            input   = new();
+    internal readonly   List<DrawCommand>   drawCommands 	= [];
+    internal readonly   Stack<RectVector2>  scissorStack    = [];
+    internal readonly   Stack<Matrix4x4>    transformStack  = [];
+    internal readonly   Gui                 gui             = new();
+    public   readonly   GuiInput            input           = new();
     
     // --- resources owned by DrawModule
     internal readonly   GpuTextureView      defaultWhiteTextureView;
@@ -53,6 +79,7 @@ public sealed partial class Batch2D : IDisposable
     internal            Matrix4x4           currentTransform;
     internal            BlendState          currentBlendState;
     internal            GpuSampler          currentSampler;
+    internal            RectVector2         currentScissor;
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
@@ -188,8 +215,11 @@ public sealed partial class Batch2D : IDisposable
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
+        currentScissor      = new RectVector2 ( Vector2.Zero, new Vector2(frame.Width, frame.Height));
+
         scissorStack.Clear();
         transformStack.Clear();
+        drawCommands.Clear();
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(frame.Width, frame.Height);

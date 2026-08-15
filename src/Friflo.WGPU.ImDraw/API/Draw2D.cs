@@ -28,16 +28,6 @@ public ref struct Draw2D : IDisposable
 
     public  readonly    Font        GetDefaultFont() => batch.GetDefaultFont();
     
-    public void Dispose() {
-        Flush();
-        var bat = batch;
-        if (bat.vertexCount > 0) {
-            // Upload vertexBuffer with a single wgpu call
-            bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
-        }
-        pass.Dispose();
-    }
-    
     internal Draw2D(Batch2D batch, RenderPass pass)
     {
         this.batch  = batch;
@@ -783,18 +773,19 @@ public ref struct Draw2D : IDisposable
     public readonly void PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;
-        (Vector2 curPos, Vector2 curSize) = scissorStack.Count > 0 ? scissorStack.Peek() : (Vector2.Zero, batch.viewport);
+        var cur = scissorStack.Count > 0 ? scissorStack.Peek() : new RectVector2(Vector2.Zero, batch.viewport);
 
-        var intersectPos    = Vector2.Max(curPos, position);
-        var curMax          = curPos + curSize;
+        var intersectPos    = Vector2.Max(cur.pos, position);
+        var curMax          = cur.pos + cur.size;
         var newMax          = position + size;
         var intersectMax    = Vector2.Min(curMax, newMax);
         var intersectSize   = Vector2.Max(Vector2.Zero, intersectMax - intersectPos);
 
-        scissorStack.Push((intersectPos, intersectSize));
+        var scissor = new RectVector2(intersectPos, intersectSize);
+        scissorStack.Push(scissor);
 
         Flush();
-        pass.SetScissorRect((int)intersectPos.X, (int)intersectPos.Y, (int)intersectSize.X, (int)intersectSize.Y);
+        batch.currentScissor = scissor;
     }
 
     public readonly void PopScissor()
@@ -803,9 +794,9 @@ public ref struct Draw2D : IDisposable
         if (scissorStack.Count > 0) {
             scissorStack.Pop();
         }
-        (Vector2 pos, Vector2 size) = scissorStack.Count > 0 ? scissorStack.Peek() : (Vector2.Zero, batch.viewport);
+        var scissor = scissorStack.Count > 0 ? scissorStack.Peek() : new RectVector2(Vector2.Zero, batch.viewport);
         Flush();
-        pass.SetScissorRect((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
+        batch.currentScissor = scissor;
     }
     
     public readonly void SetFilterMode(FilterMode filterMode)
@@ -887,10 +878,41 @@ public ref struct Draw2D : IDisposable
         var vertexView  = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
-
-        Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
-
         bat.vertexStart = bat.vertexCount;
+
+        // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
+        
+        bat.drawCommands.Add(new DrawCommand {
+            texture     = texture,
+            vertexView  = vertexView,
+            indexView   = indexView,
+            config      = config,
+            uniforms    = bat.uniforms,
+            sampler     = bat.currentSampler,
+            scissor     = bat.currentScissor,
+        });
+    }
+    
+    public void Dispose()
+    {
+        Flush();
+        var bat = batch;
+        if (bat.vertexCount > 0)
+        {
+            // Upload vertexBuffer with a single wgpu call
+            bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
+            
+            var scissor = new RectVector2(Vector2.Zero, bat.viewport);
+            
+            foreach (var cmd in bat.drawCommands) {
+                if (!cmd.scissor.Equals(scissor)) {
+                    scissor = cmd.scissor;
+                    pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
+                }
+                Batch2D.Draw(pass, cmd.config, cmd.uniforms, cmd.texture, cmd.sampler, cmd.vertexView, cmd.indexView);
+            }
+        }
+        pass.Dispose();
     }
     
     public readonly DrawGui BeginGui()
@@ -900,3 +922,4 @@ public ref struct Draw2D : IDisposable
 
 #endregion
 }
+
