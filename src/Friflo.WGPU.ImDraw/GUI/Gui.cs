@@ -11,6 +11,7 @@ namespace Friflo.WGPU.ImDraw;
 internal class Gui
 {
     internal readonly   GuiInput                        input;
+    internal readonly   Batch2D                         batch;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     
@@ -20,7 +21,8 @@ internal class Gui
     internal            Vector2?    nextWindowPos;
     internal            Vector2?    nextWindowSize;
     
-    internal Gui(GuiInput input) {
+    internal Gui(Batch2D batch, GuiInput input) {
+        this.batch = batch;
         this.input = input;
     }
     

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable InvertIf
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -136,14 +137,18 @@ internal class GuiWindow
         }
     }
     
-    internal bool IsHoverAt(Vector2 mousePos, Vector2 widgetSize)
+    internal bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize)
     {
-        var x = gui.input.Mouse.X;
-        var y = gui.input.Mouse.Y;
-        bool isOverWidget = mousePos.X <= x && x <= mousePos.X + widgetSize.X &&
-                            mousePos.Y <= y && y <= mousePos.Y + widgetSize.Y;
-        if (!isOverWidget) {
+        var widgetRect = new RectVector2(widgetPos, widgetSize);
+        
+        // Is the mouse cursor inside the widget bounds?
+        if (!widgetRect.Contains(gui.input.Mouse)) {
             return false;
+        }
+        // Is the mouse cursor inside the currently active scissor clip region?
+        var scissor = gui.batch.currentScissor;
+        if (scissor.size.X > 0 && scissor.size.Y > 0) {
+            if (!scissor.Contains(gui.input.Mouse)) return false;
         }
         return gui.IsTopWindowAt(gui.input.Mouse, this);
     }

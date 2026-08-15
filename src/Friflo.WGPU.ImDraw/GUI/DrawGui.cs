@@ -5,6 +5,7 @@
 using System;
 using System.Numerics;
 
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
@@ -105,10 +106,16 @@ public ref struct DrawGui : IDisposable
         draw.DrawString(title, textPos, window.textColor);
 
         window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
+        
+        // --- Push content scissor rect (clips everything below titlebar) ---
+        var contentPos  = window.pos + new Vector2(0f, titleBarHeight);
+        var contentSize = new Vector2(window.size.X, Math.Max(0f, window.size.Y - titleBarHeight));
+        draw.PushScissor(contentPos, contentSize);
     }
     
     public readonly void EndWindow()
     {
+        draw.PopScissor();
         draw.PopZIndex();
         Window.ClearScope();
     }

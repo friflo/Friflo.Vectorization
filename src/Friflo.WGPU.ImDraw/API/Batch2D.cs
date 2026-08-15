@@ -62,6 +62,27 @@ internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Re
     public override string ToString()       => $"{pos} {size}";
 
     public bool Equals(RectVector2 other)   => pos == other.pos && size == other.size;
+    
+    /// <summary> Checks if a point lies within the rectangle bounds. </summary>
+    public bool Contains(Vector2 point)
+    {
+        return point.X >= pos.X && point.X <= pos.X + size.X &&
+               point.Y >= pos.Y && point.Y <= pos.Y + size.Y;
+    }
+
+    /// <summary> Computes the intersection (overlapping region) of two rectangles. </summary>
+    public RectVector2 Intersect(in RectVector2 other)
+    {
+        float x1 = Math.Max(pos.X, other.pos.X);
+        float y1 = Math.Max(pos.Y, other.pos.Y);
+        float x2 = Math.Min(pos.X + size.X, other.pos.X + other.size.X);
+        float y2 = Math.Min(pos.Y + size.Y, other.pos.Y + other.size.Y);
+
+        float w = Math.Max(0f, x2 - x1);
+        float h = Math.Max(0f, y2 - y1);
+
+        return new RectVector2(new Vector2(x1, y1), new Vector2(w, h));
+    }
 }
 
 
@@ -120,7 +141,7 @@ public sealed partial class Batch2D : IDisposable
         TextureFormat           targetFormat,
         int                     maxVertices         = 60_000)
     {
-        gui = new Gui(input);
+        gui = new Gui(this, input);
         
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
