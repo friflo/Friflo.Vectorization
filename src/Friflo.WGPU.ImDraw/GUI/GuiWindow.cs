@@ -31,6 +31,7 @@ internal struct LayoutNode
 
 internal class GuiWindow
 {
+    private  readonly   Gui                 gui;
     internal            Vector2             position;
     internal            Vector2             size;
     
@@ -44,6 +45,10 @@ internal class GuiWindow
     internal readonly   Color32             buttonHover = 0xeeeeeeff;
     internal readonly   Color32             buttonDown  = 0xbbbbbbff;
     internal readonly   Color32             sliderColor = 0xccccccff;
+    
+    internal GuiWindow(Gui gui) {
+        this.gui = gui;
+    }
     
     internal StringBuilder Builder()
     {
@@ -113,20 +118,20 @@ internal class GuiWindow
         }
     }
     
-    internal bool IsHoverAt(Gui gui, GuiInput input, Vector2 pos, Vector2 widgetSize)
+    internal bool IsHoverAt(Vector2 pos, Vector2 widgetSize)
     {
-        var x = input.Mouse.X;
-        var y = input.Mouse.Y;
+        var x = gui.input.Mouse.X;
+        var y = gui.input.Mouse.Y;
         bool isOverWidget = pos.X <= x && x <= pos.X + widgetSize.X &&
                             pos.Y <= y && y <= pos.Y + widgetSize.Y;
         if (!isOverWidget) {
             return false;
         }
-        return gui.IsTopWindowAt(input.Mouse, this);
+        return gui.IsTopWindowAt(gui.input.Mouse, this);
     }
 
-    internal bool IsHover(Gui gui, GuiInput input, Vector2 widgetSize)
+    internal bool IsHover(Vector2 widgetSize)
     {
-        return IsHoverAt(gui, input, cursor, widgetSize);
+        return IsHoverAt(cursor, widgetSize);
     }
 }

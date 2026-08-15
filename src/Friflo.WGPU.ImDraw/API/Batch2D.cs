@@ -66,7 +66,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   List<DrawCommand>   drawCommands 	= [];
     internal readonly   Stack<RectVector2>  scissorStack    = [];
     internal readonly   Stack<Matrix4x4>    transformStack  = [];
-    internal readonly   Gui                 gui             = new();
+    internal readonly   Gui                 gui;
     public   readonly   GuiInput            input           = new();
     
     // --- resources owned by DrawModule
@@ -108,6 +108,8 @@ public sealed partial class Batch2D : IDisposable
         TextureFormat           targetFormat,
         int                     maxVertices         = 60_000)
     {
+        gui = new Gui(input);
+        
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
             device.AddModule(drawModule);

@@ -10,6 +10,7 @@ namespace Friflo.WGPU.ImDraw;
 
 internal class Gui
 {
+    internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     
@@ -18,6 +19,10 @@ internal class Gui
     
     internal            Vector2?    nextWindowPos;
     internal            Vector2?    nextWindowSize;
+    
+    internal Gui(GuiInput input) {
+        this.input = input;
+    }
     
     internal void FocusWindow(GuiWindow win)
     {

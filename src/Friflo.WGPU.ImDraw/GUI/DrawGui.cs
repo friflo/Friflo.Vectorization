@@ -49,7 +49,7 @@ public ref struct DrawGui : IDisposable
     public readonly void BeginWindow(string title, Color32 color = default)
     {
         if (!gui.windows.TryGetValue(title, out gui.window!)) {
-            gui.window = new GuiWindow {
+            gui.window = new GuiWindow(gui) {
                 position = gui.nextWindowPos  ?? new Vector2(50, 50),
                 size     = gui.nextWindowSize ?? new Vector2(300, 200)
             };
@@ -62,7 +62,7 @@ public ref struct DrawGui : IDisposable
         
         // hit test whole window
         var windowSize = window.size;
-        bool isWindowHovered = window.IsHoverAt(gui, input, window.position, windowSize);
+        bool isWindowHovered = window.IsHoverAt(window.position, windowSize);
 
         // if clicked -> Focus / update Z-Order
         if (isWindowHovered && input.GetWidgetState(true, window.GetCurrentScopeHash()) == WidgetState.Down) {
@@ -80,7 +80,7 @@ public ref struct DrawGui : IDisposable
         int parentHash  = window.GetCurrentScopeHash();
         int titleBarId  = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = window.IsHoverAt(gui, input, window.position, titleBarSize);
+        bool isTitleHover = window.IsHoverAt(window.position, titleBarSize);
         var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
@@ -134,7 +134,7 @@ public ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(gui, input, size);
+        var isHover = window.IsHover(size);
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
         
@@ -165,7 +165,7 @@ public ref struct DrawGui : IDisposable
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover = window.IsHover(gui, input, totalSize);
+        var isHover 	= window.IsHover(totalSize);
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
         if (widgetState == WidgetState.Clicked) {
@@ -202,14 +202,14 @@ public ref struct DrawGui : IDisposable
     
     public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
     {
-        var window = Window;
-        int parentHash = window.GetCurrentScopeHash();
-        int widgetId   = id.Resolve(name, parentHash);
+        var window      = Window;
+        int parentHash  = window.GetCurrentScopeHash();
+        int widgetId    = id.Resolve(name, parentHash);
 
         float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
 
-        var isHover     = window.IsHover(gui, input, totalSize);
+        var isHover     = window.IsHover(totalSize);
         var widgetState = input.GetWidgetState(isHover, widgetId);
 
         bool changed = false;
