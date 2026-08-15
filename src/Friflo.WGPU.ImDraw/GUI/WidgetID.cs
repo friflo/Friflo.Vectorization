@@ -14,7 +14,9 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly struct WidgetID
 {
-    private readonly int? customId;
+    private readonly    int?    customId;
+    
+    public              bool    IsValid  => customId.HasValue;
 
     public WidgetID(int id)     => customId = id;
     public WidgetID(string? id) => customId = id != null ? ComputeHash(id.AsSpan()) : null;
@@ -25,6 +27,12 @@ public readonly struct WidgetID
     public int Resolve(ReadOnlySpan<char> label, int parentHash)
     {
         int baseId = customId ?? ComputeHash(label);
+        return CombineHash(parentHash, baseId);
+    }
+    
+    public int Resolve(int parentHash)
+    {
+        int baseId = customId ?? 0;
         return CombineHash(parentHash, baseId);
     }
 

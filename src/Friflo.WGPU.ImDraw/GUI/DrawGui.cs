@@ -286,6 +286,44 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(totalSize);
         return changed;
     }
+    
+   
+    public readonly bool ReserveSpace(
+        out Vector2     pos,
+            Vector2     size,
+        out bool        isFocused,
+        out WidgetState widgetState,
+            WidgetID    id          = default)
+    {
+        var window  = Window;
+        pos         = window.cursor;
+        widgetState = WidgetState.None;
+        isFocused   = false;
+
+        if (id.IsValid)
+        {
+            int parentHash = window.GetCurrentScopeHash();
+            int widgetId   = id.Resolve(parentHash);
+            bool isHover   = window.IsHoverAt(pos, size);
+            
+            widgetState = input.GetWidgetState(isHover, widgetId);
+
+            var center = pos + size * 0.5f;
+            isFocused  = input.RegisterFocusable(widgetId, center, out _);
+        }
+        window.MoveCursor(size);
+
+        bool isKeySubmitted = isFocused && input.IsSubmitPressed;
+        return widgetState == WidgetState.Clicked || isKeySubmitted;
+    }
+
+    public readonly void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
+    {
+        if (!isFocused) return;
+        var focusColor  = new Color32(0, 122, 255); // blue
+        var offset      = new Vector2(margin, margin);
+        draw.RectangleLines(pos - offset, size + 2f * offset, 4, focusColor);
+    }
 
 #endregion
 
