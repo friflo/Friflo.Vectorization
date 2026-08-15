@@ -96,8 +96,8 @@ public ref struct DrawGui : IDisposable
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
-        var boxSize = 20f;
-        var textSize = draw.MeasureString(name);
+        var boxSize   = draw.GetDefaultFont().lineHeight;
+        var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
         var isHover = window.IsHover(batch, totalSize);
@@ -122,8 +122,9 @@ public ref struct DrawGui : IDisposable
         draw.RectangleRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
 
         if (value) {
-            var innerRect = new Vector2(boxRect.X + 5f, boxRect.Y + 5f);
-            draw.RectangleRounded(innerRect, new Vector2(boxSize - 10f, boxSize - 10f), 2, window.textColor);
+            var padding = boxSize / 6;
+            var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
+            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, window.textColor);
         }
 
         var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
