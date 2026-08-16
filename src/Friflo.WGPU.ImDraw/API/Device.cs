@@ -6,8 +6,10 @@ using System.IO;
 using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
+using StbImageSharp;
 
-
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
@@ -18,6 +20,20 @@ public static class ImDeviceExtensions
     {
         public Batch2D CreateBatch2D(TextureFormat targetFormat, int maxVertices = 60_000) {
             return new Batch2D(device, targetFormat, maxVertices);
+        }
+        
+        public GpuTexture LoadTexture(Stream stream, string? label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
+        {
+            var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+
+            var texture = device.CreateTexture(new GpuTextureDescriptor {
+                label  = label,
+                size   = [image.Width, image.Height],
+                format = TextureFormat.RGBA8Unorm,
+                usage  = usage
+            });
+            texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
+            return texture;
         }
         
         

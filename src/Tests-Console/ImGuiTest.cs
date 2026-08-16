@@ -2,7 +2,6 @@
 using System.Numerics;
 using Friflo.Vectorization.WebGPU;
 using Friflo.WGPU.ImDraw;
-using StbImageSharp;
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -35,15 +34,9 @@ public class ImGuiRenderer : IRenderer
         batch = device.CreateBatch2D(wgpu.SwapChainFormat);
         
         // create tile texture
-        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png");
-        var image   = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-        myTexture   = device.CreateTexture(new GpuTextureDescriptor { label = "world_tileset.png", 
-            size    = [image.Width, image.Height],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
-        });
-        myTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);  // 1024 x 1024
-        myTextureView = myTexture.CreateView();
+        using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
+        myTexture        = device.LoadTexture(stream, "world_tileset.png"); 
+        myTextureView    = myTexture.CreateView();
     }
     
     public void OnWindowChanged(int width, int height)
