@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System;
 using System.IO;
 using System.Text;
 using Friflo.Vectorization.GPU;
@@ -14,21 +13,22 @@ namespace Friflo.WGPU.ImDraw;
 
 internal sealed class DrawModule : IGpuDeviceModule
 {
-    private  readonly   GpuDevice       device;
     internal readonly   GpuSampler      samplerLinear;
     internal readonly   GpuSampler      samplerNearest;
-    private  readonly   GpuTexture      defaultWhiteTexture;
-    internal readonly   GpuTextureView  defaultWhiteTextureView;    // views are owned / disposed by their texture
-    private             Font?           defaultFont;
+//  private  readonly   GpuTexture      defaultWhiteTexture;
+//  internal readonly   ImTextureView   defaultWhiteTextureView;
+    internal readonly   Font            defaultFont;
     
     
     internal DrawModule(GpuDevice device)
     {
-        this.device = device;
         samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
         
+        defaultFont = CreateDefaultFont(device);
         // --- Texture
+        /* default white texture not used anymore - white pixel is in defaultFont
+         
         defaultWhiteTexture = device.CreateTexture(new GpuTextureDescriptor {
             label   = "white1x1",
             size    = [1, 1],
@@ -38,32 +38,25 @@ internal sealed class DrawModule : IGpuDeviceModule
         ReadOnlySpan<byte> whitePixel = [255, 255, 255, 255];
         defaultWhiteTexture.Write(whitePixel, bytesPerRow: 4, rowsPerImage: 1, writeSize: new GpuExtent3D(1, 1, 1));
         
-        defaultWhiteTextureView = defaultWhiteTexture.CreateView();
+        defaultWhiteTextureView = new ImTextureView(defaultWhiteTexture.CreateView(), new Vector2(0.5f, 0.5f));
+        */
     }
     
     public void Dispose()
     {
-        defaultWhiteTexture.Dispose();
+        // defaultWhiteTexture.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();
-        defaultFont?.Dispose();
+        defaultFont.Dispose();
     }
     
-    private readonly object fontLock = new();
-    
-    public Font GetDefaultFont()
+    private static Font CreateDefaultFont(GpuDevice device)
     {
-        if (defaultFont != null) {
-            return defaultFont;
-        }
-        lock (fontLock)
-        {
-            using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-            using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
-            using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
-            var fntContent      = reader.ReadToEnd();
-            
-            return defaultFont = Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
-        }
+        using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
+        var fntContent      = reader.ReadToEnd();
+        
+        return Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
     }
 }

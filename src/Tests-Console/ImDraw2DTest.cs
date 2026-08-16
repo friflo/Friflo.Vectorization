@@ -181,7 +181,7 @@ public class ImRenderer : IRenderer
             draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
         
-        var font = draw.GetDefaultFont();
+        var font = draw.DefaultFont;
         Debug.Assert(font.name == "Default Font");
         Debug.Assert((int)font.lineHeight == 47);
         Debug.Assert(font.glyphs.Count == 191);

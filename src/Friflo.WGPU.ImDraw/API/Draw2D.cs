@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.Vectorization.WebGPU;
 
-
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ForCanBeConvertedToForeach
@@ -27,7 +27,7 @@ public ref struct Draw2D : IDisposable
     private readonly    Batch2D     batch;
     private             RenderPass  pass;
 
-    public  readonly    Font        GetDefaultFont() => batch.GetDefaultFont();
+    public  readonly    Font        DefaultFont => batch.defaultFont;
     
     internal Draw2D(Batch2D batch, RenderPass pass)
     {
@@ -36,10 +36,14 @@ public ref struct Draw2D : IDisposable
     }
     
 #region Quads / Sprites
-
-    public readonly void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
+    public readonly void Rectangle(in Vector2 position, in Vector2 size, Color32 color)     // TODO move to #region primitives
     {
-        DrawQuad(position, size, new Vector2(0f, 0f), new Vector2(1f, 1f), color, null);
+        var bat = batch;
+        if (bat.currentTexture.hasWhitePixel) {
+            DrawQuad(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, bat.currentTexture);
+        } else {
+            DrawQuad(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, bat.defaultFontTexture);
+        }
     }
 
     /// <summary>
@@ -49,12 +53,12 @@ public ref struct Draw2D : IDisposable
     public readonly void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
     {
         var bat = batch;
-        var texView = bat.defaultWhiteTextureView;
-
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
             Flush();
         }
-        bat.currentTextureView = texView;
+        bat.currentTexture = texView;
+        var uv = bat.currentTexture.whiteUv;
 
         var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
 
@@ -63,10 +67,10 @@ public ref struct Draw2D : IDisposable
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = Vector2.Zero, color = topLeft.Packed };
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = Vector2.Zero, color = topRight.Packed };
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = Vector2.Zero, color = bottomRight.Packed };
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = Vector2.Zero, color = bottomLeft.Packed };
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
 
         bat.vertexCount += 4;
     }
@@ -86,7 +90,7 @@ public ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawQuad(position, size, uvMin, uvMax, color, texture);
+        DrawQuad(position, size, uvMin, uvMax, color, new ImTextureView(texture));
     }
 
     /// <summary>
@@ -97,7 +101,7 @@ public ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, new ImTextureView(texture));
     }
 
     /// <summary>
@@ -109,7 +113,7 @@ public ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawQuad(position, size, uvMin, uvMax, color, texture);
+        DrawQuad(position, size, uvMin, uvMax, color, new ImTextureView(texture));
     }
 
     /// <summary>
@@ -121,7 +125,7 @@ public ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, new ImTextureView(texture));
     }
 
     /// <summary>
@@ -130,12 +134,12 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void DrawSprite9SliceTiled(
-        in Vector2      position, 
-        in Vector2      size, 
-        GpuTextureView  texture,
-        in Vector4      borderThickness, 
-        in Vector2      textureSize, 
-        Color32         color = default)
+        in Vector2          position, 
+        in Vector2          size, 
+        in GpuTextureView   texture,
+        in Vector4          borderThickness, 
+        in Vector2          textureSize, 
+           Color32          color = default)
     {
         DrawSprite9SliceTiled(position, size, texture, Vector2.Zero, textureSize, textureSize, borderThickness, color);
     }
@@ -145,14 +149,14 @@ public ref struct Draw2D : IDisposable
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
     public readonly void DrawSprite9SliceTiled(
-        in Vector2 position, 
-        in Vector2 size, 
-        GpuTextureView texture, 
-        in Vector2 sourceRectPos, 
-        in Vector2 sourceRectSize, 
-        in Vector2 textureSize, 
-        in Vector4 borderThickness, 
-        Color32 color = default)
+        in Vector2          position, 
+        in Vector2          size, 
+        in GpuTextureView   texture, 
+        in Vector2          sourceRectPos, 
+        in Vector2          sourceRectSize, 
+        in Vector2          textureSize, 
+        in Vector4          borderThickness, 
+           Color32          color = default)
     {
         if (color.Packed == 0) color = Color32.White;
 
@@ -167,46 +171,43 @@ public ref struct Draw2D : IDisposable
         float destInnerW = size.X - L - R;
         float destInnerH = size.Y - T - B;
 
-        // Schutz vor Division durch 0 oder ungültigen Werten
+        // prevent division by 0 of invalid values
         if (srcInnerW <= 0f || srcInnerH <= 0f) return;
 
-        // UV-Koordinaten des 3x3 Grid
+        // UV-coordinates of 3x3 grid
         Vector2 u0 = sourceRectPos / textureSize;
         Vector2 u1 = (sourceRectPos + new Vector2(L, T)) / textureSize;
         Vector2 u2 = (sourceRectPos + sourceRectSize - new Vector2(R, B)) / textureSize;
         Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
 
-        // --- 1. Die 4 Ecken (Feste Größe) ---
-        DrawQuad(position, new Vector2(L, T), u0, u1, color, texture);
-        DrawQuad(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
-        DrawQuad(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
-        DrawQuad(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
+        // --- 4 corners (fixed size) ---
+        var texView = new ImTextureView(texture);
+        DrawQuad(position, new Vector2(L, T), u0, u1, color, texView);
+        DrawQuad(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texView);
+        DrawQuad(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texView);
+        DrawQuad(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texView);
 
-        // --- 2. Oberer & Unterer Rand (Horizontal gekachelt) ---
+        // --- top bottom border (Horizontal tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
         {
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
             float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
 
-            // Oberer Rand
-            DrawQuad(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
-            // Unterer Rand
-            DrawQuad(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
+            DrawQuad(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texView);
+            DrawQuad(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texView);
         }
 
-        // --- 3. Linker & Rechter Rand (Vertikal gekachelt) ---
+        // --- left / right border (vertical tiled) ---
         for (float y = 0; y < destInnerH; y += srcInnerH)
         {
             float drawH = MathF.Min(srcInnerH, destInnerH - y);
             float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-            // Linker Rand
-            DrawQuad(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
-            // Rechter Rand
-            DrawQuad(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
+            DrawQuad(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texView);
+            DrawQuad(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texView);
         }
 
-        // --- 4. Innenbereich / Mitte (2D-Raster gekachelt) ---
+        // --- inner area (2D-grid tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
         {
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
@@ -217,29 +218,19 @@ public ref struct Draw2D : IDisposable
                 float drawH = MathF.Min(srcInnerH, destInnerH - y);
                 float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-                DrawQuad(
-                    new Vector2(position.X + L + x, position.Y + T + y),
-                    new Vector2(drawW, drawH),
-                    u1,
-                    new Vector2(uMaxX, uMaxY),
-                    color,
-                    texture
-                );
+                DrawQuad(new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color, texView);
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    private readonly void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, ImTextureView texture)
     {
         var bat = batch;
-        var texView = texture ?? bat.defaultWhiteTextureView;
-        
-        // flush if full (4 vertices per quad) or texture changed
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
         }
-        bat.currentTextureView = texView;
+        bat.currentTexture = texture;
 
         var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
         
@@ -248,14 +239,10 @@ public ref struct Draw2D : IDisposable
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        // V0: Top-Left
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color.Packed };
-        // V1: Top-Right
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
-        // V2: Bottom-Right
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color.Packed };
-        // V3: Bottom-Left
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color.Packed }; // Top-Left
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed }; // Top-Right
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color.Packed }; // Bottom-Right
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed }; // Bottom-Left
 
         bat.vertexCount += 4;
     }
@@ -264,20 +251,17 @@ public ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    private readonly void DrawQuadRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, ImTextureView texture)
     {
         if (rotation == 0f) {
             DrawQuad(position - (pivot * size), size, uvMin, uvMax, color, texture);
             return;
         }
-
         var bat = batch;
-        var texView = texture ?? bat.defaultWhiteTextureView;
-
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
         }
-        bat.currentTextureView = texView;
+        bat.currentTexture = texture;
 
         var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
 
@@ -290,13 +274,10 @@ public ref struct Draw2D : IDisposable
         float t = -pivot.Y * size.Y;
         float b = (1f - pivot.Y) * size.Y;
 
-        // V0: Top-Left
+        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left  
         span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = color.Packed };
-        // V1: Top-Right
         span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
-        // V2: Bottom-Right
         span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color.Packed };
-        // V3: Bottom-Left
         span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
 
         bat.vertexCount += 4;
@@ -305,22 +286,16 @@ public ref struct Draw2D : IDisposable
 
 
 #region Primitives / Shapes
-    /// <summary>
-    /// Helper to submit raw 4-point quad vertices using the default white texture.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
+    private readonly void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
     {
         var bat = batch;
-        var texView = bat.defaultWhiteTextureView;
-
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTextureView.Handle != texView.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
             Flush();
+            bat.currentTexture = bat.defaultFontTexture;
         }
-        bat.currentTextureView = texView;
-
         var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
-        var uv = Vector2.Zero;
+        var uv = bat.currentTexture.whiteUv;
 
         span[0] = new Vertex2D { position = v0, uv = uv, color = color.Packed };
         span[1] = new Vertex2D { position = v1, uv = uv, color = color.Packed };
@@ -490,7 +465,7 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public readonly Vector2 DrawString(ReadOnlySpan<char> text, Vector2 position, Color32 color, Font? font = null, float scale = 1.0f)
     {
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
 
         Vector2 currentPos = position;
 
@@ -516,7 +491,7 @@ public ref struct Draw2D : IDisposable
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSprite(renderPos, renderSize, font.textureView, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+                DrawSprite(renderPos, renderSize, font.textureView.native, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
             }
             currentPos.X += glyph.advance * scale;
         }
@@ -528,7 +503,7 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public readonly Vector2 MeasureString(ReadOnlySpan<char> text, Font? font = null, float scale = 1.0f)
     {
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
 
         float maxWidth = 0f;
         float currentLineWidth = 0f;
@@ -581,7 +556,6 @@ public ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws text aligned horizontally and vertically within a target bounding rectangle.
     /// Supports multi-line text and optional word wrapping.
-    /// Allocation-free (GC-friendly).
     /// </summary>
     public readonly void DrawStringInRect(
         ReadOnlySpan<char>  text, 
@@ -595,7 +569,7 @@ public ref struct Draw2D : IDisposable
         float               scale = 1.0f)
     {
         if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
 
         float effectiveMaxWidth = wordWrap ? size.X : float.MaxValue;
 
@@ -645,7 +619,7 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public readonly string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         if (visibleLength >= text.Length)
@@ -656,11 +630,10 @@ public ref struct Draw2D : IDisposable
 
     /// <summary>
     /// Draws text at position, automatically truncating with '...' if it exceeds maxWidth.
-    /// Allocation-free (GC-friendly).
     /// </summary>
     public readonly void DrawStringTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         // If whole text fits, render normally
@@ -717,7 +690,7 @@ public ref struct Draw2D : IDisposable
     /// </summary>
     public readonly WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
         return new WrappedLineEnumerator(text, maxWidth, font, scale);
     }
 
@@ -739,12 +712,11 @@ public ref struct Draw2D : IDisposable
 
     /// <summary>
     /// Draws word-wrapped text directly onto the screen.
-    /// Allocation-free (GC-friendly).
     /// </summary>
     public readonly int DrawStringWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return 0;
-        font ??= batch.GetDefaultFont();
+        font ??= batch.defaultFont;
 
         Vector2 currentPos = position;
         int lineCount = 0;
@@ -888,7 +860,7 @@ public ref struct Draw2D : IDisposable
 
         int pendingQuads = pendingVertices / 4;
 
-        var texture     = bat.currentTextureView;
+        var texture     = bat.currentTexture;
         var vertexView  = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
@@ -899,7 +871,7 @@ public ref struct Draw2D : IDisposable
         bat.drawCommands.Add(new DrawCommand {
             zIndex      = bat.currentZIndex,
             sequence    = bat.currentSequence++, 
-            texture     = texture,
+            texture     = texture.native,
             vertexView  = vertexView,
             indexView   = indexView,
             config      = config,

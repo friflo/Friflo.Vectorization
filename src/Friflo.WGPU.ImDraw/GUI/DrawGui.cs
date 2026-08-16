@@ -21,7 +21,7 @@ public ref struct DrawGui : IDisposable
     public              Draw2D      draw;
     
     private readonly    GuiWindow   Window      => gui.window;
-    private readonly    float       LineHeight  => draw.GetDefaultFont().lineHeight;
+    private readonly    float       LineHeight  => draw.DefaultFont.lineHeight;
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw   = draw;

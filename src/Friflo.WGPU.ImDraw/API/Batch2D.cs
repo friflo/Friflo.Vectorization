@@ -41,7 +41,7 @@ internal struct DrawCommand
     internal GpuSampler             sampler;
     internal RectVector2            scissor;
 
-    public override string ToString() => $"zIndex: {zIndex}, {sequence}   quads: {indexView.Length / 4}   {texture}";
+    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.Length / 4}   {texture}  {scissor}  {sampler}";
 }
 
 internal struct CmdSegment
@@ -59,7 +59,7 @@ internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Re
     internal readonly Vector2    pos     = pos;
     internal readonly Vector2    size    = size;
 
-    public override string ToString()       => $"{pos} {size}";
+    public override string ToString()       => $"[{pos.X}, {pos.Y} | {size.X}, {size.Y}]";
 
     public bool Equals(RectVector2 other)   => pos == other.pos && size == other.size;
     
@@ -85,6 +85,27 @@ internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Re
     }
 }
 
+internal readonly struct ImTextureView
+{
+    internal readonly   GpuTextureView  native;
+    internal readonly   bool            hasWhitePixel;
+    internal readonly   Vector2         whiteUv;
+    
+    internal            nint            Handle      => native.Handle;
+    public   override   string          ToString()  => native.ToString();
+
+    internal ImTextureView(GpuTextureView native) {
+        this.native     = native;
+        hasWhitePixel   = false;
+    }
+
+    internal ImTextureView(GpuTextureView native, Vector2 whiteUv) {
+        this.native     = native;
+        hasWhitePixel   = true;
+        this.whiteUv    = whiteUv;
+    }
+    // Intentionally not using: public static implicit operator ImTextureView(GpuTextureView view) => new(view);
+}
 
 
 public sealed partial class Batch2D : IDisposable
@@ -103,10 +124,10 @@ public sealed partial class Batch2D : IDisposable
     public   readonly   GuiInput            input           = new();
     
     // --- resources owned by DrawModule
-    internal readonly   GpuTextureView      defaultWhiteTextureView;
+    internal readonly   ImTextureView       defaultFontTexture;
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
-    internal            Font?               defaultFont;
+    internal readonly   Font                defaultFont;
     
     // --- Draw2D - state
     internal            Vector2             viewport;
@@ -121,7 +142,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
-    internal            GpuTextureView      currentTextureView;
+    internal            ImTextureView       currentTexture;
 
 
     public void Dispose()
@@ -129,9 +150,6 @@ public sealed partial class Batch2D : IDisposable
         vertexBuffer.Dispose();
         indexBuffer.Dispose();
     }
-    
-    public Font GetDefaultFont() => defaultFont ??= drawModule.GetDefaultFont();
-
     
     /// <summary>
     /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
@@ -168,10 +186,11 @@ public sealed partial class Batch2D : IDisposable
         indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
         
-        defaultWhiteTextureView = drawModule.defaultWhiteTextureView;
-        samplerLinear           = drawModule.samplerLinear;
-        samplerNearest          = drawModule.samplerNearest;
-        currentSampler          = samplerLinear;
+        defaultFont         = drawModule.defaultFont;
+        defaultFontTexture  = drawModule.defaultFont.textureView;
+        samplerLinear       = drawModule.samplerLinear;
+        samplerNearest      = drawModule.samplerNearest;
+        currentSampler      = samplerLinear;
 
         renderConfigs = CreateRenderConfigs(targetFormat);
     }
@@ -251,7 +270,7 @@ public sealed partial class Batch2D : IDisposable
         // reset batcher state
         vertexStart         = 0;
         vertexCount         = 0;
-        currentTextureView  = defaultWhiteTextureView;
+        currentTexture      = defaultFontTexture;
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;

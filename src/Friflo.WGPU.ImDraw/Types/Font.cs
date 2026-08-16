@@ -42,18 +42,18 @@ public struct GlyphInfo
 
 public class Font : IDisposable
 {
-    public  readonly    GpuTextureView                      textureView;
-    public  readonly    Vector2                             textureSize;
-    public  readonly    float                               lineHeight;
-    public  readonly    FrozenDictionary<char, GlyphInfo>   glyphs;
-    private readonly    GpuTexture                          fontTexture;
-    public  readonly    string                              name;
+    internal readonly   ImTextureView                       textureView;
+    public   readonly   Vector2                             textureSize;
+    public   readonly   float                               lineHeight;
+    public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
+    private  readonly   GpuTexture                          fontTexture;
+    public   readonly   string                              name;
 
     public  override    string                              ToString() => name;
 
     private Font (
         GpuTexture                  fontTexture,
-        GpuTextureView              textureView,
+        ImTextureView               textureView,
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
@@ -119,14 +119,33 @@ public class Font : IDisposable
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
         var image   = ImageResult.FromStream(fontAtlas, ColorComponents.RedGreenBlueAlpha);
+        var height  = image.Height; 
+        var width   = image.Width;
         var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
-            size    = [image.Width, image.Height],
+            size    = [height, width],
             format  = TextureFormat.RGBA8Unorm,
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
-        fontTexture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
+        int startX = width  - 3;
+        int startY = height - 3;
+
+        // set 3x3 pixel at bottom right to white
+        for (int y = startY; y < height; y++)
+        {
+            for (int x = startX; x < width; x++) {
+                int index = (y * width + x) * 4; // RGBA8
+                image.Data[index + 0] = 255; // R
+                image.Data[index + 1] = 255; // G
+                image.Data[index + 2] = 255; // B
+                image.Data[index + 3] = 255; // A
+            }
+        }
+        fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
         
-        var textureView = fontTexture.CreateView();
+        // Exact center 3x3 white pixels (width - 2, height - 2)
+        var whitePixelUv = new Vector2((width - 1.5f) / width, (height - 1.5f) / height);
+        
+        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
         return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name);
