@@ -122,10 +122,10 @@ public class Font : IDisposable
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
         var image   = ImageResult.FromStream(fontAtlas, ColorComponents.RedGreenBlueAlpha);
-        var height  = image.Height; 
         var width   = image.Width;
+        var height  = image.Height; 
         var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
-            size    = [height, width],
+            size    = [width, height],
             format  = TextureFormat.RGBA8Unorm,
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
@@ -203,10 +203,14 @@ public class Font : IDisposable
     
     public static Font CreateTtfFont(GpuDevice device, Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        using var ms = new MemoryStream();
-        ttfStream.CopyTo(ms);
-        var ttfData = ms.ToArray();
-        
+        byte[] ttfData;
+        if (ttfStream is MemoryStream typedMemoryStream) {
+            ttfData = typedMemoryStream.ToArray();
+        } else {
+            using var ms = new MemoryStream();
+            ttfStream.CopyTo(ms);
+            ttfData = ms.ToArray();
+        }
         var alphaBitmapTarget = new byte[width * height];
         var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
         
