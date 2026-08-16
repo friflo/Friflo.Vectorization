@@ -174,7 +174,8 @@ public record struct GpuTextureViewDescriptor
 
 
 /// <summary>
-/// When used as a shader method parameter the parameter must have a <see cref="TextureTypeAttribute"/>.
+/// When used as a shader method parameter the parameter must have a <see cref="TextureTypeAttribute"/>.<br/>
+/// The texture view os owned by its <see cref="GpuTexture"/> and is disposed when the texture is disposed.
 /// </summary>
 public readonly unsafe struct GpuTextureView
 {
