@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+// ReSharper disable RedundantJumpStatement
+// ReSharper disable DuplicatedSwitchSectionBodies
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
@@ -28,6 +30,7 @@ public sealed class GuiInput
     private     bool        isReturnPressed;
     private     bool        isSpacePressed;
     private     Vector2     arrowDirection;
+    private     Vector2     gamepadDirection;
     
     public      bool        IsMouseDown     => isMouseDown;
     public      bool        IsSubmitPressed => isSpacePressed || isReturnPressed;
@@ -40,6 +43,7 @@ public sealed class GuiInput
     private     int     activeItem;
     
     private readonly    List<KeyEvent>          keyEvents           = [];
+    private readonly    List<GamepadEvent>      gamepadEvents       = [];
 
     
     // --- tab / 2D array key navigation
@@ -88,8 +92,8 @@ public sealed class GuiInput
                 keyEvents.Add(ev.key);
                 break;
             case ImEventType.GamepadButtonDown:
-                break;
             case ImEventType.GamepadButtonUp:
+                gamepadEvents.Add(ev.gamepad);
                 break;
         }
     }
@@ -214,11 +218,34 @@ public sealed class GuiInput
 
     private void HandleKeyEvents()
     {
-        isTabPressed    = false;
-        arrowDirection  = default;
-        isSpacePressed  = false;
-        isReturnPressed = false;
+        isTabPressed        = false;
+        arrowDirection      = default;
+        gamepadDirection    = default;
+        isSpacePressed      = false;
+        isReturnPressed     = false;
         
+        // --- gamepad events
+        foreach (var gamepadEvent in gamepadEvents)
+        {
+            if (gamepadEvent.isDown) {
+                switch (gamepadEvent.button) {
+                    case ImGamepadButton.DPadRight: gamepadDirection.X = +1; continue;
+                    case ImGamepadButton.DPadLeft:  gamepadDirection.X = -1; continue;
+                    case ImGamepadButton.DPadDown:  gamepadDirection.Y = +1; continue;
+                    case ImGamepadButton.DPadUp:    gamepadDirection.Y = -1; continue;
+                }
+                continue;
+            }
+            switch (gamepadEvent.button) {
+                case ImGamepadButton.DPadRight: gamepadDirection.X = 0; continue;
+                case ImGamepadButton.DPadLeft:  gamepadDirection.X = 0; continue;
+                case ImGamepadButton.DPadUp:    gamepadDirection.Y = 0; continue;
+                case ImGamepadButton.DPadDown:  gamepadDirection.Y = 0; continue;
+            }
+        }
+        gamepadEvents.Clear();
+        
+        // --- keyboard events
         foreach (var keyEvent in keyEvents)
         {
             if (!keyEvent.isDown) {
@@ -276,7 +303,7 @@ public sealed class GuiInput
         // 2D Navigation (Arrow keys)
         else
         {
-            Vector2 dir = arrowDirection;
+            Vector2 dir = arrowDirection + gamepadDirection;
             if (dir != Vector2.Zero && focusedItem != 0)
             {
                 targetFocusItem = FindBestSpatialCandidate(dir);

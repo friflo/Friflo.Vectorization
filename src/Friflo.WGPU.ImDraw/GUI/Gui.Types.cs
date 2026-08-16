@@ -34,9 +34,10 @@ public struct ImEvent
         this.mouse   = mouse;
     }
     
-    public ImEvent(ImEventType type, ImGamepadButton button) {
+    public ImEvent(ImEventType type, ImGamepadButton button, bool isDown) {
         this.type       = type;
         gamepad.button  = button;
+        gamepad.isDown  = isDown;
     }
 }
 
@@ -130,6 +131,7 @@ public enum ImGamepadButton
 public struct GamepadEvent
 {
     public  ImGamepadButton button;
+    public  bool            isDown;
 
     public override string ToString() => button.ToString();
 }

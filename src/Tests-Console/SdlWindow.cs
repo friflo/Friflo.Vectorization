@@ -118,7 +118,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     public SDL.AppResult InitSdl3()
     {
         // --- setup SDL window ---
-        if (!SDL.Init(SDL.InitFlags.Video)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
+        if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Gamepad)) throw new Exception($"SDL3 initialization failed: {SDL.GetError()}");
         
         var windowFlags = SDL.WindowFlags.Hidden | SDL.WindowFlags.Resizable;
         if (OperatingSystem.IsMacOS()) {
@@ -245,8 +245,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
             case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
-            case SDL.EventType.GamepadButtonUp:     renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button)); break;
-            case SDL.EventType.GamepadButtonDown:   renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button)); break;
+            case SDL.EventType.GamepadButtonUp:     renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
+            case SDL.EventType.GamepadButtonDown:   renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
         }
         return SDL.AppResult.Continue;
     }
