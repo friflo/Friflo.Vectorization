@@ -18,13 +18,26 @@ public enum ImEventType
     MouseButtonDown,
     KeyDown,
     KeyUp,
+    GamepadButtonUp,
+    GamepadButtonDown,
 }
 
-public struct ImEvent (ImEventType type, Vector2 mouse)
+public struct ImEvent
 {
-    public ImEventType  type    = type;
-    public Vector2      mouse   = mouse;
+    public ImEventType  type;
+    public Vector2      mouse;
     public KeyEvent     key;
+    public GamepadEvent gamepad;
+    
+    public ImEvent(ImEventType type, Vector2 mouse) {
+        this.type    = type;
+        this.mouse   = mouse;
+    }
+    
+    public ImEvent(ImEventType type, ImGamepadButton button) {
+        this.type       = type;
+        gamepad.button  = button;
+    }
 }
 
 public enum WidgetState
@@ -77,6 +90,48 @@ public struct KeyEvent
     public bool     isDown;
 
     public override string ToString() => code.ToString();
+}
+
+
+/// <summary> Same enums as <c>SDL3.SDL.GamepadButton</c> </summary>
+public enum ImGamepadButton
+{
+    Invalid = -1,
+    South,          // Bottom face button (e.g. Xbox A button)
+    East,           // Right face button (e.g. Xbox B button)
+    West,           // Top face button (e.g. Xbox Y button) 
+    North,          // Top face button (e.g. Xbox Y button) 
+    Back,
+    Guide,
+    Start,
+    LeftStick,
+    RightStick,
+    LeftShoulder,
+    RightShoulder,
+    DPadUp,
+    DPadDown,
+    DPadLeft,
+    DPadRight,
+    Misc1,          // Additional button (e.g. Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Steam Controller QAM button, Amazon Luna microphone button, Google Stadia capture button)
+    RightPaddle1,   // Upper or primary paddle, under your right hand (e.g. Xbox Elite paddle P1, DualSense Edge RB button, Right Joy-Con SR button, Steam Controller R4 button)
+    LeftPaddle1,    // Upper or primary paddle, under your left hand (e.g. Xbox Elite paddle P3, DualSense Edge LB button, Left Joy-Con SL button, Steam Controller L4 button)
+    RightPaddle2,   // Lower or secondary paddle, under your right hand (e.g. Xbox Elite paddle P2, DualSense Edge right Fn button, Right Joy-Con SL button, Steam Controller R5 button)
+    LeftPaddle2,    // Lower or secondary paddle, under your left hand (e.g. Xbox Elite paddle P4, DualSense Edge left Fn button, Left Joy-Con SR button, Steam Controller L5 button)
+    Touchpad,       // PS4/PS5 touchpad button
+    
+    Misc2,
+    Misc3,          // Additional button (e.g. Nintendo GameCube left trigger click)
+    Misc4,          // Additional button (e.g. Nintendo GameCube right trigger click)
+    Misc5,
+    Misc6,
+    Count
+}
+
+public struct GamepadEvent
+{
+    public  ImGamepadButton button;
+
+    public override string ToString() => button.ToString();
 }
 
 public enum MouseCursor

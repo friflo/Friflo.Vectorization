@@ -73,6 +73,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private IRenderer?              renderer;
     private ExceptionDispatchInfo?  callbackException;
     private Vector2                 dpiScale;
+    private nint                    gamepad;
     
     public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
@@ -229,15 +230,10 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.SystemThemeChanged:
                 SetWindowIconFromResource();
                 break;
-            case SDL.EventType.MouseMotion:
-                renderer?.OnEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));
-                break;
-            case SDL.EventType.MouseButtonUp:
-                renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));
-                break;
-            case SDL.EventType.MouseButtonDown:
-                renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));
-                break;
+            case SDL.EventType.MouseMotion:     renderer?.OnEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));  break;
+            case SDL.EventType.MouseButtonUp:   renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));  break;
+            case SDL.EventType.MouseButtonDown: renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));  break;
+            
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
                 renderer?.OnEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
@@ -246,7 +242,11 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
                 key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
                 renderer?.OnEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
                 break;
-
+            
+            case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
+            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
+            case SDL.EventType.GamepadButtonUp:     renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button)); break;
+            case SDL.EventType.GamepadButtonDown:   renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button)); break;
         }
         return SDL.AppResult.Continue;
     }

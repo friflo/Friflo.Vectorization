@@ -87,6 +87,10 @@ public sealed class GuiInput
             case ImEventType.KeyUp:
                 keyEvents.Add(ev.key);
                 break;
+            case ImEventType.GamepadButtonDown:
+                break;
+            case ImEventType.GamepadButtonUp:
+                break;
         }
     }
     
