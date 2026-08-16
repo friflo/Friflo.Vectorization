@@ -144,13 +144,13 @@ public class Font : IDisposable
 
 
 #region TTF
-    private static Dictionary<char, GlyphInfo> ReadTtf(
+    private static unsafe Dictionary<char, GlyphInfo> ReadTtf(
         byte[]  ttfData,
         float   fontSize,
         int     atlasWidth,
         int     atlasHeight,
-        byte[]  alphaBitmapTarget,  // [atlasWidth * atlasHeight]
-        int     firstChar = 32,     // ASCII 32 bis 126
+        byte[]  alphaBitmapTarget, // [atlasWidth * atlasHeight]
+        int     firstChar = 32,    // ASCII 32 bis 126
         int     charCount = 95)
     {
         var bakedChars = new StbTrueType.stbtt_bakedchar[charCount];
@@ -168,6 +168,21 @@ public class Font : IDisposable
             throw new InvalidOperationException($"Atlas ({atlasWidth}x{atlasHeight}) too small for fontSize {fontSize}.");
         }
 
+        // retrieve ascent (Baseline-distance from top edge)
+        float ascent = fontSize * 0.75f; // Standard-Fallback
+        var fontInfo = new StbTrueType.stbtt_fontinfo();
+        
+        fixed(byte* ttfDataPt = ttfData) {
+            if (StbTrueType.stbtt_InitFont(fontInfo, ttfDataPt, 0) != 0) {
+                int rawAscent;
+                int rawDescent;
+                int rawLineGap;
+                StbTrueType.stbtt_GetFontVMetrics(fontInfo, &rawAscent, &rawDescent, &rawLineGap);
+                float scale = StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, fontSize);
+                ascent = MathF.Round(rawAscent * scale);
+            }
+        }
+
         var glyphs = new Dictionary<char, GlyphInfo>(charCount);
 
         for (int i = 0; i < charCount; i++)
@@ -178,7 +193,8 @@ public class Font : IDisposable
             glyphs[c] = new GlyphInfo {
                 sourcePos  = new Vector2(baked.x0, baked.y0),
                 sourceSize = new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
-                offset     = new Vector2(baked.xoff, baked.yoff),
+                // Bake ascent directly into yoff -> top-left ready!
+                offset     = new Vector2(baked.xoff, baked.yoff + ascent),
                 advance    = baked.xadvance
             };
         }
