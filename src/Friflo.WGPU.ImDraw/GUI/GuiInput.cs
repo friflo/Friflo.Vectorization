@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable DuplicatedSwitchSectionBodies
 // ReSharper disable ForCanBeConvertedToForeach
@@ -29,11 +30,12 @@ public sealed class GuiInput
     private     bool        isShiftDown;
     private     bool        isReturnPressed;
     private     bool        isSpacePressed;
+    private     bool        isGamepadAPressed;
     private     Vector2     arrowDirection;
     private     Vector2     gamepadDirection;
     
     public      bool        IsMouseDown     => isMouseDown;
-    public      bool        IsSubmitPressed => isSpacePressed || isReturnPressed;
+    public      bool        IsSubmitPressed => isSpacePressed || isReturnPressed || isGamepadAPressed;
     
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
@@ -221,26 +223,28 @@ public sealed class GuiInput
         isTabPressed        = false;
         arrowDirection      = default;
         gamepadDirection    = default;
-        isSpacePressed      = false;
         isReturnPressed     = false;
+        isSpacePressed      = false;
+        isGamepadAPressed   = false;
         
         // --- gamepad events
         foreach (var gamepadEvent in gamepadEvents)
         {
             if (gamepadEvent.isDown) {
                 switch (gamepadEvent.button) {
-                    case ImGamepadButton.DPadRight: gamepadDirection.X = +1; continue;
-                    case ImGamepadButton.DPadLeft:  gamepadDirection.X = -1; continue;
-                    case ImGamepadButton.DPadDown:  gamepadDirection.Y = +1; continue;
-                    case ImGamepadButton.DPadUp:    gamepadDirection.Y = -1; continue;
+                    case ImGamepadButton.DPadRight: gamepadDirection.X = +1;    continue;
+                    case ImGamepadButton.DPadLeft:  gamepadDirection.X = -1;    continue;
+                    case ImGamepadButton.DPadDown:  gamepadDirection.Y = +1;    continue;
+                    case ImGamepadButton.DPadUp:    gamepadDirection.Y = -1;    continue;
+                    case ImGamepadButton.South:     isGamepadAPressed = true;   continue;
                 }
                 continue;
             }
             switch (gamepadEvent.button) {
-                case ImGamepadButton.DPadRight: gamepadDirection.X = 0; continue;
-                case ImGamepadButton.DPadLeft:  gamepadDirection.X = 0; continue;
-                case ImGamepadButton.DPadUp:    gamepadDirection.Y = 0; continue;
-                case ImGamepadButton.DPadDown:  gamepadDirection.Y = 0; continue;
+                case ImGamepadButton.DPadRight: gamepadDirection.X = 0;     continue;
+                case ImGamepadButton.DPadLeft:  gamepadDirection.X = 0;     continue;
+                case ImGamepadButton.DPadUp:    gamepadDirection.Y = 0;     continue;
+                case ImGamepadButton.DPadDown:  gamepadDirection.Y = 0;     continue;
             }
         }
         gamepadEvents.Clear();
