@@ -69,13 +69,7 @@ public sealed partial class Batch2D : IDisposable
         indexBuffer.Dispose();
     }
     
-    /// <summary>
-    /// Core constructor supporting a fully custom GpuSamplerDescriptor (or default Linear sampler if null).
-    /// </summary>
-    public Batch2D(
-        GpuDevice               device,
-        TextureFormat           targetFormat,
-        int                     maxVertices         = 60_000)
+    internal Batch2D(GpuDevice device, TextureFormat targetFormat, int maxVertices)
     {
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
