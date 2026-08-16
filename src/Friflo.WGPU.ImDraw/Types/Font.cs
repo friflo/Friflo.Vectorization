@@ -295,11 +295,14 @@ public static class FontExtensions
             return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font", false);
         }
         
-        public Font CreateMonocraftFont()
+        /// <summary>
+        /// E.g. <c>device.CreateMonocraftFont(48, 512, 512, 32, 95, "Monocraft")</c> 
+        /// </summary>
+        public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
         {
             using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
             
-            return Font.CreateTtfFont(device, ttfFont, 48, 512, 512, 32, 95, "Monocraft", true);
+            return Font.CreateTtfFont(device, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
         }
         
         public Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)

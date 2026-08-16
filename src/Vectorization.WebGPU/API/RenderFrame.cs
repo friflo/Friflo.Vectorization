@@ -159,6 +159,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
     private  readonly   Texture*                        surfaceTexture;
     
     public              PipelineContext                 ComputeContext { [DebuggerStepThrough] get => recorder; }
+    public              GpuDevice                       Device          => recorder.Device;
     public              bool                            IsNull          => recorder == null;
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 

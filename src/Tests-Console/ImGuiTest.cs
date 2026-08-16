@@ -17,10 +17,13 @@ public class ImGuiRenderer : IRenderer
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
+    private             bool                    monocraft;
+    private             Font?                   monocraftFont;
     private             bool                    enabled2;
     private             float                   volume;
     
     public void OnShutdown() {
+        monocraftFont?.Dispose();
         myTexture.Dispose();
         batch.Dispose();
     }
@@ -73,7 +76,15 @@ public class ImGuiRenderer : IRenderer
         if (gui.Button("world", 0x7777ffff))                Console.WriteLine("Clicked: world");
         
         gui.Label("");
-        if(gui.Checkbox("mouse circle", ref mouseCircle))   Console.WriteLine("Clicked: checkbox");
+        gui.Checkbox("mouse circle", ref mouseCircle);
+        if(gui.Checkbox("Monocraft", ref monocraft)) {
+            if (monocraft) {
+                monocraftFont ??= frame.Device.CreateMonocraftFont(48, 512, 512, 32, 95, "Monocraft");
+                batch.SetFont(monocraftFont);
+            } else {
+                batch.SetFontDefault();
+            }
+        }
         gui.Label("");
         if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
         gui.Label("");
