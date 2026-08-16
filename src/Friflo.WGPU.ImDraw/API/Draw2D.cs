@@ -34,54 +34,10 @@ public ref struct Draw2D : IDisposable
         this.batch  = batch;
         this.pass   = pass;
     }
+
     
-#region Quads / Sprites
-    public readonly void Rectangle(in Vector2 position, in Vector2 size, Color32 color)     // TODO move to #region primitives
-    {
-        var bat = batch;
-        if (bat.currentTexture.hasWhitePixel) {
-            DrawQuad(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, bat.currentTexture);
-        } else {
-            DrawQuad(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, bat.defaultFontTexture);
-        }
-    }
-
-    /// <summary>
-    /// Draws a rectangle with per-corner gradient colors.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
-    {
-        var bat = batch;
-        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
-            Flush();
-        }
-        bat.currentTexture = texView;
-        var uv = bat.currentTexture.whiteUv;
-
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
-
-        float x1 = position.X;
-        float y1 = position.Y;
-        float x2 = position.X + size.X;
-        float y2 = position.Y + size.Y;
-
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
-
-        bat.vertexCount += 4;
-    }
-
-    /// <summary>
-    /// Draws a vertical gradient rectangle (top to bottom).
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
-        => RectangleGradient(position, size, top, top, bottom, bottom);
     
+#region Sprites
     /// <summary>
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
@@ -222,7 +178,11 @@ public ref struct Draw2D : IDisposable
             }
         }
     }
+#endregion
 
+
+
+#region Quads (private)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly void DrawQuad(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, ImTextureView texture)
     {
@@ -282,12 +242,9 @@ public ref struct Draw2D : IDisposable
 
         bat.vertexCount += 4;
     }
-#endregion
 
-
-#region Primitives / Shapes
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly void DrawQuadRaw(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
+    private readonly void DrawQuadSolid(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
@@ -304,6 +261,58 @@ public ref struct Draw2D : IDisposable
 
         bat.vertexCount += 4;
     }
+#endregion
+
+
+
+#region Primitives
+    public readonly void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
+    {
+        var bat = batch;
+        if (bat.currentTexture.hasWhitePixel) {
+            DrawQuad(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, bat.currentTexture);
+        } else {
+            DrawQuad(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, bat.defaultFontTexture);
+        }
+    }
+
+    /// <summary>
+    /// Draws a rectangle with per-corner gradient colors.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
+    {
+        var bat = batch;
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+            Flush();
+        }
+        bat.currentTexture = texView;
+        var uv = bat.currentTexture.whiteUv;
+
+        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
+
+        float x1 = position.X;
+        float y1 = position.Y;
+        float x2 = position.X + size.X;
+        float y2 = position.Y + size.Y;
+
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
+
+        bat.vertexCount += 4;
+    }
+
+    /// <summary>
+    /// Draws a vertical gradient rectangle (top to bottom).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
+        => RectangleGradient(position, size, top, top, bottom, bottom);
+
+
 
     /// <summary>
     /// Draws a single filled triangle using a quad slot (duplicates 3rd vertex).
@@ -311,7 +320,7 @@ public ref struct Draw2D : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Triangle(in Vector2 v0, in Vector2 v1, in Vector2 v2, Color32 color)
     {
-        DrawQuadRaw(v0, v1, v2, v2, color);
+        DrawQuadSolid(v0, v1, v2, v2, color);
     }
 
     /// <summary>
@@ -326,7 +335,7 @@ public ref struct Draw2D : IDisposable
         // Normal vector perpendicular to the line
         Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
 
-        DrawQuadRaw(
+        DrawQuadSolid(
             start + normal, // V0: Top-Left
             end   + normal, // V1: Top-Right
             end   - normal, // V2: Bottom-Right
@@ -398,7 +407,7 @@ public ref struct Draw2D : IDisposable
                 ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
                 : p1;
 
-            DrawQuadRaw(center, p0, p1, p2, color);
+            DrawQuadSolid(center, p0, p1, p2, color);
         }
     }
 
@@ -423,7 +432,7 @@ public ref struct Draw2D : IDisposable
                 : p1;
 
             // Quad layout: (Center, P0, P1, P2) maps to 2 triangles: (Center, P0, P1) & (P1, P2, Center)
-            DrawQuadRaw(center, p0, p1, p2, color);
+            DrawQuadSolid(center, p0, p1, p2, color);
         }
     }
 
@@ -446,7 +455,7 @@ public ref struct Draw2D : IDisposable
             Vector2 dir0 = new Vector2(MathF.Cos(a0), MathF.Sin(a0));
             Vector2 dir1 = new Vector2(MathF.Cos(a1), MathF.Sin(a1));
 
-            DrawQuadRaw(
+            DrawQuadSolid(
                 center + dir0 * rInner, // Inner Start
                 center + dir0 * rOuter, // Outer Start
                 center + dir1 * rOuter, // Outer End
@@ -458,8 +467,8 @@ public ref struct Draw2D : IDisposable
 #endregion
 
 
-#region Text
 
+#region Text
     /// <summary>
     /// Draws a text string using a bitmap font atlas.
     /// </summary>
@@ -729,12 +738,11 @@ public ref struct Draw2D : IDisposable
         }
         return lineCount;
     }
-
 #endregion
 
 
-#region State / Pipeline
 
+#region State / Pipeline
     public readonly void PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;
