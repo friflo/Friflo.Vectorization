@@ -57,6 +57,9 @@ internal sealed class DrawModule : IGpuDeviceModule
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
+        using var ttfFont  = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
+        
         return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font");
+        // return Font.CreateTtfFont(device, ttfFont, 48, 512, 512, 32, 95, "Monocraft");
     }
 }

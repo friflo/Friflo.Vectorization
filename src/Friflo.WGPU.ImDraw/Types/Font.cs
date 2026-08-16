@@ -130,7 +130,7 @@ public class Font : IDisposable
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
         
-        var whitePixelUv = SetWithePixel(height, width, image.Data);
+        var whitePixelUv = SetWithePixel(width, height, image.Data);
 
         fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
         
@@ -144,7 +144,7 @@ public class Font : IDisposable
 
 
 #region TTF
-    public static Dictionary<char, GlyphInfo> ReadTtf(
+    private static Dictionary<char, GlyphInfo> ReadTtf(
         byte[]  ttfData,
         float   fontSize,
         int     atlasWidth,
@@ -184,10 +184,44 @@ public class Font : IDisposable
         }
         return glyphs;
     }
+    
+    public static Font CreateTtfFont(GpuDevice device, Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
+    {
+        using var ms = new MemoryStream();
+        ttfStream.CopyTo(ms);
+        var ttfData = ms.ToArray();
+        
+        var alphaBitmapTarget = new byte[width * height];
+        var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
+        
+        var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
+            size    = [width, height],
+            format  = TextureFormat.RGBA8Unorm,
+            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
+        });
+        
+        var rgba32 = new byte[width * height * 4];
+        
+        for (int n = 0; n < alphaBitmapTarget.Length; n++) {
+            int offset = n * 4;
+            rgba32[offset + 0] = 255;   // R (white, font color for vertex)
+            rgba32[offset + 1] = 255;   // G
+            rgba32[offset + 2] = 255;   // B
+            rgba32[offset + 3] = alphaBitmapTarget[n];
+        }
+        var whitePixelUv = SetWithePixel(width, height, rgba32);
+
+        fontTexture.Write(rgba32, bytesPerRow: width * 4, rowsPerImage: height);
+        
+        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
+        var textureSize = new Vector2(width, height);
+        
+        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name);
+    }
 #endregion
     
 
-    public static Vector2 SetWithePixel(int width, int height, byte[] data)
+    private static Vector2 SetWithePixel(int width, int height, byte[] data)
     {
         int startX = width  - 3;
         int startY = height - 3;
