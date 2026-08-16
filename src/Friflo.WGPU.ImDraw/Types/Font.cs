@@ -41,7 +41,7 @@ public struct GlyphInfo
     public float    advance;    // Horizontal advance to the next character
 }
 
-public class Font : IDisposable
+public sealed class Font : IDisposable
 {
     internal readonly   ImTextureView                       textureView;
     public   readonly   Vector2                             textureSize;

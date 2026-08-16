@@ -16,7 +16,7 @@ using System.Numerics;
 namespace Friflo.WGPU.ImDraw;
 
 
-public class GuiInput
+public sealed class GuiInput
 {
     private     bool        isMouseDown;
     public      Vector2     Mouse           { get; private set;}

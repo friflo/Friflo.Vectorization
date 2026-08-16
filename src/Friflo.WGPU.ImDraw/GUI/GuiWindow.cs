@@ -46,7 +46,7 @@ public enum ResizeEdge
 
 
 
-internal class GuiWindow
+internal sealed class GuiWindow
 {
     private  readonly   Gui                 gui;
     internal            Vector2             pos;

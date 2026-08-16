@@ -9,7 +9,7 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-internal class Gui : IDisposable
+internal sealed class Gui : IDisposable
 {
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
