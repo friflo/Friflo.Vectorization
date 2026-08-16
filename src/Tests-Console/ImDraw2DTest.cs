@@ -166,7 +166,7 @@ public class ImRenderer : IRenderer
         draw.RectangleLines(new Vector2(750, 150), new Vector2(200, 220), 2, Color32.Gray);
         draw.PushScissor(new Vector2(750, 150), new Vector2(200, 220));
         var lineCount = draw.DrawStringWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
-        // Debug.Assert(lineCount == 8);
+        Debug.Assert(lineCount == 8);
         draw.PopScissor();
         
         {
@@ -182,8 +182,8 @@ public class ImRenderer : IRenderer
         }
         
         var font = draw.DefaultFont;
-        // Debug.Assert(font.name == "Default Font");
-        // Debug.Assert((int)font.lineHeight == 47);
-        // Debug.Assert(font.glyphs.Count == 191);
+        Debug.Assert(font.name == "Default Font");
+        Debug.Assert((int)font.lineHeight == 47);
+        Debug.Assert(font.glyphs.Count == 191);
     }
 }
