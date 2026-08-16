@@ -48,10 +48,7 @@ public class ImGuiRenderer : IRenderer
         };
     }
 
-    public void OnEvent(in ImEvent ev)
-    {
-        batch.AddEvent(ev);
-    }
+    public void OnEvent(in ImEvent ev) => batch.AddEvent(ev);
 
     public void OnFrame(in RenderFrame frame)
     {

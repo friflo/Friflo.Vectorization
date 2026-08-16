@@ -166,8 +166,9 @@ public sealed partial class Batch2D : IDisposable
         throw new ArgumentOutOfRangeException(nameof(blendIndex));
     }
     
-    public void SetFont(Font font)
-    {
+    public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
+    
+    public void SetFont(Font font) {
         defaultFont         = font;
         defaultFontTexture  = font.textureView;
     }
@@ -180,7 +181,6 @@ public sealed partial class Batch2D : IDisposable
         var draw = BeginDraw2D(frame, descriptor);
         return draw.BeginGui();
     }
-    
     
     public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
     {
@@ -220,12 +220,5 @@ public sealed partial class Batch2D : IDisposable
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
                     [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
                     [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
-
-    
-    
-    public void AddEvent(in ImEvent ev)
-    {
-        input.AddEvent(ev);
-    }
 }
 
