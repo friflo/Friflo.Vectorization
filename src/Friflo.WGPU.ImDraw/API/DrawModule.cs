@@ -18,6 +18,8 @@ internal sealed class DrawModule : IGpuDeviceModule
 //  private  readonly   GpuTexture      defaultWhiteTexture;
 //  internal readonly   ImTextureView   defaultWhiteTextureView;
     internal readonly   Font            defaultFont;
+    internal readonly   Gui             gui;
+    internal readonly   GuiInput        input;
     
     
     internal DrawModule(GpuDevice device)
@@ -26,6 +28,10 @@ internal sealed class DrawModule : IGpuDeviceModule
         samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
         
         defaultFont = CreateDefaultFont(device);
+        
+        input   = new GuiInput();
+        gui     = new Gui(input);
+        
         // --- Texture
         /* default white texture not used anymore - white pixel is in defaultFont
          
@@ -44,6 +50,7 @@ internal sealed class DrawModule : IGpuDeviceModule
     
     public void Dispose()
     {
+        gui.Dispose();
         // defaultWhiteTexture.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();
@@ -57,9 +64,13 @@ internal sealed class DrawModule : IGpuDeviceModule
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
+        return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font");
+    }
+    
+    private static Font CreateMonocraftFont(GpuDevice device)
+    {
         using var ttfFont  = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
         
-        // return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font");
         return Font.CreateTtfFont(device, ttfFont, 48, 512, 512, 32, 95, "Monocraft");
     }
 }

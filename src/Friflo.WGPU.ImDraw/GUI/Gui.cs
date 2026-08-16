@@ -2,13 +2,14 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-internal class Gui
+internal class Gui : IDisposable
 {
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
@@ -22,6 +23,13 @@ internal class Gui
     
     internal Gui(GuiInput input) {
         this.input = input;
+    }
+ 
+    public void Dispose()
+    {
+        windows.Clear();
+        windowOrder.Clear();
+        focusedWindow = null;
     }
     
     internal void FocusWindow(GuiWindow win)
