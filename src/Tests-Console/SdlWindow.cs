@@ -83,7 +83,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         return result;
     }
 
-    private SDL.AppResult AppInit(IntPtr appState, int argc, string[]? argv)
+    private SDL.AppResult AppInit(ref IntPtr appState, int argc, string[]? argv)
     {
         try { return InitSdl3(); }
         catch (Exception exception)   { return Capture(exception); }
