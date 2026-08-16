@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Friflo.Vectorization.WebGPU;
 using Friflo.WGPU.ImDraw;
 using StbImageSharp;
@@ -79,7 +80,8 @@ public class ImGuiRenderer : IRenderer
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                monocraftFont ??= frame.Device.CreateMonocraftFont(48, 512, 512, 32, 95, "Monocraft");
+                monocraftFont ??= frame.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                Debug.Assert(monocraftFont.maxY == 244);
                 batch.SetFont(monocraftFont);
             } else {
                 batch.SetFontDefault();

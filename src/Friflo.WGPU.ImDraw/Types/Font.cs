@@ -50,6 +50,7 @@ public sealed class Font : IDisposable
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
     private  readonly   GpuTexture                          fontTexture;
     public   readonly   string                              name;
+    public   readonly   int                                 maxY;
     private  readonly   bool                                disposable;
     
     public  override    string                              ToString()  => name;
@@ -61,6 +62,7 @@ public sealed class Font : IDisposable
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
         string                      name,
+        int                         maxY,
         bool                        disposable)
     {
         this.fontTexture    = fontTexture;
@@ -69,6 +71,7 @@ public sealed class Font : IDisposable
         this.lineHeight     = lineHeight;
         this.glyphs         = glyphs.ToFrozenDictionary();
         this.name           = name;
+        this.maxY           = maxY;
         this.disposable     = disposable;
     }
 
@@ -134,6 +137,8 @@ public sealed class Font : IDisposable
         var image   = ImageResult.FromStream(fontAtlas, ColorComponents.RedGreenBlueAlpha);
         var width   = image.Width;
         var height  = image.Height; 
+        AssertTextureDimension(width, height);
+        
         var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
             size    = [width, height],
             format  = TextureFormat.RGBA8Unorm,
@@ -147,7 +152,7 @@ public sealed class Font : IDisposable
         var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
-        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name, disposable);
+        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
 #endregion
 
@@ -159,9 +164,10 @@ public sealed class Font : IDisposable
         float   fontSize,
         int     atlasWidth,
         int     atlasHeight,
-        byte[]  alphaBitmapTarget, // [atlasWidth * atlasHeight]
-        int     firstChar = 32,    // ASCII 32 bis 126
-        int     charCount = 95)
+        byte[]  alphaBitmapTarget, 	// [atlasWidth * atlasHeight]
+        int     firstChar,    		// ASCII 32 to 126
+        int     charCount,
+        out int maxY)
     {
         var bakedChars = new StbTrueType.stbtt_bakedchar[charCount];
 
@@ -194,11 +200,13 @@ public sealed class Font : IDisposable
         }
 
         var glyphs = new Dictionary<char, GlyphInfo>(charCount);
+        maxY = 0;
 
         for (int i = 0; i < charCount; i++)
         {
             var baked = bakedChars[i];
             char c = (char)(firstChar + i);
+            if (maxY < baked.y1) maxY = baked.y1; 
 
             glyphs[c] = new GlyphInfo {
                 sourcePos  = new Vector2(baked.x0, baked.y0),
@@ -222,6 +230,8 @@ public sealed class Font : IDisposable
         string      name,
         bool        disposable)
     {
+        AssertTextureDimension(width, height);
+        
         byte[] ttfData;
         if (ttfStream is MemoryStream typedMemoryStream) {
             ttfData = typedMemoryStream.ToArray();
@@ -231,7 +241,7 @@ public sealed class Font : IDisposable
             ttfData = ms.ToArray();
         }
         var alphaBitmapTarget = new byte[width * height];
-        var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount);
+        var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount, out var maxY);
         
         var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
             size    = [width, height],
@@ -255,7 +265,7 @@ public sealed class Font : IDisposable
         var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name, disposable);
+        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name, maxY, disposable);
     }
 #endregion
     
@@ -279,6 +289,19 @@ public sealed class Font : IDisposable
         // Exact center 4x4 white pixels
         return new Vector2((width - 2f) / width, (height - 2f) / height);
     }
+    
+    private static void AssertTextureDimension(int width, int height)
+    {
+        // assert: power of two for width & height
+        if ((width & (width - 1)) != 0 || (height & (height - 1)) != 0) {
+            throw new ArgumentException($"Font atlas dimensions ({width}x{height}) must be a power of two (e.g., 256, 512, 1024).");
+        }
+
+        // assert: WebGPU 256-Byte Alignment Check for RGBA8 (4 Bytes/Pixel -> width must be dividable by 64)
+        if (width % 64 != 0) {
+            throw new ArgumentException($"Font atlas width ({width}) must be a multiple of 64 to fulfill WebGPU row alignment rules.");
+        }
+    }
 }
 
 public static class FontExtensions
@@ -295,9 +318,7 @@ public static class FontExtensions
             return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font", false);
         }
         
-        /// <summary>
-        /// E.g. <c>device.CreateMonocraftFont(48, 512, 512, 32, 95, "Monocraft")</c> 
-        /// </summary>
+        /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
         public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
         {
             using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
