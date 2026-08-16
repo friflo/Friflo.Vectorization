@@ -137,7 +137,7 @@ internal class GuiWindow
         }
     }
     
-    internal bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize)
+    internal bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, Draw2D draw)
     {
         var widgetRect = new RectVector2(widgetPos, widgetSize);
         
@@ -146,16 +146,16 @@ internal class GuiWindow
             return false;
         }
         // Is the mouse cursor inside the currently active scissor clip region?
-        var scissor = gui.batch.currentScissor;
+        var scissor = draw.batch.currentScissor;
         if (scissor.size.X > 0 && scissor.size.Y > 0) {
             if (!scissor.Contains(gui.input.Mouse)) return false;
         }
         return gui.IsTopWindowAt(gui.input.Mouse, this);
     }
 
-    internal bool IsHover(Vector2 widgetSize)
+    internal bool IsHover(Vector2 widgetSize, Draw2D draw)
     {
-        return IsHoverAt(cursor, widgetSize);
+        return IsHoverAt(cursor, widgetSize, draw);
     }
     
 #region resize

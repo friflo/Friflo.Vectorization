@@ -62,7 +62,7 @@ public ref struct DrawGui : IDisposable
         var window      = Window;
         
         // Hit test whole window
-        bool isWindowHovered = window.IsHoverAt(window.pos, window.size);
+        bool isWindowHovered = window.IsHoverAt(window.pos, window.size, draw);
 
         // Focus window on click (WITHOUT capturing activeItem)
         if (isWindowHovered && input.IsMouseDown) {
@@ -84,7 +84,7 @@ public ref struct DrawGui : IDisposable
         var titleBarSize     = new Vector2(window.size.X, titleBarHeight);
         int titleBarId       = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize);
+        bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize, draw);
         var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
@@ -144,7 +144,7 @@ public ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(size);
+        var isHover = window.IsHover(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
         var center = window.cursor + size * 0.5f;
@@ -189,7 +189,7 @@ public ref struct DrawGui : IDisposable
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover = window.IsHover(totalSize);
+        var isHover = window.IsHover(totalSize, draw);
 
         // Register focus for 1D/2D navigation
         var center      = window.cursor + totalSize * 0.5f;
@@ -244,7 +244,7 @@ public ref struct DrawGui : IDisposable
         float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
 
-        var isHover     = window.IsHover(totalSize);
+        var isHover     = window.IsHover(totalSize, draw);
 
         // Register focus for 1D/2D navigation
         var center      = window.cursor + totalSize * 0.5f;
@@ -304,7 +304,7 @@ public ref struct DrawGui : IDisposable
         {
             int parentHash = window.GetCurrentScopeHash();
             int widgetId   = id.Resolve(parentHash);
-            bool isHover   = window.IsHoverAt(pos, size);
+            bool isHover   = window.IsHoverAt(pos, size, draw);
             
             widgetState = input.GetWidgetState(isHover, widgetId);
 

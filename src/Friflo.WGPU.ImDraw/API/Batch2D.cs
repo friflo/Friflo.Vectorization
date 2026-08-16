@@ -77,7 +77,7 @@ public sealed partial class Batch2D : IDisposable
         TextureFormat           targetFormat,
         int                     maxVertices         = 60_000)
     {
-        gui = new Gui(this, input);
+        gui = new Gui(input);
         
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
