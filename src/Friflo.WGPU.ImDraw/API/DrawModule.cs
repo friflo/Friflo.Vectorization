@@ -2,8 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System.IO;
-using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 
@@ -27,7 +25,7 @@ internal sealed class DrawModule : IGpuDeviceModule
         samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
         samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
         
-        defaultFont = CreateDefaultFont(device);
+        defaultFont = device.CreateDefaultFont();
         
         input   = new GuiInput();
         gui     = new Gui(input);
@@ -54,23 +52,6 @@ internal sealed class DrawModule : IGpuDeviceModule
         // defaultWhiteTexture.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();
-        defaultFont.Dispose();
-    }
-    
-    private static Font CreateDefaultFont(GpuDevice device)
-    {
-        using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
-        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
-        var fntContent      = reader.ReadToEnd();
-        
-        return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font");
-    }
-    
-    private static Font CreateMonocraftFont(GpuDevice device)
-    {
-        using var ttfFont  = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
-        
-        return Font.CreateTtfFont(device, ttfFont, 48, 512, 512, 32, 95, "Monocraft");
+        defaultFont.DisposeInternal();
     }
 }

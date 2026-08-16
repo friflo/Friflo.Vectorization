@@ -42,10 +42,10 @@ public sealed partial class Batch2D : IDisposable
     // --- resources owned by DrawModule
     internal readonly   Gui                 gui;
     public   readonly   GuiInput            input;
-    internal readonly   ImTextureView       defaultFontTexture;
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
     internal readonly   Font                defaultFont;
+    internal            ImTextureView       defaultFontTexture;
     
     // --- Draw2D - state
     internal            Vector2             viewport;
@@ -172,6 +172,11 @@ public sealed partial class Batch2D : IDisposable
         throw new ArgumentOutOfRangeException(nameof(blendIndex));        
     }
     
+    public void SetFont(Font font)
+    {
+        defaultFontTexture = font.textureView;
+    }
+    
     public DrawGui BeginGui(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
     {
         var draw = BeginDraw2D(frame, descriptor);
@@ -186,9 +191,12 @@ public sealed partial class Batch2D : IDisposable
         var pass = frame.BeginRenderPass(descriptor);
         
         // reset batcher state
+        currentTexture      = defaultFontTexture;
+        if (defaultFontTexture.IsDisposed) {
+            currentTexture = drawModule.defaultFont.textureView;
+        }
         vertexStart         = 0;
         vertexCount         = 0;
-        currentTexture      = defaultFontTexture;
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;

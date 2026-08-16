@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
+using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using StbImageSharp;
@@ -49,8 +50,9 @@ public sealed class Font : IDisposable
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
     private  readonly   GpuTexture                          fontTexture;
     public   readonly   string                              name;
-
-    public  override    string                              ToString() => name;
+    private  readonly   bool                                disposable;
+    
+    public  override    string                              ToString()  => name;
 
     private Font (
         GpuTexture                  fontTexture,
@@ -58,7 +60,8 @@ public sealed class Font : IDisposable
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
-        string                      name)
+        string                      name,
+        bool                        disposable)
     {
         this.fontTexture    = fontTexture;
         this.textureView    = textureView;
@@ -66,12 +69,19 @@ public sealed class Font : IDisposable
         this.lineHeight     = lineHeight;
         this.glyphs         = glyphs.ToFrozenDictionary();
         this.name           = name;
+        this.disposable     = disposable;
     }
 
     public void Dispose()
     {
+        if (!disposable) {
+            return;
+        }
         fontTexture.Dispose(); // GpuTexture support multi Dispose()
     }
+    
+    internal void DisposeInternal() => fontTexture.Dispose();
+    
 
     public bool TryGetGlyph(char c, out GlyphInfo glyph) => glyphs.TryGetValue(c, out glyph);
 
@@ -117,7 +127,7 @@ public sealed class Font : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    public static Font CreateBMFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
+    internal static Font CreateBMFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
@@ -137,7 +147,7 @@ public sealed class Font : IDisposable
         var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
-        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name);
+        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name, disposable);
     }
 #endregion
 
@@ -201,7 +211,16 @@ public sealed class Font : IDisposable
         return glyphs;
     }
     
-    public static Font CreateTtfFont(GpuDevice device, Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
+    internal static Font CreateTtfFont(
+        GpuDevice   device,
+        Stream      ttfStream,
+        float       fontSize,
+        int         width,
+        int         height,
+        int         firstChar,
+        int         charCount,
+        string      name,
+        bool        disposable)
     {
         byte[] ttfData;
         if (ttfStream is MemoryStream typedMemoryStream) {
@@ -236,7 +255,7 @@ public sealed class Font : IDisposable
         var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name);
+        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name, disposable);
     }
 #endregion
     
@@ -259,5 +278,38 @@ public sealed class Font : IDisposable
         }
         // Exact center 4x4 white pixels
         return new Vector2((width - 2f) / width, (height - 2f) / height);
+    }
+}
+
+public static class FontExtensions
+{
+    extension (GpuDevice device)
+    {
+        internal Font CreateDefaultFont()
+        {
+            using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+            using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+            using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
+            var fntContent      = reader.ReadToEnd();
+            
+            return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font", false);
+        }
+        
+        public Font CreateMonocraftFont()
+        {
+            using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
+            
+            return Font.CreateTtfFont(device, ttfFont, 48, 512, 512, 32, 95, "Monocraft", true);
+        }
+        
+        public Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
+        {
+            return Font.CreateBMFont(device, fntContent, fontAtlas, name, true);
+        }
+        
+        public Font CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
+        {
+            return Font.CreateTtfFont(device, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
+        }
     }
 }

@@ -181,6 +181,7 @@ public readonly unsafe struct GpuTextureView
     internal readonly   TextureView*                handle;
     private  readonly   GpuTexture                  texture;
     private             GpuTextureViewDescriptor    Descriptor => texture.FindViewDescriptor(handle); // only for debugging
+    public              bool                        IsDisposed => texture.IsDisposed;
 
     public   override   string          ToString() => texture?.Label; 
 

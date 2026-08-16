@@ -79,6 +79,7 @@ internal readonly struct ImTextureView
     internal readonly   Vector2         whiteUv;
     
     internal            nint            Handle      => native.Handle;
+    public              bool            IsDisposed  => native.IsDisposed;
     public   override   string          ToString()  => native.ToString();
 
     internal ImTextureView(GpuTextureView native) {
