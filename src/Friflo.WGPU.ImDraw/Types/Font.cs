@@ -130,7 +130,7 @@ public class Font : IDisposable
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
         
-        var whitePixelUv = SetWithePixel(width, height, image.Data);
+        var whitePixelUv = SetWhitePixel(width, height, image.Data);
 
         fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
         
@@ -225,7 +225,7 @@ public class Font : IDisposable
             rgba32[offset + 2] = 255;   // B
             rgba32[offset + 3] = alphaBitmapTarget[n];
         }
-        var whitePixelUv = SetWithePixel(width, height, rgba32);
+        var whitePixelUv = SetWhitePixel(width, height, rgba32);
 
         fontTexture.Write(rgba32, bytesPerRow: width * 4, rowsPerImage: height);
         
@@ -237,12 +237,12 @@ public class Font : IDisposable
 #endregion
     
 
-    private static Vector2 SetWithePixel(int width, int height, byte[] data)
+    private static Vector2 SetWhitePixel(int width, int height, byte[] data)
     {
-        int startX = width  - 3;
-        int startY = height - 3;
+        int startX = width  - 4;
+        int startY = height - 4;
 
-        // set 3x3 pixel at bottom right to white
+        // set 4x4 pixel at bottom right to white
         for (int y = startY; y < height; y++)
         {
             for (int x = startX; x < width; x++) {
@@ -253,7 +253,7 @@ public class Font : IDisposable
                 data[index + 3] = 255; // A
             }
         }
-        // Exact center 3x3 white pixels (width - 2, height - 2)
-        return new Vector2((width - 1.5f) / width, (height - 1.5f) / height);
+        // Exact center 4x4 white pixels
+        return new Vector2((width - 2f) / width, (height - 2f) / height);
     }
 }
