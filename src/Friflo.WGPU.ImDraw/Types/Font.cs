@@ -11,8 +11,9 @@ using System.Numerics;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using StbImageSharp;
+using StbTrueTypeSharp;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -74,6 +75,8 @@ public class Font : IDisposable
 
     public bool TryGetGlyph(char c, out GlyphInfo glyph) => glyphs.TryGetValue(c, out glyph);
 
+    
+#region BM Font
     /// <summary>
     /// Parses a BMFont (.fnt text format) string and pairs it with the atlas texture.
     /// </summary>
@@ -114,7 +117,7 @@ public class Font : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    public static Font CreateFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
+    public static Font CreateBMFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
@@ -126,6 +129,66 @@ public class Font : IDisposable
             format  = TextureFormat.RGBA8Unorm,
             usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
         });
+        
+        var whitePixelUv = SetWithePixel(height, width, image.Data);
+
+        fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
+        
+        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
+        var textureSize = new Vector2(image.Width, image.Height);
+        
+        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name);
+    }
+#endregion
+
+
+
+#region TTF
+    public static Dictionary<char, GlyphInfo> ReadTtf(
+        byte[]  ttfData,
+        float   fontSize,
+        int     atlasWidth,
+        int     atlasHeight,
+        byte[]  alphaBitmapTarget,  // [atlasWidth * atlasHeight]
+        int     firstChar = 32,     // ASCII 32 bis 126
+        int     charCount = 95)
+    {
+        var bakedChars = new StbTrueType.stbtt_bakedchar[charCount];
+
+        var success = StbTrueType.stbtt_BakeFontBitmap(
+            ttfData, 0,
+            fontSize,
+            alphaBitmapTarget,
+            atlasWidth, atlasHeight,
+            firstChar, charCount,
+            bakedChars
+        );
+
+        if (!success) {
+            throw new InvalidOperationException($"Atlas ({atlasWidth}x{atlasHeight}) too small for fontSize {fontSize}.");
+        }
+
+        var glyphs = new Dictionary<char, GlyphInfo>(charCount);
+
+        for (int i = 0; i < charCount; i++)
+        {
+            var baked = bakedChars[i];
+            char c = (char)(firstChar + i);
+
+            glyphs[c] = new GlyphInfo {
+                sourcePos  = new Vector2(baked.x0, baked.y0),
+                sourceSize = new Vector2(baked.x1 - baked.x0, baked.y1 - baked.y0),
+                offset     = new Vector2(baked.xoff, baked.yoff),
+                advance    = baked.xadvance
+            };
+        }
+        return glyphs;
+    }
+#endregion
+    
+
+    public static Vector2 SetWithePixel(int width, int height, byte[] data)
+    {
         int startX = width  - 3;
         int startY = height - 3;
 
@@ -134,20 +197,13 @@ public class Font : IDisposable
         {
             for (int x = startX; x < width; x++) {
                 int index = (y * width + x) * 4; // RGBA8
-                image.Data[index + 0] = 255; // R
-                image.Data[index + 1] = 255; // G
-                image.Data[index + 2] = 255; // B
-                image.Data[index + 3] = 255; // A
+                data[index + 0] = 255; // R
+                data[index + 1] = 255; // G
+                data[index + 2] = 255; // B
+                data[index + 3] = 255; // A
             }
         }
-        fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
-        
         // Exact center 3x3 white pixels (width - 2, height - 2)
-        var whitePixelUv = new Vector2((width - 1.5f) / width, (height - 1.5f) / height);
-        
-        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
-        var textureSize = new Vector2(image.Width, image.Height);
-        
-        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name);
+        return new Vector2((width - 1.5f) / width, (height - 1.5f) / height);
     }
 }

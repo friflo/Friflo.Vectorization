@@ -57,6 +57,6 @@ internal sealed class DrawModule : IGpuDeviceModule
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
-        return Font.CreateFont(device, fntContent, fontAtlas!, "Default Font");
+        return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font");
     }
 }

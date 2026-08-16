@@ -45,8 +45,8 @@
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1"    PrivateAssets="All" />
-    <PackageReference Include="StbImageSharp"     Version="2.30.15" />
-    <!-- <PackageReference Include="JetBrains.Annotations"       Version="2026.2.0" PrivateAssets="All"/> -->
+    <PackageReference Include="StbImageSharp"    Version="2.30.15" />
+    <PackageReference Include="StbTrueTypeSharp" Version="1.26.13" />
   </ItemGroup>
 
   <ItemGroup>
