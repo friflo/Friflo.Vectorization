@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
@@ -142,9 +143,10 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public readonly bool Button(ReadOnlySpan<char> name, WidgetID id = default)
+    public readonly bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
     {
         var window = Window;
+        if (style != null) PushStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -176,15 +178,17 @@ public ref struct DrawGui : IDisposable
         draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.color.buttonText);
         
         window.MoveCursor(size);
-
+        
+        if (style != null) PopStyle();
         // Trigger click via mouse or keyboard (Enter/Space when focused)
         bool isKeySubmitted = isFocused && input.IsSubmitPressed;
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
     
-    public readonly bool Checkbox(ReadOnlySpan<char> name, ref bool value, WidgetID id = default)
+    public readonly bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
     {
         var window = Window;
+        if (style != null) PushStyle(style);
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
@@ -234,13 +238,14 @@ public ref struct DrawGui : IDisposable
         draw.DrawString(name, textPos, Style.color.textColor);
 
         window.MoveCursor(totalSize);
-
+        if (style != null) PopStyle();
         return clicked;
     }
     
-    public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, WidgetID id = default)
+    public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
     {
         var window      = Window;
+        if (style != null) PushStyle(style);
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 
@@ -287,6 +292,7 @@ public ref struct DrawGui : IDisposable
         draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.color.textColor);
 
         window.MoveCursor(totalSize);
+        if (style != null) PopStyle();
         return changed;
     }
     

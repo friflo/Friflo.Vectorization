@@ -73,7 +73,7 @@ public class ImGuiRenderer : IRenderer
         gui.Label("hello GUI");
         gui.Label("");
         if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
-        if (gui.Button("world", 0x7777ffff))                Console.WriteLine("Clicked: world");
+        if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
         
         gui.Label("");
         gui.Checkbox("mouse circle", ref mouseCircle);
@@ -93,9 +93,7 @@ public class ImGuiRenderer : IRenderer
         gui.BeginHorizontal();
         if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
         if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
-        gui.PushStyle(redButtonStyle);
-        if (gui.Button("Red"))                              Console.WriteLine("Clicked: Red");
-        gui.PopStyle();
+        if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
         gui.EndWindow();
