@@ -3,14 +3,17 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-
+[DebuggerDisplay("Count = {Count}")]
+[DebuggerTypeProxy(typeof(Bitset64DebugView<>))]
 public struct Bitset64<T> where T : struct, Enum
 {
     private ulong value;
@@ -84,5 +87,31 @@ public struct Bitset64Enumerator<T> where T : struct, Enum
         remaining &= remaining - 1;
 
         return true;
+    }
+}
+
+
+internal sealed class Bitset64DebugView<T> where T : struct, Enum
+{
+    private readonly Bitset64<T> bitset;
+
+    public Bitset64DebugView(Bitset64<T> bitset)
+    {
+        this.bitset = bitset;
+    }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public T[] Items
+    {
+        get
+        {
+            var array = new T[bitset.Count];
+            int index = 0;
+            foreach (var item in bitset)
+            {
+                array[index++] = item;
+            }
+            return array;
+        }
     }
 }
