@@ -24,5 +24,5 @@ public readonly ref struct HorizontalScope(DrawGui gui)
 {
     private readonly DrawGui gui = gui;
 
-    public void Dispose() => gui.BeginHorizontal();
+    public void Dispose() => gui.EndHorizontal();
 }
