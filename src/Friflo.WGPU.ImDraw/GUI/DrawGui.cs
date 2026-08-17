@@ -343,7 +343,7 @@ public ref struct DrawGui : IDisposable
     public readonly void PushStyle(GuiStyle style)
     {
         if (!guiState.stylePool.TryPop(out var revertStyle)) {
-            revertStyle = new GuiStyle(null);
+            revertStyle = new GuiStyle();
         }
         revertStyle.overrideStyle = style;
         guiState.revertStyles.Push(revertStyle);

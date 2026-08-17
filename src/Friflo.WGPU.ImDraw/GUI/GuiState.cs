@@ -15,24 +15,27 @@ internal sealed class GuiState
     private  readonly   GuiStyle        defaultStyle    = CreateDefaultStyle();
     internal readonly   Stack<GuiStyle> revertStyles    = new();
     internal readonly   Stack<GuiStyle> stylePool       = new();
-    internal readonly   GuiStyle        currentStyle    = new(null);
+    internal readonly   GuiStyle        currentStyle    = new();
     
     internal            GuiWindow       window          = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
 
-    private static readonly   List<ColorId> AllColorIds = [];
-
-    static GuiState()
+    private static readonly   Bitset64<ColorId> AllColorIds = CreateAllColorIds();
+    
+    private static Bitset64<ColorId> CreateAllColorIds()
     {
+        var ids = new Bitset64<ColorId>();
         foreach (var colorId in Enum.GetValues<ColorId>()) {
-            AllColorIds.Add(colorId);
+            ids.Add(colorId);
         }
+        return ids;
     }
+
     
     private static GuiStyle CreateDefaultStyle()
     {
-        return new GuiStyle(null)
+        return new GuiStyle
         {
             windowColor  = 0xaaaaaaff,
             textColor    = 0x000000ff,

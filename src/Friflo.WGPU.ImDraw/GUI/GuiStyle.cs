@@ -36,26 +36,19 @@ public sealed class GuiStyle
     public  Color32     sliderColor     { get;  set => field = Override(ColorId.sliderColor,    value); }
     
     
-    private readonly    List<ColorId>?  overrides;
-    internal            GuiStyle?       overrideStyle; // set by revertStyle
+    private             Bitset64<ColorId>   overrides;
+    internal            GuiStyle?           overrideStyle; // set by revertStyle
 
-    public  override    string          ToString() => overrides == null ? "overrides: null" : $"overrides: {overrides.Count}";
+    public  override    string              ToString() => $"overrides: {overrides.Count}";
 
-    public GuiStyle() {
-        overrides = [];
-    }
-    
-    internal GuiStyle(List<ColorId>? nullStates) {
-        overrides = null!;
-    }
     
     private Color32 Override(ColorId id, Color32 color)
     {
-        overrides?.Add(id);
+        overrides.Add(id);
         return color;
     }
     
-    internal static void ApplyOverrides(GuiStyle source, GuiStyle target, List<ColorId> overrides)
+    internal static void ApplyOverrides(GuiStyle source, GuiStyle target, Bitset64<ColorId> overrides)
     {
         foreach (var colorState in overrides)
         {
@@ -75,14 +68,14 @@ public sealed class GuiStyle
     {
         var newStyle = revertStyle.overrideStyle!;
         // --- Backup colors that will be changed to revertStyle
-        ApplyOverrides(this, revertStyle, newStyle.overrides!);
+        ApplyOverrides(this, revertStyle, newStyle.overrides);
 
         // --- Apply override colors
-        ApplyOverrides(newStyle, this, newStyle.overrides!);      
+        ApplyOverrides(newStyle, this, newStyle.overrides);
     }
     
     internal void PopOverrides(GuiStyle revertStyle)
     {
-        ApplyOverrides(revertStyle, this, revertStyle.overrideStyle!.overrides!);
+        ApplyOverrides(revertStyle, this, revertStyle.overrideStyle!.overrides);
     }
 }
