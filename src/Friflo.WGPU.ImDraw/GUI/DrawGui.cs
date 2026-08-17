@@ -342,13 +342,21 @@ public ref struct DrawGui : IDisposable
 #region Styles
     public readonly void PushStyle(GuiStyle style)
     {
-        guiState.styleStack.Push(guiState.currentStyle);
-        guiState.currentStyle = style;
+        if (!guiState.stylePool.TryPop(out var revertStyle)) {
+            revertStyle = new GuiStyle(null);
+        }
+        revertStyle.overrideStyle = style;
+        guiState.revertStyles.Push(revertStyle);
+        guiState.currentStyle.PushOverrides(revertStyle);
     }
     
     public readonly void PopStyle()
     {
-        guiState.currentStyle = guiState.styleStack.Pop();
+        var revertStyle = guiState.revertStyles.Pop();
+        guiState.currentStyle.PopOverrides(revertStyle);
+        
+        guiState.stylePool.Push(revertStyle);
+        revertStyle.overrideStyle = null;
     }
 #endregion
 }
