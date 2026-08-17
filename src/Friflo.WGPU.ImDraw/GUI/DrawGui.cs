@@ -338,12 +338,22 @@ public ref struct DrawGui : IDisposable
 
     
 #region Layout
-    public readonly void BeginVertical()     => Window.PushLayout(LayoutDirection.Vertical);
-    public readonly void EndVertical()       => Window.PopLayout();
+    public readonly VerticalScope BeginVertical()
+    {
+        Window.PushLayout(LayoutDirection.Vertical);
+        return new VerticalScope(this);
+    }
+
+    public readonly void EndVertical() => Window.PopLayout();
     
-    public readonly void BeginHorizontal()   => Window.PushLayout(LayoutDirection.Horizontal);
-    public readonly void EndHorizontal()     => Window.PopLayout();
+    public readonly HorizontalScope BeginHorizontal()
+    {
+        Window.PushLayout(LayoutDirection.Horizontal);
+        return new HorizontalScope(this);
+    }
+    public readonly void EndHorizontal() => Window.PopLayout();
 #endregion
+
 
 #region Styles
     public readonly StyleScope PushStyle(GuiStyle style)
@@ -368,11 +378,3 @@ public ref struct DrawGui : IDisposable
 #endregion
 }
 
-public readonly ref struct StyleScope(DrawGui gui)
-{
-    private readonly DrawGui gui = gui;
-
-    public void Dispose() {
-        gui.PopStyle();
-    }
-}

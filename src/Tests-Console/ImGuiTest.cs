@@ -100,12 +100,11 @@ public class ImGuiRenderer : IRenderer
         if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
         gui.Label("");
         
-        gui.BeginHorizontal();
-        if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
-        if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
-        if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
-        gui.EndHorizontal();
-        
+        using (gui.BeginHorizontal()) {
+            if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+            if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+            if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
+        }
         gui.EndWindow();
         
         gui.SetNextWindowPos(new Vector2(650, 20));
