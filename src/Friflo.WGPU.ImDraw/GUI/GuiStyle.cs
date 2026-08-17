@@ -17,7 +17,9 @@ public enum ColorId
     buttonColor,
     buttonHover,
     buttonDown,
-    sliderColor
+    sliderColor,
+    
+    focusColor
 }
 
 
@@ -33,6 +35,9 @@ public struct GuiColor
     public  Color32     buttonDown      { get;  set => field = Override(ColorId.buttonDown,     value); }
     
     public  Color32     sliderColor     { get;  set => field = Override(ColorId.sliderColor,    value); }
+    
+    public  Color32     focusColor      { get;  set => field = Override(ColorId.focusColor,     value); }
+     
     
     
     public              Bitset64<ColorId>   Overrides   => overrides;
@@ -64,13 +69,14 @@ public sealed class GuiStyle
         foreach (var colorState in overrides)
         {
             switch (colorState) {
-                case ColorId.windowColor:   target.windowColor   = source.windowColor;  break;
-                case ColorId.textColor:     target.textColor     = source.textColor;    break;
-                case ColorId.buttonText:    target.buttonText    = source.buttonText;   break;
-                case ColorId.buttonColor:   target.buttonColor   = source.buttonColor;  break;
-                case ColorId.buttonHover:   target.buttonHover   = source.buttonHover;  break;
-                case ColorId.buttonDown:    target.buttonDown    = source.buttonDown;   break;
-                case ColorId.sliderColor:   target.sliderColor   = source.sliderColor;  break;
+                case ColorId.windowColor:   target.windowColor  = source.windowColor;   break;
+                case ColorId.textColor:     target.textColor    = source.textColor;     break;
+                case ColorId.buttonText:    target.buttonText   = source.buttonText;    break;
+                case ColorId.buttonColor:   target.buttonColor  = source.buttonColor;   break;
+                case ColorId.buttonHover:   target.buttonHover  = source.buttonHover;   break;
+                case ColorId.buttonDown:    target.buttonDown   = source.buttonDown;    break;
+                case ColorId.sliderColor:   target.sliderColor  = source.sliderColor;   break;
+                case ColorId.focusColor:    target.focusColor   = source.focusColor;  	break;
             }
         }
     }

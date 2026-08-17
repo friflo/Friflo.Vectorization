@@ -31,6 +31,7 @@ internal sealed class GuiState
             buttonHover  = 0xeeeeeeff,
             buttonDown   = 0xbbbbbbff,
             sliderColor  = 0xccccccff,
+            focusColor   = 0x007affff
         };
     }
     

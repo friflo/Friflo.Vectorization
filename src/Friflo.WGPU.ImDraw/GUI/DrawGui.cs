@@ -169,7 +169,7 @@ public ref struct DrawGui : IDisposable
         draw.RectangleRounded(window.cursor, size, 8, color);
 
         if (isFocused) {
-            var focusColor = new Color32(0, 122, 255); // blue
+            var focusColor = Style.color.focusColor;
             draw.RectangleLines(window.cursor, size, 4, focusColor);
         }
 
@@ -222,7 +222,7 @@ public ref struct DrawGui : IDisposable
 
         // Render blue focus outline on box
         if (isFocused) {
-            var focusColor = new Color32(0, 122, 255);
+            var focusColor = Style.color.focusColor;
             draw.RectangleLines(boxRect, new Vector2(boxSize, boxSize), 4, focusColor);
         }
         if (value) {
@@ -280,7 +280,7 @@ public ref struct DrawGui : IDisposable
 
         // Render blue focus outline
         if (isFocused) {
-            Color32 focusColor = new Color32(0, 122, 255);
+            Color32 focusColor = Style.color.focusColor;
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
@@ -323,7 +323,7 @@ public ref struct DrawGui : IDisposable
     public readonly void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
     {
         if (!isFocused) return;
-        var focusColor  = new Color32(0, 122, 255); // blue
+        var focusColor  = Style.color.focusColor;
         var offset      = new Vector2(margin, margin);
         draw.RectangleLines(pos - offset, size + 2f * offset, 4, focusColor);
     }
