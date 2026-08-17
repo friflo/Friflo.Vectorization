@@ -57,7 +57,7 @@ public ref struct DrawGui : IDisposable
         guiState.nextWindowSize = size;
     }
     
-    public readonly void BeginWindow(string title)
+    public readonly WindowScope BeginWindow(string title)
     {
         if (!gui.windows.TryGetValue(title, out guiState.window!)) {
             guiState.window = new GuiWindow(gui) {
@@ -120,6 +120,7 @@ public ref struct DrawGui : IDisposable
         var contentPos  = window.pos + new Vector2(0f, titleBarHeight);
         var contentSize = new Vector2(window.size.X, Math.Max(0f, window.size.Y - titleBarHeight));
         draw.PushScissor(contentPos, contentSize);
+        return new WindowScope(this, true);
     }
     
     public readonly void EndWindow()

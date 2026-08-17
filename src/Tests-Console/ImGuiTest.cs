@@ -3,7 +3,7 @@ using System.Numerics;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 
-
+// ReSharper disable UnusedVariable
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
@@ -77,49 +77,47 @@ public class ImGuiRenderer : IRenderer
         
         gui.SetNextWindowPos(new Vector2(100, 20));
         gui.SetNextWindowSize(new Vector2(500, 700));
-        gui.BeginWindow("Window 1");
-        
-        gui.Label("hello GUI");
-        gui.Label("");
-        using (gui.PushStyle(greenButtonStyle)) {
-            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
-            if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
-        }
-        gui.Label("");
-        gui.Checkbox("mouse circle", ref mouseCircle);
-        if(gui.Checkbox("Monocraft", ref monocraft)) {
-            if (monocraft) {
-                monocraftFont ??= frame.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
-                Debug.Assert(monocraftFont.maxY == 244);
-                batch.SetFont(monocraftFont);
-            } else {
-                batch.SetFontDefault();
+        using (gui.BeginWindow("Window 1")) {
+            gui.Label("hello GUI");
+            gui.Label("");
+            using (gui.PushStyle(greenButtonStyle)) {
+                if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+                if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
+            }
+            gui.Label("");
+            gui.Checkbox("mouse circle", ref mouseCircle);
+            if(gui.Checkbox("Monocraft", ref monocraft)) {
+                if (monocraft) {
+                    monocraftFont ??= frame.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                    Debug.Assert(monocraftFont.maxY == 244);
+                    batch.SetFont(monocraftFont);
+                } else {
+                    batch.SetFontDefault();
+                }
+            }
+            gui.Label("");
+            if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
+            gui.Label("");
+            
+            using (gui.BeginHorizontal()) {
+                if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+                if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+                if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
             }
         }
-        gui.Label("");
-        if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
-        gui.Label("");
-        
-        using (gui.BeginHorizontal()) {
-            if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
-            if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
-            if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
-        }
-        gui.EndWindow();
         
         gui.SetNextWindowPos(new Vector2(650, 20));
         gui.SetNextWindowSize(new Vector2(500, 600));
-        gui.BeginWindow("Window 2");
-        gui.Checkbox("checkbox", ref enabled2);
-        gui.Label("");
-        
-        var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-        var srcSize = new Vector2(64, 64);          // 64x64 Tile
-        if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
-        gui.draw.DrawSprite(spritePos, srcSize, myTextureView, srcPos, srcSize, new Vector2(1024, 1024));
-        gui.DrawFocusRect(spritePos, srcSize, isFocused);
-        
-        gui.EndWindow();
+        using (var isOpen = gui.BeginWindow("Window 2")) {
+            gui.Checkbox("checkbox", ref enabled2);
+            gui.Label("");
+            
+            var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
+            var srcSize = new Vector2(64, 64);          // 64x64 Tile
+            if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
+            gui.draw.DrawSprite(spritePos, srcSize, myTextureView, srcPos, srcSize, new Vector2(1024, 1024));
+            gui.DrawFocusRect(spritePos, srcSize, isFocused);
+        }
         
         if (mouseCircle) {
             gui.draw.PushZIndex(10);

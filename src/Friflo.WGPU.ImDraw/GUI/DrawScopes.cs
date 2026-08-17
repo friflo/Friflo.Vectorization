@@ -6,12 +6,14 @@
 namespace Friflo.WGPU.ImDraw;
 
 
-public readonly ref struct StyleScope(DrawGui gui)
+public readonly ref struct WindowScope(DrawGui gui, bool isOpen)
 {
-    private readonly DrawGui gui = gui;
+    private readonly DrawGui    gui     = gui;
+    private readonly bool       isOpen  = isOpen;
 
-    public void Dispose() => gui.PopStyle();
+    public void Dispose() => gui.EndWindow();
 }
+
 
 public readonly ref struct VerticalScope(DrawGui gui)
 {
@@ -25,4 +27,12 @@ public readonly ref struct HorizontalScope(DrawGui gui)
     private readonly DrawGui gui = gui;
 
     public void Dispose() => gui.EndHorizontal();
+}
+
+
+public readonly ref struct StyleScope(DrawGui gui)
+{
+    private readonly DrawGui gui = gui;
+
+    public void Dispose() => gui.PopStyle();
 }
