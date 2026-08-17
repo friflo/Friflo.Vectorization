@@ -346,7 +346,7 @@ public ref struct DrawGui : IDisposable
 #endregion
 
 #region Styles
-    public readonly void PushStyle(GuiStyle style)
+    public readonly StyleScope PushStyle(GuiStyle style)
     {
         if (!guiState.stylePool.TryPop(out var revertStyle)) {
             revertStyle = new GuiStyle();
@@ -354,6 +354,7 @@ public ref struct DrawGui : IDisposable
         revertStyle.overrideStyle = style;
         guiState.revertStyles.Push(revertStyle);
         guiState.currentStyle.PushOverrides(revertStyle);
+        return new StyleScope(this);
     }
     
     public readonly void PopStyle()
@@ -365,4 +366,13 @@ public ref struct DrawGui : IDisposable
         revertStyle.overrideStyle = null;
     }
 #endregion
+}
+
+public readonly ref struct StyleScope(DrawGui gui)
+{
+    private readonly DrawGui gui = gui;
+
+    public void Dispose() {
+        gui.PopStyle();
+    }
 }

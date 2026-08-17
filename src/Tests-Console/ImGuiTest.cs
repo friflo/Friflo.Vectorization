@@ -31,6 +31,15 @@ public class ImGuiRenderer : IRenderer
         }
     };
     
+    private readonly GuiStyle greenButtonStyle = new() {
+        color = new GuiColor {
+            buttonColor = 0x22aa22ff,
+            buttonHover = 0x44cc44ff,
+            buttonDown  = 0x008800ff,
+            buttonText  = 0xffffffff
+        }
+    };
+    
     public void OnShutdown() {
         monocraftFont?.Dispose();
         myTexture.Dispose();
@@ -72,9 +81,10 @@ public class ImGuiRenderer : IRenderer
         
         gui.Label("hello GUI");
         gui.Label("");
-        if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
-        if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
-        
+        using (gui.PushStyle(greenButtonStyle)) {
+            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+            if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
+        }
         gui.Label("");
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
