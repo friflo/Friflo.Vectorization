@@ -14,9 +14,7 @@ internal sealed class Gui : IDisposable
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
-    
-    private             GuiWindow?  focusedWindow;
-    internal            GuiWindow   window = null!;
+    private             GuiWindow?                      focusedWindow;
     
     internal Gui(GuiInput input) {
         this.input = input;

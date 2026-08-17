@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
@@ -22,9 +23,10 @@ public ref struct DrawGui : IDisposable
     private readonly    GuiState        guiState;
     public              Draw2D          draw;
     
-    private readonly    GuiWindow       Window          => gui.window;
-    private readonly    GuiStyle        Style           => guiState.currentStyle;
-    private readonly    float           LineHeight      => draw.DefaultFont.lineHeight;
+    private readonly    GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
+    private readonly    GuiStyle        Style       { [DebuggerStepThrough] get => guiState.currentStyle; }
+    private readonly    float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     private readonly    StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
@@ -56,13 +58,13 @@ public ref struct DrawGui : IDisposable
     
     public readonly void BeginWindow(string title)
     {
-        if (!gui.windows.TryGetValue(title, out gui.window!)) {
-            gui.window = new GuiWindow(gui) {
+        if (!gui.windows.TryGetValue(title, out guiState.window!)) {
+            guiState.window = new GuiWindow(gui) {
                 pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
                 size    = guiState.nextWindowSize ?? new Vector2(300, 200)
             };
-            gui.windows.Add(title, gui.window);
-            gui.windowOrder.Add(gui.window);
+            gui.windows.Add(title, guiState.window);
+            gui.windowOrder.Add(guiState.window);
         }
         guiState.nextWindowPos  = null;
         guiState.nextWindowSize = null;

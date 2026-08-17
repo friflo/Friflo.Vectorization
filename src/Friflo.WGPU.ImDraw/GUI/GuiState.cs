@@ -15,6 +15,7 @@ internal sealed class GuiState
     internal readonly   Stack<GuiStyle> styleStack      = new();
     internal            GuiStyle        currentStyle;
     
+    internal            GuiWindow       window = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
 
