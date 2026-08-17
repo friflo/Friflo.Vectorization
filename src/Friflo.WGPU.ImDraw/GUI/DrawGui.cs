@@ -22,6 +22,7 @@ public ref struct DrawGui : IDisposable
     public              Draw2D          draw;
     
     private readonly    GuiWindow       Window          => gui.window;
+    private readonly    GuiStyle        Style           => gui.style;
     private readonly    float           LineHeight      => draw.DefaultFont.lineHeight;
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     private readonly    StringBuilder   StringBuilder() => draw.batch.StringBuilder();
@@ -99,15 +100,15 @@ public ref struct DrawGui : IDisposable
         if (color.Packed == 0) color = 0x222222ff;
         draw.RectangleRounded(window.pos, window.size, 8, color);
 
-        var headerColor = window.buttonColor;
-        if (titleState == WidgetState.Hover) headerColor = window.buttonHover;
-        if (titleState == WidgetState.Down)  headerColor = window.buttonDown;
+        var headerColor = Style.buttonColor;
+        if (titleState == WidgetState.Hover) headerColor = Style.buttonHover;
+        if (titleState == WidgetState.Down)  headerColor = Style.buttonDown;
 
         draw.RectangleRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
         var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        draw.DrawString(title, textPos, window.textColor);
+        draw.DrawString(title, textPos, Style.textColor);
 
         window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
         
@@ -131,7 +132,7 @@ public ref struct DrawGui : IDisposable
     public readonly void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
         var window = Window;
-        if (textColor.Packed == 0) textColor = window.textColor;
+        if (textColor.Packed == 0) textColor = Style.textColor;
         
         var size = draw.DrawString(name, window.cursor, textColor);
         
@@ -141,8 +142,8 @@ public ref struct DrawGui : IDisposable
     public readonly bool Button(ReadOnlySpan<char> name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
     {
         var window = Window;
-        if (color.Packed == 0)      color       = window.buttonColor;
-        if (textColor.Packed == 0)  textColor   = window.textColor;
+        if (color.Packed == 0)      color       = Style.buttonColor;
+        if (textColor.Packed == 0)  textColor   = Style.textColor;
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -159,10 +160,10 @@ public ref struct DrawGui : IDisposable
         switch (widgetState)
         {
             case WidgetState.Down:
-                color = window.buttonDown;
+                color = Style.buttonDown;
                 break;
             case WidgetState.Hover:
-                color = window.buttonHover;
+                color = Style.buttonHover;
                 break;
         }
         
@@ -207,14 +208,14 @@ public ref struct DrawGui : IDisposable
             value = !value;
         }
 
-        var boxColor = window.buttonColor;
+        var boxColor = Style.buttonColor;
         switch (widgetState)
         {
             case WidgetState.Down:
-                boxColor = window.buttonDown;
+                boxColor = Style.buttonDown;
                 break;
             case WidgetState.Hover:
-                boxColor = window.buttonHover;
+                boxColor = Style.buttonHover;
                 break;
         }
 
@@ -229,10 +230,10 @@ public ref struct DrawGui : IDisposable
         if (value) {
             var padding = boxSize / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, window.textColor);
+            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Style.textColor);
         }
         var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
-        draw.DrawString(name, textPos, window.textColor);
+        draw.DrawString(name, textPos, Style.textColor);
 
         window.MoveCursor(totalSize);
 
@@ -267,15 +268,15 @@ public ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-        draw.RectangleRounded(window.cursor, totalSize, 6, window.sliderColor);
+        draw.RectangleRounded(window.cursor, totalSize, 6, Style.sliderColor);
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        var barColor = window.buttonHover;
+        var barColor = Style.buttonHover;
         if (widgetState == WidgetState.Down) {
-            barColor = window.buttonDown;
+            barColor = Style.buttonDown;
         }
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
@@ -285,7 +286,7 @@ public ref struct DrawGui : IDisposable
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
-        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
+        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.textColor);
 
         window.MoveCursor(totalSize);
         return changed;

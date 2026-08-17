@@ -57,11 +57,7 @@ internal sealed class GuiWindow
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
     
-    internal readonly   Color32             textColor   = 0x000000ff;
-    internal readonly   Color32             buttonColor = 0xddddddff;
-    internal readonly   Color32             buttonHover = 0xeeeeeeff;
-    internal readonly   Color32             buttonDown  = 0xbbbbbbff;
-    internal readonly   Color32             sliderColor = 0xccccccff;
+
     
     internal GuiWindow(Gui gui) {
         this.gui = gui;
