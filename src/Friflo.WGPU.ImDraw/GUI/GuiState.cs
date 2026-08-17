@@ -12,7 +12,7 @@ namespace Friflo.WGPU.ImDraw;
 
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle        defaultStyle    = CreateDefaultStyle();
+    private  readonly   GuiStyle        defaultStyle    = new() { color = CreateDefaultColors() };
     internal readonly   Stack<GuiStyle> revertStyles    = new();
     internal readonly   Stack<GuiStyle> stylePool       = new();
     internal readonly   GuiStyle        currentStyle    = new();
@@ -20,22 +20,10 @@ internal sealed class GuiState
     internal            GuiWindow       window          = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
-
-    private static readonly   Bitset64<ColorId> AllColorIds = CreateAllColorIds();
     
-    private static Bitset64<ColorId> CreateAllColorIds()
+    private static GuiColor CreateDefaultColors()
     {
-        var ids = new Bitset64<ColorId>();
-        foreach (var colorId in Enum.GetValues<ColorId>()) {
-            ids.Add(colorId);
-        }
-        return ids;
-    }
-
-    
-    private static GuiStyle CreateDefaultStyle()
-    {
-        return new GuiStyle
+        return new GuiColor
         {
             windowColor  = 0xaaaaaaff,
             textColor    = 0x000000ff,
@@ -49,7 +37,7 @@ internal sealed class GuiState
     
     internal void Reset()
     {
-        GuiStyle.ApplyOverrides(defaultStyle, currentStyle, AllColorIds);
+        currentStyle.color = defaultStyle.color; // 💪
         revertStyles.Clear();
     }
 }

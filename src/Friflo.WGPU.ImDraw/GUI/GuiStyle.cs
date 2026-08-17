@@ -21,7 +21,7 @@ public enum ColorId
 }
 
 
-public sealed class GuiStyle
+public struct GuiColor
 {
     public  Color32     windowColor     { get;  set => field = Override(ColorId.windowColor,    value); }
     
@@ -43,19 +43,23 @@ public sealed class GuiStyle
     public  bool HasOverride(ColorId id)     => overrides.Contains(id);
     public  void ClearOverrides()            => overrides = default;
     
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal   Bitset64<ColorId>   overrides;
     
-#region internal
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)] private   Bitset64<ColorId>   overrides;
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal  GuiStyle?           overrideStyle; // set by revertStyle
-    
-
-    private Color32 Override(ColorId id, Color32 color)
-    {
+    private Color32 Override(ColorId id, Color32 color) {
         overrides.Add(id);
         return color;
     }
+}
+
+
+public sealed class GuiStyle
+{
+    public GuiColor color;
     
-    internal static void ApplyOverrides(GuiStyle source, GuiStyle target, Bitset64<ColorId> overrides)
+#region internal
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal  GuiStyle?           overrideStyle; // set by revertStyle
+    
+    internal static void ApplyOverrides(in GuiColor source, ref GuiColor target, Bitset64<ColorId> overrides)
     {
         foreach (var colorState in overrides)
         {
@@ -74,16 +78,17 @@ public sealed class GuiStyle
     internal void PushOverrides(GuiStyle revertStyle)
     {
         var newStyle = revertStyle.overrideStyle!;
+        
         // --- Backup colors that will be changed to revertStyle
-        ApplyOverrides(this, revertStyle, newStyle.overrides);
+        ApplyOverrides(color, ref revertStyle.color, newStyle.color.overrides);
 
         // --- Apply override colors
-        ApplyOverrides(newStyle, this, newStyle.overrides);
+        ApplyOverrides(newStyle.color, ref color, newStyle.color.overrides);
     }
     
     internal void PopOverrides(GuiStyle revertStyle)
     {
-        ApplyOverrides(revertStyle, this, revertStyle.overrideStyle!.overrides);
+        ApplyOverrides(revertStyle.color, ref color, revertStyle.overrideStyle!.color.overrides);
     }
 #endregion
 }

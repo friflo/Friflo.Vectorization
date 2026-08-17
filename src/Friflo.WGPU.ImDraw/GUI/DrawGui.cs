@@ -101,17 +101,17 @@ public ref struct DrawGui : IDisposable
         }
 
         // Render background & titlebar
-        draw.RectangleRounded(window.pos, window.size, 8, Style.windowColor);
+        draw.RectangleRounded(window.pos, window.size, 8, Style.color.windowColor);
 
-        var headerColor = Style.buttonColor;
-        if (titleState == WidgetState.Hover) headerColor = Style.buttonHover;
-        if (titleState == WidgetState.Down)  headerColor = Style.buttonDown;
+        var headerColor = Style.color.buttonColor;
+        if (titleState == WidgetState.Hover) headerColor = Style.color.buttonHover;
+        if (titleState == WidgetState.Down)  headerColor = Style.color.buttonDown;
 
         draw.RectangleRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
         var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        draw.DrawString(title, textPos, Style.textColor);
+        draw.DrawString(title, textPos, Style.color.textColor);
 
         window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
         
@@ -135,7 +135,7 @@ public ref struct DrawGui : IDisposable
     public readonly void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
         var window = Window;
-        if (textColor.Packed == 0) textColor = Style.textColor;
+        if (textColor.Packed == 0) textColor = Style.color.textColor;
         
         var size = draw.DrawString(name, window.cursor, textColor);
         
@@ -160,9 +160,9 @@ public ref struct DrawGui : IDisposable
         
         var color = widgetState switch
         {
-            WidgetState.Down    => Style.buttonDown,
-            WidgetState.Hover   => Style.buttonHover,
-            _                   => Style.buttonColor
+            WidgetState.Down    => Style.color.buttonDown,
+            WidgetState.Hover   => Style.color.buttonHover,
+            _                   => Style.color.buttonColor
         };
         
         // Render button background
@@ -173,7 +173,7 @@ public ref struct DrawGui : IDisposable
             draw.RectangleLines(window.cursor, size, 4, focusColor);
         }
 
-        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.buttonText);
+        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.color.buttonText);
         
         window.MoveCursor(size);
 
@@ -206,14 +206,14 @@ public ref struct DrawGui : IDisposable
             value = !value;
         }
 
-        var boxColor = Style.buttonColor;
+        var boxColor = Style.color.buttonColor;
         switch (widgetState)
         {
             case WidgetState.Down:
-                boxColor = Style.buttonDown;
+                boxColor = Style.color.buttonDown;
                 break;
             case WidgetState.Hover:
-                boxColor = Style.buttonHover;
+                boxColor = Style.color.buttonHover;
                 break;
         }
 
@@ -228,10 +228,10 @@ public ref struct DrawGui : IDisposable
         if (value) {
             var padding = boxSize / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Style.textColor);
+            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Style.color.textColor);
         }
         var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
-        draw.DrawString(name, textPos, Style.textColor);
+        draw.DrawString(name, textPos, Style.color.textColor);
 
         window.MoveCursor(totalSize);
 
@@ -266,15 +266,15 @@ public ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-        draw.RectangleRounded(window.cursor, totalSize, 6, Style.sliderColor);
+        draw.RectangleRounded(window.cursor, totalSize, 6, Style.color.sliderColor);
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        var barColor = Style.buttonHover;
+        var barColor = Style.color.buttonHover;
         if (widgetState == WidgetState.Down) {
-            barColor = Style.buttonDown;
+            barColor = Style.color.buttonDown;
         }
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
@@ -284,7 +284,7 @@ public ref struct DrawGui : IDisposable
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
-        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.textColor);
+        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.color.textColor);
 
         window.MoveCursor(totalSize);
         return changed;

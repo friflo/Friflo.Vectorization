@@ -22,11 +22,13 @@ public class ImGuiRenderer : IRenderer
     private             bool                    enabled2;
     private             float                   volume;
     
-    private static readonly GuiStyle redButtonStyle = new() {
-        buttonColor = 0xaa4444ff,
-        buttonHover = 0xcc6666ff,
-        buttonDown  = 0x882222ff,
-        buttonText  = 0xffffffff
+    private readonly GuiStyle redButtonStyle = new() {
+        color = new GuiColor {
+            buttonColor = 0xaa4444ff,
+            buttonHover = 0xcc6666ff,
+            buttonDown  = 0x882222ff,
+            buttonText  = 0xffffffff
+        }
     };
     
     public void OnShutdown() {
