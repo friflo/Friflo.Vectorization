@@ -22,7 +22,7 @@ public class ImGuiRenderer : IRenderer
     private             bool                    enabled2;
     private             float                   volume;
     
-    private readonly    GuiStyle                customButtonStyle = new() {
+    private readonly    GuiStyle                redButtonStyle = new() {
         buttonColor = 0xaa4444ff,
         buttonHover = 0xcc6666ff,
         buttonDown  = 0x882222ff,
@@ -89,7 +89,7 @@ public class ImGuiRenderer : IRenderer
         gui.Label("");
         
         gui.BeginHorizontal();
-        gui.PushStyle(customButtonStyle);
+        gui.PushStyle(redButtonStyle);
         if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
         if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
         gui.PopStyle();

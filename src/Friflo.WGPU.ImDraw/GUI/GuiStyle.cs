@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
 
-// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -34,12 +35,20 @@ public sealed class GuiStyle
     public  Color32     sliderColor     { get;  set => field = Override(ColorId.sliderColor,    value); }
     
     
-    private             Bitset64<ColorId>   overrides;
-    internal            GuiStyle?           overrideStyle; // set by revertStyle
-
-    public  override    string              ToString() => $"overrides: {overrides.Count}";
-
+    public              Bitset64<ColorId>   Overrides   => overrides;
+    public  override    string              ToString()  => $"overrides: {overrides.Count}";
     
+    
+    public  void RemoveOverride(ColorId id)  => overrides.Remove(id);
+    public  bool HasOverride(ColorId id)     => overrides.Contains(id);
+    public  void ClearOverrides()            => overrides = default;
+    
+    
+#region internal
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)] private   Bitset64<ColorId>   overrides;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal  GuiStyle?           overrideStyle; // set by revertStyle
+    
+
     private Color32 Override(ColorId id, Color32 color)
     {
         overrides.Add(id);
@@ -76,4 +85,5 @@ public sealed class GuiStyle
     {
         ApplyOverrides(revertStyle, this, revertStyle.overrideStyle!.overrides);
     }
+#endregion
 }
