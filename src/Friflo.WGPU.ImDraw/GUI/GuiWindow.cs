@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
