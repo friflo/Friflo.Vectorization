@@ -4,6 +4,7 @@
 
 using System;
 using System.Numerics;
+using System.Text;
 
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -16,12 +17,15 @@ namespace Friflo.WGPU.ImDraw;
 
 public ref struct DrawGui : IDisposable
 {
-    private readonly    GuiInput    input;
-    private readonly    Gui         gui;
-    public              Draw2D      draw;
+    private readonly    GuiInput        input;
+    private readonly    Gui             gui;
+    public              Draw2D          draw;
     
-    private readonly    GuiWindow   Window      => gui.window;
-    private readonly    float       LineHeight  => draw.DefaultFont.lineHeight;
+    private readonly    GuiWindow       Window          => gui.window;
+    private readonly    float           LineHeight      => draw.DefaultFont.lineHeight;
+    /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
+    private readonly    StringBuilder   StringBuilder() => draw.batch.StringBuilder();
+
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw   = draw;
@@ -280,7 +284,7 @@ public ref struct DrawGui : IDisposable
             Color32 focusColor = new Color32(0, 122, 255);
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
-        var labelText = window.Builder().AppendFormat(value, format);
+        var labelText = StringBuilder().AppendFormat(value, format);
         draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, window.textColor);
 
         window.MoveCursor(totalSize);

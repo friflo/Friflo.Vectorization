@@ -57,7 +57,6 @@ internal sealed class GuiWindow
     internal            Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
-    private  readonly   StringBuilder       sb          = new(512,512); // => first chunk: 512 chars
     
     internal readonly   Color32             textColor   = 0x000000ff;
     internal readonly   Color32             buttonColor = 0xddddddff;
@@ -69,12 +68,6 @@ internal sealed class GuiWindow
         this.gui = gui;
     }
     
-    internal StringBuilder Builder()
-    {
-        sb.Clear();
-        return sb;
-    }
-
     internal void ResetScope(string title)
     {
         idStack.Clear();

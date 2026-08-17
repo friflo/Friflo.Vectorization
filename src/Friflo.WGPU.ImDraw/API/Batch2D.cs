@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Friflo.Vectorization.GPU;
 using Friflo.Vectorization.WebGPU;
 using Shaders.Imdraw;
@@ -38,6 +39,8 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   Stack<RectVector2>  scissorStack    = [];
     internal readonly   Stack<Matrix4x4>    transformStack  = [];
     internal readonly   Stack<int>          zIndexStack     = [];
+    private  readonly   StringBuilder       stringBuilder   = new(512,512); // => first chunk: 512 chars
+
 
     // --- resources owned by DrawModule
     internal readonly   Gui                 gui;
@@ -164,6 +167,12 @@ public sealed partial class Batch2D : IDisposable
             };
         }
         throw new ArgumentOutOfRangeException(nameof(blendIndex));
+    }
+    
+    internal StringBuilder StringBuilder()
+    {
+        stringBuilder.Clear();
+        return stringBuilder;
     }
     
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
