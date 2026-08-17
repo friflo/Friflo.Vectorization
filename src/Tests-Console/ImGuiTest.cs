@@ -91,9 +91,10 @@ public class ImGuiRenderer : IRenderer
         gui.Label("");
         
         gui.BeginHorizontal();
-        gui.PushStyle(redButtonStyle);
         if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
         if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+        gui.PushStyle(redButtonStyle);
+        if (gui.Button("Red"))                              Console.WriteLine("Clicked: Red");
         gui.PopStyle();
         gui.EndHorizontal();
         
