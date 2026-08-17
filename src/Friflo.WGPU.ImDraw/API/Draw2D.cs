@@ -742,7 +742,7 @@ public ref struct Draw2D : IDisposable
 
 
 #region State / Pipeline
-    public readonly void PushScissor(Vector2 position, Vector2 size)
+    public readonly ScissorScope PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;
         var cur = scissorStack.Count > 0 ? scissorStack.Peek() : new RectVector2(Vector2.Zero, batch.viewport);
@@ -758,6 +758,7 @@ public ref struct Draw2D : IDisposable
 
         Flush();
         batch.currentScissor = scissor;
+        return new ScissorScope(this);
     }
 
     public readonly void PopScissor()
@@ -796,7 +797,7 @@ public ref struct Draw2D : IDisposable
         bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
-    public readonly void PushTransform(in Matrix4x4 transform)
+    public readonly TransformScope PushTransform(in Matrix4x4 transform)
     {
         var transformStack = batch.transformStack;
         var parent    = transformStack.Count > 0 ? transformStack.Peek() : Matrix4x4.Identity;
@@ -804,6 +805,7 @@ public ref struct Draw2D : IDisposable
 
         transformStack.Push(combined);
         ApplyTransform(combined);
+        return new TransformScope(this);
     }
 
     public readonly void PopTransform()

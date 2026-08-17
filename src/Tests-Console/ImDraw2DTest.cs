@@ -56,12 +56,10 @@ public class ImRenderer : IRenderer
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
-        draw.PushTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime));
-        
-        DrawShapes(draw, frame.Width, frame.Height);
-        DrawSprites(draw, deltaTime);
-        draw.PopTransform();
-
+        using (draw.PushTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime))) {
+            DrawShapes(draw, frame.Width, frame.Height);
+            DrawSprites(draw, deltaTime);
+        }
         DrawText(draw);
         
         draw.Flush();
@@ -157,11 +155,10 @@ public class ImRenderer : IRenderer
         draw.DrawStringTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
         
         draw.RectangleLines(new Vector2(750, 150), new Vector2(200, 220), 2, Color32.Gray);
-        draw.PushScissor(new Vector2(750, 150), new Vector2(200, 220));
-        var lineCount = draw.DrawStringWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
-        Debug.Assert(lineCount == 8);
-        draw.PopScissor();
-        
+            using (draw.PushScissor(new Vector2(750, 150), new Vector2(200, 220))) {
+            var lineCount = draw.DrawStringWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
+            Debug.Assert(lineCount == 8);
+        }
         {
             var btnPos  = new Vector2(1000, 150);
             var btnSize = new Vector2(150,  50);
