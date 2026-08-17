@@ -7,9 +7,14 @@ namespace Friflo.WGPU.ImDraw;
 
 public sealed class GuiStyle
 {
+    public  Color32     windowColor = 0xaaaaaaff;
+    
     public  Color32     textColor   = 0x000000ff;
+    
+    public  Color32     buttonText  = 0x000000ff;
     public  Color32     buttonColor = 0xddddddff;
     public  Color32     buttonHover = 0xeeeeeeff;
     public  Color32     buttonDown  = 0xbbbbbbff;
+    
     public  Color32     sliderColor = 0xccccccff;
 }

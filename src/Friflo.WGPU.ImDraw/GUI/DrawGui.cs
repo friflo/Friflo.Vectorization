@@ -19,10 +19,11 @@ public ref struct DrawGui : IDisposable
 {
     private readonly    GuiInput        input;
     private readonly    Gui             gui;
+    private readonly    GuiState        guiState;
     public              Draw2D          draw;
     
     private readonly    GuiWindow       Window          => gui.window;
-    private readonly    GuiStyle        Style           => gui.style;
+    private readonly    GuiStyle        Style           => guiState.currentStyle;
     private readonly    float           LineHeight      => draw.DefaultFont.lineHeight;
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     private readonly    StringBuilder   StringBuilder() => draw.batch.StringBuilder();
@@ -32,6 +33,7 @@ public ref struct DrawGui : IDisposable
         this.draw   = draw;
         input       = batch.input;
         gui         = batch.gui;
+        guiState    = batch.guiState;
     }
     
     public void Dispose()
@@ -44,26 +46,26 @@ public ref struct DrawGui : IDisposable
 
     public readonly void SetNextWindowPos(Vector2 position)
     {
-        gui.nextWindowPos = position;
+        guiState.nextWindowPos = position;
     }
 
     public readonly void SetNextWindowSize(Vector2 size)
     {
-        gui.nextWindowSize = size;
+        guiState.nextWindowSize = size;
     }
     
-    public readonly void BeginWindow(string title, Color32 color = default)
+    public readonly void BeginWindow(string title)
     {
         if (!gui.windows.TryGetValue(title, out gui.window!)) {
             gui.window = new GuiWindow(gui) {
-                pos     = gui.nextWindowPos  ?? new Vector2(50, 50),
-                size    = gui.nextWindowSize ?? new Vector2(300, 200)
+                pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
+                size    = guiState.nextWindowSize ?? new Vector2(300, 200)
             };
             gui.windows.Add(title, gui.window);
             gui.windowOrder.Add(gui.window);
         }
-        gui.nextWindowPos  = null;
-        gui.nextWindowSize = null;
+        guiState.nextWindowPos  = null;
+        guiState.nextWindowSize = null;
         var window      = Window;
         
         // Hit test whole window
@@ -97,8 +99,7 @@ public ref struct DrawGui : IDisposable
         }
 
         // Render background & titlebar
-        if (color.Packed == 0) color = 0x222222ff;
-        draw.RectangleRounded(window.pos, window.size, 8, color);
+        draw.RectangleRounded(window.pos, window.size, 8, Style.windowColor);
 
         var headerColor = Style.buttonColor;
         if (titleState == WidgetState.Hover) headerColor = Style.buttonHover;
@@ -139,11 +140,9 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public readonly bool Button(ReadOnlySpan<char> name, WidgetID id = default, Color32 color = default, Color32 textColor = default)
+    public readonly bool Button(ReadOnlySpan<char> name, WidgetID id = default)
     {
         var window = Window;
-        if (color.Packed == 0)      color       = Style.buttonColor;
-        if (textColor.Packed == 0)  textColor   = Style.textColor;
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -157,15 +156,12 @@ public ref struct DrawGui : IDisposable
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
         
-        switch (widgetState)
+        var color = widgetState switch
         {
-            case WidgetState.Down:
-                color = Style.buttonDown;
-                break;
-            case WidgetState.Hover:
-                color = Style.buttonHover;
-                break;
-        }
+            WidgetState.Down    => Style.buttonDown,
+            WidgetState.Hover   => Style.buttonHover,
+            _                   => Style.buttonColor
+        };
         
         // Render button background
         draw.RectangleRounded(window.cursor, size, 8, color);
@@ -175,7 +171,7 @@ public ref struct DrawGui : IDisposable
             draw.RectangleLines(window.cursor, size, 4, focusColor);
         }
 
-        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, textColor);
+        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.buttonText);
         
         window.MoveCursor(size);
 
@@ -339,5 +335,18 @@ public ref struct DrawGui : IDisposable
     
     public readonly void BeginHorizontal()   => Window.PushLayout(LayoutDirection.Horizontal);
     public readonly void EndHorizontal()     => Window.PopLayout();
+#endregion
+
+#region Styles
+    public readonly void PushStyle(GuiStyle style)
+    {
+        guiState.styleStack.Push(guiState.currentStyle);
+        guiState.currentStyle = style;
+    }
+    
+    public readonly void PopStyle()
+    {
+        guiState.currentStyle = guiState.styleStack.Pop();
+    }
 #endregion
 }

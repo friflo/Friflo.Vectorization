@@ -22,6 +22,13 @@ public class ImGuiRenderer : IRenderer
     private             bool                    enabled2;
     private             float                   volume;
     
+    private readonly    GuiStyle                customButtonStyle = new() {
+        buttonColor = 0xaa4444ff,
+        buttonHover = 0xcc6666ff,
+        buttonDown  = 0x882222ff,
+        buttonText  = 0xffffffff
+    };
+    
     public void OnShutdown() {
         monocraftFont?.Dispose();
         myTexture.Dispose();
@@ -58,8 +65,8 @@ public class ImGuiRenderer : IRenderer
         using var gui = batch.BeginGui(frame, renderPassDescriptor);
         
         gui.SetNextWindowPos(new Vector2(100, 20));
-        gui.SetNextWindowSize(new Vector2(500, 600));
-        gui.BeginWindow("Window 1", 0xaaaaaaff);
+        gui.SetNextWindowSize(new Vector2(500, 700));
+        gui.BeginWindow("Window 1");
         
         gui.Label("hello GUI");
         gui.Label("");
@@ -82,15 +89,17 @@ public class ImGuiRenderer : IRenderer
         gui.Label("");
         
         gui.BeginHorizontal();
+        gui.PushStyle(customButtonStyle);
         if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
         if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+        gui.PopStyle();
         gui.EndHorizontal();
         
         gui.EndWindow();
         
         gui.SetNextWindowPos(new Vector2(650, 20));
         gui.SetNextWindowSize(new Vector2(500, 600));
-        gui.BeginWindow("Window 2", 0xaaaaaaff);
+        gui.BeginWindow("Window 2");
         gui.Checkbox("checkbox", ref enabled2);
         gui.Label("");
         

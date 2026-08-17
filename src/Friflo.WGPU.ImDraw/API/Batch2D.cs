@@ -40,7 +40,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   Stack<Matrix4x4>    transformStack  = [];
     internal readonly   Stack<int>          zIndexStack     = [];
     private  readonly   StringBuilder       stringBuilder   = new(512,512); // => first chunk: 512 chars
-
+    internal readonly   GuiState            guiState        = new();
 
     // --- resources owned by DrawModule
     internal readonly   Gui                 gui;
@@ -201,6 +201,7 @@ public sealed partial class Batch2D : IDisposable
         if (defaultFontTexture.IsDisposed) {
             SetFontDefault();
         }
+        guiState.Reset();
         currentTexture      = defaultFontTexture;
         vertexStart         = 0;
         vertexCount         = 0;
