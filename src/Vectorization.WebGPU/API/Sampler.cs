@@ -2,9 +2,9 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.GPU;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
@@ -15,7 +15,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 public static unsafe partial class WgpuExtensions

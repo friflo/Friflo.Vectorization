@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [StructLayout(LayoutKind.Sequential)]

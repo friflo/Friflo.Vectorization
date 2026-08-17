@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertToPrimaryConstructor
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 /// <summary>
 /// When used as a <c>[Shader]</c> method parameter, it sets the parameters of<br/>

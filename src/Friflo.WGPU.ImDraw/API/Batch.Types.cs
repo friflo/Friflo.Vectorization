@@ -4,8 +4,8 @@
 
 using System;
 using System.Numerics;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using Shaders.Imdraw;
 
 

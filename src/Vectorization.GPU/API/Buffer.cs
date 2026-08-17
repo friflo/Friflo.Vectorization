@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.GPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 /// <summary> Specify a read-write buffer for a Kernel method as input/output parameter </summary>
 /// <remarks>

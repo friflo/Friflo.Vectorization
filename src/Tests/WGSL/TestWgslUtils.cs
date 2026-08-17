@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;
 

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 internal sealed class WgpuErrorHandler
 {

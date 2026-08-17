@@ -6,14 +6,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.GPU.Runtime;
 
 [assembly: CLSCompliant(true)]
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 [CLSCompliant(true)]
 [EditorBrowsable(EditorBrowsableState.Never)]

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 using Friflo.WGSL.Transpiler.CSharp;
 using Friflo.WGSL.Transpiler.WGSL;
 using NUnit.Framework;

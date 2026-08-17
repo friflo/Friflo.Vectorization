@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable UseNullPropagation
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.GPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public readonly struct GpuBuffers

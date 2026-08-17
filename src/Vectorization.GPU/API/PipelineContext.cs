@@ -12,7 +12,7 @@ using System.Threading;
 // ReSharper disable PropertyCanBeMadeInitOnly.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 
 /// <summary>Defines how native GPU compute/render passes are batched and managed.</summary>

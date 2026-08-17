@@ -4,12 +4,12 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe class WgpuAdapterInfo : GpuAdapterInfo

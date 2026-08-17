@@ -4,10 +4,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 
 namespace Kernel.Generators
 {

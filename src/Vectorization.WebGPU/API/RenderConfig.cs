@@ -3,15 +3,15 @@
 
 
 using System;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 /// <summary>
 /// Handle to a unique <see cref="GpuRenderPipelineDescriptor"/>.<br/>

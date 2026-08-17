@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using StbImageSharp;
 using StbTrueTypeSharp;
 

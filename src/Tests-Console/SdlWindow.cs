@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 using SDL3;
 

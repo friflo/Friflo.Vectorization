@@ -4,8 +4,8 @@
 using System;
 using System.IO;
 using System.Text;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using StbImageSharp;
 
 // ReSharper disable InconsistentNaming

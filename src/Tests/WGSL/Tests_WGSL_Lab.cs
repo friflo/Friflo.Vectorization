@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using CustomTypes;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming

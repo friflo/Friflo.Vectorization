@@ -5,12 +5,12 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct WgpuQueue

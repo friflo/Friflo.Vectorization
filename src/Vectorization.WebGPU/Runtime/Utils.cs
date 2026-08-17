@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 
 internal static class WgpuUtils

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 using NUnit.Framework;
 using Tests.Utils;
 

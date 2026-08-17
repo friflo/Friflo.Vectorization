@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 public abstract partial class GpuDevice : CommandStream, IDisposable
 {

@@ -1,4 +1,4 @@
-﻿using Friflo.Vectorization.WebGPU;
+﻿using Friflo.WGPU;
 using Friflo.WGSL.Transpiler.CodeFixes;
 using NUnit.Framework;
 

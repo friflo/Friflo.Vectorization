@@ -4,11 +4,11 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.WGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime {
+namespace Friflo.WGPU.Runtime {
 
 
 /// <summary>
@@ -60,7 +60,7 @@ public readonly unsafe struct ComputeCache
 
 
 
-namespace Friflo.Vectorization.WebGPU {
+namespace Friflo.WGPU {
 
 public sealed partial  class WgpuDevice
 {

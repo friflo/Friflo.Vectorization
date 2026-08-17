@@ -23,7 +23,7 @@ namespace Friflo.Vectorization
     public sealed class SpanAttribute : Attribute { }
 }
 
-namespace Friflo.Vectorization.GPU
+namespace Friflo.GPU
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class KernelAttribute : Attribute { }

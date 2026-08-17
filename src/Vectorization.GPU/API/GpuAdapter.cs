@@ -5,7 +5,7 @@ using System;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable InconsistentNaming
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 public abstract class GpuAdapter : IDisposable
 {

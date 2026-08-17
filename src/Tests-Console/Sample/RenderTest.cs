@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using TestConsole;
 
 // ReSharper disable MemberCanBePrivate.Global

@@ -7,7 +7,7 @@ using System.Reflection;
 
 // ReSharper disable InvertIf
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 
 internal static class WgpuResource

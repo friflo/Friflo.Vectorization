@@ -3,15 +3,15 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.GPU;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable UnassignedField.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 /// <summary> managed type for:  <see cref="SurfaceConfiguration"/>. </summary>

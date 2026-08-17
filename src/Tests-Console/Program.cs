@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Friflo.Vectorization;
 using Friflo.Vectorization.CPU;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using TestConsole;
 
 // ReSharper disable HeuristicUnreachableCode

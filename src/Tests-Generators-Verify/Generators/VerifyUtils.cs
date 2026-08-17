@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using Friflo.Engine.ECS;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -22,9 +22,9 @@ public static class VerifyUtils
             assemblyName: "TestProj",
             syntaxTrees: new[] { CSharpSyntaxTree.ParseText(source) },
             references: new[] {
-                MetadataReference.CreateFromFile(typeof(Instance)           .Assembly.Location),    // Friflo.Vectorization.WebGPU.Runtime
-                MetadataReference.CreateFromFile(typeof(WgpuInstance)       .Assembly.Location),    // Friflo.Vectorization.WebGPU
-                MetadataReference.CreateFromFile(typeof(GpuInstance)        .Assembly.Location),    // Friflo.Vectorization.GPU
+                MetadataReference.CreateFromFile(typeof(Instance)           .Assembly.Location),    // Friflo.WGPU.Runtime
+                MetadataReference.CreateFromFile(typeof(WgpuInstance)       .Assembly.Location),    // Friflo.WGPU
+                MetadataReference.CreateFromFile(typeof(GpuInstance)        .Assembly.Location),    // Friflo.GPU
                 MetadataReference.CreateFromFile(typeof(VectorizeAttribute) .Assembly.Location),    // Friflo.Vectorization.Attributes
                 MetadataReference.CreateFromFile(typeof(IComponent)         .Assembly.Location),    // Friflo.Engine.ECS
                 MetadataReference.CreateFromFile(typeof(MathF)              .Assembly.Location),    // System

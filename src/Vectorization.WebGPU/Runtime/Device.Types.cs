@@ -4,14 +4,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // file contains structs created by:  WgpuDevice
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 /*
 

@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <RootNamespace>Friflo.Vectorization.WebGPU</RootNamespace>
-    <AssemblyName>Friflo.Vectorization.WebGPU</AssemblyName>
+    <RootNamespace>Friflo.WGPU</RootNamespace>
+    <AssemblyName>Friflo.WGPU</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--
@@ -61,7 +61,7 @@
   
   
     <ItemGroup>
-        <PackageReference Include="Friflo.Vectorization.WebGPU.Runtime" Version="[0.4.0]" />
+        <PackageReference Include="Friflo.Vectorization.WebGPU.Runtime" Version="0.5.0" />
     </ItemGroup>
   
     <ItemGroup>

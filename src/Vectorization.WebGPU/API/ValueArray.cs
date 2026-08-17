@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 // -------------------------------------- ValueArray<T> --------------------------------------
 /// <summary>

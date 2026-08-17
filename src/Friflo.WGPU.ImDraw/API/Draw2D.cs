@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InconsistentNaming

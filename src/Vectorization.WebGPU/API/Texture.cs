@@ -5,8 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnassignedField.Global
@@ -17,7 +17,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable InconsistentNaming
 // ReSharper disable NotAccessedField.Local
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 public sealed unsafe class GpuTexture : IDisposable

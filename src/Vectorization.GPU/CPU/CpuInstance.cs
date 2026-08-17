@@ -2,7 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.Vectorization.CPU;

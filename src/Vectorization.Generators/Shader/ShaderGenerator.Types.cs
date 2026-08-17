@@ -194,13 +194,13 @@ internal static partial class ShaderGenerator
                     "Matrix4x4"             => (64, 4, CsTypeCode.mat4x4f),     // WGSL type
                     _                       => ( 0, 0, CsTypeCode.None)
                 };
-            case "Friflo.Vectorization.GPU":
+            case "Friflo.GPU":
                 return symbolName switch {
                     "InBuffer"              => (0, 0, CsTypeCode.InBuffer),
                     "InOutBuffer"           => (0, 0, CsTypeCode.InOutBuffer),
                     _                       => (0, 0, CsTypeCode.None)
                 };
-            case "Friflo.Vectorization.WebGPU":
+            case "Friflo.WGPU":
                 return symbolName switch {
                     "GpuSampler"            => (0, 0, CsTypeCode.GpuSampler),
                     "GpuTextureView"        => (0, 0, CsTypeCode.GpuTextureView),

@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal readonly unsafe struct WgpuEncoder

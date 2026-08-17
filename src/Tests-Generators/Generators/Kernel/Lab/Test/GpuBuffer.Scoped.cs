@@ -2,7 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 // ReSharper disable NotAccessedField.Local
 // ReSharper disable once CheckNamespace

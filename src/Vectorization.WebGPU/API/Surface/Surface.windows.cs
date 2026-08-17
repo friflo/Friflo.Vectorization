@@ -2,12 +2,12 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 // --- windows

@@ -38,7 +38,7 @@ public static class Verify_Kernel_Float
 """
 using System.Numerics;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 namespace VerifyVectorize;
 
@@ -59,7 +59,7 @@ public partial class MyExample
         await Verify("""
 using System.Numerics;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 namespace VerifyVectorize;
 
@@ -81,7 +81,7 @@ public partial class MyExample
 using System;
 using System.Numerics;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 namespace VerifyVectorize;
 
@@ -103,7 +103,7 @@ public partial class Kernel_Sign_Example
 using System;
 using System.Numerics;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 namespace VerifyVectorize;
 

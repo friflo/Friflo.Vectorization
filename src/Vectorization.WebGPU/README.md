@@ -1,4 +1,4 @@
-# Friflo.Vectorization.WebGPU
+# Friflo.WGPU
 
 
 TODO fill content

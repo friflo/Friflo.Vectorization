@@ -3,13 +3,13 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 /// --- <see cref="PipelineContext"/> ---
 public sealed partial class CommandRecorder

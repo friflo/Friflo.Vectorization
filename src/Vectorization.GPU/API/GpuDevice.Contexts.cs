@@ -13,7 +13,7 @@ using System.Threading;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 public interface IGpuDeviceModule : IDisposable;
 

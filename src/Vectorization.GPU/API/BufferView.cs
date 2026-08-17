@@ -2,11 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU.Runtime;
+using Friflo.GPU.Runtime;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 /// <summary>
 /// Provides a read-write window into a sub-region of a <see cref="GpuBuffer{T}"/>.

@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU.Runtime;
-using Buffer = Friflo.Vectorization.WebGPU.Runtime.Buffer;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.GPU;
+using Friflo.WGPU.Runtime;
+using Buffer = Friflo.WGPU.Runtime.Buffer;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Local
 // ReSharper disable SuggestVarOrType_Elsewhere
@@ -17,7 +17,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SwapViaDeconstruction
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 [DebuggerTypeProxy(typeof(WgpuDeviceDebugView))]
 public sealed unsafe partial class WgpuDevice : GpuDevice

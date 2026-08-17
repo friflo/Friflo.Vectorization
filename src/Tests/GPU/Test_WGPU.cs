@@ -1,6 +1,6 @@
 ﻿
 using System;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 using NUnit.Framework;
 
 // ReSharper disable UseObjectOrCollectionInitializer

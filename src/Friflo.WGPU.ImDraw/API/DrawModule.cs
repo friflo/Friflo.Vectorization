@@ -2,8 +2,8 @@
 // See LICENSE file in the project root for full license information.
 
 
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 
 // ReSharper disable once CheckNamespace

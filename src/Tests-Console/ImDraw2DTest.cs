@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.Vectorization.WebGPU;
+using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 
 

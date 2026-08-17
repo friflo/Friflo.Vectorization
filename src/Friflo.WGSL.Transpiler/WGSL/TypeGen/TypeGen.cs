@@ -155,7 +155,7 @@ public sealed class TypeGen
             using System.Diagnostics.CodeAnalysis;
             using System.Runtime.CompilerServices;
             using System.Runtime.InteropServices;
-            using Friflo.Vectorization.WebGPU;
+            using Friflo.WGPU;
             
             """);
     }

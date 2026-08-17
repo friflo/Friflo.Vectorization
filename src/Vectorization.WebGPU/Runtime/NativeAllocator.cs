@@ -8,7 +8,7 @@ using System.Text;
 
 
 // ReSharper disable InconsistentNaming
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 internal interface INativeSource<out TTarget>
     where TTarget : unmanaged

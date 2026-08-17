@@ -4,7 +4,7 @@
 using System;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 public abstract class GpuInstance : IDisposable
 {

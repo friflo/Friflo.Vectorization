@@ -6,7 +6,7 @@ using System;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 public readonly struct GpuHandle
 {

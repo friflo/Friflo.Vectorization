@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 
 // ReSharper disable InconsistentNaming
 namespace Shaders.RenderTest;

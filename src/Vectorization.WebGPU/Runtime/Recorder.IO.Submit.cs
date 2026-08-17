@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Friflo.Vectorization.GPU;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.GPU;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable InconsistentNaming
@@ -15,7 +15,7 @@ using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 
 public sealed unsafe partial class CommandRecorder

@@ -8,10 +8,10 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Friflo.Vectorization.Intrinsics;
 using System.Collections.Generic;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 
 namespace Kernel.Generators
 {

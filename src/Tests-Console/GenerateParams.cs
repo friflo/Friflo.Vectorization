@@ -1,8 +1,8 @@
 ﻿// ReSharper disable RedundantUsingDirective
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 // ReSharper disable RedundantUsingDirective
 // ReSharper disable InconsistentNaming

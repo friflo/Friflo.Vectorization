@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <RootNamespace>Friflo.Vectorization.GPU</RootNamespace>
-    <AssemblyName>Friflo.Vectorization.GPU</AssemblyName>
+    <RootNamespace>Friflo.GPU</RootNamespace>
+    <AssemblyName>Friflo.GPU</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--

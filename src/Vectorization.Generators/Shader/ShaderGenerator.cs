@@ -25,12 +25,12 @@ internal static partial class ShaderGenerator
     {
         var methodAttributes  = methodSymbol.GetAttributes();
 
-        var noEmit = GeneratorUtils.HasAttribute(methodAttributes, "Friflo.Vectorization.WebGPU.NoEmitAttribute");
+        var noEmit = GeneratorUtils.HasAttribute(methodAttributes, "Friflo.WGPU.NoEmitAttribute");
         if (noEmit) {
             return null;
         }
-        var shaderAttributes    = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.Vectorization.WebGPU.ShaderAttribute");
-        var workgroupSize       = GeneratorUtils.GetAttributeData (methodAttributes, "Friflo.Vectorization.WebGPU.WorkgroupSizeAttribute");
+        var shaderAttributes    = GeneratorUtils.GetAttributeDatas(methodAttributes, "Friflo.WGPU.ShaderAttribute");
+        var workgroupSize       = GeneratorUtils.GetAttributeData (methodAttributes, "Friflo.WGPU.WorkgroupSizeAttribute");
         
         var semanticInfo = new SemanticInfo(semanticModel);
 
@@ -62,14 +62,14 @@ internal static partial class ShaderGenerator
             var paramAttribute      = GetParamAttribute(attributes, out var bindGroup, out int vbs, out var e1, out var e2, out var attributeData);
             var workloadAttribute   = CsWorkloadAttribute.None;
             if (workgroupSizeAttr == null) {
-                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawAttribute")) {
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.WGPU.DrawAttribute")) {
                     workloadAttribute = CsWorkloadAttribute.Draw;
                 }
-                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DrawInstanceAttribute")) {
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.WGPU.DrawInstanceAttribute")) {
                     workloadAttribute = CsWorkloadAttribute.DrawInstance;
                 }
             } else {
-                if (GeneratorUtils.HasAttribute(attributes, "Friflo.Vectorization.WebGPU.DispatchAttribute")) {
+                if (GeneratorUtils.HasAttribute(attributes, "Friflo.WGPU.DispatchAttribute")) {
                     workloadAttribute   = CsWorkloadAttribute.Dispatch;
                 }
             }
@@ -207,7 +207,7 @@ internal static partial class ShaderGenerator
                 continue;
             }
             var ns = symbol.ContainingNamespace.ToDisplayString();
-            if (ns != "Friflo.Vectorization.WebGPU") {
+            if (ns != "Friflo.WGPU") {
                 continue;   
             }
             var loc     = attribute.GetAttributeLoc();

@@ -8,7 +8,7 @@ using System.Text;
 // ReSharper disable EmptyConstructor
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 public sealed class PerfLog
 {

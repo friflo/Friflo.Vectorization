@@ -41,8 +41,8 @@ public static class Verify_Shader_Compute
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 

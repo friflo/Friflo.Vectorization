@@ -3,7 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.GPU;
+namespace Friflo.GPU;
 
 
 public struct QueueStats

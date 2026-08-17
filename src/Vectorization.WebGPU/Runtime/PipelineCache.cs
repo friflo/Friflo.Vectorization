@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.WebGPU.Runtime;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.WGPU.Runtime;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime {
+namespace Friflo.WGPU.Runtime {
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal struct PipelineCaches
@@ -90,7 +90,7 @@ public abstract class BindGroupCache
 }
 
 
-namespace Friflo.Vectorization.WebGPU {
+namespace Friflo.WGPU {
 
 public sealed partial  class WgpuDevice
 {

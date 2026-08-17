@@ -47,7 +47,7 @@ public sealed class ShaderGen : IIncrementalGenerator
         
         // --- [Shader]
         var shaderMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.WebGPU.ShaderAttribute",
+            "Friflo.WGPU.ShaderAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: static (ctx, ct) => TransformShader(ctx, ct))
             .Combine(wgslFiles);

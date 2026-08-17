@@ -1,5 +1,5 @@
 ﻿
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 using Tests.Generators;
 using Kernel;
 

@@ -1,4 +1,4 @@
-# Friflo.Vectorization.GPU
+# Friflo.GPU
 
 
 TODO fill content

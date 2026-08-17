@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Friflo.Vectorization.CPU;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming

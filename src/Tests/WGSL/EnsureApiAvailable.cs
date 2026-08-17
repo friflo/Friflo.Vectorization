@@ -1,4 +1,4 @@
-﻿using Friflo.Vectorization.WebGPU;
+﻿using Friflo.WGPU;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global

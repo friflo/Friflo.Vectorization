@@ -38,7 +38,7 @@ public static class Verify_Kernel_Vector2
 """
 using System.Numerics;
 using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 namespace VerifyVectorize;
 

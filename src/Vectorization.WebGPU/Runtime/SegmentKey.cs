@@ -6,14 +6,14 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArrangeRedundantParentheses
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InvertIf
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 internal struct SegmentState
 {

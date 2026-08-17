@@ -66,7 +66,7 @@ public sealed class Gen : IIncrementalGenerator
         });
         
         var kernelMethod = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "Friflo.Vectorization.GPU.KernelAttribute",
+            "Friflo.GPU.KernelAttribute",
             predicate: (node, _) => node is MethodDeclarationSyntax,
             transform: (ctx, ct) => TransformAttribute(ctx, ct, GenerateTrigger.KernelAttribute));
         context.RegisterSourceOutput(kernelMethod, GeneratorUtils.EmitResult);
@@ -115,7 +115,7 @@ public sealed class Gen : IIncrementalGenerator
         
         bool hasQueryAttribute  = GeneratorUtils.HasAttribute    (attributes, "Friflo.Engine.ECS.QueryAttribute");
         var  vectorizeData      = GeneratorUtils.GetAttributeData(attributes, "Friflo.Vectorization.VectorizeAttribute");
-        bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.Vectorization.GPU.KernelAttribute");
+        bool hasKernelAttribute = GeneratorUtils.HasAttribute    (attributes, "Friflo.GPU.KernelAttribute");
 
         VectorMode vectorMode;
         switch (trigger) {
@@ -245,10 +245,10 @@ using Friflo.Vectorization.Intrinsics;");
         if (hasKernelAttribute)
         {
             sb.AppendLine(@"using System.Collections.Generic;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;");
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;");
         }
         
         if (query.VectorMode == VectorMode.Query) {

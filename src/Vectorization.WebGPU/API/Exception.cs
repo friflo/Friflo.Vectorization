@@ -5,7 +5,7 @@
 using System;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 public sealed class GpuException : Exception
 {

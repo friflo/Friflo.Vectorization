@@ -1,5 +1,5 @@
 ﻿using Friflo.Vectorization;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 using NUnit.Framework;
 using Tests.Utils;
 

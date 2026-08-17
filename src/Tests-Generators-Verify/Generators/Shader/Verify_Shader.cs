@@ -41,8 +41,8 @@ public static class Verify_Shader
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -77,8 +77,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -106,8 +106,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -149,8 +149,8 @@ public struct Matrix4x4_UniArr_16
 $$"""
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 {{UniformsSource}}
@@ -173,8 +173,8 @@ public partial class ShaderExample
 $$"""
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 {{UniformsSource}}
@@ -199,8 +199,8 @@ $$"""
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 {{UniformsSource}}
@@ -225,8 +225,8 @@ $$"""
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 {{UniformsSource}}
@@ -250,8 +250,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -281,8 +281,8 @@ public partial struct ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 using ForeignNamespace;
 using Other.Namespace;
 
@@ -332,8 +332,8 @@ namespace ForeignNamespace {
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -352,8 +352,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -373,8 +373,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -410,8 +410,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -449,8 +449,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -488,8 +488,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -525,8 +525,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -566,8 +566,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 
@@ -613,8 +613,8 @@ public partial class ShaderExample
 """
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.WebGPU;
+using Friflo.GPU;
+using Friflo.WGPU;
 
 namespace VerifyShader;
 

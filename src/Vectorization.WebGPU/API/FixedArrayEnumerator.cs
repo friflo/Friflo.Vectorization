@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 public ref struct FixedArrayEnumerator<T>  where T : unmanaged
 {

@@ -2,14 +2,14 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 

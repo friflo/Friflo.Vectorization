@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 

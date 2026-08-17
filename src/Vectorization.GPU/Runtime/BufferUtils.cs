@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 
 // ReSharper disable InconsistentNaming
-namespace Friflo.Vectorization.GPU.Runtime;
+namespace Friflo.GPU.Runtime;
 
 internal static class BufferUtils
 {

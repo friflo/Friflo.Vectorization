@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable InconsistentNaming

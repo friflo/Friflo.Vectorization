@@ -619,10 +619,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Friflo.Vectorization.GPU;
-using Friflo.Vectorization.GPU.Runtime;
-using Friflo.Vectorization.WebGPU;
-using Friflo.Vectorization.WebGPU.Runtime;
+using Friflo.GPU;
+using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.Runtime;
 {{foreignUsingNamespaces}}
 namespace {{method.DeclaringType.Namespace}};
 
@@ -705,10 +705,10 @@ public partial {{(modifier.IsClass ? "class" : "struct")}} {{className}}
             case "":    // global namespace
             case "System":
             case "System.Numerics":
-            case "Friflo.Vectorization.GPU":
-            case "Friflo.Vectorization.GPU.Runtime":
-            case "Friflo.Vectorization.WebGPU":
-            case "Friflo.Vectorization.WebGPU.Runtime":
+            case "Friflo.GPU":
+            case "Friflo.GPU.Runtime":
+            case "Friflo.WGPU":
+            case "Friflo.WGPU.Runtime":
                 return;
             default:
                 if (ns == declaringNamespace) {

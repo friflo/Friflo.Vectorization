@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Friflo.Vectorization.GPU;
-using static Friflo.Vectorization.WebGPU.Runtime.WebGPU_native;
+using Friflo.GPU;
+using static Friflo.WGPU.Runtime.WebGPU_native;
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable InvertIf
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.Vectorization.WebGPU.Runtime;
+namespace Friflo.WGPU.Runtime;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed unsafe partial class CommandRecorder : PipelineContext

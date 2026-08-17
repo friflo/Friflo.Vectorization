@@ -8,7 +8,7 @@ using System;
 // ReSharper disable UnusedType.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
-namespace Friflo.Vectorization.WebGPU;
+namespace Friflo.WGPU;
 
 
 /// <summary> Annotates a shader method parameter passing a <see cref="GpuSampler"/>. </summary>

@@ -1,5 +1,5 @@
 ﻿using System;
-using Friflo.Vectorization.GPU;
+using Friflo.GPU;
 
 // ReSharper disable InconsistentNaming
 namespace Kernel.Lab;
