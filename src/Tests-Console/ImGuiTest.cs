@@ -24,19 +24,19 @@ public class ImGuiRenderer : IRenderer
     
     private readonly GuiStyle redButtonStyle = new() {
         color = new GuiColor {
-            buttonColor = 0xaa4444ff,
-            buttonHover = 0xcc6666ff,
-            buttonDown  = 0x882222ff,
-            buttonText  = 0xffffffff
+            ButtonColor = 0xaa4444ff,
+            ButtonHover = 0xcc6666ff,
+            ButtonDown  = 0x882222ff,
+            ButtonText  = 0xffffffff
         }
     };
     
     private readonly GuiStyle greenButtonStyle = new() {
         color = new GuiColor {
-            buttonColor = 0x22aa22ff,
-            buttonHover = 0x44cc44ff,
-            buttonDown  = 0x008800ff,
-            buttonText  = 0xffffffff
+            ButtonColor = 0x22aa22ff,
+            ButtonHover = 0x44cc44ff,
+            ButtonDown  = 0x008800ff,
+            ButtonText  = 0xffffffff
         }
     };
     

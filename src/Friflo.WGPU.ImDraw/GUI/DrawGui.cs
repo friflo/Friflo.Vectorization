@@ -102,17 +102,17 @@ public ref struct DrawGui : IDisposable
         }
 
         // Render background & titlebar
-        draw.RectangleRounded(window.pos, window.size, 8, Style.color.windowColor);
+        draw.RectangleRounded(window.pos, window.size, 8, Style.color.WindowColor);
 
-        var headerColor = Style.color.buttonColor;
-        if (titleState == WidgetState.Hover) headerColor = Style.color.buttonHover;
-        if (titleState == WidgetState.Down)  headerColor = Style.color.buttonDown;
+        var headerColor = Style.color.ButtonColor;
+        if (titleState == WidgetState.Hover) headerColor = Style.color.ButtonHover;
+        if (titleState == WidgetState.Down)  headerColor = Style.color.ButtonDown;
 
         draw.RectangleRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
         var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        draw.DrawString(title, textPos, Style.color.textColor);
+        draw.DrawString(title, textPos, Style.color.TextColor);
 
         window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
         
@@ -136,7 +136,7 @@ public ref struct DrawGui : IDisposable
     public readonly void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
         var window = Window;
-        if (textColor.Packed == 0) textColor = Style.color.textColor;
+        if (textColor.Packed == 0) textColor = Style.color.TextColor;
         
         var size = draw.DrawString(name, window.cursor, textColor);
         
@@ -162,20 +162,20 @@ public ref struct DrawGui : IDisposable
         
         var color = widgetState switch
         {
-            WidgetState.Down    => Style.color.buttonDown,
-            WidgetState.Hover   => Style.color.buttonHover,
-            _                   => Style.color.buttonColor
+            WidgetState.Down    => Style.color.ButtonDown,
+            WidgetState.Hover   => Style.color.ButtonHover,
+            _                   => Style.color.ButtonColor
         };
         
         // Render button background
         draw.RectangleRounded(window.cursor, size, 8, color);
 
         if (isFocused) {
-            var focusColor = Style.color.focusColor;
+            var focusColor = Style.color.FocusColor;
             draw.RectangleLines(window.cursor, size, 4, focusColor);
         }
 
-        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.color.buttonText);
+        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Style.color.ButtonText);
         
         window.MoveCursor(size);
         
@@ -210,14 +210,14 @@ public ref struct DrawGui : IDisposable
             value = !value;
         }
 
-        var boxColor = Style.color.buttonColor;
+        var boxColor = Style.color.ButtonColor;
         switch (widgetState)
         {
             case WidgetState.Down:
-                boxColor = Style.color.buttonDown;
+                boxColor = Style.color.ButtonDown;
                 break;
             case WidgetState.Hover:
-                boxColor = Style.color.buttonHover;
+                boxColor = Style.color.ButtonHover;
                 break;
         }
 
@@ -226,16 +226,16 @@ public ref struct DrawGui : IDisposable
 
         // Render blue focus outline on box
         if (isFocused) {
-            var focusColor = Style.color.focusColor;
+            var focusColor = Style.color.FocusColor;
             draw.RectangleLines(boxRect, new Vector2(boxSize, boxSize), 4, focusColor);
         }
         if (value) {
             var padding = boxSize / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Style.color.textColor);
+            draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Style.color.TextColor);
         }
         var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
-        draw.DrawString(name, textPos, Style.color.textColor);
+        draw.DrawString(name, textPos, Style.color.TextColor);
 
         window.MoveCursor(totalSize);
         if (style != null) PopStyle();
@@ -271,25 +271,25 @@ public ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-        draw.RectangleRounded(window.cursor, totalSize, 6, Style.color.sliderColor);
+        draw.RectangleRounded(window.cursor, totalSize, 6, Style.color.SliderColor);
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        var barColor = Style.color.buttonHover;
+        var barColor = Style.color.ButtonHover;
         if (widgetState == WidgetState.Down) {
-            barColor = Style.color.buttonDown;
+            barColor = Style.color.ButtonDown;
         }
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
         // Render blue focus outline
         if (isFocused) {
-            Color32 focusColor = Style.color.focusColor;
+            Color32 focusColor = Style.color.FocusColor;
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
-        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.color.textColor);
+        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Style.color.TextColor);
 
         window.MoveCursor(totalSize);
         if (style != null) PopStyle();
@@ -329,7 +329,7 @@ public ref struct DrawGui : IDisposable
     public readonly void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
     {
         if (!isFocused) return;
-        var focusColor  = Style.color.focusColor;
+        var focusColor  = Style.color.FocusColor;
         var offset      = new Vector2(margin, margin);
         draw.RectangleLines(pos - offset, size + 2f * offset, 4, focusColor);
     }
