@@ -59,7 +59,7 @@ public sealed class GuiStyle
 #region internal
     [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal  GuiStyle?           overrideStyle; // set by revertStyle
     
-    internal static void ApplyOverrides(in GuiColor source, ref GuiColor target, Bitset64<ColorId> overrides)
+    private static void ApplyOverrides(in GuiColor source, ref GuiColor target, Bitset64<ColorId> overrides)
     {
         foreach (var colorState in overrides)
         {
