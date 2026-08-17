@@ -3,7 +3,6 @@
 
 
 using Friflo.GPU;
-using Friflo.WGPU;
 
 
 // ReSharper disable once CheckNamespace

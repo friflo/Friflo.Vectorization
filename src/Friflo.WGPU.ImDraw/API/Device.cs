@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Text;
 using Friflo.GPU;
-using Friflo.WGPU;
 using StbImageSharp;
 
 // ReSharper disable InconsistentNaming

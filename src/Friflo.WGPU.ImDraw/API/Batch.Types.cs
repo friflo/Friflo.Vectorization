@@ -5,7 +5,6 @@
 using System;
 using System.Numerics;
 using Friflo.GPU;
-using Friflo.WGPU;
 using Shaders.Imdraw;
 
 

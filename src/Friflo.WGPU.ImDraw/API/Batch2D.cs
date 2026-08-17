@@ -8,7 +8,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Friflo.GPU;
-using Friflo.WGPU;
 using Shaders.Imdraw;
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable

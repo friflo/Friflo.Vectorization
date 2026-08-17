@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Friflo.WGPU;
 
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InconsistentNaming
@@ -837,7 +836,7 @@ public ref struct Draw2D : IDisposable
         batch.currentBlendState = blendState;
     }
     
-    public readonly void PushZIndex(int zIndex)
+    public readonly ZIndexScope PushZIndex(int zIndex)
     {
         var bat = batch;
         bat.zIndexStack.Push(bat.currentZIndex);
@@ -845,6 +844,7 @@ public ref struct Draw2D : IDisposable
         Flush();
         bat.currentZIndex = zIndex;
         bat.sortZIndex    = true;
+        return new ZIndexScope(this);
     }
 
     public readonly void PopZIndex()
