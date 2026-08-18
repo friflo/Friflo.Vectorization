@@ -368,7 +368,7 @@ public readonly ref struct DrawGui : IDisposable
             Array.Copy(guiState.revertStyles,  revertStyles, length);
             guiState.revertStyles = revertStyles; 
         }
-        ref var revertStyle = ref guiState.revertStyles[guiState.revertStylesCount++];
+        ref var revertStyle = ref revertStyles[guiState.revertStylesCount++];
         guiState.currentStyle.PushOverrides(style, ref revertStyle);
         return new StyleScope(this);
     }
