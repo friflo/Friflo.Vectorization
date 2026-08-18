@@ -46,7 +46,7 @@ public static class Tests_ImDraw
             format = TextureFormat.RGBA8Unorm,
             usage  = TextureUsage.CopyDst | TextureUsage.RenderAttachment
         });
-        var renderTargetView = targetTexture.CreateView();
+        var renderTargetView = targetTexture.CreateView(); // is owned by targetTexture
 
         var renderPassDesc = new GpuRenderPassDescriptor {
             colorAttachments = [
@@ -61,16 +61,18 @@ public static class Tests_ImDraw
 
         using var context   = device.BeginContext();
         using var batch     = device.CreateBatch2D(TextureFormat.RGBA8Unorm);
-        
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
-        batch.input.NewFrame();
-        using var gui = batch.BeginGui(target, renderPassDesc);
-        gui.BeginWindow("Test Window");
-        gui.Button("hello");
-        gui.Button("test");
-        gui.EndWindow();
-        gui.draw.Dispose(); // redundant - only for debugging
-        context.Queue.ReadBuffers();
+        batch.input.NewFrame(); // not necessary
+        using (var gui = batch.BeginGui(target, renderPassDesc)) {
+            gui.BeginWindow("Test Window");
+            gui.Button("hello");
+            gui.Button("test");
+            gui.EndWindow();
+            gui.draw.Dispose(); // redundant - only for debugging
+        }
+        context.Queue.ReadBuffers(); // <= Submit() & Wait
+        
+        // TODO implement targetTexture.Read()
     }
 }
