@@ -22,7 +22,7 @@ public class ConfigTest : Renderer
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
-        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
+        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.WindowSize, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         

@@ -195,6 +195,7 @@ public sealed partial class Batch2D : IDisposable
         descriptor.colorAttachments[0].view = frame.View;
         
         var pass = frame.BeginRenderPass(descriptor);
+        var windowSize = frame.WindowSize;
         
         // reset batcher state
         if (defaultFontTexture.IsDisposed) {
@@ -207,7 +208,7 @@ public sealed partial class Batch2D : IDisposable
         currentSampler      = samplerLinear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
-        currentScissor      = new RectVector2 ( Vector2.Zero, new Vector2(frame.Width, frame.Height));
+        currentScissor      = new RectVector2(Vector2.Zero, new Vector2(windowSize.width, windowSize.height));
         sortZIndex          = false;
         currentZIndex       = 0;
         currentSequence     = 0;
@@ -218,7 +219,7 @@ public sealed partial class Batch2D : IDisposable
         zIndexStack.Clear();
         
         var draw = new Draw2D(this, pass);
-        draw.SetViewport(frame.Width, frame.Height);
+        draw.SetViewport(windowSize.width, windowSize.height);
         return draw;
     }
     

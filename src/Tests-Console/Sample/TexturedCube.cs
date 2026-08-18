@@ -115,9 +115,9 @@ public partial class Renderer : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L168
-    private static Matrix4x4 GetTransformationMatrix(float width, float height, float time)
+    private static Matrix4x4 GetTransformationMatrix(Size2D windowSize, float time)
     {
-        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, windowSize.AspectRatio, 1f, 100f);
         var view = Matrix4x4.CreateRotationX(MathF.Sin(time)) * Matrix4x4.CreateRotationY(MathF.Cos(time))
                  * Matrix4x4.CreateTranslation(0, 0, -4f);
         return view * proj;
@@ -129,7 +129,7 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(frame.Width, frame.Height, time);
+        uniforms.modelViewProjectionMatrix = GetTransformationMatrix(frame.WindowSize, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
         

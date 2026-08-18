@@ -23,7 +23,7 @@ namespace Friflo.WGPU;
 
 public static partial class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, int width, int height, ReadOnlySpan<byte> encoderLabel)
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, Size2D windowSize, ReadOnlySpan<byte> encoderLabel)
     {
         if (surface.handle == null) {
             throw new InvalidOperationException("WgpuSurface is null");
@@ -36,7 +36,7 @@ public static partial class WgpuExtensions
         wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
         if (surfaceTexture.texture == null) {
             // surfaceTexture.texture == null   if window minimized
-            return new RenderFrame(default, null, surfaceTexture.status, null, width, height);
+            return new RenderFrame(default, null, surfaceTexture.status, null, windowSize);
         }
         var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
         var view = new GpuTextureView(handle, null);
@@ -45,7 +45,7 @@ public static partial class WgpuExtensions
             var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
             recorder.currentEncoder = recorder.Device.CreateEncoder(label);
         }
-        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, width, height);
+        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, windowSize);
     }
 }
 
@@ -148,13 +148,20 @@ public static class GpuColorBuilder
     }
 }
 
+public readonly struct Size2D(int width, int height)
+{
+    public readonly int     width       = width;
+    public readonly int     height      = height;
+    
+    public          float   AspectRatio => width / (float)height;
+}
+
 
 public readonly unsafe ref struct  RenderFrame : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
     public   readonly   GpuTextureView                  View;
-    public   readonly   int                             Width;
-    public   readonly   int                             Height;
+    public   readonly   Size2D                          WindowSize;
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
@@ -164,13 +171,12 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 
 
-    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, int width, int height) {
+    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, Size2D windowSize) {
         View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;
         this.recorder       = recorder;
-        Width               = width;
-        Height              = height;
+        WindowSize          = windowSize;
     }
 
     // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.
@@ -209,7 +215,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
             renderPassDesc.colorAttachments = pAttachments;
             recorder.renderPassEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-            return new RenderPass(recorder, Width, Height);
+            return new RenderPass(recorder, WindowSize);
         }
     }
     

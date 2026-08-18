@@ -114,9 +114,9 @@ public partial class Renderer : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L148
-    private void UpdateTransformationMatrix(float width, float height, float now)
+    private void UpdateTransformationMatrix(Size2D windowSize, float now)
     {
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, width / height, 1f, 100f);
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, windowSize.AspectRatio, 1f, 100f);
         int i = 0;
         for (int x = 0; x < xCount; x++) {
             for (int y = 0; y < yCount; y++) {
@@ -135,7 +135,7 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = frame.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        UpdateTransformationMatrix(frame.Width, frame.Height, time);
+        UpdateTransformationMatrix(frame.WindowSize, time);
         
         using var pass = frame.BeginRenderPass(renderPassDescriptor);
 

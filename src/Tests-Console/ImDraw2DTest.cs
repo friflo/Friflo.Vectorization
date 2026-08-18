@@ -56,8 +56,8 @@ public class ImRenderer : IRenderer
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
-        using (draw.PushTransform(CreateAnimatedTransform(frame.Width, frame.Height, currentTime))) {
-            DrawShapes(draw, frame.Width, frame.Height);
+        using (draw.PushTransform(CreateAnimatedTransform(frame.WindowSize, currentTime))) {
+            DrawShapes(draw, frame.WindowSize.width, frame.WindowSize.height);
             DrawSprites(draw, deltaTime);
         }
         DrawText(draw);
@@ -65,9 +65,9 @@ public class ImRenderer : IRenderer
         draw.Flush();
     }
     
-    private static Matrix4x4 CreateAnimatedTransform(float width, float height, float time)
+    private static Matrix4x4 CreateAnimatedTransform(Size2D windowSize, float time)
     {
-        var center = new Vector2(width * 0.5f, height * 0.5f);
+        var center = new Vector2(windowSize.width * 0.5f, windowSize.height * 0.5f);
         var scale  = 1.0f + MathF.Sin(time * 2f) * 0.05f; // Sanftes Atmen
         var angle  = MathF.Sin(time) * 0.03f;             // Leichtes Neigen
 

@@ -17,8 +17,7 @@ namespace Friflo.WGPU;
 public readonly unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;
-    private  readonly   int                 viewWidth;
-    private  readonly   int                 viewHeight;
+    private  readonly   Size2D              windowSize;
     
     private             RenderPassEncoder*  Handle
     { get {
@@ -31,10 +30,9 @@ public readonly unsafe ref struct RenderPass : IDisposable
     public RenderPassInternal Internal => new (Recorder, Handle);
 
     
-    internal RenderPass(CommandRecorder recorder, float width, float height) {
-        Recorder    = recorder;
-        viewWidth   = (int)width;
-        viewHeight  = (int)height;
+    internal RenderPass(CommandRecorder recorder, Size2D windowSize) {
+        Recorder        = recorder;
+        this.windowSize = windowSize;
     }
 
 #region --- rasterization & blending states
@@ -65,10 +63,10 @@ public readonly unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public readonly void SetScissorRect(int x, int y, int width, int height)
     {
-        int x1 = Math.Clamp(x,          0, viewWidth);
-        int y1 = Math.Clamp(y,          0, viewHeight);
-        int x2 = Math.Clamp(x + width,  0, viewWidth);
-        int y2 = Math.Clamp(y + height, 0, viewHeight);
+        int x1 = Math.Clamp(x,          0, windowSize.width);
+        int y1 = Math.Clamp(y,          0, windowSize.height);
+        int x2 = Math.Clamp(x + width,  0, windowSize.width);
+        int y2 = Math.Clamp(y + height, 0, windowSize.height);
 
         int clampedW = Math.Max(0, x2 - x1);
         int clampedH = Math.Max(0, y2 - y1);
