@@ -18,12 +18,30 @@ using static Friflo.WGPU.Runtime.WebGPU_native;
 namespace Friflo.WGPU;
 
 
+/// <summary>
+/// Specifies 3D extents for GPU resources, screen back-buffers, and offscreen render targets.
+/// </summary>
+/// <remarks>
+/// Maps directly to native WebGPU bindings. Supports C# 12 collection expressions (e.g., <c>[1920, 1080]</c>).
+/// <para>
+/// <b>Field Usage:</b>
+/// <list type="bullet">
+///   <item><term>Screen &amp; 2D Textures:</term><description><c>width</c> × <c>height</c>, <c>depthOrArrayLayers = 1</c></description></item>
+///   <item><term>Texture Arrays / Cubemaps:</term><description>Face resolution + layer count (e.g., 6 for cubemaps)</description></item>
+///   <item><term>3D Volume Textures:</term><description>Full voxel resolution (X × Y × Z)</description></item>
+/// </list>
+/// </para>
+/// </remarks>
 [CollectionBuilder(typeof(GpuExtent3DBuilder), nameof(GpuExtent3DBuilder.Create))]
 public struct GpuExtent3D : IEnumerable<int>
 {
     public  int     width;
     public  int     height              = 1;
     public  int     depthOrArrayLayers  = 1;
+    
+    public  float   AspectRatio => width / (float)height;
+    
+    public override string  ToString()  => depthOrArrayLayers <= 2 ? $"{width} x {height}" :  $"{width} x {height} x {depthOrArrayLayers}";
     
     public GpuExtent3D() { }
     

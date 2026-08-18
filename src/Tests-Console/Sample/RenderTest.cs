@@ -61,9 +61,9 @@ public partial class Renderer : IRenderer
         };
     }
     
-    protected static Matrix4x4 GetTransformationMatrix(Size2D windowSize, float time)
+    protected static Matrix4x4 GetTransformationMatrix(GpuExtent3D size, float time)
     {
-        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, windowSize.AspectRatio, 1f, 100f);
+        var proj = Matrix4x4.CreatePerspectiveFieldOfView((2f * MathF.PI) / 5f, size.AspectRatio, 1f, 100f);
         var view = Matrix4x4.CreateRotationY(MathF.Sin(time))
                  * Matrix4x4.CreateTranslation(0, 0, -1.5f);
         return view * proj;
@@ -74,7 +74,7 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = target.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(target.WindowSize, time);
+        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(target.TargetSize, time);
         
         var timeUniform = new TimeUniform(time);
         var testUniform = new TestAddUniform(10);
@@ -84,7 +84,7 @@ public partial class Renderer : IRenderer
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
         var model_offset 		= new Vector2(0, 0.2f * MathF.Cos(time * 2));
-        wormhood.iResolution    = new Vector3(target.WindowSize.width, target.WindowSize.height, 1.0f);
+        wormhood.iResolution    = new Vector3(target.TargetSize.width, target.TargetSize.height, 1.0f);
         wormhood.iTime          = time;
         
         Wormhood.RenderTunnel(pass, wgpu.Config, wormhood, new DrawArgs(3));

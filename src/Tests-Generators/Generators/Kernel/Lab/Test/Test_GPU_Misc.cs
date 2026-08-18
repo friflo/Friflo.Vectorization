@@ -84,7 +84,7 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual(56, Unsafe.SizeOf<ComputeCache>());
         Assert.AreEqual(64, Unsafe.SizeOf<PipelineCache>());
         
-        Assert.AreEqual(48, Unsafe.SizeOf<RenderTarget>());
+        Assert.AreEqual(56, Unsafe.SizeOf<RenderTarget>());
         Assert.AreEqual( 8, Unsafe.SizeOf<RenderPass>());
         Assert.AreEqual(16, Unsafe.SizeOf<Draw2D>());
         Assert.AreEqual(40, Unsafe.SizeOf<DrawGui>());

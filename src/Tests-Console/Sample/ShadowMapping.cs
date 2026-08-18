@@ -177,9 +177,9 @@ public partial class Renderer : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/shadowMapping/main.ts#L300
-    private static Matrix4x4 GetCameraViewProjMatrix(Size2D windowSize, float now)
+    private static Matrix4x4 GetCameraViewProjMatrix(GpuExtent3D size, float now)
     {
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(2f * MathF.PI / 5f, windowSize.AspectRatio, 1f, 2000f);
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(2f * MathF.PI / 5f, size.AspectRatio, 1f, 2000f);
 
         var eyePosition = new Vector3(0, 50, -100);
         
@@ -198,7 +198,7 @@ public partial class Renderer : IRenderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = target.View;
         var time = (float)stopwatch.Elapsed.TotalMilliseconds;
-        var cameraViewProj = GetCameraViewProjMatrix(target.WindowSize, time);
+        var cameraViewProj = GetCameraViewProjMatrix(target.TargetSize, time);
         scene.cameraViewProjMatrix = cameraViewProj;
 
         using (var pass = target.BeginRenderPass(shadowPassDescriptor)) {

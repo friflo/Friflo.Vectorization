@@ -21,7 +21,7 @@ public sealed unsafe partial class CommandRecorder : PipelineContext
 {
     private  readonly   WgpuDevice              device;
     internal            WgpuEncoder             currentEncoder;
-    internal            Size2D                  windowSize;
+    internal            GpuExtent3D             targetSize;
     internal            RenderPassEncoder*      renderPassEncoder;
     private             ComputePassEncoder*     currentPass;
     internal            PassBatching            enablePassBatching 	= PassBatching.HazardDriven;

@@ -25,7 +25,7 @@ public static partial class WgpuExtensions
 {
     extension(PipelineContext context)
     {
-        public unsafe RenderTarget BeginRenderTarget(WgpuSurface surface, Size2D windowSize, ReadOnlySpan<byte> encoderLabel)
+        public unsafe RenderTarget BeginRenderTarget(WgpuSurface surface, GpuExtent3D targetSize, ReadOnlySpan<byte> encoderLabel)
         {
             if (surface.handle == null) {
                 throw new InvalidOperationException("WgpuSurface is null");
@@ -38,7 +38,7 @@ public static partial class WgpuExtensions
             wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
             if (surfaceTexture.texture == null) {
                 // surfaceTexture.texture == null   if window minimized
-                return new RenderTarget(default, null, surfaceTexture.status, null, windowSize);
+                return new RenderTarget(default, null, surfaceTexture.status, null, targetSize);
             }
             var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
             var view = new GpuTextureView(handle, null);
@@ -47,7 +47,7 @@ public static partial class WgpuExtensions
                 var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
                 recorder.currentEncoder = recorder.Device.CreateEncoder(label);
             }
-            return new RenderTarget(view, surfaceTexture.texture, surfaceTexture.status, recorder, windowSize);
+            return new RenderTarget(view, surfaceTexture.texture, surfaceTexture.status, recorder, targetSize);
         }
 
         public unsafe RenderTarget BeginRenderTarget(GpuTextureView textureView, ReadOnlySpan<byte> encoderLabel)
@@ -60,9 +60,8 @@ public static partial class WgpuExtensions
                 var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
                 recorder.currentEncoder = recorder.Device.CreateEncoder(label);
             }
-            var size        = textureView.texture.Descriptor.size;
-            var windowSize  = new Size2D(size.width, size.height);
-            return new RenderTarget(textureView, textureView.texture.handle, SurfaceGetCurrentTextureStatus.SuccessOptimal, recorder, windowSize);
+            var size = textureView.texture.Descriptor.size;
+            return new RenderTarget(textureView, textureView.texture.handle, SurfaceGetCurrentTextureStatus.SuccessOptimal, recorder, size);
         }
     }
 }
@@ -166,21 +165,11 @@ public static class GpuColorBuilder
     }
 }
 
-public readonly struct Size2D(int width, int height)
-{
-    public readonly int     width       = width;
-    public readonly int     height      = height;
-    
-    public          float   AspectRatio => width / (float)height;
-    public override string  ToString()  => $"{width} x {height}";
-}
-
-
 public readonly unsafe ref struct  RenderTarget : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
     public   readonly   GpuTextureView                  View;
-    public   readonly   Size2D                          WindowSize;
+    public   readonly   GpuExtent3D                     TargetSize;
     private  readonly   CommandRecorder                 recorder;
     private  readonly   Texture*                        surfaceTexture;
     
@@ -190,12 +179,12 @@ public readonly unsafe ref struct  RenderTarget : IDisposable
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 
 
-    internal RenderTarget(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, Size2D windowSize) {
+    internal RenderTarget(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, GpuExtent3D targetSize) {
         View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;
         this.recorder       = recorder;
-        WindowSize          = windowSize;
+        TargetSize          = targetSize;
     }
 
     // BindGroup 0 = Stage globals (Camera, Light) - bound ONCE per pass.
@@ -234,7 +223,7 @@ public readonly unsafe ref struct  RenderTarget : IDisposable
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
             renderPassDesc.colorAttachments = pAttachments;
             var handle = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-            return new RenderPass(handle, recorder, WindowSize);
+            return new RenderPass(handle, recorder, TargetSize);
         }
     }
     

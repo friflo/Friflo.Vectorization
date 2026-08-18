@@ -19,7 +19,7 @@ public readonly unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;   //  8 bytes
     
-    public              Size2D              WindowSize => Recorder.windowSize;
+    public              GpuExtent3D         TargetSize => Recorder.targetSize;
     public              bool                IsDisposed => Recorder.renderPassEncoder == null;
     
     private             RenderPassEncoder*  Handle {
@@ -33,10 +33,10 @@ public readonly unsafe ref struct RenderPass : IDisposable
     public RenderPassInternal Internal => new (Recorder, Handle);
 
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, Size2D windowSize) {
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, GpuExtent3D targetSize) {
         Recorder                    = recorder;
         recorder.renderPassEncoder  = handle;
-        recorder.windowSize         = windowSize;
+        recorder.targetSize         = targetSize;
     }
 
 #region --- rasterization & blending states
@@ -67,7 +67,7 @@ public readonly unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void SetScissorRect(int x, int y, int width, int height)
     {
-        var size = WindowSize;
+        var size = TargetSize;
         int x1 = Math.Clamp(x,          0, size.width);
         int y1 = Math.Clamp(y,          0, size.height);
         int x2 = Math.Clamp(x + width,  0, size.width);

@@ -33,7 +33,7 @@ public class Wgpu
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;
     public  readonly    RenderConfig        Config;
-    public              Size2D              WindowSize;
+    public              GpuExtent3D         TargetSize;
     
     public Wgpu(nint osHandle, nint osInstance)
     {
@@ -171,11 +171,11 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private void SetWindowSize()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-        if (wgpu!.WindowSize.width == pixelWidth && wgpu.WindowSize.height == pixelHeight) {
+        if (wgpu!.TargetSize.width == pixelWidth && wgpu.TargetSize.height == pixelHeight) {
             return;
         }
         SDL.GetWindowSize(window, out int windowWidth, out int windowHeight);
-        wgpu!.WindowSize = new Size2D(pixelWidth, pixelHeight);
+        wgpu!.TargetSize = new GpuExtent3D(pixelWidth, pixelHeight, 1);
         if (pixelWidth == 0 || pixelHeight == 0) {
             return;
         }
@@ -201,7 +201,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult IterateSdl3()
     {
-        using var target = wgpu!.Context.BeginRenderTarget(wgpu.Surface, wgpu.WindowSize, "RenderTarget-Encoder"u8);
+        using var target = wgpu!.Context.BeginRenderTarget(wgpu.Surface, wgpu.TargetSize, "RenderTarget-Encoder"u8);
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
