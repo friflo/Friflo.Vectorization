@@ -49,7 +49,6 @@ public struct GuiColor
     public  void    RemoveOverride(ColorId id)          => overrides.Remove(id);
     public  bool    HasOverride   (ColorId id)          => overrides.Contains(id);
     public  void    ClearOverrides()                    => overrides = default;
-    public  void    AddOverrides(in GuiColor source)    => ApplyOverrides(source, ref this, source.overrides);
     
 #region internal
     [Browse(Never)] private     Color32 windowColor;
@@ -91,5 +90,23 @@ public struct GuiColor
         }
     }
 #endregion
+    
+    public void AddOverrides(in GuiColor source)
+    {
+        foreach (var colorState in source.overrides)
+        {
+            switch (colorState) {
+                case ColorId.WindowColor:   WindowColor  = source.windowColor;   break;
+                case ColorId.TextColor:     TextColor    = source.textColor;     break;
+                case ColorId.ButtonText:    ButtonText   = source.buttonText;    break;
+                case ColorId.ButtonColor:   ButtonColor  = source.buttonColor;   break;
+                case ColorId.ButtonHover:   ButtonHover  = source.buttonHover;   break;
+                case ColorId.ButtonDown:    ButtonDown   = source.buttonDown;    break;
+                case ColorId.SliderColor:   SliderColor  = source.sliderColor;   break;
+                case ColorId.FocusColor:    FocusColor   = source.focusColor;  	break;
+            }
+        }
+    }
+
 }
 
