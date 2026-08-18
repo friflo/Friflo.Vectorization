@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Friflo.WGPU.Runtime;
 using static Friflo.WGPU.Runtime.WebGPU_native;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
@@ -16,13 +17,13 @@ namespace Friflo.WGPU;
 
 public readonly unsafe ref struct RenderPass : IDisposable
 {
-    private  readonly   CommandRecorder     Recorder;
-    private  readonly   Size2D              windowSize;
+    private  readonly   CommandRecorder     Recorder;   //  8 bytes
     
-    private             RenderPassEncoder*  Handle
-    { get {
-        var handle = Recorder.renderPassEncoder;
-        return handle != null ? handle : throw new ObjectDisposedException(nameof(RenderPass));
+    public              Size2D              WindowSize => Recorder.windowSize;
+    private             RenderPassEncoder*  Handle {
+        get {
+            var handle = Recorder.renderPassEncoder;
+            return handle != null ? handle : throw new ObjectDisposedException(nameof(RenderPass));
     } }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -30,9 +31,10 @@ public readonly unsafe ref struct RenderPass : IDisposable
     public RenderPassInternal Internal => new (Recorder, Handle);
 
     
-    internal RenderPass(CommandRecorder recorder, Size2D windowSize) {
-        Recorder        = recorder;
-        this.windowSize = windowSize;
+    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, Size2D windowSize) {
+        Recorder                    = recorder;
+        recorder.renderPassEncoder  = handle;
+        recorder.windowSize         = windowSize;
     }
 
 #region --- rasterization & blending states
@@ -61,12 +63,13 @@ public readonly unsafe ref struct RenderPass : IDisposable
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setScissorRect">MDN: SetScissorRect()</a> 
     /// </summary>
-    public readonly void SetScissorRect(int x, int y, int width, int height)
+    public void SetScissorRect(int x, int y, int width, int height)
     {
-        int x1 = Math.Clamp(x,          0, windowSize.width);
-        int y1 = Math.Clamp(y,          0, windowSize.height);
-        int x2 = Math.Clamp(x + width,  0, windowSize.width);
-        int y2 = Math.Clamp(y + height, 0, windowSize.height);
+        var size = WindowSize;
+        int x1 = Math.Clamp(x,          0, size.width);
+        int y1 = Math.Clamp(y,          0, size.height);
+        int x2 = Math.Clamp(x + width,  0, size.width);
+        int y2 = Math.Clamp(y + height, 0, size.height);
 
         int clampedW = Math.Max(0, x2 - x1);
         int clampedH = Math.Max(0, y2 - y1);
@@ -76,7 +79,7 @@ public readonly unsafe ref struct RenderPass : IDisposable
     /// <summary>
     /// See: <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setViewport">MDN: SetViewport()</a> 
     /// </summary>
-    public readonly void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
+    public void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
     {
         wgpuRenderPassEncoderSetViewport(Handle, x, y, width, height, minDepth, maxDepth);
     }

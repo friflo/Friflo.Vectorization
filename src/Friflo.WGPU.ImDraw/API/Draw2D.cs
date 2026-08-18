@@ -23,8 +23,8 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct Draw2D : IDisposable
 {
-    internal readonly   Batch2D     batch;
-    private  readonly   RenderPass  pass;
+    internal readonly   Batch2D     batch;  //  8 bytes
+    private  readonly   RenderPass  pass;   //  8 bytes
 
     public              Font        DefaultFont => batch.defaultFont;
     

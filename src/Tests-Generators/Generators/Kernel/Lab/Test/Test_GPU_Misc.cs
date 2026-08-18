@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
+using Friflo.WGPU;
+using Friflo.WGPU.ImDraw;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
 
@@ -81,5 +83,10 @@ MaxComputeInvocationsPerWorkgroup:  {adapterLimits.MaxComputeInvocationsPerWorkg
         Assert.AreEqual(24, Unsafe.SizeOf<GpuBuffers>());
         Assert.AreEqual(56, Unsafe.SizeOf<ComputeCache>());
         Assert.AreEqual(64, Unsafe.SizeOf<PipelineCache>());
+        
+        Assert.AreEqual(48, Unsafe.SizeOf<RenderFrame>());
+        Assert.AreEqual( 8, Unsafe.SizeOf<RenderPass>());
+        Assert.AreEqual(16, Unsafe.SizeOf<Draw2D>());
+        Assert.AreEqual(32, Unsafe.SizeOf<DrawGui>());
     }
 }

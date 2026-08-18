@@ -214,8 +214,8 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
         
         fixed (RenderPassColorAttachment* pAttachments = colorAttachments) {
             renderPassDesc.colorAttachments = pAttachments;
-            recorder.renderPassEncoder = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
-            return new RenderPass(recorder, WindowSize);
+            var handle = wgpuCommandEncoderBeginRenderPass(recorder.currentEncoder.handle, &renderPassDesc);
+            return new RenderPass(handle, recorder, WindowSize);
         }
     }
     

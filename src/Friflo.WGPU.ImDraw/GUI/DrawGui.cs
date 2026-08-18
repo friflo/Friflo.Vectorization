@@ -19,9 +19,9 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct DrawGui : IDisposable
 {
-    private readonly    GuiInput        input;
-    private readonly    GuiState        guiState;
-    public  readonly    Draw2D          draw;
+    private readonly    GuiInput        input;      //  8 bytes
+    private readonly    GuiState        guiState;   //  8 bytes
+    public  readonly    Draw2D          draw;       // 16 bytes
     
     private             Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     private             GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }

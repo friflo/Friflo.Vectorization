@@ -38,6 +38,7 @@
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Vectorization.GPU\Friflo.Vectorization.GPU.csproj" />
       <ProjectReference Include="..\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj" />
+      <ProjectReference Include="..\Friflo.WGPU.ImDraw\Friflo.WGPU.ImDraw.csproj" />
     </ItemGroup>
     
     <ItemGroup>
