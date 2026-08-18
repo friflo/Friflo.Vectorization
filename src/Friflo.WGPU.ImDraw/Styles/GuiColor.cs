@@ -46,9 +46,10 @@ public struct GuiColor
     public              Bitset64<ColorId>   Overrides                   => overrides;
     public  override    string              ToString()                  => $"overrides: {overrides.Count}";
     
-    public              void                RemoveOverride(ColorId id)  => overrides.Remove(id);
-    public              bool                HasOverride(ColorId id)     => overrides.Contains(id);
-    public              void                ClearOverrides()            => overrides = default;
+    public  void    RemoveOverride(ColorId id)          => overrides.Remove(id);
+    public  bool    HasOverride   (ColorId id)          => overrides.Contains(id);
+    public  void    ClearOverrides()                    => overrides = default;
+    public  void    AddOverrides(in GuiColor source)    => ApplyOverrides(source, ref this, source.overrides);
     
 #region internal
     [Browse(Never)] private     Color32 windowColor;
