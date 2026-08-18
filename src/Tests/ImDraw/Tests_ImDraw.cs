@@ -1,4 +1,5 @@
-﻿using Friflo.WGPU.ImDraw;
+﻿using Friflo.WGPU;
+using Friflo.WGPU.ImDraw;
 using NUnit.Framework;
 
 
@@ -30,5 +31,22 @@ public static class Tests_ImDraw
         
         style.color.ClearOverrides();
         Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
+    }
+    
+    // [Test]
+    public static void Tests_ImDraw_DrawGui()
+    {
+        using var instance    = WgpuInstance.CreateInstance();
+        using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
+        using var device      = adapter.CreateDevice("test");
+
+        using var context = device.BeginContext();
+        using var batch = device.CreateBatch2D(TextureFormat.BGRA8Unorm);
+        
+        using var frame = context.BeginFrame(default, new Size2D(100, 100), "encode"u8);
+        
+        using var gui = batch.BeginGui(frame, default);
+        gui.BeginWindow("Test Window");
+        gui.EndWindow();
     }
 }
