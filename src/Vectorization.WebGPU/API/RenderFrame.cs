@@ -154,6 +154,7 @@ public readonly struct Size2D(int width, int height)
     public readonly int     height      = height;
     
     public          float   AspectRatio => width / (float)height;
+    public override string  ToString()  => $"{width} x {height}";
 }
 
 
