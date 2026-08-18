@@ -10,9 +10,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Verify", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "src\Tests\Tests.csproj", "{187F3D08-F304-45BD-9775-82B07AAB5B9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.GPU", "src\Vectorization.GPU\Friflo.Vectorization.GPU.csproj", "{158185EF-D9C7-4EB6-B000-14C71704B8CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.GPU", "src\Friflo.GPU\Friflo.GPU.csproj", "{158185EF-D9C7-4EB6-B000-14C71704B8CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.WebGPU", "src\Vectorization.WebGPU\Friflo.Vectorization.WebGPU.csproj", "{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGPU", "src\Friflo.WGPU\Friflo.WGPU.csproj", "{A473F857-E2F0-4D22-BDAB-D763DCEB1E05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Console", "src\Tests-Console\Tests-Console.csproj", "{79CC4FF0-FF26-46A3-81FB-A3DBB39862EA}"
 EndProject
