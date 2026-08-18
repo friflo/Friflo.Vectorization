@@ -136,7 +136,7 @@ public static class GeneratorUtils
     //          context.RegisterPostInitializationOutput(ctx => { GeneratorUtils.AddSource(ctx, "AvxVector2.g.cs"); ... }
     public static void AddSource(IncrementalGeneratorPostInitializationContext ctx, string fileName)
     {
-        string originalCode = GetContent($"Friflo.Vectorization.Generators.Files.{fileName}");
+        string originalCode = GetContent($"Friflo.Generators.Files.{fileName}");
         var sourcePath = $"Friflo.Vectorization.Intrinsics/{fileName}";
         string newCode = originalCode.Replace("Generators.Static", "Friflo.Vectorization.Intrinsics");
         ctx.AddSource(sourcePath, newCode);
@@ -144,7 +144,7 @@ public static class GeneratorUtils
     
     public static void AddSource(SourceProductionContext ctx, string fileName)
     {
-        string originalCode = GetContent($"Friflo.Vectorization.Generators.Files.{fileName}");
+        string originalCode = GetContent($"Friflo.Generators.Files.{fileName}");
         var sourcePath = $"Friflo.Vectorization.Intrinsics/{fileName}";
         string newCode = originalCode.Replace("Generators.Static", "Friflo.Vectorization.Intrinsics");
         ctx.AddSource(sourcePath, newCode);

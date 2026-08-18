@@ -12,8 +12,8 @@
       
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.Vectorization.Generators</RootNamespace>
-	<AssemblyName>Friflo.Vectorization.Generators</AssemblyName>
+    <RootNamespace>Friflo.Generators</RootNamespace>
+	<AssemblyName>Friflo.Generators</AssemblyName>
     <LangVersion>14.0</LangVersion>
       
     <!-- packaging -->
@@ -37,7 +37,7 @@
     <!-- <IncludeSymbols>true</IncludeSymbols> -->
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedAllSources>true</EmbedAllSources>
-    <PackageId>Friflo.Vectorization.Generators</PackageId>
+    <PackageId>Friflo.Generators</PackageId>
     <!-- packaging: end -->
   </PropertyGroup>
 
@@ -51,7 +51,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" PrivateAssets="all" />
     
     <!-- <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all" /> -->
     <!-- Add Transpiler via source files instead of ProjectReference to prevent:

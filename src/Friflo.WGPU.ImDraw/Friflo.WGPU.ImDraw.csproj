@@ -61,8 +61,8 @@
   <!-- packaging: end -->
   
   <ItemGroup>
-    <ProjectReference Include="..\Vectorization.Generators\Friflo.Vectorization.Generators.csproj"                     OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Vectorization.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\Vectorization.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
   </ItemGroup>
   

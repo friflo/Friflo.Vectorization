@@ -1,6 +1,6 @@
 
 
 BenchmarkDotNet.Artifacts/
-Generated/Friflo.Vectorization.Generators/Friflo.Gen/Bench*
-Generated/Friflo.Vectorization.Generators/Friflo.Gen/Tune*
+Generated/Friflo.Generators/Friflo.Gen/Bench*
+Generated/Friflo.Generators/Friflo.Gen/Tune*
 

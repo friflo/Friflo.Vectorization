@@ -11,8 +11,8 @@
       
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.Vectorization.Generators.CodeFixes</RootNamespace>
-	<AssemblyName>Friflo.Vectorization.Generators.CodeFixes</AssemblyName>
+    <RootNamespace>Friflo.Generators.CodeFixes</RootNamespace>
+	<AssemblyName>Friflo.Generators.CodeFixes</AssemblyName>
     <LangVersion>12.0</LangVersion>
       
     <!-- packaging -->
@@ -36,7 +36,7 @@
     <!-- <IncludeSymbols>true</IncludeSymbols> -->
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedAllSources>true</EmbedAllSources>
-    <PackageId>Friflo.Vectorization.Generators.CodeFixes</PackageId>
+    <PackageId>Friflo.Generators.CodeFixes</PackageId>
     <!-- packaging: end -->
   </PropertyGroup>
 
