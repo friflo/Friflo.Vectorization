@@ -15,7 +15,8 @@ public static class Tests_ImDraw
         for (int n = 0; n < repeat; n++) {
             style.color.ButtonColor = 0xff0000ff;
         }
-        Assert.That(style.color.Overrides.Count, Is.EqualTo(1));
+        Assert.That(style.color.Overrides.Count,                    Is.EqualTo(1));
+        Assert.That(style.color.HasOverride(ColorId.ButtonColor),   Is.EqualTo(true));
         
         var color = new GuiColor {
             ButtonDown = 0x110000ff,

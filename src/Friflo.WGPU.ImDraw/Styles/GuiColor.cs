@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
-// ReSharper disable UnusedMember.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -107,6 +106,5 @@ public struct GuiColor
             }
         }
     }
-
 }
 
