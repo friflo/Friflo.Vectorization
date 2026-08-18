@@ -17,19 +17,19 @@ using System.Text;
 namespace Friflo.WGPU.ImDraw;
 
 
-public ref struct DrawGui : IDisposable
+public readonly ref struct DrawGui : IDisposable
 {
     private readonly    GuiInput        input;
     private readonly    GuiState        guiState;
-    public              Draw2D          draw;
+    public  readonly    Draw2D          draw;
     
-    private readonly    Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
-    private readonly    GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
-    private readonly    GuiStyle        Style       { [DebuggerStepThrough] get => guiState.currentStyle; }
-    private readonly    float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    private             Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
+    private             GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
+    private             GuiStyle        Style       { [DebuggerStepThrough] get => guiState.currentStyle; }
+    private             float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
-    private readonly    StringBuilder   StringBuilder() => draw.batch.StringBuilder();
+    private             StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
@@ -46,17 +46,17 @@ public ref struct DrawGui : IDisposable
 #region Window
 
 
-    public readonly void SetNextWindowPos(Vector2 position)
+    public void SetNextWindowPos(Vector2 position)
     {
         guiState.nextWindowPos = position;
     }
 
-    public readonly void SetNextWindowSize(Vector2 size)
+    public void SetNextWindowSize(Vector2 size)
     {
         guiState.nextWindowSize = size;
     }
     
-    public readonly WindowScope BeginWindow(string title)
+    public WindowScope BeginWindow(string title)
     {
         var gui = Gui;
         if (!gui.windows.TryGetValue(title, out guiState.window!)) {
@@ -123,7 +123,7 @@ public ref struct DrawGui : IDisposable
         return new WindowScope(this, true);
     }
     
-    public readonly void EndWindow()
+    public void EndWindow()
     {
         draw.PopScissor();
         draw.PopZIndex();
@@ -134,7 +134,7 @@ public ref struct DrawGui : IDisposable
 
 #region Widgets
 
-    public readonly void Label(ReadOnlySpan<char> name, Color32 textColor = default)
+    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
     {
         var window = Window;
         if (textColor.Packed == 0) textColor = Style.color.TextColor;
@@ -144,7 +144,7 @@ public ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public readonly bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+    public bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -186,7 +186,7 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
     
-    public readonly bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
+    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -243,7 +243,7 @@ public ref struct DrawGui : IDisposable
         return clicked;
     }
     
-    public readonly bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
+    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
     {
         var window      = Window;
         if (style != null) PushStyle(style);
@@ -298,7 +298,7 @@ public ref struct DrawGui : IDisposable
     }
     
    
-    public readonly bool ReserveSpace(
+    public bool ReserveSpace(
         out Vector2     pos,
             Vector2     size,
         out bool        isFocused,
@@ -327,7 +327,7 @@ public ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
 
-    public readonly void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
+    public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
     {
         if (!isFocused) return;
         var focusColor  = Style.color.FocusColor;
@@ -339,25 +339,25 @@ public ref struct DrawGui : IDisposable
 
     
 #region Layout
-    public readonly VerticalScope BeginVertical()
+    public VerticalScope BeginVertical()
     {
         Window.PushLayout(LayoutDirection.Vertical);
         return new VerticalScope(this);
     }
 
-    public readonly void EndVertical() => Window.PopLayout();
+    public void EndVertical() => Window.PopLayout();
     
-    public readonly HorizontalScope BeginHorizontal()
+    public HorizontalScope BeginHorizontal()
     {
         Window.PushLayout(LayoutDirection.Horizontal);
         return new HorizontalScope(this);
     }
-    public readonly void EndHorizontal() => Window.PopLayout();
+    public void EndHorizontal() => Window.PopLayout();
 #endregion
 
 
 #region Styles
-    public readonly StyleScope PushStyle(GuiStyle style)
+    public StyleScope PushStyle(GuiStyle style)
     {
         if (!guiState.stylePool.TryPop(out var revertStyle)) {
             revertStyle = new GuiStyle();
@@ -368,7 +368,7 @@ public ref struct DrawGui : IDisposable
         return new StyleScope(this);
     }
     
-    public readonly void PopStyle()
+    public void PopStyle()
     {
         var revertStyle = guiState.revertStyles.Pop();
         guiState.currentStyle.PopOverrides(revertStyle);

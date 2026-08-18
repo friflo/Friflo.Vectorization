@@ -14,20 +14,24 @@ using static Friflo.WGPU.Runtime.WebGPU_native;
 namespace Friflo.WGPU;
 
 
-public unsafe ref struct RenderPass : IDisposable
+public readonly unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;
-    private             RenderPassEncoder*  handle;
     private  readonly   int                 viewWidth;
     private  readonly   int                 viewHeight;
     
+    private             RenderPassEncoder*  Handle
+    { get {
+        var handle = Recorder.renderPassEncoder;
+        return handle != null ? handle : throw new ObjectDisposedException(nameof(RenderPass));
+    } }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public RenderPassInternal Internal => new (Recorder, handle);
+    public RenderPassInternal Internal => new (Recorder, Handle);
 
     
-    internal RenderPass(RenderPassEncoder* handle, CommandRecorder recorder, float width, float height) {
-        this.handle = handle;
+    internal RenderPass(CommandRecorder recorder, float width, float height) {
         Recorder    = recorder;
         viewWidth   = (int)width;
         viewHeight  = (int)height;
@@ -40,7 +44,7 @@ public unsafe ref struct RenderPass : IDisposable
     public void SetBlendConstant(in GpuColor color)
     {
         var native = color.GetNative();
-        wgpuRenderPassEncoderSetBlendConstant(handle, &native);
+        wgpuRenderPassEncoderSetBlendConstant(Handle, &native);
     }
     
     /// <summary>
@@ -48,7 +52,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void SetStencilReference(int reference)
     {
-        wgpuRenderPassEncoderSetStencilReference(handle, (uint)reference);
+        wgpuRenderPassEncoderSetStencilReference(Handle, (uint)reference);
     }
 #endregion
 
@@ -68,7 +72,7 @@ public unsafe ref struct RenderPass : IDisposable
 
         int clampedW = Math.Max(0, x2 - x1);
         int clampedH = Math.Max(0, y2 - y1);
-        wgpuRenderPassEncoderSetScissorRect(handle, (uint)x1, (uint)y1, (uint)clampedW, (uint)clampedH);
+        wgpuRenderPassEncoderSetScissorRect(Handle, (uint)x1, (uint)y1, (uint)clampedW, (uint)clampedH);
     }
     
     /// <summary>
@@ -76,7 +80,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public readonly void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
     {
-        wgpuRenderPassEncoderSetViewport(handle, x, y, width, height, minDepth, maxDepth);
+        wgpuRenderPassEncoderSetViewport(Handle, x, y, width, height, minDepth, maxDepth);
     }
 #endregion
     
@@ -88,7 +92,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void BeginOcclusionQuery(int queryIndex)
     {
-        wgpuRenderPassEncoderBeginOcclusionQuery(handle, (uint)queryIndex);
+        wgpuRenderPassEncoderBeginOcclusionQuery(Handle, (uint)queryIndex);
     }
 
     /// <summary>
@@ -96,7 +100,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void EndOcclusionQuery()
     {
-        wgpuRenderPassEncoderEndOcclusionQuery(handle);
+        wgpuRenderPassEncoderEndOcclusionQuery(Handle);
     }
 #endregion
 
@@ -111,7 +115,7 @@ public unsafe ref struct RenderPass : IDisposable
         var labelMaxCount   = WgpuUtils.GetMaxCount(groupLabel);
         var labelBuffer     = stackalloc byte[labelMaxCount];
         var labelView       = WgpuUtils.CopyToStringView(groupLabel, labelBuffer, labelMaxCount);
-        wgpuRenderPassEncoderPushDebugGroup(handle, labelView);
+        wgpuRenderPassEncoderPushDebugGroup(Handle, labelView);
     }
     
     /// <summary>
@@ -119,7 +123,7 @@ public unsafe ref struct RenderPass : IDisposable
     /// </summary>
     public void PopDebugGroup()
     {
-        wgpuRenderPassEncoderPopDebugGroup(handle);
+        wgpuRenderPassEncoderPopDebugGroup(Handle);
     }
     
     /// <summary>
@@ -130,20 +134,21 @@ public unsafe ref struct RenderPass : IDisposable
         var labelMaxCount   = WgpuUtils.GetMaxCount(markerLabel);
         var labelBuffer     = stackalloc byte[labelMaxCount];
         var labelView       = WgpuUtils.CopyToStringView(markerLabel, labelBuffer, labelMaxCount);
-        wgpuRenderPassEncoderInsertDebugMarker(handle, labelView);
+        wgpuRenderPassEncoderInsertDebugMarker(Handle, labelView);
     }
 #endregion
     
     
     public void Dispose()
     {
+        var handle = Handle;
         if (handle == null) {
             return;
         }
+        Recorder.renderPassEncoder = null;
         Recorder.Reset();
         wgpuRenderPassEncoderEnd(handle);
         wgpuRenderPassEncoderRelease(handle);
-        handle = null;
     }
 }
 
