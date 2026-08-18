@@ -893,6 +893,9 @@ public readonly ref struct Draw2D : IDisposable
     
     public void Dispose()
     {
+        if (pass.IsDisposed) {
+            return;
+        }
         Flush();
         var bat = batch;
         if (bat.vertexCount > 0)

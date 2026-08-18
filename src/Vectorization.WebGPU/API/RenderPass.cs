@@ -20,6 +20,8 @@ public readonly unsafe ref struct RenderPass : IDisposable
     private  readonly   CommandRecorder     Recorder;   //  8 bytes
     
     public              Size2D              WindowSize => Recorder.windowSize;
+    public              bool                IsDisposed => Recorder.renderPassEncoder == null;
+    
     private             RenderPassEncoder*  Handle {
         get {
             var handle = Recorder.renderPassEncoder;
