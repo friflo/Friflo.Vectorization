@@ -15,10 +15,11 @@ public sealed class GuiStyle
 #region internal
     internal void PushOverrides(GuiStyle style, ref RevertStyle revertStyle)
     {
+        // --- Backup colors that will be changed
+        // revertStyle.color.overrides = style.color.overrides;
+        // GuiColor.ApplyOverrides(color, ref revertStyle.color, revertStyle.color.overrides);
+        revertStyle.color = color; // simply copy all colors - faster than copy each color one by one
         revertStyle.color.overrides = style.color.overrides;
-        
-        // --- Backup colors that will be changed to revertStyle
-        GuiColor.ApplyOverrides(color, ref revertStyle.color, revertStyle.color.overrides);
 
         // --- Apply override colors
         GuiColor.ApplyOverrides(style.color, ref color, revertStyle.color.overrides);
