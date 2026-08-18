@@ -361,22 +361,22 @@ public readonly ref struct DrawGui : IDisposable
 #region Styles
     public StyleScope PushStyle(GuiStyle style)
     {
-        if (!guiState.stylePool.TryPop(out var revertStyle)) {
-            revertStyle = new GuiStyle();
+        var revertStyles = guiState.revertStyles;
+        var length       = revertStyles.Length;
+        if (guiState.revertStylesCount >= length) {
+            revertStyles = new RevertStyle[Math.Max(4, 2 * length)]; 
+            Array.Copy(guiState.revertStyles,  revertStyles, length);
+            guiState.revertStyles = revertStyles; 
         }
-        revertStyle.overrideStyle = style;
-        guiState.revertStyles.Push(revertStyle);
-        guiState.currentStyle.PushOverrides(revertStyle);
+        ref var revertStyle = ref guiState.revertStyles[guiState.revertStylesCount++];
+        guiState.currentStyle.PushOverrides(style, ref revertStyle);
         return new StyleScope(this);
     }
     
     public void PopStyle()
     {
-        var revertStyle = guiState.revertStyles.Pop();
+        ref var revertStyle = ref guiState.revertStyles[--guiState.revertStylesCount];
         guiState.currentStyle.PopOverrides(revertStyle);
-        
-        guiState.stylePool.Push(revertStyle);
-        revertStyle.overrideStyle = null;
     }
 #endregion
 }

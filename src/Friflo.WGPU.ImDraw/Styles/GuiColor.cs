@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using static System.Diagnostics.DebuggerBrowsableState;
+using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -50,20 +51,20 @@ public struct GuiColor
     public              void                ClearOverrides()            => overrides = default;
     
 #region internal
-    private Color32 windowColor;
+    [Browse(Never)] private     Color32 windowColor;
     
-    private Color32 textColor;
+    [Browse(Never)] private     Color32 textColor;
     
-    private Color32 buttonText;
-    private Color32 buttonColor;
-    private Color32 buttonHover;
-    private Color32 buttonDown;
+    [Browse(Never)] private     Color32 buttonText;
+    [Browse(Never)] private     Color32 buttonColor;
+    [Browse(Never)] private     Color32 buttonHover;
+    [Browse(Never)] private     Color32 buttonDown;
     
-    private Color32 sliderColor;
+    [Browse(Never)] private     Color32 sliderColor;
     
-    private Color32 focusColor;
+    [Browse(Never)] private     Color32 focusColor;
     
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal   Bitset64<ColorId>   overrides;
+    [Browse(Never)] internal    Bitset64<ColorId>   overrides;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Color32 Add(ColorId id, Color32 color) {

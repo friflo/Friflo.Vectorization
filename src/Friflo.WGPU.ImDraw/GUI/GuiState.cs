@@ -2,21 +2,26 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System.Collections.Generic;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
 
+internal struct RevertStyle
+{
+    internal        GuiColor    color;
+    public override string      ToString() => color.ToString();
+}
+
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle        defaultStyle    = new() { color = CreateDefaultColors() };
-    internal readonly   Stack<GuiStyle> revertStyles    = new();
-    internal readonly   Stack<GuiStyle> stylePool       = new();
-    internal readonly   GuiStyle        currentStyle    = new();
+    private  readonly   GuiStyle        defaultStyle        = new() { color = CreateDefaultColors() };
+    internal            RevertStyle[]   revertStyles        = [];
+    internal            int             revertStylesCount;
+    internal readonly   GuiStyle        currentStyle        = new();
     
-    internal            GuiWindow       window          = null!;
+    internal            GuiWindow       window              = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
     
@@ -38,6 +43,6 @@ internal sealed class GuiState
     internal void Reset()
     {
         currentStyle.color = defaultStyle.color; // 💪
-        revertStyles.Clear();
+        revertStylesCount = 0;
     }
 }
