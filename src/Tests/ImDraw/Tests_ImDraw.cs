@@ -44,7 +44,7 @@ public static class Tests_ImDraw
             label  = "Target Texture",
             size   = [1000, 500],
             format = TextureFormat.RGBA8Unorm,
-            usage  = TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment
+            usage  = TextureUsage.CopyDst | TextureUsage.RenderAttachment
         });
         var renderTargetView = targetTexture.CreateView();
 
@@ -60,7 +60,7 @@ public static class Tests_ImDraw
         };
 
         using var context   = device.BeginContext();
-        using var batch     = device.CreateBatch2D(TextureFormat.BGRA8Unorm);
+        using var batch     = device.CreateBatch2D(TextureFormat.RGBA8Unorm);
         
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
@@ -71,5 +71,6 @@ public static class Tests_ImDraw
         gui.Button("test");
         gui.EndWindow();
         gui.draw.Dispose(); // redundant - only for debugging
+        context.Queue.ReadBuffers();
     }
 }
