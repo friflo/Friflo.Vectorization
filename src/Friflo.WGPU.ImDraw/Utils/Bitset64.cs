@@ -16,7 +16,7 @@ namespace Friflo.WGPU.ImDraw;
 [DebuggerTypeProxy(typeof(Bitset64DebugView<>))]
 public struct Bitset64<T> where T : struct, Enum
 {
-    private ulong value;
+    internal ulong value;
 
     public readonly int Count
     {

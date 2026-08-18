@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -64,8 +65,10 @@ public struct GuiColor
     
     [DebuggerBrowsable(DebuggerBrowsableState.Never)] internal   Bitset64<ColorId>   overrides;
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Color32 Add(ColorId id, Color32 color) {
-        overrides.Add(id);
+        // same as:  overrides.Add(id);
+        overrides.value |= 1UL << Unsafe.As<ColorId, int>(ref id);
         return color;
     }
     
