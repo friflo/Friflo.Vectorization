@@ -45,19 +45,19 @@ public class ImRenderer : IRenderer
         };
     }
     
-    public void OnFrame(in RenderFrame frame)
+    public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);
         var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
         
-        using var draw = batch.BeginDraw2D(frame, renderPassDescriptor);
+        using var draw = batch.BeginDraw2D(target, renderPassDescriptor);
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
-        using (draw.PushTransform(CreateAnimatedTransform(frame.WindowSize, currentTime))) {
-            DrawShapes(draw, frame.WindowSize.width, frame.WindowSize.height);
+        using (draw.PushTransform(CreateAnimatedTransform(target.WindowSize, currentTime))) {
+            DrawShapes(draw, target.WindowSize.width, target.WindowSize.height);
             DrawSprites(draw, deltaTime);
         }
         DrawText(draw);

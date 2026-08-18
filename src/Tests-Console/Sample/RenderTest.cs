@@ -69,22 +69,22 @@ public partial class Renderer : IRenderer
         return view * proj;
     }
     
-    public virtual void OnFrame(in RenderFrame frame)
+    public virtual void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);
-        renderPassDescriptor.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = target.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.WindowSize, time);
+        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(target.WindowSize, time);
         
         var timeUniform = new TimeUniform(time);
         var testUniform = new TestAddUniform(10);
-        DeformVertices(frame.ComputeContext, data.InOut(), testUniform, timeUniform);
+        DeformVertices(target.ComputeContext, data.InOut(), testUniform, timeUniform);
         
-        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        using var pass = target.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
         var model_offset 		= new Vector2(0, 0.2f * MathF.Cos(time * 2));
-        wormhood.iResolution    = new Vector3(frame.WindowSize.width, frame.WindowSize.height, 1.0f);
+        wormhood.iResolution    = new Vector3(target.WindowSize.width, target.WindowSize.height, 1.0f);
         wormhood.iTime          = time;
         
         Wormhood.RenderTunnel(pass, wgpu.Config, wormhood, new DrawArgs(3));

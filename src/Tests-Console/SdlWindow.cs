@@ -18,7 +18,7 @@ namespace TestConsole;
 public interface IRenderer
 {
     public void OnWindowChanged(int width, int height) { }
-    public void OnFrame        (in RenderFrame frame);
+    public void OnFrame        (in RenderTarget target);
     public void OnShutdown();
     public void OnEvent        (in ImEvent ev) { }
 }
@@ -201,11 +201,11 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult IterateSdl3()
     {
-        using var frame = wgpu!.Context.BeginFrame(wgpu.Surface, wgpu.WindowSize, "frame-encoder"u8);
-        if (frame.IsNull) {     // window minimized?
+        using var target = wgpu!.Context.BeginRenderTarget(wgpu.Surface, wgpu.WindowSize, "RenderTarget-Encoder"u8);
+        if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
-        renderer?.OnFrame(frame);
+        renderer?.OnFrame(target);
         
         wgpu.Context.Queue.Submit();
         wgpu.Surface.Present();

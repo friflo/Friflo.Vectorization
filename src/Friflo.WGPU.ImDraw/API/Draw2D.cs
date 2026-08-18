@@ -958,11 +958,7 @@ public readonly ref struct Draw2D : IDisposable
         segments.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
     }
     
-    public DrawGui BeginGui()
-    {
-        return new DrawGui(this, batch);
-    }
-
+    public DrawGui BeginGui() => new(this, batch);
 #endregion
 }
 

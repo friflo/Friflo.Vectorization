@@ -62,10 +62,10 @@ public static class Tests_ImDraw
         using var context   = device.BeginContext();
         using var batch     = device.CreateBatch2D(TextureFormat.BGRA8Unorm);
         
-        using var frame     = context.BeginFrame(renderTargetView, "encoder"u8);
+        using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
         batch.input.NewFrame();
-        using var gui = batch.BeginGui(frame, renderPassDesc);
+        using var gui = batch.BeginGui(target, renderPassDesc);
         gui.BeginWindow("Test Window");
         gui.Button("hello");
         gui.Button("test");

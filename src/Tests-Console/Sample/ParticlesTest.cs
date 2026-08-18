@@ -71,10 +71,10 @@ public partial class Renderer : IRenderer
         };
     }
 
-    public void OnFrame(in RenderFrame frame)
+    public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);
-        renderPassDescriptor.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = target.View;
 
         var currentTime = (float)stopwatch.Elapsed.TotalSeconds;
         var deltaTime   = currentTime - lastTime;
@@ -87,9 +87,9 @@ public partial class Renderer : IRenderer
             deltaTime = deltaTime
         };
 
-        UpdateParticles(frame.ComputeContext, particleBuffer.InOut(), frameData);
+        UpdateParticles(target.ComputeContext, particleBuffer.InOut(), frameData);
 
-        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        using var pass = target.BeginRenderPass(renderPassDescriptor);
         DrawParticles(pass, wgpu.Config, particleView, frameData, new DrawArgs(6, ParticleCount));
     }
 

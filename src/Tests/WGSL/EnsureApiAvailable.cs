@@ -7,9 +7,9 @@ namespace Tests.WGSL;
 
 public static class EnsureApiAvailable
 {
-    public static void EnsureRenderPassApi(in RenderFrame frame)
+    public static void EnsureRenderPassApi(in RenderTarget target)
     {
-        using var pass = frame.BeginRenderPass(default);
+        using var pass = target.BeginRenderPass(default);
         
         pass.SetScissorRect(1,2,3,4);
         pass.SetViewport(0,1,2,3,4,5);

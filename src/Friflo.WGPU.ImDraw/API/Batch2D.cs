@@ -184,18 +184,18 @@ public sealed partial class Batch2D : IDisposable
     public void SetFontDefault() => SetFont(drawModule.defaultFont); 
     
     
-    public DrawGui BeginGui(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
+    public DrawGui BeginGui(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
-        var draw = BeginDraw2D(frame, descriptor);
+        var draw = BeginDraw2D(target, descriptor);
         return draw.BeginGui();
     }
     
-    public Draw2D BeginDraw2D(in RenderFrame frame, in GpuRenderPassDescriptor descriptor)
+    public Draw2D BeginDraw2D(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
-        descriptor.colorAttachments[0].view = frame.View;
+        descriptor.colorAttachments[0].view = target.View;
         
-        var pass = frame.BeginRenderPass(descriptor);
-        var windowSize = frame.WindowSize;
+        var pass = target.BeginRenderPass(descriptor);
+        var windowSize = target.WindowSize;
         
         // reset batcher state
         if (defaultFontTexture.IsDisposed) {

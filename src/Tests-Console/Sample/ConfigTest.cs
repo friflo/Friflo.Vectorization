@@ -16,15 +16,15 @@ public class ConfigTest : Renderer
     private readonly RenderConfig testConfig;
     
     
-    public override void OnFrame(in RenderFrame frame)
+    public override void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);
-        renderPassDescriptor.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = target.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
         var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
-        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(frame.WindowSize, time);
+        myUniform.modelViewProjectionMatrix = GetTransformationMatrix(target.WindowSize, time);
         
-        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        using var pass = target.BeginRenderPass(renderPassDescriptor);
         
         myUniform.tint_color.Z  = 0.5f * (MathF.Sin(time * 5) + 1f);
 

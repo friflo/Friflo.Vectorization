@@ -68,12 +68,12 @@ public class ImGuiRenderer : IRenderer
 
     public void OnEvent(in ImEvent ev) => batch.AddEvent(ev);
 
-    public void OnFrame(in RenderFrame frame)
+    public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(10000);
         
         batch.input.NewFrame();
-        using var gui = batch.BeginGui(frame, renderPassDescriptor);
+        using var gui = batch.BeginGui(target, renderPassDescriptor);
         
         gui.SetNextWindowPos(new Vector2(100, 20));
         gui.SetNextWindowSize(new Vector2(500, 700));
@@ -88,7 +88,7 @@ public class ImGuiRenderer : IRenderer
             gui.Checkbox("mouse circle", ref mouseCircle);
             if(gui.Checkbox("Monocraft", ref monocraft)) {
                 if (monocraft) {
-                    monocraftFont ??= frame.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                    monocraftFont ??= target.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
                     Debug.Assert(monocraftFont.maxY == 244);
                     batch.SetFont(monocraftFont);
                 } else {

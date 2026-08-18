@@ -23,44 +23,47 @@ namespace Friflo.WGPU;
 
 public static partial class WgpuExtensions
 {
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, WgpuSurface surface, Size2D windowSize, ReadOnlySpan<byte> encoderLabel)
+    extension(PipelineContext context)
     {
-        if (surface.handle == null) {
-            throw new InvalidOperationException("WgpuSurface is null");
-        }
-        var recorder = (CommandRecorder)context;
-        if (recorder.currentEncoder.handle != null) {
-            throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
-        }
-        SurfaceTexture surfaceTexture;
-        wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
-        if (surfaceTexture.texture == null) {
-            // surfaceTexture.texture == null   if window minimized
-            return new RenderFrame(default, null, surfaceTexture.status, null, windowSize);
-        }
-        var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
-        var view = new GpuTextureView(handle, null);
+        public unsafe RenderTarget BeginRenderTarget(WgpuSurface surface, Size2D windowSize, ReadOnlySpan<byte> encoderLabel)
+        {
+            if (surface.handle == null) {
+                throw new InvalidOperationException("WgpuSurface is null");
+            }
+            var recorder = (CommandRecorder)context;
+            if (recorder.currentEncoder.handle != null) {
+                throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
+            }
+            SurfaceTexture surfaceTexture;
+            wgpuSurfaceGetCurrentTexture(surface.handle, &surfaceTexture);
+            if (surfaceTexture.texture == null) {
+                // surfaceTexture.texture == null   if window minimized
+                return new RenderTarget(default, null, surfaceTexture.status, null, windowSize);
+            }
+            var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
+            var view = new GpuTextureView(handle, null);
         
-        fixed (byte* labelPtr = encoderLabel) {
-            var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
-            recorder.currentEncoder = recorder.Device.CreateEncoder(label);
+            fixed (byte* labelPtr = encoderLabel) {
+                var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
+                recorder.currentEncoder = recorder.Device.CreateEncoder(label);
+            }
+            return new RenderTarget(view, surfaceTexture.texture, surfaceTexture.status, recorder, windowSize);
         }
-        return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, windowSize);
-    }
-    
-    public static unsafe RenderFrame BeginFrame(this PipelineContext context, GpuTextureView textureView, ReadOnlySpan<byte> encoderLabel)
-    {
-        var recorder = (CommandRecorder)context;
-        if (recorder.currentEncoder.handle != null) {
-            throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
+
+        public unsafe RenderTarget BeginRenderTarget(GpuTextureView textureView, ReadOnlySpan<byte> encoderLabel)
+        {
+            var recorder = (CommandRecorder)context;
+            if (recorder.currentEncoder.handle != null) {
+                throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
+            }
+            fixed (byte* labelPtr = encoderLabel) {
+                var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
+                recorder.currentEncoder = recorder.Device.CreateEncoder(label);
+            }
+            var size        = textureView.texture.Descriptor.size;
+            var windowSize  = new Size2D(size.width, size.height);
+            return new RenderTarget(textureView, textureView.texture.handle, SurfaceGetCurrentTextureStatus.SuccessOptimal, recorder, windowSize);
         }
-        fixed (byte* labelPtr = encoderLabel) {
-            var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
-            recorder.currentEncoder = recorder.Device.CreateEncoder(label);
-        }
-        var size        = textureView.texture.Descriptor.size;
-        var windowSize  = new Size2D(size.width, size.height);
-        return new RenderFrame(textureView, textureView.texture.handle, SurfaceGetCurrentTextureStatus.SuccessOptimal, recorder, windowSize);
     }
 }
 
@@ -173,7 +176,7 @@ public readonly struct Size2D(int width, int height)
 }
 
 
-public readonly unsafe ref struct  RenderFrame : IDisposable
+public readonly unsafe ref struct  RenderTarget : IDisposable
 {
     public   readonly   SurfaceGetCurrentTextureStatus  TextureStatus;
     public   readonly   GpuTextureView                  View;
@@ -187,7 +190,7 @@ public readonly unsafe ref struct  RenderFrame : IDisposable
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 
 
-    internal RenderFrame(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, Size2D windowSize) {
+    internal RenderTarget(GpuTextureView view, Texture* surfaceTexture, SurfaceGetCurrentTextureStatus status, CommandRecorder recorder, Size2D windowSize) {
         View                = view;
         this.surfaceTexture = surfaceTexture;
         TextureStatus       = status;

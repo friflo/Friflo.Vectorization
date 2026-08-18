@@ -130,14 +130,14 @@ public partial class Renderer : IRenderer
     }
     
     // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/instancedCube/main.ts#L192
-    public void OnFrame(in RenderFrame frame)
+    public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);
-        renderPassDescriptor.colorAttachments[0].view = frame.View;
+        renderPassDescriptor.colorAttachments[0].view = target.View;
         var time = (float)stopwatch.Elapsed.TotalSeconds;
-        UpdateTransformationMatrix(frame.WindowSize, time);
+        UpdateTransformationMatrix(target.WindowSize, time);
         
-        using var pass = frame.BeginRenderPass(renderPassDescriptor);
+        using var pass = target.BeginRenderPass(renderPassDescriptor);
 
         RenderInstancedCubes(pass, config, uniforms, verticesBuffer.In(), new DrawArgs(0, numInstances));
     }
