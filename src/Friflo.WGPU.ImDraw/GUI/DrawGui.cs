@@ -20,10 +20,10 @@ namespace Friflo.WGPU.ImDraw;
 public ref struct DrawGui : IDisposable
 {
     private readonly    GuiInput        input;
-    private readonly    Gui             gui;
     private readonly    GuiState        guiState;
     public              Draw2D          draw;
     
+    private readonly    Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     private readonly    GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
     private readonly    GuiStyle        Style       { [DebuggerStepThrough] get => guiState.currentStyle; }
     private readonly    float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
@@ -35,7 +35,6 @@ public ref struct DrawGui : IDisposable
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw   = draw;
         input       = batch.input;
-        gui         = batch.gui;
         guiState    = batch.guiState;
     }
     
@@ -59,6 +58,7 @@ public ref struct DrawGui : IDisposable
     
     public readonly WindowScope BeginWindow(string title)
     {
+        var gui = Gui;
         if (!gui.windows.TryGetValue(title, out guiState.window!)) {
             guiState.window = new GuiWindow(gui) {
                 pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
