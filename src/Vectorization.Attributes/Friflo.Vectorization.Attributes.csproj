@@ -21,7 +21,7 @@
 
     <Title>friflo vectorization attributes</Title>
     <Authors>Ullrich Praetz</Authors>
-    <Description>attributes used to vectorize methods using Friflo.Vectorization.Generators</Description>
+    <Description>attributes used to vectorize methods using Friflo.Generators</Description>
     <Copyright>Ullrich Praetz</Copyright>
     <PackageProjectUrl>https://github.com/friflo/Friflo.Vectorization</PackageProjectUrl>
     <RepositoryUrl>https://github.com/friflo/Friflo.Vectorization</RepositoryUrl>

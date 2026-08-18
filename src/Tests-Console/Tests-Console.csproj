@@ -22,8 +22,8 @@
       <PackageReference Include="SDL3-CS.MacOS" 	Version="3.4.14.1" />
         
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
-      <ProjectReference Include="..\Vectorization.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
       <ProjectReference Include="..\Friflo.WGPU.ImDraw\Friflo.WGPU.ImDraw.csproj" />
     </ItemGroup>

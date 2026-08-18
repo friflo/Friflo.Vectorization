@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Vectorization.Attributes", "src\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj", "{02962FD5-AC01-43BE-ACEF-641FEAAC9F2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators", "src\Vectorization.Generators\Friflo.Generators.csproj", "{0E955DC5-FFCB-437F-B155-26D9AA7B1E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators", "src\Friflo.Generators\Friflo.Generators.csproj", "{0E955DC5-FFCB-437F-B155-26D9AA7B1E03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Generators-Code", "src\Tests-Generators\Tests-Generators-Code.csproj", "{1D0CC391-A07E-4196-8927-FF2D59C4ED74}"
 EndProject
@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests-Console", "src\Tests-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGSL.Transpiler", "src\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj", "{3F9076C6-6CD1-43D3-9A73-AF97A0FB26CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes", "src\Vectorization.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj", "{1AD07C07-E282-44D4-9780-069FEBD22DB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes", "src\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj", "{1AD07C07-E282-44D4-9780-069FEBD22DB9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGPU.ImDraw", "src\Friflo.WGPU.ImDraw\Friflo.WGPU.ImDraw.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject

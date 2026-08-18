@@ -51,7 +51,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Vectorization.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" PrivateAssets="all" />
     
     <!-- <ProjectReference Include="..\Friflo.WGSL.Transpiler\Friflo.WGSL.Transpiler.csproj" SetTargetFramework="TargetFramework=netstandard2.0" PrivateAssets="all" /> -->
     <!-- Add Transpiler via source files instead of ProjectReference to prevent:
