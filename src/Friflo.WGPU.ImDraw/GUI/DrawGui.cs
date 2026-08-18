@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using System.Text;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -22,10 +23,10 @@ public readonly ref struct DrawGui : IDisposable
     private readonly    GuiInput        input;      //  8 bytes
     private readonly    GuiState        guiState;   //  8 bytes
     public  readonly    Draw2D          draw;       // 16 bytes
+    private readonly    GuiStyle        Style;      //  8 bytes
     
     private             Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     private             GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
-    private             GuiStyle        Style       { [DebuggerStepThrough] get => guiState.currentStyle; }
     private             float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
@@ -36,6 +37,7 @@ public readonly ref struct DrawGui : IDisposable
         this.draw   = draw;
         input       = batch.input;
         guiState    = batch.guiState;
+        Style       = guiState.currentStyle;
     }
     
     public void Dispose()
