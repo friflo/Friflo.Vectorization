@@ -47,12 +47,7 @@ public struct Bitset64<T> where T : struct, Enum
 
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int ToInt(T item)
-    {
-        int result = 0;
-        Unsafe.As<int, T>(ref result) = item;
-        return result;
-    }
+    private static int ToInt(T item) => Unsafe.As<T, int>(ref item);
 }
 
 public struct Bitset64Enumerator<T> where T : struct, Enum
