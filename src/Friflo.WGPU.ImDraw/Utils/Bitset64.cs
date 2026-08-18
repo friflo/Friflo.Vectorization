@@ -76,16 +76,12 @@ public struct Bitset64Enumerator<T> where T : struct, Enum
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool MoveNext()
     {
-        if (remaining == 0)
+        if (remaining == 0) {
             return false;
-
-        int index = BitOperations.TrailingZeroCount(remaining);
-
-        int temp = index;
-        Current = Unsafe.As<int, T>(ref temp);
-
-        remaining &= remaining - 1;
-
+        }
+        int index   = BitOperations.TrailingZeroCount(remaining);
+        Current     = Unsafe.As<int, T>(ref index);
+        remaining  &= remaining - 1;
         return true;
     }
 }
@@ -95,8 +91,7 @@ internal sealed class Bitset64DebugView<T> where T : struct, Enum
 {
     private readonly Bitset64<T> bitset;
 
-    public Bitset64DebugView(Bitset64<T> bitset)
-    {
+    public Bitset64DebugView(Bitset64<T> bitset) {
         this.bitset = bitset;
     }
 
@@ -107,8 +102,7 @@ internal sealed class Bitset64DebugView<T> where T : struct, Enum
         {
             var array = new T[bitset.Count];
             int index = 0;
-            foreach (var item in bitset)
-            {
+            foreach (var item in bitset) {
                 array[index++] = item;
             }
             return array;
