@@ -33,20 +33,43 @@ public static class Tests_ImDraw
         Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
     }
     
-    // [Test]
+    [Test]
     public static void Tests_ImDraw_DrawGui()
     {
         using var instance    = WgpuInstance.CreateInstance();
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");
+        
+        using var targetTexture = device.CreateTexture(new GpuTextureDescriptor {
+            label  = "Target Texture",
+            size   = [1000, 500],
+            format = TextureFormat.RGBA8Unorm,
+            usage  = TextureUsage.TextureBinding | TextureUsage.CopyDst | TextureUsage.RenderAttachment
+        });
+        var renderTargetView = targetTexture.CreateView();
 
-        using var context = device.BeginContext();
-        using var batch = device.CreateBatch2D(TextureFormat.BGRA8Unorm);
+        var renderPassDesc = new GpuRenderPassDescriptor {
+            colorAttachments = [
+                new GpuRenderPassColorAttachment {
+                    view        = renderTargetView,
+                    loadOp      = LoadOp.Clear,
+                    storeOp     = StoreOp.Store,
+                    clearValue  = new GpuColor { r = 0.1, g = 0.1, b = 0.1, a = 1.0 }
+                }
+            ]
+        };
+
+        using var context   = device.BeginContext();
+        using var batch     = device.CreateBatch2D(TextureFormat.BGRA8Unorm);
         
-        using var frame = context.BeginFrame(default, new Size2D(100, 100), "encode"u8);
+        using var frame     = context.BeginFrame(renderTargetView, "encoder"u8);
         
-        using var gui = batch.BeginGui(frame, default);
+        batch.input.NewFrame();
+        using var gui = batch.BeginGui(frame, renderPassDesc);
         gui.BeginWindow("Test Window");
+        gui.Button("hello");
+        gui.Button("test");
         gui.EndWindow();
+        gui.draw.Dispose(); // redundant - only for debugging
     }
 }

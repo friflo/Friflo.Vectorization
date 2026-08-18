@@ -47,6 +47,21 @@ public static partial class WgpuExtensions
         }
         return new RenderFrame(view, surfaceTexture.texture, surfaceTexture.status, recorder, windowSize);
     }
+    
+    public static unsafe RenderFrame BeginFrame(this PipelineContext context, GpuTextureView textureView, ReadOnlySpan<byte> encoderLabel)
+    {
+        var recorder = (CommandRecorder)context;
+        if (recorder.currentEncoder.handle != null) {
+            throw new InvalidOperationException("PipelineContext has already a command encoder. Ensure calling context.Queue.Submit() before");
+        }
+        fixed (byte* labelPtr = encoderLabel) {
+            var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);
+            recorder.currentEncoder = recorder.Device.CreateEncoder(label);
+        }
+        var size        = textureView.texture.Descriptor.size;
+        var windowSize  = new Size2D(size.width, size.height);
+        return new RenderFrame(textureView, textureView.texture.handle, SurfaceGetCurrentTextureStatus.SuccessOptimal, recorder, windowSize);
+    }
 }
 
 /// <summary> see: <see cref="RenderPassDescriptor"/> </summary>

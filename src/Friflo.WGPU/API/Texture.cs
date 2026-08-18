@@ -22,7 +22,7 @@ namespace Friflo.WGPU;
 
 public sealed unsafe class GpuTexture : IDisposable
 {
-    private             Texture*                    handle;
+    internal            Texture*                    handle;
     private readonly    WgpuDevice                  device;
     private readonly    GpuTextureDescriptor        desc;
     private             GpuTextureViewDescriptor[]  viewDescriptors = [];
@@ -180,7 +180,7 @@ public record struct GpuTextureViewDescriptor
 public readonly unsafe struct GpuTextureView
 {
     internal readonly   TextureView*                handle;
-    private  readonly   GpuTexture                  texture;
+    internal readonly   GpuTexture                  texture;
     private             GpuTextureViewDescriptor    Descriptor => texture.FindViewDescriptor(handle); // only for debugging
     public              bool                        IsDisposed => texture.IsDisposed;
 
