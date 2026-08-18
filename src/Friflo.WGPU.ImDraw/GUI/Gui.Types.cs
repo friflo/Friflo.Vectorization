@@ -28,7 +28,9 @@ public struct ImEvent
     public Vector2      mouse;
     public KeyEvent     key;
     public GamepadEvent gamepad;
-    
+
+    public override string ToString() => type.ToString();
+
     public ImEvent(ImEventType type, Vector2 mouse) {
         this.type    = type;
         this.mouse   = mouse;
