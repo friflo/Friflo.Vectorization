@@ -40,9 +40,9 @@ public static class Tests_ImDraw
     [Test]
     public static void Tests_ImDraw_DrawGui()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+        /* if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
             return; // TODO check CI hangup later
-        }
+        } */
         using var instance    = WgpuInstance.CreateInstance();
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");
