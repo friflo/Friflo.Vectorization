@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
-// ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
@@ -28,26 +27,26 @@ public enum ColorId
 
 public struct GuiColor
 {
-    public Color32  WindowColor     { get => windowColor;   set => windowColor  = Add(ColorId.WindowColor,  value); }
+    public Color32  WindowColor     { readonly get => windowColor;   set => windowColor  = Add(ColorId.WindowColor,  value); }
     
-    public Color32  TextColor       { get => textColor;     set => textColor    = Add(ColorId.TextColor,    value); }
+    public Color32  TextColor       { readonly get => textColor;     set => textColor    = Add(ColorId.TextColor,    value); }
     
-    public Color32  ButtonText      { get => buttonText;    set => buttonText   = Add(ColorId.ButtonText,   value); }
-    public Color32  ButtonColor     { get => buttonColor;   set => buttonColor  = Add(ColorId.ButtonColor,  value); }
-    public Color32  ButtonHover     { get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
-    public Color32  ButtonDown      { get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
+    public Color32  ButtonText      { readonly get => buttonText;    set => buttonText   = Add(ColorId.ButtonText,   value); }
+    public Color32  ButtonColor     { readonly get => buttonColor;   set => buttonColor  = Add(ColorId.ButtonColor,  value); }
+    public Color32  ButtonHover     { readonly get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
+    public Color32  ButtonDown      { readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
     
-    public Color32  SliderColor     { get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,  value); }
+    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,  value); }
     
-    public Color32  FocusColor      { get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
+    public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
      
     
-    public              Bitset64<ColorId>   Overrides                   => overrides;
-    public  override    string              ToString()                  => $"overrides: {overrides.Count}";
+    public  readonly            Bitset64<ColorId>   Overrides                   => overrides;
+    public  readonly override   string              ToString()                  => $"overrides: {overrides.Count}";
     
-    public  void    RemoveOverride(ColorId id)          => overrides.Remove(id);
-    public  bool    HasOverride   (ColorId id)          => overrides.Contains(id);
-    public  void    ClearOverrides()                    => overrides = default;
+    public                      void                RemoveOverride(ColorId id)          => overrides.Remove(id);
+    public  readonly            bool                HasOverride   (ColorId id)          => overrides.Contains(id);
+    public                      void                ClearOverrides()                    => overrides = default;
     
 #region internal
     [Browse(Never)] private     Color32 windowColor;

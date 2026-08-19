@@ -88,7 +88,9 @@ public static class Tests_ImDraw
             gui.Button("hello");
             gui.Button("test");
             gui.EndWindow();
-            gui.draw.Dispose(); // redundant - only for debugging
+            
+            _ = gui.Color.ButtonColor;  // Ensures Color is available
+            gui.draw.Dispose();         // redundant - only for debugging
         }
         
         var targetMemory = new byte[width * height * 4];
