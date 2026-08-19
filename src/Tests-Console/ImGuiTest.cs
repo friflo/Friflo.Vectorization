@@ -3,6 +3,7 @@ using System.Numerics;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedVariable
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -84,8 +85,9 @@ public class ImGuiRenderer : IRenderer
             gui.Label("");
             using (gui.PushStyle(greenButtonStyle)) {
                 if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
-                if (gui.Button("world", id: 0x7777ffff))            Console.WriteLine("Clicked: world");
             }
+            if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
+
             gui.Label("");
             gui.Checkbox("mouse circle", ref mouseCircle);
             if(gui.Checkbox("Monocraft", ref monocraft)) {
@@ -127,5 +129,50 @@ public class ImGuiRenderer : IRenderer
             }
         }
         Sdl3Cursor.SetCursor(batch.input.CurrentCursor);
+    }
+}
+
+
+public static class GuiExtensions
+{
+    public static bool MyButton(this in DrawGui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+    {
+        var draw    = gui.draw;
+        var window  = gui.Window;
+        if (style != null) gui.PushStyle(style);
+        
+        int parentHash  = window.GetCurrentScopeHash();
+        int widgetId    = id.Resolve(name, parentHash);
+        
+        var size    = draw.MeasureString(name);
+        var isHover = window.IsHover(size, draw);
+
+        // Calculate widget center & register for 1D/2D navigation
+        var center = window.Cursor + size * 0.5f;
+        var isFocused = gui.input.RegisterFocusable(widgetId, center, out _);
+
+        var widgetState = gui.input.GetWidgetState(isHover, widgetId);
+        
+        var buttonColor = widgetState switch {
+            WidgetState.Down    => gui.Color.ButtonDown,
+            WidgetState.Hover   => gui.Color.ButtonHover,
+            _                   => gui.Color.ButtonColor
+        };
+        // Render button background
+        draw.RectangleRounded(window.Cursor, size, 8, buttonColor);
+
+        if (isFocused) {
+            var focusColor = gui.Color.FocusColor;
+            draw.RectangleLines(window.Cursor, size, 4, focusColor);
+        }
+
+        draw.DrawStringInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, gui.Color.ButtonText);
+        
+        window.MoveCursor(size);
+        
+        if (style != null) gui.PopStyle();
+        // Trigger click via mouse or keyboard (Enter/Space when focused)
+        var isKeySubmitted = isFocused && gui.input.IsSubmitPressed;
+        return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
 }

@@ -19,13 +19,13 @@ namespace Friflo.WGPU.ImDraw;
 public readonly ref struct DrawGui : IDisposable
 {
     public  readonly    Draw2D      draw;           // 16 bytes
-    private readonly    GuiInput    input;          //  8 bytes
+    public  readonly    GuiInput    input;          //  8 bytes
     private readonly    GuiState    guiState;       //  8 bytes
     private readonly    GuiStyle    currentStyle;   //  8 bytes
     
     public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref currentStyle.color; }
     private             Gui         Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
-    private             GuiWindow   Window      { [DebuggerStepThrough] get => guiState.window; }
+    public              GuiWindow   Window      { [DebuggerStepThrough] get => guiState.window; }
     private             float       LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
@@ -116,7 +116,7 @@ public readonly ref struct DrawGui : IDisposable
         var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawString(title, textPos, Color.TextColor);
 
-        window.cursor = window.pos + new Vector2(10f, titleBarHeight + 10f);
+        window.SetCursor(window.pos + new Vector2(10f, titleBarHeight + 10f));
         
         // --- Push content scissor rect (clips everything below titlebar) ---
         var contentPos  = window.pos + new Vector2(0f, titleBarHeight);
@@ -141,7 +141,7 @@ public readonly ref struct DrawGui : IDisposable
         var window = Window;
         if (textColor.Packed == 0) textColor = Color.TextColor;
         
-        var size = draw.DrawString(name, window.cursor, textColor);
+        var size = draw.DrawString(name, window.Cursor, textColor);
         
         window.MoveCursor(size);
     }
@@ -158,7 +158,7 @@ public readonly ref struct DrawGui : IDisposable
         var isHover = window.IsHover(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
-        var center = window.cursor + size * 0.5f;
+        var center = window.Cursor + size * 0.5f;
         bool isFocused = input.RegisterFocusable(widgetId, center, out _);
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
@@ -169,14 +169,14 @@ public readonly ref struct DrawGui : IDisposable
             _                   => Color.ButtonColor
         };
         // Render button background
-        draw.RectangleRounded(window.cursor, size, 8, buttonColor);
+        draw.RectangleRounded(window.Cursor, size, 8, buttonColor);
 
         if (isFocused) {
             var focusColor = Color.FocusColor;
-            draw.RectangleLines(window.cursor, size, 4, focusColor);
+            draw.RectangleLines(window.Cursor, size, 4, focusColor);
         }
 
-        draw.DrawStringInRect(name, window.cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
+        draw.DrawStringInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
         
         window.MoveCursor(size);
         
@@ -200,7 +200,7 @@ public readonly ref struct DrawGui : IDisposable
         var isHover = window.IsHover(totalSize, draw);
 
         // Register focus for 1D/2D navigation
-        var center      = window.cursor + totalSize * 0.5f;
+        var center      = window.Cursor + totalSize * 0.5f;
         bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
@@ -215,7 +215,7 @@ public readonly ref struct DrawGui : IDisposable
             WidgetState.Hover   => Color.ButtonHover,
             _                   => Color.ButtonColor
         };
-        var boxRect = new Vector2(window.cursor.X, window.cursor.Y + (totalSize.Y - boxSize) / 2f);
+        var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - boxSize) / 2f);
         draw.RectangleRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
 
         // Render blue focus outline on box
@@ -228,7 +228,7 @@ public readonly ref struct DrawGui : IDisposable
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
             draw.RectangleRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Color.TextColor);
         }
-        var textPos = new Vector2(boxRect.X + boxSize + 8f, window.cursor.Y + (totalSize.Y - textSize.Y) / 2f);
+        var textPos = new Vector2(boxRect.X + boxSize + 8f, window.Cursor.Y + (totalSize.Y - textSize.Y) / 2f);
         draw.DrawString(name, textPos, Color.TextColor);
 
         window.MoveCursor(totalSize);
@@ -249,7 +249,7 @@ public readonly ref struct DrawGui : IDisposable
         var isHover     = window.IsHover(totalSize, draw);
 
         // Register focus for 1D/2D navigation
-        var center      = window.cursor + totalSize * 0.5f;
+        var center      = window.Cursor + totalSize * 0.5f;
         bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
@@ -257,7 +257,7 @@ public readonly ref struct DrawGui : IDisposable
         bool changed = false;
 
         if (widgetState == WidgetState.Down) {
-            float t = Math.Clamp((input.Mouse.X - window.cursor.X) / width, 0f, 1f);
+            float t = Math.Clamp((input.Mouse.X - window.Cursor.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
             
             if (newValue != value) {
@@ -265,7 +265,7 @@ public readonly ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-        draw.RectangleRounded(window.cursor, totalSize, 6, Color.SliderColor);
+        draw.RectangleRounded(window.Cursor, totalSize, 6, Color.SliderColor);
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
@@ -276,15 +276,15 @@ public readonly ref struct DrawGui : IDisposable
             WidgetState.Hover   => Color.ButtonHover,
             _                   => Color.ButtonColor
         };
-        draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
+        draw.RectangleRounded(window.Cursor, fillSize, 6, barColor);
 
         // Render blue focus outline
         if (isFocused) {
             var focusColor = Color.FocusColor;
-            draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
+            draw.RectangleLines(window.Cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
-        draw.DrawStringInRect(labelText.Span, window.cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
+        draw.DrawStringInRect(labelText.Span, window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
         if (style != null) PopStyle();
@@ -300,7 +300,7 @@ public readonly ref struct DrawGui : IDisposable
             WidgetID    id          = default)
     {
         var window  = Window;
-        pos         = window.cursor;
+        pos         = window.Cursor;
         widgetState = WidgetState.None;
         isFocused   = false;
 

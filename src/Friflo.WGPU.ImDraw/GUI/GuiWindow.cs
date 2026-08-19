@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 
 // ReSharper disable MergeIntoPattern
@@ -45,15 +46,17 @@ public enum ResizeEdge
 
 
 
-internal sealed class GuiWindow
+public sealed class GuiWindow
 {
+    public              Vector2             Cursor { [DebuggerStepThrough] get => cursor; }
+    
     private  readonly   Gui                 gui;
     internal            Vector2             pos;
     internal            Vector2             size;
     private  readonly   Vector2             minSize     = new(100f, 100f);
     private             ResizeEdge          activeResizeEdge;
     
-    internal            Vector2             cursor;
+    private             Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
     
@@ -80,7 +83,7 @@ internal sealed class GuiWindow
         layoutStack.Clear();
     }
 
-    internal int GetCurrentScopeHash()
+    public int GetCurrentScopeHash()
     {
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
@@ -104,8 +107,13 @@ internal sealed class GuiWindow
             MoveCursor(finishedLayout.maxSize);
         }
     }
+    
+    internal void SetCursor(Vector2 value)
+    {
+        cursor = value;
+    }
 
-    internal void MoveCursor(Vector2 widgetSize)
+    public void MoveCursor(Vector2 widgetSize)
     {
         if (layoutStack.Count > 0) {
             var layout = layoutStack.Pop();
@@ -125,7 +133,7 @@ internal sealed class GuiWindow
         }
     }
     
-    internal bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, Draw2D draw)
+    public bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, Draw2D draw)
     {
         var widgetRect = new RectVector2(widgetPos, widgetSize);
         
@@ -141,7 +149,7 @@ internal sealed class GuiWindow
         return gui.IsTopWindowAt(gui.input.Mouse, this);
     }
 
-    internal bool IsHover(Vector2 widgetSize, Draw2D draw)
+    public bool IsHover(Vector2 widgetSize, Draw2D draw)
     {
         return IsHoverAt(cursor, widgetSize, draw);
     }
