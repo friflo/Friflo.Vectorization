@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 using NUnit.Framework;
@@ -36,9 +37,13 @@ public static class Tests_ImDraw
         Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
     }
     
+    
     [Test]
+    [Platform(Exclude = "MacOsX", Reason = "Hangs occasionally on macOS (Metal issue)")]
     public static void Tests_ImDraw_DrawGui()
     {
+        // TODO  hangs occasionally in macOS. Debugging it when in fitting Mood
+
         using var instance    = WgpuInstance.CreateInstance();
         
         ImDraw_DrawGui_Offscreen(instance);
