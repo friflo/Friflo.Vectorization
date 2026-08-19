@@ -6,13 +6,11 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using System.Text;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable CompareOfFloatsByEqualityOperator
-// ReSharper disable ConvertSwitchStatementToSwitchExpression
-// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
@@ -106,10 +104,11 @@ public readonly ref struct DrawGui : IDisposable
         // Render background & titlebar
         draw.RectangleRounded(window.pos, window.size, 8, Style.color.WindowColor);
 
-        var headerColor = Style.color.ButtonColor;
-        if (titleState == WidgetState.Hover) headerColor = Style.color.ButtonHover;
-        if (titleState == WidgetState.Down)  headerColor = Style.color.ButtonDown;
-
+        var headerColor = titleState switch {
+            WidgetState.Hover   => Style.color.ButtonHover,
+            WidgetState.Down    => Style.color.ButtonDown,
+            _                   => Style.color.ButtonColor
+        };
         draw.RectangleRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
@@ -163,13 +162,11 @@ public readonly ref struct DrawGui : IDisposable
 
         var widgetState = input.GetWidgetState(isHover, widgetId);
         
-        var color = widgetState switch
-        {
+        var color = widgetState switch {
             WidgetState.Down    => Style.color.ButtonDown,
             WidgetState.Hover   => Style.color.ButtonHover,
             _                   => Style.color.ButtonColor
         };
-        
         // Render button background
         draw.RectangleRounded(window.cursor, size, 8, color);
 
@@ -212,18 +209,11 @@ public readonly ref struct DrawGui : IDisposable
         if (clicked) {
             value = !value;
         }
-
-        var boxColor = Style.color.ButtonColor;
-        switch (widgetState)
-        {
-            case WidgetState.Down:
-                boxColor = Style.color.ButtonDown;
-                break;
-            case WidgetState.Hover:
-                boxColor = Style.color.ButtonHover;
-                break;
-        }
-
+        var boxColor = widgetState switch {
+            WidgetState.Down    => Style.color.ButtonDown,
+            WidgetState.Hover   => Style.color.ButtonHover,
+            _                   => Style.color.ButtonColor
+        };
         var boxRect = new Vector2(window.cursor.X, window.cursor.Y + (totalSize.Y - boxSize) / 2f);
         draw.RectangleRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
 
@@ -280,15 +270,16 @@ public readonly ref struct DrawGui : IDisposable
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        var barColor = Style.color.ButtonHover;
-        if (widgetState == WidgetState.Down) {
-            barColor = Style.color.ButtonDown;
-        }
+        var barColor = widgetState switch {
+            WidgetState.Down    => Style.color.ButtonDown,
+            WidgetState.Hover   => Style.color.ButtonHover,
+            _                   => Style.color.ButtonColor
+        };
         draw.RectangleRounded(window.cursor, fillSize, 6, barColor);
 
         // Render blue focus outline
         if (isFocused) {
-            Color32 focusColor = Style.color.FocusColor;
+            var focusColor = Style.color.FocusColor;
             draw.RectangleLines(window.cursor, totalSize, 4, focusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
