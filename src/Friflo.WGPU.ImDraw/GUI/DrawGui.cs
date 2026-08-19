@@ -24,9 +24,9 @@ public readonly ref struct DrawGui : IDisposable
     private readonly    GuiStyle    currentStyle;   //  8 bytes
     
     public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref currentStyle.color; }
-    private             Gui         Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     public              GuiWindow   Window      { [DebuggerStepThrough] get => guiState.window; }
-    private             float       LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    public              float       LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    private             Gui         Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     private             StringBuilder   StringBuilder() => draw.batch.StringBuilder();
@@ -61,7 +61,7 @@ public readonly ref struct DrawGui : IDisposable
     {
         var gui = Gui;
         if (!gui.windows.TryGetValue(title, out guiState.window!)) {
-            guiState.window = new GuiWindow(gui) {
+            guiState.window = new GuiWindow(gui, title) {
                 pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
                 size    = guiState.nextWindowSize ?? new Vector2(300, 200)
             };
@@ -83,7 +83,7 @@ public readonly ref struct DrawGui : IDisposable
         }
         draw.PushZIndex(gui.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
         
-        window.ResetScope(title);
+        window.ResetScope();
         int parentHash = window.GetCurrentScopeHash();
 
         // Process window resize

@@ -15,7 +15,9 @@ internal sealed class Gui : IDisposable
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
     private             GuiWindow?                      focusedWindow;
-    
+
+    public   override   string                          ToString()  => $"windows: {windows.Count}";
+
     internal Gui(GuiInput input) {
         this.input = input;
     }

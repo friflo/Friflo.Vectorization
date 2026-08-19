@@ -48,6 +48,7 @@ public enum ResizeEdge
 
 public sealed class GuiWindow
 {
+    private  readonly   string              title;
     public              Vector2             Cursor { [DebuggerStepThrough] get => cursor; }
     
     private  readonly   Gui                 gui;
@@ -59,14 +60,16 @@ public sealed class GuiWindow
     private             Vector2             cursor;
     private  readonly   Stack<int>          idStack     = new();
     private  readonly   Stack<LayoutNode>   layoutStack = new();
-    
 
-    
-    internal GuiWindow(Gui gui) {
-        this.gui = gui;
+    public   override   string              ToString() => title;
+
+
+    internal GuiWindow(Gui gui, string title) {
+        this.gui    = gui;
+        this.title  = title;
     }
     
-    internal void ResetScope(string title)
+    internal void ResetScope()
     {
         idStack.Clear();
         layoutStack.Clear();

@@ -24,7 +24,9 @@ internal sealed class GuiState
     internal            GuiWindow       window              = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
-    
+
+    public   override   string          ToString()          => $"window: {window}";
+
     private static GuiColor CreateDefaultColors()
     {
         return new GuiColor
