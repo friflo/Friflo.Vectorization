@@ -21,10 +21,9 @@ jobs:
 
     - name: Install & Setup Mesa (Headless GPU)
       run: |
-        # Fix mirror hangups on Azure/Ubuntu 24.04 runners by redirecting to main archives & forcing IPv4
-        sudo sed -i 's/azure.archive.ubuntu.com/archive.ubuntu.com/g' /etc/apt/sources.list /etc/apt/sources.list.d/* || true
-        sudo apt-get -o Acquire::ForceIPv4=true update
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
+        # Fix APT hangup on Ubuntu 24.04 runners by disabling HTTP pipelining and forcing IPv4
+        sudo apt-get update -o Acquire::http::Pipeline-Depth=0 -o Acquire::ForceIPv4=true
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -o Acquire::http::Pipeline-Depth=0 libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
 
         # Note: Using Azure mirror-server replaced by commands above
         # sudo apt-get update
