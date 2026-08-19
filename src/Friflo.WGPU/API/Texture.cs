@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Friflo.GPU;
 using Friflo.WGPU.Runtime;
 using static Friflo.WGPU.Runtime.WebGPU_native;
 
@@ -72,6 +73,20 @@ public sealed unsafe class GpuTexture : IDisposable
         fixed (byte* dataPtr = data) {
             wgpuQueueWriteTexture(device.QueuePtr, &destination, dataPtr, (nuint)data.Length, &sourceLayout, &extent3D);
         }
+    }
+    
+    /// <summary>
+    /// Schedules an offscreen GPU texture readback for headless rendering.<br/>
+    /// The <paramref name="targetMemory"/> is filled with pixel data after <see cref="GpuQueue.ReadBuffers"/> returns.
+    /// </summary>
+    public void Read(PipelineContext context, int width, int height, int bytesPerPixel, Memory<byte> targetMemory)
+    {
+        if (targetMemory.Length < width * height * bytesPerPixel) {
+            throw new ArgumentException("Target memory is too small.", nameof(targetMemory));
+        }
+        var recorder    = (CommandRecorder)context;
+        var readTexture = new ReadTexture(handle, (uint)width, (uint)height, (uint)bytesPerPixel, targetMemory);
+        recorder.readTextures.Add(readTexture);
     }
     
     public void Dispose()

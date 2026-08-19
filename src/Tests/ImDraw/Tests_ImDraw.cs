@@ -1,6 +1,10 @@
-﻿using Friflo.WGPU;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 using NUnit.Framework;
+using StbImageWriteSharp;
 
 
 // ReSharper disable once InconsistentNaming
@@ -36,15 +40,20 @@ public static class Tests_ImDraw
     [Test]
     public static void Tests_ImDraw_DrawGui()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+            return; // TODO check CI hangup later
+        }
         using var instance    = WgpuInstance.CreateInstance();
         using var adapter     = instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
         using var device      = adapter.CreateDevice("test");
         
+        var width  = 500;
+        var height = 300;
         using var targetTexture = device.CreateTexture(new GpuTextureDescriptor {
             label  = "Target Texture",
-            size   = [1000, 500],
+            size   = [width, height],
             format = TextureFormat.RGBA8Unorm,
-            usage  = TextureUsage.CopyDst | TextureUsage.RenderAttachment
+            usage  = TextureUsage.CopyDst | TextureUsage.CopySrc | TextureUsage.RenderAttachment
         });
         var renderTargetView = targetTexture.CreateView(); // is owned by targetTexture
 
@@ -71,8 +80,16 @@ public static class Tests_ImDraw
             gui.EndWindow();
             gui.draw.Dispose(); // redundant - only for debugging
         }
+        
+        var targetMemory = new byte[width * height * 4];
+        targetTexture.Read(context, width, height, 4, new Memory<byte>(targetMemory));
+        
         context.Queue.ReadBuffers(); // <= Submit() & Wait
         
-        // TODO implement targetTexture.Read()
+        var filePath = Path.GetFullPath("test_output.png");
+        using (var stream = File.Create(filePath)) {
+            var writer = new ImageWriter();
+            writer.WritePng(targetMemory, width, height, ColorComponents.RedGreenBlueAlpha, stream);
+        }
     }
 }

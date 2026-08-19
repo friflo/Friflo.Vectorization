@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+// ReSharper disable ReplaceWithFieldKeyword
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
@@ -128,5 +129,29 @@ internal readonly struct ActiveBuffer
     internal ActiveBuffer(in BufferData data, List<BufferRange> compactRanges) {
         this.data           = data;
         this.compactRanges  = compactRanges;
+    }
+}
+
+internal readonly unsafe struct ReadTexture
+{
+    internal readonly   Texture*        handle;
+    internal readonly   uint            width;
+    internal readonly   uint            height;
+    private  readonly   uint            bytesPerPixel;
+    internal readonly   Memory<byte>    targetMemory; // host memory
+    
+    internal uint UnpaddedBytesPerRow => width * bytesPerPixel;
+    internal uint PaddedBytesPerRow   => (UnpaddedBytesPerRow + 255) & ~255u; // 256-Byte WebGPU Alignment
+    internal uint TotalPaddedSize     => PaddedBytesPerRow * height;
+
+    public override string ToString() => $"{width} x {height} x {bytesPerPixel}";
+
+    internal ReadTexture(Texture* handle, uint width, uint height, uint bytesPerPixel, Memory<byte> targetMemory)
+    {
+        this.handle        = handle;
+        this.width         = width;
+        this.height        = height;
+        this.bytesPerPixel = bytesPerPixel;
+        this.targetMemory  = targetMemory;
     }
 }

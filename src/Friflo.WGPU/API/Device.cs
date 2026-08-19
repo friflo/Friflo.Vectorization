@@ -53,6 +53,7 @@ public sealed unsafe partial class WgpuDevice : GpuDevice
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue        commandListQueue    = [];
     internal            BufferEntry[]           bufferEntries       = [];   // ranges & segments per GpuBuffer
+    internal readonly   List<ReadTexture>       readTextures        = [];   // queued read texture buffer tasks
     private  readonly   WgpuIO                  wgpuIO              = new ();
     
     

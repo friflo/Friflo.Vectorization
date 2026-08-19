@@ -25,6 +25,7 @@ public sealed unsafe partial class CommandRecorder
     /// --- thread local fields used by <see cref="WgpuIO.Submit"/>
     internal readonly   CommandListQueue    commandListQueue    = [];
     internal            BufferEntry[]       bufferEntries       = []; // ranges & segments per GpuBuffer
+    internal readonly   List<ReadTexture>   readTextures        = []; // queued read texture buffer tasks
     private  readonly   WgpuIO              wgpuIO              = new ();
     
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -121,6 +122,9 @@ internal readonly struct WgpuIO
     private readonly    List<WgpuCommandBuffer> tempSubmitCommands      = [];
     private readonly    List<CommandList>       tempCommandLists        = [];
     
+    // --- Read textures
+    private readonly    List<ReadTexture>       tempActiveReadTextures  = [];
+    
     public WgpuIO() { }
     
     internal unsafe uint Submit(CommandRecorder recorder, WgpuDevice device, CommandEncoder* encoder)
@@ -131,6 +135,7 @@ internal readonly struct WgpuIO
         }
         var commandListQueue    = recorder?.commandListQueue    ?? device.commandListQueue;
         var bufferEntries       = recorder?.bufferEntries       ?? device.bufferEntries;
+        var readTextures        = recorder?.readTextures        ?? device.readTextures;
         var submitCommands      = tempSubmitCommands;
         var commandLists        = tempCommandLists;
         
@@ -155,6 +160,7 @@ internal readonly struct WgpuIO
         }
         
         var writePos = CopyBuffers(device, bufferEntries, encoder);
+        writePos     = CopyTextures(device, readTextures, encoder, writePos);
 
         // --------------------- append copyBufferCommands and submit ---------------------
         if (createEncoder) {
@@ -184,6 +190,7 @@ internal readonly struct WgpuIO
         return writePos;
     }
     
+#region buffers copy/read
     private unsafe uint CopyBuffers(WgpuDevice device, BufferEntry[] bufferEntries, CommandEncoder* encoder)
     {
         var activeBuffers       = tempActiveBuffers;
@@ -289,15 +296,92 @@ internal readonly struct WgpuIO
                 readPos += size;
             }
         }
+        ReadTextures(sourceSpan, readPos);
+        
         wgpuBufferUnmap(stagingBuffer);  // unmap so WGPU driver is able to access again
         
         activeBuffers.Clear();
     }
-    
+#endregion
+
+
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static unsafe void BufferMap_callback(MapAsyncStatus status, StringView message, void* userdata1, void* userdata2) {
         if (userdata1== null) return;
         var remainingMaps = (int*)userdata1;
         Interlocked.Decrement(ref *remainingMaps);
     }
+    
+    
+#region textures - copy/read
+
+    // READ_TEXTURE
+    private unsafe uint CopyTextures(WgpuDevice device, List<ReadTexture> readTextures, CommandEncoder* encoder, uint startWritePos)
+    {
+        var activeReadTextures = tempActiveReadTextures;
+        activeReadTextures.Clear();
+        activeReadTextures.AddRange(readTextures);
+        readTextures.Clear();
+        
+        ReadOnlySpan<ReadTexture> activeTexturesSpan = CollectionsMarshal.AsSpan(activeReadTextures);
+        uint writePos = startWritePos;
+
+        foreach (ref readonly var activeTex in activeTexturesSpan)
+        {
+            var srcCopy = new TexelCopyTextureInfo {
+                texture  = activeTex.handle,
+                mipLevel = 0,
+                origin   = new Origin3D { x = 0, y = 0, z = 0 },
+                aspect   = TextureAspect.All
+            };
+            var dstCopy = new TexelCopyBufferInfo {
+                buffer = device.stagingReadBuffer.handle,
+                layout = new TexelCopyBufferLayout {
+                    offset       = writePos,
+                    bytesPerRow  = activeTex.PaddedBytesPerRow,
+                    rowsPerImage = activeTex.height
+                }
+            };
+            var copySize = new Extent3D {
+                width              = activeTex.width,
+                height             = activeTex.height,
+                depthOrArrayLayers = 1
+            };
+            wgpuCommandEncoderCopyTextureToBuffer(encoder, &srcCopy, &dstCopy, &copySize);
+
+            writePos += activeTex.TotalPaddedSize;
+        }
+        return writePos;
+    }
+
+    
+    private int ReadTextures(ReadOnlySpan<byte> stagingSourceSpan, int startReadPos)
+    {
+        ReadOnlySpan<ReadTexture> activeTexturesSpan = CollectionsMarshal.AsSpan(tempActiveReadTextures);
+        int readPos = startReadPos;
+
+        foreach (ref readonly var activeTex in activeTexturesSpan)
+        {
+            uint unpaddedBytesPerRow = activeTex.UnpaddedBytesPerRow;
+            uint paddedBytesPerRow   = activeTex.PaddedBytesPerRow;
+            Span<byte> targetSpan    = activeTex.targetMemory.Span;
+
+            // copy line by line and skip padding
+            for (int y = 0; y < activeTex.height; y++)
+            {
+                int srcOffset = readPos + (y * (int)paddedBytesPerRow);
+                int dstOffset = y * (int)unpaddedBytesPerRow;
+
+                var rowSource = stagingSourceSpan.Slice(srcOffset, (int)unpaddedBytesPerRow);
+                var rowTarget = targetSpan.Slice(dstOffset, (int)unpaddedBytesPerRow);
+
+                rowSource.CopyTo(rowTarget);
+            }
+            readPos += (int)activeTex.TotalPaddedSize;
+        }
+
+        tempActiveReadTextures.Clear();
+        return readPos;
+    }
+#endregion
 }

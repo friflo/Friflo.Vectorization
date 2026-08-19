@@ -28,9 +28,10 @@
         <PackageReference Include="Friflo.Engine.ECS" Version="4.0.0-preview.2" />
         <!-- <ProjectReference Include="..\..\..\Friflo.Engine.ECS\src\ECS\Friflo.Engine.ECS.csproj" /> -->
 
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-        <PackageReference Include="NUnit" Version="3.13.3" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" 	Version="17.12.0" />
+        <PackageReference Include="NUnit" 					Version="3.13.3" />
+        <PackageReference Include="NUnit3TestAdapter" 		Version="4.6.0" />
+        <PackageReference Include="StbImageWriteSharp" 		Version="1.16.7" />
     </ItemGroup>
 
     <ItemGroup>
