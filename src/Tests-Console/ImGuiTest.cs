@@ -29,7 +29,7 @@ public class ImGuiRenderer : IRenderer
             ButtonHover = 0xcc6666ff,
             ButtonDown  = 0x882222ff,
             ButtonText  = 0xffffffff,
-            FocusColor  = 0xff5555ff,
+            FocusColor  = 0xffffffff,
         }
     };
     
@@ -39,7 +39,7 @@ public class ImGuiRenderer : IRenderer
             ButtonHover = 0x44cc44ff,
             ButtonDown  = 0x008800ff,
             ButtonText  = 0xffffffff,
-            FocusColor  = 0x00ff00ff,
+            FocusColor  = 0xffffffff,
         }
     };
     

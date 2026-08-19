@@ -265,18 +265,18 @@ public readonly ref struct DrawGui : IDisposable
                 changed = true;
             }
         }
-        draw.RectangleRounded(window.Cursor, totalSize, 6, Color.SliderColor);
+        var slideBg = widgetState switch {
+            WidgetState.Down    => Color.ButtonDown,
+            WidgetState.Hover   => Color.ButtonHover,
+            _                   => Color.SliderColor
+        };
+        draw.RectangleRounded(window.Cursor, totalSize, 6, slideBg);
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        var barColor = widgetState switch {
-            WidgetState.Down    => Color.ButtonDown,
-            WidgetState.Hover   => Color.ButtonHover,
-            _                   => Color.ButtonColor
-        };
-        draw.RectangleRounded(window.Cursor, fillSize, 6, barColor);
+        draw.RectangleRounded(window.Cursor, fillSize, 6, Color.SliderFill);
 
         // Render blue focus outline
         if (isFocused) {

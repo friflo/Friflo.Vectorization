@@ -33,11 +33,15 @@ internal sealed class GuiState
         {
             WindowColor  = 0xaaaaaaff,
             TextColor    = 0x000000ff,
+            
             ButtonText   = 0x000000ff,
             ButtonColor  = 0xddddddff,
-            ButtonHover  = 0xffffffff,
+            ButtonHover  = 0xeeeeeeff,
             ButtonDown   = 0xbbbbbbff,
-            SliderColor  = 0xccccccff,
+            
+            SliderFill   = 0xffffffff,
+            SliderColor  = 0xbbbbbbff,
+            
             FocusColor   = 0x007affff
         };
     }
