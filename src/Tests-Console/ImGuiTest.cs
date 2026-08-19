@@ -145,7 +145,7 @@ public static class GuiExtensions
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(size, draw);
+        var isHover = window.IsHoverAtCursor(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
         var center = window.Cursor + size * 0.5f;

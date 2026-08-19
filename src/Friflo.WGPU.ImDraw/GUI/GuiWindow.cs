@@ -152,14 +152,14 @@ public sealed class GuiWindow
         return gui.IsTopWindowAt(gui.input.Mouse, this);
     }
 
-    public bool IsHover(Vector2 widgetSize, Draw2D draw)
+    public bool IsHoverAtCursor(Vector2 widgetSize, Draw2D draw)
     {
         return IsHoverAt(cursor, widgetSize, draw);
     }
     
 #region resize
 
-    public bool ProcessResize(GuiInput input, int resizeId, float border = 6f)
+    internal bool ProcessResize(GuiInput input, int resizeId, float border = 6f)
     {
         ResizeEdge hoverEdge = GetResizeEdge(input.Mouse, border);
 

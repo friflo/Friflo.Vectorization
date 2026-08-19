@@ -155,7 +155,7 @@ public readonly ref struct DrawGui : IDisposable
         int widgetId    = id.Resolve(name, parentHash);
         
         var size    = draw.MeasureString(name);
-        var isHover = window.IsHover(size, draw);
+        var isHover = window.IsHoverAtCursor(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
         var center = window.Cursor + size * 0.5f;
@@ -197,7 +197,7 @@ public readonly ref struct DrawGui : IDisposable
         var textSize  = draw.MeasureString(name);
         var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
 
-        var isHover = window.IsHover(totalSize, draw);
+        var isHover = window.IsHoverAtCursor(totalSize, draw);
 
         // Register focus for 1D/2D navigation
         var center      = window.Cursor + totalSize * 0.5f;
@@ -246,7 +246,7 @@ public readonly ref struct DrawGui : IDisposable
         float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
 
-        var isHover     = window.IsHover(totalSize, draw);
+        var isHover     = window.IsHoverAtCursor(totalSize, draw);
 
         // Register focus for 1D/2D navigation
         var center      = window.Cursor + totalSize * 0.5f;
