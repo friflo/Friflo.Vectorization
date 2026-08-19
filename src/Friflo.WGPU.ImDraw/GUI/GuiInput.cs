@@ -39,10 +39,10 @@ public sealed class GuiInput
     
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
-    private     int     hotItem;
+    private     int         hotItem;    // MUST stay private. read/write only in GetWidgetState()
     
     /// <summary> The widget currently being interacted with (persists while mouse is held down) </summary>
-    private     int     activeItem;
+    private     int         activeItem; // MUST stay private. read/write only in GetWidgetState()
     
     private readonly    List<KeyEvent>          keyEvents           = [];
     private readonly    List<GamepadEvent>      gamepadEvents       = [];
