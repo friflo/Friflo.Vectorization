@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # replaces ubuntu-latest / ubuntu-24.04
     timeout-minutes: 5
     steps:
     - uses: actions/checkout@v4
@@ -22,12 +22,12 @@ jobs:
     - name: Install & Setup Mesa (Headless GPU)
       run: |
         # Fix APT hangup on Ubuntu 24.04 runners by disabling HTTP pipelining and forcing IPv4
-        sudo apt-get update -o Acquire::http::Pipeline-Depth=0 -o Acquire::ForceIPv4=true
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -o Acquire::http::Pipeline-Depth=0 libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
+        # sudo apt-get update -o Acquire::http::Pipeline-Depth=0 -o Acquire::ForceIPv4=true
+        # sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -o Acquire::http::Pipeline-Depth=0 libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
 
-        # Note: Using Azure mirror-server replaced by commands above
-        # sudo apt-get update
-        # sudo apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
+        # Note - outdated: Using Azure mirror-server replaced by commands above
+        sudo apt-get update
+        sudo apt-get install -y libvulkan1 mesa-vulkan-drivers libx11-6 libx11-xcb1 libxcb-dri3-0 libwayland-client0
         
         # ICD-Fix: locate driver and make available for Loader
         mkdir -p ./vulkan_icd
