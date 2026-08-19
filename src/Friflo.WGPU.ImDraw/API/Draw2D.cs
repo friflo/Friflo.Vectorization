@@ -191,19 +191,16 @@ public readonly ref struct Draw2D : IDisposable
         }
         bat.currentTexture = texture;
 
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
-        
         float x1 = position.X;
         float y1 = position.Y;
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
+        var span = AddQuad();
         span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color.Packed }; // Top-Left
         span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed }; // Top-Right
         span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color.Packed }; // Bottom-Right
         span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed }; // Bottom-Left
-
-        bat.vertexCount += 4;
     }
 
     /// <summary>
@@ -222,8 +219,6 @@ public readonly ref struct Draw2D : IDisposable
         }
         bat.currentTexture = texture;
 
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
-
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
@@ -234,12 +229,11 @@ public readonly ref struct Draw2D : IDisposable
         float b = (1f - pivot.Y) * size.Y;
 
         // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left  
+        var span = AddQuad();
         span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = color.Packed };
         span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
         span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color.Packed };
         span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
-
-        bat.vertexCount += 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -250,17 +244,22 @@ public readonly ref struct Draw2D : IDisposable
             Flush();
             bat.currentTexture = bat.defaultFontTexture;
         }
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
         var uv = bat.currentTexture.whiteUv;
 
+        var span = AddQuad();
         span[0] = new Vertex2D { position = v0, uv = uv, color = color.Packed };
         span[1] = new Vertex2D { position = v1, uv = uv, color = color.Packed };
         span[2] = new Vertex2D { position = v2, uv = uv, color = color.Packed };
         span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
-
-        bat.vertexCount += 4;
     }
-#endregion
+    
+    public Span<Vertex2D> AddQuad() {
+        var start = batch.vertexCount;
+        batch.vertexCount = start + 4;
+        return batch.vertexBuffer.InOut(start, 4).Span;
+    }
+
+    #endregion
 
 
 
@@ -289,19 +288,16 @@ public readonly ref struct Draw2D : IDisposable
         bat.currentTexture = texView;
         var uv = bat.currentTexture.whiteUv;
 
-        var span = bat.vertexBuffer.InOut(bat.vertexCount, 4).Span;
-
         float x1 = position.X;
         float y1 = position.Y;
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
+        var span = AddQuad();
         span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
         span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
         span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
         span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
-
-        bat.vertexCount += 4;
     }
 
     /// <summary>
