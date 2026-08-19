@@ -66,8 +66,8 @@ public sealed class GuiInput
     }
     
     private struct FocusableEntry {
-        public int      id;
-        public Vector2  center;
+        internal    int     id;
+        internal    Vector2 center;
     }
     
     
