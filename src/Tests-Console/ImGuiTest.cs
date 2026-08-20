@@ -119,7 +119,7 @@ public class ImGuiRenderer : IRenderer
             var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
             var srcSize = new Vector2(64, 64);          // 64x64 Tile
             if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
-            gui.draw.DrawSprite(spritePos, srcSize, myTextureView, srcPos, srcSize, new Vector2(1024, 1024));
+            gui.draw.DrawSprite(myTextureView, spritePos, srcSize, srcPos, srcSize, new Vector2(1024, 1024));
             gui.DrawFocusRect(spritePos, srcSize, isFocused);
         }
         
