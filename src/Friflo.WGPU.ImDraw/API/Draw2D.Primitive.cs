@@ -27,11 +27,12 @@ public readonly ref partial struct Draw2D
         }
         var uv = bat.currentTexture.whiteUv;
 
-        var span = AddQuad();
-        span[0] = new Vertex2D { position = v0, uv = uv, color = color.Packed };
-        span[1] = new Vertex2D { position = v1, uv = uv, color = color.Packed };
-        span[2] = new Vertex2D { position = v2, uv = uv, color = color.Packed };
-        span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
+        var packed  = color.Packed;
+        var span    = AddQuad();
+        span[0] = new Vertex2D(v0, uv, packed);
+        span[1] = new Vertex2D(v1, uv, packed);
+        span[2] = new Vertex2D(v2, uv, packed);
+        span[3] = new Vertex2D(v3, uv, packed);
     }
     
     public void DrawQuad(Vertex2D v0, Vertex2D v1, Vertex2D v2, Vertex2D v3, GpuTextureView texture)
@@ -113,11 +114,12 @@ public readonly ref partial struct Draw2D
         float x1 = x0 + size.X;
         float y1 = y0 + size.Y;
 
-        var span = AddQuad();
-        span[0] = new Vertex2D(new Vector2(x0, y0), uv, color.Packed);
-        span[1] = new Vertex2D(new Vector2(x1, y0), uv, color.Packed);
-        span[2] = new Vertex2D(new Vector2(x1, y1), uv, color.Packed);
-        span[3] = new Vertex2D(new Vector2(x0, y1), uv, color.Packed);
+        var packed  = color.Packed;
+        var span    = AddQuad();
+        span[0] = new Vertex2D(new Vector2(x0, y0), uv, packed);
+        span[1] = new Vertex2D(new Vector2(x1, y0), uv, packed);
+        span[2] = new Vertex2D(new Vector2(x1, y1), uv, packed);
+        span[3] = new Vertex2D(new Vector2(x0, y1), uv, packed);
     }
 
     /// <summary>
@@ -140,10 +142,10 @@ public readonly ref partial struct Draw2D
         float y2 = position.Y + size.Y;
 
         var span = AddQuad();
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
+        span[0] = new Vertex2D(new Vector2(x1, y1),  uv,  topLeft.Packed);
+        span[1] = new Vertex2D(new Vector2(x2, y1),  uv,  topRight.Packed);
+        span[2] = new Vertex2D(new Vector2(x2, y2),  uv,  bottomRight.Packed);
+        span[3] = new Vertex2D(new Vector2(x1, y2),  uv,  bottomLeft.Packed);
     }
 
     /// <summary>

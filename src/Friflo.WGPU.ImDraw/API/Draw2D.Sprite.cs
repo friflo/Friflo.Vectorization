@@ -45,11 +45,12 @@ public readonly ref partial struct Draw2D
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        var span = AddQuad();
-        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uvMin,                            color = color.Packed }; // Top-Left
-        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed }; // Top-Right
-        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uvMax,                            color = color.Packed }; // Bottom-Right
-        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed }; // Bottom-Left
+        var packed  = color.Packed;
+        var span    = AddQuad();
+        span[0] = new Vertex2D(new Vector2(x1, y1), uvMin,                         packed); // Top-Left
+        span[1] = new Vertex2D(new Vector2(x2, y1), new Vector2(uvMax.X, uvMin.Y), packed); // Top-Right
+        span[2] = new Vertex2D(new Vector2(x2, y2), uvMax,                         packed); // Bottom-Right
+        span[3] = new Vertex2D(new Vector2(x1, y2), new Vector2(uvMin.X, uvMax.Y), packed); // Bottom-Left
     }
 
 
@@ -117,14 +118,14 @@ public readonly ref partial struct Draw2D
         float r = (1f - pivot.X) * size.X;
         float t = -pivot.Y * size.Y;
         float b = (1f - pivot.Y) * size.Y;
-        uint packed = colorVal.Packed;
 
-        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left  
-        var span = AddQuad();
-        span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = packed };
-        span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = packed };
-        span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = packed };
-        span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = packed };
+        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left
+        uint packed = colorVal.Packed;
+        var span    = AddQuad();
+        span[0] = new Vertex2D(new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uvMin,                         packed);
+        span[1] = new Vertex2D(new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), new Vector2(uvMax.X, uvMin.Y), packed);
+        span[2] = new Vertex2D(new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uvMax,                         packed);
+        span[3] = new Vertex2D(new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), new Vector2(uvMin.X, uvMax.Y), packed);
     }
 
     /// <summary>
