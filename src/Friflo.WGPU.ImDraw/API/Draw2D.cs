@@ -41,7 +41,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, Color32 color = default, in Vector2 uvMin = default, Vector2 uvMax = default)
+    public void DrawSprite(Vector2 position, Vector2 size, GpuTextureView texture, Color32 color = default, Vector2 uvMin = default, Vector2 uvMax = default)
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
@@ -63,7 +63,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
+    public void DrawSprite(Vector2 position, Vector2 size, GpuTextureView texture, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
     {
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
@@ -75,7 +75,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, GpuTextureView texture, in Vector2 sourceRectPos, in Vector2 sourceRectSize, in Vector2 textureSize, Color32 color = default)
+    public void DrawSprite(Vector2 position, Vector2 size, float rotation, Vector2 pivot, GpuTextureView texture, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
     {
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
@@ -89,11 +89,11 @@ public readonly ref struct Draw2D : IDisposable
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite9SliceTiled(
-        in Vector2          position, 
-        in Vector2          size, 
-        in GpuTextureView   texture,
-        in Vector4          borderThickness, 
-        in Vector2          textureSize, 
+        Vector2          position, 
+        Vector2          size, 
+        GpuTextureView   texture,
+        Vector4          borderThickness, 
+        Vector2          textureSize, 
            Color32          color = default)
     {
         DrawSprite9SliceTiled(position, size, texture, Vector2.Zero, textureSize, textureSize, borderThickness, color);
@@ -104,14 +104,14 @@ public readonly ref struct Draw2D : IDisposable
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
     public void DrawSprite9SliceTiled(
-        in Vector2          position, 
-        in Vector2          size, 
-        in GpuTextureView   texture, 
-        in Vector2          sourceRectPos, 
-        in Vector2          sourceRectSize, 
-        in Vector2          textureSize, 
-        in Vector4          borderThickness, 
-           Color32          color = default)
+        Vector2          position, 
+        Vector2          size, 
+        GpuTextureView   texture, 
+        Vector2          sourceRectPos, 
+        Vector2          sourceRectSize, 
+        Vector2          textureSize, 
+        Vector4          borderThickness, 
+        Color32          color = default)
     {
         if (color.Packed == 0) color = Color32.White;
 
@@ -183,7 +183,7 @@ public readonly ref struct Draw2D : IDisposable
 #region Quads
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawRect(in Vector2 position, in Vector2 size, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawRect(Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         var bat = batch;
         var texView = texture == null ? bat.defaultFontTexture : new ImTextureView(texture.Value);
@@ -208,7 +208,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawRectRotated(in Vector2 position, in Vector2 size, float rotation, in Vector2 pivot, in Vector2 uvMin, in Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawRectRotated(Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         if (rotation == 0f) {
             DrawRect(position - (pivot * size), size, uvMin, uvMax, color, texture);
@@ -239,7 +239,7 @@ public readonly ref struct Draw2D : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawRectSolid(in Vector2 v0, in Vector2 v1, in Vector2 v2, in Vector2 v3, Color32 color)
+    public void DrawRectSolid(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
@@ -266,7 +266,7 @@ public readonly ref struct Draw2D : IDisposable
 
 
 #region Primitives
-    public void Rectangle(in Vector2 position, in Vector2 size, Color32 color)
+    public void Rectangle(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
         if (bat.currentTexture.hasWhitePixel) {
@@ -280,7 +280,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rectangle with per-corner gradient colors.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RectangleGradient(in Vector2 position, in Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
+    public void RectangleGradient(Vector2 position, Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
     {
         var bat = batch;
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
@@ -306,7 +306,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a vertical gradient rectangle (top to bottom).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RectangleGradientVertical(in Vector2 position, in Vector2 size, Color32 top, Color32 bottom)
+    public void RectangleGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
         => RectangleGradient(position, size, top, top, bottom, bottom);
 
 
@@ -315,7 +315,7 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a single filled triangle using a quad slot (duplicates 3rd vertex).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Triangle(in Vector2 v0, in Vector2 v1, in Vector2 v2, Color32 color)
+    public void Triangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
         DrawRectSolid(v0, v1, v2, v2, color);
     }
@@ -323,7 +323,7 @@ public readonly ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a thick line segment between two points.
     /// </summary>
-    public void Line(in Vector2 start, in Vector2 end, float thickness, Color32 color)
+    public void Line(Vector2 start, Vector2 end, float thickness, Color32 color)
     {
         Vector2 dir = end - start;
         float len = dir.Length();
@@ -344,7 +344,7 @@ public readonly ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled rectangle outline.
     /// </summary>
-    public void RectangleLines(in Vector2 position, in Vector2 size, float thickness, Color32 color)
+    public void RectangleLines(Vector2 position, Vector2 size, float thickness, Color32 color)
     {
         float x = position.X;
         float y = position.Y;
@@ -361,7 +361,7 @@ public readonly ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a filled rounded rectangle.
     /// </summary>
-    public void RectangleRounded(in Vector2 position, in Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
+    public void RectangleRounded(Vector2 position, Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
     {
         if (cornerRadius <= 0f) {
             Rectangle(position, size, color);
@@ -387,7 +387,7 @@ public readonly ref struct Draw2D : IDisposable
         DrawCornerArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI,      color, cornerSegments);
     }
 
-    public void DrawCornerArc(in Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    public void DrawCornerArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
@@ -411,7 +411,7 @@ public readonly ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws a filled circle (1 quad renders 2 pie-slices using the quad index pattern).
     /// </summary>
-    public void Circle(in Vector2 center, float radius, Color32 color, int segments = 32)
+    public void Circle(Vector2 center, float radius, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
@@ -436,7 +436,7 @@ public readonly ref struct Draw2D : IDisposable
     /// <summary>
     /// Draws an un-filled circle outline.
     /// </summary>
-    public void CircleLines(in Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
+    public void CircleLines(Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
     {
         if (segments < 3) segments = 3;
         float step = MathF.PI * 2f / segments;
