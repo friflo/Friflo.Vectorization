@@ -45,8 +45,8 @@ public readonly ref partial struct Draw2D
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        var packed  = color.Packed;
-        var span    = AddQuad();
+        var packed   = color.Packed;
+        ref var span = ref AddQuad();
         span[0] = new Vertex2D(new Vector2(x1, y1), uvMin,                         packed); // Top-Left
         span[1] = new Vertex2D(new Vector2(x2, y1), new Vector2(uvMax.X, uvMin.Y), packed); // Top-Right
         span[2] = new Vertex2D(new Vector2(x2, y2), uvMax,                         packed); // Bottom-Right
@@ -120,8 +120,8 @@ public readonly ref partial struct Draw2D
         float b = (1f - pivot.Y) * size.Y;
 
         // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left
-        uint packed = colorVal.Packed;
-        var span    = AddQuad();
+        uint packed  = colorVal.Packed;
+        ref var span = ref AddQuad();
         span[0] = new Vertex2D(new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uvMin,                         packed);
         span[1] = new Vertex2D(new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), new Vector2(uvMax.X, uvMin.Y), packed);
         span[2] = new Vertex2D(new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uvMax,                         packed);

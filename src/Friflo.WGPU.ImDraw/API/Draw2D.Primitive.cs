@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 
 // ReSharper disable ForCanBeConvertedToForeach
@@ -27,8 +28,8 @@ public readonly ref partial struct Draw2D
         }
         var uv = bat.currentTexture.whiteUv;
 
-        var packed  = color.Packed;
-        var span    = AddQuad();
+        var packed   = color.Packed;
+        ref var span = ref AddQuad();
         span[0] = new Vertex2D(v0, uv, packed);
         span[1] = new Vertex2D(v1, uv, packed);
         span[2] = new Vertex2D(v2, uv, packed);
@@ -42,7 +43,7 @@ public readonly ref partial struct Draw2D
             Flush();
             bat.currentTexture = new ImTextureView(texture);
         }
-        var span = AddQuad();
+        ref var span = ref AddQuad();
         span[0] = v0;
         span[1] = v1;
         span[2] = v2;
@@ -86,12 +87,21 @@ public readonly ref partial struct Draw2D
     {
         throw new ArgumentException($"Number of vertices must be divisible by 4. Was: {length}.");
     }
+
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /* [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<Vertex2D> AddQuad() {
         var start = batch.vertexCount;
         batch.vertexCount = start + 4;
         return batch.vertexBuffer.Span.Slice(start, 4);
+    } */
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ref VertexQuad AddQuad() {
+        var start = batch.vertexCount;
+        batch.vertexCount = start + 4;
+        ref var firstVertex = ref MemoryMarshal.GetReference(batch.vertexBuffer.Span.Slice(start));
+        return ref Unsafe.As<Vertex2D, VertexQuad>(ref firstVertex);
     }
 
 #endregion
@@ -114,8 +124,8 @@ public readonly ref partial struct Draw2D
         float x1 = x0 + size.X;
         float y1 = y0 + size.Y;
 
-        var packed  = color.Packed;
-        var span    = AddQuad();
+        var packed   = color.Packed;
+        ref var span = ref AddQuad();
         span[0] = new Vertex2D(new Vector2(x0, y0), uv, packed);
         span[1] = new Vertex2D(new Vector2(x1, y0), uv, packed);
         span[2] = new Vertex2D(new Vector2(x1, y1), uv, packed);
@@ -141,7 +151,7 @@ public readonly ref partial struct Draw2D
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        var span = AddQuad();
+        ref var span = ref AddQuad();
         span[0] = new Vertex2D(new Vector2(x1, y1),  uv,  topLeft.Packed);
         span[1] = new Vertex2D(new Vector2(x2, y1),  uv,  topRight.Packed);
         span[2] = new Vertex2D(new Vector2(x2, y2),  uv,  bottomRight.Packed);

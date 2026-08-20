@@ -24,3 +24,9 @@ public struct Vertex2D
         this.color = color;
     }
 }
+
+[System.Runtime.CompilerServices.InlineArray(4)]
+public struct VertexQuad
+{
+    private Vertex2D _element0;
+}
