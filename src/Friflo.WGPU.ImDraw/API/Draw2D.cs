@@ -117,7 +117,7 @@ public readonly ref struct Draw2D : IDisposable
         Vector2          size, 
         Vector4          borderThickness, 
         Vector2          textureSize, 
-        Color32          color = default)
+        Color32?         color = null)
     {
         Draw9SliceTiled(texture, position, size, Vector2.Zero, textureSize, textureSize, borderThickness, color);
     }
@@ -133,9 +133,9 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 sourceRectSize,
         Vector2 textureSize,
         Vector4 borderThickness,
-        Color32 color = default)
+        Color32? color = null)
     {
-        if (color.Packed == 0) color = Color32.White;
+        var packed = color ?? Color32.White;
 
         float L = borderThickness.X;
         float T = borderThickness.Y;
@@ -158,10 +158,10 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
 
         // --- 4 corners (fixed size) ---
-        DrawSprite(texture, position, new Vector2(L, T), u0, u1, color);
-        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color);
-        DrawSprite(texture, new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color);
-        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color);
+        DrawSprite(texture, position, new Vector2(L, T), u0, u1, packed);
+        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), packed);
+        DrawSprite(texture, new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), packed);
+        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, packed);
 
         // --- top bottom border (Horizontal tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
@@ -169,8 +169,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
             float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
 
-            DrawSprite(texture, new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color);
-            DrawSprite(texture, new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color);
+            DrawSprite(texture, new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), packed);
+            DrawSprite(texture, new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), packed);
         }
 
         // --- left / right border (vertical tiled) ---
@@ -179,8 +179,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawH = MathF.Min(srcInnerH, destInnerH - y);
             float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-            DrawSprite(texture, new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color);
-            DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color);
+            DrawSprite(texture, new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), packed);
+            DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), packed);
         }
 
         // --- inner area (2D-grid tiled) ---
@@ -194,7 +194,7 @@ public readonly ref struct Draw2D : IDisposable
                 float drawH = MathF.Min(srcInnerH, destInnerH - y);
                 float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-                DrawSprite(texture, new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color);
+                DrawSprite(texture, new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), packed);
             }
         }
     }
