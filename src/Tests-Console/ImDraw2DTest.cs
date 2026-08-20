@@ -81,7 +81,7 @@ public class ImRenderer : IRenderer
     {
         // --- sprites
         draw.DrawSprite(myTextureView, new Vector2( 50, 150), new Vector2(256, 256));
-        draw.DrawSpriteUV(myTextureView, new Vector2(200, 150), new Vector2(256, 256), new Vector2(1f, 0f), new Vector2(0f, 1f)); // flipped sprite
+        draw.DrawSprite(myTextureView, new Vector2(200, 150), new Vector2(256, 256), new Vector2(1f, 0f), new Vector2(0f, 1f)); // flipped sprite
         
         rotation += deltaTime;
         draw.DrawSpriteRotated(// center
