@@ -81,11 +81,13 @@ public readonly ref partial struct Draw2D
     }
 
     [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private static void ThrowInvalidVertexCount(int length)
     {
         throw new ArgumentException($"Number of vertices must be divisible by 4. Was: {length}.");
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<Vertex2D> AddQuad() {
         var start = batch.vertexCount;
         batch.vertexCount = start + 4;

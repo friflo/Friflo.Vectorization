@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
