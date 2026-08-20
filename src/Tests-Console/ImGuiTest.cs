@@ -125,7 +125,7 @@ public class ImGuiRenderer : IRenderer
         
         if (mouseCircle) {
             using (gui.draw.PushZIndex(10)) {
-                gui.draw.CircleLines(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+                gui.draw.StrokeCircle(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
         Sdl3Cursor.SetCursor(batch.input.CurrentCursor);
@@ -144,7 +144,7 @@ public static class GuiExtensions
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
-        var size    = draw.MeasureString(name);
+        var size    = draw.MeasureText(name);
         var isHover = window.IsHoverAtCursor(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
@@ -159,14 +159,14 @@ public static class GuiExtensions
             _                   => gui.Color.ButtonColor
         };
         // Render button background
-        draw.RectangleRounded(window.Cursor, size, 8, buttonColor);
+        draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
 
         if (isFocused) {
             var focusColor = gui.Color.FocusColor;
-            draw.RectangleLines(window.Cursor, size, 4, focusColor);
+            draw.StrokeRect(window.Cursor, size, 4, focusColor);
         }
 
-        draw.DrawStringInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, gui.Color.ButtonText);
+        draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, gui.Color.ButtonText);
         
         window.MoveCursor(size);
         

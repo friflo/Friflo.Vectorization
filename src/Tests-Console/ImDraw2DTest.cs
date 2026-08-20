@@ -108,7 +108,7 @@ public class ImRenderer : IRenderer
         draw.DrawSprite(new Vector2(350, 450), new Vector2(64, 64), myTextureView, srcPos, srcSize, texSize);
         
         var borders = new Vector4(8, 8, 8, 8);
-        draw.DrawSprite9SliceTiled(
+        draw.Draw9SliceTiled(
             position:       new Vector2(250, 550), 
             size:           new Vector2(200, 100), 
             texture:        myTextureView, 
@@ -121,54 +121,54 @@ public class ImRenderer : IRenderer
     
     public static void DrawShapes(Draw2D draw, int width, int height)
     {
-        draw.Rectangle(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
-        draw.Rectangle(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
+        draw.FillRect(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
+        draw.FillRect(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
         
-        draw.Rectangle(new Vector2(150, 50), new Vector2(50, 50), Color32.Red);
-        draw.Rectangle(new Vector2(250, 50), new Vector2(50, 50), Color32.Green);
-        draw.Rectangle(new Vector2(350, 50), new Vector2(50, 50), Color32.Blue);
+        draw.FillRect(new Vector2(150, 50), new Vector2(50, 50), Color32.Red);
+        draw.FillRect(new Vector2(250, 50), new Vector2(50, 50), Color32.Green);
+        draw.FillRect(new Vector2(350, 50), new Vector2(50, 50), Color32.Blue);
         
-        draw.RectangleGradient(new Vector2(450, 50),new Vector2(50, 50), topLeft: Color32.Red, topRight: Color32.White, bottomRight: Color32.Red, bottomLeft: Color32.Purple);
-        draw.RectangleGradientVertical(new Vector2(550, 50), new Vector2(50, 50), top: Color32.Red, bottom: Color32.Purple);
+        draw.FillRectGradient(new Vector2(450, 50),new Vector2(50, 50), topLeft: Color32.Red, topRight: Color32.White, bottomRight: Color32.Red, bottomLeft: Color32.Purple);
+        draw.FillRectGradientVertical(new Vector2(550, 50), new Vector2(50, 50), top: Color32.Red, bottom: Color32.Purple);
         
-        draw.Line(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
+        draw.StrokeLine(new Vector2(500, 150), new Vector2(600, 250), thickness: 4f, color: 0xFF0000FF);
 
-        draw.Circle(new Vector2(650, 200), radius: 40f, color: 0x0000FFFF, segments: 32);
+        draw.FillCircle(new Vector2(650, 200), radius: 40f, color: 0x0000FFFF, segments: 32);
 
-        draw.CircleLines(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
+        draw.StrokeCircle(new Vector2(550, 300), radius: 50f, thickness: 3f, color: 0xFFFF00FF, segments: 32);
         
-        draw.RectangleLines(new Vector2(500, 400), new Vector2(50, 80), thickness: 2f, color: 0x00FF00FF);
+        draw.StrokeRect(new Vector2(500, 400), new Vector2(50, 80), thickness: 2f, color: 0x00FF00FF);
         
-        draw.Triangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
+        draw.FillTriangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
     }
     
     public static void DrawText(Draw2D draw)
     {
-        var textSize = draw.MeasureString("wgpu");
-        draw.RectangleLines(new Vector2(700, 50), textSize, 2, Color32.Gray);
-        draw.DrawString("wgpu", new Vector2(700, 50), Color32.White);
+        var textSize = draw.MeasureText("wgpu");
+        draw.StrokeRect(new Vector2(700, 50), textSize, 2, Color32.Gray);
+        draw.DrawText("wgpu", new Vector2(700, 50), Color32.White);
         
-        draw.RectangleLines(new Vector2(850, 50), new Vector2(150, 48), 2, Color32.Gray);
-        draw.DrawStringAligned("right", new Vector2(1000, 50), TextAlignment.Right, Color32.Yellow);
+        draw.StrokeRect(new Vector2(850, 50), new Vector2(150, 48), 2, Color32.Gray);
+        draw.DrawTextAligned("right", new Vector2(1000, 50), TextAlignment.Right, Color32.Yellow);
 
-        draw.RectangleLines(new Vector2(1050, 50), new Vector2(150, 48), 2, Color32.Gray);
-        draw.DrawStringTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
+        draw.StrokeRect(new Vector2(1050, 50), new Vector2(150, 48), 2, Color32.Gray);
+        draw.DrawTextTruncated("truncate me", new Vector2(1050, 50), 150, Color32.Cyan);
         
-        draw.RectangleLines(new Vector2(750, 150), new Vector2(200, 220), 2, Color32.Gray);
+        draw.StrokeRect(new Vector2(750, 150), new Vector2(200, 220), 2, Color32.Gray);
             using (draw.PushScissor(new Vector2(750, 150), new Vector2(200, 220))) {
-            var lineCount = draw.DrawStringWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
+            var lineCount = draw.DrawTextWrapped("Clipped long text with word wrapping. More text that need to be clipped.", new Vector2(750, 150), 200, Color32.CornflowerBlue);
             Debug.Assert(lineCount == 8);
         }
         {
             var btnPos  = new Vector2(1000, 150);
             var btnSize = new Vector2(150,  50);
-            draw.RectangleRounded(btnPos, btnSize, 14, Color32.DarkGray);
-            draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White);
+            draw.FillRectRounded(btnPos, btnSize, 14, Color32.DarkGray);
+            draw.DrawTextInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White);
         } {
             var btnPos  = new Vector2(1000, 250);
             var btnSize = new Vector2(150,  100);
-            draw.RectangleRounded(btnPos, btnSize, 14, Color32.DarkGray);
-            draw.DrawStringInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
+            draw.FillRectRounded(btnPos, btnSize, 14, Color32.DarkGray);
+            draw.DrawTextInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
         
         var font = draw.DefaultFont;
