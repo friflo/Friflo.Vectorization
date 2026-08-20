@@ -257,6 +257,58 @@ public readonly ref struct Draw2D : IDisposable
         span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
     }
     
+    public void DrawQuad(Vertex2D v0, Vertex2D v1, Vertex2D v2, Vertex2D v3, GpuTextureView texture)
+    {
+        var bat = batch;
+        var texView = new ImTextureView(texture);
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = texView;
+        }
+        var span = AddQuad();
+        span[0] = v0;
+        span[1] = v1;
+        span[2] = v2;
+        span[3] = v3;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, GpuTextureView texture)
+    {
+        if ((vertices.Length & 3) != 0) {
+            ThrowInvalidVertexCount(vertices.Length);
+        }
+        if (vertices.IsEmpty) return;
+
+        var bat = batch;
+        if (bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = new ImTextureView(texture);
+        }
+        while (vertices.Length > 0)
+        {
+            int availableSpace = bat.vertexBuffer.Length - bat.vertexCount;
+
+            if (availableSpace < 4) {
+                Flush();
+                availableSpace = bat.vertexBuffer.Length;
+            }
+            int copyCount = Math.Min(vertices.Length, availableSpace);
+
+            var destination = bat.vertexBuffer.InOut(bat.vertexCount, copyCount).Span;
+            vertices[..copyCount].CopyTo(destination);
+
+            bat.vertexCount += copyCount;
+            vertices = vertices[copyCount..];
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+    private static void ThrowInvalidVertexCount(int length)
+    {
+        throw new ArgumentException($"Number of vertices must be divisible by 4. Was: {length}.");
+    }
+    
     private Span<Vertex2D> AddQuad() {
         var start = batch.vertexCount;
         batch.vertexCount = start + 4;
