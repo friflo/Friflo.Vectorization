@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertIfStatementToSwitchStatement
@@ -45,7 +46,7 @@ public readonly ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawRect(position, size, uvMin, uvMax, color, texture);
+        DrawSprite(position, size, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -56,7 +57,7 @@ public readonly ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawRectRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawSpriteRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -68,7 +69,7 @@ public readonly ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawRect(position, size, uvMin, uvMax, color, texture);
+        DrawSprite(position, size, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -80,7 +81,7 @@ public readonly ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawRectRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawSpriteRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -136,10 +137,10 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
 
         // --- 4 corners (fixed size) ---
-        DrawRect(position, new Vector2(L, T), u0, u1, color, texture);
-        DrawRect(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
-        DrawRect(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
-        DrawRect(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
+        DrawSprite(position, new Vector2(L, T), u0, u1, color, texture);
+        DrawSprite(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
+        DrawSprite(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
+        DrawSprite(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
 
         // --- top bottom border (Horizontal tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
@@ -147,8 +148,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
             float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
 
-            DrawRect(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
-            DrawRect(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
+            DrawSprite(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
+            DrawSprite(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
         }
 
         // --- left / right border (vertical tiled) ---
@@ -157,8 +158,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawH = MathF.Min(srcInnerH, destInnerH - y);
             float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-            DrawRect(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
-            DrawRect(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
+            DrawSprite(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
+            DrawSprite(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
         }
 
         // --- inner area (2D-grid tiled) ---
@@ -172,25 +173,19 @@ public readonly ref struct Draw2D : IDisposable
                 float drawH = MathF.Min(srcInnerH, destInnerH - y);
                 float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-                DrawRect(new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color, texture);
+                DrawSprite(new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color, texture);
             }
         }
     }
-#endregion
 
-
-
-#region Rect / Sprite 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawRect(Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawSprite(Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView texture)
     {
         var bat = batch;
-        var texView = texture == null ? bat.defaultFontTexture : new ImTextureView(texture.Value);
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
+            bat.currentTexture = new ImTextureView(texture);
         }
-        bat.currentTexture = texView;
-
         float x1 = position.X;
         float y1 = position.Y;
         float x2 = position.X + size.X;
@@ -207,19 +202,17 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawRectRotated(Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawSpriteRotated(Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView texture)
     {
         if (rotation == 0f) {
-            DrawRect(position - (pivot * size), size, uvMin, uvMax, color, texture);
+            DrawSprite(position - (pivot * size), size, uvMin, uvMax, color, texture);
             return;
         }
         var bat = batch;
-        var texView = texture == null ? bat.defaultFontTexture : new ImTextureView(texture.Value);
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
+            bat.currentTexture = new ImTextureView(texture);
         }
-        bat.currentTexture = texView;
-
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
@@ -323,11 +316,23 @@ public readonly ref struct Draw2D : IDisposable
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
-        if (bat.currentTexture.hasWhitePixel) {
-            DrawRect(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, null);
-        } else {
-            DrawRect(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, null);
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+            Flush();
         }
+        bat.currentTexture = texView;
+        var uv = texView.whiteUv;
+
+        float x0 = position.X;
+        float y0 = position.Y;
+        float x1 = x0 + size.X;
+        float y1 = y0 + size.Y;
+
+        var span = AddQuad();
+        span[0] = new Vertex2D(new Vector2(x0, y0), uv, color.Packed);
+        span[1] = new Vertex2D(new Vector2(x1, y0), uv, color.Packed);
+        span[2] = new Vertex2D(new Vector2(x1, y1), uv, color.Packed);
+        span[3] = new Vertex2D(new Vector2(x0, y1), uv, color.Packed);
     }
 
     /// <summary>
@@ -340,8 +345,8 @@ public readonly ref struct Draw2D : IDisposable
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
             Flush();
+            bat.currentTexture = texView;
         }
-        bat.currentTexture = texView;
         var uv = bat.currentTexture.whiteUv;
 
         float x1 = position.X;
