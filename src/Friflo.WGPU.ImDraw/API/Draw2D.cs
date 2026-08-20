@@ -45,7 +45,7 @@ public readonly ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawQuad(position, size, uvMin, uvMax, color, texture);
+        DrawRect(position, size, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public readonly ref struct Draw2D : IDisposable
     {
         if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawRectRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public readonly ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawQuad(position, size, uvMin, uvMax, color, texture);
+        DrawRect(position, size, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public readonly ref struct Draw2D : IDisposable
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawQuadRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
+        DrawRectRotated(position, size, rotation, pivot, uvMin, uvMax, color, texture);
     }
 
     /// <summary>
@@ -136,10 +136,10 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
 
         // --- 4 corners (fixed size) ---
-        DrawQuad(position, new Vector2(L, T), u0, u1, color, texture);
-        DrawQuad(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
-        DrawQuad(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
-        DrawQuad(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
+        DrawRect(position, new Vector2(L, T), u0, u1, color, texture);
+        DrawRect(new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color, texture);
+        DrawRect(new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color, texture);
+        DrawRect(new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color, texture);
 
         // --- top bottom border (Horizontal tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
@@ -147,8 +147,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
             float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
 
-            DrawQuad(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
-            DrawQuad(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
+            DrawRect(new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color, texture);
+            DrawRect(new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color, texture);
         }
 
         // --- left / right border (vertical tiled) ---
@@ -157,8 +157,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawH = MathF.Min(srcInnerH, destInnerH - y);
             float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-            DrawQuad(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
-            DrawQuad(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
+            DrawRect(new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color, texture);
+            DrawRect(new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color, texture);
         }
 
         // --- inner area (2D-grid tiled) ---
@@ -172,7 +172,7 @@ public readonly ref struct Draw2D : IDisposable
                 float drawH = MathF.Min(srcInnerH, destInnerH - y);
                 float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-                DrawQuad(new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color, texture);
+                DrawRect(new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color, texture);
             }
         }
     }
@@ -180,9 +180,9 @@ public readonly ref struct Draw2D : IDisposable
 
 
 
-#region Quads
+#region Rect / Sprite 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuad(Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawRect(Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         var bat = batch;
         var texView = texture == null ? bat.defaultFontTexture : new ImTextureView(texture.Value);
@@ -207,10 +207,10 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuadRotated(Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
+    public void DrawRectRotated(Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color, GpuTextureView? texture = null)
     {
         if (rotation == 0f) {
-            DrawQuad(position - (pivot * size), size, uvMin, uvMax, color, texture);
+            DrawRect(position - (pivot * size), size, uvMin, uvMax, color, texture);
             return;
         }
         var bat = batch;
@@ -236,7 +236,10 @@ public readonly ref struct Draw2D : IDisposable
         span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color.Packed };
         span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
     }
+#endregion
 
+
+#region Quad
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
     {
@@ -269,9 +272,9 @@ public readonly ref struct Draw2D : IDisposable
     {
         var bat = batch;
         if (bat.currentTexture.hasWhitePixel) {
-            DrawQuad(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, null);
+            DrawRect(position, size, bat.currentTexture.whiteUv, bat.currentTexture.whiteUv, color, null);
         } else {
-            DrawQuad(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, null);
+            DrawRect(position, size, bat.defaultFontTexture.whiteUv, bat.defaultFontTexture.whiteUv, color, null);
         }
     }
 
