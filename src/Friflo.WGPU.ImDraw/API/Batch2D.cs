@@ -25,6 +25,12 @@ public enum BlendState
     /** Subtract colors directly */                     SubtractColors
 }
 
+public enum SamplerFilter
+{
+    /**  Hard/Pixelated edges (Pixel Art). */                   Nearest,
+    /**  Smooth/Blended edges (Scales, High-Res Sprites). */    Linear
+}
+
 
 public sealed partial class Batch2D : IDisposable
 {
@@ -33,13 +39,14 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
     internal readonly   GpuBuffer<uint>     indexBuffer;
     
-    internal readonly   List<DrawCommand>   drawCommands 	= [];
-    internal readonly   List<CmdSegment>    commandSegments = [];
-    internal readonly   Stack<RectVector2>  scissorStack    = [];
-    internal readonly   Stack<Matrix4x4>    transformStack  = [];
-    internal readonly   Stack<int>          zIndexStack     = [];
-    private  readonly   StringBuilder       stringBuilder   = new(512,512); // => first chunk: 512 chars
-    internal readonly   GuiState            guiState        = new();
+    internal readonly   List<DrawCommand>   drawCommands 	    = [];
+    internal readonly   List<CmdSegment>    commandSegments     = [];
+    internal readonly   Stack<RectVector2>  scissorStack        = [];
+    internal readonly   Stack<Matrix4x4>    transformStack      = [];
+    internal readonly   Stack<int>          zIndexStack         = [];
+    internal readonly   Stack<SamplerFilter>samplerFilterStack  = [];
+    private  readonly   StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
+    internal readonly   GuiState            guiState            = new();
 
     // --- resources owned by DrawModule
     internal readonly   Gui                 gui;
@@ -54,7 +61,7 @@ public sealed partial class Batch2D : IDisposable
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
     internal            BlendState          currentBlendState;
-    internal            GpuSampler          currentSampler;
+    internal            SamplerFilter       currentSamplerFilter;
     internal            RectVector2         currentScissor;
     internal            bool                sortZIndex;
     internal            int                 currentZIndex;
@@ -100,11 +107,11 @@ public sealed partial class Batch2D : IDisposable
         indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         indexBuffer.In().Write();
         
-        defaultFont         = drawModule.defaultFont;
-        defaultFontTexture  = drawModule.defaultFont.textureView;
-        samplerLinear       = drawModule.samplerLinear;
-        samplerNearest      = drawModule.samplerNearest;
-        currentSampler      = samplerLinear;
+        defaultFont             = drawModule.defaultFont;
+        defaultFontTexture      = drawModule.defaultFont.textureView;
+        samplerLinear           = drawModule.samplerLinear;
+        samplerNearest          = drawModule.samplerNearest;
+        currentSamplerFilter    = SamplerFilter.Linear;
 
         renderConfigs = CreateRenderConfigs(targetFormat);
     }
@@ -205,7 +212,7 @@ public sealed partial class Batch2D : IDisposable
         currentTexture      = defaultFontTexture;
         vertexStart         = 0;
         vertexCount         = 0;
-        currentSampler      = samplerLinear;
+        currentSamplerFilter= SamplerFilter.Linear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
         currentScissor      = new RectVector2(Vector2.Zero, new Vector2(targetSize.width, targetSize.height));
@@ -217,6 +224,7 @@ public sealed partial class Batch2D : IDisposable
         scissorStack.Clear();
         transformStack.Clear();
         zIndexStack.Clear();
+        samplerFilterStack.Clear();
         
         var draw = new Draw2D(this, pass);
         draw.SetViewport(targetSize.width, targetSize.height);

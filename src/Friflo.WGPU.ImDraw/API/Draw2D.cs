@@ -57,16 +57,27 @@ public readonly ref partial struct Draw2D : IDisposable
         batch.currentScissor = scissor;
     }
     
-    public void SetFilterMode(FilterMode filterMode)
+    public SamplerFilterScope PushSamplerFilter(SamplerFilter samplerFilter)
     {
-        var bat = batch;
-        var targetSampler = filterMode == FilterMode.Nearest ? bat.samplerNearest : bat.samplerLinear;
-
-        if (bat.currentSampler == targetSampler) return;
+        batch.samplerFilterStack.Push(batch.currentSamplerFilter);
+        ApplySampler(samplerFilter);
+        return new SamplerFilterScope(this);
+    }
+    
+    private void ApplySampler(SamplerFilter samplerFilter)
+    {
+        if (batch.currentSamplerFilter == samplerFilter) return;
 
         Flush();
-        bat.currentSampler = targetSampler;
+        batch.currentSamplerFilter = samplerFilter;
     }
+    
+    public void PopSamplerFilter()
+    {
+        var filter = batch.samplerFilterStack.Pop();
+        ApplySampler(filter);
+    }
+    
 
     public void SetViewport(float width, float height)
     {
@@ -160,6 +171,7 @@ public readonly ref partial struct Draw2D : IDisposable
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
         bat.vertexStart = bat.vertexCount;
+        var sampler     = bat.currentSamplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
 
         // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
@@ -171,7 +183,7 @@ public readonly ref partial struct Draw2D : IDisposable
             indexView   = indexView,
             config      = config,
             uniforms    = bat.uniforms,
-            sampler     = bat.currentSampler,
+            sampler     = sampler,
             scissor     = bat.currentScissor,
         });
     }

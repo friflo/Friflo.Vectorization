@@ -27,3 +27,10 @@ public readonly ref struct ZIndexScope(Draw2D draw)
 
     public void Dispose() => draw.PopZIndex();
 }
+
+public readonly ref struct SamplerFilterScope(Draw2D draw)
+{
+    private readonly Draw2D    draw     = draw;
+
+    public void Dispose() => draw.PopSamplerFilter();
+}
