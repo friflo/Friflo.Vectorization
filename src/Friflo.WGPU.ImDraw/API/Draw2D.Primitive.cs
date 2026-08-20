@@ -36,6 +36,17 @@ public readonly ref partial struct Draw2D
         quad[3] = new Vertex2D(v3, uv, packed);
     }
     
+    public void DrawQuad(in VertexQuad quad, GpuTextureView texture)
+    {
+        var bat = batch;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = new ImTextureView(texture);
+        }
+        ref var targetQuad = ref AddQuad();
+        targetQuad = quad;
+    }
+    
     public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, GpuTextureView texture)
     {
         var bat = batch;

@@ -83,7 +83,6 @@ internal readonly struct ImTextureView
 
     internal ImTextureView(GpuTextureView native) {
         this.native     = native;
-        hasWhitePixel   = false;
     }
 
     internal ImTextureView(GpuTextureView native, Vector2 whiteUv) {
