@@ -37,10 +37,9 @@ public readonly ref partial struct Draw2D
     public void DrawQuad(Vertex2D v0, Vertex2D v1, Vertex2D v2, Vertex2D v3, GpuTextureView texture)
     {
         var bat = batch;
-        var texView = new ImTextureView(texture);
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
-            bat.currentTexture = texView;
+            bat.currentTexture = new ImTextureView(texture);
         }
         var span = AddQuad();
         span[0] = v0;
@@ -105,8 +104,8 @@ public readonly ref partial struct Draw2D
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
             Flush();
+            bat.currentTexture = texView;
         }
-        bat.currentTexture = texView;
         var uv = texView.whiteUv;
 
         float x0 = position.X;
