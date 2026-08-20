@@ -72,7 +72,7 @@ public readonly ref partial struct Draw2D
             }
             int copyCount = Math.Min(vertices.Length, availableSpace);
 
-            var destination = bat.vertexBuffer.InOut(bat.vertexCount, copyCount).Span;
+            var destination = bat.vertexBuffer.Span.Slice(bat.vertexCount, copyCount);
             vertices[..copyCount].CopyTo(destination);
 
             bat.vertexCount += copyCount;
@@ -89,7 +89,7 @@ public readonly ref partial struct Draw2D
     private Span<Vertex2D> AddQuad() {
         var start = batch.vertexCount;
         batch.vertexCount = start + 4;
-        return batch.vertexBuffer.InOut(start, 4).Span;
+        return batch.vertexBuffer.Span.Slice(start, 4);
     }
 
 #endregion

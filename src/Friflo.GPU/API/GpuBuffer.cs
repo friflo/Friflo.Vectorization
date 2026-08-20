@@ -97,6 +97,8 @@ public abstract class GpuBuffer<T> :
             return new InView<T>(this, start, length);
         throw OutOfRangeException(start, length);
     }
+    
+    public Span<T> Span => hostMemory.Span;
 }
 
 /// <summary>
