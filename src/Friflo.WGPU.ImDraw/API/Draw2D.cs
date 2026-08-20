@@ -42,46 +42,43 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Color32 color = default, Vector2 uvMin = default, Vector2 uvMax = default)
+    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin = default, Vector2 uvMax = default, Color32 color = default)
     {
-        if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawSprite(texture, position, size, uvMin, uvMax, color);
+        DrawSpriteUV(texture, position, size, uvMin, uvMax, color);
     }
 
     /// <summary>
     /// Draws a rotated sprite with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32 color = default, Vector2 uvMin = default, Vector2 uvMax = default)
+    public void DrawSpriteRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin = default, Vector2 uvMax = default, Color32 color = default)
     {
-        if (color.Packed == 0) color = Color32.White;
         if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawSpriteRotated(texture, position, size, rotation, pivot, uvMin, uvMax, color);
+        DrawSpriteRotatedUV(texture, position, size, rotation, pivot, uvMin, uvMax, color);
     }
 
     /// <summary>
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
+    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
     {
         if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawSprite(texture, position, size, uvMin, uvMax, color);
+        DrawSpriteUV(texture, position, size, uvMin, uvMax, color);
     }
 
     /// <summary>
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
+    public void DrawSpriteRegionRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
     {
-        if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawSpriteRotated(texture, position, size, rotation, pivot, uvMin, uvMax, color);
+        DrawSpriteRotatedUV(texture, position, size, rotation, pivot, uvMin, uvMax, color);
     }
 
     /// <summary>
@@ -136,10 +133,10 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 u3 = (sourceRectPos + sourceRectSize) / textureSize;
 
         // --- 4 corners (fixed size) ---
-        DrawSprite(texture, position, new Vector2(L, T), u0, u1, color);
-        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color);
-        DrawSprite(texture, new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color);
-        DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color);
+        DrawSpriteUV(texture, position, new Vector2(L, T), u0, u1, color);
+        DrawSpriteUV(texture, new Vector2(position.X + size.X - R, position.Y), new Vector2(R, T), new Vector2(u2.X, u0.Y), new Vector2(u3.X, u1.Y), color);
+        DrawSpriteUV(texture, new Vector2(position.X, position.Y + size.Y - B), new Vector2(L, B), new Vector2(u0.X, u2.Y), new Vector2(u1.X, u3.Y), color);
+        DrawSpriteUV(texture, new Vector2(position.X + size.X - R, position.Y + size.Y - B), new Vector2(R, B), u2, u3, color);
 
         // --- top bottom border (Horizontal tiled) ---
         for (float x = 0; x < destInnerW; x += srcInnerW)
@@ -147,8 +144,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawW = MathF.Min(srcInnerW, destInnerW - x);
             float uMaxX = u1.X + (u2.X - u1.X) * (drawW / srcInnerW);
 
-            DrawSprite(texture, new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color);
-            DrawSprite(texture, new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color);
+            DrawSpriteUV(texture, new Vector2(position.X + L + x, position.Y), new Vector2(drawW, T), new Vector2(u1.X, u0.Y), new Vector2(uMaxX, u1.Y), color);
+            DrawSpriteUV(texture, new Vector2(position.X + L + x, position.Y + size.Y - B), new Vector2(drawW, B), new Vector2(u1.X, u2.Y), new Vector2(uMaxX, u3.Y), color);
         }
 
         // --- left / right border (vertical tiled) ---
@@ -157,8 +154,8 @@ public readonly ref struct Draw2D : IDisposable
             float drawH = MathF.Min(srcInnerH, destInnerH - y);
             float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-            DrawSprite(texture, new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color);
-            DrawSprite(texture, new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color);
+            DrawSpriteUV(texture, new Vector2(position.X, position.Y + T + y), new Vector2(L, drawH), new Vector2(u0.X, u1.Y), new Vector2(u1.X, uMaxY), color);
+            DrawSpriteUV(texture, new Vector2(position.X + size.X - R, position.Y + T + y), new Vector2(R, drawH), new Vector2(u2.X, u1.Y), new Vector2(u3.X, uMaxY), color);
         }
 
         // --- inner area (2D-grid tiled) ---
@@ -172,14 +169,15 @@ public readonly ref struct Draw2D : IDisposable
                 float drawH = MathF.Min(srcInnerH, destInnerH - y);
                 float uMaxY = u1.Y + (u2.Y - u1.Y) * (drawH / srcInnerH);
 
-                DrawSprite(texture, new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color);
+                DrawSpriteUV(texture, new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), color);
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
+    public void DrawSpriteUV(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color = default)
     {
+        if (color.Packed == 0) color = Color32.White;
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
             Flush();
@@ -201,10 +199,11 @@ public readonly ref struct Draw2D : IDisposable
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color)
+    public void DrawSpriteRotatedUV(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color = default)
     {
+        if (color.Packed == 0) color = Color32.White;
         if (rotation == 0f) {
-            DrawSprite(texture, position - (pivot * size), size, uvMin, uvMax, color);
+            DrawSpriteUV(texture, position - (pivot * size), size, uvMin, uvMax, color);
             return;
         }
         var bat = batch;
@@ -555,7 +554,7 @@ public readonly ref struct Draw2D : IDisposable
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSprite(font.textureView.native, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+                DrawSpriteRegion(font.textureView.native, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
             }
             currentPos.X += glyph.advance * scale;
         }
