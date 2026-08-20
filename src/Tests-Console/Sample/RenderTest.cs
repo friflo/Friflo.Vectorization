@@ -57,7 +57,7 @@ public partial class Renderer : IRenderer
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store,
-            clearValue  = [0.1, 0.1, 0.1, 1]
+            clearValue  = new GpuColor(0.1, 0.1, 0.1, 1)
         };
     }
     

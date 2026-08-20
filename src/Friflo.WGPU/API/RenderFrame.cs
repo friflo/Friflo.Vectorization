@@ -3,14 +3,12 @@
 
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.WGPU.Runtime;
 using static Friflo.WGPU.Runtime.WebGPU_native;
 
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
@@ -134,8 +132,8 @@ public struct GpuRenderPassDepthStencilAttachment
     }
 }
 
-[CollectionBuilder(typeof(GpuColorBuilder), nameof(GpuColorBuilder.Create))]
-public struct GpuColor : IEnumerable<double>
+// [CollectionBuilder(typeof(GpuColorBuilder), nameof(GpuColorBuilder.Create))]
+public struct GpuColor
 {
     public  double  r;
     public  double  g;
@@ -144,10 +142,19 @@ public struct GpuColor : IEnumerable<double>
     
     internal readonly Color GetNative() => new Color { r = r, g = g, b = b, a = a };
     
-    public IEnumerator<double> GetEnumerator() => throw new NotImplementedException();
-    IEnumerator    IEnumerable.GetEnumerator() => GetEnumerator();
+    public GpuColor(double  r, double  g, double  b, double  a)
+    {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+    
+    // public ReadOnlySpan<double>.Enumerator  GetEnumerator() => AsSpan().GetEnumerator();
+    // public readonly ReadOnlySpan<double>    AsSpan()        => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in r), 4);
 }
 
+/*    
 /// <summary>
 /// Compiler helper to enable the [...] collection expression for <see cref="GpuColor"/>.
 /// </summary>
@@ -163,7 +170,7 @@ public static class GpuColorBuilder
             a = items[3]
         };
     }
-}
+} */
 
 public readonly unsafe ref struct  RenderTarget : IDisposable
 {

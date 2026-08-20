@@ -67,7 +67,7 @@ public partial class Renderer : IRenderer
         {
             loadOp     = LoadOp.Clear,
             storeOp    = StoreOp.Store,
-            clearValue = [0.05, 0.05, 0.08, 1.0]
+            clearValue = new GpuColor(0.05, 0.05, 0.08, 1.0)
         };
     }
 

@@ -102,7 +102,7 @@ public partial class Renderer : IRenderer
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/texturedCube/main.ts#L146
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
             view        = default,  // Assigned later for each frame
-            clearValue  = [0.5, 0.5, 0.5, 1],
+            clearValue  = new GpuColor(0.5, 0.5, 0.5, 1),
             loadOp      = LoadOp.Clear,
             storeOp     = StoreOp.Store
         };
