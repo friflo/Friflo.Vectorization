@@ -74,14 +74,21 @@ public readonly ref struct Draw2D : IDisposable
     }
 
 
+    /// <summary>
+    /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize)
+    {
+        DrawSpriteRegion(texture, position, size, sourceRectPos, sourceRectSize, textureSize, Color32.White);
+    }
 
     /// <summary>
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
+    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color)
     {
-        if (color.Packed == 0) color = Color32.White;
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawSprite(texture, position, size, uvMin, uvMax, color);
