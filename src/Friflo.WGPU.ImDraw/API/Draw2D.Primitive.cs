@@ -1,0 +1,309 @@
+﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
+// See LICENSE file in the project root for full license information.
+
+using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+
+
+// ReSharper disable ForCanBeConvertedToForeach
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable MergeIntoPattern
+// ReSharper disable once CheckNamespace
+namespace Friflo.WGPU.ImDraw;
+
+
+public readonly ref partial struct Draw2D
+{
+#region Quad
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
+    {
+        var bat = batch;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
+            Flush();
+            bat.currentTexture = bat.defaultFontTexture;
+        }
+        var uv = bat.currentTexture.whiteUv;
+
+        var span = AddQuad();
+        span[0] = new Vertex2D { position = v0, uv = uv, color = color.Packed };
+        span[1] = new Vertex2D { position = v1, uv = uv, color = color.Packed };
+        span[2] = new Vertex2D { position = v2, uv = uv, color = color.Packed };
+        span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
+    }
+    
+    public void DrawQuad(Vertex2D v0, Vertex2D v1, Vertex2D v2, Vertex2D v3, GpuTextureView texture)
+    {
+        var bat = batch;
+        var texView = new ImTextureView(texture);
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = texView;
+        }
+        var span = AddQuad();
+        span[0] = v0;
+        span[1] = v1;
+        span[2] = v2;
+        span[3] = v3;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, GpuTextureView texture)
+    {
+        if ((vertices.Length & 3) != 0) {
+            ThrowInvalidVertexCount(vertices.Length);
+        }
+        if (vertices.IsEmpty) return;
+
+        var bat = batch;
+        if (bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = new ImTextureView(texture);
+        }
+        while (vertices.Length > 0)
+        {
+            int availableSpace = bat.vertexBuffer.Length - bat.vertexCount;
+
+            if (availableSpace < 4) {
+                Flush();
+                availableSpace = bat.vertexBuffer.Length;
+            }
+            int copyCount = Math.Min(vertices.Length, availableSpace);
+
+            var destination = bat.vertexBuffer.InOut(bat.vertexCount, copyCount).Span;
+            vertices[..copyCount].CopyTo(destination);
+
+            bat.vertexCount += copyCount;
+            vertices = vertices[copyCount..];
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+    private static void ThrowInvalidVertexCount(int length)
+    {
+        throw new ArgumentException($"Number of vertices must be divisible by 4. Was: {length}.");
+    }
+    
+    private Span<Vertex2D> AddQuad() {
+        var start = batch.vertexCount;
+        batch.vertexCount = start + 4;
+        return batch.vertexBuffer.InOut(start, 4).Span;
+    }
+
+#endregion
+
+
+
+#region Primitives
+    public void FillRect(Vector2 position, Vector2 size, Color32 color)
+    {
+        var bat = batch;
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+            Flush();
+        }
+        bat.currentTexture = texView;
+        var uv = texView.whiteUv;
+
+        float x0 = position.X;
+        float y0 = position.Y;
+        float x1 = x0 + size.X;
+        float y1 = y0 + size.Y;
+
+        var span = AddQuad();
+        span[0] = new Vertex2D(new Vector2(x0, y0), uv, color.Packed);
+        span[1] = new Vertex2D(new Vector2(x1, y0), uv, color.Packed);
+        span[2] = new Vertex2D(new Vector2(x1, y1), uv, color.Packed);
+        span[3] = new Vertex2D(new Vector2(x0, y1), uv, color.Packed);
+    }
+
+    /// <summary>
+    /// Draws a rectangle with per-corner gradient colors.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillRectGradient(Vector2 position, Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
+    {
+        var bat = batch;
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texView.Handle) {
+            Flush();
+            bat.currentTexture = texView;
+        }
+        var uv = bat.currentTexture.whiteUv;
+
+        float x1 = position.X;
+        float y1 = position.Y;
+        float x2 = position.X + size.X;
+        float y2 = position.Y + size.Y;
+
+        var span = AddQuad();
+        span[0] = new Vertex2D { position = new Vector2(x1, y1), uv = uv, color = topLeft.Packed };
+        span[1] = new Vertex2D { position = new Vector2(x2, y1), uv = uv, color = topRight.Packed };
+        span[2] = new Vertex2D { position = new Vector2(x2, y2), uv = uv, color = bottomRight.Packed };
+        span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = uv, color = bottomLeft.Packed };
+    }
+
+    /// <summary>
+    /// Draws a vertical gradient rectangle (top to bottom).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillRectGradientVertical(Vector2 position, Vector2 size, Color32 top, Color32 bottom)
+        => FillRectGradient(position, size, top, top, bottom, bottom);
+
+
+
+    /// <summary>
+    /// Draws a single filled triangle using a quad slot (duplicates 3rd vertex).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
+    {
+        FillQuad(v0, v1, v2, v2, color);
+    }
+
+    /// <summary>
+    /// Draws a thick line segment between two points.
+    /// </summary>
+    public void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
+    {
+        Vector2 dir = end - start;
+        float len = dir.Length();
+        if (len < 0.0001f) return;
+
+        // Normal vector perpendicular to the line
+        Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
+
+        FillQuad(
+            start + normal, // V0: Top-Left
+            end   + normal, // V1: Top-Right
+            end   - normal, // V2: Bottom-Right
+            start - normal, // V3: Bottom-Left
+            color
+        );
+    }
+
+    /// <summary>
+    /// Draws an un-filled rectangle outline.
+    /// </summary>
+    public void StrokeRect(Vector2 position, Vector2 size, float thickness, Color32 color)
+    {
+        float x = position.X;
+        float y = position.Y;
+        float w = size.X;
+        float h = size.Y;
+
+        // Top, Right, Bottom, Left edges
+        FillRect(new Vector2(x, y), new Vector2(w, thickness), color);
+        FillRect(new Vector2(x + w - thickness, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+        FillRect(new Vector2(x, y + h - thickness), new Vector2(w, thickness), color);
+        FillRect(new Vector2(x, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+    }
+
+    /// <summary>
+    /// Draws a filled rounded rectangle.
+    /// </summary>
+    public void FillRectRounded(Vector2 position, Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
+    {
+        if (cornerRadius <= 0f) {
+            FillRect(position, size, color);
+            return;
+        }
+
+        cornerRadius = MathF.Min(cornerRadius, MathF.Min(size.X, size.Y) * 0.5f);
+
+        // Inner Cross (3 Quads)
+        FillRect(new Vector2(position.X + cornerRadius, position.Y), new Vector2(size.X - cornerRadius * 2f, size.Y), color);
+        FillRect(new Vector2(position.X, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
+        FillRect(new Vector2(position.X + size.X - cornerRadius, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
+
+        // 4 Corner Arcs
+        Vector2 tl = position + new Vector2(cornerRadius, cornerRadius);
+        Vector2 tr = position + new Vector2(size.X - cornerRadius, cornerRadius);
+        Vector2 br = position + new Vector2(size.X - cornerRadius, size.Y - cornerRadius);
+        Vector2 bl = position + new Vector2(cornerRadius, size.Y - cornerRadius);
+
+        FillArc(tl, cornerRadius, MathF.PI, MathF.PI * 1.5f,      color, cornerSegments);
+        FillArc(tr, cornerRadius, MathF.PI * 1.5f, MathF.PI * 2f, color, cornerSegments);
+        FillArc(br, cornerRadius, 0f, MathF.PI * 0.5f,            color, cornerSegments);
+        FillArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI,      color, cornerSegments);
+    }
+
+    public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    {
+        if (segments < 1) segments = 1;
+        float step = (endAngle - startAngle) / segments;
+
+        for (int i = 0; i < segments; i += 2)
+        {
+            float a0 = startAngle + i * step;
+            float a1 = startAngle + (i + 1) * step;
+            float a2 = startAngle + (i + 2) * step;
+
+            Vector2 p0 = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+            Vector2 p1 = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+            Vector2 p2 = (i + 2 <= segments)
+                ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
+                : p1;
+
+            FillQuad(center, p0, p1, p2, color);
+        }
+    }
+
+    /// <summary>
+    /// Draws a filled circle (1 quad renders 2 pie-slices using the quad index pattern).
+    /// </summary>
+    public void FillCircle(Vector2 center, float radius, Color32 color, int segments = 32)
+    {
+        if (segments < 3) segments = 3;
+        float step = MathF.PI * 2f / segments;
+
+        for (int i = 0; i < segments; i += 2)
+        {
+            float a0 = i * step;
+            float a1 = (i + 1) * step;
+            float a2 = (i + 2) * step;
+
+            Vector2 p0 = center + new Vector2(MathF.Cos(a0), MathF.Sin(a0)) * radius;
+            Vector2 p1 = center + new Vector2(MathF.Cos(a1), MathF.Sin(a1)) * radius;
+            Vector2 p2 = (i + 2 <= segments)
+                ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
+                : p1;
+
+            // Quad layout: (Center, P0, P1, P2) maps to 2 triangles: (Center, P0, P1) & (P1, P2, Center)
+            FillQuad(center, p0, p1, p2, color);
+        }
+    }
+
+    /// <summary>
+    /// Draws an un-filled circle outline.
+    /// </summary>
+    public void StrokeCircle(Vector2 center, float radius, float thickness, Color32 color, int segments = 32)
+    {
+        if (segments < 3) segments = 3;
+        float step = MathF.PI * 2f / segments;
+        float halfThick = thickness * 0.5f;
+        float rInner = radius - halfThick;
+        float rOuter = radius + halfThick;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float a0 = i * step;
+            float a1 = (i + 1) * step;
+
+            Vector2 dir0 = new Vector2(MathF.Cos(a0), MathF.Sin(a0));
+            Vector2 dir1 = new Vector2(MathF.Cos(a1), MathF.Sin(a1));
+
+            FillQuad(
+                center + dir0 * rInner, // Inner Start
+                center + dir0 * rOuter, // Outer Start
+                center + dir1 * rOuter, // Outer End
+                center + dir1 * rInner, // Inner End
+                color
+            );
+        }
+    }
+#endregion
+}
+
