@@ -435,13 +435,13 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 br = position + new Vector2(size.X - cornerRadius, size.Y - cornerRadius);
         Vector2 bl = position + new Vector2(cornerRadius, size.Y - cornerRadius);
 
-        FillCornerArc(tl, cornerRadius, MathF.PI, MathF.PI * 1.5f,      color, cornerSegments);
-        FillCornerArc(tr, cornerRadius, MathF.PI * 1.5f, MathF.PI * 2f, color, cornerSegments);
-        FillCornerArc(br, cornerRadius, 0f, MathF.PI * 0.5f,            color, cornerSegments);
-        FillCornerArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI,      color, cornerSegments);
+        FillArc(tl, cornerRadius, MathF.PI, MathF.PI * 1.5f,      color, cornerSegments);
+        FillArc(tr, cornerRadius, MathF.PI * 1.5f, MathF.PI * 2f, color, cornerSegments);
+        FillArc(br, cornerRadius, 0f, MathF.PI * 0.5f,            color, cornerSegments);
+        FillArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI,      color, cornerSegments);
     }
 
-    public void FillCornerArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
+    public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
     {
         if (segments < 1) segments = 1;
         float step = (endAngle - startAngle) / segments;
