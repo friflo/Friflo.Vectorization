@@ -17,7 +17,7 @@ internal struct DrawCommand
     internal    int                 zIndex;
     internal    int                 sequence;
     internal    GpuTextureView      texture;
-    internal    InOutView<Vertex2D> vertexView;
+    internal    InView<Vertex2D>    vertexView;
     internal    InView<uint>        indexView;
     internal    RenderConfig        config;
     internal    ImUniforms          uniforms;

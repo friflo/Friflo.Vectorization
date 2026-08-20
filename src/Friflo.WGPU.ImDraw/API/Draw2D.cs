@@ -167,7 +167,7 @@ public readonly ref partial struct Draw2D : IDisposable
         int pendingQuads = pendingVertices / 4;
 
         var texture     = bat.currentTexture;
-        var vertexView  = bat.vertexBuffer.InOut(bat.vertexStart, pendingVertices);
+        var vertexView  = bat.vertexBuffer.In(bat.vertexStart, pendingVertices);
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
         bat.vertexStart = bat.vertexCount;
