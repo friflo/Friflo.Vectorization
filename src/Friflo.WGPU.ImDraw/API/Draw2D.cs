@@ -257,7 +257,7 @@ public readonly ref struct Draw2D : IDisposable
         span[3] = new Vertex2D { position = v3, uv = uv, color = color.Packed };
     }
     
-    public Span<Vertex2D> AddQuad() {
+    private Span<Vertex2D> AddQuad() {
         var start = batch.vertexCount;
         batch.vertexCount = start + 4;
         return batch.vertexBuffer.InOut(start, 4).Span;
