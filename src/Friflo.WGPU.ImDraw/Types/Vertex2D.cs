@@ -25,6 +25,9 @@ public struct Vertex2D
     }
 }
 
+/// <summary>
+/// [0] Top-Left   [1] Top-Right   [2] Bottom-Right   [3] Bottom-Left
+/// </summary>
 [System.Runtime.CompilerServices.InlineArray(4)]
 public struct VertexQuad
 {

@@ -46,11 +46,11 @@ public readonly ref partial struct Draw2D
         float y2 = position.Y + size.Y;
 
         var packed   = color.Packed;
-        ref var span = ref AddQuad();
-        span[0] = new Vertex2D(new Vector2(x1, y1), uvMin,                         packed); // Top-Left
-        span[1] = new Vertex2D(new Vector2(x2, y1), new Vector2(uvMax.X, uvMin.Y), packed); // Top-Right
-        span[2] = new Vertex2D(new Vector2(x2, y2), uvMax,                         packed); // Bottom-Right
-        span[3] = new Vertex2D(new Vector2(x1, y2), new Vector2(uvMin.X, uvMax.Y), packed); // Bottom-Left
+        ref var quad = ref AddQuad();
+        quad[0] = new Vertex2D(new Vector2(x1, y1), uvMin,                         packed);
+        quad[1] = new Vertex2D(new Vector2(x2, y1), new Vector2(uvMax.X, uvMin.Y), packed);
+        quad[2] = new Vertex2D(new Vector2(x2, y2), uvMax,                         packed);
+        quad[3] = new Vertex2D(new Vector2(x1, y2), new Vector2(uvMin.X, uvMax.Y), packed);
     }
 
 
@@ -119,13 +119,12 @@ public readonly ref partial struct Draw2D
         float t = -pivot.Y * size.Y;
         float b = (1f - pivot.Y) * size.Y;
 
-        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left
         uint packed  = colorVal.Packed;
-        ref var span = ref AddQuad();
-        span[0] = new Vertex2D(new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uvMin,                         packed);
-        span[1] = new Vertex2D(new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), new Vector2(uvMax.X, uvMin.Y), packed);
-        span[2] = new Vertex2D(new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uvMax,                         packed);
-        span[3] = new Vertex2D(new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), new Vector2(uvMin.X, uvMax.Y), packed);
+        ref var quad = ref AddQuad();
+        quad[0] = new Vertex2D(new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uvMin,                         packed);
+        quad[1] = new Vertex2D(new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), new Vector2(uvMax.X, uvMin.Y), packed);
+        quad[2] = new Vertex2D(new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uvMax,                         packed);
+        quad[3] = new Vertex2D(new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), new Vector2(uvMin.X, uvMax.Y), packed);
     }
 
     /// <summary>

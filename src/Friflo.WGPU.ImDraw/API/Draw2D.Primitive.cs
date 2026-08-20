@@ -29,11 +29,11 @@ public readonly ref partial struct Draw2D
         var uv = bat.currentTexture.whiteUv;
 
         var packed   = color.Packed;
-        ref var span = ref AddQuad();
-        span[0] = new Vertex2D(v0, uv, packed);
-        span[1] = new Vertex2D(v1, uv, packed);
-        span[2] = new Vertex2D(v2, uv, packed);
-        span[3] = new Vertex2D(v3, uv, packed);
+        ref var quad = ref AddQuad();
+        quad[0] = new Vertex2D(v0, uv, packed);
+        quad[1] = new Vertex2D(v1, uv, packed);
+        quad[2] = new Vertex2D(v2, uv, packed);
+        quad[3] = new Vertex2D(v3, uv, packed);
     }
     
     public void DrawQuad(Vertex2D v0, Vertex2D v1, Vertex2D v2, Vertex2D v3, GpuTextureView texture)
@@ -43,11 +43,11 @@ public readonly ref partial struct Draw2D
             Flush();
             bat.currentTexture = new ImTextureView(texture);
         }
-        ref var span = ref AddQuad();
-        span[0] = v0;
-        span[1] = v1;
-        span[2] = v2;
-        span[3] = v3;
+        ref var quad = ref AddQuad();
+        quad[0] = v0;
+        quad[1] = v1;
+        quad[2] = v2;
+        quad[3] = v3;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,6 +96,10 @@ public readonly ref partial struct Draw2D
         return batch.vertexBuffer.Span.Slice(start, 4);
     } */
     
+    /// <summary>
+    /// Returns a <see cref="VertexQuad"/> <br/>
+    /// [0] Top-Left   [1] Top-Right   [2] Bottom-Right   [3] Bottom-Left
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ref VertexQuad AddQuad() {
         var start = batch.vertexCount;
@@ -125,11 +129,11 @@ public readonly ref partial struct Draw2D
         float y1 = y0 + size.Y;
 
         var packed   = color.Packed;
-        ref var span = ref AddQuad();
-        span[0] = new Vertex2D(new Vector2(x0, y0), uv, packed);
-        span[1] = new Vertex2D(new Vector2(x1, y0), uv, packed);
-        span[2] = new Vertex2D(new Vector2(x1, y1), uv, packed);
-        span[3] = new Vertex2D(new Vector2(x0, y1), uv, packed);
+        ref var quad = ref AddQuad();
+        quad[0] = new Vertex2D(new Vector2(x0, y0), uv, packed);
+        quad[1] = new Vertex2D(new Vector2(x1, y0), uv, packed);
+        quad[2] = new Vertex2D(new Vector2(x1, y1), uv, packed);
+        quad[3] = new Vertex2D(new Vector2(x0, y1), uv, packed);
     }
 
     /// <summary>
@@ -151,11 +155,11 @@ public readonly ref partial struct Draw2D
         float x2 = position.X + size.X;
         float y2 = position.Y + size.Y;
 
-        ref var span = ref AddQuad();
-        span[0] = new Vertex2D(new Vector2(x1, y1),  uv,  topLeft.Packed);
-        span[1] = new Vertex2D(new Vector2(x2, y1),  uv,  topRight.Packed);
-        span[2] = new Vertex2D(new Vector2(x2, y2),  uv,  bottomRight.Packed);
-        span[3] = new Vertex2D(new Vector2(x1, y2),  uv,  bottomLeft.Packed);
+        ref var quad = ref AddQuad();
+        quad[0] = new Vertex2D(new Vector2(x1, y1), uv, topLeft.Packed);
+        quad[1] = new Vertex2D(new Vector2(x2, y1), uv, topRight.Packed);
+        quad[2] = new Vertex2D(new Vector2(x2, y2), uv, bottomRight.Packed);
+        quad[3] = new Vertex2D(new Vector2(x1, y2), uv, bottomLeft.Packed);
     }
 
     /// <summary>
