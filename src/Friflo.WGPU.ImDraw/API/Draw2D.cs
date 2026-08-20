@@ -73,15 +73,7 @@ public readonly ref struct Draw2D : IDisposable
         span[3] = new Vertex2D { position = new Vector2(x1, y2), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed }; // Bottom-Left
     }
 
-    /// <summary>
-    /// Draws a rotated sprite with pivot (0..1 normalized).
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin = default, Vector2 uvMax = default, Color32 color = default)
-    {
-        if (uvMax == default) uvMax = new Vector2(1f, 1f);
-        DrawSpriteRotatedUV(texture, position, size, rotation, pivot, uvMin, uvMax, color);
-    }
+
 
     /// <summary>
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
@@ -94,16 +86,59 @@ public readonly ref struct Draw2D : IDisposable
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
         DrawSprite(texture, position, size, uvMin, uvMax, color);
     }
+    
+    /// <summary>
+    /// Draws a rotated sprite with pivot (0..1 normalized).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawSpriteRotated  (GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32? color = null)
+    {
+        DrawSpriteRotated(texture, position, size, rotation, pivot, default, new Vector2(1f, 1f), color);
+    }
 
     /// <summary>
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegionRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color = default)
+    public void DrawSpriteRegionRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32? color = null)
     {
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
-        DrawSpriteRotatedUV(texture, position, size, rotation, pivot, uvMin, uvMax, color);
+        DrawSpriteRotated(texture, position, size, rotation, pivot, uvMin, uvMax, color);
+    }
+    
+    /// <summary>
+    /// Draws a rotated quad transform around a normalized pivot (0..1).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawSpriteRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
+    {
+        var colorVal = color ?? Color32.White;
+        if (rotation == 0f) {
+            DrawSprite(texture, position - (pivot * size), size, uvMin, uvMax, colorVal);
+            return;
+        }
+        var bat = batch;
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+            Flush();
+            bat.currentTexture = new ImTextureView(texture);
+        }
+        float cos = MathF.Cos(rotation);
+        float sin = MathF.Sin(rotation);
+
+        // Local offsets relative to pivot
+        float l = -pivot.X * size.X;
+        float r = (1f - pivot.X) * size.X;
+        float t = -pivot.Y * size.Y;
+        float b = (1f - pivot.Y) * size.Y;
+        uint packed = colorVal.Packed;
+
+        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left  
+        var span = AddQuad();
+        span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = packed };
+        span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = packed };
+        span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = packed };
+        span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = packed };
     }
 
     /// <summary>
@@ -197,41 +232,6 @@ public readonly ref struct Draw2D : IDisposable
                 DrawSprite(texture, new Vector2(position.X + L + x, position.Y + T + y), new Vector2(drawW, drawH), u1, new Vector2(uMaxX, uMaxY), packed);
             }
         }
-    }
-
-
-    
-    /// <summary>
-    /// Draws a rotated quad transform around a normalized pivot (0..1).
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotatedUV(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32 color = default)
-    {
-        if (color.Packed == 0) color = Color32.White;
-        if (rotation == 0f) {
-            DrawSprite(texture, position - (pivot * size), size, uvMin, uvMax, color);
-            return;
-        }
-        var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
-            Flush();
-            bat.currentTexture = new ImTextureView(texture);
-        }
-        float cos = MathF.Cos(rotation);
-        float sin = MathF.Sin(rotation);
-
-        // Local offsets relative to pivot
-        float l = -pivot.X * size.X;
-        float r = (1f - pivot.X) * size.X;
-        float t = -pivot.Y * size.Y;
-        float b = (1f - pivot.Y) * size.Y;
-
-        // [0] Top-Left  [1] Top-Right  [2] Bottom-Right  [3] Bottom-Left  
-        var span = AddQuad();
-        span[0] = new Vertex2D { position = new Vector2(position.X + l * cos - t * sin, position.Y + l * sin + t * cos), uv = uvMin,                            color = color.Packed };
-        span[1] = new Vertex2D { position = new Vector2(position.X + r * cos - t * sin, position.Y + r * sin + t * cos), uv = new Vector2(uvMax.X, uvMin.Y),    color = color.Packed };
-        span[2] = new Vertex2D { position = new Vector2(position.X + r * cos - b * sin, position.Y + r * sin + b * cos), uv = uvMax,                            color = color.Packed };
-        span[3] = new Vertex2D { position = new Vector2(position.X + l * cos - b * sin, position.Y + l * sin + b * cos), uv = new Vector2(uvMin.X, uvMax.Y),    color = color.Packed };
     }
 #endregion
 
