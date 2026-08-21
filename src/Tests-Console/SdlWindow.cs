@@ -29,7 +29,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     private             ExceptionDispatchInfo? callbackException;
     
     // --- fields for SDL3 input handling
-    private readonly    Sld3Input               sdlInput = new();
+    private readonly    Sdl3Input               sdlInput = new();
     private             GuiModule?              guiModule;
     
     public static int Run(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
@@ -93,7 +93,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
             osInstance  = SDL.GetPointerProperty(props, SDL.Props.WindowWin32InstancePointer,   IntPtr.Zero);
         } else if (OperatingSystem.IsMacOS()) {
             osHandle    = SDL.GetPointerProperty(props, SDL.Props.WindowCocoaWindowPointer,     IntPtr.Zero);
-            osInstance  = 0;
+            osInstance  = IntPtr.Zero;
         } else {
             throw new NotImplementedException($"no code to setup SDL3 for OS: {RuntimeInformation.OSDescription}");
         }
@@ -138,7 +138,9 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     
     private SDL.AppResult IterateSdl3()
     {
-        using var target = wgpuHost!.Context.BeginRenderTarget(wgpuHost.Surface, wgpuHost.TargetSize, "RenderTarget-Encoder"u8);
+        if (wgpuHost == null) return SDL.AppResult.Continue;
+        
+        using var target = wgpuHost.Context.BeginRenderTarget(wgpuHost.Surface, wgpuHost.TargetSize, "RenderTarget-Encoder"u8);
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
@@ -192,12 +194,12 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
 
 
 // ------------------------ SDL3 input handling: keyboard, mouse & gamepad ------------------------
-internal class Sld3Input : IDisposable
+internal class Sdl3Input : IDisposable
 {
     private nint gamepad;
 
     /// <summary>
-    /// Use <c> dpiScale = new Vector2(1, 1 </c> is not available.
+    /// Use <c> dpiScale = new Vector2(1, 1) </c> is not available.
     /// </summary>
     internal void HandleGuiInput(GuiModule guiModule, in SDL.Event ev, Vector2 dpiScale)
     {
@@ -228,9 +230,9 @@ internal class Sld3Input : IDisposable
 
     private void CloseGamepad()
     {
-        if (gamepad == 0) return;
+        if (gamepad == IntPtr.Zero) return;
         SDL.CloseGamepad(gamepad);
-        gamepad = 0;
+        gamepad = IntPtr.Zero;
     }
 
     public void Dispose()
