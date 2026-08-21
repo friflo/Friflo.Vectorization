@@ -9,11 +9,13 @@ using SDL3;
 // ReSharper disable MemberCanBePrivate.Global
 namespace TestConsole;
 
-/// <summary>
-/// Enables an event driven approach - DrawFrame() + Shutdown() - instead of running an event loop.<br/>
-/// This approach ensures the same renderer can be used on mobile devices or browsers without code changes.<br/>
-/// Those platforms only support event driven applications. An event loop would lead to application freeze.
-/// </summary>
+/// <summary> Defines the contract for an event-driven or frame-callback based renderer. </summary>
+/// <remarks>
+/// Avoids internal blocking loops (e.g. <c>while(running)</c>) inside the renderer,
+/// handing control of the execution flow back to the host environment.<br/>
+/// This frame-callback design ensures seamless compatibility across Desktop, Mobile, and WebAssembly (WASM), 
+/// where blocking the main thread would freeze the application or terminate the browser context.
+/// </remarks>
 public interface IRenderer
 {
     public void OnWindowChanged(int width, int height) { }
