@@ -34,6 +34,7 @@ public enum SamplerFilter
 
 public sealed partial class Batch2D : IDisposable
 {
+#region internal
     private  readonly   DrawModule          drawModule;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
@@ -71,12 +72,6 @@ public sealed partial class Batch2D : IDisposable
     internal            int                 vertexCount;
     internal            ImTextureView       currentTexture;
 
-
-    public void Dispose()
-    {
-        vertexBuffer.Dispose();
-        indexBuffer.Dispose();
-    }
     
     internal Batch2D(GpuDevice device, TextureFormat targetFormat, int maxVertices)
     {
@@ -181,6 +176,23 @@ public sealed partial class Batch2D : IDisposable
         return stringBuilder;
     }
     
+    [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
+    internal static partial void Draw(RenderPass pass, RenderConfig config,
+        [Map(0, 0)] [uniform]               in ImUniforms       globals,
+        [Map(0, 1)] [texture_2d(ST.f32)]    GpuTextureView      texture,
+        [Map(0, 2)] [sampler]               GpuSampler          sampler,
+                    [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
+                    [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
+#endregion
+
+
+#region public
+    public void Dispose()
+    {
+        vertexBuffer.Dispose();
+        indexBuffer.Dispose();
+    }
+    
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
     
     public void SetFont(Font font) {
@@ -230,13 +242,6 @@ public sealed partial class Batch2D : IDisposable
         draw.SetViewport(targetSize.width, targetSize.height);
         return draw;
     }
-    
-    [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    internal static partial void Draw(RenderPass pass, RenderConfig config,
-        [Map(0, 0)] [uniform]               in ImUniforms       globals,
-        [Map(0, 1)] [texture_2d(ST.f32)]    GpuTextureView      texture,
-        [Map(0, 2)] [sampler]               GpuSampler          sampler,
-                    [VertexBuffer(0)]       InBuffer<Vertex2D>  vertices,
-                    [IndexBuffer]   [Draw]  InBuffer<uint>      indices);
+#endregion
 }
 
