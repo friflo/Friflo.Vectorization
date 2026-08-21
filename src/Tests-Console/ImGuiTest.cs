@@ -125,7 +125,6 @@ public class ImGuiRenderer : IRenderer
                 gui.draw.StrokeCircle(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
-        Sdl3Cursor.SetCursor(batch.input.CurrentCursor);
     }
 }
 

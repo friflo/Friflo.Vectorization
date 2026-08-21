@@ -212,6 +212,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         
         renderer?.OnFrame(target);
         
+        if (guiModule != null) Sdl3Cursor.SetCursor(guiModule.input.CurrentCursor);
+        
         wgpu.Context.Queue.Submit();
         wgpu.Surface.Present();
         

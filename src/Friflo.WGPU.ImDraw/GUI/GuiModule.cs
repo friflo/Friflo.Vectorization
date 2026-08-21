@@ -7,7 +7,7 @@ namespace Friflo.WGPU.ImDraw;
 
 public class GuiModule
 {
-    internal readonly   GuiInput    input;
+    public   readonly   GuiInput    input;
     internal readonly   Gui         gui;
     
     internal GuiModule()
