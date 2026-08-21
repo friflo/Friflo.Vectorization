@@ -82,8 +82,8 @@ public sealed partial class Batch2D : IDisposable
             device.AddModule(drawModule);
         }
         formatProvider  = CultureInfo.InvariantCulture;
-        gui             = drawModule.gui;
-        input           = drawModule.input;
+        gui             = drawModule.guiModule.gui;
+        input           = drawModule.guiModule.input;
         
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;

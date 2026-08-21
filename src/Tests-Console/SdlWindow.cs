@@ -20,7 +20,6 @@ public interface IRenderer
     public void OnWindowChanged(int width, int height) { }
     public void OnFrame        (in RenderTarget target);
     public void OnShutdown();
-    public void OnEvent        (in ImEvent ev) { }
 }
 
 public class Wgpu
@@ -33,6 +32,7 @@ public class Wgpu
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;
     public  readonly    RenderConfig        Config;
+    internal            GuiModule?          guiModule;
     public              GpuExtent3D         TargetSize;
     
     public Wgpu(nint osHandle, nint osInstance)
@@ -205,6 +205,9 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
+        wgpu.guiModule = wgpu.Device.GetGuiModule();  
+        wgpu.guiModule?.NewFrame();
+        
         renderer?.OnFrame(target);
         
         wgpu.Context.Queue.Submit();
@@ -216,6 +219,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private SDL.AppResult AppEvent(ref SDL.Event ev)
     {
         var type = (SDL.EventType)ev.Type;
+        var guiModule = wgpu?.guiModule;
         switch (type)
         {
             case SDL.EventType.Quit:
@@ -228,23 +232,23 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.SystemThemeChanged:
                 SetWindowIconFromResource();
                 break;
-            case SDL.EventType.MouseMotion:     renderer?.OnEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));  break;
-            case SDL.EventType.MouseButtonUp:   renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));  break;
-            case SDL.EventType.MouseButtonDown: renderer?.OnEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));  break;
+            case SDL.EventType.MouseMotion:     guiModule?.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));  break;
+            case SDL.EventType.MouseButtonUp:   guiModule?.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));  break;
+            case SDL.EventType.MouseButtonDown: guiModule?.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));  break;
             
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
-                renderer?.OnEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
+                guiModule?.AddEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
                 break;
             case SDL.EventType.KeyUp:
                 key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
-                renderer?.OnEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
+                guiModule?.AddEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
                 break;
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
             case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
-            case SDL.EventType.GamepadButtonUp:     renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
-            case SDL.EventType.GamepadButtonDown:   renderer?.OnEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
+            case SDL.EventType.GamepadButtonUp:     guiModule?.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
+            case SDL.EventType.GamepadButtonDown:   guiModule?.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
         }
         return SDL.AppResult.Continue;
     }

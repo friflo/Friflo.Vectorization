@@ -69,13 +69,10 @@ public class ImGuiRenderer : IRenderer
         };
     }
 
-    public void OnEvent(in ImEvent ev) => batch.AddEvent(ev);
-
     public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(10000);
         
-        batch.input.NewFrame();
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
         gui.SetNextWindowPos(new Vector2(100, 20));

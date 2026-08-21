@@ -15,8 +15,7 @@ internal sealed class DrawModule : IGpuDeviceModule
 //  private  readonly   GpuTexture      defaultWhiteTexture;
 //  internal readonly   ImTextureView   defaultWhiteTextureView;
     internal readonly   Font            defaultFont;
-    internal readonly   Gui             gui;
-    internal readonly   GuiInput        input;
+    internal readonly   GuiModule       guiModule;
     
     
     internal DrawModule(GpuDevice device)
@@ -25,9 +24,8 @@ internal sealed class DrawModule : IGpuDeviceModule
         samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
         
         defaultFont = device.CreateDefaultFont();
-        
-        input   = new GuiInput();
-        gui     = new Gui(input);
+
+        guiModule = new GuiModule();
         
         // --- Texture
         /* default white texture not used anymore - white pixel is in defaultFont
@@ -47,7 +45,7 @@ internal sealed class DrawModule : IGpuDeviceModule
     
     public void Dispose()
     {
-        gui.Dispose();
+        guiModule.Dispose();
         // defaultWhiteTexture.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();

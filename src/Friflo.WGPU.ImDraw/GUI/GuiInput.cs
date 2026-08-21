@@ -69,9 +69,9 @@ public sealed class GuiInput
         internal    int     id;
         internal    Vector2 center;
     }
+
     
-    
-    public void AddEvent(in ImEvent ev)
+    internal void AddEvent(in ImEvent ev)
     {
         switch (ev.type)
         {
@@ -273,7 +273,7 @@ public sealed class GuiInput
         keyEvents.Clear();
     }
     
-    public void NewFrame()
+    internal void NewFrame()
     {
         CurrentCursor = MouseCursor.Arrow;
         

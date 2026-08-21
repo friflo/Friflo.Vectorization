@@ -17,6 +17,14 @@ public static class ImDeviceExtensions
 {
     extension (GpuDevice device)
     {
+        public GuiModule? GetGuiModule()
+        {
+            if (device.TryGetModule(out DrawModule module)) {
+                return module.guiModule;
+            }
+            return null;
+        }
+        
         public Batch2D CreateBatch2D(TextureFormat targetFormat, int maxVertices = 60_000) {
             return new Batch2D(device, targetFormat, maxVertices);
         }
