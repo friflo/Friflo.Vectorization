@@ -206,10 +206,18 @@ internal class Sdl3Input : IDisposable
         var type = (SDL.EventType)ev.Type;
         switch (type)
         {
-            case SDL.EventType.MouseMotion:     guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMousePos(dpiScale, ev)));  break;
-            case SDL.EventType.MouseButtonUp:   guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMousePos(dpiScale, ev)));  break;
-            case SDL.EventType.MouseButtonDown: guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMousePos(dpiScale, ev)));  break;
-            
+            case SDL.EventType.MouseMotion:
+                var motionPos = new Vector2(dpiScale.X * ev.Motion.X, dpiScale.Y * ev.Motion.Y);
+                guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion, motionPos));
+                break;
+            case SDL.EventType.MouseButtonUp:
+                var buttonUpPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
+                guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp, buttonUpPos));
+                break;
+            case SDL.EventType.MouseButtonDown:
+                var buttonDownPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
+                guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, buttonDownPos));
+                break;
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
                 guiModule.AddEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
@@ -225,8 +233,6 @@ internal class Sdl3Input : IDisposable
             case SDL.EventType.GamepadButtonDown:   guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
         }
     }
-    
-    private static Vector2 GetMousePos(Vector2 dpiScale, in SDL.Event ev) => new (dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
 
     private void CloseGamepad()
     {
