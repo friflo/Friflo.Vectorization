@@ -198,9 +198,7 @@ internal class Sdl3Input : IDisposable
 {
     private nint gamepad;
 
-    /// <summary>
-    /// Use <c> dpiScale = new Vector2(1, 1) </c> if not available.
-    /// </summary>
+    /// <summary> Use <c> dpiScale = new Vector2(1, 1) </c> if not available. </summary>
     internal void HandleGuiInput(GuiModule guiModule, in SDL.Event ev, Vector2 dpiScale)
     {
         var type = (SDL.EventType)ev.Type;
