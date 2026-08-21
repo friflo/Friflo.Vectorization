@@ -6,6 +6,7 @@ using System.Numerics;
 using Friflo.GPU;
 using Friflo.WGPU.Runtime;
 
+// ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnassignedField.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -25,6 +26,14 @@ public class WgpuHostOptions
     public int                      uniformBufferSize   = 64 * 1024;
 }
 
+public struct SurfaceOptions
+{
+    public  TextureFormat?       swapChainFormat;
+    public  TextureUsage?        swapChainUsage;
+    public  PresentMode?         presentMode;
+    public  CompositeAlphaMode?  alphaMode; 
+}
+
 
 public class WgpuHost
 {
@@ -34,14 +43,17 @@ public class WgpuHost
     public  readonly    GpuDevice           Device;
     public  readonly    PipelineContext     Context;
     public  readonly    WgpuSurface         Surface;
-    public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    RenderConfig        Config;
     
+    
     // --- Dynamic Surface State ---
-    public              CompositeAlphaMode  AlphaMode   { get; private set; }
-    public              PresentMode         PresentMode { get; private set; } = PresentMode.Immediate; //  Fifo = VSync, Immediate = max
-    public              GpuExtent3D         TargetSize  { get; private set; }
-    public              Vector2             DpiScale    { get; private set; }
+    public              CompositeAlphaMode  AlphaMode       { get; private set; }
+    public              PresentMode         PresentMode     { get; private set; } = PresentMode.Immediate; //  Fifo = VSync, Immediate = max
+    public              TextureFormat       SwapChainFormat { get; private set; }
+    public              TextureUsage        SwapChainUsage  { get; private set; } = TextureUsage.RenderAttachment;
+    
+    public              GpuExtent3D         TargetSize      { get; private set; }
+    public              Vector2             DpiScale        { get; private set; }
 
     
     public WgpuHost(nint osHandle, nint osInstance, WgpuHostOptions options = null)
@@ -92,21 +104,20 @@ public class WgpuHost
         return true;
     }
     
-    public void SetPresentMode(PresentMode mode)
+    public void ConfigureSurface(SurfaceOptions options)
     {
-        if (PresentMode == mode) {
+        if (PresentMode     == options.presentMode &&
+            SwapChainFormat == options.swapChainFormat && 
+            SwapChainUsage  == options.swapChainUsage &&
+            AlphaMode       == options.alphaMode)
+        {
             return;
         }
-        PresentMode = mode;
-        ConfigureSurface(TargetSize.width, TargetSize.height);
-    }
-    
-    public void SetAlphaMode(CompositeAlphaMode mode)
-    {
-        if (AlphaMode == mode) {
-            return;
-        }
-        AlphaMode = mode;
+        if (options.presentMode     != null)    PresentMode     = options.presentMode.Value;
+        if (options.swapChainFormat != null)    SwapChainFormat = options.swapChainFormat.Value;
+        if (options.swapChainUsage  != null)    SwapChainUsage  = options.swapChainUsage.Value;
+        if (options.alphaMode       != null)    AlphaMode       = options.alphaMode.Value;
+        
         ConfigureSurface(TargetSize.width, TargetSize.height);
     }
     
@@ -118,7 +129,7 @@ public class WgpuHost
         var surfaceConfig = new WgpuSurfaceConfiguration {
             device      = Device,
             format      = SwapChainFormat,
-            usage       = TextureUsage.RenderAttachment,
+            usage       = SwapChainUsage,
             alphaMode   = AlphaMode,
             width       = pixelWidth,
             height      = pixelHeight,
