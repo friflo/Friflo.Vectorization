@@ -6,9 +6,9 @@ namespace Shaders.RenderTest;
 
 public class ConfigTest : Renderer
 {
-    public ConfigTest(Wgpu wgpu) : base(wgpu)
+    public ConfigTest(WgpuHost wgpuHost) : base(wgpuHost)
     {
-        var desc = wgpu.Config.Descriptor;
+        var desc = wgpuHost.Config.Descriptor;
         desc.PrimitiveState.cullMode = CullMode.Front;
         testConfig = desc.CreateConfig("testConfig");
     }
@@ -21,7 +21,7 @@ public class ConfigTest : Renderer
         perfLog.Trace(5000);
         renderPassDescriptor.colorAttachments[0].view = target.View;
         var time    = (float)stopwatch.Elapsed.TotalSeconds;
-        var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpu.Config;
+        var config  = perfLog.FrameCount % 2 == 0 ? testConfig : wgpuHost.Config;
         myUniform.modelViewProjectionMatrix = GetTransformationMatrix(target.TargetSize, time);
         
         using var pass = target.BeginRenderPass(renderPassDescriptor);

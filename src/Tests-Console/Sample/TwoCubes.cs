@@ -19,15 +19,15 @@ public partial class Renderer : IRenderer
         verticesBuffer.Dispose();
     }
     
-    public Renderer(Wgpu wgpu)
+    public Renderer(WgpuHost wgpuHost)
     {
-        this.wgpu   = wgpu;
+        this.wgpuHost   = wgpuHost;
         
         // --- Cube Vertex Buffer Config
-        verticesBuffer = wgpu.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
+        verticesBuffer = wgpuHost.Device.CreateBuffer(Cube.cubeVertexArray, "verticesBuffer", BufferProfile.StaticIn, BufferType.Vertex);
         verticesBuffer.In().Write();
         
-        var desc = wgpu.Config.Descriptor;
+        var desc = wgpuHost.Config.Descriptor;
         // JS example:  https://github.com/webgpu/webgpu-samples/blob/main/sample/twoCubes/main.ts#L49
         desc.VertexState.buffers = [
             new GpuVertexBufferLayout {    // buffers[0]  <-  referenced by [VertexBuffer(0)]   (slot: 0)
@@ -58,7 +58,7 @@ public partial class Renderer : IRenderer
     }
 
     // --- non-disposable fields
-    private   readonly  Wgpu                    wgpu;
+    private   readonly  WgpuHost                wgpuHost;
     private   readonly  RenderConfig            config;
     private   readonly  PerfLog                 perfLog             = new();
     private   readonly  Matrix4x4               modelMatrix1        = Matrix4x4.CreateTranslation(new Vector3(-2, 0, 0));
@@ -73,7 +73,7 @@ public partial class Renderer : IRenderer
     public void OnWindowChanged(int width, int height)
     {
         depthTexture?.Dispose();
-        depthTexture = wgpu.Device.CreateTexture(new GpuTextureDescriptor {
+        depthTexture = wgpuHost.Device.CreateTexture(new GpuTextureDescriptor {
             size    = [width, height],
             format  = TextureFormat.Depth24Plus,
             usage   = TextureUsage.RenderAttachment

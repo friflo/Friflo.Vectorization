@@ -21,21 +21,21 @@ public partial class Renderer : IRenderer
     private readonly InView<Particle>           particleView;
     private readonly PerfLog                    perfLog      = new();
     private readonly Stopwatch                  stopwatch    = Stopwatch.StartNew();
-    private readonly Wgpu                       wgpu;
+    private readonly WgpuHost                   wgpuHost;
     
     private readonly GpuRenderPassDescriptor    renderPassDescriptor = new() { colorAttachments = [default] };
     private          float                      lastTime;
     
     private const int ParticleCount = 100_000;
 
-    public Renderer(Wgpu wgpu)
+    public Renderer(WgpuHost wgpuHost)
     {
-        this.wgpu = wgpu;
+        this.wgpuHost = wgpuHost;
 
         var initialParticles = GenerateInitialParticles(ParticleCount);
 
         // Buffer is used by Compute Read/Write and Rendering 
-        particleBuffer = wgpu.Device.CreateBuffer(initialParticles, "particles", BufferProfile.InOut);
+        particleBuffer = wgpuHost.Device.CreateBuffer(initialParticles, "particles", BufferProfile.InOut);
         particleView   = particleBuffer.In(0, ParticleCount);
     }
 
@@ -90,7 +90,7 @@ public partial class Renderer : IRenderer
         UpdateParticles(target.ComputeContext, particleBuffer.InOut(), frameData);
 
         using var pass = target.BeginRenderPass(renderPassDescriptor);
-        DrawParticles(pass, wgpu.Config, particleView, frameData, new DrawArgs(6, ParticleCount));
+        DrawParticles(pass, wgpuHost.Config, particleView, frameData, new DrawArgs(6, ParticleCount));
     }
 
     public void OnShutdown()

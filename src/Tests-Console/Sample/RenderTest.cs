@@ -24,10 +24,10 @@ public partial class Renderer : IRenderer
         data.Dispose();
     }
     
-    public Renderer(Wgpu wgpu)
+    public Renderer(WgpuHost wgpuHost)
     {
-        this.wgpu = wgpu;
-        data        = wgpu.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
+        this.wgpuHost = wgpuHost;
+        data        = wgpuHost.Device.CreateBuffer(Vertices, "data", BufferProfile.InOut);
         rectangle   = data.In(0, 6); // two triangles
     }
 
@@ -43,7 +43,7 @@ public partial class Renderer : IRenderer
     ];
 
     // --- non-disposable fields
-    protected readonly  Wgpu                    wgpu;
+    protected readonly  WgpuHost                wgpuHost;
     protected readonly  PerfLog                 perfLog             = new();
     protected readonly  InView<VertexData>      rectangle;
     protected           MyUniforms              myUniform           = new() { tint_color = new Vector4(1, 1, 0, 1) };
@@ -87,8 +87,8 @@ public partial class Renderer : IRenderer
         wormhood.iResolution    = new Vector3(target.TargetSize.width, target.TargetSize.height, 1.0f);
         wormhood.iTime          = time;
         
-        Wormhood.RenderTunnel(pass, wgpu.Config, wormhood, new DrawArgs(3));
-        DrawTriangles(pass, wgpu.Config, rectangle, myUniform, model_offset);
+        Wormhood.RenderTunnel(pass, wgpuHost.Config, wormhood, new DrawArgs(3));
+        DrawTriangles(pass, wgpuHost.Config, rectangle, myUniform, model_offset);
     }
 
 	[Shader("~/shaders/renderTest/triangle.wgsl", vertex: "vs_main", fragment: "fs_main")]

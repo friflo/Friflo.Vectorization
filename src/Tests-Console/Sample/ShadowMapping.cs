@@ -27,10 +27,10 @@ public partial class Renderer : IRenderer
         vertexBuffer.Dispose();
     }
     
-    public Renderer(Wgpu wgpu)
+    public Renderer(WgpuHost wgpuHost)
     {
-        this.wgpu   = wgpu;
-        var device  = wgpu.Device;
+        this.wgpuHost   = wgpuHost;
+        var device  = wgpuHost.Device;
         
         var mesh = StanfordDragon.LoadMeshAsync().Result;
         
@@ -99,7 +99,7 @@ public partial class Renderer : IRenderer
         shadowDesc.PrimitiveState = primitive;
         shadowConfig = shadowDesc.CreateConfig("Shadow Config");
         
-        var renderDesc = wgpu.Config.Descriptor;
+        var renderDesc = wgpuHost.Config.Descriptor;
         renderDesc.VertexState.buffers = vertexBuffers;
         renderDesc.FragmentState = new GpuFragmentState {
             constants = [new GpuConstantEntry { key = "shadowDepthTextureSize", value = shadowDepthTextureSize }]
@@ -136,7 +136,7 @@ public partial class Renderer : IRenderer
     }
 
     // --- non-disposable fields
-    private   readonly  Wgpu                    wgpu;
+    private   readonly  WgpuHost                wgpuHost;
     private   readonly  RenderConfig            shadowConfig;
     private   readonly  RenderConfig            renderConfig;
     private   readonly  GpuTextureView          shadowDepthTextureView;              
@@ -152,7 +152,7 @@ public partial class Renderer : IRenderer
     public void OnWindowChanged(int width, int height)
     {
         depthTexture?.Dispose();
-        depthTexture = wgpu.Device.CreateTexture(new GpuTextureDescriptor {
+        depthTexture = wgpuHost.Device.CreateTexture(new GpuTextureDescriptor {
             size    = [width, height],
             format  = TextureFormat.Depth24PlusStencil8,
             usage   = TextureUsage.RenderAttachment

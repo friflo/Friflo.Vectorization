@@ -1,12 +1,11 @@
 ﻿using System.Numerics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using Friflo.GPU;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 using SDL3;
 
-// ReSharper disable InconsistentNaming
+
 // ReSharper disable MemberCanBePrivate.Global
 namespace TestConsole;
 
@@ -22,61 +21,18 @@ public interface IRenderer
     public void OnShutdown();
 }
 
-public class Wgpu
-{
-    public  readonly    WgpuInstance        Instance;
-    public  readonly    GpuAdapter          Adapter;
-    public  readonly    GpuDevice           Device;
-    public  readonly    PipelineContext     Context;
-    public  readonly    WgpuSurface         Surface;
-    public  readonly    TextureFormat       SwapChainFormat;
-    public  readonly    CompositeAlphaMode  AlphaMode;
-    public  readonly    RenderConfig        Config;
-    public              GpuExtent3D         TargetSize;
-    
-    public Wgpu(nint osHandle, nint osInstance)
-    {
-        Instance    = WgpuInstance.CreateInstance();
-        Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
-        Adapter     = Instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
-        Device      = Adapter.CreateDevice("Wgpu.Device");
-        Context     = Device.BeginContext();
-        
-        var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out AlphaMode);
-        SwapChainFormat     = fragmentState.targets[0].format;
-        var desc            = new GpuRenderPipelineDescriptor { FragmentState = fragmentState };
-        Config              = desc.CreateConfig("Wgpu.Config");
-    }
-    
-    public void Shutdown()
-    {
-        Surface.Unconfigure();
-        Context.Dispose();
-        Device.Dispose();
-        Adapter.Dispose();
-        Surface.Dispose();
-        var handleDiff = Instance.GenerateHandles();
-        if (!handleDiff.IsActiveZero()) {
-            Console.WriteLine(handleDiff.GetHandleLog("[GPU RESOURCE LEAK DETECTED]", true));
-        }
-        Instance.Dispose();
-    }
-}
-
-
-public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
+public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
 {
     private             nint                   window;
-    private             Wgpu?                  wgpu;
+    private             WgpuHost?              wgpuHost;
     private             IRenderer?             renderer;
     private             ExceptionDispatchInfo? callbackException;
     
     // --- fields for SDL3 input handling
     private readonly    Sld3Input               sdlInput = new();
     private             GuiModule?              guiModule;
-    private             Vector2                 dpiScale;
     
-    public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
+    public static int Run(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
     {
         var sdl = new SdlWindow(title + " - friflo GPU", width, height, createRenderer);
         SDL.SetMainReady();
@@ -144,10 +100,10 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         SDL.ShowWindow(window);
         
         // --- setup wgpu resources --- 
-        wgpu = new Wgpu(osHandle, osInstance);
-        var backend = wgpu.Adapter.GetAdapterInfo().BackendType;
+        wgpuHost    = new WgpuHost(osHandle, osInstance);
+        var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
-        renderer = createRenderer(wgpu);
+        renderer = createRenderer(wgpuHost);
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -173,49 +129,28 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     private void SetWindowSize()
     {
         SDL.GetWindowSizeInPixels(window, out var pixelWidth, out var pixelHeight);
-        if (wgpu!.TargetSize.width == pixelWidth && wgpu.TargetSize.height == pixelHeight) {
-            return;
-        }
         SDL.GetWindowSize(window, out int windowWidth, out int windowHeight);
-        wgpu!.TargetSize = new GpuExtent3D(pixelWidth, pixelHeight, 1);
-        if (pixelWidth == 0 || pixelHeight == 0) {
-            return;
-        }
-        dpiScale.X = pixelWidth  / (float)windowWidth;
-        dpiScale.Y = pixelHeight / (float)windowHeight;
-        ConfigureSurface(pixelWidth, pixelHeight);
+        
+        wgpuHost?.ResizeTarget(pixelWidth, pixelHeight, windowWidth, windowHeight);
         renderer?.OnWindowChanged(pixelWidth, pixelHeight);
     }
     
-    private void ConfigureSurface(int pixelWidth, int pixelHeight)
-    {
-        var surfaceConfig = new WgpuSurfaceConfiguration {
-            device      = wgpu!.Device,
-            format      = wgpu.SwapChainFormat,
-            usage       = TextureUsage.RenderAttachment,
-            alphaMode   = wgpu.AlphaMode,  // or CompositeAlphaMode.Opaque
-            width       = pixelWidth,
-            height      = pixelHeight,
-            presentMode = PresentMode.Immediate // Fifo = VSync, Immediate = max
-        };
-        wgpu.Surface.Configure(surfaceConfig);
-    }
     
     private SDL.AppResult IterateSdl3()
     {
-        using var target = wgpu!.Context.BeginRenderTarget(wgpu.Surface, wgpu.TargetSize, "RenderTarget-Encoder"u8);
+        using var target = wgpuHost!.Context.BeginRenderTarget(wgpuHost.Surface, wgpuHost.TargetSize, "RenderTarget-Encoder"u8);
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
-        guiModule = wgpu.Device.GetGuiModule();  
+        guiModule = wgpuHost.Device.GetGuiModule();  
         guiModule?.NewFrame();
         
         renderer?.OnFrame(target);
         
         if (guiModule != null) Sdl3Cursor.SetCursor(guiModule.input.CurrentCursor);
         
-        wgpu.Context.Queue.Submit();
-        wgpu.Surface.Present();
+        wgpuHost.Context.Queue.Submit();
+        wgpuHost.Surface.Present();
         
         return SDL.AppResult.Continue;
     }
@@ -237,7 +172,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
                 break;
         }
         if (guiModule != null) {
-            sdlInput.HandleGuiInput(guiModule, ev, dpiScale);
+            sdlInput.HandleGuiInput(guiModule, ev, wgpuHost!.DpiScale);
         }
         return SDL.AppResult.Continue;
     }
@@ -248,8 +183,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         Sdl3Cursor.Shutdown();
         renderer?.OnShutdown();
         renderer = null;
-        wgpu?.Shutdown();
-        wgpu = null;
+        wgpuHost?.Shutdown();
+        wgpuHost = null;
         SDL.DestroyWindow(window);
         SDL.Quit();
     }
@@ -309,31 +244,31 @@ internal class Sld3Input : IDisposable
 /// </summary>
 internal static class Sdl3Cursor
 {
-    private static readonly Dictionary<MouseCursor, IntPtr> cursorCache         = new();
-    private static          MouseCursor                     currentCursorType   = MouseCursor.Arrow;
+    private static readonly Dictionary<MouseCursor, IntPtr> CursorCache         = new();
+    private static          MouseCursor                     _currentCursorType  = MouseCursor.Arrow;
 
     internal static void Init() {
-        cursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
-        cursorCache[MouseCursor.ResizeNS]   = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
-        cursorCache[MouseCursor.ResizeEW]   = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
-        cursorCache[MouseCursor.ResizeNWSE] = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
-        cursorCache[MouseCursor.ResizeNESW] = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
+        CursorCache[MouseCursor.Arrow]      = SDL.CreateSystemCursor(SDL.SystemCursor.Default);
+        CursorCache[MouseCursor.ResizeNS]   = SDL.CreateSystemCursor(SDL.SystemCursor.NSResize);
+        CursorCache[MouseCursor.ResizeEW]   = SDL.CreateSystemCursor(SDL.SystemCursor.EWResize);
+        CursorCache[MouseCursor.ResizeNWSE] = SDL.CreateSystemCursor(SDL.SystemCursor.NWSEResize);
+        CursorCache[MouseCursor.ResizeNESW] = SDL.CreateSystemCursor(SDL.SystemCursor.NESWResize);
     }
     
     internal static void Shutdown()
     {
-        foreach (var handle in cursorCache.Values) {
+        foreach (var handle in CursorCache.Values) {
             if (handle != IntPtr.Zero) SDL.DestroyCursor(handle);
         }
-        cursorCache.Clear();
+        CursorCache.Clear();
     }
 
     public static void SetCursor(MouseCursor cursor)
     {
-        if (cursor == currentCursorType) return;
-        if (cursorCache.TryGetValue(cursor, out IntPtr handle)) {
+        if (cursor == _currentCursorType) return;
+        if (CursorCache.TryGetValue(cursor, out IntPtr handle)) {
             SDL.SetCursor(handle);
-            currentCursorType = cursor;
+            _currentCursorType = cursor;
         }
     }
 }
