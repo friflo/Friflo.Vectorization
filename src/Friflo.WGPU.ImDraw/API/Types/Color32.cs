@@ -38,12 +38,8 @@ public struct Color32 : IEquatable<Color32>
         A = a;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Color32(uint rawPacked)
-    {
-        Unsafe.SkipInit(out this);
-        Packed = rawPacked;
-    }
+    // Note:  Intentionally no constructor using a uint parameter to avoid confusion  RRGGBBAA vs Packed
+    // public Color32(uint rawPacked) { Packed = rawPacked; }
 
     /// <summary> Creates Color32 from a 0xRRGGBBAA hex literal (e.g. 0xFF0000FF for Red). </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
