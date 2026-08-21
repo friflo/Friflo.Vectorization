@@ -242,6 +242,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private void Shutdown()
     {
+        sdlInput.Dispose();
         Sdl3Cursor.Shutdown();
         renderer?.OnShutdown();
         renderer = null;
@@ -254,7 +255,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
 
 
 // ------------------------ SDL3 input handling: keyboard, mouse & gamepad ------------------------
-internal class Sld3Input
+internal class Sld3Input : IDisposable
 {
     private nint gamepad;
 
@@ -280,13 +281,25 @@ internal class Sld3Input
                 break;
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
-            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
+            case SDL.EventType.GamepadRemoved:      CloseGamepad();                                 break;
             case SDL.EventType.GamepadButtonUp:     guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
             case SDL.EventType.GamepadButtonDown:   guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
         }
     }
     
     private static Vector2 GetMousePos(Vector2 dpiScale, in SDL.Event ev) => new (dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
+
+    private void CloseGamepad()
+    {
+        if (gamepad == 0) return;
+        SDL.CloseGamepad(gamepad);
+        gamepad = 0;
+    }
+
+    public void Dispose()
+    {
+        CloseGamepad();
+    }
 }
 
 /// <summary>
