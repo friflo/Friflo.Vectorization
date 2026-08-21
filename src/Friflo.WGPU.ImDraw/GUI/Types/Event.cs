@@ -41,6 +41,11 @@ public struct ImEvent
         gamepad.button  = button;
         gamepad.isDown  = isDown;
     }
+    
+    public ImEvent(ImEventType type, KeyEvent keyEvent) {
+        this.type       = type;
+        key             = keyEvent;
+    }
 }
 
 public enum WidgetState

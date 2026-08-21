@@ -220,11 +220,11 @@ internal class Sdl3Input : IDisposable
                 break;
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
-                guiModule.AddEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
+                guiModule.AddEvent(new ImEvent(ImEventType.KeyDown, key));
                 break;
             case SDL.EventType.KeyUp:
                 key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
-                guiModule.AddEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
+                guiModule.AddEvent(new ImEvent(ImEventType.KeyUp, key));
                 break;
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
