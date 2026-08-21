@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using Friflo.WGPU;
@@ -48,9 +49,15 @@ public static class Tests_ImDraw
     [Test]
     public static void Tests_ImDraw_StringBuilderExtensions()
     {
-        var sb = new StringBuilder();
-        sb.AppendFormat(123.456f, "F1");
-        Assert.That(sb.ToString(), Is.EqualTo("123,5"));
+        {
+            var sb = new StringBuilder();
+            _ = sb.AppendFloat(123.456f, "F1", CultureInfo.InvariantCulture);
+            Assert.That(sb.ToString(), Is.EqualTo("123.5"));
+        } {
+            var sb = new StringBuilder();
+            _ = sb.AppendDouble(123.456d, "F1", CultureInfo.InvariantCulture);
+            Assert.That(sb.ToString(), Is.EqualTo("123.5"));
+        }
     }
     
     

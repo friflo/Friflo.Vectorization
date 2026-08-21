@@ -3,8 +3,10 @@
 
 
 using System;
+using System.Globalization;
 using System.Text;
 
+// ReSharper disable ReplaceSliceWithRangeIndexer
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
@@ -22,11 +24,23 @@ public static class StringBuilderExtensions
             return enumerator.Current.Span;
         }
         
-        public StringBuilder AppendFormat(float value, ReadOnlySpan<char> format)
+        /// <summary> Append the passed value formatted without allocation. </summary>
+        public StringBuilder AppendFloat(float value, ReadOnlySpan<char> format, IFormatProvider? provider = null)
         {
-            Span<char> floatBuffer = stackalloc char[32];
-            value.TryFormat(floatBuffer, out int charsWritten, format);
-            builder.Append(floatBuffer[..charsWritten]); 
+            provider ??= CultureInfo.InvariantCulture;
+            Span<char> buffer = stackalloc char[32];
+            value.TryFormat(buffer, out var charsWritten, format, provider);
+            builder.Append(buffer.Slice(0, charsWritten));
+            return builder;
+        }
+        
+        /// <summary> Append the passed value formatted without allocation. </summary>
+        public StringBuilder AppendDouble(double value, ReadOnlySpan<char> format, IFormatProvider? provider = null)
+        {
+            provider ??= CultureInfo.InvariantCulture;
+            Span<char> buffer = stackalloc char[32];
+            value.TryFormat(buffer, out var charsWritten, format, provider);
+            builder.Append(buffer.Slice(0, charsWritten));
             return builder;
         }
     }   

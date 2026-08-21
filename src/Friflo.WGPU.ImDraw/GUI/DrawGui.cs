@@ -279,7 +279,7 @@ public readonly ref struct DrawGui : IDisposable
         if (isFocused) {
             draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
         }
-        var labelText = StringBuilder().AppendFormat(value, format);
+        var labelText = StringBuilder().AppendFloat(value, format);
         draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
