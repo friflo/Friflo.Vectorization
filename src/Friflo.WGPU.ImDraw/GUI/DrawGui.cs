@@ -23,10 +23,11 @@ public readonly ref struct DrawGui : IDisposable
     private readonly    GuiState        guiState;       //  8 bytes
     private readonly    GuiStyle        currentStyle;   //  8 bytes
     
-    public ref readonly GuiColor        Color       { [DebuggerStepThrough] get => ref currentStyle.color; }
-    public              GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
-    public              float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
-    private             Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
+    public ref readonly GuiColor        Color           { [DebuggerStepThrough] get => ref currentStyle.color; }
+    public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
+    public              float           LineHeight      { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
+    private             Gui             Gui             { [DebuggerStepThrough] get => draw.batch.gui; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
@@ -279,7 +280,7 @@ public readonly ref struct DrawGui : IDisposable
         if (isFocused) {
             draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
         }
-        var labelText = StringBuilder().AppendFloat(value, format);
+        var labelText = StringBuilder().AppendFloat(value, format, FormatProvider);
         draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);

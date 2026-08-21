@@ -26,9 +26,8 @@ public static class StringBuilderExtensions
         
         /// <summary> Append the passed value formatted without allocation. </summary>
         /// <remarks> format see: <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings">Standard numeric format strings</a> </remarks>
-        public StringBuilder AppendFloat(float value, ReadOnlySpan<char> format, IFormatProvider? provider = null)
+        public StringBuilder AppendFloat(float value, ReadOnlySpan<char> format, IFormatProvider provider)
         {
-            provider ??= CultureInfo.InvariantCulture;
             Span<char> buffer = stackalloc char[32];
             value.TryFormat(buffer, out var charsWritten, format, provider);
             builder.Append(buffer.Slice(0, charsWritten));
@@ -37,9 +36,8 @@ public static class StringBuilderExtensions
         
         /// <summary> Append the passed value formatted without allocation. </summary>
         /// <remarks> format see: <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings">Standard numeric format strings</a> </remarks>
-        public StringBuilder AppendDouble(double value, ReadOnlySpan<char> format, IFormatProvider? provider = null)
+        public StringBuilder AppendDouble(double value, ReadOnlySpan<char> format, IFormatProvider provider)
         {
-            provider ??= CultureInfo.InvariantCulture;
             Span<char> buffer = stackalloc char[32];
             value.TryFormat(buffer, out var charsWritten, format, provider);
             builder.Append(buffer.Slice(0, charsWritten));

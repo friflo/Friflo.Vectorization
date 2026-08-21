@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -58,6 +59,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImTextureView       defaultFontTexture;
     
     // --- Draw2D - state
+    internal            IFormatProvider     formatProvider;
     internal            Vector2             viewport;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
@@ -79,8 +81,9 @@ public sealed partial class Batch2D : IDisposable
             drawModule = new DrawModule(device);
             device.AddModule(drawModule);
         }
-        gui     = drawModule.gui;
-        input   = drawModule.input;
+        formatProvider  = CultureInfo.InvariantCulture;
+        gui             = drawModule.gui;
+        input           = drawModule.input;
         
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;
@@ -200,8 +203,9 @@ public sealed partial class Batch2D : IDisposable
         defaultFontTexture  = font.textureView;
     }
     
-    public void SetFontDefault() => SetFont(drawModule.defaultFont); 
+    public void SetFontDefault() => SetFont(drawModule.defaultFont);
     
+    public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
     public DrawGui BeginGui(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
