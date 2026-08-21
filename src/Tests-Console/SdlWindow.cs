@@ -173,8 +173,8 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
                 SetWindowIconFromResource();
                 break;
         }
-        if (guiModule != null) {
-            sdlInput.HandleGuiInput(guiModule, ev, wgpuHost!.DpiScale);
+        if (guiModule != null && wgpuHost != null) {
+            sdlInput.HandleGuiInput(guiModule, ev, wgpuHost.DpiScale);
         }
         return SDL.AppResult.Continue;
     }
@@ -199,7 +199,7 @@ internal class Sdl3Input : IDisposable
     private nint gamepad;
 
     /// <summary>
-    /// Use <c> dpiScale = new Vector2(1, 1) </c> is not available.
+    /// Use <c> dpiScale = new Vector2(1, 1) </c> if not available.
     /// </summary>
     internal void HandleGuiInput(GuiModule guiModule, in SDL.Event ev, Vector2 dpiScale)
     {
