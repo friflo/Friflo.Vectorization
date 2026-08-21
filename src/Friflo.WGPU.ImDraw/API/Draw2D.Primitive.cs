@@ -4,7 +4,6 @@
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 
 // ReSharper disable ForCanBeConvertedToForeach
@@ -17,113 +16,6 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref partial struct Draw2D
 {
-#region Quad
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
-    {
-        var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
-            Flush();
-            bat.currentTexture = bat.defaultFontTexture;
-        }
-        var uv = bat.currentTexture.whiteUv;
-
-        var packed   = color.Packed;
-        ref var quad = ref AddQuad();
-        quad[0] = new Vertex2D(v0, uv, packed);
-        quad[1] = new Vertex2D(v1, uv, packed);
-        quad[2] = new Vertex2D(v2, uv, packed);
-        quad[3] = new Vertex2D(v3, uv, packed);
-    }
-    
-    public void DrawQuad(in VertexQuad quad, GpuTextureView texture)
-    {
-        var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
-            Flush();
-            bat.currentTexture = new ImTextureView(texture);
-        }
-        ref var targetQuad = ref AddQuad();
-        targetQuad = quad;
-    }
-    
-    public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, GpuTextureView texture)
-    {
-        var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
-            Flush();
-            bat.currentTexture = new ImTextureView(texture);
-        }
-        ref var quad = ref AddQuad();
-        quad[0] = v0;
-        quad[1] = v1;
-        quad[2] = v2;
-        quad[3] = v3;
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, GpuTextureView texture)
-    {
-        if ((vertices.Length & 3) != 0) {
-            ThrowInvalidVertexCount(vertices.Length);
-        }
-        if (vertices.IsEmpty) return;
-
-        var bat = batch;
-        if (bat.currentTexture.Handle != texture.Handle) {
-            Flush();
-            bat.currentTexture = new ImTextureView(texture);
-        }
-        while (vertices.Length > 0)
-        {
-            int availableSpace = bat.vertexBuffer.Length - bat.vertexCount;
-
-            if (availableSpace < 4) {
-                Flush();
-                availableSpace = bat.vertexBuffer.Length;
-            }
-            int copyCount = Math.Min(vertices.Length, availableSpace);
-
-            var destination = bat.vertexBuffer.Span.Slice(bat.vertexCount, copyCount);
-            vertices[..copyCount].CopyTo(destination);
-
-            bat.vertexCount += copyCount;
-            vertices = vertices[copyCount..];
-        }
-    }
-
-    [System.Diagnostics.CodeAnalysis.DoesNotReturn]
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void ThrowInvalidVertexCount(int length)
-    {
-        throw new ArgumentException($"Number of vertices must be divisible by 4. Was: {length}.");
-    }
-
-    
-    /* [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Span<Vertex2D> AddQuad() {
-        var start = batch.vertexCount;
-        batch.vertexCount = start + 4;
-        return batch.vertexBuffer.Span.Slice(start, 4);
-    } */
-    
-    /// <summary>
-    /// Returns a <see cref="VertexQuad"/> <br/>
-    /// [0] Top-Left   [1] Top-Right   [2] Bottom-Right   [3] Bottom-Left
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ref VertexQuad AddQuad() {
-        var start = batch.vertexCount;
-        batch.vertexCount = start + 4;
-        ref var firstVertex = ref MemoryMarshal.GetReference(batch.vertexBuffer.Span.Slice(start));
-        return ref Unsafe.As<Vertex2D, VertexQuad>(ref firstVertex);
-    }
-
-#endregion
-
-
-
-#region Primitives
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
@@ -188,7 +80,7 @@ public readonly ref partial struct Draw2D
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
-        FillQuad(v0, v1, v2, v2, color);
+        DrawQuad(v0, v1, v2, v2, color);
     }
 
     /// <summary>
@@ -203,7 +95,7 @@ public readonly ref partial struct Draw2D
         // Normal vector perpendicular to the line
         Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
 
-        FillQuad(
+        DrawQuad(
             start + normal, // V0: Top-Left
             end   + normal, // V1: Top-Right
             end   - normal, // V2: Bottom-Right
@@ -275,7 +167,7 @@ public readonly ref partial struct Draw2D
                 ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
                 : p1;
 
-            FillQuad(center, p0, p1, p2, color);
+            DrawQuad(center, p0, p1, p2, color);
         }
     }
 
@@ -300,7 +192,7 @@ public readonly ref partial struct Draw2D
                 : p1;
 
             // Quad layout: (Center, P0, P1, P2) maps to 2 triangles: (Center, P0, P1) & (P1, P2, Center)
-            FillQuad(center, p0, p1, p2, color);
+            DrawQuad(center, p0, p1, p2, color);
         }
     }
 
@@ -323,7 +215,7 @@ public readonly ref partial struct Draw2D
             Vector2 dir0 = new Vector2(MathF.Cos(a0), MathF.Sin(a0));
             Vector2 dir1 = new Vector2(MathF.Cos(a1), MathF.Sin(a1));
 
-            FillQuad(
+            DrawQuad(
                 center + dir0 * rInner, // Inner Start
                 center + dir0 * rOuter, // Outer Start
                 center + dir1 * rOuter, // Outer End
@@ -332,6 +224,5 @@ public readonly ref partial struct Draw2D
             );
         }
     }
-#endregion
 }
 
