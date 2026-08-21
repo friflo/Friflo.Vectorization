@@ -5,7 +5,7 @@
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-public class GuiModule
+public sealed class GuiModule
 {
     public   readonly   GuiInput    input;
     internal readonly   Gui         gui;

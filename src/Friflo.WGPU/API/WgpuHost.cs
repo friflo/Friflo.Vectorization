@@ -16,7 +16,7 @@ using Friflo.WGPU.Runtime;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU;
 
-public class WgpuHostOptions
+public sealed class WgpuHostOptions
 {
     public InstanceExtras           instanceExtras;
     /// <summary> For different backend set <see cref="GpuRequestAdapterOptions.backendType"/>. E.g. <c>D3D12</c> </summary>
@@ -35,7 +35,7 @@ public struct SurfaceOptions
 }
 
 
-public class WgpuHost
+public sealed class WgpuHost
 {
     // --- Immutable Core ---
     public  readonly    WgpuInstance        Instance;
