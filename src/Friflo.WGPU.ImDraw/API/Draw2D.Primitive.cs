@@ -80,7 +80,7 @@ public readonly ref partial struct Draw2D
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
-        DrawQuad(v0, v1, v2, v2, color);
+        FillQuad(v0, v1, v2, v2, color);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public readonly ref partial struct Draw2D
         // Normal vector perpendicular to the line
         Vector2 normal = new Vector2(-dir.Y, dir.X) / len * (thickness * 0.5f);
 
-        DrawQuad(
+        FillQuad(
             start + normal, // V0: Top-Left
             end   + normal, // V1: Top-Right
             end   - normal, // V2: Bottom-Right
@@ -167,7 +167,7 @@ public readonly ref partial struct Draw2D
                 ? center + new Vector2(MathF.Cos(a2), MathF.Sin(a2)) * radius
                 : p1;
 
-            DrawQuad(center, p0, p1, p2, color);
+            FillQuad(center, p0, p1, p2, color);
         }
     }
 
@@ -192,7 +192,7 @@ public readonly ref partial struct Draw2D
                 : p1;
 
             // Quad layout: (Center, P0, P1, P2) maps to 2 triangles: (Center, P0, P1) & (P1, P2, Center)
-            DrawQuad(center, p0, p1, p2, color);
+            FillQuad(center, p0, p1, p2, color);
         }
     }
 
@@ -215,7 +215,7 @@ public readonly ref partial struct Draw2D
             Vector2 dir0 = new Vector2(MathF.Cos(a0), MathF.Sin(a0));
             Vector2 dir1 = new Vector2(MathF.Cos(a1), MathF.Sin(a1));
 
-            DrawQuad(
+            FillQuad(
                 center + dir0 * rInner, // Inner Start
                 center + dir0 * rOuter, // Outer Start
                 center + dir1 * rOuter, // Outer End

@@ -18,7 +18,7 @@ namespace Friflo.WGPU.ImDraw;
 public readonly ref partial struct Draw2D
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
+    public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
