@@ -32,7 +32,6 @@ public class Wgpu
     public  readonly    TextureFormat       SwapChainFormat;
     public  readonly    CompositeAlphaMode  AlphaMode;
     public  readonly    RenderConfig        Config;
-    internal            GuiModule?          guiModule;
     public              GpuExtent3D         TargetSize;
     
     public Wgpu(nint osHandle, nint osInstance)
@@ -67,12 +66,14 @@ public class Wgpu
 
 public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
 {
-    private nint                    window;
-    private Wgpu?                   wgpu;
-    private IRenderer?              renderer;
-    private ExceptionDispatchInfo?  callbackException;
-    private Vector2                 dpiScale;
-    private nint                    gamepad;
+    private  nint                   window;
+    private  Wgpu?                  wgpu;
+    private  IRenderer?             renderer;
+    private  ExceptionDispatchInfo? callbackException;
+    // --- field for SDL3 input handling
+    private  GuiModule?             guiModule;
+    internal Vector2                dpiScale;
+    internal nint                   gamepad;
     
     public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
@@ -103,7 +104,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     
     private SDL.AppResult AppEvent(IntPtr appState, ref SDL.Event ev)
     {
-        try { return AppEvent(ref ev); }
+        try { return AppEvent(ev); }
         catch (Exception exception)   { return Capture(exception); }
     }
     
@@ -205,8 +206,8 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
-        wgpu.guiModule = wgpu.Device.GetGuiModule();  
-        wgpu.guiModule?.NewFrame();
+        guiModule = wgpu.Device.GetGuiModule();  
+        guiModule?.NewFrame();
         
         renderer?.OnFrame(target);
         
@@ -216,10 +217,9 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
         return SDL.AppResult.Continue;
     }
     
-    private SDL.AppResult AppEvent(ref SDL.Event ev)
+    private SDL.AppResult AppEvent(in SDL.Event ev)
     {
         var type = (SDL.EventType)ev.Type;
-        var guiModule = wgpu?.guiModule;
         switch (type)
         {
             case SDL.EventType.Quit:
@@ -232,28 +232,12 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
             case SDL.EventType.SystemThemeChanged:
                 SetWindowIconFromResource();
                 break;
-            case SDL.EventType.MouseMotion:     guiModule?.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMouse(ev)));  break;
-            case SDL.EventType.MouseButtonUp:   guiModule?.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMouse(ev)));  break;
-            case SDL.EventType.MouseButtonDown: guiModule?.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMouse(ev)));  break;
-            
-            case SDL.EventType.KeyDown:
-                var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
-                guiModule?.AddEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
-                break;
-            case SDL.EventType.KeyUp:
-                key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
-                guiModule?.AddEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
-                break;
-            
-            case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
-            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
-            case SDL.EventType.GamepadButtonUp:     guiModule?.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
-            case SDL.EventType.GamepadButtonDown:   guiModule?.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
+        }
+        if (guiModule != null) {
+            Sld3Input.HandleGuiInput(guiModule, this, ev);
         }
         return SDL.AppResult.Continue;
     }
-    
-    private Vector2 GetMouse(in SDL.Event ev) => new (dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
     
     private void Shutdown()
     {
@@ -267,10 +251,42 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
     }
 }
 
+
+// ------------------------ SDL3 input handling: keyboard, mouse & gamepad ------------------------
+internal static class Sld3Input
+{
+    internal static void HandleGuiInput(GuiModule guiModule, SdlWindow window, in SDL.Event ev)
+    {
+        var type = (SDL.EventType)ev.Type;
+        switch (type)
+        {
+            case SDL.EventType.MouseMotion:     guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMousePos(window, ev)));  break;
+            case SDL.EventType.MouseButtonUp:   guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMousePos(window, ev)));  break;
+            case SDL.EventType.MouseButtonDown: guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMousePos(window, ev)));  break;
+            
+            case SDL.EventType.KeyDown:
+                var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
+                guiModule.AddEvent(new ImEvent { type = ImEventType.KeyDown, key = key });
+                break;
+            case SDL.EventType.KeyUp:
+                key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
+                guiModule.AddEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
+                break;
+            
+            case SDL.EventType.GamepadAdded:        window.gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
+            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(window.gamepad);                      break;
+            case SDL.EventType.GamepadButtonUp:     guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
+            case SDL.EventType.GamepadButtonDown:   guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
+        }
+    }
+    
+    private static Vector2 GetMousePos(SdlWindow window, in SDL.Event ev) => new (window.dpiScale.X * ev.Button.X, window.dpiScale.Y * ev.Button.Y);
+}
+
 /// <summary>
 /// Only required to visualize window resize indicator with <see cref="Friflo.WGPU.ImDraw.GuiInput.CurrentCursor"/> .
 /// </summary>
-public static class Sdl3Cursor
+internal static class Sdl3Cursor
 {
     private static readonly Dictionary<MouseCursor, IntPtr> cursorCache         = new();
     private static          MouseCursor                     currentCursorType   = MouseCursor.Arrow;
