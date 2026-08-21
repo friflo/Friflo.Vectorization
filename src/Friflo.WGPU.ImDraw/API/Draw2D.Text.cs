@@ -242,20 +242,12 @@ public readonly ref partial struct Draw2D
     }
     
     /// <summary>
-    /// Helper method to create the line enumerator.
-    /// </summary>
-    public WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
-    {
-        font ??= batch.defaultFont;
-        return new WrappedLineEnumerator(text, maxWidth, font, scale);
-    }
-
-    /// <summary>
     /// Wraps text by inserting line breaks ('\n'). Allocates a new string.
     /// </summary>
     public string WrapText(ReadOnlySpan<char> text, float maxWidth, Font? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
+        font ??= batch.defaultFont;
 
         var sb = new StringBuilder(text.Length);
 
@@ -284,6 +276,14 @@ public readonly ref partial struct Draw2D
             lineCount++;
         }
         return lineCount;
+    }
+    
+    /// <summary>
+    /// Helper method to create the line enumerator.
+    /// </summary>
+    private static WrappedLineEnumerator GetWrappedLines(ReadOnlySpan<char> text, float maxWidth, Font font, float scale)
+    {
+        return new WrappedLineEnumerator(text, maxWidth, font, scale);
     }
 }
 

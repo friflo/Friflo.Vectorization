@@ -13,7 +13,7 @@ namespace Friflo.WGPU.ImDraw;
 /// <summary>
 /// Allocation-free enumerator that yields word-wrapped line spans.
 /// </summary>
-public ref struct WrappedLineEnumerator
+internal ref struct WrappedLineEnumerator
 {
     private readonly    ReadOnlySpan<char>  text;
     private readonly    float               maxWidth;
