@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-
+// ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -115,39 +115,39 @@ public readonly ref partial struct Draw2D
         float h = size.Y;
 
         // Top, Right, Bottom, Left edges
-        FillRect(new Vector2(x, y), new Vector2(w, thickness), color);
+        FillRect(new Vector2(x, y),                             new Vector2(w, thickness),                  color);
         FillRect(new Vector2(x + w - thickness, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
-        FillRect(new Vector2(x, y + h - thickness), new Vector2(w, thickness), color);
-        FillRect(new Vector2(x, y + thickness), new Vector2(thickness, h - thickness * 2f), color);
+        FillRect(new Vector2(x, y + h - thickness),             new Vector2(w, thickness),                  color);
+        FillRect(new Vector2(x, y + thickness),                 new Vector2(thickness, h - thickness * 2f), color);
     }
 
     /// <summary>
     /// Draws a filled rounded rectangle.
     /// </summary>
-    public void FillRectRounded(Vector2 position, Vector2 size, float cornerRadius, Color32 color, int cornerSegments = 8)
+    public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 8)
     {
-        if (cornerRadius <= 0f) {
+        if (radius <= 0f) {
             FillRect(position, size, color);
             return;
         }
 
-        cornerRadius = MathF.Min(cornerRadius, MathF.Min(size.X, size.Y) * 0.5f);
+        radius = MathF.Min(radius, MathF.Min(size.X, size.Y) * 0.5f);
 
         // Inner Cross (3 Quads)
-        FillRect(new Vector2(position.X + cornerRadius, position.Y), new Vector2(size.X - cornerRadius * 2f, size.Y), color);
-        FillRect(new Vector2(position.X, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
-        FillRect(new Vector2(position.X + size.X - cornerRadius, position.Y + cornerRadius), new Vector2(cornerRadius, size.Y - cornerRadius * 2f), color);
+        FillRect(new Vector2(position.X + radius, position.Y),                   new Vector2(size.X - radius * 2f, size.Y), color);
+        FillRect(new Vector2(position.X, position.Y + radius),                   new Vector2(radius, size.Y - radius * 2f), color);
+        FillRect(new Vector2(position.X + size.X - radius, position.Y + radius), new Vector2(radius, size.Y - radius * 2f), color);
 
         // 4 Corner Arcs
-        Vector2 tl = position + new Vector2(cornerRadius, cornerRadius);
-        Vector2 tr = position + new Vector2(size.X - cornerRadius, cornerRadius);
-        Vector2 br = position + new Vector2(size.X - cornerRadius, size.Y - cornerRadius);
-        Vector2 bl = position + new Vector2(cornerRadius, size.Y - cornerRadius);
+        Vector2 tl = position + new Vector2(radius,          radius);
+        Vector2 tr = position + new Vector2(size.X - radius, radius);
+        Vector2 br = position + new Vector2(size.X - radius, size.Y - radius);
+        Vector2 bl = position + new Vector2(radius,          size.Y - radius);
 
-        FillArc(tl, cornerRadius, MathF.PI, MathF.PI * 1.5f,      color, cornerSegments);
-        FillArc(tr, cornerRadius, MathF.PI * 1.5f, MathF.PI * 2f, color, cornerSegments);
-        FillArc(br, cornerRadius, 0f, MathF.PI * 0.5f,            color, cornerSegments);
-        FillArc(bl, cornerRadius, MathF.PI * 0.5f, MathF.PI,      color, cornerSegments);
+        FillArc(tl, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
+        FillArc(tr, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
+        FillArc(br, radius, 0f,              MathF.PI * 0.5f,   color, segments);
+        FillArc(bl, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
     }
 
     public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
