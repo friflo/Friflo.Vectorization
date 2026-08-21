@@ -66,14 +66,15 @@ public class Wgpu
 
 public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
 {
-    private  nint                   window;
-    private  Wgpu?                  wgpu;
-    private  IRenderer?             renderer;
-    private  ExceptionDispatchInfo? callbackException;
-    // --- field for SDL3 input handling
-    private  GuiModule?             guiModule;
-    internal Vector2                dpiScale;
-    internal nint                   gamepad;
+    private             nint                   window;
+    private             Wgpu?                  wgpu;
+    private             IRenderer?             renderer;
+    private             ExceptionDispatchInfo? callbackException;
+    
+    // --- fields for SDL3 input handling
+    private readonly    Sld3Input               sdlInput = new();
+    private             GuiModule?              guiModule;
+    private             Vector2                 dpiScale;
     
     public static int Run(string title, int width, int height, Func<Wgpu, IRenderer> createRenderer)
     {
@@ -234,7 +235,7 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
                 break;
         }
         if (guiModule != null) {
-            Sld3Input.HandleGuiInput(guiModule, this, ev);
+            sdlInput.HandleGuiInput(guiModule, ev, dpiScale);
         }
         return SDL.AppResult.Continue;
     }
@@ -253,16 +254,21 @@ public class SdlWindow(string title, int width, int height, Func<Wgpu, IRenderer
 
 
 // ------------------------ SDL3 input handling: keyboard, mouse & gamepad ------------------------
-internal static class Sld3Input
+internal class Sld3Input
 {
-    internal static void HandleGuiInput(GuiModule guiModule, SdlWindow window, in SDL.Event ev)
+    private nint gamepad;
+
+    /// <summary>
+    /// Use <c> dpiScale = new Vector2(1, 1 </c> is not available.
+    /// </summary>
+    internal void HandleGuiInput(GuiModule guiModule, in SDL.Event ev, Vector2 dpiScale)
     {
         var type = (SDL.EventType)ev.Type;
         switch (type)
         {
-            case SDL.EventType.MouseMotion:     guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMousePos(window, ev)));  break;
-            case SDL.EventType.MouseButtonUp:   guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMousePos(window, ev)));  break;
-            case SDL.EventType.MouseButtonDown: guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMousePos(window, ev)));  break;
+            case SDL.EventType.MouseMotion:     guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion,     GetMousePos(dpiScale, ev)));  break;
+            case SDL.EventType.MouseButtonUp:   guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp,   GetMousePos(dpiScale, ev)));  break;
+            case SDL.EventType.MouseButtonDown: guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, GetMousePos(dpiScale, ev)));  break;
             
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
@@ -273,14 +279,14 @@ internal static class Sld3Input
                 guiModule.AddEvent(new ImEvent { type = ImEventType.KeyUp, key = key });
                 break;
             
-            case SDL.EventType.GamepadAdded:        window.gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
-            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(window.gamepad);                      break;
+            case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
+            case SDL.EventType.GamepadRemoved:      SDL.CloseGamepad(gamepad);                      break;
             case SDL.EventType.GamepadButtonUp:     guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false)); break;
             case SDL.EventType.GamepadButtonDown:   guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));  break;
         }
     }
     
-    private static Vector2 GetMousePos(SdlWindow window, in SDL.Event ev) => new (window.dpiScale.X * ev.Button.X, window.dpiScale.Y * ev.Button.Y);
+    private static Vector2 GetMousePos(Vector2 dpiScale, in SDL.Event ev) => new (dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
 }
 
 /// <summary>
