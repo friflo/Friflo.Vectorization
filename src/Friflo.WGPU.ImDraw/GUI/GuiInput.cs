@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
@@ -58,6 +60,7 @@ public sealed class GuiInput
     private             int                     totalFocusablesLastFrame;
     private             int                     currentFocusIndex = -1;
     private             int                     targetFocusIndex = -1;
+    private             int                     frameCount;
     
     public              MouseCursor             CurrentCursor { get; private set; } = MouseCursor.Arrow;
 
@@ -141,10 +144,20 @@ public sealed class GuiInput
         return WidgetState.None;
     }
     
+    [DoesNotReturn]
+    private static void ThrowMissingCallNewFrame()
+    {
+        const string msg = "Missing GuiInput.NewFrame() call before BeginGui(). E.g. wgpuHost.Device.GetGuiModule()?.NewFrame();";
+        throw new InvalidOperationException(msg);
+    }
+    
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
     public bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
     {
+        if (frameCount == 0) {
+            ThrowMissingCallNewFrame();
+        }
         int myIndex = focusableCounter++;
         currentFocusables.Add(new FocusableEntry { id = widgetId, center = center });
         gainedFocus = false;
@@ -275,6 +288,7 @@ public sealed class GuiInput
     
     internal void NewFrame()
     {
+        frameCount++;
         CurrentCursor = MouseCursor.Arrow;
         
         MouseDelta  = Mouse - mouseLast;
