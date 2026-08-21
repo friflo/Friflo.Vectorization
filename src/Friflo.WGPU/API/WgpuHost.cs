@@ -4,7 +4,9 @@
 using System;
 using System.Numerics;
 using Friflo.GPU;
+using Friflo.WGPU.Runtime;
 
+// ReSharper disable UnassignedField.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable UnusedMember.Global
@@ -12,6 +14,16 @@ using Friflo.GPU;
 // ReSharper disable ConvertToConstant.Global
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU;
+
+public class WgpuHostOptions
+{
+    public InstanceExtras           instanceExtras;
+    /// <summary> For different backend set <see cref="GpuRequestAdapterOptions.backendType"/>. E.g. <c>D3D12</c> </summary>
+    public GpuRequestAdapterOptions adapterOptions;
+    public DeviceDescriptor         deviceDescriptor;
+    public bool                     useNonSrgb          = true;
+    public int                      uniformBufferSize   = 64 * 1024;
+}
 
 
 public class WgpuHost
@@ -32,15 +44,17 @@ public class WgpuHost
     public              Vector2             DpiScale    { get; private set; }
 
     
-    public WgpuHost(nint osHandle, nint osInstance)
+    public WgpuHost(nint osHandle, nint osInstance, WgpuHostOptions options = null)
     {
-        Instance    = WgpuInstance.CreateInstance();
+        options   ??= new WgpuHostOptions();
+        Instance    = WgpuInstance.CreateInstance(options.instanceExtras);
         Surface     = WgpuSurface.CreateFromNativeWindow(Instance, osHandle, osInstance);
-        Adapter     = Instance.RequestAdapter(default); // specific backend: new GpuRequestAdapterOptions { backendType = BackendType.D3D12 }
-        Device      = Adapter.CreateDevice("Wgpu.Device");
+        var adapter = Instance.RequestAdapter(options.adapterOptions);
+        Adapter     = adapter;
+        Device      = adapter.CreateWgpuDevice("Wgpu.Device", options.deviceDescriptor, options.uniformBufferSize);
         Context     = Device.BeginContext();
         
-        var fragmentState   = Surface.GetPreferredFragmentState(Adapter, true, out var alphaMode);
+        var fragmentState   = Surface.GetPreferredFragmentState(Adapter, options.useNonSrgb, out var alphaMode);
         AlphaMode           = alphaMode;
         SwapChainFormat     = fragmentState.targets[0].format;
         var desc            = new GpuRenderPipelineDescriptor { FragmentState = fragmentState };

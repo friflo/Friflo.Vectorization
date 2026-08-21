@@ -69,8 +69,13 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var devicePtr = (Device**)userdata1;
         *devicePtr = device;
     }
-
+    
     public override WgpuDevice CreateDevice(string label, int uniformBufferSize = 64 * 1024)
+    {
+        return CreateWgpuDevice(label, default, uniformBufferSize);
+    }
+
+    public WgpuDevice CreateWgpuDevice(string label, DeviceDescriptor deviceDescriptor, int uniformBufferSize)
     {
 		Device* device = null;
         int     labelMaxCount   = WgpuUtils.GetMaxCount(label);
@@ -80,7 +85,7 @@ public sealed unsafe class WgpuAdapter : GpuAdapter
         var errorHandler    = new WgpuErrorHandler();
         var errorHandle     = GCHandle.Alloc(errorHandler);
         
-		var deviceDesc = new DeviceDescriptor {
+		var deviceDesc = deviceDescriptor with {
 			label = WgpuUtils.FromPtrLength(labelBuffer, len),
             uncapturedErrorCallbackInfo = new UncapturedErrorCallbackInfo {
                 callback = &UncapturedError_callback,
