@@ -9,18 +9,18 @@ using System.Text;
 namespace Friflo.WGPU.ImDraw;
 
 
-internal static class StringBuilderExtensions
+public static class StringBuilderExtensions
 {
     extension (StringBuilder builder)
     {
-        public ReadOnlySpan<char> Span
-        { get {
+        public ReadOnlySpan<char> Span()
+        {
             var enumerator = builder.GetChunks();
             if (!enumerator.MoveNext()) {
                 return default;
             }
             return enumerator.Current.Span;
-        } }
+        }
         
         public StringBuilder AppendFormat(float value, ReadOnlySpan<char> format)
         {

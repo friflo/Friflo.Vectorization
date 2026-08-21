@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Text;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 using NUnit.Framework;
 using StbImageWriteSharp;
 
-
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable SuggestVarOrType_SimpleTypes
+// ReSharper disable UnusedMember.Local
 // ReSharper disable once InconsistentNaming
 namespace Tests.ImDraw;
 
@@ -35,6 +37,20 @@ public static class Tests_ImDraw
         
         style.color.ClearOverrides();
         Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
+    }
+    
+    private static void Ensure_public_API(DrawGui gui)
+    {
+        StringBuilder sb = gui.StringBuilder();
+        ReadOnlySpan<char> _ = sb.Span(); // ensure StringBuilderExtensions is public
+    }
+    
+    [Test]
+    public static void Tests_ImDraw_StringBuilderExtensions()
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat(123.456f, "F1");
+        Assert.That(sb.ToString(), Is.EqualTo("123,5"));
     }
     
     

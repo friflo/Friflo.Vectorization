@@ -18,18 +18,18 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct DrawGui : IDisposable
 {
-    public  readonly    Draw2D      draw;           // 16 bytes
-    public  readonly    GuiInput    input;          //  8 bytes
-    private readonly    GuiState    guiState;       //  8 bytes
-    private readonly    GuiStyle    currentStyle;   //  8 bytes
+    public  readonly    Draw2D          draw;           // 16 bytes
+    public  readonly    GuiInput        input;          //  8 bytes
+    private readonly    GuiState        guiState;       //  8 bytes
+    private readonly    GuiStyle        currentStyle;   //  8 bytes
     
-    public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref currentStyle.color; }
-    public              GuiWindow   Window      { [DebuggerStepThrough] get => guiState.window; }
-    public              float       LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
-    private             Gui         Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
+    public ref readonly GuiColor        Color       { [DebuggerStepThrough] get => ref currentStyle.color; }
+    public              GuiWindow       Window      { [DebuggerStepThrough] get => guiState.window; }
+    public              float           LineHeight  { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    private             Gui             Gui         { [DebuggerStepThrough] get => draw.batch.gui; }
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
-    private             StringBuilder   StringBuilder() => draw.batch.StringBuilder();
+    public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
@@ -280,7 +280,7 @@ public readonly ref struct DrawGui : IDisposable
             draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
-        draw.DrawTextInRect(labelText.Span, window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
+        draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
         if (style != null) PopStyle();
