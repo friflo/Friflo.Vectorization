@@ -105,31 +105,31 @@ public struct Color32 : IEquatable<Color32>
 
     // Presets
     // --- Special ---
-    public static Color32 Transparent      => new(0, 0, 0, 0);
+    public static readonly  Color32 Transparent      = new(0, 0, 0, 0);
     
     // --- Basic Grayscale ---
-    public static Color32 Black            => new(  0,   0,   0);
-    public static Color32 DarkGray         => new( 64,  64,  64);
-    public static Color32 Gray             => new(128, 128, 128);
-    public static Color32 LightGray        => new(192, 192, 192);
-    public static Color32 White            => new(255, 255, 255);
+    public static readonly  Color32 Black            = new(  0,   0,   0);
+    public static readonly  Color32 DarkGray         = new( 64,  64,  64);
+    public static readonly  Color32 Gray             = new(128, 128, 128);
+    public static readonly  Color32 LightGray        = new(192, 192, 192);
+    public static readonly  Color32 White            = new(255, 255, 255);
     
     // --- Primaries & Secondaries ---
-    public static Color32 Red              => new(255,   0,   0);
-    public static Color32 Green            => new(  0, 255,   0);
-    public static Color32 Blue             => new(  0,   0, 255);
-    public static Color32 Yellow           => new(255, 255,   0);
-    public static Color32 Cyan             => new(  0, 255, 255);
-    public static Color32 Magenta          => new(255,   0, 255);
+    public static readonly  Color32 Red              = new(255,   0,   0);
+    public static readonly  Color32 Green            = new(  0, 255,   0);
+    public static readonly  Color32 Blue             = new(  0,   0, 255);
+    public static readonly  Color32 Yellow           = new(255, 255,   0);
+    public static readonly  Color32 Cyan             = new(  0, 255, 255);
+    public static readonly  Color32 Magenta          = new(255,   0, 255);
     
     // --- Game Dev & UI Classics ---
-    public static Color32 Orange           => new(255, 165,   0);
-    public static Color32 Lime             => new( 50, 205,  50);
-    public static Color32 CornflowerBlue   => new(100, 149, 237); // XNA/MonoGame
-    public static Color32 Purple           => new(128,   0, 128);
-    public static Color32 Pink             => new(255, 192, 203);
-    public static Color32 Gold             => new(255, 215,   0);
-    public static Color32 Teal             => new(  0, 128, 128);
-    public static Color32 Navy             => new(  0,   0, 128);
-    public static Color32 Crimson          => new(220,  20,  60);
+    public static readonly  Color32 Orange           = new(255, 165,   0);
+    public static readonly  Color32 Lime             = new( 50, 205,  50);
+    public static readonly  Color32 CornflowerBlue   = new(100, 149, 237); // XNA/MonoGame
+    public static readonly  Color32 Purple           = new(128,   0, 128);
+    public static readonly  Color32 Pink             = new(255, 192, 203);
+    public static readonly  Color32 Gold             = new(255, 215,   0);
+    public static readonly  Color32 Teal             = new(  0, 128, 128);
+    public static readonly  Color32 Navy             = new(  0,   0, 128);
+    public static readonly  Color32 Crimson          = new(220,  20,  60);
 }
