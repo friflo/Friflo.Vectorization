@@ -172,10 +172,8 @@ public readonly ref struct DrawGui : IDisposable
         draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
 
         if (isFocused) {
-            var focusColor = Color.FocusColor;
-            draw.StrokeRect(window.Cursor, size, 4, focusColor);
+            draw.StrokeRect(window.Cursor, size, 4, Color.FocusColor);
         }
-
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
         
         window.MoveCursor(size);
@@ -220,8 +218,7 @@ public readonly ref struct DrawGui : IDisposable
 
         // Render blue focus outline on box
         if (isFocused) {
-            var focusColor = Color.FocusColor;
-            draw.StrokeRect(boxRect, new Vector2(boxSize, boxSize), 4, focusColor);
+            draw.StrokeRect(boxRect, new Vector2(boxSize, boxSize), 4, Color.FocusColor);
         }
         if (value) {
             var padding = boxSize / 6;
@@ -280,8 +277,7 @@ public readonly ref struct DrawGui : IDisposable
 
         // Render blue focus outline
         if (isFocused) {
-            var focusColor = Color.FocusColor;
-            draw.StrokeRect(window.Cursor, totalSize, 4, focusColor);
+            draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
         }
         var labelText = StringBuilder().AppendFormat(value, format);
         draw.DrawTextInRect(labelText.Span, window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
@@ -324,9 +320,8 @@ public readonly ref struct DrawGui : IDisposable
     public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
     {
         if (!isFocused) return;
-        var focusColor  = Color.FocusColor;
-        var offset      = new Vector2(margin, margin);
-        draw.StrokeRect(pos - offset, size + 2f * offset, 4, focusColor);
+        var offset = new Vector2(margin, margin);
+        draw.StrokeRect(pos - offset, size + 2f * offset, 4, Color.FocusColor);
     }
 
 #endregion

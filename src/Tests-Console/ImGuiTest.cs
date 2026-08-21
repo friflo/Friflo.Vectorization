@@ -148,8 +148,8 @@ public static class GuiExtensions
         var isHover = window.IsHoverAtCursor(size, draw);
 
         // Calculate widget center & register for 1D/2D navigation
-        var center = window.Cursor + size * 0.5f;
-        var isFocused = gui.input.RegisterFocusable(widgetId, center, out _);
+        var center      = window.Cursor + size * 0.5f;
+        var isFocused   = gui.input.RegisterFocusable(widgetId, center, out _);
 
         var widgetState = gui.input.GetWidgetState(isHover, widgetId);
         
@@ -162,10 +162,8 @@ public static class GuiExtensions
         draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
 
         if (isFocused) {
-            var focusColor = gui.Color.FocusColor;
-            draw.StrokeRect(window.Cursor, size, 4, focusColor);
+            draw.StrokeRect(window.Cursor, size, 4, gui.Color.FocusColor);
         }
-
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, gui.Color.ButtonText);
         
         window.MoveCursor(size);
