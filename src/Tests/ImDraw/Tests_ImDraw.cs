@@ -114,7 +114,7 @@ public static class Tests_ImDraw
             
             _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
             _ = gui.LineHeight;                 // Ensures LineHeight is available
-            gui.draw.Dispose();         // redundant - only for debugging
+            gui.Draw.Dispose();         		// redundant - only for debugging
         }
         
         var targetMemory = new byte[width * height * 4];

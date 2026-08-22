@@ -19,8 +19,8 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct Gui : IDisposable
 {
-    public readonly GuiWidget   widget;
-    public          Draw2D      draw        => widget.draw;
+    public readonly GuiWidget   widget;     // 40 bytes
+    public          Draw2D      Draw        => widget.draw;
     public          float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
     internal Gui(Draw2D draw, Batch2D batch) {

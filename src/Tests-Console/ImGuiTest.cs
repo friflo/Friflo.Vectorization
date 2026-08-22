@@ -116,13 +116,13 @@ public class ImGuiRenderer : IRenderer
             var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
             var srcSize = new Vector2(64, 64);          // 64x64 Tile
             if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
-            gui.draw.DrawSpriteRegion(myTextureView, spritePos, srcSize, srcPos, srcSize, new Vector2(1024, 1024));
+            gui.Draw.DrawSpriteRegion(myTextureView, spritePos, srcSize, srcPos, srcSize, new Vector2(1024, 1024));
             gui.DrawFocusRect(spritePos, srcSize, isFocused);
         }
         
         if (mouseCircle) {
-            using (gui.draw.PushZIndex(10)) {
-                gui.draw.StrokeCircle(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+            using (gui.Draw.PushZIndex(10)) {
+                gui.Draw.StrokeCircle(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
     }
@@ -134,7 +134,7 @@ public static class GuiExtensions
     public static bool MyButton(this in Gui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
     {
         var widget  = gui.widget;
-        var draw    = gui.draw;
+        var draw    = gui.Draw;
         var window  = widget.Window;
         if (style != null) gui.PushStyle(style);
         
