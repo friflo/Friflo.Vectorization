@@ -131,7 +131,7 @@ public class ImGuiRenderer : IRenderer
 
 public static class GuiExtensions
 {
-    public static bool MyButton(this in DrawGui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+    public static bool MyButton(this in Gui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
     {
         var widget  = gui.widget;
         var draw    = gui.draw;

@@ -17,13 +17,13 @@ using System.Text;
 namespace Friflo.WGPU.ImDraw;
 
 
-public readonly ref struct DrawGui : IDisposable
+public readonly ref struct Gui : IDisposable
 {
     public readonly GuiWidget   widget;
     public          Draw2D      draw        => widget.draw;
     public          float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
-    internal DrawGui(Draw2D draw, Batch2D batch) {
+    internal Gui(Draw2D draw, Batch2D batch) {
         widget = new GuiWidget(draw, batch);
     }
     

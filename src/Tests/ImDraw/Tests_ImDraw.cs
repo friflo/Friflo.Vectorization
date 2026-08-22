@@ -40,7 +40,7 @@ public static class Tests_ImDraw
         Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
     }
     
-    private static void Ensure_public_API(DrawGui gui)
+    private static void Ensure_public_API(Gui gui)
     {
         StringBuilder sb = gui.widget.StringBuilder();
         ReadOnlySpan<char> _ = sb.Span(); // ensure StringBuilderExtensions is public

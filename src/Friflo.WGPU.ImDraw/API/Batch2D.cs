@@ -207,7 +207,7 @@ public sealed partial class Batch2D : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
-    public DrawGui BeginGui(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
+    public Gui BeginGui(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
         var draw = BeginDraw2D(target, descriptor);
         return draw.BeginGui();

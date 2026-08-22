@@ -255,7 +255,7 @@ public readonly ref partial struct Draw2D : IDisposable
         segments.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
     }
     
-    public DrawGui BeginGui() => new(this, batch);
+    public Gui BeginGui() => new(this, batch);
 #endregion
 }
 
