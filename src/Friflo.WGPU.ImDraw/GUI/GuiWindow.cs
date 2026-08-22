@@ -113,15 +113,16 @@ public sealed class GuiWindow
         layoutStack.Push(currentLayout);
     }
 
-    internal void PopLayout()
+    internal Vector2 PopLayout()
     {
         if (layoutStack.Count > 1) {
-            currentLayout = layoutStack.Pop();
-            cursor = currentLayout.startCursor;
-            MoveCursor(currentLayout.maxSize);
-        } else {
-            currentLayout = default;
+            var finishedLayout = layoutStack.Pop();
+            currentLayout = layoutStack.Peek();
+            cursor = finishedLayout.startCursor;
+            return finishedLayout.maxSize; // accumulated Bounding-Box of finished layout
         }
+        currentLayout = default;
+        return Vector2.Zero;
     }
     
     internal void SetCursor(Vector2 value)

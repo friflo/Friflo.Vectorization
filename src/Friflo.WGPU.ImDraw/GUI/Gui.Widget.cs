@@ -150,27 +150,34 @@ public readonly ref struct GuiWidget
         window.PushScope(childId);
 
         var availableSize = window.size - (parentStartCursor - window.pos);
-        var finalSize = new Vector2(
+        
+        var initialClipSize = new Vector2(
             size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
             size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
         );
-        draw.PushScissor(parentStartCursor, finalSize);
+        draw.PushScissor(parentStartCursor, initialClipSize);
         
         window.SetCursor(parentStartCursor + new Vector2(5f, 5f)); // inner cursor + padding
         window.PushLayout(LayoutDirection.Vertical);
-        return new ChildScope(this, parentStartCursor, finalSize);
+        return new ChildScope(this, parentStartCursor, size);
     }
     
-    internal void EndChild(Vector2 parentStartCursor, Vector2 childSize)
+    internal void EndChild(Vector2 parentStartCursor, Vector2 requestedSize)
     {
         var window = Window;
+        var padding = new Vector2(5f, 5f);
+        Vector2 contentSize = window.PopLayout(); // returns accumulated bounding box of inner widgets
 
-        window.PopLayout();
         draw.PopScissor();
         window.PopScope();
 
+        // Dynamic Auto-Fit: if requestedSize <= 0, use measured Content + Padding
+        Vector2 finalChildSize = new Vector2(
+            requestedSize.X > 0f ? requestedSize.X : contentSize.X + (padding.X * 2f),
+            requestedSize.Y > 0f ? requestedSize.Y : contentSize.Y + (padding.Y * 2f)
+        );
         window.SetCursor(parentStartCursor);
-        window.MoveCursor(childSize);
+        window.MoveCursor(finalChildSize);
     }
 #endregion
 

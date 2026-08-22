@@ -101,9 +101,9 @@ public class ImGuiRenderer : IRenderer
             
             using (gui.BeginHorizontal()) {
                 if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
-                gui.Spacer(15);
+                gui.Spacer(10);
                 if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
-                gui.Spacer(15);
+                gui.Spacer(10);
                 if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
             }
         }
@@ -117,13 +117,18 @@ public class ImGuiRenderer : IRenderer
                 var tint = gui.Color.ButtonState(space.widgetState);
                 gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
             }
-            
-            using (gui.BeginChild(123, new Vector2(250, 130))) {
+            gui.Spacer();
+            gui.Label("fixed child");
+            using (gui.BeginChild(1, new Vector2(250, 80))) {
                 gui.Button("Button 1 clipped");
                 gui.Button("Button 2 clipped");
-                gui.Button("Button 3 clipped");
             }
-            gui.Button("After Child");
+            gui.Spacer();
+            gui.Label("auto-fit child");
+            using (gui.BeginChild(2, new Vector2(0, 0))) {
+                gui.Button("Button 1 unclipped");
+                gui.Button("Button 2 unclipped");
+            }
         }
         
         if (mouseCircle) {
