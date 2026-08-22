@@ -96,7 +96,7 @@ public class ImGuiRenderer : IRenderer
                 }
             }
             gui.Label("");
-            if (gui.Slider(200, "Volume", ref volume, "F1", 0f, 1f)) Console.WriteLine($"Volume: changed");
+            if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
             gui.Label("");
             
             using (gui.BeginHorizontal()) {

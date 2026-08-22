@@ -35,8 +35,8 @@ public readonly ref struct Gui : IDisposable
     public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
         => widget.Checkbox(name, ref value, style, id);
     
-    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
-        => widget.Slider(width, name, ref value, format, min, max, style, id);
+    public bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width = 0, ReadOnlySpan<char> format = default, GuiStyle? style = null, WidgetID id = default)
+        => widget.Slider(name, ref value, min, max, width, format, style, id);
     
     public bool ReserveSpace(out Vector2 pos, Vector2 size, out bool isFocused, out WidgetState widgetState, WidgetID id = default)
         => widget.ReserveSpace(out pos, size, out isFocused, out widgetState, id);

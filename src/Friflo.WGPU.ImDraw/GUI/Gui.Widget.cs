@@ -233,7 +233,7 @@ public readonly ref struct GuiWidget
         return clicked;
     }
     
-    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style, WidgetID id)
+    public bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
         var window      = Window;
         if (style != null) PushStyle(style);
@@ -279,7 +279,7 @@ public readonly ref struct GuiWidget
         if (isFocused) {
             draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
         }
-        var labelText = StringBuilder().AppendFloat(value, format, FormatProvider);
+        var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
         draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
