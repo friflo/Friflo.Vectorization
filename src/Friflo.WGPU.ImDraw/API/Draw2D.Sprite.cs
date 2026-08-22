@@ -27,6 +27,12 @@ public readonly ref partial struct Draw2D
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Color32 color)
+    {
+        DrawSprite(texture, position, size, default, new Vector2(1f, 1f), color);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax)
     {
         DrawSprite(texture, position, size, uvMin, uvMax, Color32.White);

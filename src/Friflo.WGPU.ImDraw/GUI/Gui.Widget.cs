@@ -51,6 +51,15 @@ public readonly ref struct GuiWidget
         return WidgetState.None;
     }
     
+    public Color32 ButtonStateColor(WidgetState widgetState)
+    {
+        return widgetState switch {
+            WidgetState.Down    => Color.ButtonDown,
+            WidgetState.Hover   => Color.ButtonHover,
+            _                   => Color.ButtonColor
+        };
+    }
+    
     internal GuiWidget(Draw2D draw, Batch2D batch) {
         this.draw       = draw;
         input           = batch.input;
@@ -105,11 +114,7 @@ public readonly ref struct GuiWidget
         // Render background & titlebar
         draw.FillRectRounded(window.pos, window.size, 8, Color.WindowColor);
 
-        var headerColor = titleState switch {
-            WidgetState.Hover   => Color.ButtonHover,
-            WidgetState.Down    => Color.ButtonDown,
-            _                   => Color.ButtonColor
-        };
+        var headerColor = ButtonStateColor(titleState);
         draw.FillRectRounded(window.pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
@@ -170,11 +175,7 @@ public readonly ref struct GuiWidget
 
         var widgetState = GetWidgetState(isHover, widgetId);
         
-        var buttonColor = widgetState switch {
-            WidgetState.Down    => Color.ButtonDown,
-            WidgetState.Hover   => Color.ButtonHover,
-            _                   => Color.ButtonColor
-        };
+        var buttonColor = ButtonStateColor(widgetState);
         // Render button background
         draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
 
@@ -215,11 +216,7 @@ public readonly ref struct GuiWidget
         if (clicked) {
             value = !value;
         }
-        var boxColor = widgetState switch {
-            WidgetState.Down    => Color.ButtonDown,
-            WidgetState.Hover   => Color.ButtonHover,
-            _                   => Color.ButtonColor
-        };
+        var boxColor = ButtonStateColor(widgetState);
         var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - boxSize) / 2f);
         draw.FillRectRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
 
@@ -269,11 +266,7 @@ public readonly ref struct GuiWidget
                 changed = true;
             }
         }
-        var slideBg = widgetState switch {
-            WidgetState.Down    => Color.ButtonDown,
-            WidgetState.Hover   => Color.ButtonHover,
-            _                   => Color.SliderColor
-        };
+        var slideBg = ButtonStateColor(widgetState);
         draw.FillRectRounded(window.Cursor, totalSize, 6, slideBg);
 
         // Fill bar
