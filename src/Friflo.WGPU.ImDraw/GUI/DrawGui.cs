@@ -19,6 +19,54 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct DrawGui : IDisposable
 {
+    public readonly GuiWidget   widget;
+    public          Draw2D      draw => widget.draw;
+    
+    internal DrawGui(Draw2D draw, Batch2D batch) {
+        widget = new GuiWidget(draw, batch);
+    }
+    
+    public void Dispose() {
+        widget.draw.Dispose();
+    }
+    
+    public void SetNextWindowPos(Vector2 position)  => widget.SetNextWindowPos(position);
+    public void SetNextWindowSize(Vector2 size)     => widget.SetNextWindowSize(size);
+    
+    public WindowScope  BeginWindow(string title)   => widget.BeginWindow(title);
+    public void         EndWindow()                 => widget.EndWindow();
+    
+    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
+        => widget.Label(name, textColor);
+    
+    public bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+        => widget.Button(name, style, id);
+    
+    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
+        => widget.Checkbox(name, ref value, style, id);
+    
+    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
+        => widget.Slider(width, name, ref value, format, min, max, style, id);
+    
+    public bool ReserveSpace(out Vector2 pos, Vector2 size, out bool isFocused, out WidgetState widgetState, WidgetID id = default)
+        => widget.ReserveSpace(out pos, size, out isFocused, out widgetState, id);
+    
+    public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
+        => widget.DrawFocusRect(pos, size, isFocused, margin);
+    
+    public StyleScope       PushStyle(GuiStyle style)   => widget.PushStyle(style);
+    public void             PopStyle()                  => widget.PopStyle();
+    
+    public VerticalScope    BeginVertical()             => widget.BeginVertical();
+    public void             EndVertical()               => widget.EndVertical();
+    
+    public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
+    public void             EndHorizontal()             => widget.EndHorizontal();
+}
+    
+
+public readonly ref struct GuiWidget
+{
     public  readonly    Draw2D          draw;           // 16 bytes
     public  readonly    GuiInput        input;          //  8 bytes
     private readonly    GuiState        guiState;       //  8 bytes
@@ -51,19 +99,13 @@ public readonly ref struct DrawGui : IDisposable
         
     }
     
-    internal DrawGui(Draw2D draw, Batch2D batch) {
+    internal GuiWidget(Draw2D draw, Batch2D batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;
         guiState.SetFrameCount(input.FrameCount);
         currentStyle    = guiState.currentStyle;
     }
-    
-    public void Dispose()
-    {
-        draw.Dispose();
-    }
-
 #region Window
 
 
@@ -156,7 +198,7 @@ public readonly ref struct DrawGui : IDisposable
 
 #region Widgets
 
-    public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
+    public void Label(ReadOnlySpan<char> name, Color32 textColor)
     {
         var window = Window;
         if (textColor.Packed == 0) textColor = Color.TextColor;
@@ -166,7 +208,7 @@ public readonly ref struct DrawGui : IDisposable
         window.MoveCursor(size);
     }
     
-    public bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
+    public bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -204,7 +246,7 @@ public readonly ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
     
-    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
+    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -253,7 +295,7 @@ public readonly ref struct DrawGui : IDisposable
         return clicked;
     }
     
-    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style = null, WidgetID id = default)
+    public bool Slider(float width, ReadOnlySpan<char> name, ref float value, ReadOnlySpan<char> format, float min, float max, GuiStyle? style, WidgetID id)
     {
         var window      = Window;
         if (style != null) PushStyle(style);
@@ -313,7 +355,7 @@ public readonly ref struct DrawGui : IDisposable
             Vector2     size,
         out bool        isFocused,
         out WidgetState widgetState,
-            WidgetID    id          = default)
+            WidgetID    id)
     {
         var window  = Window;
         pos         = window.Cursor;
@@ -337,7 +379,7 @@ public readonly ref struct DrawGui : IDisposable
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
 
-    public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
+    public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin)
     {
         if (!isFocused) return;
         var offset = new Vector2(margin, margin);

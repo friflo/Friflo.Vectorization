@@ -133,8 +133,9 @@ public static class GuiExtensions
 {
     public static bool MyButton(this in DrawGui gui, ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
     {
+        var widget  = gui.widget;
         var draw    = gui.draw;
-        var window  = gui.Window;
+        var window  = widget.Window;
         if (style != null) gui.PushStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
@@ -145,28 +146,28 @@ public static class GuiExtensions
 
         // Calculate widget center & register for 1D/2D navigation
         var center      = window.Cursor + size * 0.5f;
-        var isFocused   = gui.RegisterFocusable(widgetId, center, out _);
+        var isFocused   = widget.RegisterFocusable(widgetId, center, out _);
 
-        var widgetState = gui.GetWidgetState(isHover, widgetId);
+        var widgetState = widget.GetWidgetState(isHover, widgetId);
         
         var buttonColor = widgetState switch {
-            WidgetState.Down    => gui.Color.ButtonDown,
-            WidgetState.Hover   => gui.Color.ButtonHover,
-            _                   => gui.Color.ButtonColor
+            WidgetState.Down    => widget.Color.ButtonDown,
+            WidgetState.Hover   => widget.Color.ButtonHover,
+            _                   => widget.Color.ButtonColor
         };
         // Render button background
         draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
 
         if (isFocused) {
-            draw.StrokeRect(window.Cursor, size, 4, gui.Color.FocusColor);
+            draw.StrokeRect(window.Cursor, size, 4, widget.Color.FocusColor);
         }
-        draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, gui.Color.ButtonText);
+        draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
         
         window.MoveCursor(size);
         
         if (style != null) gui.PopStyle();
         // Trigger click via mouse or keyboard (Enter/Space when focused)
-        var isKeySubmitted = isFocused && gui.input.IsSubmitPressed;
+        var isKeySubmitted = isFocused && widget.input.IsSubmitPressed;
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
 }

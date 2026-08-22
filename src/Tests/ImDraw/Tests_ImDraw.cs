@@ -42,7 +42,7 @@ public static class Tests_ImDraw
     
     private static void Ensure_public_API(DrawGui gui)
     {
-        StringBuilder sb = gui.StringBuilder();
+        StringBuilder sb = gui.widget.StringBuilder();
         ReadOnlySpan<char> _ = sb.Span(); // ensure StringBuilderExtensions is public
     }
     
@@ -112,7 +112,7 @@ public static class Tests_ImDraw
             gui.Button("test");
             gui.EndWindow();
             
-            _ = gui.Color.ButtonColor;  // Ensures Color is available
+            _ = gui.widget.Color.ButtonColor;  // Ensures Color is available
             gui.draw.Dispose();         // redundant - only for debugging
         }
         

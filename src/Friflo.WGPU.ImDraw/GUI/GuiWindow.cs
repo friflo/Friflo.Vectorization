@@ -159,7 +159,7 @@ public sealed class GuiWindow
     
 #region resize
 
-    internal bool ProcessResize(in DrawGui drawGui, int resizeId, float border = 6f)
+    internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 6f)
     {
         var input = drawGui.input;
         ResizeEdge hoverEdge = GetResizeEdge(input.Mouse, border);
