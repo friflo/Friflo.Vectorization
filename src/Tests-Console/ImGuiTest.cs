@@ -3,6 +3,7 @@ using System.Numerics;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 
+// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable UnusedVariable
 // ReSharper disable MemberCanBePrivate.Global
@@ -75,7 +76,7 @@ public class ImGuiRenderer : IRenderer
         
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
-        using (gui.BeginWindow("Window 1", new Vector2(100, 20), new Vector2(500, 700))) {
+        using (gui.BeginWindow("Window 1", new(100, 20), new(500, 700))) {
             gui.Label("hello GUI");
             gui.Label("");
             using (gui.PushStyle(greenButtonStyle)) {
@@ -105,14 +106,14 @@ public class ImGuiRenderer : IRenderer
             }
         }
         
-        using (var isOpen = gui.BeginWindow("Window 2", new Vector2(650, 20), new Vector2(500, 600))) {
+        using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 600))) {
             gui.Checkbox("checkbox", ref enabled2);
             gui.Label("");
             
             var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
             var srcSize = new Vector2(64, 64);          // 64x64 Tile
             if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
-            gui.Draw.DrawSpriteRegion(myTextureView, spritePos, srcSize, srcPos, srcSize, new Vector2(1024, 1024));
+            gui.Draw.DrawSpriteRegion(myTextureView, spritePos, srcSize, srcPos, srcSize, new(1024, 1024));
             gui.DrawFocusRect(spritePos, srcSize, isFocused);
         }
         
