@@ -166,9 +166,7 @@ public readonly ref struct GuiWidget
 
         var widgetState = GetWidgetState(isHover, widgetId);
         
-        var buttonColor = Color.ButtonState(widgetState);
-        // Render button background
-        draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
+        draw.FillRectRounded(window.Cursor, size, 8, Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
             draw.StrokeRect(window.Cursor, size, 4, Color.FocusColor);
@@ -207,9 +205,8 @@ public readonly ref struct GuiWidget
         if (clicked) {
             value = !value;
         }
-        var boxColor = Color.ButtonState(widgetState);
         var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - boxSize) / 2f);
-        draw.FillRectRounded(boxRect, new Vector2(boxSize, boxSize), 4, boxColor);
+        draw.FillRectRounded(boxRect, new Vector2(boxSize, boxSize), 4, Color.ButtonState(widgetState)); // background
 
         // Render blue focus outline on box
         if (isFocused) {
@@ -257,8 +254,7 @@ public readonly ref struct GuiWidget
                 changed = true;
             }
         }
-        var slideBg = Color.ButtonState(widgetState);
-        draw.FillRectRounded(window.Cursor, totalSize, 6, slideBg);
+        draw.FillRectRounded(window.Cursor, totalSize, 6, Color.ButtonState(widgetState)); // background
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);

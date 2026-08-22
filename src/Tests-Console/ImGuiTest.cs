@@ -114,8 +114,8 @@ public class ImGuiRenderer : IRenderer
             using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
                 if (space.isClicked) Console.WriteLine("Clicked: Sprite");
                 var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-                var color = gui.Color.ButtonState(space.widgetState);
-                gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), color);
+                var tint = gui.Color.ButtonState(space.widgetState);
+                gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
             }
         }
         
@@ -149,9 +149,7 @@ public static class GuiExtensions
 
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
-        var buttonColor = widget.Color.ButtonState(widgetState);
-        // Render button background
-        draw.FillRectRounded(window.Cursor, size, 8, buttonColor);
+        draw.FillRectRounded(window.Cursor, size, 8, widget.Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
             draw.StrokeRect(window.Cursor, size, 4, widget.Color.FocusColor);
