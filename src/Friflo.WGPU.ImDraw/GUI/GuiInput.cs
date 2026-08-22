@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
@@ -23,32 +21,37 @@ namespace Friflo.WGPU.ImDraw;
 
 public sealed class GuiInput
 {
-    private     bool        isMouseDown;
-    public      Vector2     Mouse           { get; private set;}
-    public      Vector2     MouseDelta      { get; private set;}
-    private     Vector2     mouseLast;
+#region input state
+    private             bool                isMouseDown;
+    public              Vector2             Mouse           { get; private set;}
+    public              Vector2             MouseDelta      { get; private set;}
+    private             Vector2             mouseLast;
     
-    private     bool        isTabPressed;
-    private     bool        isShiftDown;
-    private     bool        isReturnPressed;
-    private     bool        isSpacePressed;
-    private     bool        isGamepadAPressed;
-    private     Vector2     arrowDirection;
-    private     Vector2     gamepadDirection;
+    private             bool                isTabPressed;
+    private             bool                isShiftDown;
+    private             bool                isReturnPressed;
+    private             bool                isSpacePressed;
+    private             bool                isGamepadAPressed;
+    private             Vector2             arrowDirection;
+    private             Vector2             gamepadDirection;
     
-    public      bool        IsMouseDown     => isMouseDown;
-    public      bool        IsSubmitPressed => isSpacePressed || isReturnPressed || isGamepadAPressed;
+    private readonly    List<KeyEvent>      keyEvents           = [];
+    private readonly    List<GamepadEvent>  gamepadEvents       = [];
     
+    public              bool                IsMouseDown     => isMouseDown;
+    public              bool                IsSubmitPressed => isSpacePressed || isReturnPressed || isGamepadAPressed;
+#endregion
+
+    public              MouseCursor         CurrentCursor   { get; private set; } = MouseCursor.Arrow;
+    public              int                 FrameCount      {  get; private set; }
+    
+#region widget state
     // Hot/Active-State-Pattern
     /// <summary> The widget currently under the mouse cursor (reset every frame) </summary>
-    private     int         hotItem;    // MUST stay private. read/write only in GetWidgetState()
+    private             int                     hotItem;    // MUST stay private. read/write only in GetWidgetState()
     
     /// <summary> The widget currently being interacted with (persists while mouse is held down) </summary>
-    private     int         activeItem; // MUST stay private. read/write only in GetWidgetState()
-    
-    private readonly    List<KeyEvent>          keyEvents           = [];
-    private readonly    List<GamepadEvent>      gamepadEvents       = [];
-
+    private             int                     activeItem; // MUST stay private. read/write only in GetWidgetState()
     
     // --- tab / 2D array key navigation
     private readonly    List<FocusableEntry>    currentFocusables   = new(32);
@@ -58,11 +61,10 @@ public sealed class GuiInput
     private             int                     targetFocusItem;
     private             int                     focusableCounter;
     private             int                     totalFocusablesLastFrame;
-    private             int                     currentFocusIndex = -1;
-    private             int                     targetFocusIndex = -1;
-    private             int                     frameCount;
+    private             int                     currentFocusIndex   = -1;
+    private             int                     targetFocusIndex    = -1;
+#endregion
     
-    public              MouseCursor             CurrentCursor { get; private set; } = MouseCursor.Arrow;
 
     internal void SetCursor(MouseCursor cursor) {
         CurrentCursor = cursor;
@@ -103,8 +105,8 @@ public sealed class GuiInput
         }
     }
     
-    
-    public WidgetState GetWidgetState(bool isHover, int widgetId)
+    // Mutates:  widget state
+    internal WidgetState GetWidgetState(bool isHover, int widgetId)
     {
         // Ignore all other widgets while another widget is currently active
         if (activeItem != 0 && activeItem != widgetId) {
@@ -144,20 +146,12 @@ public sealed class GuiInput
         return WidgetState.None;
     }
     
-    [DoesNotReturn]
-    private static void ThrowMissingCallNewFrame()
-    {
-        const string msg = "Missing GuiInput.NewFrame() call before BeginGui(). E.g. wgpuHost.Device.GetGuiModule()?.NewFrame();";
-        throw new InvalidOperationException(msg);
-    }
     
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
-    public bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
+    // Mutates:  widget state
+    internal bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
     {
-        if (frameCount == 0) {
-            ThrowMissingCallNewFrame();
-        }
         int myIndex = focusableCounter++;
         currentFocusables.Add(new FocusableEntry { id = widgetId, center = center });
         gainedFocus = false;
@@ -288,7 +282,7 @@ public sealed class GuiInput
     
     internal void NewFrame()
     {
-        frameCount++;
+        FrameCount++;
         CurrentCursor = MouseCursor.Arrow;
         
         MouseDelta  = Mouse - mouseLast;

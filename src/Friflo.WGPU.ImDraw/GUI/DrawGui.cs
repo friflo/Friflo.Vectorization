@@ -32,6 +32,15 @@ public readonly ref struct DrawGui : IDisposable
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
+    public bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
+    {
+        return input.RegisterFocusable(widgetId, center, out gainedFocus);
+    }
+    
+    public WidgetState GetWidgetState(bool isHover, int widgetId)
+    {
+        return input.GetWidgetState(isHover, widgetId);
+    }
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw       = draw;
@@ -89,7 +98,7 @@ public readonly ref struct DrawGui : IDisposable
 
         // Process window resize
         int resizeId 	= WidgetID.CombineHash(parentHash, "__resize".GetHashCode());
-        bool isResizing = window.ProcessResize(input, resizeId);
+        bool isResizing = window.ProcessResize(this, resizeId);
 
         // Process title bar drag (strictly blocked while resizing)
         float titleBarHeight = LineHeight;
@@ -97,7 +106,7 @@ public readonly ref struct DrawGui : IDisposable
         int titleBarId       = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
         bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize, draw);
-        var titleState    = input.GetWidgetState(isTitleHover, titleBarId);
+        var titleState    = GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
             window.pos += input.MouseDelta;
@@ -160,9 +169,9 @@ public readonly ref struct DrawGui : IDisposable
 
         // Calculate widget center & register for 1D/2D navigation
         var center = window.Cursor + size * 0.5f;
-        bool isFocused = input.RegisterFocusable(widgetId, center, out _);
+        bool isFocused = RegisterFocusable(widgetId, center, out _);
 
-        var widgetState = input.GetWidgetState(isHover, widgetId);
+        var widgetState = GetWidgetState(isHover, widgetId);
         
         var buttonColor = widgetState switch {
             WidgetState.Down    => Color.ButtonDown,
@@ -200,9 +209,9 @@ public readonly ref struct DrawGui : IDisposable
 
         // Register focus for 1D/2D navigation
         var center      = window.Cursor + totalSize * 0.5f;
-        bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
+        bool isFocused  = RegisterFocusable(widgetId, center, out _);
 
-        var widgetState = input.GetWidgetState(isHover, widgetId);
+        var widgetState = GetWidgetState(isHover, widgetId);
 
         // Toggle value via mouse click or keyboard submit (Enter/Space)
         bool clicked = widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
@@ -248,9 +257,9 @@ public readonly ref struct DrawGui : IDisposable
 
         // Register focus for 1D/2D navigation
         var center      = window.Cursor + totalSize * 0.5f;
-        bool isFocused  = input.RegisterFocusable(widgetId, center, out _);
+        bool isFocused  = RegisterFocusable(widgetId, center, out _);
 
-        var widgetState = input.GetWidgetState(isHover, widgetId);
+        var widgetState = GetWidgetState(isHover, widgetId);
 
         bool changed = false;
 
@@ -307,10 +316,10 @@ public readonly ref struct DrawGui : IDisposable
             int widgetId   = id.Resolve(parentHash);
             bool isHover   = window.IsHoverAt(pos, size, draw);
             
-            widgetState = input.GetWidgetState(isHover, widgetId);
+            widgetState = GetWidgetState(isHover, widgetId);
 
             var center = pos + size * 0.5f;
-            isFocused  = input.RegisterFocusable(widgetId, center, out _);
+            isFocused  = RegisterFocusable(widgetId, center, out _);
         }
         window.MoveCursor(size);
 

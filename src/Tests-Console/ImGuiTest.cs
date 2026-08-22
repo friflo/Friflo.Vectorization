@@ -145,9 +145,9 @@ public static class GuiExtensions
 
         // Calculate widget center & register for 1D/2D navigation
         var center      = window.Cursor + size * 0.5f;
-        var isFocused   = gui.input.RegisterFocusable(widgetId, center, out _);
+        var isFocused   = gui.RegisterFocusable(widgetId, center, out _);
 
-        var widgetState = gui.input.GetWidgetState(isHover, widgetId);
+        var widgetState = gui.GetWidgetState(isHover, widgetId);
         
         var buttonColor = widgetState switch {
             WidgetState.Down    => gui.Color.ButtonDown,
