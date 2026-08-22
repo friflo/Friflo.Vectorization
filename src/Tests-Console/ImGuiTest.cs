@@ -117,6 +117,13 @@ public class ImGuiRenderer : IRenderer
                 var tint = gui.Color.ButtonState(space.widgetState);
                 gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
             }
+            
+            using (gui.BeginChild(123, new Vector2(250, 130))) {
+                gui.Button("Button 1 clipped");
+                gui.Button("Button 2 clipped");
+                gui.Button("Button 3 clipped");
+            }
+            gui.Button("After Child");
         }
         
         if (mouseCircle) {

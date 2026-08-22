@@ -88,6 +88,19 @@ public sealed class GuiWindow
         layoutStack.Clear();
         currentLayout = default;
     }
+    
+    internal void PushScope(WidgetID scopeId)
+    {
+        int currentHash = GetCurrentScopeHash();
+        idStack.Push(scopeId.Resolve(currentHash));
+    }
+
+    internal void PopScope()
+    {
+        if (idStack.Count > 1) {
+            idStack.Pop();
+        }
+    }
 
     public int GetCurrentScopeHash()
     {

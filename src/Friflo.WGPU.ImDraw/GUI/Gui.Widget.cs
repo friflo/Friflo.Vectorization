@@ -141,6 +141,37 @@ public readonly ref struct GuiWidget
         draw.PopZIndex();
         Window.ClearScope();
     }
+    
+    internal ChildScope BeginChild(WidgetID childId, Vector2 size)
+    {
+        var window = Window;
+
+        var parentStartCursor = window.Cursor;
+        window.PushScope(childId);
+
+        var availableSize = window.size - (parentStartCursor - window.pos);
+        var finalSize = new Vector2(
+            size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
+            size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
+        );
+        draw.PushScissor(parentStartCursor, finalSize);
+        
+        window.SetCursor(parentStartCursor + new Vector2(5f, 5f)); // inner cursor + padding
+        window.PushLayout(LayoutDirection.Vertical);
+        return new ChildScope(this, parentStartCursor, finalSize);
+    }
+    
+    internal void EndChild(Vector2 parentStartCursor, Vector2 childSize)
+    {
+        var window = Window;
+
+        window.PopLayout();
+        draw.PopScissor();
+        window.PopScope();
+
+        window.SetCursor(parentStartCursor);
+        window.MoveCursor(childSize);
+    }
 #endregion
 
 
