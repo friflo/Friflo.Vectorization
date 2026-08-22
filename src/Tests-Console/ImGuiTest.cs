@@ -108,7 +108,7 @@ public class ImGuiRenderer : IRenderer
             }
         }
         
-        using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 600))) {
+        using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
             gui.Checkbox("checkbox", ref enabled2);
             gui.Spacer();
             using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
@@ -129,11 +129,24 @@ public class ImGuiRenderer : IRenderer
                 gui.Button("Button 1 unclipped");
                 gui.Button("Button 2 unclipped");
             }
+            gui.Spacer();
+            gui.Label("scroll area");
+            using (gui.BeginScrollArea(3, new Vector2(350, 200))) {
+                gui.Button("Button 1");
+                gui.Button("Button 2");
+                gui.Button("Button 3");
+                gui.Button("Button 4");
+                gui.Button("Button 5");
+                gui.Button("Button 6");
+                gui.Button("Button 7");
+                gui.Button("Button 8");
+                gui.Button("Button 9");
+            }
         }
         
         if (mouseCircle) {
             using (gui.Draw.PushZIndex(10)) {
-                gui.Draw.StrokeCircle(batch.input.Mouse, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+                gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
     }

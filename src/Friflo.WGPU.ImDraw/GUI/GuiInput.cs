@@ -23,8 +23,8 @@ public sealed class GuiInput
 {
 #region input state
     private             bool                isMouseDown;
-    public              Vector2             Mouse           { get; private set;}
-    public              Vector2             MouseDelta      { get; private set;}
+    public              Vector2             MousePos        { get; private set; }
+    public              Vector2             MouseDelta      { get; private set; }
     private             Vector2             mouseLast;
     
     private             bool                isTabPressed;
@@ -83,7 +83,7 @@ public sealed class GuiInput
             case ImEventType.MouseMotion:
             case ImEventType.MouseButtonDown:
             case ImEventType.MouseButtonUp:
-                Mouse = ev.mouse;
+                MousePos = ev.mouse;
                 break;
         }
         switch (ev.type)
@@ -103,6 +103,11 @@ public sealed class GuiInput
                 gamepadEvents.Add(ev.gamepad);
                 break;
         }
+    }
+    
+    public void SetActiveWidget(int widgetId)
+    {
+        activeItem = widgetId;
     }
     
     // Mutates:  widget state
@@ -285,8 +290,8 @@ public sealed class GuiInput
         FrameCount++;
         CurrentCursor = MouseCursor.Arrow;
         
-        MouseDelta  = Mouse - mouseLast;
-        mouseLast   = Mouse;
+        MouseDelta  = MousePos - mouseLast;
+        mouseLast   = MousePos;
         
         HandleKeyEvents();
         

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -27,6 +28,15 @@ public struct LayoutNode
     internal LayoutDirection    direction;
     internal Vector2            startCursor;
     internal Vector2            maxSize;
+}
+
+public struct ScrollState
+{
+    public float    offsetY;
+    public float    targetOffsetY;
+    public bool     isDragging;
+    public float    dragStartMouseY;
+    public float    dragStartOffsetY;
 }
 
 [Flags]
@@ -62,6 +72,7 @@ public sealed class GuiWindow
     private  readonly   Stack<LayoutNode>   layoutStack     = new();
     private             LayoutNode          currentLayout;
     public              LayoutNode          CurrentLayout   => currentLayout;
+    private readonly    Dictionary<int, ScrollState> scrollStates = new(64);
 
     public   override   string              ToString() => title;
 
@@ -125,6 +136,19 @@ public sealed class GuiWindow
         return Vector2.Zero;
     }
     
+    internal ref ScrollState GetOrCreateScrollState(int id)
+    {
+        ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(scrollStates, id, out bool exists);
+        if (!exists) {
+            // Initialize default state if first time seen
+            state = new ScrollState {
+                offsetY = 0f,
+                targetOffsetY = 0f
+            };
+        }
+        return ref state;
+    }
+    
     internal void SetCursor(Vector2 value)
     {
         cursor = value;
@@ -155,15 +179,15 @@ public sealed class GuiWindow
         var widgetRect = new RectVector2(widgetPos, widgetSize);
         
         // Is the mouse cursor inside the widget bounds?
-        if (!widgetRect.Contains(host.input.Mouse)) {
+        if (!widgetRect.Contains(host.input.MousePos)) {
             return false;
         }
         // Is the mouse cursor inside the currently active scissor clip region?
         var scissor = draw.batch.currentScissor;
         if (scissor.size.X > 0 && scissor.size.Y > 0) {
-            if (!scissor.Contains(host.input.Mouse)) return false;
+            if (!scissor.Contains(host.input.MousePos)) return false;
         }
-        return host.IsTopWindowAt(host.input.Mouse, this);
+        return host.IsTopWindowAt(host.input.MousePos, this);
     }
 
     public bool IsHoverAtCursor(Vector2 widgetSize, Draw2D draw)
@@ -176,7 +200,7 @@ public sealed class GuiWindow
     internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 6f)
     {
         var input = drawGui.input;
-        ResizeEdge hoverEdge = GetResizeEdge(input.Mouse, border);
+        ResizeEdge hoverEdge = GetResizeEdge(input.MousePos, border);
 
         // Active state override: keep active while dragging even if mouse leaves border
         bool isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
