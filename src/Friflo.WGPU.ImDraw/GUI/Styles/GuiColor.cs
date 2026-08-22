@@ -110,5 +110,14 @@ public struct GuiColor
             }
         }
     }
+    
+    public readonly Color32 ButtonState(WidgetState widgetState)
+    {
+        return widgetState switch {
+            WidgetState.Down    => ButtonDown,
+            WidgetState.Hover   => ButtonHover,
+            _                   => ButtonColor
+        };
+    }
 }
 
