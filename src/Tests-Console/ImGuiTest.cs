@@ -78,13 +78,13 @@ public class ImGuiRenderer : IRenderer
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(500, 700))) {
             gui.Label("hello GUI");
-            gui.Label("");
+            gui.Spacer();
             using (gui.PushStyle(greenButtonStyle)) {
                 if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
             }
             if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
 
-            gui.Label("");
+            gui.Spacer();
             gui.Checkbox("mouse circle", ref mouseCircle);
             if(gui.Checkbox("Monocraft", ref monocraft)) {
                 if (monocraft) {
@@ -95,20 +95,22 @@ public class ImGuiRenderer : IRenderer
                     batch.SetFontDefault();
                 }
             }
-            gui.Label("");
+            gui.Spacer();
             if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
-            gui.Label("");
+            gui.Spacer();
             
             using (gui.BeginHorizontal()) {
                 if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+                gui.Spacer(20);
                 if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+                gui.Spacer(20);
                 if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
             }
         }
         
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 600))) {
             gui.Checkbox("checkbox", ref enabled2);
-            gui.Label("");
+            gui.Spacer();
             using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
                 if (space.isClicked) Console.WriteLine("Clicked: Sprite");
                 var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        

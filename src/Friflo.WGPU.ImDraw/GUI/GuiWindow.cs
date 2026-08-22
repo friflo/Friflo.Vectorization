@@ -22,7 +22,7 @@ internal enum LayoutDirection
     Horizontal
 }
 
-internal struct LayoutNode
+public struct LayoutNode
 {
     internal LayoutDirection    direction;
     internal Vector2            startCursor;
@@ -58,8 +58,10 @@ public sealed class GuiWindow
     private             ResizeEdge          activeResizeEdge;
     
     private             Vector2             cursor;
-    private  readonly   Stack<int>          idStack     = new();
-    private  readonly   Stack<LayoutNode>   layoutStack = new();
+    private  readonly   Stack<int>          idStack         = new();
+    private  readonly   Stack<LayoutNode>   layoutStack     = new();
+    private             LayoutNode          currentLayout;
+    public              LayoutNode          CurrentLayout   => currentLayout;
 
     public   override   string              ToString() => title;
 
@@ -76,14 +78,15 @@ public sealed class GuiWindow
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        
-        layoutStack.Push(new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, maxSize = Vector2.Zero });
+        currentLayout = new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, maxSize = Vector2.Zero };
+        layoutStack.Push(currentLayout);
     }
 
     internal void ClearScope()
     {
         idStack.Clear();
         layoutStack.Clear();
+        currentLayout = default;
     }
 
     public int GetCurrentScopeHash()
@@ -93,21 +96,18 @@ public sealed class GuiWindow
 
     internal void PushLayout(LayoutDirection direction)
     {
-        layoutStack.Push(new LayoutNode { 
-            direction   = direction, 
-            startCursor = cursor, 
-            maxSize     = Vector2.Zero 
-        });
+        currentLayout = new LayoutNode { direction = direction, startCursor = cursor, maxSize = Vector2.Zero };
+        layoutStack.Push(currentLayout);
     }
 
     internal void PopLayout()
     {
         if (layoutStack.Count > 1) {
-            var finishedLayout = layoutStack.Pop();
-            
-            cursor = finishedLayout.startCursor;
-
-            MoveCursor(finishedLayout.maxSize);
+            currentLayout = layoutStack.Pop();
+            cursor = currentLayout.startCursor;
+            MoveCursor(currentLayout.maxSize);
+        } else {
+            currentLayout = default;
         }
     }
     

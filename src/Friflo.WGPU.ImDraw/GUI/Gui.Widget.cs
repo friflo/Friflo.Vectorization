@@ -146,6 +146,13 @@ public readonly ref struct GuiWidget
         window.MoveCursor(size);
     }
     
+    public void Spacer(float size)
+    {
+        var window      = Window;
+        var spaceSize   = window.CurrentLayout.direction == LayoutDirection.Horizontal ? new Vector2(size, 0) : new Vector2(0, size);
+        window.MoveCursor(spaceSize);
+    }
+    
     public bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
     {
         var window = Window;

@@ -43,7 +43,8 @@ public readonly ref struct Gui : IDisposable
     
     public StyleScope       PushStyle(GuiStyle style)   => widget.PushStyle(style);
     public void             PopStyle()                  => widget.PopStyle();
-    
+
+    public void             Spacer(float size = 20f)    => widget.Spacer(size);
     public VerticalScope    BeginVertical()             => widget.BeginVertical();
     public void             EndVertical()               => widget.EndVertical();
     
