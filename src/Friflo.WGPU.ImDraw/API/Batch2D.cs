@@ -51,7 +51,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GuiState            guiState            = new();
 
     // --- resources owned by DrawModule
-    internal readonly   Gui                 gui;
+    internal readonly   GuiHost             host;
     public   readonly   GuiInput            input;
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
@@ -82,7 +82,7 @@ public sealed partial class Batch2D : IDisposable
             device.AddModule(drawModule);
         }
         formatProvider  = CultureInfo.InvariantCulture;
-        gui             = drawModule.guiModule.gui;
+        host            = drawModule.guiModule.host;
         input           = drawModule.guiModule.input;
         
         // --- vertex & index buffer - to draw quads

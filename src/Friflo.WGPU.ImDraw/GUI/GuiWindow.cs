@@ -51,7 +51,7 @@ public sealed class GuiWindow
     private  readonly   string              title;
     public              Vector2             Cursor { [DebuggerStepThrough] get => cursor; }
     
-    private  readonly   Gui                 gui;
+    private  readonly   GuiHost             host;
     internal            Vector2             pos;
     internal            Vector2             size;
     private  readonly   Vector2             minSize     = new(100f, 100f);
@@ -64,8 +64,8 @@ public sealed class GuiWindow
     public   override   string              ToString() => title;
 
 
-    internal GuiWindow(Gui gui, string title) {
-        this.gui    = gui;
+    internal GuiWindow(GuiHost host, string title) {
+        this.host   = host;
         this.title  = title;
     }
     
@@ -141,15 +141,15 @@ public sealed class GuiWindow
         var widgetRect = new RectVector2(widgetPos, widgetSize);
         
         // Is the mouse cursor inside the widget bounds?
-        if (!widgetRect.Contains(gui.input.Mouse)) {
+        if (!widgetRect.Contains(host.input.Mouse)) {
             return false;
         }
         // Is the mouse cursor inside the currently active scissor clip region?
         var scissor = draw.batch.currentScissor;
         if (scissor.size.X > 0 && scissor.size.Y > 0) {
-            if (!scissor.Contains(gui.input.Mouse)) return false;
+            if (!scissor.Contains(host.input.Mouse)) return false;
         }
-        return gui.IsTopWindowAt(gui.input.Mouse, this);
+        return host.IsTopWindowAt(host.input.Mouse, this);
     }
 
     public bool IsHoverAtCursor(Vector2 widgetSize, Draw2D draw)

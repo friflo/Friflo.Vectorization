@@ -121,14 +121,14 @@ public readonly ref struct GuiWidget
     
     public WindowScope BeginWindow(string title)
     {
-        var gui = draw.batch.gui;
-        if (!gui.windows.TryGetValue(title, out guiState.window!)) {
-            guiState.window = new GuiWindow(gui, title) {
+        var host = draw.batch.host;
+        if (!host.windows.TryGetValue(title, out guiState.window!)) {
+            guiState.window = new GuiWindow(host, title) {
                 pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
                 size    = guiState.nextWindowSize ?? new Vector2(300, 200)
             };
-            gui.windows.Add(title, guiState.window);
-            gui.windowOrder.Add(guiState.window);
+            host.windows.Add(title, guiState.window);
+            host.windowOrder.Add(guiState.window);
         }
         guiState.nextWindowPos  = null;
         guiState.nextWindowSize = null;
@@ -141,9 +141,9 @@ public readonly ref struct GuiWidget
         if (isWindowHovered && input.IsMouseDown) {
             // Note: Moving window to front here ensures that subsequent child widgets 
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
-            gui.FocusWindow(window);
+            host.FocusWindow(window);
         }
-        draw.PushZIndex(gui.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
+        draw.PushZIndex(host.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
         
         window.ResetScope();
         int parentHash = window.GetCurrentScopeHash();

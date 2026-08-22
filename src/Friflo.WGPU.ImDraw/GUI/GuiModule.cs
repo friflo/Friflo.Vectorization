@@ -8,12 +8,12 @@ namespace Friflo.WGPU.ImDraw;
 public sealed class GuiModule
 {
     public   readonly   GuiInput    input;
-    internal readonly   Gui         gui;
+    internal readonly   GuiHost     host;
     
     internal GuiModule()
     {
         input   = new GuiInput();
-        gui     = new Gui(input);
+        host    = new GuiHost(input);
     }
     
     public void NewFrame()              => input.NewFrame();
@@ -21,7 +21,7 @@ public sealed class GuiModule
     
     internal void Dispose()
     {
-        gui.Dispose();
+        host.Dispose();
     }
     
 }

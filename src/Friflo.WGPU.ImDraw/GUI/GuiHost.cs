@@ -2,14 +2,13 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-internal sealed class Gui
+internal sealed class GuiHost
 {
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
@@ -18,7 +17,7 @@ internal sealed class Gui
 
     public   override   string                          ToString()  => $"windows: {windows.Count}";
 
-    internal Gui(GuiInput input) {
+    internal GuiHost(GuiInput input) {
         this.input = input;
     }
  
