@@ -24,6 +24,7 @@ public readonly ref struct GuiWidget
     private readonly    GuiState        guiState;       //  8 bytes
     private readonly    GuiStyle        currentStyle;   //  8 bytes
     
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public ref readonly GuiColor        Color           { [DebuggerStepThrough] get => ref currentStyle.color; }
     public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
     public              float           LineHeight      { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
