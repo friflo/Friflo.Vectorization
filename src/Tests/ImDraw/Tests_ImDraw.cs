@@ -112,7 +112,8 @@ public static class Tests_ImDraw
             gui.Button("test");
             gui.EndWindow();
             
-            _ = gui.widget.Color.ButtonColor;  // Ensures Color is available
+            _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
+            _ = gui.LineHeight;                 // Ensures LineHeight is available
             gui.draw.Dispose();         // redundant - only for debugging
         }
         

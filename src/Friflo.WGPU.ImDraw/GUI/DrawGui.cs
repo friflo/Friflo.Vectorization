@@ -20,7 +20,8 @@ namespace Friflo.WGPU.ImDraw;
 public readonly ref struct DrawGui : IDisposable
 {
     public readonly GuiWidget   widget;
-    public          Draw2D      draw => widget.draw;
+    public          Draw2D      draw        => widget.draw;
+    public          float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         widget = new GuiWidget(draw, batch);
@@ -96,7 +97,6 @@ public readonly ref struct GuiWidget
             return input.GetWidgetState(isHover, widgetId);    
         }
         return WidgetState.None;
-        
     }
     
     internal GuiWidget(Draw2D draw, Batch2D batch) {
