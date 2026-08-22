@@ -29,6 +29,8 @@ public readonly ref struct Gui : IDisposable
     public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null)    => widget.BeginWindow(title, pos, size);
     public void         EndWindow()                                                             => widget.EndWindow();
     
+    /// <summary>Begins a clipped, isolated child area within the current window.</summary>
+    /// <param name="size">Target size. Use &gt; 0 for fixed dimensions or 0 for dynamic auto-fit/remaining space.</param>
     public ChildScope   BeginChild(WidgetID id, Vector2 size)                   => widget.BeginChild(id, size);
     public void         EndChild(Vector2 parentStartCursor, Vector2 childSize)  => widget.EndChild(parentStartCursor, childSize);
     
