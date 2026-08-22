@@ -30,6 +30,7 @@ public readonly ref struct GuiWidget
     public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
     public              float           LineHeight      { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
     public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
+    public              bool            IsSet           { [DebuggerStepThrough] get => currentStyle != null; }
 
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
@@ -55,6 +56,13 @@ public readonly ref struct GuiWidget
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFired(WidgetState widgetState, bool isFocused) {
         return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
+    }
+    
+    public StyleScope UseStyle(GuiStyle? style)
+    {
+        if (style is null) return default;
+        PushStyle(style);
+        return new StyleScope(this);
     }
     
     internal GuiWidget(Draw2D draw, Batch2D batch) {
@@ -158,7 +166,7 @@ public readonly ref struct GuiWidget
     internal bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
     {
         var window = Window;
-        if (style != null) PushStyle(style);
+        using var __ = UseStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -178,17 +186,14 @@ public readonly ref struct GuiWidget
             draw.StrokeRect(window.Cursor, size, 4, Color.FocusColor);
         }
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
-        
         window.MoveCursor(size);
-        
-        if (style != null) PopStyle();
         return IsFired(widgetState, isFocused);
     }
     
     internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
         var window = Window;
-        if (style != null) PushStyle(style);
+        using var __ = UseStyle(style);
         int parentHash = window.GetCurrentScopeHash();
         int widgetId   = id.Resolve(name, parentHash);
 
@@ -224,14 +229,13 @@ public readonly ref struct GuiWidget
         draw.DrawText(name, textPos, Color.TextColor);
 
         window.MoveCursor(totalSize);
-        if (style != null) PopStyle();
         return isToggled;
     }
     
     internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
         var window      = Window;
-        if (style != null) PushStyle(style);
+        using var __    = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 
@@ -273,7 +277,6 @@ public readonly ref struct GuiWidget
         draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
-        if (style != null) PopStyle();
         return changed;
     }
     

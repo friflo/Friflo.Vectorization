@@ -36,8 +36,9 @@ public readonly ref struct StyleScope(GuiWidget widget)
 {
     private readonly GuiWidget widget = widget;
 
-    public void Dispose() => widget.PopStyle();
+    public void Dispose() { if (widget.IsSet) widget.PopStyle(); }
 }
+
 
 public readonly ref struct SpaceScope(GuiWidget widget, Vector2 pos, Vector2 size, bool isFired, bool isFocused, WidgetState widgetState)
 {

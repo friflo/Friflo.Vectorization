@@ -135,7 +135,7 @@ public static class GuiExtensions
         var widget  = gui.widget;
         var draw    = gui.Draw;
         var window  = widget.Window;
-        if (style != null) gui.PushStyle(style);
+        using var __ = widget.UseStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -157,8 +157,6 @@ public static class GuiExtensions
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
         
         window.MoveCursor(size);
-        
-        if (style != null) gui.PopStyle();
         return widget.IsFired(widgetState, isFocused);
     }
 }
