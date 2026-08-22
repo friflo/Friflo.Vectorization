@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 
 
@@ -11,9 +12,11 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref struct Gui : IDisposable
 {
-    public readonly GuiWidget   widget;     // 40 bytes
-    public          Draw2D      Draw        => widget.draw;
-    public          float       LineHeight  => widget.draw.DefaultFont.lineHeight;
+    public readonly     GuiWidget   widget;     // 40 bytes
+    
+    public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref widget.Color; }
+    public              Draw2D      Draw        => widget.draw;
+    public              float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
     internal Gui(Draw2D draw, Batch2D batch) {
         widget = new GuiWidget(draw, batch);
