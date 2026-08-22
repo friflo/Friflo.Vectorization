@@ -76,7 +76,7 @@ public readonly ref struct GuiWidget
     public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
     public              float           LineHeight      { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
     public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
-    private             Gui             Gui             { [DebuggerStepThrough] get => draw.batch.gui; }
+
     
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
@@ -121,7 +121,7 @@ public readonly ref struct GuiWidget
     
     public WindowScope BeginWindow(string title)
     {
-        var gui = Gui;
+        var gui = draw.batch.gui;
         if (!gui.windows.TryGetValue(title, out guiState.window!)) {
             guiState.window = new GuiWindow(gui, title) {
                 pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
