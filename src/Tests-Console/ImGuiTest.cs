@@ -112,7 +112,7 @@ public class ImGuiRenderer : IRenderer
             gui.Checkbox("checkbox", ref enabled2);
             gui.Spacer();
             using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
-                if (space.isClicked) Console.WriteLine("Clicked: Sprite");
+                if (space.isFired) Console.WriteLine("Clicked: Sprite");
                 var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
                 var tint = gui.Color.ButtonState(space.widgetState);
                 gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
@@ -159,8 +159,6 @@ public static class GuiExtensions
         window.MoveCursor(size);
         
         if (style != null) gui.PopStyle();
-        // Trigger click via mouse or keyboard (Enter/Space when focused)
-        var isKeySubmitted = isFocused && widget.input.IsSubmitPressed;
-        return widgetState == WidgetState.Clicked || isKeySubmitted;
+        return widget.IsFired(widgetState, isFocused);
     }
 }

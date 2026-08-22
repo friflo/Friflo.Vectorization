@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -49,6 +50,11 @@ public readonly ref struct GuiWidget
             return input.GetWidgetState(isHover, widgetId);    
         }
         return WidgetState.None;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsFired(WidgetState widgetState, bool isFocused) {
+        return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
     }
     
     internal GuiWidget(Draw2D draw, Batch2D batch) {
@@ -176,9 +182,7 @@ public readonly ref struct GuiWidget
         window.MoveCursor(size);
         
         if (style != null) PopStyle();
-        // Trigger click via mouse or keyboard (Enter/Space when focused)
-        bool isKeySubmitted = isFocused && input.IsSubmitPressed;
-        return widgetState == WidgetState.Clicked || isKeySubmitted;
+        return IsFired(widgetState, isFocused);
     }
     
     internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
@@ -200,9 +204,8 @@ public readonly ref struct GuiWidget
 
         var widgetState = GetWidgetState(isHover, widgetId);
 
-        // Toggle value via mouse click or keyboard submit (Enter/Space)
-        bool clicked = widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
-        if (clicked) {
+        bool isToggled = IsFired(widgetState, isFocused);
+        if (isToggled) {
             value = !value;
         }
         var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - boxSize) / 2f);
@@ -222,7 +225,7 @@ public readonly ref struct GuiWidget
 
         window.MoveCursor(totalSize);
         if (style != null) PopStyle();
-        return clicked;
+        return isToggled;
     }
     
     internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
@@ -294,8 +297,8 @@ public readonly ref struct GuiWidget
         }
         window.MoveCursor(size);
 
-        bool isKeySubmitted = isFocused && input.IsSubmitPressed;
-        return new SpaceScope(this, pos, size, widgetState == WidgetState.Clicked || isKeySubmitted, isFocused, widgetState);
+        bool isFired = IsFired(widgetState, isFocused);
+        return new SpaceScope(this, pos, size, isFired, isFocused, widgetState);
     }
 
     internal void EndSpace(SpaceScope space)
