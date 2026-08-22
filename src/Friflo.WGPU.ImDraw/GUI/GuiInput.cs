@@ -43,7 +43,7 @@ public sealed class GuiInput
 #endregion
 
     public              MouseCursor         CurrentCursor   { get; private set; } = MouseCursor.Arrow;
-    public              int                 FrameCount      {  get; private set; }
+    public              int                 FrameCount      { get; private set; }
     
 #region widget state
     // Hot/Active-State-Pattern

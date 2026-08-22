@@ -24,6 +24,9 @@ internal sealed class GuiState
     internal            GuiWindow       window              = null!;
     internal            Vector2?        nextWindowPos;
     internal            Vector2?        nextWindowSize;
+    
+    private             int             frameCount;
+    internal            bool            IsNewFrame          { get; private set;}
 
     public   override   string          ToString()          => $"window: {window}";
 
@@ -50,5 +53,11 @@ internal sealed class GuiState
     {
         currentStyle.color = defaultStyle.color; // 💪
         revertStylesCount = 0;
+    }
+
+    internal void SetFrameCount(int inputFrameCount)
+    {
+        IsNewFrame  = inputFrameCount > frameCount;
+        frameCount  = inputFrameCount;
     }
 }

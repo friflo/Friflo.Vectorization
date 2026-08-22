@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
+// ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseWithExpressionToCopyStruct
@@ -34,18 +35,27 @@ public readonly ref struct DrawGui : IDisposable
 
     public bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
     {
-        return input.RegisterFocusable(widgetId, center, out gainedFocus);
+        if (guiState.IsNewFrame) {
+            return input.RegisterFocusable(widgetId, center, out gainedFocus);
+        }
+        gainedFocus = false;
+        return false;
     }
     
     public WidgetState GetWidgetState(bool isHover, int widgetId)
     {
-        return input.GetWidgetState(isHover, widgetId);
+        if (guiState.IsNewFrame) {
+            return input.GetWidgetState(isHover, widgetId);    
+        }
+        return WidgetState.None;
+        
     }
     
     internal DrawGui(Draw2D draw, Batch2D batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;
+        guiState.SetFrameCount(input.FrameCount);
         currentStyle    = guiState.currentStyle;
     }
     
