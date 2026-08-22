@@ -48,5 +48,5 @@ public readonly ref struct SpaceScope(GuiWidget widget, Vector2 pos, Vector2 siz
     public  readonly    bool        isFocused   = isFocused;
     public  readonly    WidgetState widgetState = widgetState;
 
-    public void Dispose() => widget.DrawFocusRect(pos, size, isFocused, 0);
+    public void Dispose() => widget.PopSpace(this);
 }
