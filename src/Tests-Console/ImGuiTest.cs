@@ -75,9 +75,7 @@ public class ImGuiRenderer : IRenderer
         
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
-        gui.SetNextWindowPos(new Vector2(100, 20));
-        gui.SetNextWindowSize(new Vector2(500, 700));
-        using (gui.BeginWindow("Window 1")) {
+        using (gui.BeginWindow("Window 1", new Vector2(100, 20), new Vector2(500, 700))) {
             gui.Label("hello GUI");
             gui.Label("");
             using (gui.PushStyle(greenButtonStyle)) {
@@ -107,9 +105,7 @@ public class ImGuiRenderer : IRenderer
             }
         }
         
-        gui.SetNextWindowPos(new Vector2(650, 20));
-        gui.SetNextWindowSize(new Vector2(500, 600));
-        using (var isOpen = gui.BeginWindow("Window 2")) {
+        using (var isOpen = gui.BeginWindow("Window 2", new Vector2(650, 20), new Vector2(500, 600))) {
             gui.Checkbox("checkbox", ref enabled2);
             gui.Label("");
             

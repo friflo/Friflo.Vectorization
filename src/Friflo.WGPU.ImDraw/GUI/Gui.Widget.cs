@@ -59,31 +59,17 @@ public readonly ref struct GuiWidget
         currentStyle    = guiState.currentStyle;
     }
 #region Window
-
-
-    public void SetNextWindowPos(Vector2 position)
-    {
-        guiState.nextWindowPos = position;
-    }
-
-    public void SetNextWindowSize(Vector2 size)
-    {
-        guiState.nextWindowSize = size;
-    }
-    
-    public WindowScope BeginWindow(string title)
+    public WindowScope BeginWindow(string title, Vector2? pos, Vector2? size)
     {
         var host = draw.batch.host;
         if (!host.windows.TryGetValue(title, out guiState.window!)) {
             guiState.window = new GuiWindow(host, title) {
-                pos     = guiState.nextWindowPos  ?? new Vector2(50, 50),
-                size    = guiState.nextWindowSize ?? new Vector2(300, 200)
+                pos     = pos  ?? new Vector2( 50,  50),
+                size    = size ?? new Vector2(300, 200)
             };
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
         }
-        guiState.nextWindowPos  = null;
-        guiState.nextWindowSize = null;
         var window      = Window;
         
         // Hit test whole window

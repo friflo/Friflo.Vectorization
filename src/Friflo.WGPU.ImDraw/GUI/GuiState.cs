@@ -22,8 +22,6 @@ internal sealed class GuiState
     internal readonly   GuiStyle        currentStyle        = new();
     
     internal            GuiWindow       window              = null!;
-    internal            Vector2?        nextWindowPos;
-    internal            Vector2?        nextWindowSize;
     
     private             int             frameCount;
     internal            bool            IsNewFrame          { get; private set;}

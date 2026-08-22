@@ -23,11 +23,8 @@ public readonly ref struct Gui : IDisposable
         widget.draw.Dispose();
     }
     
-    public void SetNextWindowPos(Vector2 position)  => widget.SetNextWindowPos(position);
-    public void SetNextWindowSize(Vector2 size)     => widget.SetNextWindowSize(size);
-    
-    public WindowScope  BeginWindow(string title)   => widget.BeginWindow(title);
-    public void         EndWindow()                 => widget.EndWindow();
+    public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null)    => widget.BeginWindow(title, pos, size);
+    public void         EndWindow()                                                             => widget.EndWindow();
     
     public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
         => widget.Label(name, textColor);
