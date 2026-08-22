@@ -288,7 +288,7 @@ public readonly ref struct GuiWidget
     }
     
    
-    public SpaceScope PushSpace(Vector2 size, WidgetID id)
+    public SpaceScope BeginSpace(Vector2 size, WidgetID id)
     {
         var window      = Window;
         var pos         = window.Cursor;
@@ -311,7 +311,7 @@ public readonly ref struct GuiWidget
         return new SpaceScope(this, pos, size, widgetState == WidgetState.Clicked || isKeySubmitted, isFocused, widgetState);
     }
 
-    public void PopSpace(SpaceScope space)
+    public void EndSpace(SpaceScope space)
     {
         if (!space.isFocused) return;
         draw.StrokeRect(space.pos, space.size, 4, Color.FocusColor);

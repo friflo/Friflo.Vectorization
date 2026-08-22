@@ -109,7 +109,7 @@ public class ImGuiRenderer : IRenderer
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 600))) {
             gui.Checkbox("checkbox", ref enabled2);
             gui.Label("");
-            using (var space = gui.PushSpace(new(64, 64), "sprite")) {
+            using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
                 if (space.isClicked) Console.WriteLine("Clicked: Sprite");
                 var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
                 gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024));
