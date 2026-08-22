@@ -288,20 +288,14 @@ public readonly ref struct GuiWidget
     }
     
    
-    public bool ReserveSpace(
-        out Vector2     pos,
-            Vector2     size,
-        out bool        isFocused,
-        out WidgetState widgetState,
-            WidgetID    id)
+    public SpaceScope ReserveSpace(Vector2 size, WidgetID id)
     {
-        var window  = Window;
-        pos         = window.Cursor;
-        widgetState = WidgetState.None;
-        isFocused   = false;
+        var window      = Window;
+        var pos         = window.Cursor;
+        var widgetState = WidgetState.None;
+        var isFocused   = false;
 
-        if (id.IsValid)
-        {
+        if (id.IsValid) {
             int parentHash = window.GetCurrentScopeHash();
             int widgetId   = id.Resolve(parentHash);
             bool isHover   = window.IsHoverAt(pos, size, draw);
@@ -314,7 +308,7 @@ public readonly ref struct GuiWidget
         window.MoveCursor(size);
 
         bool isKeySubmitted = isFocused && input.IsSubmitPressed;
-        return widgetState == WidgetState.Clicked || isKeySubmitted;
+        return new SpaceScope(this, pos, size, widgetState == WidgetState.Clicked || isKeySubmitted, isFocused, widgetState);
     }
 
     public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin)

@@ -109,12 +109,11 @@ public class ImGuiRenderer : IRenderer
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 600))) {
             gui.Checkbox("checkbox", ref enabled2);
             gui.Label("");
-            
-            var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-            var srcSize = new Vector2(64, 64);          // 64x64 Tile
-            if (gui.ReserveSpace(out var spritePos, srcSize, out var isFocused, out _, "sprite"))   Console.WriteLine("Clicked: Sprite");
-            gui.Draw.DrawSpriteRegion(myTextureView, spritePos, srcSize, srcPos, srcSize, new(1024, 1024));
-            gui.DrawFocusRect(spritePos, srcSize, isFocused);
+            using (var space = gui.ReserveSpace(new(64, 64), "sprite")) {
+                if (space.isClicked) Console.WriteLine("Clicked: Sprite");
+                var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
+                gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024));
+            }
         }
         
         if (mouseCircle) {

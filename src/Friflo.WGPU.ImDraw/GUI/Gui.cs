@@ -38,8 +38,8 @@ public readonly ref struct Gui : IDisposable
     public bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width = 0, ReadOnlySpan<char> format = default, GuiStyle? style = null, WidgetID id = default)
         => widget.Slider(name, ref value, min, max, width, format, style, id);
     
-    public bool ReserveSpace(out Vector2 pos, Vector2 size, out bool isFocused, out WidgetState widgetState, WidgetID id = default)
-        => widget.ReserveSpace(out pos, size, out isFocused, out widgetState, id);
+    public SpaceScope ReserveSpace(Vector2 size, WidgetID id = default)
+        => widget.ReserveSpace(size, id);
     
     public void DrawFocusRect(Vector2 pos, Vector2 size, bool isFocused, float margin = 4f)
         => widget.DrawFocusRect(pos, size, isFocused, margin);
