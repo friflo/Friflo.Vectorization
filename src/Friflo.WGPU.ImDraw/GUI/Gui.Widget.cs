@@ -59,7 +59,7 @@ public readonly ref struct GuiWidget
         currentStyle    = guiState.currentStyle;
     }
 #region Window
-    public WindowScope BeginWindow(string title, Vector2? pos, Vector2? size)
+    internal WindowScope BeginWindow(string title, Vector2? pos, Vector2? size)
     {
         var host = draw.batch.host;
         if (!host.windows.TryGetValue(title, out guiState.window!)) {
@@ -125,7 +125,7 @@ public readonly ref struct GuiWidget
         return new WindowScope(this, true);
     }
     
-    public void EndWindow()
+    internal void EndWindow()
     {
         draw.PopScissor();
         draw.PopZIndex();
@@ -136,7 +136,7 @@ public readonly ref struct GuiWidget
 
 #region Widgets
 
-    public void Label(ReadOnlySpan<char> name, Color32 textColor)
+    internal void Label(ReadOnlySpan<char> name, Color32 textColor)
     {
         var window = Window;
         if (textColor.Packed == 0) textColor = Color.TextColor;
@@ -146,14 +146,14 @@ public readonly ref struct GuiWidget
         window.MoveCursor(size);
     }
     
-    public void Spacer(float size)
+    internal void Spacer(float size)
     {
         var window      = Window;
         var spaceSize   = window.CurrentLayout.direction == LayoutDirection.Horizontal ? new Vector2(size, 0) : new Vector2(0, size);
         window.MoveCursor(spaceSize);
     }
     
-    public bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
+    internal bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -191,7 +191,7 @@ public readonly ref struct GuiWidget
         return widgetState == WidgetState.Clicked || isKeySubmitted;
     }
     
-    public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
+    internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
         var window = Window;
         if (style != null) PushStyle(style);
@@ -240,7 +240,7 @@ public readonly ref struct GuiWidget
         return clicked;
     }
     
-    public bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
+    internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
         var window      = Window;
         if (style != null) PushStyle(style);
@@ -295,7 +295,7 @@ public readonly ref struct GuiWidget
     }
     
    
-    public SpaceScope BeginSpace(Vector2 size, WidgetID id)
+    internal SpaceScope BeginSpace(Vector2 size, WidgetID id)
     {
         var window      = Window;
         var pos         = window.Cursor;
@@ -318,7 +318,7 @@ public readonly ref struct GuiWidget
         return new SpaceScope(this, pos, size, widgetState == WidgetState.Clicked || isKeySubmitted, isFocused, widgetState);
     }
 
-    public void EndSpace(SpaceScope space)
+    internal void EndSpace(SpaceScope space)
     {
         if (!space.isFocused) return;
         draw.StrokeRect(space.pos, space.size, 4, Color.FocusColor);
@@ -328,25 +328,25 @@ public readonly ref struct GuiWidget
 
     
 #region Layout
-    public VerticalScope BeginVertical()
+    internal VerticalScope BeginVertical()
     {
         Window.PushLayout(LayoutDirection.Vertical);
         return new VerticalScope(this);
     }
 
-    public void EndVertical() => Window.PopLayout();
+    internal void EndVertical() => Window.PopLayout();
     
-    public HorizontalScope BeginHorizontal()
+    internal HorizontalScope BeginHorizontal()
     {
         Window.PushLayout(LayoutDirection.Horizontal);
         return new HorizontalScope(this);
     }
-    public void EndHorizontal() => Window.PopLayout();
+    internal void EndHorizontal() => Window.PopLayout();
 #endregion
 
 
 #region Styles
-    public StyleScope PushStyle(GuiStyle style)
+    internal StyleScope PushStyle(GuiStyle style)
     {
         var revertStyles = guiState.revertStyles;
         var length       = revertStyles.Length;
@@ -360,7 +360,7 @@ public readonly ref struct GuiWidget
         return new StyleScope(this);
     }
     
-    public void PopStyle()
+    internal void PopStyle()
     {
         ref var revertStyle = ref guiState.revertStyles[--guiState.revertStylesCount];
         guiState.currentStyle.PopOverrides(revertStyle);
