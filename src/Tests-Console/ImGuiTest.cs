@@ -106,6 +106,7 @@ public class ImGuiRenderer : IRenderer
                 gui.Spacer(10);
                 if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
             }
+            gui.Label("after horizontal");
         }
         
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
@@ -141,6 +142,13 @@ public class ImGuiRenderer : IRenderer
                 gui.Button("Button 7");
                 gui.Button("Button 8");
                 gui.Button("Button 9");
+                using (gui.BeginHorizontal()) {
+                    gui.Button("Button A");
+                    gui.Button("Button B");
+                    gui.Button("Button C");
+                    gui.Button("Button D");
+                    gui.Button("Button E");
+                }
             }
         }
         

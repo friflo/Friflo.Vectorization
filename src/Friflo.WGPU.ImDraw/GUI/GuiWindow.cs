@@ -83,7 +83,7 @@ public sealed class GuiWindow
     
     private             Vector2             cursor;
     private  readonly   Stack<int>          idStack         = new();
-    private  readonly   Stack<LayoutNode>   layoutStack     = new();
+    private  readonly   List<LayoutNode>   layoutStack      = [];
     private             LayoutNode          currentLayout;
     public              LayoutNode          CurrentLayout   => currentLayout;
     private readonly    Dictionary<int, ScrollState> scrollStates = new(64);
@@ -104,7 +104,7 @@ public sealed class GuiWindow
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
         currentLayout = new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, maxSize = Vector2.Zero };
-        layoutStack.Push(currentLayout);
+        layoutStack.Add(currentLayout);
     }
 
     internal void ClearScope()
@@ -135,19 +135,23 @@ public sealed class GuiWindow
     internal void PushLayout(LayoutDirection direction)
     {
         currentLayout = new LayoutNode { direction = direction, startCursor = cursor, maxSize = Vector2.Zero };
-        layoutStack.Push(currentLayout);
+        layoutStack.Add(currentLayout);
     }
 
     internal Vector2 PopLayout()
     {
-        if (layoutStack.Count > 1) {
-            var finishedLayout = layoutStack.Pop();
-            currentLayout = layoutStack.Peek();
-            cursor = finishedLayout.startCursor;
-            return finishedLayout.maxSize; // accumulated Bounding-Box of finished layout
+        int lastIdx = layoutStack.Count - 1;
+        if (lastIdx < 0) {
+            return Vector2.Zero;
         }
-        currentLayout = default;
-        return Vector2.Zero;
+        var finishedLayout = layoutStack[lastIdx];
+        layoutStack.RemoveAt(lastIdx);
+
+        if (lastIdx > 0) {
+            cursor = finishedLayout.startCursor;
+            MoveCursor(finishedLayout.maxSize);
+        }
+        return finishedLayout.maxSize;
     }
     
     internal ref ScrollState GetOrCreateScrollState(int id)
@@ -170,21 +174,22 @@ public sealed class GuiWindow
 
     public void MoveCursor(Vector2 widgetSize)
     {
-        if (layoutStack.Count > 0) {
-            var layout = layoutStack.Pop();
-            
-            if (layout.direction == LayoutDirection.Vertical) {
-                cursor.Y += widgetSize.Y + 6f;
-                layout.maxSize.X = Math.Max(layout.maxSize.X, widgetSize.X);
-                layout.maxSize.Y += widgetSize.Y + 6f;
-            } else {
-                cursor.X += widgetSize.X + 6f;
-                layout.maxSize.X += widgetSize.X + 6f;
-                layout.maxSize.Y = Math.Max(layout.maxSize.Y, widgetSize.Y);
-            }
-            layoutStack.Push(layout);
+        const float spacing = 6f;
+
+        if (layoutStack.Count == 0) {
+            cursor.Y += widgetSize.Y + spacing;
+            return;
+        }
+        ref var layout = ref CollectionsMarshal.AsSpan(layoutStack)[layoutStack.Count - 1];
+
+        if (layout.direction == LayoutDirection.Vertical) {
+            cursor.Y += widgetSize.Y + spacing;
+            layout.maxSize.X = Math.Max(layout.maxSize.X, widgetSize.X);
+            layout.maxSize.Y += widgetSize.Y + spacing;
         } else {
-            cursor.Y += widgetSize.Y + 6f;
+            cursor.X += widgetSize.X + spacing;
+            layout.maxSize.X += widgetSize.X + spacing;
+            layout.maxSize.Y = Math.Max(layout.maxSize.Y, widgetSize.Y);
         }
     }
     
