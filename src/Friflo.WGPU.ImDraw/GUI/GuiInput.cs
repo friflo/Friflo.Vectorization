@@ -31,9 +31,16 @@ public sealed class GuiInput
     
     private             bool                isTabPressed;
     private             bool                isShiftDown;
-    private             bool                isReturnPressed;
-    private             bool                isSpacePressed;
-    private             bool                isGamepadAPressed;
+    
+    private             bool                isReturnDown;
+    private             bool                isReturnFired;
+    
+    private             bool                isSpaceDown;
+    private             bool                isSpaceFired;
+    
+    private             bool                isGamepadADown;
+    private             bool                isGamepadAFired;
+    
     private             Vector2             arrowDirection;
     private             Vector2             gamepadDirection;
     
@@ -41,7 +48,8 @@ public sealed class GuiInput
     private readonly    List<GamepadEvent>  gamepadEvents       = [];
     
     public              bool                IsMouseDown     => isMouseDown;
-    public              bool                IsSubmitPressed => isSpacePressed || isReturnPressed || isGamepadAPressed;
+    public              bool                IsSubmitFired   => isSpaceFired || isReturnFired || isGamepadAFired;
+    private             bool                IsSubmitDown    => isSpaceDown  || isReturnDown  || isGamepadADown;
 #endregion
 
     public              MouseCursor         CurrentCursor   { get; private set; } = MouseCursor.Arrow;
@@ -118,6 +126,9 @@ public sealed class GuiInput
     // Mutates:  widget state
     internal WidgetState GetWidgetState(bool isHover, int widgetId)
     {
+        if (focusedItem == widgetId && IsSubmitDown) {
+            return WidgetState.Down;
+        }
         // Ignore all other widgets while another widget is currently active
         if (activeItem != 0 && activeItem != widgetId) {
             return WidgetState.None;
@@ -240,9 +251,9 @@ public sealed class GuiInput
         isTabPressed        = false;
         arrowDirection      = default;
         gamepadDirection    = default;
-        isReturnPressed     = false;
-        isSpacePressed      = false;
-        isGamepadAPressed   = false;
+        isReturnFired       = false;
+        isSpaceFired        = false;
+        isGamepadAFired     = false;
         
         // --- gamepad events
         foreach (var gamepadEvent in gamepadEvents)
@@ -253,7 +264,8 @@ public sealed class GuiInput
                     case ImGamepadButton.DPadLeft:  gamepadDirection.X = -1;    continue;
                     case ImGamepadButton.DPadDown:  gamepadDirection.Y = +1;    continue;
                     case ImGamepadButton.DPadUp:    gamepadDirection.Y = -1;    continue;
-                    case ImGamepadButton.South:     isGamepadAPressed = true;   continue;
+                    case ImGamepadButton.South:     isGamepadAFired = true;
+                                                    isGamepadADown = true;      continue;
                 }
                 continue;
             }
@@ -262,6 +274,7 @@ public sealed class GuiInput
                 case ImGamepadButton.DPadLeft:  gamepadDirection.X = 0;     continue;
                 case ImGamepadButton.DPadUp:    gamepadDirection.Y = 0;     continue;
                 case ImGamepadButton.DPadDown:  gamepadDirection.Y = 0;     continue;
+                case ImGamepadButton.South:     isGamepadADown = false;     continue;
             }
         }
         gamepadEvents.Clear();
@@ -270,6 +283,11 @@ public sealed class GuiInput
         foreach (var keyEvent in keyEvents)
         {
             if (!keyEvent.isDown) {
+                switch (keyEvent.code)
+                {
+                    case KeyCode.Space:     isSpaceDown  = false;   break;
+                    case KeyCode.Return:    isReturnDown = false;   break;
+                }
                 continue;
             }
             switch (keyEvent.code)
@@ -278,13 +296,15 @@ public sealed class GuiInput
                     isTabPressed = true;
                     isShiftDown  = (keyEvent.mod & KeyMod.Shift) != 0;
                     break;
-                case KeyCode.Left:      arrowDirection.X = -1;    break;
-                case KeyCode.Right:     arrowDirection.X = +1;    break;    
-                case KeyCode.Up:        arrowDirection.Y = -1;    break;
-                case KeyCode.Down:      arrowDirection.Y = +1;    break;
+                case KeyCode.Left:      arrowDirection.X = -1;      break;
+                case KeyCode.Right:     arrowDirection.X = +1;      break;    
+                case KeyCode.Up:        arrowDirection.Y = -1;      break;
+                case KeyCode.Down:      arrowDirection.Y = +1;      break;
                 //
-                case KeyCode.Space:     isSpacePressed  = true;   break;
-                case KeyCode.Return:    isReturnPressed = true;   break;
+                case KeyCode.Space:     isSpaceFired    = true;
+                                        isSpaceDown     = true;     break;
+                case KeyCode.Return:    isReturnFired   = true;
+                                        isReturnDown    = true;     break;
             }
         }
         keyEvents.Clear();

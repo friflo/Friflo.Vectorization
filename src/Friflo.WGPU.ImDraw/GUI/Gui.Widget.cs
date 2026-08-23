@@ -55,7 +55,7 @@ public readonly ref partial struct GuiWidget
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFired(WidgetState widgetState, bool isFocused) {
-        return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitPressed);
+        return widgetState == WidgetState.Clicked || (isFocused && input.IsSubmitFired);
     }
     
     public StyleScope UseStyle(GuiStyle? style)
