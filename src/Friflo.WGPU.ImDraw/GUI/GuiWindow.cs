@@ -312,7 +312,7 @@ public sealed class GuiWindow
         }
     }
     
-    internal void EnsureVisibleInScrollArea(Vector2 widgetPos, Vector2 widgetSize)
+    public void EnsureVisibleInScrollArea(Vector2 widgetPos, Vector2 widgetSize)
     {
         if (!host.input.JustNavigated) {
             return;

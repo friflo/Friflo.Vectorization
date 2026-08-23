@@ -178,6 +178,7 @@ public static class GuiExtensions
 
         if (isFocused) {
             draw.StrokeRect(window.Cursor, size, 4, widget.Color.FocusColor);
+            window.EnsureVisibleInScrollArea(window.Cursor, size);
         }
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
         
