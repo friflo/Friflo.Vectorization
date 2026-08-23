@@ -77,84 +77,92 @@ public class ImGuiRenderer : IRenderer
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(500, 700))) {
-            gui.Label("hello GUI");
-            gui.Spacer();
-            using (gui.PushStyle(greenButtonStyle)) {
-                if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
-            }
-            if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
-
-            gui.Spacer();
-            gui.Checkbox("mouse circle", ref mouseCircle);
-            if(gui.Checkbox("Monocraft", ref monocraft)) {
-                if (monocraft) {
-                    monocraftFont ??= target.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
-                    Debug.Assert(monocraftFont.maxY == 244);
-                    batch.SetFont(monocraftFont);
-                } else {
-                    batch.SetFontDefault();
-                }
-            }
-            gui.Spacer();
-            if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
-            gui.Spacer();
-            
-            using (gui.BeginHorizontal()) {
-                if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
-                gui.Spacer(10);
-                if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
-                gui.Spacer(10);
-                if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
-            }
-            gui.Label("after horizontal");
+            Window1(gui); 
         }
-        
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
-            gui.Checkbox("checkbox", ref enabled2);
-            gui.Spacer();
-            using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
-                if (space.isFired) Console.WriteLine("Clicked: Sprite");
-                var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-                var tint = gui.Color.ButtonState(space.widgetState);
-                gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
-            }
-            gui.Spacer();
-            gui.Label("fixed child");
-            using (gui.BeginChild(1, new Vector2(250, 80))) {
-                gui.Button("Button 1 clipped");
-                gui.Button("Button 2 clipped");
-            }
-            gui.Spacer();
-            gui.Label("auto-fit child");
-            using (gui.BeginChild(2, new Vector2(0, 0))) {
-                gui.Button("Button 1 unclipped");
-                gui.Button("Button 2 unclipped");
-            }
-            gui.Spacer();
-            gui.Label("scroll area");
-            using (gui.BeginScrollArea(3, new Vector2(350, 200))) {
-                gui.Button("Button 1 - more to to enable horizontal scrolling");
-                gui.Button("Button 2");
-                gui.Button("Button 3");
-                gui.Button("Button 4");
-                gui.Button("Button 5");
-                gui.Button("Button 6");
-                gui.Button("Button 7");
-                gui.Button("Button 8");
-                gui.Button("Button 9");
-                using (gui.BeginHorizontal()) {
-                    gui.Button("Button A");
-                    gui.Button("Button B");
-                    gui.Button("Button C");
-                    gui.Button("Button D");
-                    gui.Button("Button E");
-                }
-            }
+            Window2(gui);
         }
-        
         if (mouseCircle) {
             using (gui.Draw.PushZIndex(10)) {
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+            }
+        }
+    }
+    
+    private void Window1(Gui gui)
+    {
+        gui.Label("hello GUI");
+        gui.Spacer();
+        using (gui.PushStyle(greenButtonStyle)) {
+            if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
+        }
+        if (gui.MyButton("MyButton", id: 0x7777ffff))           Console.WriteLine("Clicked: MyButton");
+
+        gui.Spacer();
+        gui.Checkbox("mouse circle", ref mouseCircle);
+        if(gui.Checkbox("Monocraft", ref monocraft)) {
+            if (monocraft) {
+                monocraftFont ??= gui.Draw.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                Debug.Assert(monocraftFont.maxY == 244);
+                batch.SetFont(monocraftFont);
+            } else {
+                batch.SetFontDefault();
+            }
+        }
+        gui.Spacer();
+        if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
+        gui.Spacer();
+        
+        using (gui.BeginHorizontal()) {
+            if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+            gui.Spacer(10);
+            if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+            gui.Spacer(10);
+            if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
+        }
+        gui.Label("after horizontal");
+    }
+    
+    private void Window2(Gui gui)
+    {
+        gui.Checkbox("checkbox", ref enabled2);
+        gui.Spacer();
+        using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
+            if (space.isFired) Console.WriteLine("Clicked: Sprite");
+            var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
+            var tint = gui.Color.ButtonState(space.widgetState);
+            gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
+        }
+        gui.Spacer();
+        gui.Label("fixed child");
+        using (gui.BeginChild(1, new Vector2(250, 80))) {
+            gui.Button("Button 1 clipped");
+            gui.Button("Button 2 clipped");
+        }
+        gui.Spacer();
+        gui.Label("auto-fit child");
+        using (gui.BeginChild(2, new Vector2(0, 0))) {
+            gui.Button("Button 1 unclipped");
+            gui.Button("Button 2 unclipped");
+        }
+        gui.Spacer();
+        gui.Label("scroll area");
+        using (gui.BeginScrollArea(3, new Vector2(350, 200))) {
+            gui.Button("Button 1 - more to to enable horizontal scrolling");
+            gui.Button("Button 2");
+            gui.Button("Button 3");
+            gui.Button("Button 4");
+            gui.Button("Button 5");
+            gui.Button("Button 6");
+            gui.Button("Button 7");
+            gui.Button("Button 8");
+            gui.Button("Button 9");
+            using (gui.BeginHorizontal()) {
+                gui.Button("Button A");
+                gui.Button("Button B");
+                gui.Button("Button C");
+                gui.Button("Button D");
+                gui.Button("Button E");
             }
         }
     }

@@ -5,6 +5,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using Friflo.GPU;
 using Friflo.WGPU.Runtime;
 using static Friflo.WGPU.Runtime.WebGPU_native;
 
@@ -19,8 +20,9 @@ public readonly unsafe ref struct RenderPass : IDisposable
 {
     private  readonly   CommandRecorder     Recorder;   //  8 bytes
     
-    public              GpuExtent3D         TargetSize => Recorder.targetSize;
-    public              bool                IsDisposed => Recorder.renderPassEncoder == null;
+    public              GpuExtent3D         TargetSize  => Recorder.targetSize;
+    public              GpuDevice           Device      => Recorder.Device;
+    public              bool                IsDisposed  => Recorder.renderPassEncoder == null;
     
     private             RenderPassEncoder*  Handle {
         get {
