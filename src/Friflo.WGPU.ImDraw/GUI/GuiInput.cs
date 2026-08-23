@@ -24,8 +24,10 @@ public sealed class GuiInput
 #region input state
     private             bool                isMouseDown;
     public              Vector2             MousePos        { get; private set; }
-    public              Vector2             MouseDelta      { get; private set; }
-    private             Vector2             mouseLast;
+    public              Vector2             MousePosDelta   { get; private set; }
+    private             Vector2             mousePosLast;
+    public              Vector2             MouseWheel      { get; private set; }
+    private             Vector2             mouseWheelAccu;
     
     private             bool                isTabPressed;
     private             bool                isShiftDown;
@@ -85,11 +87,14 @@ public sealed class GuiInput
             case ImEventType.MouseButtonUp:
                 MousePos = ev.mouse;
                 break;
+            case  ImEventType.MouseWheel:
+                mouseWheelAccu += ev.wheel;
+                break;
         }
         switch (ev.type)
         {
             case ImEventType.MouseButtonDown:
-                isMouseDown     = true;
+                isMouseDown = true;
                 break;
             case ImEventType.MouseButtonUp:
                 isMouseDown = false;
@@ -290,8 +295,10 @@ public sealed class GuiInput
         FrameCount++;
         CurrentCursor = MouseCursor.Arrow;
         
-        MouseDelta  = MousePos - mouseLast;
-        mouseLast   = MousePos;
+        MousePosDelta   = MousePos - mousePosLast;
+        mousePosLast    = MousePos;
+        MouseWheel      = mouseWheelAccu;
+        mouseWheelAccu  = default;
         
         HandleKeyEvents();
         

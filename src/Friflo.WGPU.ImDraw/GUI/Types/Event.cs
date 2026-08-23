@@ -16,6 +16,7 @@ public enum ImEventType
     MouseMotion,
     MouseButtonUp,
     MouseButtonDown,
+    MouseWheel,
     KeyDown,
     KeyUp,
     GamepadButtonUp,
@@ -24,12 +25,17 @@ public enum ImEventType
 
 public struct ImEvent
 {
-    public ImEventType  type;
-    public Vector2      mouse;
-    public KeyEvent     key;
-    public GamepadEvent gamepad;
+    public  ImEventType     type;
+    public  Vector2         mouse;
+    public  Vector2         wheel;
+    public  KeyEvent        key;
+    public  GamepadEvent    gamepad;
 
     public override string ToString() => type.ToString();
+    
+    public ImEvent(ImEventType type) {
+        this.type       = type;
+    }
 
     public ImEvent(ImEventType type, Vector2 mouse) {
         this.type    = type;

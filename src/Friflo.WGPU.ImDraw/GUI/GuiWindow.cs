@@ -217,7 +217,7 @@ public sealed class GuiWindow
             if (activeResizeEdge == ResizeEdge.None) {
                 activeResizeEdge = hoverEdge;
             }
-            ApplyResize(input.MouseDelta, activeResizeEdge);
+            ApplyResize(input.MousePosDelta, activeResizeEdge);
             return true; // Strictly block titlebar dragging
         }
 

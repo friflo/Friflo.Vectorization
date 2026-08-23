@@ -113,7 +113,7 @@ public readonly ref struct GuiWidget
         var titleState    = GetWidgetState(isTitleHover, titleBarId);
 
         if (titleState == WidgetState.Down) {
-            window.pos += input.MouseDelta;
+            window.pos += input.MousePosDelta;
         }
 
         // Render background & titlebar
@@ -196,13 +196,13 @@ public readonly ref struct GuiWidget
         ref var scrollState = ref window.GetOrCreateScrollState(childId);  // Retrieve or create persistent scroll state
 
         // Process mouse wheel input when hovering over the scroll region
-        /* if (window.IsHoverAt(parentStartCursor, finalSize, draw)) {
-            float wheel = input.MouseWheelDelta;
+        if (window.IsHoverAt(parentStartCursor, finalSize, draw)) {
+            float wheel = input.MouseWheel.Y;
             if (wheel != 0f) {
-                scrollState.offsetY -= wheel * 20f; // 20px per wheel notch
+                scrollState.offsetY -= wheel * LineHeight;
                 scrollState.offsetY = Math.Max(0f, scrollState.offsetY); // Prevent negative offset
             }
-        } */
+        }
         // 4. Offset inner start cursor by current scroll position
         Vector2 innerPadding = new Vector2(5f, 5f);
         Vector2 innerStartCursor = parentStartCursor + innerPadding - new Vector2(0f, scrollState.offsetY);

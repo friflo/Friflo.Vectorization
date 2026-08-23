@@ -219,6 +219,9 @@ internal class Sdl3Input : IDisposable
                 var buttonDownPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
                 guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, buttonDownPos));
                 break;
+            case SDL.EventType.MouseWheel:
+                guiModule.AddEvent(new ImEvent(ImEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
+                break;
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
                 guiModule.AddEvent(new ImEvent(ImEventType.KeyDown, key));
