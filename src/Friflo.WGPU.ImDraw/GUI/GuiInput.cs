@@ -23,6 +23,9 @@ public sealed class GuiInput
 {
 #region input state
     private             bool                isMouseDown;
+    private             bool                wasMouseClicked;
+    public              bool                IsMouseClicked  { get; private set; }
+
     public              Vector2             MousePos        { get; private set; }
     public              Vector2             MousePosDelta   { get; private set; }
     private             Vector2             mousePosLast;
@@ -102,6 +105,7 @@ public sealed class GuiInput
         switch (ev.type)
         {
             case ImEventType.MouseButtonDown:
+                if (!isMouseDown) wasMouseClicked = true;
                 isMouseDown = true;
                 break;
             case ImEventType.MouseButtonUp:
@@ -254,6 +258,8 @@ public sealed class GuiInput
         isReturnFired       = false;
         isSpaceFired        = false;
         isGamepadAFired     = false;
+        IsMouseClicked      = wasMouseClicked;
+        wasMouseClicked     = false;
         
         // --- gamepad events
         foreach (var gamepadEvent in gamepadEvents)
