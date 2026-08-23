@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Ullrich Praetz - https://github.com/friflo. All rights reserved.
 // See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -86,7 +87,8 @@ public sealed class GuiInput
     
     private struct FocusableEntry {
         internal    int     id;
-        internal    Vector2 center;
+        internal    Vector2 pos;
+        internal    Vector2 size;
     }
 
     
@@ -176,10 +178,10 @@ public sealed class GuiInput
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
     // Mutates:  widget state
-    internal bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
+    internal bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size, out bool gainedFocus)
     {
         int myIndex = focusableCounter++;
-        currentFocusables.Add(new FocusableEntry { id = widgetId, center = center });
+        currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos, size = size });
         gainedFocus = false;
 
         // Handle 1D Tab focus
@@ -208,16 +210,15 @@ public sealed class GuiInput
         return focusedItem == widgetId;
     }
 
+    // Directional Axis-Aligned Bounding Box Distance & Overlap Search
     private int FindBestSpatialCandidate(Vector2 direction)
     {
-        Vector2 currentCenter = Vector2.Zero;
+        FocusableEntry current = default;
         bool foundCurrent = false;
 
-        for (int i = 0; i < prevFocusables.Count; i++)
-        {
-            if (prevFocusables[i].id == focusedItem)
-            {
-                currentCenter = prevFocusables[i].center;
+        for (int i = 0; i < prevFocusables.Count; i++) {
+            if (prevFocusables[i].id == focusedItem) {
+                current = prevFocusables[i];
                 foundCurrent = true;
                 break;
             }
@@ -233,20 +234,64 @@ public sealed class GuiInput
             var candidate = prevFocusables[i];
             if (candidate.id == focusedItem) continue;
 
-            Vector2 toCandidate = candidate.center - currentCenter;
-            float dot = Vector2.Dot(Vector2.Normalize(toCandidate), direction);
+            float primaryDist;
+            float crossOverlap;
+            float crossDist = 0f;
 
-            // Forward cone check (~70 deg angle)
-            if (dot > 0.3f)
-            {
-                // Distance penalty for off-axis deviation
-                float distSq = toCandidate.LengthSquared();
-                float score = distSq / (dot * dot * dot);
+            // --- HORIZONTAL NAVIGATION (Left / Right) ---
+            if (Math.Abs(direction.X) > 0f) {
+                bool isRight = direction.X > 0f;
 
-                if (score < bestScore) {
-                    bestScore = score;
-                    bestId = candidate.id;
+                // Edge-to-Edge distance on main axis
+                primaryDist = isRight 
+                    ? candidate.pos.X - (current.pos.X + current.size.X)
+                    : current.pos.X - (candidate.pos.X + candidate.size.X);
+
+                // Calculate overlap on Y-axis
+                float overlapTop    = Math.Max(current.pos.Y, candidate.pos.Y);
+                float overlapBottom = Math.Min(current.pos.Y + current.size.Y, candidate.pos.Y + candidate.size.Y);
+                crossOverlap        = Math.Max(0f, overlapBottom - overlapTop);
+
+                // Edge-to-Edge distance on cross axis (if not overlapping)
+                if (crossOverlap <= 0f) {
+                    crossDist = candidate.pos.Y > current.pos.Y
+                        ? candidate.pos.Y - (current.pos.Y + current.size.Y)
+                        : current.pos.Y - (candidate.pos.Y + candidate.size.Y);
                 }
+            }
+            // --- VERTICAL NAVIGATION (Up / Down) ---
+            else {
+                bool isDown = direction.Y > 0f;
+
+                // Edge-to-Edge distance on main axis
+                primaryDist = isDown 
+                    ? candidate.pos.Y - (current.pos.Y + current.size.Y)
+                    : current.pos.Y - (candidate.pos.Y + candidate.size.Y);
+
+                // Calculate overlap on X-axis
+                float overlapLeft = Math.Max(current.pos.X, candidate.pos.X);
+                float overlapRight = Math.Min(current.pos.X + current.size.X, candidate.pos.X + candidate.size.X);
+                crossOverlap = Math.Max(0f, overlapRight - overlapLeft);
+
+                // Edge-to-Edge distance on cross axis (if not overlapping)
+                if (crossOverlap <= 0f) {
+                    crossDist = candidate.pos.X > current.pos.X
+                        ? candidate.pos.X - (current.pos.X + current.size.X)
+                        : current.pos.X - (candidate.pos.X + candidate.size.X);
+                }
+            }
+
+            // Candidate must be in front of current widget (allow tiny negative tolerance for alignment borders)
+            if (primaryDist < -2f) continue;
+            primaryDist = Math.Max(0f, primaryDist);
+
+            // Scoring: Overlapping elements get massive priority (crossOverlap reduces score)
+            // Non-overlapping elements get penalized by cross-edge distance
+            float score = primaryDist + (crossDist * 3.0f) - (crossOverlap * 0.5f);
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestId = candidate.id;
             }
         }
         return bestId;

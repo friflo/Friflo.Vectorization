@@ -42,10 +42,10 @@ public struct GuiColor
     
     public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
-    public Color32  ScrollTrackBg       => Color32.Gray;
-    public Color32  ScrollThumb         => Color32.Blue;
-    public Color32  ScrollThumbActive   => Color32.Red;
-    public Color32  ScrollThumbHover    => Color32.White;
+    public Color32  ScrollTrackBg       => 0xccccccff;
+    public Color32  ScrollThumb         => 0x888888ff;
+    public Color32  ScrollThumbActive   => 0x000000ff;
+    public Color32  ScrollThumbHover    => 0x666666ff;
      
     
     public  readonly            Bitset64<ColorId>   Overrides                   => overrides;

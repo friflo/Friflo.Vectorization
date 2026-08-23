@@ -36,10 +36,10 @@ public readonly ref partial struct GuiWidget
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
-    public bool RegisterFocusable(int widgetId, in Vector2 center, out bool gainedFocus)
+    public bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size, out bool gainedFocus)
     {
         if (guiState.IsNewFrame) {
-            return input.RegisterFocusable(widgetId, center, out gainedFocus);
+            return input.RegisterFocusable(widgetId, pos, size, out gainedFocus);
         }
         gainedFocus = false;
         return false;
@@ -171,13 +171,9 @@ public readonly ref partial struct GuiWidget
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
-        var size    = draw.MeasureText(name);
-        var isHover = window.IsHoverAtCursor(size, draw);
-
-        // Calculate widget center & register for 1D/2D navigation
-        var center = window.Cursor + size * 0.5f;
-        bool isFocused = RegisterFocusable(widgetId, center, out _);
-
+        var size        = draw.MeasureText(name);
+        var isHover     = window.IsHoverAtCursor(size, draw);
+        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, size, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
         
         draw.FillRectRounded(window.Cursor, size, 8, Color.ButtonState(widgetState)); // background
@@ -195,39 +191,33 @@ public readonly ref partial struct GuiWidget
     {
         var window = Window;
         using var __ = UseStyle(style);
-        int parentHash = window.GetCurrentScopeHash();
-        int widgetId   = id.Resolve(name, parentHash);
+        int parentHash  = window.GetCurrentScopeHash();
+        int widgetId    = id.Resolve(name, parentHash);
 
-        var boxSize   = LineHeight;
-        var textSize  = draw.MeasureText(name);
-        var totalSize = new Vector2(boxSize + 8f + textSize.X, Math.Max(boxSize, textSize.Y));
-
-        var isHover = window.IsHoverAtCursor(totalSize, draw);
-
-        // Register focus for 1D/2D navigation
-        var center      = window.Cursor + totalSize * 0.5f;
-        bool isFocused  = RegisterFocusable(widgetId, center, out _);
-
+        var height      = LineHeight;
+        var textSize    = draw.MeasureText(name);
+        var totalSize   = new Vector2(height + 8f + textSize.X, Math.Max(height, textSize.Y));
+        var isHover     = window.IsHoverAtCursor(totalSize, draw);
+        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, totalSize, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
-
-        bool isToggled = IsFired(widgetState, isFocused);
+        bool isToggled  = IsFired(widgetState, isFocused);
         if (isToggled) {
             value = !value;
         }
-        var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - boxSize) / 2f);
-        draw.FillRectRounded(boxRect, new Vector2(boxSize, boxSize), 4, Color.ButtonState(widgetState)); // background
+        var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - height) / 2f);
+        draw.FillRectRounded(boxRect, new Vector2(height, height), 4, Color.ButtonState(widgetState)); // background
 
         // Render blue focus outline on box
         if (isFocused) {
-            draw.StrokeRect(boxRect, new Vector2(boxSize, boxSize), 4, Color.FocusColor);
-            window.EnsureVisibleInScrollArea(boxRect, new Vector2(boxSize, boxSize));
+            draw.StrokeRect(boxRect, new Vector2(height, height), 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(boxRect, new Vector2(height, height));
         }
         if (value) {
-            var padding = boxSize / 6;
+            var padding = height / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.FillRectRounded(innerRect, new Vector2(boxSize - 2 * padding, boxSize - 2 * padding), 8, Color.TextColor);
+            draw.FillRectRounded(innerRect, new Vector2(height - 2 * padding, height - 2 * padding), 8, Color.TextColor);
         }
-        var textPos = new Vector2(boxRect.X + boxSize + 8f, window.Cursor.Y + (totalSize.Y - textSize.Y) / 2f);
+        var textPos = new Vector2(boxRect.X + height + 8f, window.Cursor.Y + (totalSize.Y - textSize.Y) / 2f);
         draw.DrawText(name, textPos, Color.TextColor);
 
         window.MoveCursor(totalSize);
@@ -243,17 +233,11 @@ public readonly ref partial struct GuiWidget
 
         float height    = LineHeight;
         var totalSize   = new Vector2(width, height);
-
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
-
-        // Register focus for 1D/2D navigation
-        var center      = window.Cursor + totalSize * 0.5f;
-        bool isFocused  = RegisterFocusable(widgetId, center, out _);
-
+        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, totalSize, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
-
-        bool changed = false;
-
+        bool changed    = false;
+        
         if (widgetState == WidgetState.Down) {
             float t = Math.Clamp((input.MousePos.X - window.Cursor.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
@@ -292,14 +276,12 @@ public readonly ref partial struct GuiWidget
         var isFocused   = false;
 
         if (id.IsValid) {
-            int parentHash = window.GetCurrentScopeHash();
-            int widgetId   = id.Resolve(parentHash);
-            bool isHover   = window.IsHoverAt(pos, size, draw);
+            int parentHash  = window.GetCurrentScopeHash();
+            int widgetId    = id.Resolve(parentHash);
             
-            widgetState = GetWidgetState(isHover, widgetId);
-
-            var center = pos + size * 0.5f;
-            isFocused  = RegisterFocusable(widgetId, center, out _);
+            bool isHover    = window.IsHoverAt(pos, size, draw);
+            widgetState     = GetWidgetState(isHover, widgetId);
+            isFocused       = RegisterFocusable(widgetId, pos, size, out _);
         }
         window.MoveCursor(size);
 

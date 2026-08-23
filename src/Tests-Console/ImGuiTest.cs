@@ -173,13 +173,9 @@ public static class GuiExtensions
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
-        var size    = draw.MeasureText(name);
-        var isHover = window.IsHoverAtCursor(size, draw);
-
-        // Calculate widget center & register for 1D/2D navigation
-        var center      = window.Cursor + size * 0.5f;
-        var isFocused   = widget.RegisterFocusable(widgetId, center, out _);
-
+        var size        = draw.MeasureText(name);
+        var isHover     = window.IsHoverAtCursor(size, draw);
+        var isFocused   = widget.RegisterFocusable(widgetId, window.Cursor, size, out _);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
         draw.FillRectRounded(window.Cursor, size, 8, widget.Color.ButtonState(widgetState)); // background
