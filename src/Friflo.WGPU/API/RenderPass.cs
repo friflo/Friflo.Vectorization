@@ -21,7 +21,6 @@ public readonly unsafe ref struct RenderPass : IDisposable
     private  readonly   CommandRecorder     Recorder;   //  8 bytes
     
     public              GpuExtent3D         TargetSize  => Recorder.targetSize;
-    public              GpuDevice           Device      => Recorder.Device;
     public              bool                IsDisposed  => Recorder.renderPassEncoder == null;
     
     private             RenderPassEncoder*  Handle {

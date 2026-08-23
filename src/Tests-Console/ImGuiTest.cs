@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Friflo.GPU;
 using Friflo.WGPU;
 using Friflo.WGPU.ImDraw;
 
@@ -13,6 +14,7 @@ namespace TestConsole;
 
 public class ImGuiRenderer : IRenderer
 {
+    private readonly    GpuDevice               device;
     private readonly    Batch2D                 batch;
     private readonly    GpuTexture              myTexture;
     private readonly    GpuTextureView          myTextureView;
@@ -52,8 +54,8 @@ public class ImGuiRenderer : IRenderer
     
     public ImGuiRenderer(WgpuHost wgpuHost)
     {
-        var device = wgpuHost.Device;
-        batch = device.CreateBatch2D(wgpuHost.SwapChainFormat);
+        device = wgpuHost.Device;
+        batch  = device.CreateBatch2D(wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
@@ -82,7 +84,7 @@ public class ImGuiRenderer : IRenderer
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
             Window2(gui);
         }
-        if (mouseCircle) {
+        if (true) {
             using (gui.Draw.PushZIndex(10)) {
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
@@ -102,7 +104,7 @@ public class ImGuiRenderer : IRenderer
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                monocraftFont ??= gui.Draw.Device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                monocraftFont ??= device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
                 Debug.Assert(monocraftFont.maxY == 244);
                 batch.SetFont(monocraftFont);
             } else {

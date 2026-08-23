@@ -19,7 +19,6 @@ public readonly ref partial struct Draw2D : IDisposable
     private  readonly   RenderPass  pass;   //  8 bytes
 
     public              Font        DefaultFont => batch.defaultFont;
-    public              GpuDevice   Device      => pass.Device; 
     
     internal Draw2D(Batch2D batch, RenderPass pass)
     {
