@@ -72,6 +72,15 @@ public enum KeyCode : uint {
     Left    = 0x40000050u,
     Down    = 0x40000051u,
     Up      = 0x40000052u,
+    //
+    LCtrl   = 0x400000e0u,
+    LShift  = 0x400000e1u,
+    LAlt    = 0x400000e2u,
+    LGUI    = 0x400000e3u,
+    RCtrl   = 0x400000e4u,
+    RShift  = 0x400000e5u,
+    RAlt    = 0x400000e6u,
+    RGUI    = 0x400000e7u,
 }
 
 [Flags]

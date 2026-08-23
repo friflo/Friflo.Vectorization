@@ -33,7 +33,7 @@ public sealed class GuiInput
     private             Vector2             mouseWheelAccu;
     
     private             bool                isTabPressed;
-    private             bool                isShiftDown;
+    public              bool                IsShiftDown     { get; private set; }
     
     private             bool                isReturnDown;
     private             bool                isReturnFired;
@@ -288,6 +288,10 @@ public sealed class GuiInput
         // --- keyboard events
         foreach (var keyEvent in keyEvents)
         {
+            switch (keyEvent.code) {
+                case KeyCode.LShift:    IsShiftDown  = keyEvent.isDown;   break;
+                case KeyCode.RShift:    IsShiftDown  = keyEvent.isDown;   break;
+            }
             if (!keyEvent.isDown) {
                 switch (keyEvent.code)
                 {
@@ -298,10 +302,7 @@ public sealed class GuiInput
             }
             switch (keyEvent.code)
             {
-                case KeyCode.Tab:
-                    isTabPressed = true;
-                    isShiftDown  = (keyEvent.mod & KeyMod.Shift) != 0;
-                    break;
+                case KeyCode.Tab:       isTabPressed = true;        break;
                 case KeyCode.Left:      arrowDirection.X = -1;      break;
                 case KeyCode.Right:     arrowDirection.X = +1;      break;    
                 case KeyCode.Up:        arrowDirection.Y = -1;      break;
@@ -343,7 +344,7 @@ public sealed class GuiInput
         // 1D Navigation (Tab)
         if (isTabPressed)
         {
-            int dir = isShiftDown ? -1 : 1;
+            int dir = IsShiftDown ? -1 : 1;
             if (totalFocusablesLastFrame > 0)
             {
                 int start = currentFocusIndex < 0 ? 0 : currentFocusIndex;

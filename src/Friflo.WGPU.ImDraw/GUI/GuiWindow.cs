@@ -35,6 +35,7 @@ public struct ScrollState
     public Vector2  offset;
     public Vector2  targetOffset;
     public bool     isDragging;
+    public int      dragAxis;           // 0 = Y-Axis, 1 = X-Axis
     public Vector2  dragStartMouse;
     public Vector2  dragStartOffset;
 }

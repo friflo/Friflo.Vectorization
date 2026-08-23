@@ -132,7 +132,7 @@ public class ImGuiRenderer : IRenderer
             gui.Spacer();
             gui.Label("scroll area");
             using (gui.BeginScrollArea(3, new Vector2(350, 200))) {
-                gui.Button("Button 1");
+                gui.Button("Button 1 - more to to enable horizontal scrolling");
                 gui.Button("Button 2");
                 gui.Button("Button 3");
                 gui.Button("Button 4");
