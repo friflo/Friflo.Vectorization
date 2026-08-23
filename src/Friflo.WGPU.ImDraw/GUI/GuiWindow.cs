@@ -30,14 +30,20 @@ public struct LayoutNode
     internal Vector2            maxSize;
 }
 
+public enum ScrollAxis
+{
+    Vertical,   // 0 = Y-Axis,
+    Horizontal  // 1 = X-Axis
+}
+
 public struct ScrollState
 {
-    public Vector2  offset;
-    public Vector2  targetOffset;
-    public bool     isDragging;
-    public int      dragAxis;           // 0 = Y-Axis, 1 = X-Axis
-    public Vector2  dragStartMouse;
-    public Vector2  dragStartOffset;
+    public Vector2      offset;
+    public Vector2      targetOffset;
+    public bool         isDragging;
+    public ScrollAxis   dragAxis;
+    public Vector2      dragStartMouse;
+    public Vector2      dragStartOffset;
 }
 
 [Flags]

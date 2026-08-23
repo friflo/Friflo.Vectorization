@@ -117,10 +117,10 @@ public readonly ref partial struct GuiWidget
 
 		// Render scrollbars if content exceeds visible area
 		if (contentSize.Y > childSize.Y) {
-			DrawScrollbar(childId, parentStartCursor, childSize, contentSize.Y, ref scrollState, isHorizontal: false);
+			DrawScrollbar(childId, parentStartCursor, childSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical);
 		}
 		if (contentSize.X > childSize.X) {
-			DrawScrollbar(childId, parentStartCursor, childSize, contentSize.X, ref scrollState, isHorizontal: true);
+			DrawScrollbar(childId, parentStartCursor, childSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal);
 		}
 
 		window.PopScope();
@@ -130,91 +130,91 @@ public readonly ref partial struct GuiWidget
 		window.MoveCursor(childSize);
 	}
 
-	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, bool isHorizontal)
+	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis)
 	{
-		var window = Window;
-		float trackThickness = 8f;
-		int axisIndex = isHorizontal ? 1 : 0;
+	    var window = Window;
+	    float trackThickness = 8f;
+	    bool isHorizontal = axis == ScrollAxis.Horizontal;
 
-		// Axis-parameterized geometry setup
-		Vector2 trackPos = isHorizontal 
-			? new Vector2(pos.X, pos.Y + size.Y - trackThickness) 
-			: new Vector2(pos.X + size.X - trackThickness, pos.Y);
+	    // Axis-parameterized geometry setup
+	    Vector2 trackPos = isHorizontal 
+	        ? new Vector2(pos.X, pos.Y + size.Y - trackThickness) 
+	        : new Vector2(pos.X + size.X - trackThickness, pos.Y);
 
-		Vector2 trackSize = isHorizontal 
-			? new Vector2(size.X, trackThickness) 
-			: new Vector2(trackThickness, size.Y);
+	    Vector2 trackSize = isHorizontal 
+	        ? new Vector2(size.X, trackThickness) 
+	        : new Vector2(trackThickness, size.Y);
 
-		float viewLength = isHorizontal ? size.X : size.Y;
-		float visibleRatio = viewLength / totalContentSize;
-		float thumbLength = Math.Max(20f, viewLength * visibleRatio);
-		float scrollableRange = totalContentSize - viewLength;
-		float thumbScrollableRange = viewLength - thumbLength;
+	    float viewLength			= isHorizontal ? size.X : size.Y;
+	    float visibleRatio			= viewLength / totalContentSize;
+	    float thumbLength			= Math.Max(20f, viewLength * visibleRatio);
+	    float scrollableRange		= totalContentSize - viewLength;
+	    float thumbScrollableRange	= viewLength - thumbLength;
 
-		float currentOffset = isHorizontal ? scrollState.offset.X : scrollState.offset.Y;
-		float thumbOffset = (currentOffset / scrollableRange) * thumbScrollableRange;
+	    float currentOffset	= isHorizontal ? scrollState.offset.X : scrollState.offset.Y;
+	    float thumbOffset	= (currentOffset / scrollableRange) * thumbScrollableRange;
 
-		Vector2 thumbPos = isHorizontal 
-			? new Vector2(trackPos.X + thumbOffset, trackPos.Y) 
-			: new Vector2(trackPos.X, trackPos.Y + thumbOffset);
+	    Vector2 thumbPos = isHorizontal 
+	        ? new Vector2(trackPos.X + thumbOffset, trackPos.Y) 
+	        : new Vector2(trackPos.X, trackPos.Y + thumbOffset);
 
-		Vector2 thumbSize = isHorizontal 
-			? new Vector2(thumbLength, trackThickness) 
-			: new Vector2(trackThickness, thumbLength);
+	    Vector2 thumbSize = isHorizontal 
+	        ? new Vector2(thumbLength, trackThickness) 
+	        : new Vector2(trackThickness, thumbLength);
 
-		// Hit testing
-		bool isThumbHovered = window.IsHoverAt(thumbPos, thumbSize, draw);
-		bool isTrackHovered = window.IsHoverAt(trackPos, trackSize, draw);
+	    // Hit testing
+	    bool isThumbHovered = window.IsHoverAt(thumbPos, thumbSize, draw);
+	    bool isTrackHovered = window.IsHoverAt(trackPos, trackSize, draw);
 
-		// Handle mouse drag start on thumb
-		if (isThumbHovered && input.IsMouseDown && !scrollState.isDragging) {
-			scrollState.isDragging 		= true;
-			scrollState.dragAxis 		= axisIndex;
-			scrollState.dragStartMouse 	= input.MousePos;
-			scrollState.dragStartOffset = scrollState.offset;
-			input.SetActiveWidget(childId);
-		}
-		// Handle click on track (Page Left/Right or Page Up/Down)
-		else if (isTrackHovered && !isThumbHovered && input.IsMouseClicked && !scrollState.isDragging) {
-			float clickPos = isHorizontal ? (input.MousePos.X - trackPos.X) : (input.MousePos.Y - trackPos.Y);
-			if (clickPos < thumbOffset) {
-				if (isHorizontal) scrollState.offset.X = Math.Max(0f, scrollState.offset.X - size.X);
-				else              scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - size.Y);
-			} else if (clickPos > thumbOffset + thumbLength) {
-				if (isHorizontal) scrollState.offset.X = Math.Min(scrollableRange, scrollState.offset.X + size.X);
-				else              scrollState.offset.Y = Math.Min(scrollableRange, scrollState.offset.Y + size.Y);
-			}
-		}
+	    // Handle mouse drag start on thumb
+	    if (isThumbHovered && input.IsMouseDown && !scrollState.isDragging) {
+	        scrollState.isDragging		= true;
+	        scrollState.dragAxis		= axis;
+	        scrollState.dragStartMouse	= input.MousePos;
+	        scrollState.dragStartOffset = scrollState.offset;
+	        input.SetActiveWidget(childId);
+	    }
+	    // Handle click on track (Page Left/Right or Page Up/Down)
+	    else if (isTrackHovered && !isThumbHovered && input.IsMouseClicked && !scrollState.isDragging) {
+	        float clickPos = isHorizontal ? (input.MousePos.X - trackPos.X) : (input.MousePos.Y - trackPos.Y);
+	        if (clickPos < thumbOffset) {
+	            if (isHorizontal) scrollState.offset.X = Math.Max(0f, scrollState.offset.X - size.X);
+	            else              scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - size.Y);
+	        } else if (clickPos > thumbOffset + thumbLength) {
+	            if (isHorizontal) scrollState.offset.X = Math.Min(scrollableRange, scrollState.offset.X + size.X);
+	            else              scrollState.offset.Y = Math.Min(scrollableRange, scrollState.offset.Y + size.Y);
+	        }
+	    }
 
-		// Handle active mouse dragging for the active axis
-		if (scrollState.isDragging && scrollState.dragAxis == axisIndex) {
-			if (input.IsMouseDown) {
-				float mouseDelta = isHorizontal 
-					? (input.MousePos.X - scrollState.dragStartMouse.X) 
-					: (input.MousePos.Y - scrollState.dragStartMouse.Y);
+	    // Handle active mouse dragging for the active axis
+	    if (scrollState.isDragging && scrollState.dragAxis == axis) {
+	        if (input.IsMouseDown) {
+	            float mouseDelta = isHorizontal 
+	                ? (input.MousePos.X - scrollState.dragStartMouse.X) 
+	                : (input.MousePos.Y - scrollState.dragStartMouse.Y);
 
-				float scrollDelta = (mouseDelta / thumbScrollableRange) * scrollableRange;
+	            float scrollDelta = (mouseDelta / thumbScrollableRange) * scrollableRange;
 
-				if (isHorizontal) {
-					scrollState.offset.X = Math.Clamp(scrollState.dragStartOffset.X + scrollDelta, 0f, scrollableRange);
-				} else {
-					scrollState.offset.Y = Math.Clamp(scrollState.dragStartOffset.Y + scrollDelta, 0f, scrollableRange);
-				}
-			} else {
-				scrollState.isDragging = false;
-				input.SetActiveWidget(0);
-			}
-		}
+	            if (isHorizontal) {
+	                scrollState.offset.X = Math.Clamp(scrollState.dragStartOffset.X + scrollDelta, 0f, scrollableRange);
+	            } else {
+	                scrollState.offset.Y = Math.Clamp(scrollState.dragStartOffset.Y + scrollDelta, 0f, scrollableRange);
+	            }
+	        } else {
+	            scrollState.isDragging = false;
+	            input.SetActiveWidget(0);
+	        }
+	    }
 
-		// Visual feedback on hover/drag
-		bool isCurrentDragging = scrollState.isDragging && scrollState.dragAxis == axisIndex;
-		Color32 thumbColor = isCurrentDragging ? Color.ScrollThumbActive 
-						   : isThumbHovered    ? Color.ScrollThumbHover 
-											   : Color.ScrollThumb;
+	    // Visual feedback on hover/drag
+	    bool isCurrentDragging = scrollState.isDragging && scrollState.dragAxis == axis;
+	    Color32 thumbColor = isCurrentDragging ? Color.ScrollThumbActive 
+	                       : isThumbHovered    ? Color.ScrollThumbHover 
+	                                           : Color.ScrollThumb;
 
-		// Render track and thumb
-		draw.FillRect(trackPos, trackSize, Color.ScrollTrackBg);
-		draw.FillRectRounded(thumbPos, thumbSize, 3f, thumbColor);
+	    // Render track and thumb
+	    draw.FillRect(trackPos, trackSize, Color.ScrollTrackBg);
+	    draw.FillRectRounded(thumbPos, thumbSize, 3f, thumbColor);
 	}
 #endregion
 }
