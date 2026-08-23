@@ -44,8 +44,8 @@ public struct GuiColor
     
     public Color32  ScrollTrackBg       => 0xccccccff;
     public Color32  ScrollThumb         => 0x888888ff;
-    public Color32  ScrollThumbActive   => 0x000000ff;
-    public Color32  ScrollThumbHover    => 0x666666ff;
+    public Color32  ScrollThumbActive   => 0x666666ff;
+    public Color32  ScrollThumbHover    => 0xffffffff;
      
     
     public  readonly            Bitset64<ColorId>   Overrides                   => overrides;

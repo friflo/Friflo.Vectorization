@@ -24,9 +24,6 @@ public sealed class GuiInput
 {
 #region input state
     private             bool                isMouseDown;
-    private             bool                wasMouseClicked;
-    public              bool                IsMouseClicked  { get; private set; }
-
     public              Vector2             MousePos        { get; private set; }
     public              Vector2             MousePosDelta   { get; private set; }
     private             Vector2             mousePosLast;
@@ -66,6 +63,9 @@ public sealed class GuiInput
     
     /// <summary> The widget currently being interacted with (persists while mouse is held down) </summary>
     private             int                     activeItem; // MUST stay private. read/write only in GetWidgetState()
+    
+    /// <summary> The widget currently being dragged (persists while mouse is held down) </summary>
+    private             int                     dragItem;   // MUST stay private. read/write only in GetWidgetState()
     
     // --- tab / 2D array key navigation
     private readonly    List<FocusableEntry>    currentFocusables   = new(32);
@@ -108,7 +108,6 @@ public sealed class GuiInput
         switch (ev.type)
         {
             case ImEventType.MouseButtonDown:
-                if (!isMouseDown) wasMouseClicked = true;
                 isMouseDown = true;
                 break;
             case ImEventType.MouseButtonUp:
@@ -124,12 +123,43 @@ public sealed class GuiInput
                 break;
         }
     }
-    
-    public void SetActiveWidget(int widgetId)
+
+#region activeItem / dragItem
+    /// <summary> Start and keep drag state for a widget without setting focus. </summary>
+    // Mutates:  widget state
+    internal WidgetState GetDragState(bool isHover, int widgetId)
     {
-        activeItem = widgetId;
+        // Ignore all interaction if another widget currently owns the drag state
+        if (dragItem != 0 && dragItem != widgetId) {
+            return WidgetState.None;
+        }
+        // Initiate drag when mouse is pressed over a hovered widget
+        if (isHover && isMouseDown && dragItem == 0) {
+            dragItem = widgetId;
+        }
+        // Process ongoing drag operation or handle release
+        if (dragItem == widgetId) {
+            if (isMouseDown) {
+                // Active drag in progress (mouse button held down)
+                return WidgetState.Down;
+            }
+            // Mouse button released: end drag operation
+            dragItem = 0;
+            // Return Clicked state if released within bounds
+            if (isHover) {
+                return WidgetState.Clicked;
+            }
+            return WidgetState.None;
+        }
+        // Fallback hover state when no drag is active
+        if (isHover && dragItem == 0) {
+            hotItem = widgetId;
+            return WidgetState.Hover;
+        }
+        return WidgetState.None;
     }
     
+    /// <summary> Start and keep drag state for a widget and set focus to widget. </summary>
     // Mutates:  widget state
     internal WidgetState GetWidgetState(bool isHover, int widgetId)
     {
@@ -137,10 +167,9 @@ public sealed class GuiInput
             return WidgetState.Down;
         }
         // Ignore all other widgets while another widget is currently active
-        if (activeItem != 0 && activeItem != widgetId) {
+        if ((activeItem != 0 && activeItem != widgetId) || dragItem != 0) {
             return WidgetState.None;
         }
-
         if (isHover) {
             if (activeItem == 0) {
                 hotItem = widgetId;
@@ -149,32 +178,27 @@ public sealed class GuiInput
             // Keep hotItem set while dragging outside the bounds
             hotItem = 0;
         }
-
         if (hotItem == widgetId && isMouseDown) {
             activeItem = widgetId;
         }
-
         if (activeItem == widgetId) {
             if (isMouseDown) {
-               focusedItem = widgetId; 
-            } else {
-                activeItem = 0;
-                if (hotItem == widgetId) {
-                    return WidgetState.Clicked;
-                }
+               focusedItem = widgetId;
+               return WidgetState.Down;
             }
-        }
-
-        if (activeItem == widgetId) {
-            return WidgetState.Down;
+            activeItem = 0;
+            if (hotItem == widgetId) {
+                return WidgetState.Clicked;
+            }
         }
         if (hotItem == widgetId) {
             return WidgetState.Hover;
         }
         return WidgetState.None;
     }
-    
-    
+#endregion
+
+
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
     // Mutates:  widget state
@@ -306,8 +330,6 @@ public sealed class GuiInput
         isReturnFired       = false;
         isSpaceFired        = false;
         isGamepadAFired     = false;
-        IsMouseClicked      = wasMouseClicked;
-        wasMouseClicked     = false;
         
         // --- gamepad events
         foreach (var gamepadEvent in gamepadEvents)

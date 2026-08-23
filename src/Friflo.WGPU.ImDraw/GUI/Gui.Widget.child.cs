@@ -171,15 +171,17 @@ public readonly ref partial struct GuiWidget
 	    bool isTrackHovered = window.IsHoverAt(trackPos, trackSize, draw);
 
 	    // Handle mouse drag start on thumb
-	    if (isThumbHovered && input.IsMouseDown && !scrollState.isDragging) {
+	    var widgetState = GetDragState(isTrackHovered, childId);
+	    var isDown 		= widgetState == WidgetState.Down;
+	    
+	    if (isThumbHovered && isDown && !scrollState.isDragging) {
 	        scrollState.isDragging		= true;
 	        scrollState.dragAxis		= axis;
 	        scrollState.dragStartMouse	= input.MousePos;
 	        scrollState.dragStartOffset = scrollState.offset;
-	        input.SetActiveWidget(childId);
 	    }
 	    // Handle click on track (Page Left/Right or Page Up/Down)
-	    else if (isTrackHovered && !isThumbHovered && input.IsMouseClicked && !scrollState.isDragging) {
+	    else if (isTrackHovered && !isThumbHovered && isDown && !scrollState.isDragging) {
 	        float clickPos = isHorizontal ? (input.MousePos.X - trackPos.X) : (input.MousePos.Y - trackPos.Y);
 	        if (clickPos < thumbOffset) {
 	            if (isHorizontal) scrollState.offset.X = Math.Max(0f, scrollState.offset.X - size.X);
@@ -192,7 +194,7 @@ public readonly ref partial struct GuiWidget
 
 	    // Handle active mouse dragging for the active axis
 	    if (scrollState.isDragging && scrollState.dragAxis == axis) {
-	        if (input.IsMouseDown) {
+	        if (isDown) {
 	            float mouseDelta = isHorizontal 
 	                ? (input.MousePos.X - scrollState.dragStartMouse.X) 
 	                : (input.MousePos.Y - scrollState.dragStartMouse.Y);
@@ -206,7 +208,6 @@ public readonly ref partial struct GuiWidget
 	            }
 	        } else {
 	            scrollState.isDragging = false;
-	            input.SetActiveWidget(0);
 	        }
 	    }
 

@@ -216,14 +216,14 @@ public sealed class GuiWindow
     
 #region resize
 
-    internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 6f)
+    internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 15f)
     {
         var input = drawGui.input;
         ResizeEdge hoverEdge = GetResizeEdge(input.MousePos, border);
 
         // Active state override: keep active while dragging even if mouse leaves border
         bool isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
-        var state = drawGui.GetWidgetState(isHoverOrActive, resizeId);
+        var state 			 = drawGui.GetDragState(isHoverOrActive, resizeId);
 
         // Determine which edge determines the cursor
         ResizeEdge effectiveEdge = activeResizeEdge != ResizeEdge.None ? activeResizeEdge : hoverEdge;
@@ -271,8 +271,13 @@ public sealed class GuiWindow
 
         if (mousePos.Y <= pos.Y + border)               edge |= ResizeEdge.Top;
         else if (mousePos.Y >= pos.Y + size.Y - border) edge |= ResizeEdge.Bottom;
-
-        return edge;
+        if (edge != ResizeEdge.None) {
+            var topMost = host.GetTopWindowAt(host.input.MousePos);
+            if (topMost == null || topMost == this) {
+                return edge;
+            }
+        }
+        return ResizeEdge.None;
     }
 
     private void ApplyResize(Vector2 delta, ResizeEdge edge)

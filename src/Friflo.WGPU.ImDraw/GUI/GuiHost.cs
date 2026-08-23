@@ -37,7 +37,7 @@ internal sealed class GuiHost
         focusedWindow = win;
     }
     
-    private GuiWindow? GetTopWindowAt(Vector2 screenPos)
+    internal GuiWindow? GetTopWindowAt(Vector2 screenPos)
     {
         for (int i = windowOrder.Count - 1; i >= 0; i--)
         {
