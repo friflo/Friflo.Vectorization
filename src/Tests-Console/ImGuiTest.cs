@@ -84,7 +84,7 @@ public class ImGuiRenderer : IRenderer
         using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
             Window2(gui);
         }
-        if (true) {
+        if (mouseCircle) {
             using (gui.Draw.PushZIndex(10)) {
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
