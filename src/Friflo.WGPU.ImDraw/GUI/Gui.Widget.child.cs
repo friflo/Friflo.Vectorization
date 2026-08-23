@@ -75,13 +75,13 @@ public readonly ref partial struct GuiWidget
         if (window.IsHoverAt(parentStartCursor, finalSize, draw)) {
             float wheel = input.MouseWheel.Y;
             if (wheel != 0f) {
-                scrollState.offsetY -= wheel * LineHeight;
-                scrollState.offsetY = Math.Max(0f, scrollState.offsetY); // Prevent negative offset
+                scrollState.offset.Y -= wheel * LineHeight;
+                scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y); // Prevent negative offset
             }
         }
         // 4. Offset inner start cursor by current scroll position
         Vector2 innerPadding = new Vector2(5f, 5f);
-        Vector2 innerStartCursor = parentStartCursor + innerPadding - new Vector2(0f, scrollState.offsetY);
+        Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
 
         window.SetCursor(innerStartCursor);
         window.PushLayout(LayoutDirection.Vertical);
@@ -101,7 +101,7 @@ public readonly ref partial struct GuiWidget
         // Clamp scroll offset within valid bounds
         ref var scrollState = ref window.GetOrCreateScrollState(childId);
         float maxScroll     = Math.Max(0f, contentSize.Y - childSize.Y);
-        scrollState.offsetY = Math.Clamp(scrollState.offsetY, 0f, maxScroll);
+        scrollState.offset.Y = Math.Clamp(scrollState.offset.Y, 0f, maxScroll);
 
         // Render vertical scrollbar if content exceeds visible area
         if (contentSize.Y > childSize.Y) {
@@ -113,13 +113,13 @@ public readonly ref partial struct GuiWidget
         window.SetCursor(parentStartCursor);
         window.MoveCursor(childSize);
     }
-    
+
     private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentHeight, ref ScrollState scrollState)
     {
         var window = Window;
-        float trackWidth 	= 8f;
-        Vector2 trackPos 	= new Vector2(pos.X + size.X - trackWidth, pos.Y);
-        Vector2 trackSize 	= new Vector2(trackWidth, size.Y);
+        float trackWidth    = 8f;
+        Vector2 trackPos    = new Vector2(pos.X + size.X - trackWidth, pos.Y);
+        Vector2 trackSize   = new Vector2(trackWidth, size.Y);
         
         // Calculate thumb dimensions
         float visibleRatio          = size.Y / totalContentHeight;
@@ -127,7 +127,7 @@ public readonly ref partial struct GuiWidget
         float scrollableRange       = totalContentHeight - size.Y;
         float thumbScrollableRange  = size.Y - thumbHeight;
 
-        float thumbY        = (scrollState.offsetY / scrollableRange) * thumbScrollableRange;
+        float thumbY        = (scrollState.offset.Y / scrollableRange) * thumbScrollableRange;
         Vector2 thumbPos    = new Vector2(trackPos.X, trackPos.Y + thumbY);
         Vector2 thumbSize   = new Vector2(trackWidth, thumbHeight);
 
@@ -138,8 +138,8 @@ public readonly ref partial struct GuiWidget
         // Handle mouse drag start on thumb
         if (isThumbHovered && input.IsMouseDown && !scrollState.isDragging) {
             scrollState.isDragging = true;
-            scrollState.dragStartMouseY = input.MousePos.Y;
-            scrollState.dragStartOffsetY = scrollState.offsetY;
+            scrollState.dragStartMouse = input.MousePos;
+            scrollState.dragStartOffset = scrollState.offset;
             input.SetActiveWidget(childId);
         }
         // Handle click on track (Page Up / Page Down)
@@ -147,18 +147,18 @@ public readonly ref partial struct GuiWidget
             float clickY = input.MousePos.Y - trackPos.Y;
             if (clickY < thumbY) {
                 // Clicked above the thumb -> Page Up
-                scrollState.offsetY = Math.Max(0f, scrollState.offsetY - size.Y);
+                scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - size.Y);
             } else if (clickY > thumbY + thumbHeight) {
                 // Clicked below the thumb -> Page Down
-                scrollState.offsetY = Math.Min(scrollableRange, scrollState.offsetY + size.Y);
+                scrollState.offset.Y = Math.Min(scrollableRange, scrollState.offset.Y + size.Y);
             }
         }
         // Handle active mouse dragging
         if (scrollState.isDragging) {
             if (input.IsMouseDown) {
-                float mouseDeltaY   = input.MousePos.Y - scrollState.dragStartMouseY;
+                float mouseDeltaY   = input.MousePos.Y - scrollState.dragStartMouse.Y;
                 float scrollDeltaY  = (mouseDeltaY / thumbScrollableRange) * scrollableRange;
-                scrollState.offsetY = Math.Clamp(scrollState.dragStartOffsetY + scrollDeltaY, 0f, scrollableRange);
+                scrollState.offset.Y = Math.Clamp(scrollState.dragStartOffset.Y + scrollDeltaY, 0f, scrollableRange);
             } else {
                 scrollState.isDragging = false;
                 input.SetActiveWidget(0);

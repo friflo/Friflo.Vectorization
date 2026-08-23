@@ -32,11 +32,11 @@ public struct LayoutNode
 
 public struct ScrollState
 {
-    public float    offsetY;
-    public float    targetOffsetY;
+    public Vector2  offset;
+    public Vector2  targetOffset;
     public bool     isDragging;
-    public float    dragStartMouseY;
-    public float    dragStartOffsetY;
+    public Vector2  dragStartMouse;
+    public Vector2  dragStartOffset;
 }
 
 [Flags]
@@ -142,8 +142,8 @@ public sealed class GuiWindow
         if (!exists) {
             // Initialize default state if first time seen
             state = new ScrollState {
-                offsetY = 0f,
-                targetOffsetY = 0f
+                offset       = default,
+                targetOffset = default
             };
         }
         return ref state;
