@@ -184,6 +184,7 @@ public readonly ref partial struct GuiWidget
 
         if (isFocused) {
             draw.StrokeRect(window.Cursor, size, 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(window.Cursor, size);
         }
         draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
         window.MoveCursor(size);
@@ -219,6 +220,7 @@ public readonly ref partial struct GuiWidget
         // Render blue focus outline on box
         if (isFocused) {
             draw.StrokeRect(boxRect, new Vector2(boxSize, boxSize), 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(boxRect, new Vector2(boxSize, boxSize));
         }
         if (value) {
             var padding = boxSize / 6;
@@ -272,6 +274,7 @@ public readonly ref partial struct GuiWidget
         // Render blue focus outline
         if (isFocused) {
             draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(window.Cursor, totalSize);
         }
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
         draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);

@@ -76,6 +76,7 @@ public sealed class GuiInput
     private             int                     totalFocusablesLastFrame;
     private             int                     currentFocusIndex   = -1;
     private             int                     targetFocusIndex    = -1;
+    internal            bool                    JustNavigated       { get; private set; }
 #endregion
     
 
@@ -185,18 +186,20 @@ public sealed class GuiInput
         if (myIndex == targetFocusIndex)
         {
             focusedItem = widgetId;
-            currentFocusIndex = myIndex;
-            targetFocusIndex = -1;
-            gainedFocus = true;
+            currentFocusIndex   = myIndex;
+            targetFocusIndex    = -1;
+            gainedFocus         = true;
+            JustNavigated       = true;
         }
 
         // Handle 2D Arrow focus
         if (targetFocusItem == widgetId)
         {
-            focusedItem = widgetId;
-            currentFocusIndex = myIndex;
-            targetFocusItem = 0;
-            gainedFocus = true;
+            focusedItem         = widgetId;
+            currentFocusIndex   = myIndex;
+            targetFocusItem     = 0;
+            gainedFocus         = true;
+            JustNavigated       = true;
         }
 
         if (focusedItem == widgetId) {
@@ -320,7 +323,8 @@ public sealed class GuiInput
     internal void NewFrame()
     {
         FrameCount++;
-        CurrentCursor = MouseCursor.Arrow;
+        JustNavigated   = false;
+        CurrentCursor   = MouseCursor.Arrow;
         
         MousePosDelta   = MousePos - mousePosLast;
         mousePosLast    = MousePos;

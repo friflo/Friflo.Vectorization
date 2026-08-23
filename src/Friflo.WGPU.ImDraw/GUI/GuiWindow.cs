@@ -46,6 +46,13 @@ public struct ScrollState
     public Vector2      dragStartOffset;
 }
 
+internal struct ScrollAreaInfo
+{
+    public int      childId;
+    public Vector2  pos;
+    public Vector2  size;
+}
+
 [Flags]
 public enum ResizeEdge
 {
@@ -289,4 +296,60 @@ public sealed class GuiWindow
     }
 #endregion
 
+#region scroll area
+
+    private readonly    Stack<ScrollAreaInfo>   scrollAreaStack     = new();
+    private             ScrollAreaInfo          CurrentScrollArea   => scrollAreaStack.Count > 0 ? scrollAreaStack.Peek() : default;
+
+    internal void PushScrollAreaInfo(int childId, Vector2 areaPos, Vector2 areaSize) {
+        scrollAreaStack.Push(new ScrollAreaInfo { childId = childId, pos = areaPos, size = areaSize });
+    }
+
+    internal void PopScrollAreaInfo()
+    {
+        if (scrollAreaStack.Count > 0) {
+            scrollAreaStack.Pop();
+        }
+    }
+    
+    internal void EnsureVisibleInScrollArea(Vector2 widgetPos, Vector2 widgetSize)
+    {
+        if (!host.input.JustNavigated) {
+            return;
+        }
+        var scrollArea = CurrentScrollArea;
+        if (scrollArea.childId == 0) return; // Not inside an active ScrollArea
+
+        ref var scrollState = ref GetOrCreateScrollState(scrollArea.childId);
+        float padding = 8f;
+
+        // Check and adjust vertical scrolling (Y-Axis)
+        float widgetTop = widgetPos.Y;
+        float widgetBottom = widgetPos.Y + widgetSize.Y;
+        float areaTop = scrollArea.pos.Y;
+        float areaBottom = scrollArea.pos.Y + scrollArea.size.Y;
+
+        if (widgetTop < areaTop + padding) {
+            float delta = (areaTop + padding) - widgetTop;
+            scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - delta);
+        } else if (widgetBottom > areaBottom - padding) {
+            float delta = widgetBottom - (areaBottom - padding);
+            scrollState.offset.Y += delta;
+        }
+
+        // Check and adjust horizontal scrolling (X-Axis)
+        float widgetLeft = widgetPos.X;
+        float widgetRight = widgetPos.X + widgetSize.X;
+        float areaLeft = scrollArea.pos.X;
+        float areaRight = scrollArea.pos.X + scrollArea.size.X;
+
+        if (widgetLeft < areaLeft + padding) {
+            float delta = (areaLeft + padding) - widgetLeft;
+            scrollState.offset.X = Math.Max(0f, scrollState.offset.X - delta);
+        } else if (widgetRight > areaRight - padding) {
+            float delta = widgetRight - (areaRight - padding);
+            scrollState.offset.X += delta;
+        }
+    }
+#endregion
 }
