@@ -230,10 +230,10 @@ public sealed class GuiWindow
                 activeResizeEdge    = GetResizeEdge(input.MousePos, border);
                 activeResizeSize    = size;
                 drawGui.draw.batch.host.SetTopWindow(this);
-            } else {
-                var offset = input.MousePos - input.DragPosStart;
-                ApplyResize(offset, activeEdge);
             }
+            var offset = input.MousePos - input.DragPosStart;
+            ApplyResize(offset, activeEdge);
+
             input.SetCursor(GetCursorForEdge(activeEdge));
             return true;
         }
