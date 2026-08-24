@@ -80,6 +80,8 @@ public sealed class GuiWindow
     internal            Vector2             size;
     private  readonly   Vector2             minSize     = new(100f, 100f);
     private             ResizeEdge          activeResizeEdge;
+    private             Vector2             activeResizeSize;
+    private             Vector2             activeResizeMousePos;
     
     private             Vector2             cursor;
     private  readonly   Stack<int>          idStack         = new();
@@ -225,10 +227,13 @@ public sealed class GuiWindow
         
         if (state == WidgetState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
-                activeResizeEdge = GetResizeEdge(input.MousePos, border);
+                activeResizeEdge        = GetResizeEdge(input.MousePos, border);
+                activeResizeSize        = size;
+                activeResizeMousePos    = input.MousePos;
                 drawGui.draw.batch.host.SetTopWindow(this);
             } else {
-                ApplyResize(input.MousePosDelta, activeResizeEdge);
+                var offset = input.MousePos - activeResizeMousePos;
+                ApplyResize(offset, activeResizeEdge);
             }
             input.SetCursor(GetCursorForEdge(activeResizeEdge));
             return true;
@@ -277,26 +282,26 @@ public sealed class GuiWindow
         return ResizeEdge.None;
     }
 
-    private void ApplyResize(Vector2 delta, ResizeEdge edge)
+    private void ApplyResize(Vector2 offset, ResizeEdge edge)
     {
         // Horizontal: Right
         if ((edge & ResizeEdge.Right) != 0) {
-            size.X = Math.Max(minSize.X, size.X + delta.X);
+            size.X = Math.Max(minSize.X, activeResizeSize.X + offset.X);
         }
         // Horizontal: Left
         if ((edge & ResizeEdge.Left) != 0) {
-            float newWidth = Math.Max(minSize.X, size.X - delta.X);
+            float newWidth = Math.Max(minSize.X, activeResizeSize.X - offset.X);
             pos.X += size.X - newWidth;
             size.X = newWidth;
         }
         // Vertical: Bottom
         if ((edge & ResizeEdge.Bottom) != 0) {
-            size.Y = Math.Max(minSize.Y, size.Y + delta.Y);
+            size.Y = Math.Max(minSize.Y, activeResizeSize.Y + offset.Y);
         }
         // Vertical: Top
         if ((edge & ResizeEdge.Top) != 0)
         {
-            float newHeight = Math.Max(minSize.Y, size.Y - delta.Y);
+            float newHeight = Math.Max(minSize.Y, activeResizeSize.Y - offset.Y);
             pos.Y += size.Y - newHeight;
             size.Y = newHeight;
         }
