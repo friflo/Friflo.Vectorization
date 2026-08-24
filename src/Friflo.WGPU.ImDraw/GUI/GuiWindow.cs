@@ -88,8 +88,9 @@ public sealed class GuiWindow
     private             Vector2             activeResizeSize;
     
     private             Vector2             cursor;
-    private  readonly   Stack<int>          idStack         = new();
-    private  readonly   List<LayoutNode>    layoutStack     = [];
+    private  readonly   Stack<int>          idStack             = new();
+    private             LayoutNode[]        layoutStack         = [default];
+    private             int                 layoutStackCount;
     private             LayoutNode          currentLayout;
     public              LayoutNode          CurrentLayout   => currentLayout;
     private readonly    Dictionary<int, ScrollState> scrollStates = new(64);
@@ -105,18 +106,18 @@ public sealed class GuiWindow
     internal void ResetScope()
     {
         idStack.Clear();
-        layoutStack.Clear();
+        layoutStackCount = 1;
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        currentLayout = new LayoutNode(LayoutDirection.Vertical, cursor);
-        layoutStack.Add(currentLayout);
+        currentLayout = new LayoutNode(LayoutDirection.Vertical, pos);
+        layoutStack[0] = currentLayout;
     }
 
     internal void ClearScope()
     {
         idStack.Clear();
-        layoutStack.Clear();
+        layoutStackCount = 0;
         currentLayout = default;
     }
     
@@ -141,17 +142,23 @@ public sealed class GuiWindow
     internal void PushLayout(LayoutDirection direction)
     {
         currentLayout = new LayoutNode(direction, cursor);
-        layoutStack.Add(currentLayout);
+        var count = layoutStack.Length;
+        if (layoutStackCount >= count) {
+            var newStack = new LayoutNode[2 * count];
+            Array.Copy(layoutStack, 0, newStack, 0, count);
+            layoutStack = newStack;
+        }
+        layoutStack[layoutStackCount++] = currentLayout;
     }
 
     internal Vector2 PopLayout()
     {
-        int lastIdx = layoutStack.Count - 1;
+        int lastIdx = layoutStackCount - 1;
         if (lastIdx < 0) {
             return Vector2.Zero;
         }
         var finishedLayout = layoutStack[lastIdx];
-        layoutStack.RemoveAt(lastIdx);
+        layoutStackCount--;
 
         if (lastIdx > 0) {
             cursor = finishedLayout.startCursor;
@@ -182,11 +189,11 @@ public sealed class GuiWindow
     {
         const float spacing = 6f;
 
-        if (layoutStack.Count == 0) {
+        if (layoutStackCount == 0) {
             cursor.Y += widgetSize.Y + spacing;
             return;
         }
-        ref var layout = ref CollectionsMarshal.AsSpan(layoutStack)[layoutStack.Count - 1];
+        ref var layout = ref layoutStack[layoutStackCount - 1];
 
         if (layout.direction == LayoutDirection.Vertical) {
             cursor.Y += widgetSize.Y + spacing;
