@@ -91,9 +91,10 @@ public sealed class GuiWindow
     private  readonly   Stack<int>          idStack             = new();
     private             LayoutNode[]        layoutStack         = [default];
     private             int                 layoutStackCount;
-    private             LayoutNode          currentLayout;
-    public              LayoutNode          CurrentLayout   => currentLayout;
-    private readonly    Dictionary<int, ScrollState> scrollStates = new(64);
+    public ref readonly LayoutNode          CurrentLayout       => ref layoutStack[layoutStackCount - 1];
+    internal ref        LayoutNode          CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
+    
+    private  readonly   Dictionary<int, ScrollState> scrollStates = new(64);
 
     public   override   string              ToString() => title;
 
@@ -110,15 +111,13 @@ public sealed class GuiWindow
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        currentLayout = new LayoutNode(LayoutDirection.Vertical, pos);
-        layoutStack[0] = currentLayout;
+        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, pos);
     }
 
     internal void ClearScope()
     {
         idStack.Clear();
         layoutStackCount = 0;
-        currentLayout = default;
     }
     
     internal void PushScope(WidgetID scopeId)
@@ -141,14 +140,13 @@ public sealed class GuiWindow
 
     internal void PushLayout(LayoutDirection direction)
     {
-        currentLayout = new LayoutNode(direction, cursor);
         var count = layoutStack.Length;
         if (layoutStackCount >= count) {
             var newStack = new LayoutNode[2 * count];
             Array.Copy(layoutStack, 0, newStack, 0, count);
             layoutStack = newStack;
         }
-        layoutStack[layoutStackCount++] = currentLayout;
+        layoutStack[layoutStackCount++] = new LayoutNode(direction, cursor);
     }
 
     internal Vector2 PopLayout()
