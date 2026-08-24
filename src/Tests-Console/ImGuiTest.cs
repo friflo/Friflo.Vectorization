@@ -38,9 +38,9 @@ public class ImGuiRenderer : IRenderer
     
     private readonly GuiStyle greenButtonStyle = new() {
         color = new GuiColor {
-            ButtonColor = 0x22aa22ff,
-            ButtonHover = 0x44cc44ff,
-            ButtonDown  = 0x008800ff,
+            ButtonColor = 0x229922ff,
+            ButtonHover = 0x44bb44ff,
+            ButtonDown  = 0x007700ff,
             ButtonText  = 0xffffffff,
             FocusColor  = 0xffffffff,
         }
