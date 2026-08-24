@@ -156,11 +156,8 @@ public sealed class GuiWindow
     internal Vector2 PopLayout()
     {
         if (layoutStackCount <= 1) throw new InvalidOperationException();
-        int lastIdx         = --layoutStackCount;
-        var finishedLayout  = layoutStack[lastIdx];
-        if (layoutStackCount == 0) throw new InvalidOperationException();
+        var finishedLayout  = layoutStack[--layoutStackCount];
 
-        // CurrentLayoutRef.cursor = finishedLayout.startCursor;
         MoveCursor(finishedLayout.maxSize);
 
         return finishedLayout.maxSize;
