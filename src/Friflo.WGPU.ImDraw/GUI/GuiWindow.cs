@@ -85,7 +85,7 @@ public sealed class GuiWindow
     
     private             Vector2             cursor;
     private  readonly   Stack<int>          idStack         = new();
-    private  readonly   List<LayoutNode>   layoutStack      = [];
+    private  readonly   List<LayoutNode>    layoutStack     = [];
     private             LayoutNode          currentLayout;
     public              LayoutNode          CurrentLayout   => currentLayout;
     private readonly    Dictionary<int, ScrollState> scrollStates = new(64);
