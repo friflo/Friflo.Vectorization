@@ -221,19 +221,20 @@ public sealed class GuiWindow
     {
         var input = drawGui.input;
         var hoverEdge       = GetResizeEdge(input.MousePos, border);
-        var isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
+        var activeEdge      = activeResizeEdge;
+        var isHoverOrActive = hoverEdge != ResizeEdge.None || activeEdge != ResizeEdge.None;
         var edgeDragState   = drawGui.GetDragState(isHoverOrActive, resizeId);
         
         if (edgeDragState == DragState.Down) {
-            if (activeResizeEdge == ResizeEdge.None) {
+            if (activeEdge == ResizeEdge.None) {
                 activeResizeEdge    = GetResizeEdge(input.MousePos, border);
                 activeResizeSize    = size;
                 drawGui.draw.batch.host.SetTopWindow(this);
             } else {
                 var offset = input.MousePos - input.DragPosStart;
-                ApplyResize(offset, activeResizeEdge);
+                ApplyResize(offset, activeEdge);
             }
-            input.SetCursor(GetCursorForEdge(activeResizeEdge));
+            input.SetCursor(GetCursorForEdge(activeEdge));
             return true;
         }
         activeResizeEdge = ResizeEdge.None;
