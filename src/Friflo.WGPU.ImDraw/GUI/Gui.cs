@@ -32,7 +32,7 @@ public readonly ref struct Gui : IDisposable
     /// <summary>Begins a clipped, isolated child area within the current window.</summary>
     /// <param name="size">Target size. Use &gt; 0 for fixed dimensions or 0 for dynamic auto-fit/remaining space.</param>
     public ChildScope   BeginChild(WidgetID id, Vector2 size)                   => widget.BeginChild(id, size);
-    public void         EndChild(Vector2 parentStartCursor, Vector2 childSize)  => widget.EndChild(parentStartCursor, childSize);
+    public void         EndChild(in ChildScope scope)  => widget.EndChild(scope);
     
     public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
         => widget.Label(name, textColor);
@@ -60,9 +60,7 @@ public readonly ref struct Gui : IDisposable
     public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
     public void             EndHorizontal()             => widget.EndHorizontal();
     
-    public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)
-        => widget.BeginScrollArea(childId, size);
-    public void             EndScrollArea(int childId, Vector2 parentStartCursor, Vector2 childSize)
-        => widget.EndScrollArea(childId, parentStartCursor, childSize);
+    public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)  => widget.BeginScrollArea(childId, size);
+    public void             EndScrollArea(in ScrollAreaScope scope)     => widget.EndScrollArea(scope);
     
 }

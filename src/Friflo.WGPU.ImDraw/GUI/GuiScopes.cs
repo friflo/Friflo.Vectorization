@@ -18,10 +18,10 @@ public readonly ref struct WindowScope(GuiWidget widget, bool isOpen)
 
 public readonly ref struct ScrollAreaScope
 {
-    private readonly GuiWidget 	widget;
-    private readonly int        childId;
-    private readonly Vector2 	parentStartCursor;
-    private readonly Vector2 	requestedSize;
+    private  readonly   GuiWidget 	widget;
+    internal readonly   int         childId;
+    internal readonly   Vector2 	parentStartCursor;
+    internal readonly   Vector2     requestedSize;
 
     internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 parentStartCursor, Vector2 requestedSize)
     {
@@ -31,14 +31,14 @@ public readonly ref struct ScrollAreaScope
         this.requestedSize      = requestedSize;
     }
 
-    public void Dispose() => widget.EndScrollArea(childId, parentStartCursor, requestedSize);
+    public void Dispose() => widget.EndScrollArea(this);
 }
 
 public readonly ref struct ChildScope
 {
-    private readonly GuiWidget 	widget;
-    private readonly Vector2 	parentStartCursor;
-    private readonly Vector2 	requestedSize;
+    private  readonly   GuiWidget   widget;
+    internal readonly   Vector2 	parentStartCursor;
+    internal readonly   Vector2 	requestedSize;
 
     internal ChildScope(GuiWidget widget, Vector2 parentStartCursor, Vector2 requestedSize)
     {
@@ -47,7 +47,7 @@ public readonly ref struct ChildScope
         this.requestedSize      = requestedSize;
     }
 
-    public void Dispose() => widget.EndChild(parentStartCursor, requestedSize);
+    public void Dispose() => widget.EndChild(this);
 }
 
 

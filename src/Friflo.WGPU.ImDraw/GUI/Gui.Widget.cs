@@ -297,7 +297,7 @@ public readonly ref partial struct GuiWidget
         return new SpaceScope(this, pos, size, isFired, isFocused, widgetState);
     }
 
-    internal void EndSpace(SpaceScope space)
+    internal void EndSpace(in SpaceScope space)
     {
         if (!space.isFocused) return;
         draw.StrokeRect(space.pos, space.size, 4, Color.FocusColor);
