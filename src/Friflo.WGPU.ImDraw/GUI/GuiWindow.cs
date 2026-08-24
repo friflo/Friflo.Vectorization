@@ -23,7 +23,7 @@ internal enum LayoutDirection
     Horizontal
 }
 
-public struct LayoutNode
+internal struct LayoutNode
 {
     internal readonly   LayoutDirection    direction;
     internal readonly   Vector2            startCursor;
@@ -37,13 +37,13 @@ public struct LayoutNode
     }
 }
 
-public enum ScrollAxis
+internal enum ScrollAxis
 {
     Vertical,   // 0 = Y-Axis,
     Horizontal  // 1 = X-Axis
 }
 
-public struct ScrollState
+internal struct ScrollState
 {
     public Vector2      offset;
     public Vector2      targetOffset;
@@ -79,27 +79,27 @@ public enum ResizeEdge
 
 public sealed class GuiWindow
 {
-    private  readonly   string              title;
-    private  readonly   GuiHost             host;
+    private  readonly       string          title;
+    private  readonly       GuiHost         host;
     
-    internal            RectVector2         bounds;
-    internal            Vector2             Pos                 { [DebuggerHidden] get => bounds.pos; }
-    internal            Vector2             Size                { [DebuggerHidden] get => bounds.size; }
+    internal                RectVector2     bounds;
+    internal                Vector2         Pos                 { [DebuggerHidden] get => bounds.pos; }
+    internal                Vector2         Size                { [DebuggerHidden] get => bounds.size; }
 
-    private  readonly   Vector2             minSize             = new(100f, 100f);
-    private             ResizeEdge          activeResizeEdge;
-    private             Vector2             activeResizeSize;
+    private  readonly       Vector2         minSize             = new(100f, 100f);
+    private                 ResizeEdge      activeResizeEdge;
+    private                 Vector2         activeResizeSize;
     
-    private  readonly   Stack<int>          idStack             = new();
-    private             LayoutNode[]        layoutStack         = [default];
-    private             int                 layoutStackCount;
-    public ref readonly LayoutNode          CurrentLayout       => ref layoutStack[layoutStackCount - 1];
-    private         ref LayoutNode          CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
-    public              Vector2             Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
+    private  readonly       Stack<int>      idStack             = new();
+    private                 LayoutNode[]    layoutStack         = [default];
+    private                 int             layoutStackCount;
+    internal ref readonly   LayoutNode      CurrentLayout       => ref layoutStack[layoutStackCount - 1];
+    private         ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
+    public                  Vector2         Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
-    private  readonly   Dictionary<int, ScrollState> scrollStates = new(64);
+    private  readonly       Dictionary<int, ScrollState> scrollStates = new(64);
 
-    public   override   string              ToString() => title;
+    public   override       string          ToString() => title;
 
 
     internal GuiWindow(GuiHost host, string title) {
