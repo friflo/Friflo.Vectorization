@@ -27,6 +27,7 @@ public sealed class GuiInput
     public              Vector2             MousePos        { get; private set; }
     public              Vector2             MousePosDelta   { get; private set; }
     private             Vector2             mousePosLast;
+    public              Vector2             DragPosStart    { get; private set; }
     public              Vector2             MouseWheel      { get; private set; }
     private             Vector2             mouseWheelAccu;
     
@@ -138,7 +139,8 @@ public sealed class GuiInput
         }
         // Initiate drag when mouse is pressed over a hovered widget
         if (isHover && isMouseDown && dragItem == 0) {
-            dragItem = widgetId;
+            dragItem        = widgetId;
+            DragPosStart    = MousePos;
         }
         // Process ongoing drag operation or handle release
         if (dragItem == widgetId) {

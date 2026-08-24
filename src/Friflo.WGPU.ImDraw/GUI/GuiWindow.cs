@@ -81,7 +81,6 @@ public sealed class GuiWindow
     private  readonly   Vector2             minSize     = new(100f, 100f);
     private             ResizeEdge          activeResizeEdge;
     private             Vector2             activeResizeSize;
-    private             Vector2             activeResizeMousePos;
     
     private             Vector2             cursor;
     private  readonly   Stack<int>          idStack         = new();
@@ -227,12 +226,11 @@ public sealed class GuiWindow
         
         if (state == WidgetState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
-                activeResizeEdge        = GetResizeEdge(input.MousePos, border);
-                activeResizeSize        = size;
-                activeResizeMousePos    = input.MousePos;
+                activeResizeEdge    = GetResizeEdge(input.MousePos, border);
+                activeResizeSize    = size;
                 drawGui.draw.batch.host.SetTopWindow(this);
             } else {
-                var offset = input.MousePos - activeResizeMousePos;
+                var offset = input.MousePos - input.DragPosStart;
                 ApplyResize(offset, activeResizeEdge);
             }
             input.SetCursor(GetCursorForEdge(activeResizeEdge));
