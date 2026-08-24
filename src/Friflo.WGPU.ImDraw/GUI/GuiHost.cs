@@ -13,7 +13,7 @@ internal sealed class GuiHost
     internal readonly   GuiInput                        input;
     internal readonly   Dictionary<string, GuiWindow>   windows     = new();
     internal readonly   List<GuiWindow>                 windowOrder = [];
-    private             GuiWindow?                      focusedWindow;
+    private             GuiWindow?                      topWindow;
 
     public   override   string                          ToString()  => $"windows: {windows.Count}";
 
@@ -25,16 +25,16 @@ internal sealed class GuiHost
     {
         windows.Clear();
         windowOrder.Clear();
-        focusedWindow = null;
+        topWindow = null;
     }
     
-    internal void FocusWindow(GuiWindow win)
+    internal void SetTopWindow(GuiWindow window)
     {
-        if (focusedWindow == win) return;
+        if (topWindow == window) return;
 
-        windowOrder.Remove(win);
-        windowOrder.Add(win);
-        focusedWindow = win;
+        windowOrder.Remove(window);
+        windowOrder.Add(window);
+        topWindow = window;
     }
     
     internal GuiWindow? GetTopWindowAt(Vector2 screenPos)

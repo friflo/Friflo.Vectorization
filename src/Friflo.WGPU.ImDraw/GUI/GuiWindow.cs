@@ -226,6 +226,7 @@ public sealed class GuiWindow
         if (state == WidgetState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
                 activeResizeEdge = GetResizeEdge(input.MousePos, border);
+                drawGui.draw.batch.host.SetTopWindow(this);
             } else {
                 ApplyResize(input.MousePosDelta, activeResizeEdge);
             }

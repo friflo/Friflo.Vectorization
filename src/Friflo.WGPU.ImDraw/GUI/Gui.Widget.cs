@@ -95,13 +95,13 @@ public readonly ref partial struct GuiWidget
         var window      = Window;
         
         // Hit test whole window
-        bool isWindowHovered = window.IsHoverAt(window.pos, window.size, draw);
+        bool isWindowHovered = input.DragItem == 0 && window.IsHoverAt(window.pos, window.size, draw);
 
         // Focus window on click (WITHOUT capturing activeItem)
         if (isWindowHovered && input.IsMouseDown) {
             // Note: Moving window to front here ensures that subsequent child widgets 
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
-            host.FocusWindow(window);
+            host.SetTopWindow(window);
         }
         draw.PushZIndex(host.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
         
