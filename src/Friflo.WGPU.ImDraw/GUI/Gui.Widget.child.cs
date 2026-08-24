@@ -68,6 +68,7 @@ public readonly ref partial struct GuiWidget
 	        size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
 	    );
 		draw.PushScissor(parentStartCursor, finalSize); // Push scissor region for clipping
+		draw.FillRect(parentStartCursor, size, Color.ScrollAreaColor);
 
 	    window.PushScrollAreaInfo(childId, parentStartCursor, finalSize);
 

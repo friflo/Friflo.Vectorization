@@ -78,10 +78,10 @@ public class ImGuiRenderer : IRenderer
         
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
-        using (gui.BeginWindow("Window 1", new(100, 20), new(500, 700))) {
+        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 900))) {
             Window1(gui); 
         }
-        using (var isOpen = gui.BeginWindow("Window 2", new(650, 20), new(500, 900))) {
+        using (var isOpen = gui.BeginWindow("Window 2", new(550, 20), new(500, 900))) {
             Window2(gui);
         }
         if (mouseCircle) {
@@ -123,10 +123,6 @@ public class ImGuiRenderer : IRenderer
             if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
         }
         gui.Label("after horizontal");
-    }
-    
-    private void Window2(Gui gui)
-    {
         gui.Checkbox("checkbox", ref enabled2);
         gui.Spacer();
         using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
@@ -135,9 +131,12 @@ public class ImGuiRenderer : IRenderer
             var tint = gui.Color.ButtonState(space.widgetState);
             gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
         }
-        gui.Spacer();
+    }
+    
+    private void Window2(Gui gui)
+    {
         gui.Label("fixed child");
-        using (gui.BeginChild(1, new Vector2(250, 80))) {
+        using (gui.BeginChild(1, new Vector2(250, 90))) {
             gui.Button("Button 1 clipped");
             gui.Button("Button 2 clipped");
         }
@@ -149,16 +148,20 @@ public class ImGuiRenderer : IRenderer
         }
         gui.Spacer();
         gui.Label("scroll area");
-        using (gui.BeginScrollArea(3, new Vector2(350, 200))) {
+        using (gui.BeginScrollArea(3, new Vector2(450, 350))) {
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2");
+            using (gui.BeginScrollArea(4, new Vector2(400, 200))) {
+                gui.Button("Sub 1");
+                gui.Button("Sub 2");
+                gui.Button("Sub 3");
+                gui.Button("Sub 4");
+                gui.Button("Sub 5");
+                gui.Button("Sub 6");
+                gui.Button("Sub 7");
+            }
             gui.Button("Button 3");
             gui.Button("Button 4");
-            gui.Button("Button 5");
-            gui.Button("Button 6");
-            gui.Button("Button 7");
-            gui.Button("Button 8");
-            gui.Button("Button 9");
             using (gui.BeginHorizontal()) {
                 gui.Button("Button A");
                 gui.Button("Button B");
@@ -166,6 +169,7 @@ public class ImGuiRenderer : IRenderer
                 gui.Button("Button D");
                 gui.Button("Button E");
             }
+            gui.Button("Button 5");
         }
     }
 }
