@@ -165,12 +165,16 @@ public class ImGuiRenderer : IRenderer
             
             gui.Button("Button 3");
             gui.Button("Button 4");
-            gui.BeginVertical();
+            gui.BeginHorizontal();
                 gui.Button("Hori A");
                 gui.Button("Hori B");
                 gui.Button("Hori C");
                 gui.Button("Hori D");
-            gui.EndVertical();
+                gui.Button("Hori E");
+                gui.Button("Hori F");
+                gui.Button("Hori G");
+                gui.Button("Hori H");
+            gui.EndHorizontal();
             gui.Button("Button 5");
             gui.Button("Button 6");
             gui.Button("Button 7");
