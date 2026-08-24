@@ -61,7 +61,7 @@ internal struct ScrollAreaInfo
 }
 
 [Flags]
-public enum ResizeEdge
+internal enum ResizeEdge
 {
     None   = 0,
     Top    = 1 << 0,
