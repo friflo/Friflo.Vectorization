@@ -86,8 +86,9 @@ public readonly ref partial struct GuiWidget
         var host = draw.batch.host;
         if (!host.windows.TryGetValue(title, out guiState.window!)) {
             guiState.window = new GuiWindow(host, title) {
-                pos     = pos  ?? new Vector2( 50,  50),
-                size    = size ?? new Vector2(300, 200)
+                bounds = new RectVector2(
+                    pos  ?? new Vector2( 50,  50),
+                    size ?? new Vector2(300, 200))
             };
             host.windows.Add(title, guiState.window);
             host.windowOrder.Add(guiState.window);
@@ -95,7 +96,7 @@ public readonly ref partial struct GuiWidget
         var window      = Window;
         
         // Hit test whole window
-        bool isWindowHovered = !input.IsDragActive && window.IsHoverAt(window.pos, window.size, draw);
+        bool isWindowHovered = !input.IsDragActive && window.IsHoverAt(window.Pos, window.Size, draw);
 
         // Focus window on click (WITHOUT capturing activeItem)
         if (isWindowHovered && input.IsMouseDown) {
@@ -114,31 +115,31 @@ public readonly ref partial struct GuiWidget
 
         // Process title bar drag (strictly blocked while resizing)
         float titleBarHeight = LineHeight;
-        var titleBarSize     = new Vector2(window.size.X, titleBarHeight);
+        var titleBarSize     = new Vector2(window.Size.X, titleBarHeight);
         int titleBarId       = WidgetID.CombineHash(parentHash, "__titlebar".GetHashCode());
 
-        bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize, draw);
+        bool isTitleHover = !isResizing && window.IsHoverAt(window.Pos, titleBarSize, draw);
         var titleState    = GetDragState(isTitleHover, titleBarId);
 
         if (titleState == DragState.Down) {
-            window.pos += input.MousePosDelta;
+            window.bounds = new RectVector2(window.Pos + input.MousePosDelta, window.Size);
         }
 
         // Render background & titlebar
-        draw.FillRectRounded(window.pos, window.size, 8, Color.WindowColor);
+        draw.FillRectRounded(window.Pos, window.Size, 8, Color.WindowColor);
 
         var headerColor = Color.ButtonState(titleState);
-        draw.FillRectRounded(window.pos, titleBarSize, 8, headerColor);
+        draw.FillRectRounded(window.Pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
-        var textPos    = window.pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
+        var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawText(title, textPos, Color.TextColor);
 
-        window.SetCursor(window.pos + new Vector2(10f, titleBarHeight + 10f));
+        window.SetCursor(window.Pos + new Vector2(10f, titleBarHeight + 10f));
         
         // --- Push content scissor rect (clips everything below titlebar) ---
-        var contentPos  = window.pos + new Vector2(0f, titleBarHeight);
-        var contentSize = new Vector2(window.size.X, Math.Max(0f, window.size.Y - titleBarHeight));
+        var contentPos  = window.Pos + new Vector2(0f, titleBarHeight);
+        var contentSize = new Vector2(window.Size.X, Math.Max(0f, window.Size.Y - titleBarHeight));
         draw.PushScissor(contentPos, contentSize);
         return new WindowScope(this, true);
     }

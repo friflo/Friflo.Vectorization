@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -79,12 +80,13 @@ public enum ResizeEdge
 public sealed class GuiWindow
 {
     private  readonly   string              title;
-    
-    
     private  readonly   GuiHost             host;
-    internal            Vector2             pos;
-    internal            Vector2             size;
-    private  readonly   Vector2             minSize     = new(100f, 100f);
+    
+    internal            RectVector2         bounds;
+    internal            Vector2             Pos                 { [DebuggerHidden] get => bounds.pos; }
+    internal            Vector2             Size                { [DebuggerHidden] get => bounds.size; }
+
+    private  readonly   Vector2             minSize             = new(100f, 100f);
     private             ResizeEdge          activeResizeEdge;
     private             Vector2             activeResizeSize;
     
@@ -112,7 +114,7 @@ public sealed class GuiWindow
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, pos);
+        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, Pos);
     }
 
     internal void ClearScope()
@@ -232,7 +234,7 @@ public sealed class GuiWindow
         if (edgeDragState == DragState.Down) {
             if (activeEdge == ResizeEdge.None) {
                 activeResizeEdge    = GetResizeEdge(input.MousePos, border);
-                activeResizeSize    = size;
+                activeResizeSize    = Size;
                 drawGui.draw.batch.host.SetTopWindow(this);
             }
             var offset = input.MousePos - input.DragPosStart;
@@ -262,19 +264,17 @@ public sealed class GuiWindow
 
     private ResizeEdge GetResizeEdge(Vector2 mousePos, float border)
     {
-        if (mousePos.X < pos.X - border || mousePos.X > pos.X + size.X + border ||
-            mousePos.Y < pos.Y - border || mousePos.Y > pos.Y + size.Y + border)
-        {
+        if (!bounds.Contains(mousePos)) {
             return ResizeEdge.None;
         }
 
         ResizeEdge edge = ResizeEdge.None;
 
-        if (mousePos.X <= pos.X + border)               edge |= ResizeEdge.Left;
-        else if (mousePos.X >= pos.X + size.X - border) edge |= ResizeEdge.Right;
+        if (mousePos.X <= Pos.X + border)                      edge |= ResizeEdge.Left;
+        else if (mousePos.X >= Pos.X + Size.X - border) edge |= ResizeEdge.Right;
 
-        if (mousePos.Y <= pos.Y + border)               edge |= ResizeEdge.Top;
-        else if (mousePos.Y >= pos.Y + size.Y - border) edge |= ResizeEdge.Bottom;
+        if (mousePos.Y <= Pos.Y + border)                      edge |= ResizeEdge.Top;
+        else if (mousePos.Y >= Pos.Y + Size.Y - border) edge |= ResizeEdge.Bottom;
         
         if (edge != ResizeEdge.None) {
             var topMost = host.GetTopWindowAt(host.input.MousePos);
@@ -288,27 +288,30 @@ public sealed class GuiWindow
     private void ApplyResize(Vector2 offset, ResizeEdge edge)
     {
         // Horizontal: Right
+        var newPos  = Pos;
+        var newSize = Size;
         var startSize = activeResizeSize;
         if ((edge & ResizeEdge.Right) != 0) {
-            size.X = Math.Max(minSize.X, startSize.X + offset.X);
+            newSize.X = Math.Max(minSize.X, startSize.X + offset.X);
         }
         // Horizontal: Left
         if ((edge & ResizeEdge.Left) != 0) {
             float newWidth = Math.Max(minSize.X, startSize.X - offset.X);
-            pos.X += size.X - newWidth;
-            size.X = newWidth;
+            newPos.X += newSize.X - newWidth;
+            newSize.X = newWidth;
         }
         // Vertical: Bottom
         if ((edge & ResizeEdge.Bottom) != 0) {
-            size.Y = Math.Max(minSize.Y, startSize.Y + offset.Y);
+            newSize.Y = Math.Max(minSize.Y, startSize.Y + offset.Y);
         }
         // Vertical: Top
         if ((edge & ResizeEdge.Top) != 0)
         {
             float newHeight = Math.Max(minSize.Y, startSize.Y - offset.Y);
-            pos.Y += size.Y - newHeight;
-            size.Y = newHeight;
+            newPos.Y += newSize.Y - newHeight;
+            newSize.Y = newHeight;
         }
+        bounds = new RectVector2(newPos, newSize);
     }
 #endregion
 

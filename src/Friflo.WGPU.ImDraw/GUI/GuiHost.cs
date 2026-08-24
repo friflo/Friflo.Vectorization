@@ -44,10 +44,7 @@ internal sealed class GuiHost
         for (int i = order.Count - 1; i >= 0; i--)
         {
             var win = order[i];
-            var pos = win.pos;
-            if (screenPos.X >= pos.X && screenPos.X <= pos.X + win.size.X &&
-                screenPos.Y >= pos.Y && screenPos.Y <= pos.Y + win.size.Y)
-            {
+            if (win.bounds.Contains(screenPos)) {
                 return win; // first window from top is target
             }
         }

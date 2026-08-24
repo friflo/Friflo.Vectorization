@@ -22,7 +22,7 @@ public readonly ref partial struct GuiWidget
         var parentStartCursor = window.Cursor;
         window.PushScope(childId);
 
-        var availableSize = window.size - (parentStartCursor - window.pos);
+        var availableSize = window.Size - (parentStartCursor - window.Pos);
         
         var initialClipSize = new Vector2(
             size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
@@ -62,7 +62,7 @@ public readonly ref partial struct GuiWidget
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    var availableSize = window.size - (parentStartCursor - window.pos);
+	    var availableSize = window.Size - (parentStartCursor - window.Pos);
 	    var finalSize = new Vector2(
 	        size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
 	        size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
