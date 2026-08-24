@@ -222,9 +222,9 @@ public sealed class GuiWindow
         var input = drawGui.input;
         var hoverEdge       = GetResizeEdge(input.MousePos, border);
         var isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
-        var state           = drawGui.GetDragState(isHoverOrActive, resizeId);
+        var edgeDragState   = drawGui.GetDragState(isHoverOrActive, resizeId);
         
-        if (state == WidgetState.Down) {
+        if (edgeDragState == DragState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
                 activeResizeEdge    = GetResizeEdge(input.MousePos, border);
                 activeResizeSize    = size;

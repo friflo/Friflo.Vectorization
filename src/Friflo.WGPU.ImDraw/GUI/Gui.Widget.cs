@@ -45,12 +45,12 @@ public readonly ref partial struct GuiWidget
         return false;
     }
     
-    public WidgetState GetDragState(bool isHover, int widgetId)
+    public DragState GetDragState(bool isHover, int widgetId)
     {
         if (guiState.IsNewFrame) {
             return input.GetDragState(isHover, widgetId);    
         }
-        return WidgetState.None;
+        return DragState.None;
     }
     
     public WidgetState GetWidgetState(bool isHover, int widgetId)
@@ -120,7 +120,7 @@ public readonly ref partial struct GuiWidget
         bool isTitleHover = !isResizing && window.IsHoverAt(window.pos, titleBarSize, draw);
         var titleState    = GetDragState(isTitleHover, titleBarId);
 
-        if (titleState == WidgetState.Down) {
+        if (titleState == DragState.Down) {
             window.pos += input.MousePosDelta;
         }
 

@@ -172,8 +172,8 @@ public readonly ref partial struct GuiWidget
 	    bool isTrackHovered = canHover && window.IsHoverAt(trackPos, trackSize, draw);
 
 	    // Handle mouse drag start on thumb
-	    var widgetState = GetDragState(isTrackHovered, childId);
-	    var isDown 		= widgetState == WidgetState.Down;
+	    var dragState	= GetDragState(isTrackHovered, childId);
+	    var isDown 		= dragState == DragState.Down;
 	    
 	    if (isThumbHovered && isDown && !scrollState.isDragging) {
 	        scrollState.isDragging		= true;

@@ -62,6 +62,13 @@ public enum WidgetState
     Hover
 }
 
+public enum DragState
+{
+    None,
+    Down,
+    Hover
+}
+
 /// <summary> Same as: SDL3.SDL.Keycode </summary>
 public enum KeyCode : uint {
     Tab     = 0x00000009u,

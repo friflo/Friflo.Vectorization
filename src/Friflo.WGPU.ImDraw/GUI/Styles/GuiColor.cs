@@ -124,5 +124,14 @@ public struct GuiColor
             _                   => ButtonColor
         };
     }
+    
+    public readonly Color32 ButtonState(DragState widgetState)
+    {
+        return widgetState switch {
+            DragState.Down  => ButtonDown,
+            DragState.Hover => ButtonHover,
+            _               => ButtonColor
+        };
+    }
 }
 

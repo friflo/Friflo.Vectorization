@@ -131,11 +131,11 @@ public sealed class GuiInput
 
     /// <summary> Start and keep drag state for a widget without setting focus. </summary>
     // Mutates:  widget state
-    internal WidgetState GetDragState(bool isHover, int widgetId)
+    internal DragState GetDragState(bool isHover, int widgetId)
     {
         // Ignore all interaction if another widget currently owns the drag state
         if (dragItem != 0 && dragItem != widgetId) {
-            return WidgetState.None;
+            return DragState.None;
         }
         // Initiate drag when mouse is pressed over a hovered widget
         if (isHover && isMouseDown && dragItem == 0) {
@@ -146,22 +146,18 @@ public sealed class GuiInput
         if (dragItem == widgetId) {
             if (isMouseDown) {
                 // Active drag in progress (mouse button held down)
-                return WidgetState.Down;
+                return DragState.Down;
             }
             // Mouse button released: end drag operation
             dragItem = 0;
-            // Return Clicked state if released within bounds
-            if (isHover) {
-                return WidgetState.Clicked;
-            }
-            return WidgetState.None;
+            return DragState.None;
         }
         // Fallback hover state when no drag is active
         if (isHover && dragItem == 0) {
             hotItem = widgetId;
-            return WidgetState.Hover;
+            return DragState.Hover;
         }
-        return WidgetState.None;
+        return DragState.None;
     }
     
     /// <summary> Start and keep drag state for a widget and set focus to widget. </summary>
