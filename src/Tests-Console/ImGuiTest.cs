@@ -195,17 +195,18 @@ public static class GuiExtensions
         int widgetId    = id.Resolve(name, parentHash);
         
         var size        = draw.MeasureText(name);
+        var pos         = window.Cursor;
         var isHover     = window.IsHoverAtCursor(size, draw);
-        var isFocused   = widget.RegisterFocusable(widgetId, window.Cursor, size, out _);
+        var isFocused   = widget.RegisterFocusable(widgetId, pos, size, out _);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(window.Cursor, size, 8, widget.Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, size, 8, widget.Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
-            draw.StrokeRect(window.Cursor, size, 4, widget.Color.FocusColor);
-            window.EnsureVisibleInScrollArea(window.Cursor, size);
+            draw.StrokeRect(pos, size, 4, widget.Color.FocusColor);
+            window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
+        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
         
         window.MoveCursor(size);
         return widget.IsFired(widgetState, isFocused);
