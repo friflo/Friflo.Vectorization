@@ -283,23 +283,24 @@ public sealed class GuiWindow
     private void ApplyResize(Vector2 offset, ResizeEdge edge)
     {
         // Horizontal: Right
+        var startSize = activeResizeSize;
         if ((edge & ResizeEdge.Right) != 0) {
-            size.X = Math.Max(minSize.X, activeResizeSize.X + offset.X);
+            size.X = Math.Max(minSize.X, startSize.X + offset.X);
         }
         // Horizontal: Left
         if ((edge & ResizeEdge.Left) != 0) {
-            float newWidth = Math.Max(minSize.X, activeResizeSize.X - offset.X);
+            float newWidth = Math.Max(minSize.X, startSize.X - offset.X);
             pos.X += size.X - newWidth;
             size.X = newWidth;
         }
         // Vertical: Bottom
         if ((edge & ResizeEdge.Bottom) != 0) {
-            size.Y = Math.Max(minSize.Y, activeResizeSize.Y + offset.Y);
+            size.Y = Math.Max(minSize.Y, startSize.Y + offset.Y);
         }
         // Vertical: Top
         if ((edge & ResizeEdge.Top) != 0)
         {
-            float newHeight = Math.Max(minSize.Y, activeResizeSize.Y - offset.Y);
+            float newHeight = Math.Max(minSize.Y, startSize.Y - offset.Y);
             pos.Y += size.Y - newHeight;
             size.Y = newHeight;
         }
