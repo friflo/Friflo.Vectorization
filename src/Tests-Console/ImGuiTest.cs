@@ -115,13 +115,14 @@ public class ImGuiRenderer : IRenderer
         if (gui.Slider("Volume", ref volume, 0f, 1f, 200)) Console.WriteLine($"Volume: changed");
         gui.Spacer();
         
-        using (gui.BeginHorizontal()) {
+        gui.BeginHorizontal();
             if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
             gui.Spacer(10);
             if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
             gui.Spacer(10);
             if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
-        }
+        gui.EndHorizontal();
+        
         gui.Label("after horizontal");
         using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
             if (space.isFired) Console.WriteLine("Clicked: Sprite");
@@ -164,12 +165,12 @@ public class ImGuiRenderer : IRenderer
             
             gui.Button("Button 3");
             gui.Button("Button 4");
-            using (gui.BeginHorizontal()) {
+            gui.BeginVertical();
                 gui.Button("Hori A");
                 gui.Button("Hori B");
                 gui.Button("Hori C");
                 gui.Button("Hori D");
-            }
+            gui.EndVertical();
             gui.Button("Button 5");
             gui.Button("Button 6");
             gui.Button("Button 7");

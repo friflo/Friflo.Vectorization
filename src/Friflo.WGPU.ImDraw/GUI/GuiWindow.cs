@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -27,11 +26,13 @@ public struct LayoutNode
 {
     internal readonly   LayoutDirection    direction;
     internal readonly   Vector2            startCursor;
+    internal            Vector2            cursor;
     internal            Vector2            maxSize;
     
     internal LayoutNode(LayoutDirection direction, Vector2 startCursor) {
         this.direction      = direction;
         this.startCursor    = startCursor;
+        cursor              = startCursor;
     }
 }
 
@@ -78,7 +79,7 @@ public enum ResizeEdge
 public sealed class GuiWindow
 {
     private  readonly   string              title;
-    public              Vector2             Cursor { [DebuggerStepThrough] get => cursor; }
+    
     
     private  readonly   GuiHost             host;
     internal            Vector2             pos;
@@ -87,12 +88,12 @@ public sealed class GuiWindow
     private             ResizeEdge          activeResizeEdge;
     private             Vector2             activeResizeSize;
     
-    private             Vector2             cursor;
     private  readonly   Stack<int>          idStack             = new();
     private             LayoutNode[]        layoutStack         = [default];
     private             int                 layoutStackCount;
     public ref readonly LayoutNode          CurrentLayout       => ref layoutStack[layoutStackCount - 1];
-    internal ref        LayoutNode          CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
+    private         ref LayoutNode          CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
+    public              Vector2             Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
     private  readonly   Dictionary<int, ScrollState> scrollStates = new(64);
 
@@ -146,22 +147,20 @@ public sealed class GuiWindow
             Array.Copy(layoutStack, 0, newStack, 0, count);
             layoutStack = newStack;
         }
-        layoutStack[layoutStackCount++] = new LayoutNode(direction, cursor);
+        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor);
+        layoutStackCount++;
     }
 
     internal Vector2 PopLayout()
     {
-        int lastIdx = layoutStackCount - 1;
-        if (lastIdx < 0) {
-            return Vector2.Zero;
-        }
-        var finishedLayout = layoutStack[lastIdx];
-        layoutStackCount--;
+        if (layoutStackCount <= 1) throw new InvalidOperationException();
+        int lastIdx         = --layoutStackCount;
+        var finishedLayout  = layoutStack[lastIdx];
+        if (layoutStackCount == 0) throw new InvalidOperationException();
 
-        if (lastIdx > 0) {
-            cursor = finishedLayout.startCursor;
-            MoveCursor(finishedLayout.maxSize);
-        }
+        // CurrentLayoutRef.cursor = finishedLayout.startCursor;
+        MoveCursor(finishedLayout.maxSize);
+
         return finishedLayout.maxSize;
     }
     
@@ -180,27 +179,22 @@ public sealed class GuiWindow
     
     internal void SetCursor(Vector2 value)
     {
-        cursor = value;
+        CurrentLayoutRef.cursor = value;
     }
 
     public void MoveCursor(Vector2 widgetSize)
     {
         const float spacing = 6f;
+        ref var node = ref layoutStack[layoutStackCount - 1];
 
-        if (layoutStackCount == 0) {
-            cursor.Y += widgetSize.Y + spacing;
-            return;
-        }
-        ref var layout = ref layoutStack[layoutStackCount - 1];
-
-        if (layout.direction == LayoutDirection.Vertical) {
-            cursor.Y += widgetSize.Y + spacing;
-            layout.maxSize.X = Math.Max(layout.maxSize.X, widgetSize.X);
-            layout.maxSize.Y += widgetSize.Y + spacing;
+        if (node.direction == LayoutDirection.Vertical) {
+            node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
+            node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
+            node.cursor.Y  += widgetSize.Y + spacing;
         } else {
-            cursor.X += widgetSize.X + spacing;
-            layout.maxSize.X += widgetSize.X + spacing;
-            layout.maxSize.Y = Math.Max(layout.maxSize.Y, widgetSize.Y);
+            node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
+            node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
+            node.cursor.X  += widgetSize.X + spacing;
         }
     }
     
@@ -222,7 +216,7 @@ public sealed class GuiWindow
 
     public bool IsHoverAtCursor(Vector2 widgetSize, Draw2D draw)
     {
-        return IsHoverAt(cursor, widgetSize, draw);
+        return IsHoverAt(Cursor, widgetSize, draw);
     }
     
 #region resize
