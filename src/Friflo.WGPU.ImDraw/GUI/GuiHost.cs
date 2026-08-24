@@ -39,9 +39,10 @@ internal sealed class GuiHost
     
     internal GuiWindow? GetTopWindowAt(Vector2 screenPos)
     {
-        for (int i = windowOrder.Count - 1; i >= 0; i--)
+        var order = windowOrder;
+        for (int i = order.Count - 1; i >= 0; i--)
         {
-            var win = windowOrder[i];
+            var win = order[i];
             
             if (screenPos.X >= win.pos.X && screenPos.X <= win.pos.X + win.size.X &&
                 screenPos.Y >= win.pos.Y && screenPos.Y <= win.pos.Y + win.size.Y)

@@ -125,6 +125,9 @@ public sealed class GuiInput
     }
 
 #region activeItem / dragItem
+
+    internal int DragItem => dragItem;
+
     /// <summary> Start and keep drag state for a widget without setting focus. </summary>
     // Mutates:  widget state
     internal WidgetState GetDragState(bool isHover, int widgetId)

@@ -219,28 +219,23 @@ public sealed class GuiWindow
     internal bool ProcessResize(in GuiWidget drawGui, int resizeId, float border = 15f)
     {
         var input = drawGui.input;
-        ResizeEdge hoverEdge = GetResizeEdge(input.MousePos, border);
-
-        // Active state override: keep active while dragging even if mouse leaves border
-        bool isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
-        var state 			 = drawGui.GetDragState(isHoverOrActive, resizeId);
-
-        // Determine which edge determines the cursor
-        ResizeEdge effectiveEdge = activeResizeEdge != ResizeEdge.None ? activeResizeEdge : hoverEdge;
-
-        if (effectiveEdge != ResizeEdge.None) {
-            input.SetCursor(GetCursorForEdge(effectiveEdge));
-        }
-
+        var hoverEdge       = GetResizeEdge(input.MousePos, border);
+        var isHoverOrActive = hoverEdge != ResizeEdge.None || activeResizeEdge != ResizeEdge.None;
+        var state           = drawGui.GetDragState(isHoverOrActive, resizeId);
+        
         if (state == WidgetState.Down) {
             if (activeResizeEdge == ResizeEdge.None) {
-                activeResizeEdge = hoverEdge;
+                activeResizeEdge = GetResizeEdge(input.MousePos, border);
+            } else {
+                ApplyResize(input.MousePosDelta, activeResizeEdge);
             }
-            ApplyResize(input.MousePosDelta, activeResizeEdge);
-            return true; // Strictly block titlebar dragging
+            input.SetCursor(GetCursorForEdge(activeResizeEdge));
+            return true;
         }
-
         activeResizeEdge = ResizeEdge.None;
+        if (hoverEdge != ResizeEdge.None && input.DragItem == 0) {
+            input.SetCursor(GetCursorForEdge(hoverEdge));
+        }
         return false;
     }
 
@@ -271,6 +266,7 @@ public sealed class GuiWindow
 
         if (mousePos.Y <= pos.Y + border)               edge |= ResizeEdge.Top;
         else if (mousePos.Y >= pos.Y + size.Y - border) edge |= ResizeEdge.Bottom;
+        
         if (edge != ResizeEdge.None) {
             var topMost = host.GetTopWindowAt(host.input.MousePos);
             if (topMost == null || topMost == this) {
