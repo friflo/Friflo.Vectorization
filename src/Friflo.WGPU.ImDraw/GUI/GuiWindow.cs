@@ -25,9 +25,14 @@ internal enum LayoutDirection
 
 public struct LayoutNode
 {
-    internal LayoutDirection    direction;
-    internal Vector2            startCursor;
-    internal Vector2            maxSize;
+    internal readonly   LayoutDirection    direction;
+    internal readonly   Vector2            startCursor;
+    internal            Vector2            maxSize;
+    
+    internal LayoutNode(LayoutDirection direction, Vector2 startCursor) {
+        this.direction      = direction;
+        this.startCursor    = startCursor;
+    }
 }
 
 public enum ScrollAxis
@@ -104,7 +109,7 @@ public sealed class GuiWindow
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        currentLayout = new LayoutNode { direction = LayoutDirection.Vertical, startCursor = cursor, maxSize = Vector2.Zero };
+        currentLayout = new LayoutNode(LayoutDirection.Vertical, cursor);
         layoutStack.Add(currentLayout);
     }
 
@@ -135,7 +140,7 @@ public sealed class GuiWindow
 
     internal void PushLayout(LayoutDirection direction)
     {
-        currentLayout = new LayoutNode { direction = direction, startCursor = cursor, maxSize = Vector2.Zero };
+        currentLayout = new LayoutNode(direction, cursor);
         layoutStack.Add(currentLayout);
     }
 
