@@ -179,18 +179,19 @@ public readonly ref partial struct GuiWidget
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
+        var pos         = window.Cursor;
         var size        = draw.MeasureText(name);
         var isHover     = window.IsHoverAtCursor(size, draw);
-        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, size, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, size, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(window.Cursor, size, 8, Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, size, 8, Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
-            draw.StrokeRect(window.Cursor, size, 4, Color.FocusColor);
-            window.EnsureVisibleInScrollArea(window.Cursor, size);
+            draw.StrokeRect(pos, size, 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, window.Cursor, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
+        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
         window.MoveCursor(size);
         return IsFired(widgetState, isFocused);
     }
@@ -203,16 +204,17 @@ public readonly ref partial struct GuiWidget
         int widgetId    = id.Resolve(name, parentHash);
 
         var height      = LineHeight;
+        var pos         = window.Cursor;
         var textSize    = draw.MeasureText(name);
         var totalSize   = new Vector2(height + 8f + textSize.X, Math.Max(height, textSize.Y));
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
-        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, totalSize, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool isToggled  = IsFired(widgetState, isFocused);
         if (isToggled) {
             value = !value;
         }
-        var boxRect = new Vector2(window.Cursor.X, window.Cursor.Y + (totalSize.Y - height) / 2f);
+        var boxRect = new Vector2(pos.X, pos.Y + (totalSize.Y - height) / 2f);
         draw.FillRectRounded(boxRect, new Vector2(height, height), 4, Color.ButtonState(widgetState)); // background
 
         // Render blue focus outline on box
@@ -225,7 +227,7 @@ public readonly ref partial struct GuiWidget
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
             draw.FillRectRounded(innerRect, new Vector2(height - 2 * padding, height - 2 * padding), 8, Color.TextColor);
         }
-        var textPos = new Vector2(boxRect.X + height + 8f, window.Cursor.Y + (totalSize.Y - textSize.Y) / 2f);
+        var textPos = new Vector2(boxRect.X + height + 8f, pos.Y + (totalSize.Y - textSize.Y) / 2f);
         draw.DrawText(name, textPos, Color.TextColor);
 
         window.MoveCursor(totalSize);
@@ -240,14 +242,15 @@ public readonly ref partial struct GuiWidget
         int widgetId    = id.Resolve(name, parentHash);
 
         float height    = LineHeight;
+        var pos         = window.Cursor;
         var totalSize   = new Vector2(width, height);
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
-        bool isFocused  = RegisterFocusable(widgetId, window.Cursor, totalSize, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize, out _);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool changed    = false;
         
         if (widgetState == WidgetState.Down) {
-            float t = Math.Clamp((input.MousePos.X - window.Cursor.X) / width, 0f, 1f);
+            float t = Math.Clamp((input.MousePos.X - pos.X) / width, 0f, 1f);
             float newValue = min + t * (max - min);
             
             if (newValue != value) {
@@ -255,21 +258,21 @@ public readonly ref partial struct GuiWidget
                 changed = true;
             }
         }
-        draw.FillRectRounded(window.Cursor, totalSize, 6, Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, totalSize, 6, Color.ButtonState(widgetState)); // background
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        draw.FillRectRounded(window.Cursor, fillSize, 6, Color.SliderFill);
+        draw.FillRectRounded(pos, fillSize, 6, Color.SliderFill);
 
         // Render blue focus outline
         if (isFocused) {
-            draw.StrokeRect(window.Cursor, totalSize, 4, Color.FocusColor);
-            window.EnsureVisibleInScrollArea(window.Cursor, totalSize);
+            draw.StrokeRect(pos, totalSize, 4, Color.FocusColor);
+            window.EnsureVisibleInScrollArea(pos, totalSize);
         }
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
-        draw.DrawTextInRect(labelText.Span(), window.Cursor, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
+        draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
 
         window.MoveCursor(totalSize);
         return changed;
