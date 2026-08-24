@@ -239,7 +239,7 @@ public sealed class GuiWindow
             return true;
         }
         activeResizeEdge = ResizeEdge.None;
-        if (hoverEdge != ResizeEdge.None && input.DragItem == 0) {
+        if (hoverEdge != ResizeEdge.None && !input.IsDragActive) {
             input.SetCursor(GetCursorForEdge(hoverEdge));
         }
         return false;

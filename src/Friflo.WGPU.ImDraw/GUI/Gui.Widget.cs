@@ -95,7 +95,7 @@ public readonly ref partial struct GuiWidget
         var window      = Window;
         
         // Hit test whole window
-        bool isWindowHovered = input.DragItem == 0 && window.IsHoverAt(window.pos, window.size, draw);
+        bool isWindowHovered = !input.IsDragActive && window.IsHoverAt(window.pos, window.size, draw);
 
         // Focus window on click (WITHOUT capturing activeItem)
         if (isWindowHovered && input.IsMouseDown) {

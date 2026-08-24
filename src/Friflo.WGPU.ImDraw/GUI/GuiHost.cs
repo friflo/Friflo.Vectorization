@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
@@ -43,9 +44,9 @@ internal sealed class GuiHost
         for (int i = order.Count - 1; i >= 0; i--)
         {
             var win = order[i];
-            
-            if (screenPos.X >= win.pos.X && screenPos.X <= win.pos.X + win.size.X &&
-                screenPos.Y >= win.pos.Y && screenPos.Y <= win.pos.Y + win.size.Y)
+            var pos = win.pos;
+            if (screenPos.X >= pos.X && screenPos.X <= pos.X + win.size.X &&
+                screenPos.Y >= pos.Y && screenPos.Y <= pos.Y + win.size.Y)
             {
                 return win; // first window from top is target
             }

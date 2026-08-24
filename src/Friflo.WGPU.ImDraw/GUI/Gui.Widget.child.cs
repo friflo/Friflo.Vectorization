@@ -167,8 +167,9 @@ public readonly ref partial struct GuiWidget
 	        : new Vector2(trackThickness, thumbLength);
 
 	    // Hit testing
-	    bool isThumbHovered = window.IsHoverAt(thumbPos, thumbSize, draw);
-	    bool isTrackHovered = window.IsHoverAt(trackPos, trackSize, draw);
+	    bool canHover		= !input.IsDragActive;
+	    bool isThumbHovered = canHover && window.IsHoverAt(thumbPos, thumbSize, draw);
+	    bool isTrackHovered = canHover && window.IsHoverAt(trackPos, trackSize, draw);
 
 	    // Handle mouse drag start on thumb
 	    var widgetState = GetDragState(isTrackHovered, childId);

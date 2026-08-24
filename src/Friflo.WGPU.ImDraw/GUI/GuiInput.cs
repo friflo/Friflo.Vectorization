@@ -126,7 +126,7 @@ public sealed class GuiInput
 
 #region activeItem / dragItem
 
-    internal int DragItem => dragItem;
+    internal bool IsDragActive => dragItem != 0;
 
     /// <summary> Start and keep drag state for a widget without setting focus. </summary>
     // Mutates:  widget state
