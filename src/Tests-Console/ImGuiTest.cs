@@ -134,10 +134,22 @@ public class ImGuiRenderer : IRenderer
         gui.Checkbox("checkbox", ref enabled2);
         
         gui.Spacer();
+        
         var center = gui.BeginHorizontalCenter(47);
+        gui.BeginHorizontal();
         gui.Button("Centered");
+        gui.Button(" 1 ");
+        gui.Button(" 2 ");
+        gui.Button(" 3 ");
+        gui.EndHorizontal();
         gui.EndHorizontalCenter(center);
-        gui.Button("after centered");
+        
+        gui.BeginHorizontal();
+        gui.Button("after");
+        gui.Button("centered");
+        gui.Button(" A ");
+        gui.Button(" B ");
+        gui.EndHorizontal();
     }
     
     private void Window2(Gui gui)

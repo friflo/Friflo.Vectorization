@@ -209,7 +209,7 @@ public sealed class GuiInput
     internal bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size, out bool gainedFocus)
     {
         int myIndex = focusableCounter++;
-        currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos, size = size });
+        currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
         gainedFocus = false;
 
         // Handle 1D Tab focus
