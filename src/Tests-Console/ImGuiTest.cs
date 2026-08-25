@@ -76,7 +76,7 @@ public class ImGuiRenderer : IRenderer
     {
         perfLog.Trace(10000);
         
-        using var gui = batch.BeginGui(target, renderPassDescriptor);
+        var gui = batch.BeginGui(target.TargetSize);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             Window1(gui); 
@@ -89,6 +89,7 @@ public class ImGuiRenderer : IRenderer
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
+        gui.Draw.DrawCommandList(target, renderPassDescriptor);
     }
     
     private void Window1(Gui gui)

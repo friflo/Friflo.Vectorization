@@ -20,7 +20,7 @@ namespace Friflo.WGPU.ImDraw;
 
 public readonly ref partial struct GuiWidget
 {
-    public  readonly    Draw2D          draw;           // 16 bytes
+    public  readonly    Draw2D          draw;           //  8 bytes
     public  readonly    GuiInput        input;          //  8 bytes
     private readonly    GuiState        guiState;       //  8 bytes
     private readonly    GuiStyle        currentStyle;   //  8 bytes

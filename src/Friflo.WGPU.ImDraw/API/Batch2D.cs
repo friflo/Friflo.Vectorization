@@ -207,19 +207,14 @@ public sealed partial class Batch2D : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
-    public Gui BeginGui(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
+    public Gui BeginGui(GpuExtent3D size)
     {
-        var draw = BeginDraw2D(target, descriptor);
+        var draw = BeginDraw2D(size);
         return draw.BeginGui();
     }
     
-    public Draw2D BeginDraw2D(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
+    public Draw2D BeginDraw2D(GpuExtent3D targetSize)
     {
-        descriptor.colorAttachments[0].view = target.View;
-        
-        var pass        = target.BeginRenderPass(descriptor);
-        var targetSize  = target.TargetSize;
-        
         // reset batcher state
         if (defaultFontTexture.IsDisposed) {
             SetFontDefault();
@@ -242,7 +237,7 @@ public sealed partial class Batch2D : IDisposable
         zIndexStack.Clear();
         samplerFilterStack.Clear();
         
-        var draw = new Draw2D(this, pass);
+        var draw = new Draw2D(this);
         draw.SetViewport(targetSize.width, targetSize.height);
         return draw;
     }

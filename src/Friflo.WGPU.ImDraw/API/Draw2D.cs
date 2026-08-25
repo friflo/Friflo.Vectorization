@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -13,17 +12,15 @@ using System.Numerics;
 namespace Friflo.WGPU.ImDraw;
 
 
-public readonly ref partial struct Draw2D : IDisposable
+public readonly ref partial struct Draw2D
 {
     internal readonly   Batch2D     batch;  //  8 bytes
-    private  readonly   RenderPass  pass;   //  8 bytes
 
     public              Font        DefaultFont => batch.defaultFont;
     
-    internal Draw2D(Batch2D batch, RenderPass pass)
+    internal Draw2D(Batch2D batch)
     {
         this.batch  = batch;
-        this.pass   = pass;
     }
 
 
@@ -189,21 +186,16 @@ public readonly ref partial struct Draw2D : IDisposable
         });
     }
     
-    public void Dispose()
+    
+    public void DrawCommandList(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
-        if (pass.IsDisposed) {
+        Flush();
+        if (batch.vertexCount == 0) {
             return;
         }
-        Flush();
+        descriptor.colorAttachments[0].view = target.View;
+        using var pass = target.BeginRenderPass(descriptor);
 
-        if (batch.vertexCount > 0) {
-            DrawCommandList();
-        }
-        pass.Dispose();
-    }
-    
-    private void DrawCommandList()
-    {
         var bat = batch;
         // Upload vertexBuffer with a single wgpu call
         bat.vertexBuffer.InOut(0, bat.vertexCount).Write();

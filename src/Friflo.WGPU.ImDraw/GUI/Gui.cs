@@ -17,9 +17,9 @@ public static class HorizontalAlignment
     public const float Right    = 1f;
 }
 
-public readonly ref struct Gui : IDisposable
+public readonly ref struct Gui
 {
-    public readonly     GuiWidget   widget;     // 40 bytes
+    public readonly     GuiWidget   widget;     // 32 bytes
     
     public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref widget.Color; }
     public              Draw2D      Draw        => widget.draw;
@@ -27,10 +27,6 @@ public readonly ref struct Gui : IDisposable
     
     internal Gui(Draw2D draw, Batch2D batch) {
         widget = new GuiWidget(draw, batch);
-    }
-    
-    public void Dispose() {
-        widget.draw.Dispose();
     }
     
     public WindowScope  BeginWindow(string title, Vector2? pos = null, Vector2? size = null)    => widget.BeginWindow(title, pos, size);

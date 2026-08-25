@@ -52,7 +52,7 @@ public class ImRenderer : IRenderer
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
         
-        using var draw = batch.BeginDraw2D(target, renderPassDescriptor);
+        var draw = batch.BeginDraw2D(target.TargetSize);
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
@@ -62,7 +62,7 @@ public class ImRenderer : IRenderer
         }
         DrawText(draw);
         
-        draw.Flush();
+        draw.DrawCommandList(target, renderPassDescriptor);
     }
     
     private static Matrix4x4 CreateAnimatedTransform(GpuExtent3D size, float time)

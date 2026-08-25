@@ -106,16 +106,16 @@ public static class Tests_ImDraw
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
         device.GetGuiModule()?.NewFrame(); // not necessary
-        using (var gui = batch.BeginGui(target, renderPassDesc)) {
-            gui.BeginWindow("Test Window");
-            gui.Button("hello");
-            gui.Button("test");
-            gui.EndWindow();
-            
-            _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
-            _ = gui.LineHeight;                 // Ensures LineHeight is available
-            gui.Draw.Dispose();         		// redundant - only for debugging
-        }
+        var gui = batch.BeginGui(target.TargetSize);
+        gui.BeginWindow("Test Window");
+        gui.Button("hello");
+        gui.Button("test");
+        gui.EndWindow();
+        
+        _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
+        _ = gui.LineHeight;                 // Ensures LineHeight is available
+        
+        gui.Draw.DrawCommandList(target, renderPassDesc);
         
         var targetMemory = new byte[width * height * 4];
         targetTexture.Read(context, width, height, 4, new Memory<byte>(targetMemory));
