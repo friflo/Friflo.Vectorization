@@ -11,6 +11,8 @@ namespace Friflo.WGPU.ImDraw;
 
 public static class HorizontalAlignment
 {
+    /// <summary> <i>Note:</i> Avoid using <see cref="Left"/> use usual <see cref="Gui.BeginHorizontal"/> instead. </summary>
+    public const float Left     = 0f;
     public const float Center   = 0.5f;
     public const float Right    = 1f;
 }
