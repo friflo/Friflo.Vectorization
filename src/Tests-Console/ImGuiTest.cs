@@ -135,9 +135,7 @@ public class ImGuiRenderer : IRenderer
         
         gui.Spacer();
         var center = gui.BeginHorizontalCenter(47);
-        gui.BeginHorizontal();
         gui.Button("Centered");
-        gui.EndHorizontal();
         gui.EndHorizontalCenter(center);
         gui.Button("after centered");
     }
