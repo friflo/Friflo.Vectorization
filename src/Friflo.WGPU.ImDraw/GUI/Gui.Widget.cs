@@ -319,9 +319,10 @@ public readonly ref partial struct GuiWidget
 
     internal void EndVertical() => Window.PopLayout();
     
-    internal HorizontalScope BeginHorizontal()
+    internal HorizontalScope BeginHorizontal(HorizontalDir dir)
     {
-        Window.PushLayout(LayoutDirection.Horizontal);
+        var layoutDir = dir == HorizontalDir.LTR ? LayoutDirection.Horizontal : LayoutDirection.HorizontalRTL;
+        Window.PushLayout(layoutDir);
         return new HorizontalScope(this);
     }
     internal void EndHorizontal() => Window.PopLayout();

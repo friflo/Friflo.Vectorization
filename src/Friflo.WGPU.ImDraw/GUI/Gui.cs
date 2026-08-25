@@ -5,10 +5,16 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
+
+public enum HorizontalDir
+{
+    LTR,
+    RTL
+}
 
 public readonly ref struct Gui : IDisposable
 {
@@ -57,8 +63,8 @@ public readonly ref struct Gui : IDisposable
     public VerticalScope    BeginVertical()             => widget.BeginVertical();
     public void             EndVertical()               => widget.EndVertical();
     
-    public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
-    public void             EndHorizontal()             => widget.EndHorizontal();
+    public HorizontalScope  BeginHorizontal(HorizontalDir dir = HorizontalDir.LTR)  => widget.BeginHorizontal(dir);
+    public void             EndHorizontal()                                         => widget.EndHorizontal();
     
     public HorizontalCenterScope    BeginHorizontalCenter(int id)                       => widget.BeginHorizontalCenter(id);
     public void                     EndHorizontalCenter(in HorizontalCenterScope scope) => widget.EndHorizontalCenter(scope);
