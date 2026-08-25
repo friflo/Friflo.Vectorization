@@ -347,11 +347,10 @@ public readonly ref partial struct GuiWidget
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = Window.PopLayout();
         var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
-        var batch       = draw.batch;
-        int vertexEnd   = batch.vertexCount;
-        var vertices    = batch.vertexBuffer.Span;
-        for (int n = scope.vertexStart; n < vertexEnd; n++) {
-            vertices[n].position.X += offset;
+        var vertices    = draw.batch.vertexBuffer.Span.Slice(scope.vertexStart);
+        
+        foreach (ref var vertex in vertices) {
+            vertex.position.X += offset;
         }
         guiState.centerOffsets[scope.centerId] = new Vector2(offset, 0);
     }
