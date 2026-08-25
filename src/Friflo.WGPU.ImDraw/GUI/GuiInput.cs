@@ -130,14 +130,14 @@ public sealed class GuiInput
 
 #region activeItem / dragItem
 
-    internal bool IsDragActive => dragItem != 0;
+    internal bool IsDragActive => dragItem != 0 || activeItem != 0;
 
     /// <summary> Start and keep drag state for a widget without setting focus. </summary>
     // Mutates:  widget state
     internal DragState GetDragState(bool isHover, int widgetId)
     {
         // Ignore all interaction if another widget currently owns the drag state
-        if (dragItem != 0 && dragItem != widgetId) {
+        if ((dragItem != 0 && dragItem != widgetId) || activeItem != 0) {
             return DragState.None;
         }
         // Initiate drag when mouse is pressed over a hovered widget
