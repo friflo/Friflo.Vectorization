@@ -135,7 +135,7 @@ public class ImGuiRenderer : IRenderer
         
         gui.Spacer();
         
-        using (gui.BeginHorizontalAligned(47, HorizonalAlignment.Right)) {
+        using (gui.BeginHorizontalAligned(47, HorizontalAlignment.Right)) {
             gui.BeginHorizontal();
             gui.Button("Right");
             gui.Button(" A´");
@@ -143,7 +143,7 @@ public class ImGuiRenderer : IRenderer
             gui.Button(" C´ ");
             gui.EndHorizontal();
         }
-        using (gui.BeginHorizontalAligned(11, HorizonalAlignment.Center)) {
+        using (gui.BeginHorizontalAligned(11, HorizontalAlignment.Center)) {
             gui.BeginHorizontal();
             gui.Button("Center");
             gui.Button(" 1 ");

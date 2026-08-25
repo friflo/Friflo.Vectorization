@@ -9,7 +9,7 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-public static class HorizonalAlignment
+public static class HorizontalAlignment
 {
     public const float Center   = 0.5f;
     public const float Right    = 1f;
@@ -65,8 +65,8 @@ public readonly ref struct Gui : IDisposable
     public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
     public void             EndHorizontal()             => widget.EndHorizontal();
     
-    /// <summary>Aligns horizontal with alignment.</summary>
-    /// <param name="align"> E.g. <see cref="HorizonalAlignment.Center"/> (0.5f) or <see cref="HorizonalAlignment.Right"/> (1.0f) </param>
+    /// <summary>Begins a horizontal layout group with flexible alignment.</summary>
+    /// <param name="align">Alignment position. <br/>Use predefined values like <see cref="HorizontalAlignment.Center"/> (0.5f) or <see cref="HorizontalAlignment.Right"/> (1.0f), or custom floats between 0.0f and 1.0f.</param>
     public HorizontalCenterScope    BeginHorizontalAligned(int id, float align)          => widget.BeginHorizontalAligned(id, align);
     public void                     EndHorizontalAligned(in HorizontalCenterScope scope) => widget.EndHorizontalAligned(scope);
     
