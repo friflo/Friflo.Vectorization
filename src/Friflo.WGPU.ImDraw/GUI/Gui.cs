@@ -9,6 +9,11 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
+public static class HorizonalAlignment
+{
+    public const float Center   = 0.5f;
+    public const float Right    = 1f;
+}
 
 public readonly ref struct Gui : IDisposable
 {
@@ -60,8 +65,10 @@ public readonly ref struct Gui : IDisposable
     public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
     public void             EndHorizontal()             => widget.EndHorizontal();
     
-    public HorizontalCenterScope    BeginHorizontalCenter(int id)                       => widget.BeginHorizontalCenter(id);
-    public void                     EndHorizontalCenter(in HorizontalCenterScope scope) => widget.EndHorizontalCenter(scope);
+    /// <summary>Aligns horizontal with alignment.</summary>
+    /// <param name="align"> E.g. <see cref="HorizonalAlignment.Center"/> (0.5f) or <see cref="HorizonalAlignment.Right"/> (1.0f) </param>
+    public HorizontalCenterScope    BeginHorizontalAligned(int id, float align)          => widget.BeginHorizontalAligned(id, align);
+    public void                     EndHorizontalAligned(in HorizontalCenterScope scope) => widget.EndHorizontalAligned(scope);
     
     public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)  => widget.BeginScrollArea(childId, size);
     public void             EndScrollArea(in ScrollAreaScope scope)     => widget.EndScrollArea(scope);

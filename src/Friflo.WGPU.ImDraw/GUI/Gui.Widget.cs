@@ -328,19 +328,19 @@ public readonly ref partial struct GuiWidget
     
     
     
-    internal HorizontalCenterScope BeginHorizontalCenter(int centerId)
+    internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align)
     {
         Window.PushLayout(LayoutDirection.Horizontal);
         var oldMouseOffset = input.mouseOffset;
         guiState.centerOffsets.TryGetValue(centerId, out input.mouseOffset);
-        return new HorizontalCenterScope(this, centerId, draw.batch.vertexCount, oldMouseOffset);
+        return new HorizontalCenterScope(this, centerId, align, draw.batch.vertexCount, oldMouseOffset);
     }
     
-    internal void EndHorizontalCenter(in HorizontalCenterScope scope)
+    internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = Window.PopLayout();
-        var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * 0.5f;
+        var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
         var batch       = draw.batch;
         int vertexEnd   = batch.vertexCount;
         var vertices    = batch.vertexBuffer.Span;

@@ -78,7 +78,7 @@ public class ImGuiRenderer : IRenderer
         
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
-        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 900))) {
+        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             Window1(gui); 
         }
         using (var isOpen = gui.BeginWindow("Window 2", new(550, 20), new(500, 900))) {
@@ -116,9 +116,9 @@ public class ImGuiRenderer : IRenderer
         gui.Spacer();
         
         gui.BeginHorizontal();
-            if (gui.Button("Left"))                             Console.WriteLine("Clicked: Left");
+            if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
             gui.Spacer(10);
-            if (gui.Button("Right"))                            Console.WriteLine("Clicked: Right");
+            if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
             gui.Spacer(10);
             if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
@@ -135,21 +135,29 @@ public class ImGuiRenderer : IRenderer
         
         gui.Spacer();
         
-        var center = gui.BeginHorizontalCenter(47);
-        gui.BeginHorizontal();
-        gui.Button("Centered");
-        gui.Button(" 1 ");
-        gui.Button(" 2 ");
-        gui.Button(" 3 ");
-        gui.EndHorizontal();
-        gui.EndHorizontalCenter(center);
-        
-        gui.BeginHorizontal();
-        gui.Button("after");
-        gui.Button("centered");
-        gui.Button(" A ");
-        gui.Button(" B ");
-        gui.EndHorizontal();
+        using (gui.BeginHorizontalAligned(47, HorizonalAlignment.Right)) {
+            gui.BeginHorizontal();
+            gui.Button("Right");
+            gui.Button(" A´");
+            gui.Button(" B´");
+            gui.Button(" C´ ");
+            gui.EndHorizontal();
+        }
+        using (gui.BeginHorizontalAligned(11, HorizonalAlignment.Center)) {
+            gui.BeginHorizontal();
+            gui.Button("Center");
+            gui.Button(" 1 ");
+            gui.Button(" 2 ");
+            gui.Button(" 3 ");
+            gui.EndHorizontal();
+        }
+        using (gui.BeginHorizontal()) {
+            gui.Button("usual");
+            gui.Button("horizontal");
+            gui.Button(" A ");
+            gui.Button(" B ");
+            gui.Button(" C ");
+        }
     }
     
     private void Window2(Gui gui)
