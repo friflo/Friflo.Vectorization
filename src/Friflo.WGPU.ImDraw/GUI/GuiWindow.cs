@@ -259,19 +259,21 @@ public sealed class GuiWindow
         };
     }
 
-    private ResizeEdge GetResizeEdge(Vector2 mousePos, float border)
+    private ResizeEdge GetResizeEdge(Vector2 mousePos, float margin)
     {
-        if (!bounds.Contains(mousePos)) {
+        if (mousePos.X < Pos.X - margin || mousePos.X > Pos.X + Size.X + margin ||
+            mousePos.Y < Pos.Y - margin || mousePos.Y > Pos.Y + Size.Y + margin)
+        {
             return ResizeEdge.None;
         }
 
         ResizeEdge edge = ResizeEdge.None;
 
-        if (mousePos.X <= Pos.X + border)                      edge |= ResizeEdge.Left;
-        else if (mousePos.X >= Pos.X + Size.X - border) edge |= ResizeEdge.Right;
+        if (mousePos.X <= Pos.X + margin)               edge |= ResizeEdge.Left;
+        else if (mousePos.X >= Pos.X + Size.X - margin) edge |= ResizeEdge.Right;
 
-        if (mousePos.Y <= Pos.Y + border)                      edge |= ResizeEdge.Top;
-        else if (mousePos.Y >= Pos.Y + Size.Y - border) edge |= ResizeEdge.Bottom;
+        if (mousePos.Y <= Pos.Y + margin)               edge |= ResizeEdge.Top;
+        else if (mousePos.Y >= Pos.Y + Size.Y - margin) edge |= ResizeEdge.Bottom;
         
         if (edge != ResizeEdge.None) {
             var topMost = host.GetTopWindowAt(host.input.MousePos);
