@@ -136,20 +136,16 @@ public class ImGuiRenderer : IRenderer
         gui.Spacer();
         
         using (gui.BeginHorizontalAligned(47, HorizontalAlignment.Right)) {
-            gui.BeginHorizontal();
             gui.Button("Right");
             gui.Button(" A´");
             gui.Button(" B´");
             gui.Button(" C´ ");
-            gui.EndHorizontal();
         }
         using (gui.BeginHorizontalAligned(11, HorizontalAlignment.Center)) {
-            gui.BeginHorizontal();
             gui.Button("Center");
             gui.Button(" 1 ");
             gui.Button(" 2 ");
             gui.Button(" 3 ");
-            gui.EndHorizontal();
         }
         using (gui.BeginHorizontal()) {
             gui.Button("usual");

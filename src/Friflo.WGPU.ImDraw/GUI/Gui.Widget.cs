@@ -333,11 +333,15 @@ public readonly ref partial struct GuiWidget
         Window.PushLayout(LayoutDirection.Horizontal);
         var oldMouseOffset = input.mouseOffset;
         guiState.centerOffsets.TryGetValue(centerId, out input.mouseOffset);
+        
+        BeginHorizontal();
         return new HorizontalCenterScope(this, centerId, align, draw.batch.vertexCount, oldMouseOffset);
     }
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
+        EndHorizontal();
+        
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = Window.PopLayout();
         var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
