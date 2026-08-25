@@ -347,7 +347,8 @@ public readonly ref partial struct GuiWidget
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = Window.PopLayout();
         var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
-        var vertices    = draw.batch.vertexBuffer.Span.Slice(scope.vertexStart);
+        var batch       = draw.batch;
+        var vertices    = batch.vertexBuffer.Span.Slice(scope.vertexStart, batch.vertexCount);
         
         foreach (ref var vertex in vertices) {
             vertex.position.X += offset;
