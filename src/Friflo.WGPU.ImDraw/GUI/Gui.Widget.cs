@@ -176,8 +176,8 @@ public readonly ref partial struct GuiWidget
     
     internal bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
     {
-        var window = Window;
-        using var __ = UseStyle(style);
+        var window  = Window;
+        using var _ = UseStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
@@ -201,8 +201,8 @@ public readonly ref partial struct GuiWidget
     
     internal bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style, WidgetID id)
     {
-        var window = Window;
-        using var __ = UseStyle(style);
+        var window  = Window;
+        using var _ = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 
@@ -240,7 +240,7 @@ public readonly ref partial struct GuiWidget
     internal bool Slider(ReadOnlySpan<char> name, ref float value, float min, float max, float width, ReadOnlySpan<char> format, GuiStyle? style, WidgetID id)
     {
         var window      = Window;
-        using var __    = UseStyle(style);
+        using var _     = UseStyle(style);
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 

@@ -215,7 +215,7 @@ public static class GuiExtensions
         var widget  = gui.widget;
         var draw    = gui.Draw;
         var window  = widget.Window;
-        using var __ = widget.UseStyle(style);
+        using var _ = widget.UseStyle(style);
         
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
