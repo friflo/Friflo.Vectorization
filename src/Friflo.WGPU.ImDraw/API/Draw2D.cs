@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Friflo.GPU;
+
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
@@ -195,37 +195,41 @@ public readonly ref partial struct Draw2D : IDisposable
             return;
         }
         Flush();
-        var bat = batch;
-        if (bat.vertexCount > 0)
-        {
-            // Upload vertexBuffer with a single wgpu call
-            bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
 
-            var commands = bat.drawCommands;
-            var segments = bat.commandSegments;
-            segments.Clear();
-            if (bat.sortZIndex) {
-                SortCommands(commands, segments);
-            } else {
-                segments.Add(new CmdSegment { index = 0, length = commands.Count });
-            }
-            var scissor = new RectVector2(Vector2.Zero, bat.viewport);
-
-            foreach (var segment in segments)
-            {
-                for (int n = 0; n < segment.length; n++)
-                {
-                    var cmd = commands[segment.index + n];
-                    if (!cmd.scissor.Equals(scissor)) {
-                        scissor = cmd.scissor;
-                        pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
-                    }
-                    Batch2D.Draw(pass, cmd.config, cmd.uniforms, cmd.texture, cmd.sampler, cmd.vertexView, cmd.indexView);
-                }
-            }
-
+        if (batch.vertexCount > 0) {
+            DrawCommandList();
         }
         pass.Dispose();
+    }
+    
+    private void DrawCommandList()
+    {
+        var bat = batch;
+        // Upload vertexBuffer with a single wgpu call
+        bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
+
+        var commands = bat.drawCommands;
+        var segments = bat.commandSegments;
+        segments.Clear();
+        if (bat.sortZIndex) {
+            SortCommands(commands, segments);
+        } else {
+            segments.Add(new CmdSegment { index = 0, length = commands.Count });
+        }
+        var scissor = new RectVector2(Vector2.Zero, bat.viewport);
+
+        foreach (var segment in segments)
+        {
+            for (int n = 0; n < segment.length; n++)
+            {
+                var cmd = commands[segment.index + n];
+                if (!cmd.scissor.Equals(scissor)) {
+                    scissor = cmd.scissor;
+                    pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
+                }
+                Batch2D.Draw(pass, cmd.config, cmd.uniforms, cmd.texture, cmd.sampler, cmd.vertexView, cmd.indexView);
+            }
+        }
     }
     
     private static void SortCommands(List<DrawCommand> commands, List<CmdSegment> segments)
