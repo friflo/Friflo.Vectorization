@@ -65,6 +65,16 @@ public readonly ref struct HorizontalScope(GuiWidget widget)
     public void Dispose() => widget.EndHorizontal();
 }
 
+public readonly ref struct HorizontalCenterScope(GuiWidget widget, int centerId, int vertexStart, Vector2 oldMouseOffset)
+{
+    private  readonly   GuiWidget  widget           = widget;
+    internal readonly   Vector2    oldMouseOffset   = oldMouseOffset;
+    internal readonly   int        centerId         = centerId;
+    internal readonly   int        vertexStart      = vertexStart;
+
+    public void Dispose() => widget.EndHorizontalCenter(this);
+}
+
 
 public readonly ref struct StyleScope(GuiWidget widget)
 {

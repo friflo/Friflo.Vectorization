@@ -60,6 +60,9 @@ public readonly ref struct Gui : IDisposable
     public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
     public void             EndHorizontal()             => widget.EndHorizontal();
     
+    public HorizontalCenterScope    BeginHorizontalCenter(int id)                       => widget.BeginHorizontalCenter(id);
+    public void                     EndHorizontalCenter(in HorizontalCenterScope scope) => widget.EndHorizontalCenter(scope);
+    
     public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)  => widget.BeginScrollArea(childId, size);
     public void             EndScrollArea(in ScrollAreaScope scope)     => widget.EndScrollArea(scope);
     

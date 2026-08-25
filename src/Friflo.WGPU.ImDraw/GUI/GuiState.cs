@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System.Collections.Generic;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
@@ -20,6 +21,7 @@ internal sealed class GuiState
     internal            RevertStyle[]   revertStyles        = [];
     internal            int             revertStylesCount;
     internal readonly   GuiStyle        currentStyle        = new();
+    internal readonly   Dictionary<int, Vector2> centerOffsets = new();
     
     internal            GuiWindow       window              = null!;
     

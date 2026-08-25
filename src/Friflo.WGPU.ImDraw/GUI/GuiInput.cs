@@ -24,9 +24,12 @@ public sealed class GuiInput
 {
 #region input state
     private             bool                isMouseDown;
-    public              Vector2             MousePos        { get; private set; }
+    private             Vector2             mousePos;
+    internal            Vector2             mouseOffset;
+    public              Vector2             MousePos        => mousePos - mouseOffset;
     public              Vector2             MousePosDelta   { get; private set; }
     private             Vector2             mousePosLast;
+    
     public              Vector2             DragPosStart    { get; private set; }
     public              Vector2             MouseWheel      { get; private set; }
     private             Vector2             mouseWheelAccu;
@@ -100,7 +103,7 @@ public sealed class GuiInput
             case ImEventType.MouseMotion:
             case ImEventType.MouseButtonDown:
             case ImEventType.MouseButtonUp:
-                MousePos = ev.mouse;
+                mousePos = ev.mouse;
                 break;
             case  ImEventType.MouseWheel:
                 mouseWheelAccu += ev.wheel;

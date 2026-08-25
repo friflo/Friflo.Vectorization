@@ -325,7 +325,32 @@ public readonly ref partial struct GuiWidget
         return new HorizontalScope(this);
     }
     internal void EndHorizontal() => Window.PopLayout();
-#endregion
+    
+    
+    
+    internal HorizontalCenterScope BeginHorizontalCenter(int centerId)
+    {
+        Window.PushLayout(LayoutDirection.Horizontal);
+        var oldMouseOffset = input.mouseOffset;
+        guiState.centerOffsets.TryGetValue(centerId, out input.mouseOffset);
+        return new HorizontalCenterScope(this, centerId, draw.batch.vertexCount, oldMouseOffset);
+    }
+    
+    internal void EndHorizontalCenter(in HorizontalCenterScope scope)
+    {
+        input.mouseOffset = scope.oldMouseOffset;
+        var maxSize     = Window.PopLayout();
+        var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * 0.5f;
+        var batch       = draw.batch;
+        int vertexEnd   = batch.vertexCount;
+        var vertices    = batch.vertexBuffer.Span;
+        for (int n = scope.vertexStart; n < vertexEnd; n++) {
+            vertices[n].position.X += offset;
+        }
+        guiState.centerOffsets[scope.centerId] = new Vector2(offset, 0);
+    }
+
+    #endregion
 
 
 #region Styles
