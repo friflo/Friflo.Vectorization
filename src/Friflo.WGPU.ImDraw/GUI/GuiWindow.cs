@@ -17,18 +17,20 @@ using System.Runtime.InteropServices;
 namespace Friflo.WGPU.ImDraw;
 
 
-internal enum LayoutDirection
+public enum LayoutDirection
 {
     Vertical,
     Horizontal
 }
 
-internal struct LayoutNode
+// Note: Is public to enable creation custom widgets methods like all build-in widgets. E.g. Spacer().
+//       Basically the build-in widgets are Dogfooding the public Gui API.
+public struct LayoutNode
 {
-    internal readonly   LayoutDirection    direction;
-    internal readonly   Vector2            startCursor;
-    internal            Vector2            cursor;
-    internal            Vector2            maxSize;
+    public readonly LayoutDirection direction;
+    public readonly Vector2         startCursor;
+    public          Vector2         cursor;
+    public          Vector2         maxSize;
     
     internal LayoutNode(LayoutDirection direction, Vector2 startCursor) {
         this.direction      = direction;
@@ -93,7 +95,7 @@ public sealed class GuiWindow
     private  readonly       Stack<int>      idStack             = new();
     private                 LayoutNode[]    layoutStack         = [default];
     private                 int             layoutStackCount;
-    internal ref readonly   LayoutNode      CurrentLayout       => ref layoutStack[layoutStackCount - 1];
+    public   ref readonly   LayoutNode      CurrentLayout       => ref layoutStack[layoutStackCount - 1];
     private         ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
     public                  Vector2         Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
