@@ -23,7 +23,7 @@ public enum LayoutDirection
     Horizontal
 }
 
-// Note: Is public to enable creation custom widgets methods like all build-in widgets. E.g. Spacer().
+// Note: Is public to enable creation of custom widget methods like all build-in widgets. E.g. Spacer().
 //       Basically the build-in widgets are Dogfooding the public Gui API.
 public struct LayoutNode
 {
