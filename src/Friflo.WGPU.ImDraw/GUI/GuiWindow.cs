@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-// ReSharper disable InconsistentNaming
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable InvertIf
@@ -21,8 +20,7 @@ namespace Friflo.WGPU.ImDraw;
 internal enum LayoutDirection
 {
     Vertical,
-    Horizontal,
-    HorizontalRTL
+    Horizontal
 }
 
 internal struct LayoutNode
@@ -151,8 +149,7 @@ public sealed class GuiWindow
             Array.Copy(layoutStack, 0, newStack, 0, count);
             layoutStack = newStack;
         }
-        var cursor = direction == LayoutDirection.HorizontalRTL ? new Vector2(Size.X, Cursor.Y) : Cursor;
-        layoutStack[layoutStackCount] = new LayoutNode(direction, cursor);
+        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor);
         layoutStackCount++;
     }
 
@@ -189,22 +186,14 @@ public sealed class GuiWindow
         const float spacing = 6f;
         ref var node = ref layoutStack[layoutStackCount - 1];
 
-        switch (node.direction) {
-            case LayoutDirection.Vertical:
-                node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
-                node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
-                node.cursor.Y  += widgetSize.Y + spacing;
-                break;
-            case LayoutDirection.Horizontal:
-                node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
-                node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
-                node.cursor.X  += widgetSize.X + spacing;
-                break;
-            case LayoutDirection.HorizontalRTL:
-                node.maxSize.X  = node.startCursor.X - (node.cursor.X - widgetSize.X);
-                node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
-                node.cursor.X  -= widgetSize.X + spacing;
-                break;
+        if (node.direction == LayoutDirection.Vertical) {
+            node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
+            node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
+            node.cursor.Y  += widgetSize.Y + spacing;
+        } else {
+            node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
+            node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
+            node.cursor.X  += widgetSize.X + spacing;
         }
     }
     

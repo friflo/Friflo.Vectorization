@@ -78,7 +78,7 @@ public class ImGuiRenderer : IRenderer
         
         using var gui = batch.BeginGui(target, renderPassDescriptor);
         
-        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
+        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 900))) {
             Window1(gui); 
         }
         using (var isOpen = gui.BeginWindow("Window 2", new(550, 20), new(500, 900))) {
@@ -135,27 +135,21 @@ public class ImGuiRenderer : IRenderer
         
         gui.Spacer();
         
-        using (gui.BeginHorizontal(HorizontalDir.RTL)) {
-            gui.Button(" C´");
-            gui.Button(" B´");
-            gui.Button(" A´");
-            gui.Button("RTL");
-        }
-        using (gui.BeginHorizontalCenter(47)) {
-            gui.BeginHorizontal();
-            gui.Button("Centered");
-            gui.Button(" 1 ");
-            gui.Button(" 2 ");
-            gui.Button(" 3 ");
-            gui.EndHorizontal();
-        }
-        using (gui.BeginHorizontal()) {
-            gui.Button("after");
-            gui.Button("centered");
-            gui.Button(" A ");
-            gui.Button(" B ");
-            gui.Button(" C ");
-        }
+        var center = gui.BeginHorizontalCenter(47);
+        gui.BeginHorizontal();
+        gui.Button("Centered");
+        gui.Button(" 1 ");
+        gui.Button(" 2 ");
+        gui.Button(" 3 ");
+        gui.EndHorizontal();
+        gui.EndHorizontalCenter(center);
+        
+        gui.BeginHorizontal();
+        gui.Button("after");
+        gui.Button("centered");
+        gui.Button(" A ");
+        gui.Button(" B ");
+        gui.EndHorizontal();
     }
     
     private void Window2(Gui gui)
