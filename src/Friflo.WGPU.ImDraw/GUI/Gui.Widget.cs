@@ -36,12 +36,14 @@ public readonly ref partial struct GuiWidget
     /// <summary> Clears and returns a cached <see cref="System.Text.StringBuilder"/> to prevent allocations. </summary>
     public              StringBuilder   StringBuilder() => draw.batch.StringBuilder();
 
-    public bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size, out bool gainedFocus)
+    /// <summary> Registers a widget for keyboard/gamepad navigation.<br/> Keyboard: Tab and arrow keys (2D). </summary>
+    /// <remarks> The frame a widget receives focus <see cref="GuiInput.JustNavigated"/> is set to true. </remarks>
+    /// <returns>true if focused</returns>
+    public bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size)
     {
         if (guiState.IsNewFrame) {
-            return input.RegisterFocusable(widgetId, pos, size, out gainedFocus);
+            return input.RegisterFocusable(widgetId, pos, size);
         }
-        gainedFocus = false;
         return false;
     }
     
@@ -183,7 +185,7 @@ public readonly ref partial struct GuiWidget
         var pos         = window.Cursor;
         var size        = draw.MeasureText(name);
         var isHover     = window.IsHoverAtCursor(size, draw);
-        bool isFocused  = RegisterFocusable(widgetId, pos, size, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, size);
         var widgetState = GetWidgetState(isHover, widgetId);
         
         draw.FillRectRounded(pos, size, 8, Color.ButtonState(widgetState)); // background
@@ -209,7 +211,7 @@ public readonly ref partial struct GuiWidget
         var textSize    = draw.MeasureText(name);
         var totalSize   = new Vector2(height + 8f + textSize.X, Math.Max(height, textSize.Y));
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
-        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool isToggled  = IsFired(widgetState, isFocused);
         if (isToggled) {
@@ -246,7 +248,7 @@ public readonly ref partial struct GuiWidget
         var pos         = window.Cursor;
         var totalSize   = new Vector2(width, height);
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
-        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize, out _);
+        bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
         bool changed    = false;
         
@@ -293,7 +295,7 @@ public readonly ref partial struct GuiWidget
             
             bool isHover    = window.IsHoverAt(pos, size, draw);
             widgetState     = GetWidgetState(isHover, widgetId);
-            isFocused       = RegisterFocusable(widgetId, pos, size, out _);
+            isFocused       = RegisterFocusable(widgetId, pos, size);
         }
         window.MoveCursor(size);
 

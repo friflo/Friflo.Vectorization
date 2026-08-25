@@ -206,11 +206,11 @@ public sealed class GuiInput
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
     // Mutates:  widget state
-    internal bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size, out bool gainedFocus)
+    internal bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size) // , out bool gainedFocus
     {
         int myIndex = focusableCounter++;
         currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
-        gainedFocus = false;
+        // gainedFocus = false;
 
         // Handle 1D Tab focus
         if (myIndex == targetFocusIndex)
@@ -218,7 +218,7 @@ public sealed class GuiInput
             focusedItem = widgetId;
             currentFocusIndex   = myIndex;
             targetFocusIndex    = -1;
-            gainedFocus         = true;
+            // gainedFocus      = true;
             JustNavigated       = true;
         }
 
@@ -228,7 +228,7 @@ public sealed class GuiInput
             focusedItem         = widgetId;
             currentFocusIndex   = myIndex;
             targetFocusItem     = 0;
-            gainedFocus         = true;
+            // gainedFocus      = true;
             JustNavigated       = true;
         }
 

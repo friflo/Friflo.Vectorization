@@ -223,7 +223,7 @@ public static class GuiExtensions
         var size        = draw.MeasureText(name);
         var pos         = window.Cursor;
         var isHover     = window.IsHoverAtCursor(size, draw);
-        var isFocused   = widget.RegisterFocusable(widgetId, pos, size, out _);
+        var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
         draw.FillRectRounded(pos, size, 8, widget.Color.ButtonState(widgetState)); // background
