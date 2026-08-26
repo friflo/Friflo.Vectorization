@@ -4,7 +4,7 @@
 
 using System;
 using System.Numerics;
-using Shaders.Imdraw;
+
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
@@ -30,7 +30,7 @@ public struct DrawCommand
     public      ImTexture       texture;
     public      MemoryView      vertexView;
     public      MemoryView      indexView;
-    internal    RenderConfig    config;
+    public      BlendState      blendState;
     public      Matrix4x4       projection;
     public      SamplerFilter   samplerFilter;
     public      RectVector2     scissor;

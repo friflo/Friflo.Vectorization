@@ -167,7 +167,6 @@ public readonly ref partial struct Draw2D
 
         var vertexView  = new MemoryView(bat.vertexStart, pendingVertices);
         var indexView   = new MemoryView(0, pendingQuads * 6);
-        var config      = bat.renderConfigs[(int)bat.currentBlendState];
         bat.vertexStart = bat.vertexCount;
 
         // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
@@ -178,7 +177,7 @@ public readonly ref partial struct Draw2D
             texture         = bat.currentTexture,
             vertexView      = vertexView,
             indexView       = indexView,
-            config          = config,
+            blendState      = bat.currentBlendState,
             projection      = bat.projection,
             samplerFilter   = bat.currentSamplerFilter,
             scissor         = bat.currentScissor,
@@ -223,7 +222,8 @@ public readonly ref partial struct Draw2D
                 var indexView   = bat.gpuIndexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
                 var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
                 var uniforms    = new ImUniforms(cmd.projection);
-                Batch2D.Draw(pass, cmd.config, uniforms, texture, sampler, vertexView, indexView);
+                var config      = bat.renderConfigs[(int)cmd.blendState];
+                Batch2D.Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
             }
         }
     }
