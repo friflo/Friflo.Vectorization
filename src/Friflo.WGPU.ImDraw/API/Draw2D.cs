@@ -195,7 +195,7 @@ public readonly ref partial struct Draw2D
         descriptor.colorAttachments[0].view = target.View;
         using var pass = target.BeginRenderPass(descriptor);
 
-        var bat = batch;
+        var bat = (WgpuBatch)batch;
         // Upload vertexBuffer with a single wgpu call
         bat.gpuVertexBuffer.Write(0, bat.vertexCount);
 
@@ -211,6 +211,7 @@ public readonly ref partial struct Draw2D
 
         var vertexBuffer = ((ImWgpuBuffer<Vertex2D>)bat.gpuVertexBuffer).native;
         var indexBuffer  = ((ImWgpuBuffer<uint>)    bat.gpuIndexBuffer).native;
+
         
         foreach (var segment in segments)
         {
@@ -227,7 +228,7 @@ public readonly ref partial struct Draw2D
                 var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
                 var uniforms    = new ImUniforms(cmd.projection);
                 var config      = bat.renderConfigs[(int)cmd.blendState];
-                Batch2D.Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
+                WgpuBatch.Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
             }
         }
     }
