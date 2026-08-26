@@ -168,20 +168,19 @@ public readonly ref partial struct Draw2D
         var indexView   = new MemoryView(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
         bat.vertexStart = bat.vertexCount;
-        var sampler     = bat.currentSamplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
 
         // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
         bat.drawCommands.Add(new DrawCommand {
-            zIndex      = bat.currentZIndex,
-            sequence    = bat.currentSequence++, 
-            texture     = bat.currentTexture,
-            vertexView  = vertexView,
-            indexView   = indexView,
-            config      = config,
-            uniforms    = bat.uniforms,
-            sampler     = sampler,
-            scissor     = bat.currentScissor,
+            zIndex          = bat.currentZIndex,
+            sequence        = bat.currentSequence++, 
+            texture         = bat.currentTexture,
+            vertexView      = vertexView,
+            indexView       = indexView,
+            config          = config,
+            uniforms        = bat.uniforms,
+            samplerFilter   = bat.currentSamplerFilter,
+            scissor         = bat.currentScissor,
         });
     }
     
@@ -221,7 +220,8 @@ public readonly ref partial struct Draw2D
                 var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
                 var vertexView  = bat.gpuVertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
                 var indexView   = bat.gpuIndexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
-                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, cmd.sampler, vertexView, indexView);
+                var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
+                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, sampler, vertexView, indexView);
             }
         }
     }

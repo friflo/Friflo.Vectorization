@@ -32,10 +32,10 @@ public struct DrawCommand
     public      MemoryView      indexView;
     internal    RenderConfig    config;
     public      ImUniforms      uniforms;
-    internal    GpuSampler      sampler;
+    public      SamplerFilter   samplerFilter;
     public      RectVector2     scissor;
 
-    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.length / 4}   {texture}  {scissor}  {sampler}";
+    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.length / 4}   {texture}  {scissor}  {samplerFilter}";
 }
 
 
