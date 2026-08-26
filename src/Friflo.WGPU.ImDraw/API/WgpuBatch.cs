@@ -15,12 +15,17 @@ namespace Friflo.ImGui;
 
 public sealed partial class WgpuBatch : Batch2D
 {
+    internal readonly   GpuSampler          samplerLinear;              // the default sampler
+    internal readonly   GpuSampler          samplerNearest;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
 
-    internal WgpuBatch(ImGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
+    internal WgpuBatch(WgpuGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
         : base(backend, device, maxVertices)
     {
-        renderConfigs = CreateRenderConfigs(targetFormat);
+        renderConfigs   = CreateRenderConfigs(targetFormat);
+        
+        samplerLinear   = backend.samplerLinear;
+        samplerNearest  = backend.samplerNearest;
     }
     
     

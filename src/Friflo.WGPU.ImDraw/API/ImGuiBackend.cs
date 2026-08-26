@@ -18,11 +18,12 @@ public abstract class ImBuffer<T> : IDisposable where T : unmanaged
     public abstract void        Write(int start, int length);
 }
 
-public abstract class ImGuiBackend
+public abstract class ImGuiBackend : IDisposable
 {
+    public    abstract  void    Dispose();
 
-    public    abstract  Font                CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name);
-    public    abstract  Font                CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name);
+    public    abstract  Font    CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name);
+    public    abstract  Font    CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name);
     
     protected internal abstract  ImTexture           CreateTexture(int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);

@@ -11,17 +11,13 @@ namespace Friflo.ImGui;
 
 internal sealed class DrawModule : IGpuDeviceModule
 {
-    internal readonly   GpuSampler      samplerLinear;
-    internal readonly   GpuSampler      samplerNearest;
+
     internal readonly   Font            defaultFont;
     internal readonly   GuiModule       guiModule;
     
     
     internal DrawModule(GpuDevice device)
     {
-        samplerLinear  = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
-        samplerNearest = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
-        
         defaultFont = device.CreateDefaultFont();
 
         guiModule = new GuiModule();
@@ -30,8 +26,6 @@ internal sealed class DrawModule : IGpuDeviceModule
     public void Dispose()
     {
         guiModule.Dispose();
-        samplerLinear.Dispose();
-        samplerNearest.Dispose();
         defaultFont.DisposeInternal();
     }
 }

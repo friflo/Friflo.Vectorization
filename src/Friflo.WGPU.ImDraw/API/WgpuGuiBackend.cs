@@ -13,18 +13,24 @@ using Friflo.WGPU;
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
 
-public sealed class WgpuGuiBackend : ImGuiBackend, IDisposable  
+public sealed class WgpuGuiBackend : ImGuiBackend  
 {
-    private readonly GpuDevice device;
+    private  readonly   GpuDevice       device;
+    internal readonly   GpuSampler      samplerLinear;
+    internal readonly   GpuSampler      samplerNearest;
     
     public WgpuGuiBackend(GpuDevice device) {
         this.device = device;
+        samplerLinear   = device.CreateSampler(new GpuSamplerDescriptor { label = "Linear Sampler",  magFilter = FilterMode.Linear,  minFilter = FilterMode.Linear  });
+        samplerNearest  = device.CreateSampler(new GpuSamplerDescriptor { label = "Nearest Sampler", magFilter = FilterMode.Nearest, minFilter = FilterMode.Nearest });
     }
     
-    public void Dispose() {
+    public override void Dispose() {
+        samplerLinear.Dispose();
+        samplerNearest.Dispose();
     }
     
-    public Batch2D CreateBatch2D(ImGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
+    public Batch2D CreateBatch2D(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
         return new WgpuBatch(backend, device, targetFormat, maxVertices);
     }
         

@@ -15,6 +15,7 @@ namespace TestConsole;
 public class ImGuiRenderer : IRenderer
 {
     private readonly    GpuDevice               device;
+    private readonly    WgpuGuiBackend          guiBackend;
     private readonly    Batch2D                 batch;
     private readonly    GpuTexture              myTexture;
     private readonly    ImTexture               myTextureView;
@@ -50,13 +51,14 @@ public class ImGuiRenderer : IRenderer
         monocraftFont?.Dispose();
         myTexture.Dispose();
         batch.Dispose();
+        guiBackend.Dispose();
     }
     
     public ImGuiRenderer(WgpuHost wgpuHost)
     {
         device = wgpuHost.Device;
-        var backend = new WgpuGuiBackend(device);
-        batch  = backend.CreateBatch2D(backend, wgpuHost.SwapChainFormat);
+        guiBackend = new WgpuGuiBackend(device);
+        batch  = guiBackend.CreateBatch2D(guiBackend, wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;

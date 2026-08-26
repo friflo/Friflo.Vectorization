@@ -53,8 +53,6 @@ public abstract class Batch2D : IDisposable
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
     public   readonly   GuiInput            input;
-    internal readonly   GpuSampler          samplerLinear;              // the default sampler
-    internal readonly   GpuSampler          samplerNearest;
     internal            Font                defaultFont;
     internal            ImTexture           defaultFontTexture;
     
@@ -110,8 +108,6 @@ public abstract class Batch2D : IDisposable
         
         defaultFont             = drawModule.defaultFont;
         defaultFontTexture      = drawModule.defaultFont.texture;
-        samplerLinear           = drawModule.samplerLinear;
-        samplerNearest          = drawModule.samplerNearest;
         currentSamplerFilter    = SamplerFilter.Linear;
     }
     

@@ -11,6 +11,7 @@ namespace TestConsole;
 
 public class ImRenderer : IRenderer
 {
+    private readonly    WgpuGuiBackend          guiBackend;
     private readonly    Batch2D                 batch;
     private readonly    GpuTexture              myTexture;
     private readonly    ImTexture               myTextureView;
@@ -23,13 +24,14 @@ public class ImRenderer : IRenderer
     public void OnShutdown() {
         myTexture.Dispose();
         batch.Dispose();
+        guiBackend.Dispose();
     }
     
     public ImRenderer(WgpuHost wgpuHost)
     {
         var device = wgpuHost.Device;
-        var backend = new WgpuGuiBackend(device);
-        batch = backend.CreateBatch2D(backend, wgpuHost.SwapChainFormat);
+        guiBackend = new WgpuGuiBackend(device);
+        batch = guiBackend.CreateBatch2D(guiBackend, wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
