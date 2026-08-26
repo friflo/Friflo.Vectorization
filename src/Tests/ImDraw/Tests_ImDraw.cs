@@ -106,7 +106,7 @@ public static class Tests_ImDraw
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
         device.GetGuiModule()?.NewFrame(); // not necessary
-        var gui = batch.BeginGui(target.TargetSize);
+        var gui = batch.BeginGui(target.TargetSize.width, target.TargetSize.height);
         gui.BeginWindow("Test Window");
         gui.Button("hello");
         gui.Button("test");

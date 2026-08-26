@@ -183,6 +183,8 @@ public readonly unsafe ref struct  RenderTarget : IDisposable
     public              PipelineContext                 ComputeContext { [DebuggerStepThrough] get => recorder; }
     public              GpuDevice                       Device          => recorder.Device;
     public              bool                            IsNull          => recorder == null;
+    public              int                             Width           => TargetSize.width;
+    public              int                             Height          => TargetSize.height;
 
     public   override   string                          ToString()      => TextureStatus.ToString(); 
 

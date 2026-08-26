@@ -52,7 +52,7 @@ public class ImRenderer : IRenderer
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
         
-        var draw = batch.BeginDraw2D(target.TargetSize);
+        var draw = batch.BeginDraw2D(target.Width,  target.Height);
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)

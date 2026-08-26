@@ -76,7 +76,7 @@ public class ImGuiRenderer : IRenderer
     {
         perfLog.Trace(10000);
         
-        var gui = batch.BeginGui(target.TargetSize);
+        var gui = batch.BeginGui(target.Width, target.Height);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             Window1(gui); 

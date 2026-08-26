@@ -207,13 +207,13 @@ public sealed partial class Batch2D : IDisposable
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
-    public Gui BeginGui(GpuExtent3D size)
+    public Gui BeginGui(int width, int height)
     {
-        var draw = BeginDraw2D(size);
+        var draw = BeginDraw2D(width, height);
         return draw.BeginGui();
     }
     
-    public Draw2D BeginDraw2D(GpuExtent3D targetSize)
+    public Draw2D BeginDraw2D(int width, int height)
     {
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
@@ -226,7 +226,7 @@ public sealed partial class Batch2D : IDisposable
         currentSamplerFilter= SamplerFilter.Linear;
         currentTransform    = Matrix4x4.Identity;
         currentBlendState   = BlendState.Alpha;
-        currentScissor      = new RectVector2(Vector2.Zero, new Vector2(targetSize.width, targetSize.height));
+        currentScissor      = new RectVector2(Vector2.Zero, new Vector2(width, height));
         sortZIndex          = false;
         currentZIndex       = 0;
         currentSequence     = 0;
@@ -238,7 +238,7 @@ public sealed partial class Batch2D : IDisposable
         samplerFilterStack.Clear();
         
         var draw = new Draw2D(this);
-        draw.SetViewport(targetSize.width, targetSize.height);
+        draw.SetViewport(width, height);
         return draw;
     }
 #endregion
