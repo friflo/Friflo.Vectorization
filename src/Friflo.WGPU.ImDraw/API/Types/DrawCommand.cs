@@ -23,17 +23,26 @@ public readonly struct MemoryView
     }
 }
 
-public struct DrawCommand
+public readonly struct DrawCommand(
+    int             zIndex,
+    int             sequence,
+    ImTexture       texture,
+    MemoryView      vertexView,
+    MemoryView      indexView,
+    BlendState      blendState,
+    in Matrix4x4    projection,
+    SamplerFilter   samplerFilter,
+    RectVector2     scissor)
 {
-    public      int             zIndex;
-    public      int             sequence;
-    public      ImTexture       texture;
-    public      MemoryView      vertexView;
-    public      MemoryView      indexView;
-    public      BlendState      blendState;
-    public      Matrix4x4       projection;
-    public      SamplerFilter   samplerFilter;
-    public      RectVector2     scissor;
+    public readonly int             zIndex          = zIndex;
+    public readonly int             sequence        = sequence;
+    public readonly ImTexture       texture         = texture;
+    public readonly MemoryView      vertexView      = vertexView;
+    public readonly MemoryView      indexView       = indexView;
+    public readonly BlendState      blendState      = blendState;
+    public readonly Matrix4x4       projection      = projection;
+    public readonly SamplerFilter   samplerFilter   = samplerFilter;
+    public readonly RectVector2     scissor         = scissor;
 
     public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.length / 4}   {texture}  {scissor}  {samplerFilter}";
 }

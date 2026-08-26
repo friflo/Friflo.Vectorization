@@ -172,17 +172,17 @@ public readonly ref partial struct Draw2D
 
         // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
-        bat.drawCommands.Add(new DrawCommand {
-            zIndex          = bat.currentZIndex,
-            sequence        = bat.currentSequence++, 
-            texture         = bat.currentTexture,
-            vertexView      = vertexView,
-            indexView       = indexView,
-            blendState      = bat.currentBlendState,
-            projection      = bat.projection,
-            samplerFilter   = bat.currentSamplerFilter,
-            scissor         = bat.currentScissor,
-        });
+        bat.drawCommands.Add(new DrawCommand(
+            zIndex: bat.currentZIndex,
+            sequence:        bat.currentSequence++, 
+            texture:         bat.currentTexture,
+            vertexView:      vertexView,
+            indexView:       indexView,
+            blendState:      bat.currentBlendState,
+            projection:      bat.projection,
+            samplerFilter:   bat.currentSamplerFilter,
+            scissor:         bat.currentScissor
+        ));
     }
     
     
