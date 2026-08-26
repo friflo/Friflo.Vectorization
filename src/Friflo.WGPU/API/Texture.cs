@@ -216,7 +216,7 @@ public readonly unsafe struct GpuTextureView
         throw new ObjectDisposedException($"texture view of disposed GpuTexture '{texture.Label}'");
     }
     
-    public GpuTextureView(nint view, GpuTexture texture) // TODO IM_TEX - remove public constructor
+    internal GpuTextureView(nint view, GpuTexture texture)
     {
         handle          = (TextureView*)view;
         this.texture    = texture;
