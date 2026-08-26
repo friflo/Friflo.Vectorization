@@ -36,7 +36,6 @@ public abstract class Batch2D : IDisposable
 {
 #region internal
     private  readonly   ImGuiBackend        backend;
-    private  readonly   DrawModule          drawModule;
     internal readonly   Memory<Vertex2D>    vertexBuffer;
     internal readonly   ImBuffer<Vertex2D>  gpuVertexBuffer;
     internal readonly   ImBuffer<uint>      gpuIndexBuffer;
@@ -73,16 +72,13 @@ public abstract class Batch2D : IDisposable
     internal            ImTexture           currentTexture;
 
     
-    protected Batch2D(ImGuiBackend backend, GpuDevice device, int maxVertices)
+    protected Batch2D(ImGuiBackend backend, GpuDevice device, int maxVertices)  // TODO IM_TEX - remove device
     {
-        this.backend = backend;
-        if (!device.TryGetModule(out drawModule)) {
-            drawModule = new DrawModule(backend);
-            device.AddModule(drawModule);
-        }
+        this.backend    = backend;
+        
         formatProvider  = CultureInfo.InvariantCulture;
-        host            = drawModule.guiModule.host;
-        input           = drawModule.guiModule.input;
+        host            = backend.host;
+        input           = backend.input;
         
         // --- vertex & index buffer - to draw quads
         int maxQuads   = maxVertices / 4;

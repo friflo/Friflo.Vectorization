@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.ImGui;
-using Friflo.WGPU;
 using Friflo.WGPU.Runtime;
 using Shaders.Imdraw;
 

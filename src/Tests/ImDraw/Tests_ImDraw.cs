@@ -107,7 +107,7 @@ public static class Tests_ImDraw
         using var batch     = guiBackend.CreateBatch2D(guiBackend, TextureFormat.RGBA8Unorm);
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
-        device.GetGuiModule()?.NewFrame(); // not necessary
+        guiBackend.NewFrame(); // not necessary
         var gui = batch.BeginGui(target.TargetSize.width, target.TargetSize.height);
         gui.BeginWindow("Test Window");
         gui.Button("hello");

@@ -21,7 +21,9 @@ public abstract class ImBuffer<T> : IDisposable where T : unmanaged
 
 public abstract class ImGuiBackend : IDisposable
 {
-    private Font?   defaultFont;
+    private             Font?       defaultFont;
+    public   readonly   GuiInput    input;
+    internal readonly   GuiHost     host;
     
     public  Font    DefaultFont => defaultFont ??= CreateDefaultFont();
 
@@ -29,15 +31,25 @@ public abstract class ImGuiBackend : IDisposable
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  ImBuffer<uint>      CreateIndexBuffer(int indexCount);
     
+    protected ImGuiBackend()
+    {
+        input   = new GuiInput();
+        host    = new GuiHost(input);
+    }
+    
+    public void NewFrame()              => input.NewFrame();
+    public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
+    
     public virtual void Dispose()
     {
         defaultFont?.DisposeInternal();
+        host.Dispose();
     }
     
     private Font CreateDefaultFont()
     {
-        using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+        using var fontAtlas = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
@@ -47,7 +59,7 @@ public abstract class ImGuiBackend : IDisposable
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
+        using var ttfFont = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
         
         return Font.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
     }

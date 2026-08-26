@@ -21,6 +21,8 @@ public interface IRenderer
     public void OnWindowChanged(int width, int height) { }
     public void OnFrame        (in RenderTarget target);
     public void OnShutdown();
+    
+    public ImGuiBackend? GuiBackend => null;
 }
 
 public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
@@ -32,7 +34,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     
     // --- fields for SDL3 input handling
     private readonly    Sdl3Input               sdlInput = new();
-    private             GuiModule?              guiModule;
+    private             ImGuiBackend?           guiBackend;
     
     public static int Run(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
     {
@@ -105,7 +107,8 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         wgpuHost    = new WgpuHost(osHandle, osInstance);
         var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
-        renderer = createRenderer(wgpuHost);
+        renderer    = createRenderer(wgpuHost);
+        guiBackend  = renderer.GuiBackend;
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -146,12 +149,11 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         if (target.IsNull) {     // window minimized?
             return SDL.AppResult.Continue;
         }
-        guiModule = wgpuHost.Device.GetGuiModule();  
-        guiModule?.NewFrame();
+        guiBackend?.NewFrame();
         
         renderer?.OnFrame(target);
         
-        if (guiModule != null) Sdl3Cursor.SetCursor(guiModule.input.CurrentCursor);
+        if (guiBackend != null) Sdl3Cursor.SetCursor(guiBackend.input.CurrentCursor);
         
         wgpuHost.Context.Queue.Submit();
         wgpuHost.Surface.Present();
@@ -175,8 +177,8 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
                 SetWindowIconFromResource();
                 break;
         }
-        if (guiModule != null && wgpuHost != null) {
-            sdlInput.HandleGuiInput(guiModule, ev, wgpuHost.DpiScale);
+        if (guiBackend != null && wgpuHost != null) {
+            sdlInput.HandleGuiInput(guiBackend, ev, wgpuHost.DpiScale);
         }
         return SDL.AppResult.Continue;
     }
@@ -202,42 +204,42 @@ internal class Sdl3Input : IDisposable
     private nint gamepad;
 
     /// <summary> Use <c> dpiScale = new Vector2(1, 1) </c> if not available. </summary>
-    internal void HandleGuiInput(GuiModule guiModule, in SDL.Event ev, Vector2 dpiScale)
+    internal void HandleGuiInput(ImGuiBackend backend, in SDL.Event ev, Vector2 dpiScale)
     {
         var type = (SDL.EventType)ev.Type;
         switch (type)
         {
             case SDL.EventType.MouseMotion:
                 var motionPos = new Vector2(dpiScale.X * ev.Motion.X, dpiScale.Y * ev.Motion.Y);
-                guiModule.AddEvent(new ImEvent(ImEventType.MouseMotion, motionPos));
+                backend.AddEvent(new ImEvent(ImEventType.MouseMotion, motionPos));
                 break;
             case SDL.EventType.MouseButtonUp:
                 var buttonUpPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonUp, buttonUpPos));
+                backend.AddEvent(new ImEvent(ImEventType.MouseButtonUp, buttonUpPos));
                 break;
             case SDL.EventType.MouseButtonDown:
                 var buttonDownPos = new Vector2(dpiScale.X * ev.Button.X, dpiScale.Y * ev.Button.Y);
-                guiModule.AddEvent(new ImEvent(ImEventType.MouseButtonDown, buttonDownPos));
+                backend.AddEvent(new ImEvent(ImEventType.MouseButtonDown, buttonDownPos));
                 break;
             case SDL.EventType.MouseWheel:
-                guiModule.AddEvent(new ImEvent(ImEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
+                backend.AddEvent(new ImEvent(ImEventType.MouseWheel) { wheel = new Vector2(ev.Wheel.X, ev.Wheel.Y) });
                 break;
             case SDL.EventType.KeyDown:
                 var key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = true };
-                guiModule.AddEvent(new ImEvent(ImEventType.KeyDown, key));
+                backend.AddEvent(new ImEvent(ImEventType.KeyDown, key));
                 break;
             case SDL.EventType.KeyUp:
                 key = new KeyEvent { code = (KeyCode)ev.Key.Key, mod = (KeyMod)ev.Key.Mod, isDown = false };
-                guiModule.AddEvent(new ImEvent(ImEventType.KeyUp, key));
+                backend.AddEvent(new ImEvent(ImEventType.KeyUp, key));
                 break;
             
             case SDL.EventType.GamepadAdded:        gamepad = SDL.OpenGamepad(ev.JDevice.Which);    break;
             case SDL.EventType.GamepadRemoved:      CloseGamepad();                                 break;
             case SDL.EventType.GamepadButtonUp:
-                guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false));
+                backend.AddEvent(new ImEvent(ImEventType.GamepadButtonUp,   (ImGamepadButton)ev.GButton.Button, false));
                 break;
             case SDL.EventType.GamepadButtonDown:
-                guiModule.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));
+                backend.AddEvent(new ImEvent(ImEventType.GamepadButtonDown, (ImGamepadButton)ev.GButton.Button, true));
                 break;
         }
     }

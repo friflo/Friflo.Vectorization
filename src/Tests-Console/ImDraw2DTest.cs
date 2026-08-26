@@ -49,6 +49,8 @@ public class ImRenderer : IRenderer
         };
     }
     
+    public ImGuiBackend GuiBackend => guiBackend;
+    
     public void OnFrame(in RenderTarget target)
     {
         perfLog.Trace(5000);

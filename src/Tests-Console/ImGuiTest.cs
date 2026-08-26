@@ -65,6 +65,8 @@ public class ImGuiRenderer : IRenderer
         myTextureView    = myTexture.CreateView().ToImTexture();
     }
     
+    public ImGuiBackend GuiBackend => guiBackend;
+    
     public void OnWindowChanged(int width, int height)
     {
         renderPassDescriptor.colorAttachments[0] = new GpuRenderPassColorAttachment {
