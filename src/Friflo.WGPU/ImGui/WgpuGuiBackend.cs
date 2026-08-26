@@ -36,7 +36,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         return new WgpuBatch(backend, targetFormat, maxVertices);
     }
     
-    protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    protected override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var texture = device.CreateTexture(new GpuTextureDescriptor {
             label   = name,
@@ -50,14 +50,14 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         return new ImTexture(texture, view.Handle);
     }
 
-    protected internal override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
+    protected override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
         var buffer   = device.CreateBuffer(vertices, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
         return new ImWgpuBuffer<Vertex2D>(buffer);
     }
 
-    protected internal override ImBuffer<uint> CreateIndexBuffer(int indexCount)
+    protected override ImBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var indices = new Memory<uint>(new uint[indexCount]);
         var buffer  = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);

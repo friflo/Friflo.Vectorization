@@ -63,7 +63,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
   </ItemGroup>
   
   

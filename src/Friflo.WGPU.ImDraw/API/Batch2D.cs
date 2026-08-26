@@ -33,20 +33,24 @@ public enum SamplerFilter
 
 public abstract class Batch2D : IDisposable
 {
+#region protected                                                       // TODO IM_TEX  check use of internal
+    protected internal readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
+    protected          readonly  ImBuffer<uint>      gpuIndexBuffer;
+    protected internal readonly  List<DrawCommand>   drawCommands 	    = [];
+    protected internal readonly  List<CmdSegment>    commandSegments     = [];
+    protected internal           Vector2             viewport;
+#endregion
+
 #region internal
-    private  readonly   ImGuiBackend        backend;
-    internal readonly   Memory<Vertex2D>    vertexBuffer;
-    internal readonly   ImBuffer<Vertex2D>  gpuVertexBuffer;
-    internal readonly   ImBuffer<uint>      gpuIndexBuffer;
+    private   readonly  ImGuiBackend        backend;
+    internal  readonly  Memory<Vertex2D>    vertexBuffer;
     
-    internal readonly   List<DrawCommand>   drawCommands 	    = [];
-    internal readonly   List<CmdSegment>    commandSegments     = [];
-    internal readonly   Stack<RectVector2>  scissorStack        = [];
-    internal readonly   Stack<Matrix4x4>    transformStack      = [];
-    internal readonly   Stack<int>          zIndexStack         = [];
-    internal readonly   Stack<SamplerFilter>samplerFilterStack  = [];
-    private  readonly   StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
-    internal readonly   GuiState            guiState            = new();
+    internal  readonly  Stack<RectVector2>  scissorStack        = [];
+    internal  readonly  Stack<Matrix4x4>    transformStack      = [];
+    internal  readonly  Stack<int>          zIndexStack         = [];
+    internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
+    private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
+    internal  readonly  GuiState            guiState            = new();
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
@@ -56,7 +60,6 @@ public abstract class Batch2D : IDisposable
     
     // --- Draw2D - state
     internal            IFormatProvider     formatProvider;
-    internal            Vector2             viewport;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
     internal            BlendState          currentBlendState;
