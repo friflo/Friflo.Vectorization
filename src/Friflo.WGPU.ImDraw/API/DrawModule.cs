@@ -15,9 +15,9 @@ internal sealed class DrawModule : IGpuDeviceModule
     internal readonly   GuiModule       guiModule;
     
     
-    internal DrawModule(GpuDevice device)
+    internal DrawModule(ImGuiBackend backend)
     {
-        defaultFont = device.CreateDefaultFont();
+        defaultFont = backend.CreateDefaultFont();
 
         guiModule = new GuiModule();
     }

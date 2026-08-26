@@ -39,8 +39,11 @@ public static class ImDeviceExtensions
             texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
             return texture;
         }
-        
-        
+    }
+
+	// TODO IM_TEX  move methods to ImGuiBackend
+    extension (ImGuiBackend backend)
+    {
         internal Font CreateDefaultFont()
         {
             using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
@@ -48,7 +51,7 @@ public static class ImDeviceExtensions
             using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
             var fntContent      = reader.ReadToEnd();
             
-            return Font.CreateBMFont(device, fntContent, fontAtlas!, "Default Font", false);
+            return Font.CreateBMFont(backend, fntContent, fontAtlas!, "Default Font", false);
         }
         
         /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
@@ -56,17 +59,17 @@ public static class ImDeviceExtensions
         {
             using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
             
-            return Font.CreateTtfFont(device, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
+            return Font.CreateTtfFont(backend, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
         }
         
         public Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
         {
-            return Font.CreateBMFont(device, fntContent, fontAtlas, name, true);
+            return Font.CreateBMFont(backend, fntContent, fontAtlas, name, true);
         }
         
         public Font CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
         {
-            return Font.CreateTtfFont(device, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
+            return Font.CreateTtfFont(backend, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
         }
     }
 }

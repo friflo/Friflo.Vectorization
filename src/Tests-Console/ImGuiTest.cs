@@ -108,7 +108,7 @@ public class ImGuiRenderer : IRenderer
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                monocraftFont ??= device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+                monocraftFont ??= guiBackend.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
                 Debug.Assert(monocraftFont.maxY == 244);
                 batch.SetFont(monocraftFont);
             } else {

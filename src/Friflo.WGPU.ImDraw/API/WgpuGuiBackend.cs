@@ -44,9 +44,18 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         throw new NotImplementedException();
     }
 
-    protected internal override ImTexture CreateTexture(int width, int height, ReadOnlySpan<byte> rgbaPixels)
+    protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
-        throw new NotImplementedException();
+        var texture = device.CreateTexture(new GpuTextureDescriptor {
+            label   = name,
+            size    = [width, height],
+            format  = TextureFormat.RGBA8Unorm,
+            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
+        });
+        texture.Write(rgbaPixels, bytesPerRow: width * 4, rowsPerImage: height);
+
+        var view = texture.CreateView();
+        return new ImTexture(texture, view.Handle);
     }
 
     protected internal override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)

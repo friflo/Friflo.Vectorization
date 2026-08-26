@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
-using Friflo.GPU;
-using Friflo.WGPU;
 using StbImageSharp;
 using StbTrueTypeSharp;
 
@@ -133,7 +131,7 @@ public sealed class Font : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    internal static Font CreateBMFont(GpuDevice device, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
+    internal static Font CreateBMFont(ImGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
@@ -142,18 +140,11 @@ public sealed class Font : IDisposable
         var height  = image.Height; 
         AssertTextureDimension(width, height);
         
-        var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
-            size    = [width, height],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
-        });
-        
         var whitePixelUv = SetWhitePixel(width, height, image.Data);
 
-        fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
+        var fontTexture = backend.CreateTexture(name, width, height, image.Data);
         
-        var view = fontTexture.CreateView();
-        var imTexture   = new ImTexture(fontTexture, view.Handle, whitePixelUv);
+        var imTexture   = new ImTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
         return new Font(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
@@ -224,7 +215,7 @@ public sealed class Font : IDisposable
     }
     
     internal static Font CreateTtfFont(
-        GpuDevice   device,
+        ImGuiBackend backend,
         Stream      ttfStream,
         float       fontSize,
         int         width,
@@ -247,11 +238,7 @@ public sealed class Font : IDisposable
         var alphaBitmapTarget = new byte[width * height];
         var glyphs = ReadTtf(ttfData, fontSize, width, height, alphaBitmapTarget, firstChar, charCount, out var maxY);
         
-        var fontTexture = device.CreateTexture(new GpuTextureDescriptor { label = name,
-            size    = [width, height],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst
-        });
+        
         
         var rgba32 = new byte[width * height * 4];
         
@@ -264,10 +251,9 @@ public sealed class Font : IDisposable
         }
         var whitePixelUv = SetWhitePixel(width, height, rgba32);
 
-        fontTexture.Write(rgba32, bytesPerRow: width * 4, rowsPerImage: height);
+        var fontTexture = backend.CreateTexture(name, width, height, rgba32);
         
-        var view = fontTexture.CreateView();
-        var imTexture   = new ImTexture(fontTexture, view.Handle, whitePixelUv);
+        var imTexture   = new ImTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
         return new Font(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);

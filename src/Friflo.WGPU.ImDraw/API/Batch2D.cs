@@ -75,7 +75,7 @@ public abstract class Batch2D : IDisposable
     protected Batch2D(ImGuiBackend backend, GpuDevice device, int maxVertices)
     {
         if (!device.TryGetModule(out drawModule)) {
-            drawModule = new DrawModule(device);
+            drawModule = new DrawModule(backend);
             device.AddModule(drawModule);
         }
         formatProvider  = CultureInfo.InvariantCulture;

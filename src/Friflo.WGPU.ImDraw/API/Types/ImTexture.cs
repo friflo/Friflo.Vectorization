@@ -21,16 +21,24 @@ public readonly struct ImTexture : IEquatable<ImTexture>
 
     public ImTexture(object obj, nint handle, Vector2 whiteUv)
     {
-        this.obj            = obj;
-        this.handle         = handle;
-        this.whiteUv        = whiteUv;
-        this.hasWhitePixel  = true;
+        this.obj        = obj;
+        this.handle     = handle;
+        this.whiteUv    = whiteUv;
+        hasWhitePixel   = true;
+    }
+    
+    public ImTexture(ImTexture texture, Vector2 whiteUv)
+    {
+        obj             = texture.obj;
+        handle          = texture.handle;
+        this.whiteUv    = whiteUv;
+        hasWhitePixel   = true;
     }
     
     public ImTexture(object obj, nint handle)
     {
-        this.obj            = obj;
-        this.handle         = handle;
+        this.obj        = obj;
+        this.handle     = handle;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
