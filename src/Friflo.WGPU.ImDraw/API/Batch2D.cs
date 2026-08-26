@@ -40,9 +40,8 @@ public sealed partial class Batch2D : IDisposable
     private  readonly   DrawModule          drawModule;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
     internal readonly   Memory<Vertex2D>    vertexBuffer;
-    internal readonly   Memory<uint>        indexBuffer;
-    internal readonly   GpuBuffer<Vertex2D> gpuVertexBuffer;
-    internal readonly   GpuBuffer<uint>     gpuIndexBuffer;
+    internal readonly   ImBuffer<Vertex2D>  gpuVertexBuffer;
+    internal readonly   ImBuffer<uint>      gpuIndexBuffer;
     
     internal readonly   List<DrawCommand>   drawCommands 	    = [];
     internal readonly   List<CmdSegment>    commandSegments     = [];
@@ -78,7 +77,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImTexture           currentTexture;
 
     
-    internal Batch2D(GpuDevice device, TextureFormat targetFormat, int maxVertices)
+    internal Batch2D(ImGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
     {
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
@@ -92,11 +91,14 @@ public sealed partial class Batch2D : IDisposable
         int maxQuads   = maxVertices / 4;
         int maxIndices = maxQuads * 6;
 
-        vertexBuffer = new Memory<Vertex2D>(new Vertex2D[maxVertices]);
-        gpuVertexBuffer = device.CreateBuffer(vertexBuffer, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        gpuVertexBuffer = backend.CreateVertexBuffer(maxVertices);
+        vertexBuffer = gpuVertexBuffer.Memory;
 
+
+        gpuIndexBuffer = backend.CreateIndexBuffer(maxIndices);
+        
         // generate quad indexes only once
-        var indices = new uint[maxIndices];
+        var indices =  gpuIndexBuffer.Memory.Span;
         for (int i = 0, v = 0; i < maxIndices; i += 6, v += 4)
         {
             indices[i + 0] = (uint)(v + 0);
@@ -106,9 +108,7 @@ public sealed partial class Batch2D : IDisposable
             indices[i + 4] = (uint)(v + 3);
             indices[i + 5] = (uint)(v + 0);
         }
-        indexBuffer = new  Memory<uint>(indices);
-        gpuIndexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
-        gpuIndexBuffer.In().Write();
+        gpuIndexBuffer.Write(0, maxIndices);
         
         defaultFont             = drawModule.defaultFont;
         defaultFontTexture      = drawModule.defaultFont.texture;

@@ -26,8 +26,8 @@ public static class ImDeviceExtensions
             return null;
         }
         
-        public Batch2D CreateBatch2D(TextureFormat targetFormat, int maxVertices = 60_000) {
-            return new Batch2D(device, targetFormat, maxVertices);
+        public Batch2D CreateBatch2D(ImGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
+            return new Batch2D(backend, device, targetFormat, maxVertices);
         }
         
         public GpuTexture LoadTexture(Stream stream, string? label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)

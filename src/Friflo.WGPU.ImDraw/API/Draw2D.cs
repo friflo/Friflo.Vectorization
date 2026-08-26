@@ -197,7 +197,7 @@ public readonly ref partial struct Draw2D
 
         var bat = batch;
         // Upload vertexBuffer with a single wgpu call
-        bat.gpuVertexBuffer.InOut(0, bat.vertexCount).Write();
+        bat.gpuVertexBuffer.Write(0, bat.vertexCount);
 
         var commands = bat.drawCommands;
         var segments = bat.commandSegments;
@@ -209,6 +209,9 @@ public readonly ref partial struct Draw2D
         }
         var scissor = new RectVector2(Vector2.Zero, bat.viewport);
 
+        var vertexBuffer = ((ImWgpuBuffer<Vertex2D>)bat.gpuVertexBuffer).native;
+        var indexBuffer  = ((ImWgpuBuffer<uint>)    bat.gpuIndexBuffer).native;
+        
         foreach (var segment in segments)
         {
             for (int n = 0; n < segment.length; n++)
@@ -219,8 +222,8 @@ public readonly ref partial struct Draw2D
                     pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
                 }
                 var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
-                var vertexView  = bat.gpuVertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
-                var indexView   = bat.gpuIndexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
+                var vertexView  = vertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
+                var indexView   = indexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
                 var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
                 var uniforms    = new ImUniforms(cmd.projection);
                 var config      = bat.renderConfigs[(int)cmd.blendState];

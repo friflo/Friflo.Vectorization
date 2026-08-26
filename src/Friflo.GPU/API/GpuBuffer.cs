@@ -68,7 +68,7 @@ public abstract class GpuBuffer<T> :
         where T : unmanaged
 {
     /// <summary> The CPU-accessible host memory used as a staging area for GPU synchronization. </summary>
-    protected internal readonly  Memory<T>    hostMemory;
+    public readonly  Memory<T>    hostMemory;
     
     protected GpuBuffer(Memory<T> hostMemory, string label, nint nativeHandle, int bufferId)
         :  base(hostMemory.Length, label, nativeHandle, bufferId)
