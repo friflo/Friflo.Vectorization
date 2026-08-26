@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Friflo.GPU;
-using Friflo.WGPU;
 
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
