@@ -4,27 +4,38 @@
 
 using System;
 using System.Numerics;
-using Friflo.GPU;
 using Shaders.Imdraw;
 
-
+// ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImDraw;
 
-
-internal struct DrawCommand
+public readonly struct MemoryView
 {
-    internal    int                 zIndex;
-    internal    int                 sequence;
-    internal    ImTexture           texture;
-    internal    InView<Vertex2D>    vertexView;
-    internal    InView<uint>        indexView;
-    internal    RenderConfig        config;
-    internal    ImUniforms          uniforms;
-    internal    GpuSampler          sampler;
-    internal    RectVector2         scissor;
+    public  readonly    int     offset;
+    public  readonly    int     length;
 
-    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.Length / 4}   {texture}  {scissor}  {sampler}";
+    public override     string  ToString() => $"[{offset}..{length}]";
+    
+    public MemoryView(int offset, int length) {
+        this.offset = offset;
+        this.length = length;
+    }
+}
+
+public struct DrawCommand
+{
+    public      int             zIndex;
+    public      int             sequence;
+    public      ImTexture       texture;
+    public      MemoryView      vertexView;
+    public      MemoryView      indexView;
+    internal    RenderConfig    config;
+    public      ImUniforms      uniforms;
+    internal    GpuSampler      sampler;
+    public      RectVector2     scissor;
+
+    public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.length / 4}   {texture}  {scissor}  {sampler}";
 }
 
 
@@ -39,10 +50,10 @@ internal struct CmdSegment
 }
 
 
-internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
+public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
 {
-    internal readonly   Vector2     pos  = pos;
-    internal readonly   Vector2     size = size;
+    public readonly     Vector2     pos  = pos;
+    public readonly     Vector2     size = size;
 
     public override string ToString()       => $"[{pos.X}, {pos.Y} | {size.X}, {size.Y}]";
 

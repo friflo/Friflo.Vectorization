@@ -38,8 +38,10 @@ public sealed partial class Batch2D : IDisposable
 #region internal
     private  readonly   DrawModule          drawModule;
     internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
-    internal readonly   GpuBuffer<Vertex2D> vertexBuffer;
-    internal readonly   GpuBuffer<uint>     indexBuffer;
+    internal readonly   Memory<Vertex2D>    vertexBuffer;
+    internal readonly   Memory<uint>        indexBuffer;
+    internal readonly   GpuBuffer<Vertex2D> gpuVertexBuffer;
+    internal readonly   GpuBuffer<uint>     gpuIndexBuffer;
     
     internal readonly   List<DrawCommand>   drawCommands 	    = [];
     internal readonly   List<CmdSegment>    commandSegments     = [];
@@ -89,7 +91,8 @@ public sealed partial class Batch2D : IDisposable
         int maxQuads   = maxVertices / 4;
         int maxIndices = maxQuads * 6;
 
-        vertexBuffer = device.CreateBuffer<Vertex2D>(maxVertices, default, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        vertexBuffer = new Memory<Vertex2D>(new Vertex2D[maxVertices]);
+        gpuVertexBuffer = device.CreateBuffer(vertexBuffer, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
 
         // generate quad indexes only once
         var indices = new uint[maxIndices];
@@ -102,8 +105,9 @@ public sealed partial class Batch2D : IDisposable
             indices[i + 4] = (uint)(v + 3);
             indices[i + 5] = (uint)(v + 0);
         }
-        indexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
-        indexBuffer.In().Write();
+        indexBuffer = new  Memory<uint>(indices);
+        gpuIndexBuffer = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
+        gpuIndexBuffer.In().Write();
         
         defaultFont             = drawModule.defaultFont;
         defaultFontTexture      = drawModule.defaultFont.texture;
@@ -192,8 +196,8 @@ public sealed partial class Batch2D : IDisposable
 #region public
     public void Dispose()
     {
-        vertexBuffer.Dispose();
-        indexBuffer.Dispose();
+        gpuVertexBuffer.Dispose();
+        gpuIndexBuffer.Dispose();
     }
     
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);

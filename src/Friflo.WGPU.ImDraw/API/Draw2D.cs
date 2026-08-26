@@ -164,8 +164,8 @@ public readonly ref partial struct Draw2D
 
         int pendingQuads = pendingVertices / 4;
 
-        var vertexView  = bat.vertexBuffer.In(bat.vertexStart, pendingVertices);
-        var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
+        var vertexView  = new MemoryView(bat.vertexStart, pendingVertices);
+        var indexView   = new MemoryView(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
         bat.vertexStart = bat.vertexCount;
         var sampler     = bat.currentSamplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
@@ -197,7 +197,7 @@ public readonly ref partial struct Draw2D
 
         var bat = batch;
         // Upload vertexBuffer with a single wgpu call
-        bat.vertexBuffer.InOut(0, bat.vertexCount).Write();
+        bat.gpuVertexBuffer.InOut(0, bat.vertexCount).Write();
 
         var commands = bat.drawCommands;
         var segments = bat.commandSegments;
@@ -218,8 +218,10 @@ public readonly ref partial struct Draw2D
                     scissor = cmd.scissor;
                     pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
                 }
-                var texture = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
-                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, cmd.sampler, cmd.vertexView, cmd.indexView);
+                var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
+                var vertexView  = bat.gpuVertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
+                var indexView   = bat.gpuIndexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
+                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, cmd.sampler, vertexView, indexView);
             }
         }
     }
