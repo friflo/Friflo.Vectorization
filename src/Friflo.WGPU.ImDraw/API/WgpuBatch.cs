@@ -88,6 +88,7 @@ public sealed partial class WgpuBatch : Batch2D
         throw new ArgumentOutOfRangeException(nameof(blendIndex));
     }
     
+    [NoEmit]
     [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
     internal static partial void Draw(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]               in ImUniforms       globals,
