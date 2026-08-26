@@ -39,11 +39,11 @@ public abstract class Batch2D : IDisposable
 #endregion
 
 #region protected                                                       // TODO IM_TEX  check use of internal
-    protected internal readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
-    protected          readonly  ImBuffer<uint>      gpuIndexBuffer;
-    protected internal readonly  List<DrawCommand>   drawCommands 	    = [];
-    protected internal readonly  List<CmdSegment>    commandSegments     = [];
-    protected internal           Vector2             viewport;
+    protected readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
+    protected readonly  ImBuffer<uint>      gpuIndexBuffer;
+    protected readonly  List<DrawCommand>   drawCommands 	    = [];
+    protected readonly  List<CmdSegment>    commandSegments     = [];
+    protected internal  Vector2             viewport;
 #endregion
 
 #region internal
@@ -70,9 +70,9 @@ public abstract class Batch2D : IDisposable
     internal            RectVector2         currentScissor;
     internal            bool                sortZIndex;
     internal            int                 currentZIndex;
-    internal            int                 currentSequence;
+    private             int                 currentSequence;
     internal            Matrix4x4           projection;
-    internal            int                 vertexStart;                // start of next Draw()
+    private             int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
     internal            ImTexture           currentTexture;
 
