@@ -8,7 +8,7 @@ using System;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 /// <summary>
 /// Allocation-free enumerator that yields word-wrapped line spans.

@@ -17,7 +17,7 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 // ReSharper disable ConvertSwitchStatementToSwitchExpression
 // ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public sealed class GuiInput

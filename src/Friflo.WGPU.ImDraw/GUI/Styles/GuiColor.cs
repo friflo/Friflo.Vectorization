@@ -6,7 +6,7 @@ using static System.Diagnostics.DebuggerBrowsableState;
 using Browse = System.Diagnostics.DebuggerBrowsableAttribute;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 public enum ColorId
 {

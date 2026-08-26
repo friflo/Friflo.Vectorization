@@ -2,7 +2,7 @@
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using Friflo.WGPU;
-using Friflo.WGPU.ImDraw;
+using Friflo.ImGui;
 using SDL3;
 
 
@@ -256,7 +256,7 @@ internal class Sdl3Input : IDisposable
 }
 
 /// <summary>
-/// Only required to visualize window resize indicator with <see cref="Friflo.WGPU.ImDraw.GuiInput.CurrentCursor"/> .
+/// Only required to visualize window resize indicator with <see cref="Friflo.ImGui.GuiInput.CurrentCursor"/> .
 /// </summary>
 internal static class Sdl3Cursor
 {

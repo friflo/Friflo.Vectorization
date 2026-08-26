@@ -7,7 +7,7 @@ using System.Numerics;
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 public static class HorizontalAlignment
 {

@@ -4,13 +4,14 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Friflo.WGPU;
 using Shaders.Imdraw;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public readonly ref partial struct Draw2D

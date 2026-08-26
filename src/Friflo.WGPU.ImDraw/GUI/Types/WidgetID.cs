@@ -8,7 +8,7 @@ using System;
 // ReSharper disable NotAccessedField.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 

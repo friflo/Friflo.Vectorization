@@ -5,12 +5,13 @@ using System;
 using System.IO;
 using System.Text;
 using Friflo.GPU;
+using Friflo.WGPU;
 using StbImageSharp;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public static class ImDeviceExtensions

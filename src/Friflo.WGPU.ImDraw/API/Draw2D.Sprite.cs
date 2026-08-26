@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable MergeIntoPattern
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public readonly ref partial struct Draw2D

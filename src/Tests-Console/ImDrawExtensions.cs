@@ -1,6 +1,6 @@
 ﻿
 using Friflo.WGPU;
-using Friflo.WGPU.ImDraw;
+using Friflo.ImGui;
 
 namespace TestConsole;
 

@@ -9,13 +9,14 @@ using System.Globalization;
 using System.IO;
 using System.Numerics;
 using Friflo.GPU;
+using Friflo.WGPU;
 using StbImageSharp;
 using StbTrueTypeSharp;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 public enum TextAlignment
 {

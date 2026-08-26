@@ -3,10 +3,11 @@
 
 
 using Friflo.GPU;
+using Friflo.WGPU;
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 internal sealed class DrawModule : IGpuDeviceModule
 {

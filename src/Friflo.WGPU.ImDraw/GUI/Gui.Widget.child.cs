@@ -9,7 +9,7 @@ using System.Numerics;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public readonly ref partial struct GuiWidget

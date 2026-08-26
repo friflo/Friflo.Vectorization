@@ -8,7 +8,7 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 public readonly struct ImTexture : IEquatable<ImTexture>
 {

@@ -5,7 +5,7 @@
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.WGPU.ImDraw;
+namespace Friflo.ImGui;
 
 
 public readonly ref struct WindowScope(GuiWidget widget, bool isOpen)

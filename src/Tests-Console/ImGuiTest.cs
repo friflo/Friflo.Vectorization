@@ -2,7 +2,7 @@
 using System.Numerics;
 using Friflo.GPU;
 using Friflo.WGPU;
-using Friflo.WGPU.ImDraw;
+using Friflo.ImGui;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes
