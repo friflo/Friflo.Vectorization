@@ -31,7 +31,7 @@ public struct DrawCommand
     public      MemoryView      vertexView;
     public      MemoryView      indexView;
     internal    RenderConfig    config;
-    public      ImUniforms      uniforms;
+    public      Matrix4x4       projection;
     public      SamplerFilter   samplerFilter;
     public      RectVector2     scissor;
 

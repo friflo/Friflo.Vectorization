@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Shaders.Imdraw;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -88,7 +89,7 @@ public readonly ref partial struct Draw2D
         bat.defaultOrtho = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, -1f, 1f);
         
         // combine with current camera transform
-        bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
+        bat.projection = bat.currentTransform * bat.defaultOrtho;
     }
 
     public TransformScope PushTransform(in Matrix4x4 transform)
@@ -121,7 +122,7 @@ public readonly ref partial struct Draw2D
         Flush();
 
         bat.currentTransform    = transform;
-        bat.uniforms.projection = bat.currentTransform * bat.defaultOrtho;
+        bat.projection          = bat.currentTransform * bat.defaultOrtho;
     }
 
     public void SetBlendState(BlendState blendState)
@@ -178,7 +179,7 @@ public readonly ref partial struct Draw2D
             vertexView      = vertexView,
             indexView       = indexView,
             config          = config,
-            uniforms        = bat.uniforms,
+            projection      = bat.projection,
             samplerFilter   = bat.currentSamplerFilter,
             scissor         = bat.currentScissor,
         });
@@ -221,7 +222,8 @@ public readonly ref partial struct Draw2D
                 var vertexView  = bat.gpuVertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
                 var indexView   = bat.gpuIndexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
                 var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
-                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, sampler, vertexView, indexView);
+                var uniforms    = new ImUniforms(cmd.projection);
+                Batch2D.Draw(pass, cmd.config, uniforms, texture, sampler, vertexView, indexView);
             }
         }
     }

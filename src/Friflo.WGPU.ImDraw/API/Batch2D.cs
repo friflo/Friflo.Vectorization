@@ -71,7 +71,7 @@ public sealed partial class Batch2D : IDisposable
     internal            bool                sortZIndex;
     internal            int                 currentZIndex;
     internal            int                 currentSequence;
-    internal            ImUniforms          uniforms;
+    internal            Matrix4x4           projection;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
     internal            ImTexture           currentTexture;
