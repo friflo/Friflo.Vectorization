@@ -46,7 +46,6 @@ public sealed class Font : IDisposable
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
-    private  readonly   GpuTexture                          fontTexture;
     public   readonly   string                              name;
     public   readonly   int                                 maxY;
     private  readonly   bool                                disposable;
@@ -54,7 +53,6 @@ public sealed class Font : IDisposable
     public  override    string                              ToString()  => name;
 
     private Font (
-        GpuTexture                  fontTexture,
         ImTexture               	texture,
         Vector2                     textureSize,
         float                       lineHeight,
@@ -63,7 +61,6 @@ public sealed class Font : IDisposable
         int                         maxY,
         bool                        disposable)
     {
-        this.fontTexture    = fontTexture;
         this.texture        = texture;
         this.textureSize    = textureSize;
         this.lineHeight     = lineHeight;
@@ -78,11 +75,18 @@ public sealed class Font : IDisposable
         if (!disposable) {
             return;
         }
-        fontTexture.Dispose(); // GpuTexture support multi Dispose()
+        if (texture.obj is IDisposable disposableTexture) {
+            disposableTexture.Dispose();
+        }
     }
     
-    internal void DisposeInternal() => fontTexture.Dispose();
-    
+    internal void DisposeInternal()
+    {
+        if (texture.obj is IDisposable disposableTexture) {
+            disposableTexture.Dispose();
+        }
+    }
+
 
     public bool TryGetGlyph(char c, out GlyphInfo glyph) => glyphs.TryGetValue(c, out glyph);
 
@@ -148,10 +152,10 @@ public sealed class Font : IDisposable
         fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
         
         var view = fontTexture.CreateView();
-        var textureView = new ImTexture(fontTexture, view.Handle, whitePixelUv);
+        var imTexture   = new ImTexture(fontTexture, view.Handle, whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
-        return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name, -1, disposable);
+        return new Font(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
 #endregion
 
@@ -262,10 +266,10 @@ public sealed class Font : IDisposable
         fontTexture.Write(rgba32, bytesPerRow: width * 4, rowsPerImage: height);
         
         var view = fontTexture.CreateView();
-        var textureView = new ImTexture(fontTexture, view.Handle, whitePixelUv);
+        var imTexture   = new ImTexture(fontTexture, view.Handle, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name, maxY, disposable);
+        return new Font(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
     }
 #endregion
     

@@ -12,8 +12,6 @@ internal sealed class DrawModule : IGpuDeviceModule
 {
     internal readonly   GpuSampler      samplerLinear;
     internal readonly   GpuSampler      samplerNearest;
-//  private  readonly   GpuTexture      defaultWhiteTexture;
-//  internal readonly   ImTextureView   defaultWhiteTextureView;
     internal readonly   Font            defaultFont;
     internal readonly   GuiModule       guiModule;
     
@@ -26,27 +24,11 @@ internal sealed class DrawModule : IGpuDeviceModule
         defaultFont = device.CreateDefaultFont();
 
         guiModule = new GuiModule();
-        
-        // --- Texture
-        /* default white texture not used anymore - white pixel is in defaultFont
-         
-        defaultWhiteTexture = device.CreateTexture(new GpuTextureDescriptor {
-            label   = "white1x1",
-            size    = [1, 1],
-            format  = TextureFormat.RGBA8Unorm,
-            usage   = TextureUsage.TextureBinding | TextureUsage.CopyDst});
-        
-        ReadOnlySpan<byte> whitePixel = [255, 255, 255, 255];
-        defaultWhiteTexture.Write(whitePixel, bytesPerRow: 4, rowsPerImage: 1, writeSize: new GpuExtent3D(1, 1, 1));
-        
-        defaultWhiteTextureView = new ImTextureView(defaultWhiteTexture.CreateView(), new Vector2(0.5f, 0.5f));
-        */
     }
     
     public void Dispose()
     {
         guiModule.Dispose();
-        // defaultWhiteTexture.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();
         defaultFont.DisposeInternal();
