@@ -43,7 +43,7 @@ public readonly ref partial struct Draw2D
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texture;
         }
         float x1 = position.X;
@@ -113,7 +113,7 @@ public readonly ref partial struct Draw2D
         }
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texture;
         }
         float cos = MathF.Cos(rotation);

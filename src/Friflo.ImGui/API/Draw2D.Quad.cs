@@ -22,7 +22,7 @@ public readonly ref partial struct Draw2D
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = bat.defaultFontTexture;
         }
         var uv = bat.currentTexture.whiteUv;
@@ -39,7 +39,7 @@ public readonly ref partial struct Draw2D
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texture;
         }
         ref var targetQuad = ref AddQuad();
@@ -50,7 +50,7 @@ public readonly ref partial struct Draw2D
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texture;
         }
         ref var quad = ref AddQuad();
@@ -70,7 +70,7 @@ public readonly ref partial struct Draw2D
 
         var bat = batch;
         if (bat.currentTexture != texture) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texture;
         }
         while (vertices.Length > 0)
@@ -78,7 +78,7 @@ public readonly ref partial struct Draw2D
             int availableSpace = bat.vertexBuffer.Length - bat.vertexCount;
 
             if (availableSpace < 4) {
-                Flush();
+                bat.Flush();
                 availableSpace = bat.vertexBuffer.Length;
             }
             int copyCount = Math.Min(vertices.Length, availableSpace);

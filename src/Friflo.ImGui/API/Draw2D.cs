@@ -38,7 +38,7 @@ public readonly ref partial struct Draw2D
         var scissor = new RectVector2(intersectPos, intersectSize);
         scissorStack.Push(scissor);
 
-        Flush();
+        batch.Flush();
         batch.currentScissor = scissor;
         return new ScissorScope(this);
     }
@@ -50,7 +50,7 @@ public readonly ref partial struct Draw2D
             scissorStack.Pop();
         }
         var scissor = scissorStack.Count > 0 ? scissorStack.Peek() : new RectVector2(Vector2.Zero, batch.viewport);
-        Flush();
+        batch.Flush();
         batch.currentScissor = scissor;
     }
     
@@ -65,7 +65,7 @@ public readonly ref partial struct Draw2D
     {
         if (batch.currentSamplerFilter == samplerFilter) return;
 
-        Flush();
+        batch.Flush();
         batch.currentSamplerFilter = samplerFilter;
     }
     
@@ -78,7 +78,7 @@ public readonly ref partial struct Draw2D
 
     public void SetViewport(float width, float height)
     {
-        Flush();
+        batch.Flush();
 
         var bat = batch;
         bat.viewport = new Vector2(width, height);
@@ -117,7 +117,7 @@ public readonly ref partial struct Draw2D
         var bat = batch;
         if (bat.currentTransform == transform) return;
 
-        Flush();
+        bat.Flush();
 
         bat.currentTransform    = transform;
         bat.projection          = bat.currentTransform * bat.defaultOrtho;
@@ -127,7 +127,7 @@ public readonly ref partial struct Draw2D
     {
         if (blendState == batch.currentBlendState) return;
         
-        Flush();
+        batch.Flush();
         batch.currentBlendState = blendState;
     }
     
@@ -136,7 +136,7 @@ public readonly ref partial struct Draw2D
         var bat = batch;
         bat.zIndexStack.Push(bat.currentZIndex);
 
-        Flush();
+        bat.Flush();
         bat.currentZIndex = zIndex;
         bat.sortZIndex    = true;
         return new ZIndexScope(this);
@@ -149,12 +149,10 @@ public readonly ref partial struct Draw2D
 
         int prevZIndex = bat.zIndexStack.Pop();
 
-        Flush();
+        bat.Flush();
         bat.currentZIndex = prevZIndex;
     }
 
-    public void Flush() => batch.Flush();
-    
     public Gui BeginGui() => new(this, batch);
 #endregion
 }

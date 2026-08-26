@@ -21,7 +21,7 @@ public readonly ref partial struct Draw2D
         var bat = batch;
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texView;
         }
         var uv = texView.whiteUv;
@@ -48,7 +48,7 @@ public readonly ref partial struct Draw2D
         var bat = batch;
         var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
-            Flush();
+            bat.Flush();
             bat.currentTexture = texView;
         }
         var uv = bat.currentTexture.whiteUv;
