@@ -48,8 +48,8 @@ public abstract class ImGuiBackend : IDisposable
     
     private Font CreateDefaultFont()
     {
-        using var fontAtlas = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
-        using var fntFile   = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+        using var fontAtlas = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
@@ -59,7 +59,7 @@ public abstract class ImGuiBackend : IDisposable
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
     public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        using var ttfFont = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
+        using var ttfFont = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.Monocraft.ttf")!;
         
         return Font.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
     }

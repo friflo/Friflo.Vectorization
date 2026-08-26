@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.WGPU.ImDraw</RootNamespace>
-    <AssemblyName>Friflo.WGPU.ImDraw</AssemblyName>
+    <RootNamespace>Friflo.ImGui</RootNamespace>
+    <AssemblyName>Friflo.ImGui</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--

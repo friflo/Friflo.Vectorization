@@ -195,9 +195,9 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     }
 }
 
-#region Friflo.WGPU.ImDraw
+#region Friflo.ImGui
 
-// -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.WGPU.ImDraw --------
+// -------- SDL3 input handling: keyboard, mouse & gamepad - required when using:  Friflo.ImGui --------
 internal class Sdl3Input : IDisposable
 {
     private nint gamepad;
