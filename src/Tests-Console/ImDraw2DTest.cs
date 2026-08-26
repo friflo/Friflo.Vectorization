@@ -29,7 +29,7 @@ public class ImRenderer : IRenderer
     {
         var device = wgpuHost.Device;
         var backend = new WgpuGuiBackend(device);
-        batch = device.CreateBatch2D(backend, wgpuHost.SwapChainFormat);
+        batch = backend.CreateBatch2D(backend, wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;

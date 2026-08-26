@@ -103,7 +103,7 @@ public static class Tests_ImDraw
 
         using var context   = device.BeginContext();
         using var backend   = new WgpuGuiBackend(device);
-        using var batch     = device.CreateBatch2D(backend, TextureFormat.RGBA8Unorm);
+        using var batch     = backend.CreateBatch2D(backend, TextureFormat.RGBA8Unorm);
         using var target    = context.BeginRenderTarget(renderTargetView, "Texture-Encoder"u8);
         
         device.GetGuiModule()?.NewFrame(); // not necessary

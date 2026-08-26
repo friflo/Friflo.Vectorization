@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using Friflo.GPU;
+using Friflo.WGPU;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -21,6 +22,10 @@ public sealed class WgpuGuiBackend : ImGuiBackend, IDisposable
     }
     
     public void Dispose() {
+    }
+    
+    public Batch2D CreateBatch2D(ImGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
+        return new WgpuBatch(backend, device, targetFormat, maxVertices);
     }
         
     public override Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)

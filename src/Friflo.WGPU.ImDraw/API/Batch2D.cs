@@ -34,7 +34,7 @@ public enum SamplerFilter
 }
 
 
-public sealed partial class Batch2D : IDisposable
+public abstract partial class Batch2D : IDisposable
 {
 #region internal
     private  readonly   DrawModule          drawModule;
@@ -77,7 +77,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImTexture           currentTexture;
 
     
-    internal Batch2D(ImGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
+    protected Batch2D(ImGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
     {
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(device);
