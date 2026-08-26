@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable InconsistentNaming
@@ -22,10 +23,35 @@ public abstract class ImGuiBackend : IDisposable
 {
     public    abstract  void    Dispose();
 
-    public    abstract  Font    CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name);
-    public    abstract  Font    CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name);
-    
     protected internal abstract  ImTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  ImBuffer<uint>      CreateIndexBuffer(int indexCount);
+    
+    internal Font CreateDefaultFont()
+    {
+        using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
+        using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
+        using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
+        var fntContent      = reader.ReadToEnd();
+        
+        return Font.CreateBMFont(this, fntContent, fontAtlas!, "Default Font", false);
+    }
+    
+    /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
+    public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
+    {
+        using var ttfFont = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.Monocraft.ttf")!;
+        
+        return Font.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
+    }
+    
+    public Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
+    {
+        return Font.CreateBMFont(this, fntContent, fontAtlas, name, true);
+    }
+    
+    public Font CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
+    {
+        return Font.CreateTtfFont(this, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
+    }
 }

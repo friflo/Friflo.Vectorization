@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Friflo.GPU;
 using Friflo.WGPU;
+using StbImageSharp;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -33,17 +34,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
     public Batch2D CreateBatch2D(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
         return new WgpuBatch(backend, device, targetFormat, maxVertices);
     }
-        
-    public override Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Font CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
     {
         var texture = device.CreateTexture(new GpuTextureDescriptor {
@@ -70,6 +61,20 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         var indices = new Memory<uint>(new uint[indexCount]);
         var buffer  = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
         return new ImWgpuBuffer<uint>(buffer);
+    }
+    
+    public GpuTexture LoadTexture(Stream stream, string? label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
+    {
+        var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+
+        var texture = device.CreateTexture(new GpuTextureDescriptor {
+            label  = label,
+            size   = [image.Width, image.Height],
+            format = TextureFormat.RGBA8Unorm,
+            usage  = usage
+        });
+        texture.Write(image.Data, bytesPerRow: image.Width * 4, rowsPerImage: image.Height);
+        return texture;
     }
 }
 
