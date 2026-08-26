@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.GPU;
 using Friflo.WGPU;
 using Friflo.ImGui;
 
@@ -14,9 +13,8 @@ namespace TestConsole;
 
 public class ImGuiRenderer : IRenderer
 {
-    private readonly    GpuDevice               device;
     private readonly    WgpuGuiBackend          guiBackend;
-    private readonly    Batch2D                 batch;
+    private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
     private readonly    ImTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
@@ -56,7 +54,7 @@ public class ImGuiRenderer : IRenderer
     
     public ImGuiRenderer(WgpuHost wgpuHost)
     {
-        device = wgpuHost.Device;
+        var device = wgpuHost.Device;
         guiBackend = new WgpuGuiBackend(device);
         batch  = guiBackend.CreateBatch2D(guiBackend, wgpuHost.SwapChainFormat);
         
@@ -92,7 +90,8 @@ public class ImGuiRenderer : IRenderer
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
-        gui.Draw.DrawCommandList(target, renderPassDescriptor);
+        gui.Draw.EndDraw2D();
+        batch.DrawCommandList(target, renderPassDescriptor);
     }
     
     private void Window1(Gui gui)

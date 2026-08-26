@@ -12,7 +12,7 @@ namespace TestConsole;
 public class ImRenderer : IRenderer
 {
     private readonly    WgpuGuiBackend          guiBackend;
-    private readonly    Batch2D                 batch;
+    private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
     private readonly    ImTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
@@ -65,7 +65,8 @@ public class ImRenderer : IRenderer
         }
         DrawText(draw);
         
-        draw.DrawCommandList(target, renderPassDescriptor);
+        draw.EndDraw2D();
+        batch.DrawCommandList(target, renderPassDescriptor);
     }
     
     private static Matrix4x4 CreateAnimatedTransform(GpuExtent3D size, float time)

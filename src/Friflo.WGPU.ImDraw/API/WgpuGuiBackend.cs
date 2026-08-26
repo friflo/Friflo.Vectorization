@@ -31,7 +31,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         samplerNearest.Dispose();
     }
     
-    public Batch2D CreateBatch2D(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
+    public WgpuBatch CreateBatch2D(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
         return new WgpuBatch(backend, device, targetFormat, maxVertices);
     }
     

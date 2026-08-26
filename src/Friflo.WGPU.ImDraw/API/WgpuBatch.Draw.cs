@@ -18,7 +18,7 @@ namespace Friflo.ImGui;
 // Note: Copied from generated copy to avoid build deadlock in case of generator issues.
 public partial class WgpuBatch
 {
-    internal static partial void Draw(
+    private static partial void Draw(
         RenderPass                  pass,
         RenderConfig                config,
         in ImUniforms               globals,

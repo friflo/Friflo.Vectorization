@@ -4,8 +4,6 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Friflo.WGPU;
-using Shaders.Imdraw;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -185,16 +183,12 @@ public readonly ref partial struct Draw2D
         ));
     }
     
-    
-    public void DrawCommandList(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
+    public void EndDraw2D()
     {
         Flush();
         if (batch.vertexCount == 0) {
             return;
         }
-        descriptor.colorAttachments[0].view = target.View;
-        using var pass = target.BeginRenderPass(descriptor);
-
         var bat = (WgpuBatch)batch;
         // Upload vertexBuffer with a single wgpu call
         bat.gpuVertexBuffer.Write(0, bat.vertexCount);
@@ -206,30 +200,6 @@ public readonly ref partial struct Draw2D
             SortCommands(commands, segments);
         } else {
             segments.Add(new CmdSegment { index = 0, length = commands.Count });
-        }
-        var scissor = new RectVector2(Vector2.Zero, bat.viewport);
-
-        var vertexBuffer = ((ImWgpuBuffer<Vertex2D>)bat.gpuVertexBuffer).native;
-        var indexBuffer  = ((ImWgpuBuffer<uint>)    bat.gpuIndexBuffer).native;
-
-        
-        foreach (var segment in segments)
-        {
-            for (int n = 0; n < segment.length; n++)
-            {
-                var cmd = commands[segment.index + n];
-                if (!cmd.scissor.Equals(scissor)) {
-                    scissor = cmd.scissor;
-                    pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
-                }
-                var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
-                var vertexView  = vertexBuffer.In(cmd.vertexView.offset, cmd.vertexView.length);
-                var indexView   = indexBuffer. In(cmd.indexView.offset,  cmd.indexView.length);
-                var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? bat.samplerLinear : bat.samplerNearest;
-                var uniforms    = new ImUniforms(cmd.projection);
-                var config      = bat.renderConfigs[(int)cmd.blendState];
-                WgpuBatch.Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
-            }
         }
     }
     

@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.WGPU;
@@ -15,9 +16,9 @@ namespace Friflo.ImGui;
 
 public sealed partial class WgpuBatch : Batch2D
 {
-    internal readonly   GpuSampler          samplerLinear;              // the default sampler
-    internal readonly   GpuSampler          samplerNearest;
-    internal readonly   RenderConfig[]      renderConfigs;              // each RenderConfig is a 4 bytes ID
+    private  readonly   GpuSampler      samplerLinear;              // the default sampler
+    private  readonly   GpuSampler      samplerNearest;
+    private  readonly   RenderConfig[]  renderConfigs;              // each RenderConfig is a 4 bytes ID
 
     internal WgpuBatch(WgpuGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
         : base(backend, device, maxVertices)
@@ -26,6 +27,38 @@ public sealed partial class WgpuBatch : Batch2D
         
         samplerLinear   = backend.samplerLinear;
         samplerNearest  = backend.samplerNearest;
+    }
+    
+    public void DrawCommandList(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
+    {
+        var scissor = new RectVector2(Vector2.Zero, viewport);
+
+        var vertices = ((ImWgpuBuffer<Vertex2D>)gpuVertexBuffer).native;
+        var indices  = ((ImWgpuBuffer<uint>)    gpuIndexBuffer).native;
+
+        descriptor.colorAttachments[0].view = target.View;
+        using var pass  = target.BeginRenderPass(descriptor);
+        var commands    = drawCommands;
+        
+        foreach (var segment in commandSegments)
+        {
+            for (int n = 0; n < segment.length; n++)
+            {
+                var cmd = commands[segment.index + n];
+                if (!cmd.scissor.Equals(scissor)) {
+                    scissor = cmd.scissor;
+                    pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
+                }
+                var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
+                var vertexView  = vertices.In(cmd.vertexView.offset, cmd.vertexView.length);
+                var indexView   = indices. In(cmd.indexView.offset,  cmd.indexView.length);
+                var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;
+                var uniforms    = new ImUniforms(cmd.projection);
+                var config      = renderConfigs[(int)cmd.blendState];
+                
+                Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
+            }
+        }
     }
     
     
@@ -90,7 +123,7 @@ public sealed partial class WgpuBatch : Batch2D
     
     [NoEmit]
     [Shader("~/shaders/imdraw/draw2d.wgsl", vertex: "vs_main", fragment: "fs_main")]
-    internal static partial void Draw(RenderPass pass, RenderConfig config,
+    private static partial void Draw(RenderPass pass, RenderConfig config,
         [Map(0, 0)] [uniform]               in ImUniforms       globals,
         [Map(0, 1)] [texture_2d(ST.f32)]    GpuTextureView      texture,
         [Map(0, 2)] [sampler]               GpuSampler          sampler,
