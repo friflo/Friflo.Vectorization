@@ -117,7 +117,6 @@ public static class Tests_ImDraw
         _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
         _ = gui.LineHeight;                 // Ensures LineHeight is available
         
-        gui.Draw.EndDraw2D();
         batch.DrawCommandList(target, renderPassDesc);
         
         var targetMemory = new byte[width * height * 4];

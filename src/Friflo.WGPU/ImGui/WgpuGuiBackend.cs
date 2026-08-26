@@ -64,7 +64,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         return new ImWgpuBuffer<uint>(buffer);
     }
     
-    public GpuTexture LoadTexture(Stream stream, string? label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
+    public GpuTexture LoadTexture(Stream stream, string label = null, TextureUsage usage = TextureUsage.TextureBinding | TextureUsage.CopyDst)
     {
         var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
 

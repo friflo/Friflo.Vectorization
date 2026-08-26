@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System.Collections.Generic;
 using System.Numerics;
 
 
@@ -154,82 +153,7 @@ public readonly ref partial struct Draw2D
         bat.currentZIndex = prevZIndex;
     }
 
-    public void Flush()
-    {
-        var bat = batch;
-        int pendingVertices = bat.vertexCount - bat.vertexStart;
-        if (pendingVertices <= 0) {
-            return;
-        }
-
-        int pendingQuads = pendingVertices / 4;
-
-        var vertexView  = new MemoryView(bat.vertexStart, pendingVertices);
-        var indexView   = new MemoryView(0, pendingQuads * 6);
-        bat.vertexStart = bat.vertexCount;
-
-        // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
-        
-        bat.drawCommands.Add(new DrawCommand(
-            zIndex: bat.currentZIndex,
-            sequence:        bat.currentSequence++, 
-            texture:         bat.currentTexture,
-            vertexView:      vertexView,
-            indexView:       indexView,
-            blendState:      bat.currentBlendState,
-            projection:      bat.projection,
-            samplerFilter:   bat.currentSamplerFilter,
-            scissor:         bat.currentScissor
-        ));
-    }
-    
-    public void EndDraw2D()
-    {
-        Flush();
-        if (batch.vertexCount == 0) {
-            return;
-        }
-        var bat = batch;
-        // Upload vertexBuffer with a single wgpu call
-        bat.gpuVertexBuffer.Write(0, bat.vertexCount);
-
-        var commands = bat.drawCommands;
-        var segments = bat.commandSegments;
-        segments.Clear();
-        if (bat.sortZIndex) {
-            SortCommands(commands, segments);
-        } else {
-            segments.Add(new CmdSegment { index = 0, length = commands.Count });
-        }
-    }
-    
-    private static void SortCommands(List<DrawCommand> commands, List<CmdSegment> segments)
-    {
-        // commands.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
-        
-        // Run-Length optimization - of commented Sort() above
-        var command_0   = commands[0];
-        int zIndex      = command_0.zIndex;
-        var segment     = new CmdSegment { zIndex = zIndex, sequence = command_0.sequence, index = 0, length = 1 };
-        
-        for (int n = 1; n < commands.Count; n++)
-        {
-            var cmd = commands[n];
-            if (zIndex == cmd.zIndex) {
-                segment.length++;
-                continue;
-            }
-            segments.Add(segment);
-            zIndex              = cmd.zIndex;
-            segment.zIndex      = zIndex;
-            segment.sequence    = cmd.sequence;
-            segment.index       = n;
-            segment.length      = 1;
-        }
-        segments.Add(segment);
-        
-        segments.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
-    }
+    public void Flush() => batch.Flush();
     
     public Gui BeginGui() => new(this, batch);
 #endregion

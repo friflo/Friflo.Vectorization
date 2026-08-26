@@ -31,6 +31,8 @@ public sealed partial class WgpuBatch : Batch2D
     
     public void DrawCommandList(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
     {
+        EndBatch();
+        
         var scissor = new RectVector2(Vector2.Zero, viewport);
 
         var vertices = ((ImWgpuBuffer<Vertex2D>)gpuVertexBuffer).native;

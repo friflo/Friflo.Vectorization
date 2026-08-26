@@ -63,7 +63,6 @@ public class ImRenderer : IRenderer
         }
         DrawText(draw);
         
-        draw.EndDraw2D();
         batch.DrawCommandList(target, renderPassDescriptor);
     }
     

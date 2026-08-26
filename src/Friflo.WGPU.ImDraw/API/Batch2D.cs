@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
@@ -172,6 +172,81 @@ public abstract class Batch2D : IDisposable
         var draw = new Draw2D(this);
         draw.SetViewport(width, height);
         return draw;
+    }
+    
+    public void Flush()
+    {
+        int pendingVertices = vertexCount - vertexStart;
+        if (pendingVertices <= 0) {
+            return;
+        }
+
+        int pendingQuads = pendingVertices / 4;
+
+        var vertexView  = new MemoryView(vertexStart, pendingVertices);
+        var indexView   = new MemoryView(0, pendingQuads * 6);
+        vertexStart = vertexCount;
+
+        // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
+        
+        drawCommands.Add(new DrawCommand(
+            zIndex: currentZIndex,
+            sequence:        currentSequence++, 
+            texture:         currentTexture,
+            vertexView:      vertexView,
+            indexView:       indexView,
+            blendState:      currentBlendState,
+            projection:      projection,
+            samplerFilter:   currentSamplerFilter,
+            scissor:         currentScissor
+        ));
+    }
+    
+    protected void EndBatch()
+    {
+        Flush();
+        if (vertexCount == 0) {
+            return;
+        }
+        // Upload vertexBuffer with a single wgpu call
+        gpuVertexBuffer.Write(0, vertexCount);
+
+        var commands = drawCommands;
+        var segments = commandSegments;
+        segments.Clear();
+        if (sortZIndex) {
+            SortCommands(commands, segments);
+        } else {
+            segments.Add(new CmdSegment { index = 0, length = commands.Count });
+        }
+    }
+    
+    private static void SortCommands(List<DrawCommand> commands, List<CmdSegment> segments)
+    {
+        // commands.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
+        
+        // Run-Length optimization - of commented Sort() above
+        var command_0   = commands[0];
+        int zIndex      = command_0.zIndex;
+        var segment     = new CmdSegment { zIndex = zIndex, sequence = command_0.sequence, index = 0, length = 1 };
+        
+        for (int n = 1; n < commands.Count; n++)
+        {
+            var cmd = commands[n];
+            if (zIndex == cmd.zIndex) {
+                segment.length++;
+                continue;
+            }
+            segments.Add(segment);
+            zIndex              = cmd.zIndex;
+            segment.zIndex      = zIndex;
+            segment.sequence    = cmd.sequence;
+            segment.index       = n;
+            segment.length      = 1;
+        }
+        segments.Add(segment);
+        
+        segments.Sort((a, b) => (a.zIndex, a.sequence).CompareTo((b.zIndex, b.sequence)));
     }
 #endregion
 }

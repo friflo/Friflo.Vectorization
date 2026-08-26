@@ -89,7 +89,6 @@ public class ImGuiRenderer : IRenderer
                 gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
-        gui.Draw.EndDraw2D();
         batch.DrawCommandList(target, renderPassDescriptor);
     }
     
