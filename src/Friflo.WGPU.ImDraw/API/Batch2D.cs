@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using Friflo.GPU;
 
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
@@ -72,7 +71,7 @@ public abstract class Batch2D : IDisposable
     internal            ImTexture           currentTexture;
 
     
-    protected Batch2D(ImGuiBackend backend, GpuDevice device, int maxVertices)  // TODO IM_TEX - remove device
+    protected Batch2D(ImGuiBackend backend, int maxVertices)
     {
         this.backend    = backend;
         

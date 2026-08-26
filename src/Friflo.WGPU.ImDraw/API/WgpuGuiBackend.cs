@@ -33,7 +33,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
     }
     
     public WgpuBatch CreateBatch2D(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
-        return new WgpuBatch(backend, device, targetFormat, maxVertices);
+        return new WgpuBatch(backend, targetFormat, maxVertices);
     }
     
     protected internal override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)

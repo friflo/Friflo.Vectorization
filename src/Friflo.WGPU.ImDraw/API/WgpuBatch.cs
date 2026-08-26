@@ -20,8 +20,8 @@ public sealed partial class WgpuBatch : Batch2D
     private  readonly   GpuSampler      samplerNearest;
     private  readonly   RenderConfig[]  renderConfigs;              // each RenderConfig is a 4 bytes ID
 
-    internal WgpuBatch(WgpuGuiBackend backend, GpuDevice device, TextureFormat targetFormat, int maxVertices)
-        : base(backend, device, maxVertices)
+    internal WgpuBatch(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices)
+        : base(backend, maxVertices)
     {
         renderConfigs   = CreateRenderConfigs(targetFormat);
         
