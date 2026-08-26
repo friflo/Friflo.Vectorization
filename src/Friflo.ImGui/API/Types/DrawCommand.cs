@@ -48,12 +48,12 @@ public readonly struct DrawCommand(
 }
 
 
-public struct CmdSegment  // TODO IM_TEX   make internal again  
+internal struct CmdSegment
 {
     internal    int     zIndex;
     internal    int     sequence;
-    public      int     index;
-    public      int     length;
+    internal    int     index;
+    internal    int     length;
 
     public override string ToString() => $"zIndex: {zIndex}, {sequence}   [{index}, {length}]";
 }

@@ -40,26 +40,21 @@ public sealed partial class WgpuBatch : Batch2D
 
         descriptor.colorAttachments[0].view = target.View;
         using var pass  = target.BeginRenderPass(descriptor);
-        var commands    = drawCommands;
         
-        foreach (var segment in commandSegments)
+        foreach (var cmd in DrawCommands)
         {
-            for (int n = 0; n < segment.length; n++)
-            {
-                var cmd = commands[segment.index + n];
-                if (!cmd.scissor.Equals(scissor)) {
-                    scissor = cmd.scissor;
-                    pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
-                }
-                var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
-                var vertexView  = vertices.In(cmd.vertexView.offset, cmd.vertexView.length);
-                var indexView   = indices. In(cmd.indexView.offset,  cmd.indexView.length);
-                var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;
-                var uniforms    = new ImUniforms(cmd.projection);
-                var config      = renderConfigs[(int)cmd.blendState];
-                
-                Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
+            if (!cmd.scissor.Equals(scissor)) {
+                scissor = cmd.scissor;
+                pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
             }
+            var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
+            var vertexView  = vertices.In(cmd.vertexView.offset, cmd.vertexView.length);
+            var indexView   = indices. In(cmd.indexView.offset,  cmd.indexView.length);
+            var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;
+            var uniforms    = new ImUniforms(cmd.projection);
+            var config      = renderConfigs[(int)cmd.blendState];
+            
+            Draw(pass, config, uniforms, texture, sampler, vertexView, indexView);
         }
     }
     

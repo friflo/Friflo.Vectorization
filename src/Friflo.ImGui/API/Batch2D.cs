@@ -34,15 +34,17 @@ public enum SamplerFilter
 public abstract class Batch2D : IDisposable
 {
 #region public
-    public    readonly  ImGuiBackend        backend;
-    public    readonly  GuiInput            input;
+    public readonly     ImGuiBackend        backend;
+    public readonly     GuiInput            input;
+    public ReadOnlySpan<DrawCommand>        DrawCommands => new(finalCommands, 0, drawCommands.Count);
 #endregion
 
 #region protected                                                       // TODO IM_TEX  check use of internal
     protected readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
     protected readonly  ImBuffer<uint>      gpuIndexBuffer;
-    protected readonly  List<DrawCommand>   drawCommands 	    = [];
-    protected readonly  List<CmdSegment>    commandSegments     = [];
+    private             DrawCommand[]       finalCommands       = [];
+    private   readonly  List<DrawCommand>   drawCommands 	    = [];
+    private   readonly  List<CmdSegment>    commandSegments     = [];
     protected internal  Vector2             viewport;
 #endregion
 
@@ -211,13 +213,24 @@ public abstract class Batch2D : IDisposable
         // Upload vertexBuffer with a single wgpu call
         gpuVertexBuffer.Write(0, vertexCount);
 
+        var target   = finalCommands;
         var commands = drawCommands;
-        var segments = commandSegments;
-        segments.Clear();
-        if (sortZIndex) {
+        if (target.Length < commands.Count) {
+            target = finalCommands = new DrawCommand[commands.Count];
+        }
+        if (sortZIndex)
+        {
+            var segments = commandSegments;
+            segments.Clear();
             SortCommands(commands, segments);
+            int index = 0;
+            foreach (var segment in segments) {
+                for (int n = 0; n < segment.length; n++) {
+                    target[index++] = commands[segment.index + n];
+                }
+            }
         } else {
-            segments.Add(new CmdSegment { index = 0, length = commands.Count });
+            commands.CopyTo(target);
         }
     }
     
