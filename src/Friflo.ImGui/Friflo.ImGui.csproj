@@ -61,23 +61,9 @@
   <!-- packaging: end -->
   
   <ItemGroup>
-    <ProjectReference Include="..\Friflo.Generators\Friflo.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
       <EmbeddedResource Include="fonts/*.*" />
+      <EmbeddedResource Include="shaders\**\*.wgsl" />
   </ItemGroup>
-  <ItemGroup>
-    <CompilerVisibleProperty Include="MSBuildProjectDirectory" />  
-    <EmbeddedResource Include="shaders\**\*.wgsl" />
-    <!-- <AdditionalFiles  Include="shaders\**\*.wgsl" /> -->
-  </ItemGroup>
-  <PropertyGroup>
-    <!-- workaround for: https://youtrack.jetbrains.com/issue/RIDER-141199 -->  
-    <AdditionalFileItemNames>$(AdditionalFileItemNames);EmbeddedResource</AdditionalFileItemNames>
-  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
