@@ -56,7 +56,7 @@ public sealed partial class Batch2D : IDisposable
     internal readonly   GpuSampler          samplerLinear;              // the default sampler
     internal readonly   GpuSampler          samplerNearest;
     internal            Font                defaultFont;
-    internal            ImTextureView       defaultFontTexture;
+    internal            ImTexture           defaultFontTexture;
     
     // --- Draw2D - state
     internal            IFormatProvider     formatProvider;
@@ -72,7 +72,7 @@ public sealed partial class Batch2D : IDisposable
     internal            ImUniforms          uniforms;
     internal            int                 vertexStart;                // start of next Draw()
     internal            int                 vertexCount;
-    internal            ImTextureView       currentTexture;
+    internal            ImTexture           currentTexture;
 
     
     internal Batch2D(GpuDevice device, TextureFormat targetFormat, int maxVertices)
@@ -106,7 +106,7 @@ public sealed partial class Batch2D : IDisposable
         indexBuffer.In().Write();
         
         defaultFont             = drawModule.defaultFont;
-        defaultFontTexture      = drawModule.defaultFont.textureView;
+        defaultFontTexture      = drawModule.defaultFont.texture;
         samplerLinear           = drawModule.samplerLinear;
         samplerNearest          = drawModule.samplerNearest;
         currentSamplerFilter    = SamplerFilter.Linear;
@@ -200,7 +200,7 @@ public sealed partial class Batch2D : IDisposable
     
     public void SetFont(Font font) {
         defaultFont         = font;
-        defaultFontTexture  = font.textureView;
+        defaultFontTexture  = font.texture;
     }
     
     public void SetFontDefault() => SetFont(drawModule.defaultFont);
@@ -216,9 +216,9 @@ public sealed partial class Batch2D : IDisposable
     public Draw2D BeginDraw2D(GpuExtent3D targetSize)
     {
         // reset batcher state
-        if (defaultFontTexture.IsDisposed) {
+        /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
             SetFontDefault();
-        }
+        } */
         guiState.Reset();
         currentTexture      = defaultFontTexture;
         vertexStart         = 0;

@@ -16,7 +16,7 @@ internal struct DrawCommand
 {
     internal    int                 zIndex;
     internal    int                 sequence;
-    internal    GpuTextureView      texture;
+    internal    ImTexture           texture;
     internal    InView<Vertex2D>    vertexView;
     internal    InView<uint>        indexView;
     internal    RenderConfig        config;
@@ -71,25 +71,5 @@ internal readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Re
 }
 
 
-internal readonly struct ImTextureView
-{
-    internal readonly   GpuTextureView  native;
-    internal readonly   bool            hasWhitePixel;
-    internal readonly   Vector2         whiteUv;
-    
-    internal            nint            Handle      => native.Handle;
-    public              bool            IsDisposed  => native.IsDisposed;
-    public   override   string          ToString()  => native.ToString();
 
-    internal ImTextureView(GpuTextureView native) {
-        this.native     = native;
-    }
-
-    internal ImTextureView(GpuTextureView native, Vector2 whiteUv) {
-        this.native     = native;
-        hasWhitePixel   = true;
-        this.whiteUv    = whiteUv;
-    }
-    // Intentionally not using: public static implicit operator ImTextureView(GpuTextureView view) => new(view);
-}
 

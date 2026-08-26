@@ -195,7 +195,7 @@ public record struct GpuTextureViewDescriptor
 public readonly unsafe struct GpuTextureView
 {
     internal readonly   TextureView*                handle;
-    internal readonly   GpuTexture                  texture;
+    public   readonly   GpuTexture                  texture;
     private             GpuTextureViewDescriptor    Descriptor => texture.FindViewDescriptor(handle); // only for debugging
     public              bool                        IsDisposed => texture.IsDisposed;
 
@@ -214,6 +214,12 @@ public readonly unsafe struct GpuTextureView
     private void ThrowObjectDisposedException()
     {
         throw new ObjectDisposedException($"texture view of disposed GpuTexture '{texture.Label}'");
+    }
+    
+    public GpuTextureView(nint view, GpuTexture texture) // TODO IM_TEX - remove public constructor
+    {
+        handle          = (TextureView*)view;
+        this.texture    = texture;
     }
 
     internal GpuTextureView(TextureView* view, GpuTexture texture)

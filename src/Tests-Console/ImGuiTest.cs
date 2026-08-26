@@ -17,7 +17,7 @@ public class ImGuiRenderer : IRenderer
     private readonly    GpuDevice               device;
     private readonly    Batch2D                 batch;
     private readonly    GpuTexture              myTexture;
-    private readonly    GpuTextureView          myTextureView;
+    private readonly    ImTexture               myTextureView;
     private readonly    GpuRenderPassDescriptor renderPassDescriptor    = new () { colorAttachments = [ default ] };
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
@@ -60,7 +60,7 @@ public class ImGuiRenderer : IRenderer
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
         myTexture        = device.LoadTexture(stream, "world_tileset.png"); 
-        myTextureView    = myTexture.CreateView();
+        myTextureView    = myTexture.CreateView().ToImTexture();
     }
     
     public void OnWindowChanged(int width, int height)

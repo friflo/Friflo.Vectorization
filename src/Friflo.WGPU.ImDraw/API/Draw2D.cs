@@ -164,7 +164,6 @@ public readonly ref partial struct Draw2D
 
         int pendingQuads = pendingVertices / 4;
 
-        var texture     = bat.currentTexture;
         var vertexView  = bat.vertexBuffer.In(bat.vertexStart, pendingVertices);
         var indexView   = bat.indexBuffer.In(0, pendingQuads * 6);
         var config      = bat.renderConfigs[(int)bat.currentBlendState];
@@ -176,7 +175,7 @@ public readonly ref partial struct Draw2D
         bat.drawCommands.Add(new DrawCommand {
             zIndex      = bat.currentZIndex,
             sequence    = bat.currentSequence++, 
-            texture     = texture.native,
+            texture     = bat.currentTexture,
             vertexView  = vertexView,
             indexView   = indexView,
             config      = config,
@@ -219,7 +218,8 @@ public readonly ref partial struct Draw2D
                     scissor = cmd.scissor;
                     pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
                 }
-                Batch2D.Draw(pass, cmd.config, cmd.uniforms, cmd.texture, cmd.sampler, cmd.vertexView, cmd.indexView);
+                var texture = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.obj!);
+                Batch2D.Draw(pass, cmd.config, cmd.uniforms, texture, cmd.sampler, cmd.vertexView, cmd.indexView);
             }
         }
     }

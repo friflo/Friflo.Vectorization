@@ -35,23 +35,23 @@ public readonly ref partial struct Draw2D
         quad[3] = new Vertex2D(v3, uv, packed);
     }
     
-    public void DrawQuad(in VertexQuad quad, GpuTextureView texture)
+    public void DrawQuad(in VertexQuad quad, ImTexture texture)
     {
         var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
             Flush();
-            bat.currentTexture = new ImTextureView(texture);
+            bat.currentTexture = texture;
         }
         ref var targetQuad = ref AddQuad();
         targetQuad = quad;
     }
     
-    public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, GpuTextureView texture)
+    public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, ImTexture texture)
     {
         var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
             Flush();
-            bat.currentTexture = new ImTextureView(texture);
+            bat.currentTexture = texture;
         }
         ref var quad = ref AddQuad();
         quad[0] = v0;
@@ -61,7 +61,7 @@ public readonly ref partial struct Draw2D
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, GpuTextureView texture)
+    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, ImTexture texture)
     {
         if ((vertices.Length & 3) != 0) {
             ThrowInvalidVertexCount(vertices.Length);
@@ -69,9 +69,9 @@ public readonly ref partial struct Draw2D
         if (vertices.IsEmpty) return;
 
         var bat = batch;
-        if (bat.currentTexture.Handle != texture.Handle) {
+        if (bat.currentTexture != texture) {
             Flush();
-            bat.currentTexture = new ImTextureView(texture);
+            bat.currentTexture = texture;
         }
         while (vertices.Length > 0)
         {

@@ -47,7 +47,7 @@ public readonly ref partial struct Draw2D
             if (glyph.sourceSize.X > 0f && glyph.sourceSize.Y > 0f) {
                 Vector2 renderPos = currentPos + (glyph.offset * scale);
                 Vector2 renderSize = glyph.sourceSize * scale;
-                DrawSpriteRegion(font.textureView.native, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
+                DrawSpriteRegion(font.texture, renderPos, renderSize, glyph.sourcePos, glyph.sourceSize, font.textureSize, color);
             }
             currentPos.X += glyph.advance * scale;
         }

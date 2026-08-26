@@ -21,30 +21,30 @@ public readonly ref partial struct Draw2D
     /// Draws a sprite using normal 0..1 UV coordinates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size)
+    public void DrawSprite(ImTexture texture, Vector2 position, Vector2 size)
     {
         DrawSprite(texture, position, size, default, new Vector2(1f, 1f), Color32.White);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Color32 color)
+    public void DrawSprite(ImTexture texture, Vector2 position, Vector2 size, Color32 color)
     {
         DrawSprite(texture, position, size, default, new Vector2(1f, 1f), color);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax)
+    public void DrawSprite(ImTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax)
     {
         DrawSprite(texture, position, size, uvMin, uvMax, Color32.White);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSprite(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
+    public void DrawSprite(ImTexture texture, Vector2 position, Vector2 size, Vector2 uvMin, Vector2 uvMax, Color32 color)
     {
         var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
             Flush();
-            bat.currentTexture = new ImTextureView(texture);
+            bat.currentTexture = texture;
         }
         float x1 = position.X;
         float y1 = position.Y;
@@ -64,7 +64,7 @@ public readonly ref partial struct Draw2D
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize)
+    public void DrawSpriteRegion(ImTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize)
     {
         DrawSpriteRegion(texture, position, size, sourceRectPos, sourceRectSize, textureSize, Color32.White);
     }
@@ -73,7 +73,7 @@ public readonly ref partial struct Draw2D
     /// Draws a sub-region (source rect in pixels) from a texture/spritesheet.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegion(GpuTextureView texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color)
+    public void DrawSpriteRegion(ImTexture texture, Vector2 position, Vector2 size, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32 color)
     {
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
@@ -84,7 +84,7 @@ public readonly ref partial struct Draw2D
     /// Draws a rotated sprite with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated  (GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32? color = null)
+    public void DrawSpriteRotated  (ImTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Color32? color = null)
     {
         DrawSpriteRotated(texture, position, size, rotation, pivot, default, new Vector2(1f, 1f), color);
     }
@@ -93,7 +93,7 @@ public readonly ref partial struct Draw2D
     /// Draws a rotated sub-region from a texture with pivot (0..1 normalized).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRegionRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32? color = null)
+    public void DrawSpriteRegionRotated(ImTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 sourceRectPos, Vector2 sourceRectSize, Vector2 textureSize, Color32? color = null)
     {
         Vector2 uvMin = sourceRectPos / textureSize;
         Vector2 uvMax = (sourceRectPos + sourceRectSize) / textureSize;
@@ -104,7 +104,7 @@ public readonly ref partial struct Draw2D
     /// Draws a rotated quad transform around a normalized pivot (0..1).
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawSpriteRotated(GpuTextureView texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
+    public void DrawSpriteRotated(ImTexture texture, Vector2 position, Vector2 size, float rotation, Vector2 pivot, Vector2 uvMin, Vector2 uvMax, Color32? color = null)
     {
         var colorVal = color ?? Color32.White;
         if (rotation == 0f) {
@@ -112,9 +112,9 @@ public readonly ref partial struct Draw2D
             return;
         }
         var bat = batch;
-        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture.Handle != texture.Handle) {
+        if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
             Flush();
-            bat.currentTexture = new ImTextureView(texture);
+            bat.currentTexture = texture;
         }
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
@@ -139,12 +139,12 @@ public readonly ref partial struct Draw2D
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Draw9SliceTiled(
-        GpuTextureView   texture,
-        Vector2          position, 
-        Vector2          size, 
-        Vector4          borderThickness, 
-        Vector2          textureSize, 
-        Color32?         color = null)
+        ImTexture	texture,
+        Vector2     position, 
+        Vector2     size, 
+        Vector4     borderThickness, 
+        Vector2     textureSize, 
+        Color32?    color = null)
     {
         Draw9SliceTiled(texture, position, size, Vector2.Zero, textureSize, textureSize, borderThickness, color);
     }
@@ -153,14 +153,15 @@ public readonly ref partial struct Draw2D
     /// Draws a 9-slice sprite from a sub-region (Spritesheet/Atlas) where borders and center are tiled (repeated).
     /// borderThickness: (Left, Top, Right, Bottom) in pixels.
     /// </summary>
-    public void Draw9SliceTiled(GpuTextureView texture,
-        Vector2 position,
-        Vector2 size,
-        Vector2 sourceRectPos,
-        Vector2 sourceRectSize,
-        Vector2 textureSize,
-        Vector4 borderThickness,
-        Color32? color = null)
+    public void Draw9SliceTiled(
+    	ImTexture 	texture,
+        Vector2 	position,
+        Vector2 	size,
+        Vector2 	sourceRectPos,
+        Vector2 	sourceRectSize,
+        Vector2 	textureSize,
+        Vector4 	borderThickness,
+        Color32? 	color = null)
     {
         var color32 = color ?? Color32.White;
 

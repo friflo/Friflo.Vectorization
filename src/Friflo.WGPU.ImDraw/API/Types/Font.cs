@@ -42,7 +42,7 @@ public struct GlyphInfo
 
 public sealed class Font : IDisposable
 {
-    internal readonly   ImTextureView                       textureView;
+    internal readonly   ImTexture                           texture;
     public   readonly   Vector2                             textureSize;
     public   readonly   float                               lineHeight;
     public   readonly   FrozenDictionary<char, GlyphInfo>   glyphs;
@@ -55,7 +55,7 @@ public sealed class Font : IDisposable
 
     private Font (
         GpuTexture                  fontTexture,
-        ImTextureView               textureView,
+        ImTexture               	texture,
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
@@ -64,7 +64,7 @@ public sealed class Font : IDisposable
         bool                        disposable)
     {
         this.fontTexture    = fontTexture;
-        this.textureView    = textureView;
+        this.texture        = texture;
         this.textureSize    = textureSize;
         this.lineHeight     = lineHeight;
         this.glyphs         = glyphs.ToFrozenDictionary();
@@ -147,7 +147,8 @@ public sealed class Font : IDisposable
 
         fontTexture.Write(image.Data, bytesPerRow: width * 4, rowsPerImage: height);
         
-        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
+        var view = fontTexture.CreateView();
+        var textureView = new ImTexture(fontTexture, view.Handle, whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
         return new Font(fontTexture, textureView, textureSize, lineHeight, glyphs, name, -1, disposable);
@@ -260,7 +261,8 @@ public sealed class Font : IDisposable
 
         fontTexture.Write(rgba32, bytesPerRow: width * 4, rowsPerImage: height);
         
-        var textureView = new ImTextureView(fontTexture.CreateView(), whitePixelUv);
+        var view = fontTexture.CreateView();
+        var textureView = new ImTexture(fontTexture, view.Handle, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
         return new Font(fontTexture, textureView, textureSize, fontSize, glyphs, name, maxY, disposable);
