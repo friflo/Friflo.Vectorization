@@ -35,6 +35,7 @@ public enum SamplerFilter
 public abstract class Batch2D : IDisposable
 {
 #region internal
+    private  readonly   ImGuiBackend        backend;
     private  readonly   DrawModule          drawModule;
     internal readonly   Memory<Vertex2D>    vertexBuffer;
     internal readonly   ImBuffer<Vertex2D>  gpuVertexBuffer;
@@ -74,6 +75,7 @@ public abstract class Batch2D : IDisposable
     
     protected Batch2D(ImGuiBackend backend, GpuDevice device, int maxVertices)
     {
+        this.backend = backend;
         if (!device.TryGetModule(out drawModule)) {
             drawModule = new DrawModule(backend);
             device.AddModule(drawModule);
@@ -105,8 +107,8 @@ public abstract class Batch2D : IDisposable
         }
         gpuIndexBuffer.Write(0, maxIndices);
         
-        defaultFont             = drawModule.defaultFont;
-        defaultFontTexture      = drawModule.defaultFont.texture;
+        defaultFont             = backend.DefaultFont;
+        defaultFontTexture      = backend.DefaultFont.texture;
         currentSamplerFilter    = SamplerFilter.Linear;
     }
     
@@ -132,7 +134,7 @@ public abstract class Batch2D : IDisposable
         defaultFontTexture  = font.texture;
     }
     
-    public void SetFontDefault() => SetFont(drawModule.defaultFont);
+    public void SetFontDefault() => SetFont(backend.DefaultFont);
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     

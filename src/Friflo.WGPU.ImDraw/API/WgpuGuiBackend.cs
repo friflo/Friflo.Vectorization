@@ -14,7 +14,7 @@ using StbImageSharp;
 // ReSharper disable once CheckNamespace
 namespace Friflo.WGPU.ImGui;
 
-public sealed class WgpuGuiBackend : ImGuiBackend  
+public sealed class WgpuGuiBackend : ImGuiBackend
 {
     private  readonly   GpuDevice       device;
     internal readonly   GpuSampler      samplerLinear;
@@ -27,6 +27,7 @@ public sealed class WgpuGuiBackend : ImGuiBackend
     }
     
     public override void Dispose() {
+        base.Dispose();
         samplerLinear.Dispose();
         samplerNearest.Dispose();
     }

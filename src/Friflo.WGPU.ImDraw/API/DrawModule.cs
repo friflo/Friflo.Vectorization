@@ -10,14 +10,11 @@ namespace Friflo.ImGui;
 
 internal sealed class DrawModule : IGpuDeviceModule
 {
-
-    internal readonly   Font            defaultFont;
     internal readonly   GuiModule       guiModule;
     
     
     internal DrawModule(ImGuiBackend backend)
     {
-        defaultFont = backend.CreateDefaultFont();
 
         guiModule = new GuiModule();
     }
@@ -25,6 +22,5 @@ internal sealed class DrawModule : IGpuDeviceModule
     public void Dispose()
     {
         guiModule.Dispose();
-        defaultFont.DisposeInternal();
     }
 }

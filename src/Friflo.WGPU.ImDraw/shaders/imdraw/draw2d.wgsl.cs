@@ -7,10 +7,10 @@ using System.Runtime.InteropServices;
 using Friflo.WGPU;
 using System.Numerics;
 
+
 namespace Shaders.Imdraw;
 
-
-[Source("~/shaders/imdraw/draw2d.wgsl")]
+// [Source("~/shaders/imdraw/draw2d.wgsl")]
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct ImUniforms (in Matrix4x4 projection)
 {

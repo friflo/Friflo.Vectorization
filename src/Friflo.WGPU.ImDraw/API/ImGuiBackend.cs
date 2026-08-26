@@ -21,13 +21,20 @@ public abstract class ImBuffer<T> : IDisposable where T : unmanaged
 
 public abstract class ImGuiBackend : IDisposable
 {
-    public    abstract  void    Dispose();
+    private Font?   defaultFont;
+    
+    public  Font    DefaultFont => defaultFont ??= CreateDefaultFont();
 
     protected internal abstract  ImTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
     protected internal abstract  ImBuffer<uint>      CreateIndexBuffer(int indexCount);
     
-    internal Font CreateDefaultFont()
+    public virtual void Dispose()
+    {
+        defaultFont?.DisposeInternal();
+    }
+    
+    private Font CreateDefaultFont()
     {
         using var fontAtlas = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin_0.png");
         using var fntFile   = typeof(DrawModule).Assembly.GetManifestResourceStream("Friflo.WGPU.ImDraw.fonts.arial-48-latin.fnt");
