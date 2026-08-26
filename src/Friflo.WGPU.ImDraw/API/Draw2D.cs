@@ -189,7 +189,7 @@ public readonly ref partial struct Draw2D
         if (batch.vertexCount == 0) {
             return;
         }
-        var bat = (WgpuBatch)batch;
+        var bat = batch;
         // Upload vertexBuffer with a single wgpu call
         bat.gpuVertexBuffer.Write(0, bat.vertexCount);
 

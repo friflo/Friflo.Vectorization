@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using Friflo.GPU;
-using Friflo.WGPU;
+using Friflo.ImGui;
 using StbImageSharp;
 
 
@@ -12,7 +12,7 @@ using StbImageSharp;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.WGPU.ImGui;
 
 public sealed class WgpuGuiBackend : ImGuiBackend  
 {

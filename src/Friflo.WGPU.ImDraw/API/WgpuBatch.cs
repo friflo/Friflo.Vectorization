@@ -6,13 +6,13 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
-using Friflo.WGPU;
+using Friflo.ImGui;
 using Shaders.Imdraw;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.WGPU.ImGui;
 
 public sealed partial class WgpuBatch : Batch2D
 {

@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Friflo.WGPU;
 using Friflo.ImGui;
+using Friflo.WGPU;
+using Friflo.WGPU.ImGui;
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable SuggestVarOrType_BuiltInTypes
