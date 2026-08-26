@@ -12,16 +12,16 @@ namespace Friflo.ImGui;
 
 public readonly struct ImTexture : IEquatable<ImTexture>
 {
-    public readonly object? obj;            // 8 byte
+    public readonly object? native;         // 8 byte
     public readonly nint    handle;         // 8 byte
     public readonly Vector2 whiteUv;        // 8 byte
     public readonly bool    hasWhitePixel;  // 1 byte
 
-    public override string? ToString()      => obj != null ? obj.ToString() : $"handle: {handle}";
+    public override string? ToString()      => native != null ? native.ToString() : $"handle: {handle}";
 
-    public ImTexture(object obj, nint handle, Vector2 whiteUv)
+    public ImTexture(object native, nint handle, Vector2 whiteUv)
     {
-        this.obj        = obj;
+        this.native     = native;
         this.handle     = handle;
         this.whiteUv    = whiteUv;
         hasWhitePixel   = true;
@@ -29,21 +29,21 @@ public readonly struct ImTexture : IEquatable<ImTexture>
     
     public ImTexture(ImTexture texture, Vector2 whiteUv)
     {
-        obj             = texture.obj;
+        native          = texture.native;
         handle          = texture.handle;
         this.whiteUv    = whiteUv;
         hasWhitePixel   = true;
     }
     
-    public ImTexture(object obj, nint handle)
+    public ImTexture(object native, nint handle)
     {
-        this.obj        = obj;
+        this.native     = native;
         this.handle     = handle;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(ImTexture other) {
-        return ReferenceEquals(obj, other.obj) && handle == other.handle;
+        return ReferenceEquals(native, other.native) && handle == other.handle;
     }
 
     public override bool Equals(object? obj) {
@@ -53,7 +53,7 @@ public readonly struct ImTexture : IEquatable<ImTexture>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode()
     {
-        int objHash = obj != null ? RuntimeHelpers.GetHashCode(obj) : 0;
+        int objHash = native != null ? RuntimeHelpers.GetHashCode(native) : 0;
         return HashCode.Combine(objHash, handle);
     }
 
@@ -63,28 +63,3 @@ public readonly struct ImTexture : IEquatable<ImTexture>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(in ImTexture left, in ImTexture right) => !left.Equals(right);
 }
-
-
-/*
-internal readonly struct ImTexture
-{
-    internal readonly   GpuTextureView  native;
-    internal readonly   bool            hasWhitePixel;
-    internal readonly   Vector2         whiteUv;
-    
-    internal            nint            Handle      => native.Handle;
-    public              bool            IsDisposed  => native.IsDisposed;
-    public   override   string          ToString()  => native.ToString();
-
-    internal ImTexture(GpuTextureView native) {
-        this.native     = native;
-    }
-
-    internal ImTexture(GpuTextureView native, Vector2 whiteUv) {
-        this.native     = native;
-        hasWhitePixel   = true;
-        this.whiteUv    = whiteUv;
-    }
-    // Intentionally not using: public static implicit operator ImTextureView(GpuTextureView view) => new(view);
-}
-*/

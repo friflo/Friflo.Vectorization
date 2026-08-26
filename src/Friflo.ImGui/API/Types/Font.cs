@@ -74,14 +74,14 @@ public sealed class Font : IDisposable
         if (!disposable) {
             return;
         }
-        if (texture.obj is IDisposable disposableTexture) {
+        if (texture.native is IDisposable disposableTexture) {
             disposableTexture.Dispose();
         }
     }
     
     internal void DisposeInternal()
     {
-        if (texture.obj is IDisposable disposableTexture) {
+        if (texture.native is IDisposable disposableTexture) {
             disposableTexture.Dispose();
         }
     }
