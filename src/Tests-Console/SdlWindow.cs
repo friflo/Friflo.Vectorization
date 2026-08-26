@@ -21,8 +21,6 @@ public interface IRenderer
     public void OnWindowChanged(int width, int height) { }
     public void OnFrame        (in RenderTarget target);
     public void OnShutdown();
-    
-    public ImGuiBackend? GuiBackend => null;
 }
 
 public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRenderer> createRenderer)
@@ -108,7 +106,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
         var backend = wgpuHost.Adapter.GetAdapterInfo().BackendType;
         SDL.SetWindowTitle(window, $"{title} - {backend}");
         renderer    = createRenderer(wgpuHost);
-        guiBackend  = renderer.GuiBackend;
+        guiBackend  = wgpuHost.GuiBackend;
         SetWindowSize();
         Sdl3Cursor.Init();
         return SDL.AppResult.Continue;
@@ -185,6 +183,7 @@ public class SdlWindow(string title, int width, int height, Func<WgpuHost, IRend
     
     private void Shutdown()
     {
+        guiBackend?.Dispose();
         sdlInput.Dispose();
         Sdl3Cursor.Shutdown();
         renderer?.OnShutdown();

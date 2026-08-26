@@ -12,7 +12,6 @@ namespace TestConsole;
 
 public class ImRenderer : IRenderer
 {
-    private readonly    WgpuGuiBackend          guiBackend;
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
     private readonly    ImTexture               myTextureView;
@@ -25,13 +24,11 @@ public class ImRenderer : IRenderer
     public void OnShutdown() {
         myTexture.Dispose();
         batch.Dispose();
-        guiBackend.Dispose();
     }
     
     public ImRenderer(WgpuHost wgpuHost)
     {
-        var device = wgpuHost.Device;
-        guiBackend = new WgpuGuiBackend(device);
+        var guiBackend = wgpuHost.CreateGuiBackend();
         batch = guiBackend.CreateBatch2D(guiBackend, wgpuHost.SwapChainFormat);
         
         // create tile texture
@@ -48,8 +45,6 @@ public class ImRenderer : IRenderer
             clearValue  = new GpuColor(0.1, 0.1, 0.1, 1)
         };
     }
-    
-    public ImGuiBackend GuiBackend => guiBackend;
     
     public void OnFrame(in RenderTarget target)
     {

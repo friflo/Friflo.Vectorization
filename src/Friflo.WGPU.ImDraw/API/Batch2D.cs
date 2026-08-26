@@ -33,6 +33,11 @@ public enum SamplerFilter
 
 public abstract class Batch2D : IDisposable
 {
+#region public
+    public    readonly  ImGuiBackend        backend;
+    public    readonly  GuiInput            input;
+#endregion
+
 #region protected                                                       // TODO IM_TEX  check use of internal
     protected internal readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
     protected          readonly  ImBuffer<uint>      gpuIndexBuffer;
@@ -42,7 +47,6 @@ public abstract class Batch2D : IDisposable
 #endregion
 
 #region internal
-    private   readonly  ImGuiBackend        backend;
     internal  readonly  Memory<Vertex2D>    vertexBuffer;
     
     internal  readonly  Stack<RectVector2>  scissorStack        = [];
@@ -54,7 +58,6 @@ public abstract class Batch2D : IDisposable
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
-    public   readonly   GuiInput            input;
     internal            Font                defaultFont;
     internal            ImTexture           defaultFontTexture;
     

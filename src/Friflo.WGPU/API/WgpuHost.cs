@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using Friflo.GPU;
+using Friflo.WGPU.ImGui;
 using Friflo.WGPU.Runtime;
 
 // ReSharper disable ClassNeverInstantiated.Global
@@ -44,7 +45,8 @@ public sealed class WgpuHost
     public  readonly    PipelineContext     Context;
     public  readonly    WgpuSurface         Surface;
     public  readonly    RenderConfig        Config;
-    
+    // --- optional
+    private             WgpuGuiBackend      guiBackend;
     
     // --- Dynamic Surface State ---
     public              CompositeAlphaMode  AlphaMode       { get; private set; }
@@ -54,6 +56,9 @@ public sealed class WgpuHost
     
     public              GpuExtent3D         TargetSize      { get; private set; }
     public              Vector2             DpiScale        { get; private set; }
+    public              WgpuGuiBackend      GuiBackend      => guiBackend;
+    
+    public              WgpuGuiBackend      CreateGuiBackend() => guiBackend ??= new WgpuGuiBackend(Device);
 
     
     public WgpuHost(nint osHandle, nint osInstance, WgpuHostOptions options = null)
