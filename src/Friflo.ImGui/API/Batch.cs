@@ -40,16 +40,16 @@ public abstract class ImBatch : IDisposable
     public ReadOnlySpan<Vertex2D>           Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
 
-#region protected                                                       // TODO IM_TEX  check use of internal
+#region protected
     protected readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
     protected readonly  ImBuffer<uint>      gpuIndexBuffer;
-    private             DrawCommand[]       drawList        = [];
-    private   readonly  List<DrawCommand>   drawCommands 	= [];
-    private   readonly  List<CmdSegment>    commandSegments = [];
     protected internal  Vector2             viewport;
 #endregion
 
-#region internal
+#region private / internal
+    private             DrawCommand[]       drawList        = [];
+    private   readonly  List<DrawCommand>   drawCommands 	= [];
+    private   readonly  List<CmdSegment>    commandSegments = [];
     internal  readonly  Memory<Vertex2D>    vertexBuffer;
     
     internal  readonly  Stack<RectVector2>  scissorStack        = [];
