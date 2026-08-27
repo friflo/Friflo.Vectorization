@@ -15,7 +15,7 @@ using Shaders.Imdraw;
 // ReSharper disable CheckNamespace
 namespace Friflo.WGPU.ImGui;
 
-// Note: Copied from generated copy to avoid build deadlock in case of generator issues.
+// Note: Copied from source generated file to avoid build deadlock in case of generator issues.
 public sealed partial class WgpuBatch
 {
     private static partial void Draw(
