@@ -21,7 +21,7 @@ public class ImGuiRenderer : IRenderer
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
     private             bool                    monocraft;
-    private             Font?                   monocraftFont;
+    private             ImFont?                 monocraftFont;
     private             bool                    enabled2;
     private             float                   volume;
     

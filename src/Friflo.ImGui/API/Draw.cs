@@ -15,7 +15,7 @@ public readonly ref partial struct ImDraw
 {
     internal readonly   ImBatch     batch;  //  8 bytes
 
-    public              Font        DefaultFont => batch.defaultFont;
+    public              ImFont      DefaultFont => batch.defaultFont;
     
     internal ImDraw(ImBatch batch)
     {

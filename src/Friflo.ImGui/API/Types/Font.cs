@@ -39,7 +39,7 @@ public struct GlyphInfo
     public float    advance;    // Horizontal advance to the next character
 }
 
-public sealed class Font : IDisposable
+public sealed class ImFont : IDisposable
 {
     internal readonly   ImTexture                           texture;
     public   readonly   Vector2                             textureSize;
@@ -51,7 +51,7 @@ public sealed class Font : IDisposable
     
     public  override    string                              ToString()  => name;
 
-    private Font (
+    private ImFont (
         ImTexture               	texture,
         Vector2                     textureSize,
         float                       lineHeight,
@@ -131,7 +131,7 @@ public sealed class Font : IDisposable
         return float.TryParse(valueSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out float result) ? result : 0f;
     }
 
-    internal static Font CreateBMFont(ImGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
+    internal static ImFont CreateBMFont(ImGuiBackend backend, ReadOnlySpan<char> fntContent, Stream fontAtlas, string name, bool disposable)
     {
         var glyphs = ReadBmFont(fntContent, out float lineHeight);
         
@@ -147,7 +147,7 @@ public sealed class Font : IDisposable
         var imTexture   = new ImTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(image.Width, image.Height);
         
-        return new Font(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
+        return new ImFont(imTexture, textureSize, lineHeight, glyphs, name, -1, disposable);
     }
 #endregion
 
@@ -214,7 +214,7 @@ public sealed class Font : IDisposable
         return glyphs;
     }
     
-    internal static Font CreateTtfFont(
+    internal static ImFont CreateTtfFont(
         ImGuiBackend backend,
         Stream      ttfStream,
         float       fontSize,
@@ -256,7 +256,7 @@ public sealed class Font : IDisposable
         var imTexture   = new ImTexture(fontTexture, whitePixelUv);
         var textureSize = new Vector2(width, height);
         
-        return new Font(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
+        return new ImFont(imTexture, textureSize, fontSize, glyphs, name, maxY, disposable);
     }
 #endregion
     

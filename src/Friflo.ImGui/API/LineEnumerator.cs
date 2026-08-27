@@ -17,7 +17,7 @@ internal ref struct WrappedLineEnumerator
 {
     private readonly    ReadOnlySpan<char>  text;
     private readonly    float               maxWidth;
-    private readonly    Font                font;
+    private readonly    ImFont              font;
     private readonly    float               scale;
 
     private             int                 lineStart;
@@ -29,7 +29,7 @@ internal ref struct WrappedLineEnumerator
 
     public              ReadOnlySpan<char>  Current { get; private set; }
 
-    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, Font font, float scale = 1.0f)
+    public WrappedLineEnumerator(ReadOnlySpan<char> text, float maxWidth, ImFont font, float scale = 1.0f)
     {
         this.text               = text;
         this.maxWidth           = maxWidth;

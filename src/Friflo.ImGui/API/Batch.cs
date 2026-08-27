@@ -61,7 +61,7 @@ public abstract class ImBatch : IDisposable
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
-    internal            Font                defaultFont;
+    internal            ImFont              defaultFont;
     internal            ImTexture           defaultFontTexture;
     
     // --- Draw2D - state
@@ -133,7 +133,7 @@ public abstract class ImBatch : IDisposable
     
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
     
-    public void SetFont(Font font) {
+    public void SetFont(ImFont font) {
         defaultFont         = font;
         defaultFontTexture  = font.texture;
     }

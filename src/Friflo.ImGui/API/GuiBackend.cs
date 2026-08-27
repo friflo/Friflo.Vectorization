@@ -21,11 +21,11 @@ public abstract class ImBuffer<T> : IDisposable where T : unmanaged
 
 public abstract class ImGuiBackend : IDisposable
 {
-    private             Font?       defaultFont;
+    private             ImFont?     defaultFont;
     public   readonly   GuiInput    input;
     internal readonly   GuiHost     host;
     
-    public  Font    DefaultFont => defaultFont ??= CreateDefaultFont();
+    public  ImFont    DefaultFont => defaultFont ??= CreateDefaultFont();
 
     protected internal abstract  ImTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);
@@ -46,31 +46,31 @@ public abstract class ImGuiBackend : IDisposable
         host.Dispose();
     }
     
-    private Font CreateDefaultFont()
+    private ImFont CreateDefaultFont()
     {
         using var fontAtlas = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.arial-48-latin_0.png");
         using var fntFile   = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.arial-48-latin.fnt");
         using var reader    = new StreamReader(fntFile!, Encoding.UTF8);
         var fntContent      = reader.ReadToEnd();
         
-        return Font.CreateBMFont(this, fntContent, fontAtlas!, "Default Font", false);
+        return ImFont.CreateBMFont(this, fntContent, fontAtlas!, "Default Font", false);
     }
     
     /// <summary> E.g. <c>device.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");</c> </summary>
-    public Font CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
+    public ImFont CreateMonocraftFont(float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
         using var ttfFont = typeof(ImGuiBackend).Assembly.GetManifestResourceStream("Friflo.ImGui.fonts.Monocraft.ttf")!;
         
-        return Font.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
+        return ImFont.CreateTtfFont(this, ttfFont, fontSize, width, height, firstChar, charCount, name, true);
     }
     
-    public Font CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
+    public ImFont CreateBMFont(ReadOnlySpan<char> fntContent, Stream fontAtlas, string name)
     {
-        return Font.CreateBMFont(this, fntContent, fontAtlas, name, true);
+        return ImFont.CreateBMFont(this, fntContent, fontAtlas, name, true);
     }
     
-    public Font CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
+    public ImFont CreateTtfFont(Stream ttfStream, float fontSize, int width, int height, int firstChar, int charCount, string name)
     {
-        return Font.CreateTtfFont(this, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
+        return ImFont.CreateTtfFont(this, ttfStream, fontSize, width, height, firstChar, charCount, name, true);
     }
 }
