@@ -10,6 +10,10 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
 
+/// <summary>
+/// A struct containing a reference or an opaque handle to a backend-specific texture.<br/>
+/// In case of the WGPU backend, both are used to reuse a texture view once created.
+/// </summary>
 public readonly struct ImTexture : IEquatable<ImTexture>
 {
     public readonly object? native;         // 8 byte
