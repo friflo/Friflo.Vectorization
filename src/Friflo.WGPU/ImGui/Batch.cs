@@ -66,9 +66,9 @@ public sealed partial class WgpuBatch : Batch2D
         var indices  = ((ImWgpuBuffer<uint>)    gpuIndexBuffer).native;
 
         descriptor.colorAttachments[0].view = target.View;
-        using var pass  = target.BeginRenderPass(descriptor);
+        using var pass = target.BeginRenderPass(descriptor);
         
-        foreach (var cmd in DrawCommands)
+        foreach (var cmd in DrawList)
         {
             if (!cmd.scissor.Equals(scissor)) {
                 scissor = cmd.scissor;

@@ -36,15 +36,15 @@ public abstract class Batch2D : IDisposable
 #region public
     public readonly     ImGuiBackend        backend;
     public readonly     GuiInput            input;
-    public ReadOnlySpan<DrawCommand>        DrawCommands => new(finalCommands, 0, drawCommands.Count);
+    public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
 #endregion
 
 #region protected                                                       // TODO IM_TEX  check use of internal
     protected readonly  ImBuffer<Vertex2D>  gpuVertexBuffer;
     protected readonly  ImBuffer<uint>      gpuIndexBuffer;
-    private             DrawCommand[]       finalCommands       = [];
-    private   readonly  List<DrawCommand>   drawCommands 	    = [];
-    private   readonly  List<CmdSegment>    commandSegments     = [];
+    private             DrawCommand[]       drawList        = [];
+    private   readonly  List<DrawCommand>   drawCommands 	= [];
+    private   readonly  List<CmdSegment>    commandSegments = [];
     protected internal  Vector2             viewport;
 #endregion
 
@@ -213,10 +213,10 @@ public abstract class Batch2D : IDisposable
         // Upload vertexBuffer with a single wgpu call
         gpuVertexBuffer.Write(0, vertexCount);
 
-        var target   = finalCommands;
+        var target   = drawList;
         var commands = drawCommands;
         if (target.Length < commands.Count) {
-            target = finalCommands = new DrawCommand[commands.Count];
+            target = drawList = new DrawCommand[commands.Count];
         }
         if (sortZIndex)
         {
