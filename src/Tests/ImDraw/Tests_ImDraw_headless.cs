@@ -3,6 +3,7 @@ using System;
 using Friflo.ImGui;
 using Friflo.ImGui.Headless;
 using NUnit.Framework;
+using Tests.Utils;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
@@ -21,6 +22,7 @@ public class Tests_ImDraw_headless
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch2D(); 
+        long        start = 0;
         const int   repeat  = 10; // 100_000 - 1.9 sec  bottleneck: FillArc()
         
         for (int n = 0; n < repeat; n++)
@@ -31,8 +33,10 @@ public class Tests_ImDraw_headless
                 Window1(gui); 
             }
             batch.DrawCommandList();
+            if (n == 0) start = Mem.GetAllocatedBytes();
         }
         
+        Mem.AssertNoAlloc(start);
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(2));
