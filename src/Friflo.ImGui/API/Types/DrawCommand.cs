@@ -12,8 +12,8 @@ namespace Friflo.ImGui;
 
 public readonly struct MemoryView
 {
-    public  readonly    int     offset;
-    public  readonly    int     length;
+    public  readonly    int     offset;     //  4 bytes
+    public  readonly    int     length;     //  4 bytes
 
     public override     string  ToString() => $"[{offset}..{length}]";
     
@@ -34,15 +34,15 @@ public readonly struct DrawCommand(
     SamplerFilter   samplerFilter,
     RectVector2     scissor)
 {
-    public readonly int             zIndex          = zIndex;
-    public readonly int             sequence        = sequence;
-    public readonly ImTexture       texture         = texture;
-    public readonly MemoryView      vertexView      = vertexView;
-    public readonly MemoryView      indexView       = indexView;
-    public readonly BlendState      blendState      = blendState;
-    public readonly Matrix4x4       projection      = projection;
-    public readonly SamplerFilter   samplerFilter   = samplerFilter;
-    public readonly RectVector2     scissor         = scissor;
+    public readonly int             zIndex          = zIndex;           //  4 bytes
+    public readonly int             sequence        = sequence;         //  4 bytes
+    public readonly ImTexture       texture         = texture;          // 32 bytes
+    public readonly MemoryView      vertexView      = vertexView;       //  8 bytes
+    public readonly MemoryView      indexView       = indexView;        //  8 bytes
+    public readonly BlendState      blendState      = blendState;       //  4 bytes
+    public readonly Matrix4x4       projection      = projection;       // 64 bytes
+    public readonly SamplerFilter   samplerFilter   = samplerFilter;    //  4 bytes
+    public readonly RectVector2     scissor         = scissor;          // 16 bytes
 
     public override string ToString() => $"zIndex: {zIndex} ({sequence})   quads: {indexView.length / 4}   {texture}  {scissor}  {samplerFilter}";
 }
@@ -61,8 +61,8 @@ internal struct CmdSegment
 
 public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<RectVector2> 
 {
-    public readonly     Vector2     pos  = pos;
-    public readonly     Vector2     size = size;
+    public readonly     Vector2     pos  = pos;     // 8 bytes
+    public readonly     Vector2     size = size;    // 8 bytes
 
     public override string ToString()       => $"[{pos.X}, {pos.Y} | {size.X}, {size.Y}]";
 
