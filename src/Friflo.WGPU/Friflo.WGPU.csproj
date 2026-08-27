@@ -81,5 +81,9 @@
   <ItemGroup>
     <None Remove="*.csproj.lscache" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="shaders\imdraw\draw2d.wgsl" />
+  </ItemGroup>
 
 </Project>

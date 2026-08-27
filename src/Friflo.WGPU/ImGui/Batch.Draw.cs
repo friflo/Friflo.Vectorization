@@ -89,7 +89,7 @@ public partial class WgpuBatch
         }
         layouts[0] = layout_0;
         
-        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(ImGuiBackend), _Draw_GPU_Shaders, "Draw_pipeline"u8);
+        var pipeline = device.CreateRenderPipeline(layouts, config, typeof(WgpuBatch), _Draw_GPU_Shaders, "Draw_pipeline"u8);
 
         var bindGroupCache = new _Draw_GPU_Cache();
         return ref device.CreatePipelineCache(_Draw_GPU_ShaderId, config, _Draw_GPU_WgslHash, pipeline, layouts, bindGroupCache);

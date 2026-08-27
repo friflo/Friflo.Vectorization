@@ -62,7 +62,6 @@
   
   <ItemGroup>
       <EmbeddedResource Include="fonts/*.*" />
-      <EmbeddedResource Include="shaders\**\*.wgsl" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
