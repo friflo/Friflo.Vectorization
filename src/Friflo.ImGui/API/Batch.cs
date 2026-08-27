@@ -64,7 +64,7 @@ public abstract class ImBatch : IDisposable
     internal            ImFont              defaultFont;
     internal            ImTexture           defaultFontTexture;
     
-    // --- Draw2D - state
+    // --- ImDraw - state
     internal            IFormatProvider     formatProvider;
     internal            Matrix4x4           defaultOrtho;
     internal            Matrix4x4           currentTransform;
@@ -190,7 +190,7 @@ public abstract class ImBatch : IDisposable
         var indexView   = new MemoryView(0, pendingQuads * 6);
         vertexStart = vertexCount;
 
-        // Batch2D.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
+        // Batch.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
         drawCommands.Add(new DrawCommand(
             zIndex: currentZIndex,
