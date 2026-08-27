@@ -191,15 +191,15 @@ public abstract class ImBatch : IDisposable
         // Batch.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
         drawCommands.Add(new DrawCommand(
-            zIndex: currentZIndex,
-            sequence:        currentSequence++, 
-            texture:         currentTexture,
-            vertexView:      vertexView,
-            indexView:       indexView,
-            blendState:      currentBlendState,
-            projection:      projection,
-            samplerFilter:   currentSamplerFilter,
-            scissor:         currentScissor
+            zIndex:         currentZIndex,
+            sequence:       currentSequence++, 
+            texture:        currentTexture,
+            vertexView:     vertexView,
+            indexView:      indexView,
+            blendState:     currentBlendState,
+            projection:     projection,
+            samplerFilter:  currentSamplerFilter,
+            scissor:        currentScissor
         ));
     }
     
