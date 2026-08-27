@@ -10,7 +10,7 @@ using Friflo.WGPU.ImGui;
 // ReSharper disable ConvertToPrimaryConstructor
 namespace TestConsole;
 
-public class ImRenderer : IRenderer
+public class ImDrawRenderer : IRenderer
 {
     private readonly    WgpuBatch               batch;
     private readonly    GpuTexture              myTexture;
@@ -26,7 +26,7 @@ public class ImRenderer : IRenderer
         batch.Dispose();
     }
     
-    public ImRenderer(WgpuHost wgpuHost)
+    public ImDrawRenderer(WgpuHost wgpuHost)
     {
         var guiBackend = wgpuHost.CreateGuiBackend();
         batch = guiBackend.CreateBatch(guiBackend, wgpuHost.SwapChainFormat);
