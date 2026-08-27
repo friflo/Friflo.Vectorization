@@ -11,13 +11,13 @@ using System.Numerics;
 namespace Friflo.ImGui;
 
 
-public readonly ref partial struct Draw2D
+public readonly ref partial struct ImDraw
 {
     internal readonly   ImBatch     batch;  //  8 bytes
 
     public              Font        DefaultFont => batch.defaultFont;
     
-    internal Draw2D(ImBatch batch)
+    internal ImDraw(ImBatch batch)
     {
         this.batch  = batch;
     }

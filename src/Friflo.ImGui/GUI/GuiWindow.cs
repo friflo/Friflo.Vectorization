@@ -199,7 +199,7 @@ public sealed class GuiWindow
         }
     }
     
-    public bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, Draw2D draw)
+    public bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, ImDraw draw)
     {
         var widgetRect = new RectVector2(widgetPos, widgetSize);
         
@@ -215,7 +215,7 @@ public sealed class GuiWindow
         return host.IsTopWindowAt(host.input.MousePos, this);
     }
 
-    public bool IsHoverAtCursor(Vector2 widgetSize, Draw2D draw)
+    public bool IsHoverAtCursor(Vector2 widgetSize, ImDraw draw)
     {
         return IsHoverAt(Cursor, widgetSize, draw);
     }

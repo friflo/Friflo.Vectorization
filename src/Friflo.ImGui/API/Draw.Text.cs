@@ -14,7 +14,7 @@ using System.Text;
 namespace Friflo.ImGui;
 
 
-public readonly ref partial struct Draw2D
+public readonly ref partial struct ImDraw
 {
     /// <summary>
     /// Draws a text string using a bitmap font atlas.

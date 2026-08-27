@@ -20,7 +20,7 @@ namespace Friflo.ImGui;
 
 public readonly ref partial struct GuiWidget
 {
-    public  readonly    Draw2D          draw;           //  8 bytes
+    public  readonly    ImDraw          draw;           //  8 bytes
     public  readonly    GuiInput        input;          //  8 bytes
     private readonly    GuiState        guiState;       //  8 bytes
     private readonly    GuiStyle        currentStyle;   //  8 bytes
@@ -75,7 +75,7 @@ public readonly ref partial struct GuiWidget
         return new StyleScope(this);
     }
     
-    internal GuiWidget(Draw2D draw, ImBatch batch) {
+    internal GuiWidget(ImDraw draw, ImBatch batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;

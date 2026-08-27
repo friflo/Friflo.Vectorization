@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 namespace Friflo.ImGui;
 
 
-public readonly ref partial struct Draw2D
+public readonly ref partial struct ImDraw
 {
 
     /// <summary>

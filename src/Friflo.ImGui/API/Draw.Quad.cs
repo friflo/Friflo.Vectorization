@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 namespace Friflo.ImGui;
 
 
-public readonly ref partial struct Draw2D
+public readonly ref partial struct ImDraw
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillQuad(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 v3, Color32 color)

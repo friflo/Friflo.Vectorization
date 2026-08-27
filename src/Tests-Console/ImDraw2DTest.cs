@@ -78,7 +78,7 @@ public class ImRenderer : IRenderer
              * Matrix4x4.CreateTranslation(center.X, center.Y, 0f);
     }
     
-    public void DrawSprites(Draw2D draw, float deltaTime)
+    public void DrawSprites(ImDraw draw, float deltaTime)
     {
         // --- sprites
         draw.DrawSprite(myTextureView, new Vector2( 50, 150), new Vector2(256, 256));
@@ -106,7 +106,7 @@ public class ImRenderer : IRenderer
             sourceRectSize: srcSize, textureSize: texSize, borderThickness: borders);
     }
     
-    public static void DrawShapes(Draw2D draw, int width, int height)
+    public static void DrawShapes(ImDraw draw, int width, int height)
     {
         draw.FillRect(new Vector2(1, 1), new Vector2(99, 99), 0xFFFFFFFF);
         draw.FillRect(new Vector2(width - 100, height - 100), new Vector2(99, 99), 0xFFFFFFFF);
@@ -129,7 +129,7 @@ public class ImRenderer : IRenderer
         draw.FillTriangle(new Vector2(600, 450), new Vector2(650, 420), new Vector2(650, 480), color: 0x0000FFFF);
     }
     
-    public static void DrawText(Draw2D draw)
+    public static void DrawText(ImDraw draw)
     {
         var textSize = draw.MeasureText("wgpu");
         draw.StrokeRect(new Vector2(700, 50), textSize, 2, Color32.Gray);

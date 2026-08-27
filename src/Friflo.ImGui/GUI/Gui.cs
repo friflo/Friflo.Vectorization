@@ -22,10 +22,10 @@ public readonly ref struct Gui
     public readonly     GuiWidget   widget;     // 32 bytes
     
     public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref widget.Color; }
-    public              Draw2D      Draw        => widget.draw;
+    public              ImDraw      Draw        => widget.draw;
     public              float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
-    internal Gui(Draw2D draw, ImBatch batch) {
+    internal Gui(ImDraw draw, ImBatch batch) {
         widget = new GuiWidget(draw, batch);
     }
     

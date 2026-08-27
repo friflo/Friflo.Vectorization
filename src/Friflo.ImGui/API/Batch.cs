@@ -148,7 +148,7 @@ public abstract class ImBatch : IDisposable
         return draw.BeginGui();
     }
     
-    public Draw2D BeginDraw2D(int width, int height)
+    public ImDraw BeginDraw2D(int width, int height)
     {
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX
@@ -172,7 +172,7 @@ public abstract class ImBatch : IDisposable
         zIndexStack.Clear();
         samplerFilterStack.Clear();
         
-        var draw = new Draw2D(this);
+        var draw = new ImDraw(this);
         draw.SetViewport(width, height);
         return draw;
     }

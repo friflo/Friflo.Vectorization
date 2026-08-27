@@ -6,31 +6,31 @@
 namespace Friflo.ImGui;
 
 
-public readonly ref struct ScissorScope(Draw2D draw)
+public readonly ref struct ScissorScope(ImDraw draw)
 {
-    private readonly Draw2D    draw     = draw;
+    private readonly ImDraw    draw     = draw;
 
     public void Dispose() => draw.PopScissor();
 }
 
-public readonly ref struct TransformScope(Draw2D draw)
+public readonly ref struct TransformScope(ImDraw draw)
 {
-    private readonly Draw2D    draw     = draw;
+    private readonly ImDraw    draw     = draw;
 
     public void Dispose() => draw.PopTransform();
 }
 
 
-public readonly ref struct ZIndexScope(Draw2D draw)
+public readonly ref struct ZIndexScope(ImDraw draw)
 {
-    private readonly Draw2D    draw     = draw;
+    private readonly ImDraw    draw     = draw;
 
     public void Dispose() => draw.PopZIndex();
 }
 
-public readonly ref struct SamplerFilterScope(Draw2D draw)
+public readonly ref struct SamplerFilterScope(ImDraw draw)
 {
-    private readonly Draw2D    draw     = draw;
+    private readonly ImDraw    draw     = draw;
 
     public void Dispose() => draw.PopSamplerFilter();
 }
