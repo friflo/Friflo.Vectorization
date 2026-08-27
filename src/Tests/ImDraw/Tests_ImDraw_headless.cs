@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Globalization;
 using Friflo.ImGui;
 using Friflo.ImGui.Headless;
 using NUnit.Framework;
@@ -17,11 +18,20 @@ public class Tests_ImDraw_headless
     private bool    enabled2;
     private float   volume;
     
+    
+    
+    private static void EnsureBatchApi(ImBatch batch)
+    {
+        batch.SetFormatProvider(CultureInfo.InvariantCulture);
+        
+    }
+    
     [Test]
     public void Tests_ImDraw_headless_window1()
     {
         var         backend = new HeadlessBackend();
-        var         batch   = backend.CreateBatch(); 
+        var         batch   = backend.CreateBatch();
+        EnsureBatchApi(batch);
         long        start = 0;
         const int   repeat  = 10; // 100_000 - 1.9 sec  bottleneck: FillArc()
         

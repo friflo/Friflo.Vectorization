@@ -131,8 +131,6 @@ public abstract class ImBatch : IDisposable
         gpuIndexBuffer.Dispose();
     }
     
-    public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
-    
     public void SetFont(ImFont font) {
         defaultFont         = font;
         defaultFontTexture  = font.texture;
