@@ -21,7 +21,7 @@ public class Tests_ImDraw_headless
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch2D(); 
-        const int   repeat  = 1; // 100_000 - 1.9 sec  bottleneck: FillArc()
+        const int   repeat  = 10; // 100_000 - 1.9 sec  bottleneck: FillArc()
         
         for (int n = 0; n < repeat; n++)
         {
@@ -32,8 +32,20 @@ public class Tests_ImDraw_headless
             }
             batch.DrawCommandList();
         }
-        var drawList = batch.DrawList;
-        Assert.That(drawList.Length, Is.EqualTo(2));
+        
+        var drawList    = batch.DrawList;
+        var verticesLen = batch.Vertices.Length;
+        Assert.That(drawList.Length,    Is.EqualTo(2));
+        Assert.That(verticesLen,        Is.EqualTo(2376));
+        
+        int vertexSum = 0;
+        int indexSum  = 0;
+        foreach (var cmd in drawList) {
+            vertexSum += cmd.vertexView.length;
+            indexSum  += cmd.indexView.length;
+        }
+        Assert.That(vertexSum, Is.EqualTo(verticesLen));
+        Assert.That(indexSum,  Is.EqualTo(verticesLen * 6 / 4));
     }
     
     private readonly GuiStyle redButtonStyle = new() {

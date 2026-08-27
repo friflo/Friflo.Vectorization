@@ -37,6 +37,7 @@ public abstract class Batch2D : IDisposable
     public readonly     ImGuiBackend        backend;
     public readonly     GuiInput            input;
     public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
+    public ReadOnlySpan<Vertex2D>           Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
 
 #region protected                                                       // TODO IM_TEX  check use of internal
