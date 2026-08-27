@@ -194,8 +194,9 @@ public record struct GpuTextureViewDescriptor
 /// </summary>
 public readonly unsafe struct GpuTextureView
 {
-    internal readonly   TextureView*                handle;
     public   readonly   GpuTexture                  texture;
+    internal readonly   TextureView*                handle;
+    
     private             GpuTextureViewDescriptor    Descriptor => texture.FindViewDescriptor(handle); // only for debugging
     public              bool                        IsDisposed => texture.IsDisposed;
 
