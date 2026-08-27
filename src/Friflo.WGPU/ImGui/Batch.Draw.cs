@@ -16,7 +16,7 @@ using Shaders.Imdraw;
 namespace Friflo.WGPU.ImGui;
 
 // Note: Copied from generated copy to avoid build deadlock in case of generator issues.
-public partial class WgpuBatch
+public sealed partial class WgpuBatch
 {
     private static partial void Draw(
         RenderPass                  pass,
