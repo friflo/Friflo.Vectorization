@@ -31,7 +31,7 @@ public readonly struct ImTexture : IEquatable<ImTexture>
         hasWhitePixel   = true;
     }
     
-    public ImTexture(ImTexture texture, Vector2 whiteUv)
+    public ImTexture(in ImTexture texture, Vector2 whiteUv)
     {
         native          = texture.native;
         handle          = texture.handle;

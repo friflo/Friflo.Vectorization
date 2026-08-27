@@ -26,7 +26,7 @@ public readonly struct MemoryView
 public readonly struct DrawCommand(
     int             zIndex,
     int             sequence,
-    ImTexture       texture,
+    in ImTexture    texture,
     MemoryView      vertexView,
     MemoryView      indexView,
     BlendState      blendState,

@@ -35,7 +35,7 @@ public readonly ref partial struct ImDraw
         quad[3] = new Vertex2D(v3, uv, packed);
     }
     
-    public void DrawQuad(in VertexQuad quad, ImTexture texture)
+    public void DrawQuad(in VertexQuad quad, in ImTexture texture)
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
@@ -46,7 +46,7 @@ public readonly ref partial struct ImDraw
         targetQuad = quad;
     }
     
-    public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, ImTexture texture)
+    public void DrawQuad(in Vertex2D v0, in Vertex2D v1, in Vertex2D v2, in Vertex2D v3, in ImTexture texture)
     {
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texture) {
@@ -61,7 +61,7 @@ public readonly ref partial struct ImDraw
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, ImTexture texture)
+    public void DrawQuads(ReadOnlySpan<Vertex2D> vertices, in ImTexture texture)
     {
         if ((vertices.Length & 3) != 0) {
             ThrowInvalidVertexCount(vertices.Length);

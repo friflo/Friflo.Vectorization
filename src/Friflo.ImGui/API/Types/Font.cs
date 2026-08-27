@@ -52,7 +52,7 @@ public sealed class ImFont : IDisposable
     public  override    string                              ToString()  => name;
 
     private ImFont (
-        ImTexture               	texture,
+        in ImTexture                texture,
         Vector2                     textureSize,
         float                       lineHeight,
         Dictionary<char, GlyphInfo> glyphs,
