@@ -4,15 +4,17 @@
 
 using System;
 
+// ReSharper disable NotAccessedField.Global
+// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
 namespace Friflo.ImGui.Headless;
 
 public sealed class HeadlessTexture
 {
-    public              string  name;
-    public              int     width;
-    public              int     height;
+    public  readonly    string  name;
+    public  readonly    int     width;
+    public  readonly    int     height;
     public  readonly    byte[]  rgbaPixels;
 
     public  override    string  ToString() => name;
