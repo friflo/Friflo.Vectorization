@@ -12,7 +12,7 @@ using Shaders.Imdraw;
 // ReSharper disable CheckNamespace
 namespace Friflo.WGPU.ImGui;
 
-public sealed partial class WgpuBatch : Batch2D
+public sealed partial class WgpuBatch : ImBatch
 {
     private  readonly   GpuSampler      samplerLinear;      // the default sampler
     private  readonly   GpuSampler      samplerNearest; 

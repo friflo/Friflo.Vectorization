@@ -7,7 +7,7 @@ using System.Numerics;
 // ReSharper disable CheckNamespace
 namespace Friflo.ImGui.Headless;
 
-public sealed class HeadlessBatch : Batch2D
+public sealed class HeadlessBatch : ImBatch
 {
     internal HeadlessBatch(HeadlessBackend backend, int maxVertices)
         : base(backend, maxVertices)

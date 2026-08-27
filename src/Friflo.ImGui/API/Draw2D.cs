@@ -13,11 +13,11 @@ namespace Friflo.ImGui;
 
 public readonly ref partial struct Draw2D
 {
-    internal readonly   Batch2D     batch;  //  8 bytes
+    internal readonly   ImBatch     batch;  //  8 bytes
 
     public              Font        DefaultFont => batch.defaultFont;
     
-    internal Draw2D(Batch2D batch)
+    internal Draw2D(ImBatch batch)
     {
         this.batch  = batch;
     }

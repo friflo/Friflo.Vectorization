@@ -31,7 +31,7 @@ public enum SamplerFilter
 }
 
 
-public abstract class Batch2D : IDisposable
+public abstract class ImBatch : IDisposable
 {
 #region public
     public readonly     ImGuiBackend        backend;
@@ -80,7 +80,7 @@ public abstract class Batch2D : IDisposable
     internal            ImTexture           currentTexture;
 
     
-    protected Batch2D(ImGuiBackend backend, int maxVertices)
+    protected ImBatch(ImGuiBackend backend, int maxVertices)
     {
         this.backend    = backend;
         

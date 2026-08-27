@@ -25,7 +25,7 @@ public readonly ref struct Gui
     public              Draw2D      Draw        => widget.draw;
     public              float       LineHeight  => widget.draw.DefaultFont.lineHeight;
     
-    internal Gui(Draw2D draw, Batch2D batch) {
+    internal Gui(Draw2D draw, ImBatch batch) {
         widget = new GuiWidget(draw, batch);
     }
     

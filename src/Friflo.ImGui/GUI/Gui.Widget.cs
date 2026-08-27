@@ -75,7 +75,7 @@ public readonly ref partial struct GuiWidget
         return new StyleScope(this);
     }
     
-    internal GuiWidget(Draw2D draw, Batch2D batch) {
+    internal GuiWidget(Draw2D draw, ImBatch batch) {
         this.draw       = draw;
         input           = batch.input;
         guiState        = batch.guiState;
