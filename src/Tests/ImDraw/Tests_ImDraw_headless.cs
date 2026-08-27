@@ -19,16 +19,19 @@ public class Tests_ImDraw_headless
     [Test]
     public void Tests_ImDraw_headless_window1()
     {
-        var backend = new HeadlessBackend();
-        var batch = backend.CreateBatch2D(); 
+        var         backend = new HeadlessBackend();
+        var         batch   = backend.CreateBatch2D(); 
+        const int   repeat  = 1; // 100_000 - 1.9 sec  bottleneck: FillArc()
+        
+        for (int n = 0; n < repeat; n++)
+        {
+            var gui = batch.BeginGui(1280, 1000);
             
-        var gui = batch.BeginGui(1280, 1000);
-        
-        using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
-            Window1(gui); 
+            using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
+                Window1(gui); 
+            }
+            batch.DrawCommandList();
         }
-        batch.DrawCommandList();
-        
         var drawList = batch.DrawList;
         Assert.That(drawList.Length, Is.EqualTo(2));
     }
