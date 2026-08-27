@@ -7,8 +7,13 @@ namespace Friflo.ImGui.Headless;
 
 public static class HeadlessExtensions
 {
-    public static ImTexture ToImTexture(this HeadlessTexture texture)
+    public static ImTexture AsImTexture(this HeadlessTexture texture)
     {
         return new ImTexture(texture, 0);
+    }
+    
+    public static HeadlessTexture AsGpuTexture(in this ImTexture imTexture)
+    {
+        return (HeadlessTexture)imTexture.native!;
     }
 }

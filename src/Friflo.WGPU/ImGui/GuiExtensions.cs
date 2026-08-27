@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using Friflo.ImGui;
+using Friflo.WGPU.Runtime;
 
 
 // ReSharper disable ConvertToPrimaryConstructor
@@ -10,8 +11,13 @@ namespace Friflo.WGPU.ImGui;
 
 public static class WgpuGuiExtensions
 {
-    public static ImTexture ToImTexture(this GpuTextureView view)
+    public static ImTexture AsImTexture(this GpuTextureView textureView)
     {
-        return new ImTexture(view.texture, view.Handle);
+        return new ImTexture(textureView.texture, textureView.Handle);
+    }
+    
+    public static unsafe GpuTextureView AsGpuTexture(in this ImTexture imTexture)
+    {
+        return new GpuTextureView((TextureView*)imTexture.handle, (GpuTexture)imTexture.native);
     }
 }
