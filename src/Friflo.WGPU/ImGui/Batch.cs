@@ -2,6 +2,7 @@
 // See LICENSE file in the project root for full license information.
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.ImGui;
 using Shaders.Imdraw;
@@ -20,10 +21,39 @@ public sealed partial class WgpuBatch : Batch2D
     internal WgpuBatch(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices)
         : base(backend, maxVertices)
     {
-        renderConfigs   = GuiUtils.CreateRenderConfigs(targetFormat);
+        renderConfigs   = CreateRenderConfigs(targetFormat);
         
         samplerLinear   = backend.samplerLinear;
         samplerNearest  = backend.samplerNearest;
+    }
+    
+    
+    // TextureFormat.BGRA8Unorm / RGBA8Unorm
+    /// <summary> Create multiple configs. A single would be sufficient, if not supporting <see cref="GpuBlendState"/>. </summary>
+    private static RenderConfig[] CreateRenderConfigs(TextureFormat targetFormat)
+    {
+        var configs = new RenderConfig[6];
+        var desc = new GpuRenderPipelineDescriptor();
+        desc.VertexState.buffers = [
+            new GpuVertexBufferLayout {     // [VertexBuffer(0)]   (slot: 0)
+                arrayStride = Unsafe.SizeOf<Vertex2D>(),
+                attributes = [
+                    new GpuVertexAttribute { shaderLocation = 0, offset =  0, format = VertexFormat.Float32x2 },    // Vertex2D.position 
+                    new GpuVertexAttribute { shaderLocation = 1, offset =  8, format = VertexFormat.Float32x2 },    // Vertex2D.uv
+                    new GpuVertexAttribute { shaderLocation = 2, offset = 16, format = VertexFormat.Unorm8x4  }     // Vertex2D.color
+                ]
+        }];
+        desc.PrimitiveState = new GpuPrimitiveState {
+            topology    = PrimitiveTopology.TriangleList,
+            cullMode    = CullMode.None
+        };
+        for (int index = 0; index < configs.Length; index++) {
+            var blendIndex  = (BlendState)index;
+            var blend       = GuiEffect.CreateBlendState(blendIndex);
+            desc.FragmentState = new GpuFragmentState{ targets = [ new GpuColorTargetState { format = targetFormat, blend  = blend }]};
+            configs[index] = desc.CreateConfig($"Batch2D: {blendIndex}"); // does not create any wgpu handle
+        }
+        return configs;
     }
     
     public void DrawCommandList(in RenderTarget target, in GpuRenderPassDescriptor descriptor)
