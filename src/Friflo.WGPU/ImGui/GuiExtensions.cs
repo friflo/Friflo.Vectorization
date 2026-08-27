@@ -16,8 +16,8 @@ public static class WgpuGuiExtensions
         return new ImTexture(textureView.texture, textureView.Handle);
     }
     
-    public static unsafe GpuTextureView AsGpuTexture(in this ImTexture imTexture)
+    public static GpuTextureView AsGpuTexture(in this ImTexture imTexture)
     {
-        return new GpuTextureView((TextureView*)imTexture.handle, (GpuTexture)imTexture.native);
+        return new GpuTextureView(imTexture.handle, (GpuTexture)imTexture.native);
     }
 }

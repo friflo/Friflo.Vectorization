@@ -144,7 +144,7 @@ public sealed unsafe class GpuTexture : IDisposable
         
         var index = Array.IndexOf(viewDescriptors, inDesc);
         if (index >= 0) {
-            return new GpuTextureView((TextureView*)viewHandles[index], this);
+            return new GpuTextureView(viewHandles[index], this);
         }
         
         var labelMaxCount   = WgpuUtils.GetMaxCount(label);
@@ -160,7 +160,7 @@ public sealed unsafe class GpuTexture : IDisposable
         viewHandles    [viewCount] = (nint)view;
         viewDescriptors[viewCount] = inDesc;
         viewCount++;
-        return new GpuTextureView(view, this);
+        return new GpuTextureView((nint)view, this);
     }
     
     internal GpuTextureViewDescriptor FindViewDescriptor(TextureView* view)
@@ -219,12 +219,6 @@ public readonly unsafe struct GpuTextureView
     internal GpuTextureView(nint view, GpuTexture texture)
     {
         handle          = (TextureView*)view;
-        this.texture    = texture;
-    }
-
-    internal GpuTextureView(TextureView* view, GpuTexture texture)
-    {
-        handle          = view;
         this.texture    = texture;
     }
 }
