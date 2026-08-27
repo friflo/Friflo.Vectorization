@@ -32,8 +32,8 @@ public sealed class WgpuGuiBackend : ImGuiBackend
         samplerNearest.Dispose();
     }
     
-    public WgpuBatch CreateBatch(WgpuGuiBackend backend, TextureFormat targetFormat, int maxVertices = 60_000) {
-        return new WgpuBatch(backend, targetFormat, maxVertices);
+    public WgpuBatch CreateBatch(TextureFormat targetFormat, int maxVertices = 60_000) {
+        return new WgpuBatch(this, targetFormat, maxVertices);
     }
     
     protected override ImTexture CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels)
