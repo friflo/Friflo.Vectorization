@@ -21,7 +21,7 @@ public class Tests_ImDraw_headless
     public void Tests_ImDraw_headless_window1()
     {
         var         backend = new HeadlessBackend();
-        var         batch   = backend.CreateBatch2D(); 
+        var         batch   = backend.CreateBatch(); 
         long        start = 0;
         const int   repeat  = 10; // 100_000 - 1.9 sec  bottleneck: FillArc()
         

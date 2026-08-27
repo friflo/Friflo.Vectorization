@@ -17,7 +17,7 @@ public sealed class HeadlessBackend : ImGuiBackend
         base.Dispose();
     }
     
-    public HeadlessBatch CreateBatch2D(int maxVertices = 60_000) {
+    public HeadlessBatch CreateBatch(int maxVertices = 60_000) {
         return new HeadlessBatch(this, maxVertices);
     }
     

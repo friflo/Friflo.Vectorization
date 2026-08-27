@@ -144,11 +144,11 @@ public abstract class ImBatch : IDisposable
     
     public Gui BeginGui(int width, int height)
     {
-        var draw = BeginDraw2D(width, height);
+        var draw = BeginDraw(width, height);
         return draw.BeginGui();
     }
     
-    public ImDraw BeginDraw2D(int width, int height)
+    public ImDraw BeginDraw(int width, int height)
     {
         // reset batcher state
         /* if (defaultFontTexture.IsDisposed) {    // TODO IM_TEX

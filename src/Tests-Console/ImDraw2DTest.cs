@@ -29,7 +29,7 @@ public class ImRenderer : IRenderer
     public ImRenderer(WgpuHost wgpuHost)
     {
         var guiBackend = wgpuHost.CreateGuiBackend();
-        batch = guiBackend.CreateBatch2D(guiBackend, wgpuHost.SwapChainFormat);
+        batch = guiBackend.CreateBatch(guiBackend, wgpuHost.SwapChainFormat);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
@@ -53,7 +53,7 @@ public class ImRenderer : IRenderer
         var deltaTime   = currentTime - lastTime;
         lastTime        = currentTime;
         
-        var draw = batch.BeginDraw2D(target.Width,  target.Height);
+        var draw = batch.BeginDraw(target.Width,  target.Height);
         
         // draw.SetBlendState(BlendState.Additive);
         // draw.SetFilterMode(FilterMode.Nearest); // Demonstrates pixel jittering (nearest) vs. smooth interpolation (linear)
