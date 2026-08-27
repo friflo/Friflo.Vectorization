@@ -18,6 +18,6 @@ public static class WgpuGuiExtensions
     
     public static GpuTextureView AsGpuTexture(in this ImTexture imTexture)
     {
-        return new GpuTextureView(imTexture.handle, (GpuTexture)imTexture.native);
+        return new GpuTextureView((GpuTexture)imTexture.native, imTexture.handle);
     }
 }

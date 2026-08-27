@@ -39,7 +39,7 @@ public static partial class WgpuExtensions
                 return new RenderTarget(default, null, surfaceTexture.status, null, targetSize);
             }
             var handle = wgpuTextureCreateView(surfaceTexture.texture, null);
-            var view = new GpuTextureView((nint)handle, null);
+            var view = new GpuTextureView(null, (nint)handle);
         
             fixed (byte* labelPtr = encoderLabel) {
                 var label = WgpuUtils.FromPtrSpan(labelPtr, encoderLabel);

@@ -74,7 +74,7 @@ public sealed partial class WgpuBatch : ImBatch
                 scissor = cmd.scissor;
                 pass.SetScissorRect((int)scissor.pos.X, (int)scissor.pos.Y, (int)scissor.size.X, (int)scissor.size.Y);    
             }
-            var texture     = new GpuTextureView(cmd.texture.handle, (GpuTexture)cmd.texture.native!);
+            var texture     = new GpuTextureView((GpuTexture)cmd.texture.native!, cmd.texture.handle);
             var vertexView  = vertices.In(cmd.vertexView.offset, cmd.vertexView.length);
             var indexView   = indices. In(cmd.indexView.offset,  cmd.indexView.length);
             var sampler     = cmd.samplerFilter == SamplerFilter.Linear ? samplerLinear : samplerNearest;
