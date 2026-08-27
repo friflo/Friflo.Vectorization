@@ -1,27 +1,36 @@
 ﻿
 using System;
 using Friflo.ImGui;
+using Friflo.ImGui.Headless;
+using NUnit.Framework;
 
 
 // ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
 // ReSharper disable once InconsistentNaming
 namespace Tests.ImDraw;
 
-public class Tests_ImDraw_window1
+public class Tests_ImDraw_headless
 {
     private bool    mouseCircle;
     private bool    monocraft;
     private bool    enabled2;
     private float   volume;
     
-    // [Test]
-    public void Tests_ImDraw_window1_gui(Batch2D batch)
+    [Test]
+    public void Tests_ImDraw_headless_window1()
     {
+        var backend = new HeadlessBackend();
+        var batch = backend.CreateBatch2D(); 
+            
         var gui = batch.BeginGui(1280, 1000);
         
         using (gui.BeginWindow("Window 1", new(100, 20), new(400, 950))) {
             Window1(gui); 
         }
+        batch.DrawCommandList();
+        
+        var drawList = batch.DrawList;
+        Assert.That(drawList.Length, Is.EqualTo(2));
     }
     
     private readonly GuiStyle redButtonStyle = new() {
