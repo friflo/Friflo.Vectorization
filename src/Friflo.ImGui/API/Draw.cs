@@ -49,7 +49,7 @@ public readonly ref partial struct ImDraw
         this.batch  = batch;
     }
     
-#region State
+#region scissor
     public ScissorScope PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;
@@ -79,7 +79,10 @@ public readonly ref partial struct ImDraw
         batch.Flush();
         batch.currentScissor = scissor;
     }
+#endregion
     
+
+#region sampler
     public SamplerFilterScope PushSamplerFilter(SamplerFilter samplerFilter)
     {
         batch.samplerFilterStack.Push(batch.currentSamplerFilter);
@@ -100,8 +103,10 @@ public readonly ref partial struct ImDraw
         var filter = batch.samplerFilterStack.Pop();
         ApplySampler(filter);
     }
+#endregion
     
 
+#region vieport
     public void SetViewport(float width, float height)
     {
         batch.Flush();
@@ -115,7 +120,10 @@ public readonly ref partial struct ImDraw
         // combine with current camera transform
         bat.projection = bat.currentTransform * bat.defaultOrtho;
     }
+#endregion
 
+
+#region transform
     public TransformScope PushTransform(in Matrix4x4 transform)
     {
         var transformStack = batch.transformStack;
@@ -148,7 +156,10 @@ public readonly ref partial struct ImDraw
         bat.currentTransform    = transform;
         bat.projection          = bat.currentTransform * bat.defaultOrtho;
     }
+#endregion
 
+
+#region blend state
     public void SetBlendState(BlendState blendState)
     {
         if (blendState == batch.currentBlendState) return;
@@ -156,7 +167,10 @@ public readonly ref partial struct ImDraw
         batch.Flush();
         batch.currentBlendState = blendState;
     }
+#endregion
     
+
+#region z-index
     public  uint    ZIndex      => batch.currentZIndex.globalZ;
     public  uint    ZIndexLocal => batch.currentZIndex.localZ;
     
