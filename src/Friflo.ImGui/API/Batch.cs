@@ -14,23 +14,6 @@ using System.Text;
 namespace Friflo.ImGui;
 
 
-public enum BlendState
-{
-    /** Standard transparent (default) */               Alpha,  
-    /** Overwrites pixels completely (no blending) */   Opaque,
-    /** Glow, light, particles (SrcAlpha + One) */      Additive,
-    /** Shadows, tinting (Zero + Src) */                Multiply,
-    /** Add colors directly */                          AddColors,
-    /** Subtract colors directly */                     SubtractColors
-}
-
-public enum SamplerFilter
-{
-    /**  Hard/Pixelated edges (Pixel Art). */                   Nearest,
-    /**  Smooth/Blended edges (Scales, High-Res Sprites). */    Linear
-}
-
-
 public abstract class ImBatch : IDisposable
 {
 #region public
