@@ -13,7 +13,36 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
 
-
+/// <summary>
+/// Provides <see cref="ImDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>
+/// Stores vertex/index buffers and sorts draw commands for backend rendering.
+/// </summary>
+/// <remarks>
+/// <para>
+/// <b>Lifecycle &amp; Architecture:</b><br/>
+/// The frame lifecycle - <see cref="ImGuiBackend.NewFrame"/> and <see cref="ImGuiBackend.AddEvent"/> - is owned by the <see cref="ImGuiBackend"/>, 
+/// which can manage one or multiple <see cref="ImBatch"/> instances.<br/>
+/// <see cref="ImDraw"/> and <see cref="Gui"/> operate directly on <see cref="ImBatch"/> with zero memory allocations.
+/// </para>
+/// <br/>
+/// <b>Core Architecture &amp; Data Flow</b>
+/// <code>
+///     ┌─────────────────────────────────────────────────────────────────────────────┐
+///     │                                  Gui                                        │
+///     ├─────────────────┬─────────────────┬────────────────────┬────────────────────┤
+///     │   Gui - Input   │  Gui - Layout   │   Gui - Widgets    │    Gui - Styles    │
+///     │ (Mouse, Keys)   │ (Scopes, Pushes)│ (Button, Slider..) │ (Colors, Paddings) │
+///     └─────────────────┴────────┬────────┴────────────────────┴────────────────────┘
+///                                │
+///                                ▼ (one-way access: Gui uses ImDraw)
+///     ┌─────────────────────────────────────────────────────────────────────────────┐
+///     │                                ImDraw                                       │
+///     ├───────────────────────────────────┬─────────────────────────────────────────┤
+///     │          ImDraw - Draw            │             ImDraw - States             │
+///     │ (Fill, Stroke, Sprite, Quad, Text)│ (Push/Pop Scissor, Transform, ZIndex)   │
+///     └───────────────────────────────────┴─────────────────────────────────────────┘
+/// </code>
+/// </remarks>
 public abstract class ImBatch : IDisposable
 {
 #region public
