@@ -42,8 +42,7 @@ public abstract class ImGuiBackend : IDisposable
         foreach (var window in host.windowOrder) {
             window.NewFrame();
         }
-        
-        input.NewFrame(host.TopWindow);
+        input.NewFrame();
     }
 
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);

@@ -81,6 +81,7 @@ public sealed class GuiInput
     private             int                     dragItem;   // MUST stay private. read/write only in GetWidgetState()
     
     private             int                     focusedItem;
+    private             GuiWindow?              focusedWindow;
     private             int                     targetFocusItem;
     private             int                     focusableCounter;
     private             int                     totalFocusablesLastFrame;
@@ -213,7 +214,7 @@ public sealed class GuiInput
         // Handle 1D Tab focus
         if (myIndex == targetFocusIndex)
         {
-            focusedItem = widgetId;
+            focusedItem         = widgetId;
             currentFocusIndex   = myIndex;
             targetFocusIndex    = -1;
             // gainedFocus      = true;
@@ -231,18 +232,23 @@ public sealed class GuiInput
             JustNavigated       = true;
         }
 
-        if (focusedItem == widgetId) {
-            currentFocusIndex = myIndex;
+        var isFocused = focusedItem == widgetId;
+        if (isFocused) {
+            focusedWindow       = window;
+            currentFocusIndex   = myIndex;
         }
-        return focusedItem == widgetId;
+        return isFocused;
     }
 
     // Directional Axis-Aligned Bounding Box Distance & Overlap Search
-    private int FindBestSpatialCandidate(GuiWindow window, Vector2 direction)
+    private int FindBestSpatialCandidate(Vector2 direction)
     {
+        if (focusedWindow == null) {
+            return 0;
+        }
         FocusableEntry current  = default;
         bool foundCurrent       = false;
-        var focusables          = window.prevFocusables;
+        var focusables          = focusedWindow.prevFocusables;
         
         for (int i = 0; i < focusables.Count; i++) {
             if (focusables[i].id == focusedItem) {
@@ -391,7 +397,7 @@ public sealed class GuiInput
         keyEvents.Clear();
     }
     
-    internal void NewFrame(GuiWindow? topWindow)
+    internal void NewFrame()
     {
         FrameCount++;
         JustNavigated   = false;
@@ -419,12 +425,12 @@ public sealed class GuiInput
             }
         }
         // 2D Navigation (Arrow keys)
-        else if (topWindow != null)
+        else
         {
             Vector2 dir = arrowDirection + gamepadDirection;
             if (dir != Vector2.Zero && focusedItem != 0)
             {
-                targetFocusItem = FindBestSpatialCandidate(topWindow, dir);
+                targetFocusItem = FindBestSpatialCandidate(dir);
             }
         }
     }
