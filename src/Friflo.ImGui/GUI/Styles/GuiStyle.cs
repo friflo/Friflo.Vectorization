@@ -8,9 +8,10 @@ namespace Friflo.ImGui;
 
 public sealed class GuiStyle
 {
-    public GuiColor color;
+    public GuiColor     color;
+    public GuiPadding   padding;
 
-    public override string ToString() => $"colors: {color.Overrides.Count}";
+    public override string ToString() => $"colors: {color.Overrides.Count}  paddings: {padding.Overrides.Count}";
 
 #region internal
     internal void PushOverrides(GuiStyle style, ref RevertStyle revertStyle)
@@ -23,11 +24,17 @@ public sealed class GuiStyle
 
         // --- Apply override colors
         GuiColor.ApplyOverrides(style.color, ref color, revertStyle.color.overrides);
+        
+        // --- padding
+        revertStyle.padding = padding;
+        revertStyle.padding.overrides = style.padding.overrides;
     }
     
     internal void PopOverrides(in RevertStyle revertStyle)
     {
-        GuiColor.ApplyOverrides(revertStyle.color, ref color, revertStyle.color.overrides);
+        GuiColor.ApplyOverrides  (revertStyle.color,   ref color,   revertStyle.color.overrides);
+        
+        GuiPadding.ApplyOverrides(revertStyle.padding, ref padding, revertStyle.padding.overrides);
     }
 #endregion
 }
