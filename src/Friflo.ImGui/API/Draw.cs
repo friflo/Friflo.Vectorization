@@ -39,9 +39,7 @@ public readonly ref partial struct ImDraw
         this.batch  = batch;
     }
     
-    public Gui BeginGui() => new(this, batch);
-
-#region State / Pipeline
+#region State
     public ScissorScope PushScissor(Vector2 position, Vector2 size)
     {
         var scissorStack = batch.scissorStack;

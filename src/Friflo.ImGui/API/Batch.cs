@@ -123,7 +123,7 @@ public abstract class ImBatch : IDisposable
     public Gui BeginGui(int width, int height)
     {
         var draw = BeginDraw(width, height);
-        return draw.BeginGui();
+        return new Gui(draw, this);
     }
     
     public ImDraw BeginDraw(int width, int height)
