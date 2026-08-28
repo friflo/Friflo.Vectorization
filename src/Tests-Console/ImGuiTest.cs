@@ -87,7 +87,7 @@ public class ImGuiRenderer : IRenderer
         }
         if (mouseCircle) {
             using (gui.Draw.PushZIndex(10)) {
-                gui.Draw.StrokeCircle(batch.input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
+                gui.Draw.StrokeCircle(gui.Input.MousePos, radius: 40f, 4, color: 0xFF0000FF, segments: 32);
             }
         }
         batch.DrawCommandList(target, renderPassDescriptor);

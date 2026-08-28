@@ -18,7 +18,6 @@ public abstract class ImBatch : IDisposable
 {
 #region public
     public readonly     ImGuiBackend        backend;
-    public readonly     GuiInput            input;
     public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
     public ReadOnlySpan<Vertex2D>           Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
@@ -44,6 +43,7 @@ public abstract class ImBatch : IDisposable
 
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
+    internal readonly   GuiInput            input;
     internal            ImFont              defaultFont;
     internal            ImTexture           defaultFontTexture;
     
