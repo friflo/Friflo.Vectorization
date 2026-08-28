@@ -16,18 +16,20 @@ public sealed class GuiStyle
 #region internal
     internal void PushOverrides(GuiStyle style, ref RevertStyle revertStyle)
     {
-        // --- Backup colors that will be changed
+        // --- Backup colors and paddings that will be changed
         // revertStyle.color.overrides = style.color.overrides;
         // GuiColor.ApplyOverrides(color, ref revertStyle.color, revertStyle.color.overrides);
-        revertStyle.color = color; // simply copy all colors - faster than copy each color one by one
-        revertStyle.color.overrides = style.color.overrides;
+        revertStyle.color               = color; // simply copy all colors - faster than copy each color one by one
+        revertStyle.color.overrides     = style.color.overrides;
 
         // --- Apply override colors
         GuiColor.ApplyOverrides(style.color, ref color, revertStyle.color.overrides);
         
         // --- padding
-        revertStyle.padding = padding;
-        revertStyle.padding.overrides = style.padding.overrides;
+        revertStyle.padding             = padding;
+        revertStyle.padding.overrides   = style.padding.overrides;
+        
+        GuiPadding.ApplyOverrides(style.padding, ref padding, revertStyle.padding.overrides);
     }
     
     internal void PopOverrides(in RevertStyle revertStyle)
