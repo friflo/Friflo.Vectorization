@@ -22,20 +22,32 @@ namespace Friflo.ImGui;
 
 public sealed class GuiInput
 {
+#region public    
+    public              Vector2             MousePos        => mousePos - mouseOffset;
+    public              Vector2             MousePosDelta   => mousePosDelta;
+    public              bool                IsShiftDown     => isShiftDown;
+    public              Vector2             MouseWheel      => mouseWheel;
+    public              Vector2             DragPosStart    => drawPosStart;
+    public              bool                IsMouseDown     => isMouseDown;
+    
+    public              bool                IsSubmitFired   => isSpaceFired || isReturnFired || isGamepadAFired;
+    public              MouseCursor         CurrentCursor   { get; private set; } = MouseCursor.Arrow;
+    public              int                 FrameCount      { get; private set; }
+#endregion
+
 #region input state
     private             bool                isMouseDown;
     private             Vector2             mousePos;
     internal            Vector2             mouseOffset;
-    public              Vector2             MousePos        => mousePos - mouseOffset;
-    public              Vector2             MousePosDelta   { get; private set; }
     private             Vector2             mousePosLast;
+    private             Vector2             mousePosDelta;
     
-    public              Vector2             DragPosStart    { get; private set; }
-    public              Vector2             MouseWheel      { get; private set; }
+    private             Vector2             drawPosStart;
+    private             Vector2             mouseWheel;
     private             Vector2             mouseWheelAccu;
     
     private             bool                isTabPressed;
-    public              bool                IsShiftDown     { get; private set; }
+    private             bool                isShiftDown;
     
     private             bool                isReturnDown;
     private             bool                isReturnFired;
@@ -52,13 +64,9 @@ public sealed class GuiInput
     private readonly    List<KeyEvent>      keyEvents           = [];
     private readonly    List<GamepadEvent>  gamepadEvents       = [];
     
-    public              bool                IsMouseDown     => isMouseDown;
-    public              bool                IsSubmitFired   => isSpaceFired || isReturnFired || isGamepadAFired;
     private             bool                IsSubmitDown    => isSpaceDown  || isReturnDown  || isGamepadADown;
 #endregion
 
-    public              MouseCursor         CurrentCursor   { get; private set; } = MouseCursor.Arrow;
-    public              int                 FrameCount      { get; private set; }
     
 #region widget state
     // Hot/Active-State-Pattern
@@ -143,7 +151,7 @@ public sealed class GuiInput
         // Initiate drag when mouse is pressed over a hovered widget
         if (isHover && isMouseDown && dragItem == 0) {
             dragItem        = widgetId;
-            DragPosStart    = MousePos;
+            drawPosStart    = MousePos;
         }
         // Process ongoing drag operation or handle release
         if (dragItem == widgetId) {
@@ -363,8 +371,8 @@ public sealed class GuiInput
         foreach (var keyEvent in keyEvents)
         {
             switch (keyEvent.code) {
-                case KeyCode.LShift:    IsShiftDown  = keyEvent.isDown;   break;
-                case KeyCode.RShift:    IsShiftDown  = keyEvent.isDown;   break;
+                case KeyCode.LShift:    isShiftDown  = keyEvent.isDown;   break;
+                case KeyCode.RShift:    isShiftDown  = keyEvent.isDown;   break;
             }
             if (!keyEvent.isDown) {
                 switch (keyEvent.code)
@@ -397,9 +405,9 @@ public sealed class GuiInput
         JustNavigated   = false;
         CurrentCursor   = MouseCursor.Arrow;
         
-        MousePosDelta   = MousePos - mousePosLast;
+        mousePosDelta   = MousePos - mousePosLast;
         mousePosLast    = MousePos;
-        MouseWheel      = mouseWheelAccu;
+        mouseWheel      = mouseWheelAccu;
         mouseWheelAccu  = default;
         
         HandleKeyEvents();
