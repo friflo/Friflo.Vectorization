@@ -231,7 +231,7 @@ public static class GuiExtensions
         draw.FillRectRounded(pos, size, 8, widget.Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
-            draw.StrokeRect(pos, size, 4, widget.Color.FocusColor);
+            widget.DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
         draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);

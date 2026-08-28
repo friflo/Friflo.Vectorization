@@ -32,7 +32,8 @@ public readonly ref partial struct ImDraw
 {
     internal readonly   ImBatch     batch;  //  8 bytes
 
-    public              ImFont      Font => batch.currentFont;
+    public              ImFont      Font    => batch.currentFont;
+    public              int         ZIndex  => batch.currentZIndex;
     
     internal ImDraw(ImBatch batch)
     {

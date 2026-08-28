@@ -191,7 +191,7 @@ public readonly ref partial struct GuiWidget
         draw.FillRectRounded(pos, size, 8, Color.ButtonState(widgetState)); // background
 
         if (isFocused) {
-            draw.StrokeRect(pos, size, 4, Color.FocusColor);
+            DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
         draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
@@ -222,7 +222,7 @@ public readonly ref partial struct GuiWidget
 
         // Render blue focus outline on box
         if (isFocused) {
-            draw.StrokeRect(boxRect, new Vector2(height, height), 4, Color.FocusColor);
+            DrawFocus(boxRect, new Vector2(height, height));
             window.EnsureVisibleInScrollArea(boxRect, new Vector2(height, height));
         }
         if (value) {
@@ -271,7 +271,7 @@ public readonly ref partial struct GuiWidget
 
         // Render blue focus outline
         if (isFocused) {
-            draw.StrokeRect(pos, totalSize, 4, Color.FocusColor);
+            DrawFocus(pos, totalSize);
             window.EnsureVisibleInScrollArea(pos, totalSize);
         }
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
@@ -306,7 +306,7 @@ public readonly ref partial struct GuiWidget
     internal void EndSpace(in SpaceScope space)
     {
         if (!space.isFocused) return;
-        draw.StrokeRect(space.pos, space.size, 4, Color.FocusColor);
+        DrawFocus(space.pos, space.size);
     }
 
 #endregion
@@ -380,5 +380,13 @@ public readonly ref partial struct GuiWidget
         guiState.currentStyle.PopOverrides(revertStyle);
     }
 #endregion
+
+    public void DrawFocus(Vector2 pos, Vector2 size)
+    {
+        var margin = new Vector2(6, 6);
+        draw.PushZIndex(draw.ZIndex + 1);
+        draw.StrokeRect(pos - margin, size + 2 * margin, 4, Color.FocusColor);
+        draw.PopZIndex();
+    }
 }
 
