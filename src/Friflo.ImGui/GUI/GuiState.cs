@@ -17,18 +17,18 @@ internal struct RevertStyle
 
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle        defaultStyle        = new() { color = CreateDefaultColors() };
-    internal            RevertStyle[]   revertStyles        = [];
-    internal            int             revertStylesCount;
-    internal readonly   GuiStyle        currentStyle        = new();
-    internal readonly   Dictionary<int, Vector2> centerOffsets = new();
+    private  readonly   GuiStyle                defaultStyle        = new() { color = CreateDefaultColors() };
+    internal            RevertStyle[]           revertStyles        = [];
+    internal            int                     revertStylesCount;
+    internal readonly   GuiStyle                currentStyle        = new();
+    internal readonly   Dictionary<int,Vector2> mouseOffsets        = new();
     
-    internal            GuiWindow       window              = null!;
+    internal            GuiWindow               window              = null!;
     
-    private             int             frameCount;
-    internal            bool            IsNewFrame          { get; private set;}
+    private             int                     frameCount;
+    internal            bool                    IsNewFrame          { get; private set;}
 
-    public   override   string          ToString()          => $"window: {window}";
+    public   override   string                  ToString()          => $"window: {window}";
 
     private static GuiColor CreateDefaultColors()
     {

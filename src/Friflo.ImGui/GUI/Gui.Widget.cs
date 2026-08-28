@@ -334,7 +334,7 @@ public readonly ref partial struct GuiWidget
     {
         Window.PushLayout(LayoutDirection.Horizontal);
         var oldMouseOffset = input.mouseOffset;
-        guiState.centerOffsets.TryGetValue(centerId, out input.mouseOffset);
+        guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
         BeginHorizontal();
         return new HorizontalCenterScope(this, centerId, align, draw.batch.vertexCount, oldMouseOffset);
@@ -353,7 +353,7 @@ public readonly ref partial struct GuiWidget
         foreach (ref var vertex in vertices) {
             vertex.position.X += offset;
         }
-        guiState.centerOffsets[scope.centerId] = new Vector2(offset, 0);
+        guiState.mouseOffsets[scope.centerId] = new Vector2(offset, 0);
     }
 
     #endregion
