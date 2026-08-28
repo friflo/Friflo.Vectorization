@@ -28,7 +28,7 @@ public readonly ref partial struct GuiWidget
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public ref readonly GuiColor        Color           { [DebuggerStepThrough] get => ref currentStyle.color; }
     public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
-    public              float           LineHeight      { [DebuggerStepThrough] get => draw.DefaultFont.lineHeight; }
+    public              float           LineHeight      { [DebuggerStepThrough] get => draw.Font.lineHeight; }
     public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
     public              bool            IsSet           { [DebuggerStepThrough] get => currentStyle != null; }
 

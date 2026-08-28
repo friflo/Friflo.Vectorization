@@ -21,7 +21,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public Vector2 DrawText(ReadOnlySpan<char> text, Vector2 position, Color32 color, ImFont? font = null, float scale = 1.0f)
     {
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
 
         Vector2 currentPos = position;
 
@@ -59,7 +59,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public Vector2 MeasureText(ReadOnlySpan<char> text, ImFont? font = null, float scale = 1.0f)
     {
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
 
         float maxWidth = 0f;
         float currentLineWidth = 0f;
@@ -125,7 +125,7 @@ public readonly ref partial struct ImDraw
         float               scale = 1.0f)
     {
         if (text.IsEmpty || size.X <= 0f || size.Y <= 0f) return;
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
 
         float effectiveMaxWidth = wordWrap ? size.X : float.MaxValue;
 
@@ -175,7 +175,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public string TruncateWithEllipsis(ReadOnlySpan<char> text, float maxWidth, ImFont? font = null, float scale = 1.0f)
     {
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         if (visibleLength >= text.Length)
@@ -189,7 +189,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void DrawTextTruncated(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, ImFont? font = null, float scale = 1.0f)
     {
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
         int visibleLength = GetVisibleLengthWithEllipsis(text, maxWidth, font, scale);
 
         // If whole text fits, render normally
@@ -247,7 +247,7 @@ public readonly ref partial struct ImDraw
     public string WrapText(ReadOnlySpan<char> text, float maxWidth, ImFont? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return string.Empty;
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
 
         var sb = new StringBuilder(text.Length);
 
@@ -264,7 +264,7 @@ public readonly ref partial struct ImDraw
     public int DrawTextWrapped(ReadOnlySpan<char> text, Vector2 position, float maxWidth, Color32 color, ImFont? font = null, float scale = 1.0f)
     {
         if (text.IsEmpty || maxWidth <= 0f) return 0;
-        font ??= batch.defaultFont;
+        font ??= batch.currentFont;
 
         Vector2 currentPos = position;
         int lineCount = 0;

@@ -23,7 +23,7 @@ public readonly ref struct Gui
     
     public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref widget.Color; }
     public              ImDraw      Draw        => widget.draw;
-    public              float       LineHeight  => widget.draw.DefaultFont.lineHeight;
+    public              float       LineHeight  => widget.draw.Font.lineHeight;
     public              GuiInput    Input       => widget.input;
     
     internal Gui(ImDraw draw, ImBatch batch) {

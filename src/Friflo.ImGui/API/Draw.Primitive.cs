@@ -19,7 +19,7 @@ public readonly ref partial struct ImDraw
     public void FillRect(Vector2 position, Vector2 size, Color32 color)
     {
         var bat = batch;
-        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
             bat.Flush();
             bat.currentTexture = texView;
@@ -46,7 +46,7 @@ public readonly ref partial struct ImDraw
     public void FillRectGradient(Vector2 position, Vector2 size, Color32 topLeft, Color32 topRight, Color32 bottomRight, Color32 bottomLeft)
     {
         var bat = batch;
-        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.defaultFontTexture;
+        var texView = bat.currentTexture.hasWhitePixel ? bat.currentTexture : bat.currentFontTexture;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || bat.currentTexture != texView) {
             bat.Flush();
             bat.currentTexture = texView;

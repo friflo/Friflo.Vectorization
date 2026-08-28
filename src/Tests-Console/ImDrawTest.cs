@@ -158,7 +158,7 @@ public class ImDrawRenderer : IRenderer
             draw.DrawTextInRect("OK", btnPos, btnSize, TextAlignment.Center, VerticalAlignment.Middle, Color32.White, scale: 2);
         }
         
-        var font = draw.DefaultFont;
+        var font = draw.Font;
         Debug.Assert(font.name == "Default Font");
         Debug.Assert((int)font.lineHeight == 47);
         Debug.Assert(font.glyphs.Count == 191);

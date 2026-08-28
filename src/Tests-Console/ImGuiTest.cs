@@ -21,7 +21,7 @@ public class ImGuiRenderer : IRenderer
     private readonly    PerfLog                 perfLog                 = new();
     private             bool                    mouseCircle;
     private             bool                    monocraft;
-    private             ImFont?                 monocraftFont;
+    private readonly    ImFont                  monocraftFont;
     private             bool                    enabled2;
     private             float                   volume;
     
@@ -46,16 +46,18 @@ public class ImGuiRenderer : IRenderer
     };
     
     public void OnShutdown() {
-        monocraftFont?.Dispose();
+        monocraftFont.Dispose();
         myTexture.Dispose();
         batch.Dispose();
     }
     
     public ImGuiRenderer(WgpuHost wgpuHost)
     {
-        var device = wgpuHost.Device;
-        var guiBackend = wgpuHost.CreateGuiBackend();
-        batch  = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        var device      = wgpuHost.Device;
+        var guiBackend  = wgpuHost.CreateGuiBackend();
+        batch           = guiBackend.CreateBatch(wgpuHost.SwapChainFormat);
+        monocraftFont   = guiBackend.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
+        Debug.Assert(monocraftFont.maxY == 244);
         
         // create tile texture
         using var stream = typeof(SdlWindow).Assembly.GetManifestResourceStream("Tests-Console.Assets.img.world_tileset.png")!;
@@ -106,8 +108,6 @@ public class ImGuiRenderer : IRenderer
         gui.Checkbox("mouse circle", ref mouseCircle);
         if(gui.Checkbox("Monocraft", ref monocraft)) {
             if (monocraft) {
-                monocraftFont ??= batch.backend.CreateMonocraftFont(48, 256, 256, 32, 95, "Monocraft");
-                Debug.Assert(monocraftFont.maxY == 244);
                 batch.SetFont(monocraftFont);
             } else {
                 batch.SetFontDefault();

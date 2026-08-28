@@ -23,7 +23,7 @@ public readonly ref partial struct ImDraw
         var bat = batch;
         if (bat.vertexCount + 4 > bat.vertexBuffer.Length || !bat.currentTexture.hasWhitePixel) {
             bat.Flush();
-            bat.currentTexture = bat.defaultFontTexture;
+            bat.currentTexture = bat.currentFontTexture;
         }
         var uv = bat.currentTexture.whiteUv;
 

@@ -25,7 +25,7 @@ public abstract class ImGuiBackend : IDisposable
     public   readonly   GuiInput    input;
     internal readonly   GuiHost     host;
     
-    public  ImFont    DefaultFont => defaultFont ??= CreateDefaultFont();
+    public              ImFont      DefaultFont => defaultFont ??= CreateDefaultFont();
 
     protected internal abstract  ImTexture           CreateTexture(string name, int width, int height, ReadOnlySpan<byte> rgbaPixels);
     protected internal abstract  ImBuffer<Vertex2D>  CreateVertexBuffer(int vertexCount);

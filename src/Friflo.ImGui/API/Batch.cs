@@ -46,7 +46,7 @@ namespace Friflo.ImGui;
 public abstract class ImBatch : IDisposable
 {
 #region public
-    public readonly     ImGuiBackend        backend;
+//  public internal     ImGuiBackend        backend;        - intentionally avoid back reference to its backend
     public ReadOnlySpan<DrawCommand>        DrawList        => new(drawList, 0, drawCommands.Count);
     public ReadOnlySpan<Vertex2D>           Vertices        => vertexBuffer.Span.Slice(0, vertexCount);
 #endregion
@@ -73,8 +73,9 @@ public abstract class ImBatch : IDisposable
     // --- resources owned by DrawModule
     internal readonly   GuiHost             host;
     internal readonly   GuiInput            input;
-    internal            ImFont              defaultFont;
-    internal            ImTexture           defaultFontTexture;
+    private  readonly   ImFont              backendDefaultFont;
+    internal            ImFont              currentFont;
+    internal            ImTexture           currentFontTexture;
     
     // --- ImDraw - state
     internal            IFormatProvider     formatProvider;
@@ -94,8 +95,6 @@ public abstract class ImBatch : IDisposable
     
     protected ImBatch(ImGuiBackend backend, int maxVertices)
     {
-        this.backend    = backend;
-        
         formatProvider  = CultureInfo.InvariantCulture;
         host            = backend.host;
         input           = backend.input;
@@ -121,8 +120,9 @@ public abstract class ImBatch : IDisposable
         }
         gpuIndexBuffer.Write(0, maxIndices);
         
-        defaultFont             = backend.DefaultFont;
-        defaultFontTexture      = backend.DefaultFont.texture;
+        backendDefaultFont      = backend.DefaultFont;
+        currentFont             = backend.DefaultFont;
+        currentFontTexture      = backend.DefaultFont.texture;
     }
     
     internal StringBuilder StringBuilder()
@@ -141,11 +141,11 @@ public abstract class ImBatch : IDisposable
     }
     
     public void SetFont(ImFont font) {
-        defaultFont         = font;
-        defaultFontTexture  = font.texture;
+        currentFont         = font;
+        currentFontTexture  = font.texture;
     }
     
-    public void SetFontDefault() => SetFont(backend.DefaultFont);
+    public void SetFontDefault() => SetFont(backendDefaultFont);
     
     public void SetFormatProvider(IFormatProvider provider) => formatProvider = provider;
     
@@ -162,7 +162,7 @@ public abstract class ImBatch : IDisposable
             SetFontDefault();
         } */
         guiState.Reset();
-        currentTexture      = defaultFontTexture;
+        currentTexture      = currentFontTexture;
         vertexStart         = 0;
         vertexCount         = 0;
         currentSamplerFilter= SamplerFilter.Linear;
