@@ -53,14 +53,14 @@ public sealed class WgpuGuiBackend : ImGuiBackend
     protected override ImBuffer<Vertex2D> CreateVertexBuffer(int vertexCount)
     {
         var vertices = new Memory<Vertex2D>(new Vertex2D[vertexCount]);
-        var buffer   = device.CreateBuffer(vertices, "Batch2D Vertices", BufferProfile.StaticIn, BufferType.Vertex);
+        var buffer   = device.CreateBuffer(vertices, "ImBatch Vertices", BufferProfile.StaticIn, BufferType.Vertex);
         return new ImWgpuBuffer<Vertex2D>(buffer);
     }
 
     protected override ImBuffer<uint> CreateIndexBuffer(int indexCount)
     {
         var indices = new Memory<uint>(new uint[indexCount]);
-        var buffer  = device.CreateBuffer(indices, "Batch2D Indices", BufferProfile.StaticIn, BufferType.Index);
+        var buffer  = device.CreateBuffer(indices, "ImBatch Indices", BufferProfile.StaticIn, BufferType.Index);
         return new ImWgpuBuffer<uint>(buffer);
     }
     
