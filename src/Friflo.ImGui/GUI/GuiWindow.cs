@@ -217,6 +217,11 @@ public sealed class GuiWindow
         }
     }
     
+    internal void SetTopWindow()
+    {
+        host.SetTopWindow(this);
+    }
+    
     public bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, ImDraw draw)
     {
         var widgetRect = new RectVector2(widgetPos, widgetSize);
@@ -252,7 +257,7 @@ public sealed class GuiWindow
             if (activeEdge == ResizeEdge.None) {
                 activeResizeEdge    = GetResizeEdge(input.MousePos, border);
                 activeResizeSize    = Size;
-                drawGui.draw.batch.host.SetTopWindow(this);
+                SetTopWindow();
             }
             var offset = input.MousePos - input.DragPosStart;
             ApplyResize(offset, activeEdge);

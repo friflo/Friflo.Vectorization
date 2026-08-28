@@ -218,6 +218,7 @@ public sealed class GuiInput
             targetFocusIndex    = -1;
             // gainedFocus      = true;
             JustNavigated       = true;
+            window.SetTopWindow();
         }
 
         // Handle 2D Arrow focus
