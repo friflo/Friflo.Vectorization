@@ -24,7 +24,7 @@ public readonly struct MemoryView
 }
 
 public readonly struct DrawCommand(
-    int             zIndex,
+    ulong           zIndex,
     int             sequence,
     in ImTexture    texture,
     MemoryView      vertexView,
@@ -34,7 +34,7 @@ public readonly struct DrawCommand(
     SamplerFilter   samplerFilter,
     RectVector2     scissor)
 {
-    public readonly int             zIndex          = zIndex;           //  4 bytes
+    public readonly ulong           zIndex          = zIndex;           //  8 bytes
     public readonly int             sequence        = sequence;         //  4 bytes
     public readonly ImTexture       texture         = texture;          // 32 bytes
     public readonly MemoryView      vertexView      = vertexView;       //  8 bytes
@@ -50,7 +50,7 @@ public readonly struct DrawCommand(
 
 internal struct CmdSegment
 {
-    internal    int     zIndex;
+    internal    ulong   zIndex;
     internal    int     sequence;
     internal    int     index;
     internal    int     length;

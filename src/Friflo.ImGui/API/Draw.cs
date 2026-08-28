@@ -3,6 +3,7 @@
 
 
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -28,12 +29,20 @@ public enum SamplerFilter
 }
 
 
+[StructLayout(LayoutKind.Explicit, Size = 8)]
+internal struct ZIndex
+{
+    [FieldOffset(0)] internal   ulong   value;    
+    [FieldOffset(0)] internal   uint    localZ;
+    [FieldOffset(4)] internal   uint    globalZ;
+} 
+
+
 public readonly ref partial struct ImDraw
 {
     internal readonly   ImBatch     batch;  //  8 bytes
 
-    public              ImFont      Font    => batch.currentFont;
-    public              int         ZIndex  => batch.currentZIndex;
+    public              ImFont      Font        => batch.currentFont;
     
     internal ImDraw(ImBatch batch)
     {
@@ -148,14 +157,28 @@ public readonly ref partial struct ImDraw
         batch.currentBlendState = blendState;
     }
     
-    public ZIndexScope PushZIndex(int zIndex)
+    public  uint    ZIndex      => batch.currentZIndex.globalZ;
+    public  uint    ZIndexLocal => batch.currentZIndex.localZ;
+    
+    public ZIndexScope PushZIndexLocal(uint zIndex)
     {
         var bat = batch;
         bat.zIndexStack.Push(bat.currentZIndex);
 
         bat.Flush();
-        bat.currentZIndex = zIndex;
-        bat.sortZIndex    = true;
+        bat.currentZIndex.localZ    = zIndex;
+        bat.sortZIndex              = true;
+        return new ZIndexScope(this);
+    }
+    
+    public ZIndexScope PushZIndex(uint zIndex)
+    {
+        var bat = batch;
+        bat.zIndexStack.Push(bat.currentZIndex);
+
+        bat.Flush();
+        bat.currentZIndex.globalZ   = zIndex;
+        bat.sortZIndex              = true;
         return new ZIndexScope(this);
     }
 
@@ -164,7 +187,7 @@ public readonly ref partial struct ImDraw
         var bat = batch;
         if (bat.zIndexStack.Count == 0) return;
 
-        int prevZIndex = bat.zIndexStack.Pop();
+        var prevZIndex = bat.zIndexStack.Pop();
 
         bat.Flush();
         bat.currentZIndex = prevZIndex;

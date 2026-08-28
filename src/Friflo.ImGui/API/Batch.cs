@@ -65,7 +65,7 @@ public abstract class ImBatch : IDisposable
     
     internal  readonly  Stack<RectVector2>  scissorStack        = [];
     internal  readonly  Stack<Matrix4x4>    transformStack      = [];
-    internal  readonly  Stack<int>          zIndexStack         = [];
+    internal  readonly  Stack<ZIndex>       zIndexStack         = [];
     internal  readonly  Stack<SamplerFilter>samplerFilterStack  = [];
     private   readonly  StringBuilder       stringBuilder       = new(512,512); // => first chunk: 512 chars
     internal  readonly  GuiState            guiState            = new();
@@ -85,7 +85,7 @@ public abstract class ImBatch : IDisposable
     internal            SamplerFilter       currentSamplerFilter;
     internal            RectVector2         currentScissor;
     internal            bool                sortZIndex;
-    internal            int                 currentZIndex;
+    internal            ZIndex              currentZIndex;
     private             int                 currentSequence;
     internal            Matrix4x4           projection;
     private             int                 vertexStart;                // start of next Draw()
@@ -170,7 +170,7 @@ public abstract class ImBatch : IDisposable
         currentBlendState   = BlendState.Alpha;
         currentScissor      = new RectVector2(Vector2.Zero, new Vector2(width, height));
         sortZIndex          = false;
-        currentZIndex       = 0;
+        currentZIndex       = default;
         currentSequence     = 0;
 
         drawCommands.Clear();
@@ -200,7 +200,7 @@ public abstract class ImBatch : IDisposable
         // Batch.Draw(pass, config, bat.uniforms, texture, bat.currentSampler, vertexView, indexView);
         
         drawCommands.Add(new DrawCommand(
-            zIndex:         currentZIndex,
+            zIndex:         currentZIndex.value,
             sequence:       currentSequence++, 
             texture:        currentTexture,
             vertexView:     vertexView,
@@ -248,7 +248,7 @@ public abstract class ImBatch : IDisposable
         
         // Run-Length optimization - of commented Sort() above
         var command_0   = commands[0];
-        int zIndex      = command_0.zIndex;
+        var zIndex      = command_0.zIndex;
         var segment     = new CmdSegment { zIndex = zIndex, sequence = command_0.sequence, index = 0, length = 1 };
         
         for (int n = 1; n < commands.Count; n++)

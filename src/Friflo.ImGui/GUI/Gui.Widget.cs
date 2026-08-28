@@ -106,7 +106,7 @@ public readonly ref partial struct GuiWidget
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
             host.SetTopWindow(window);
         }
-        draw.PushZIndex(host.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
+        draw.PushZIndex((uint)host.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
         
         window.ResetScope();
         int parentHash = window.GetCurrentScopeHash();
@@ -384,7 +384,7 @@ public readonly ref partial struct GuiWidget
     public void DrawFocus(Vector2 pos, Vector2 size)
     {
         var margin = new Vector2(6, 6);
-        draw.PushZIndex(draw.ZIndex + 1);
+        draw.PushZIndexLocal(draw.ZIndexLocal + 1);
         draw.StrokeRect(pos - margin, size + 2 * margin, 4, Color.FocusColor);
         draw.PopZIndex();
     }
