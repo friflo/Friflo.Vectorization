@@ -385,7 +385,7 @@ public readonly ref partial struct GuiWidget
     {
         var margin = new Vector2(6, 6);
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
-        draw.StrokeRect(pos - margin, size + 2 * margin, 4, Color.FocusColor);
+        draw.StrokeRectRounded(pos - margin, size + 2 * margin, 12, 4, Color.FocusColor);
         draw.PopZIndex();
     }
 }

@@ -120,6 +120,73 @@ public readonly ref partial struct ImDraw
         FillRect(new Vector2(x, y + h - thickness),             new Vector2(w, thickness),                  color);
         FillRect(new Vector2(x, y + thickness),                 new Vector2(thickness, h - thickness * 2f), color);
     }
+    
+    public void StrokeArc(Vector2 center, float innerRadius, float outerRadius, float startAngle, float endAngle, Color32 color, int segments)
+    {
+        if (segments < 1) segments = 1;
+        float step = (endAngle - startAngle) / segments;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float a0 = startAngle + i * step;
+            float a1 = startAngle + (i + 1) * step;
+
+            float cos0 = MathF.Cos(a0), sin0 = MathF.Sin(a0);
+            float cos1 = MathF.Cos(a1), sin1 = MathF.Sin(a1);
+
+            Vector2 outer0 = center + new Vector2(cos0, sin0) * outerRadius;
+            Vector2 inner0 = center + new Vector2(cos0, sin0) * innerRadius;
+            Vector2 outer1 = center + new Vector2(cos1, sin1) * outerRadius;
+            Vector2 inner1 = center + new Vector2(cos1, sin1) * innerRadius;
+            FillQuad(inner0, outer0, outer1, inner1, color);
+        }
+    }
+    
+    /// <summary>
+    /// Draws an un-filled rounded rectangle outline.
+    /// </summary>
+    public void StrokeRectRounded(Vector2 position, Vector2 size, float radius, float thickness, Color32 color, int segments = 8)
+    {
+        if (thickness <= 0f) return;
+
+        if (radius <= 0f) {
+            StrokeRect(position, size, thickness, color);
+            return;
+        }
+
+        radius = MathF.Min(radius, MathF.Min(size.X, size.Y) * 0.5f);
+        thickness = MathF.Min(thickness, radius);
+
+        float innerRadius = radius - thickness;
+        float x = position.X;
+        float y = position.Y;
+        float w = size.X;
+        float h = size.Y;
+
+        FillRect(new Vector2(x + radius, y),                  new Vector2(w - radius * 2f, thickness), color); // Top
+        FillRect(new Vector2(x + radius, y + h - thickness),  new Vector2(w - radius * 2f, thickness), color); // Bottom
+        FillRect(new Vector2(x, y + radius),                  new Vector2(thickness, h - radius * 2f), color); // Left
+        FillRect(new Vector2(x + w - thickness, y + radius),  new Vector2(thickness, h - radius * 2f), color); // Right
+
+        // 4 node centers
+        Vector2 cTl = position + new Vector2(radius,          radius);
+        Vector2 cTr = position + new Vector2(size.X - radius, radius);
+        Vector2 cBr = position + new Vector2(size.X - radius, size.Y - radius);
+        Vector2 cBl = position + new Vector2(radius,          size.Y - radius);
+
+        if (innerRadius <= 0f) {
+            FillArc(cTl, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
+            FillArc(cTr, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
+            FillArc(cBr, radius, 0f,              MathF.PI * 0.5f,   color, segments);
+            FillArc(cBl, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
+            return;
+        }
+        StrokeArc(cTl, innerRadius, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
+        StrokeArc(cTr, innerRadius, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
+        StrokeArc(cBr, innerRadius, radius, 0f,              MathF.PI * 0.5f,   color, segments);
+        StrokeArc(cBl, innerRadius, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
+    }
+    
 
     /// <summary>
     /// Draws a filled rounded rectangle.
