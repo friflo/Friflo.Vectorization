@@ -21,7 +21,8 @@ public readonly ref partial struct ImDraw
     {
         this.batch  = batch;
     }
-
+    
+    public Gui BeginGui() => new(this, batch);
 
 #region State / Pipeline
     public ScissorScope PushScissor(Vector2 position, Vector2 size)
@@ -152,8 +153,6 @@ public readonly ref partial struct ImDraw
         bat.Flush();
         bat.currentZIndex = prevZIndex;
     }
-
-    public Gui BeginGui() => new(this, batch);
 #endregion
 }
 

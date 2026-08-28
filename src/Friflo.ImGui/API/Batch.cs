@@ -93,12 +93,10 @@ public abstract class ImBatch : IDisposable
         int maxIndices = maxQuads * 6;
 
         gpuVertexBuffer = backend.CreateVertexBuffer(maxVertices);
-        vertexBuffer = gpuVertexBuffer.Memory;
+        vertexBuffer    = gpuVertexBuffer.Memory;
 
-
-        gpuIndexBuffer = backend.CreateIndexBuffer(maxIndices);
-        
         // generate quad indexes only once
+        gpuIndexBuffer = backend.CreateIndexBuffer(maxIndices);
         var indices =  gpuIndexBuffer.Memory.Span;
         for (int i = 0, v = 0; i < maxIndices; i += 6, v += 4)
         {
@@ -113,7 +111,6 @@ public abstract class ImBatch : IDisposable
         
         defaultFont             = backend.DefaultFont;
         defaultFontTexture      = backend.DefaultFont.texture;
-        currentSamplerFilter    = SamplerFilter.Linear;
     }
     
     internal StringBuilder StringBuilder()
