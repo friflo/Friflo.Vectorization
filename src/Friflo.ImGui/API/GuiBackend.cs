@@ -37,7 +37,15 @@ public abstract class ImGuiBackend : IDisposable
         host    = new GuiHost(input);
     }
     
-    public void NewFrame()              => input.NewFrame();
+    public void NewFrame()
+    {
+        foreach (var window in host.windowOrder) {
+            window.NewFrame();
+        }
+        
+        input.NewFrame(host.TopWindow);
+    }
+
     public void AddEvent(in ImEvent ev) => input.AddEvent(ev);
     
     public virtual void Dispose()

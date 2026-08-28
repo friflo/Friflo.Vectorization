@@ -77,6 +77,11 @@ internal enum ResizeEdge
     BottomRight = Bottom | Right
 }
 
+internal struct FocusableEntry {
+    internal    int     id;
+    internal    Vector2 pos;
+    internal    Vector2 size;
+}
 
 
 public sealed class GuiWindow
@@ -99,7 +104,11 @@ public sealed class GuiWindow
     private         ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
     public                  Vector2         Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
-    private  readonly       Dictionary<int, ScrollState> scrollStates = new(64);
+    private  readonly       Dictionary<int, ScrollState>    scrollStates        = new(64);
+    
+    // --- tab / 2D array key navigation
+    internal readonly       List<FocusableEntry>            currentFocusables   = new(32);
+    internal readonly       List<FocusableEntry>            prevFocusables      = new(32);
 
     public   override       string          ToString() => title;
 
@@ -107,6 +116,15 @@ public sealed class GuiWindow
     internal GuiWindow(GuiHost host, string title) {
         this.host   = host;
         this.title  = title;
+    }
+    
+    internal void NewFrame()
+    {
+        // --- tab / 2D array key navigation ---
+        // Swap buffer for spatial queries
+        prevFocusables.Clear();
+        prevFocusables.AddRange(currentFocusables);
+        currentFocusables.Clear();
     }
     
     internal void ResetScope()

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
+// ReSharper disable InlineTemporaryVariable
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable RedundantJumpStatement
 // ReSharper disable DuplicatedSwitchSectionBodies
@@ -79,10 +80,6 @@ public sealed class GuiInput
     /// <summary> The widget currently being dragged (persists while mouse is held down) </summary>
     private             int                     dragItem;   // MUST stay private. read/write only in GetWidgetState()
     
-    // --- tab / 2D array key navigation
-    private readonly    List<FocusableEntry>    currentFocusables   = new(32);
-    private readonly    List<FocusableEntry>    prevFocusables      = new(32);
-
     private             int                     focusedItem;
     private             int                     targetFocusItem;
     private             int                     focusableCounter;
@@ -96,13 +93,6 @@ public sealed class GuiInput
     internal void SetCursor(MouseCursor cursor) {
         CurrentCursor = cursor;
     }
-    
-    private struct FocusableEntry {
-        internal    int     id;
-        internal    Vector2 pos;
-        internal    Vector2 size;
-    }
-
     
     internal void AddEvent(in ImEvent ev)
     {
@@ -214,10 +204,10 @@ public sealed class GuiInput
 #region key navigation
     /// <summary> Single register call for both 1D (Tab) and 2D (Arrows) navigation </summary>
     // Mutates:  widget state
-    internal bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size) // , out bool gainedFocus
+    internal bool RegisterFocusable(GuiWindow window, int widgetId, Vector2 pos, Vector2 size) // , out bool gainedFocus
     {
         int myIndex = focusableCounter++;
-        currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
+        window.currentFocusables.Add(new FocusableEntry { id = widgetId, pos = pos + mouseOffset, size = size });
         // gainedFocus = false;
 
         // Handle 1D Tab focus
@@ -247,14 +237,15 @@ public sealed class GuiInput
     }
 
     // Directional Axis-Aligned Bounding Box Distance & Overlap Search
-    private int FindBestSpatialCandidate(Vector2 direction)
+    private int FindBestSpatialCandidate(GuiWindow window, Vector2 direction)
     {
-        FocusableEntry current = default;
-        bool foundCurrent = false;
-
-        for (int i = 0; i < prevFocusables.Count; i++) {
-            if (prevFocusables[i].id == focusedItem) {
-                current = prevFocusables[i];
+        FocusableEntry current  = default;
+        bool foundCurrent       = false;
+        var focusables          = window.prevFocusables;
+        
+        for (int i = 0; i < focusables.Count; i++) {
+            if (focusables[i].id == focusedItem) {
+                current = focusables[i];
                 foundCurrent = true;
                 break;
             }
@@ -265,9 +256,9 @@ public sealed class GuiInput
         int bestId = 0;
         float bestScore = float.MaxValue;
 
-        for (int i = 0; i < prevFocusables.Count; i++)
+        for (int i = 0; i < focusables.Count; i++)
         {
-            var candidate = prevFocusables[i];
+            var candidate = focusables[i];
             if (candidate.id == focusedItem) continue;
 
             float primaryDist;
@@ -399,7 +390,7 @@ public sealed class GuiInput
         keyEvents.Clear();
     }
     
-    internal void NewFrame()
+    internal void NewFrame(GuiWindow? topWindow)
     {
         FrameCount++;
         JustNavigated   = false;
@@ -412,17 +403,9 @@ public sealed class GuiInput
         
         HandleKeyEvents();
         
-        
-        // --- tab / 2D array key navigation ---
-        
         // Save focusable count from previous frame
         totalFocusablesLastFrame = focusableCounter;
         focusableCounter = 0;
-
-        // Swap buffer for spatial queries
-        prevFocusables.Clear();
-        prevFocusables.AddRange(currentFocusables);
-        currentFocusables.Clear();
 
         // 1D Navigation (Tab)
         if (isTabPressed)
@@ -435,12 +418,12 @@ public sealed class GuiInput
             }
         }
         // 2D Navigation (Arrow keys)
-        else
+        else if (topWindow != null)
         {
             Vector2 dir = arrowDirection + gamepadDirection;
             if (dir != Vector2.Zero && focusedItem != 0)
             {
-                targetFocusItem = FindBestSpatialCandidate(dir);
+                targetFocusItem = FindBestSpatialCandidate(topWindow, dir);
             }
         }
     }

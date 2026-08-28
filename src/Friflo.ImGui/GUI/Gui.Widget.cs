@@ -42,7 +42,7 @@ public readonly ref partial struct GuiWidget
     public bool RegisterFocusable(int widgetId, Vector2 pos, Vector2 size)
     {
         if (guiState.IsNewFrame) {
-            return input.RegisterFocusable(widgetId, pos, size);
+            return input.RegisterFocusable(Window, widgetId, pos, size);
         }
         return false;
     }
