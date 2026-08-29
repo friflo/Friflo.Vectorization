@@ -438,9 +438,9 @@ public readonly ref partial struct GuiWidget
         }
     }
     
-    internal void PushLayout(LayoutDirection direction, Vector2 size)
+    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
     {
-        Window.PushLayout(direction, size);
+        Window.PushLayout(direction, boundsSize);
     }
 
     internal Vector2 PopLayout()

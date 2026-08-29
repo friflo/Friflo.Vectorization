@@ -39,12 +39,14 @@ public readonly ref struct ChildScope
     private  readonly   GuiWidget   widget;
     internal readonly   Vector2 	parentStartCursor;
     internal readonly   Vector2 	requestedSize;
+    internal readonly   Vector2     calculatedOuterSize;
 
-    internal ChildScope(GuiWidget widget, Vector2 parentStartCursor, Vector2 requestedSize)
+    internal ChildScope(GuiWidget widget, Vector2 parentStartCursor, Vector2 requestedSize, Vector2 calculatedOuterSize)
     {
-        this.widget             = widget;
-        this.parentStartCursor  = parentStartCursor;
-        this.requestedSize      = requestedSize;
+        this.widget              = widget;
+        this.parentStartCursor   = parentStartCursor;
+        this.requestedSize       = requestedSize;
+        this.calculatedOuterSize = calculatedOuterSize;
     }
 
     public void Dispose() => widget.EndChild(this);

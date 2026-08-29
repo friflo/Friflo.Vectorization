@@ -159,14 +159,14 @@ public class ImGuiRenderer : IRenderer
     private void Window2(Gui gui)
     {
         gui.Label("fixed child");
-        using (gui.BeginChild(1, new Vector2(250, 90))) {
-            gui.Button("Button 1 clipped");
+        using (gui.BeginChild(1, new Vector2(float.NaN, 90))) {
+            gui.Button("Button 1 clipped", UI.FillX);
             gui.Button("Button 2 clipped");
         }
         gui.Spacer();
         gui.Label("auto-fit child");
         using (gui.BeginChild(2, new Vector2(0, 0))) {
-            gui.Button("Button 1 unclipped");
+            gui.Button("Button 1 unclipped", UI.FillX);
             gui.Button("Button 2 unclipped");
         }
         gui.Spacer();

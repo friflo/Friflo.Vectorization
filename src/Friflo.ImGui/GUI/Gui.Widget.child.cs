@@ -3,6 +3,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
@@ -15,43 +16,74 @@ namespace Friflo.ImGui;
 public readonly ref partial struct GuiWidget
 {
 #region child
-    internal ChildScope BeginChild(WidgetID childId, Vector2 size)
-    {
-        var window = Window;
+	/// <summary>
+	/// Determines whether the given axis size represents auto-sizing (<c>0.0f</c> or <see cref="float.NaN"/>).
+	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static bool IsAuto(float value) => value == 0f || float.IsNaN(value);
+	
+	private Vector2 ChildOuterSize(Vector2 size, out bool hasScissor)
+	{
+	    ref readonly var layout = ref Window.CurrentLayout;
+	    Vector2 remaining = Vector2.Max(Vector2.Zero, layout.boundsSize - (layout.cursor - layout.startCursor));
 
-        var parentStartCursor = window.Cursor;
-        window.PushScope(childId);
+	    hasScissor = !IsAuto(size.X) || !IsAuto(size.Y);
 
-        var availableSize = window.Size - (parentStartCursor - window.Pos);
-        
-        var initialClipSize = new Vector2(
-            size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
-            size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
-        );
-        draw.PushScissor(parentStartCursor, initialClipSize);
-        
-        window.SetCursor(parentStartCursor + new Vector2(5f, 5f)); // inner cursor + padding
-        PushLayout(LayoutDirection.Vertical, size);
-        return new ChildScope(this, parentStartCursor, size);
-    }
-    
-    internal void EndChild(in ChildScope scope)
-    {
-        var window = Window;
-        var padding = new Vector2(5f, 5f);
-        Vector2 contentSize = PopLayout(); // returns accumulated bounding box of inner widgets
+	    float width = remaining.X;
+	    if (size.X > 0f) {
+	        width = size.X;
+	    }
+	    else if (size.X < 0f) {
+	        width = MathF.Max(0f, remaining.X + size.X);
+	    }
 
-        draw.PopScissor();
-        window.PopScope();
+	    float height = remaining.Y;
+	    if (size.Y > 0f) {
+	        height = size.Y;
+	    }
+	    else if (size.Y < 0f) {
+	        height = MathF.Max(0f, remaining.Y + size.Y);
+	    }
+	    return new Vector2(width, height);
+	}
 
-        // Dynamic Auto-Fit: if requestedSize <= 0, use measured Content + Padding
-        Vector2 finalChildSize = new Vector2(
-            scope.requestedSize.X > 0f ? scope.requestedSize.X : contentSize.X + (padding.X * 2f),
-            scope.requestedSize.Y > 0f ? scope.requestedSize.Y : contentSize.Y + (padding.Y * 2f)
-        );
-        window.SetCursor(scope.parentStartCursor);
-        MoveCursor(finalChildSize);
-    }
+	internal ChildScope BeginChild(WidgetID childId, Vector2 size)
+	{
+	    var window = Window;
+	    var parentStartCursor = window.Cursor;
+	    window.PushScope(childId);
+
+	    var padding = Sizes.ChildPadding;
+	    var calculatedOuterSize = ChildOuterSize(size, out bool hasScissor);
+
+	    if (hasScissor) {
+	        draw.PushScissor(parentStartCursor, calculatedOuterSize);
+	    }
+	    window.SetCursor(parentStartCursor + padding.Min);
+	    PushLayout(LayoutDirection.Vertical, padding.Shrink(calculatedOuterSize));
+
+	    return new ChildScope(this, parentStartCursor, size, calculatedOuterSize);
+	}
+
+	internal void EndChild(in ChildScope scope)
+	{
+	    var window = Window;
+	    var padding = Sizes.ChildPadding;
+	    Vector2 contentSize = PopLayout();
+
+	    bool hasScissor = !IsAuto(scope.requestedSize.X) || !IsAuto(scope.requestedSize.Y);
+	    if (hasScissor) {
+	        draw.PopScissor();
+	    }
+	    window.PopScope();
+
+	    Vector2 finalChildSize = new Vector2(
+	        IsAuto(scope.requestedSize.X) ? contentSize.X + padding.Size.X : scope.calculatedOuterSize.X,
+	        IsAuto(scope.requestedSize.Y) ? contentSize.Y + padding.Size.Y : scope.calculatedOuterSize.Y
+	    );
+	    window.SetCursor(scope.parentStartCursor);
+	    MoveCursor(finalChildSize);
+	}
 #endregion
 
 

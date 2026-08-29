@@ -173,7 +173,7 @@ public sealed class GuiWindow
     /// Note: Internal state-only push. Must only be invoked via <see cref="GuiWidget.PushLayout"/>
     /// to ensure symmetry with <see cref="GuiWidget.PopLayout"/>.
     /// </summary>
-    internal void PushLayout(LayoutDirection direction, Vector2 size)
+    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
     {
         var count = layoutStack.Length;
         if (layoutStackCount >= count) {
@@ -182,14 +182,14 @@ public sealed class GuiWindow
             layoutStack = newStack;
         }
         // Use explicit width if specified (e.g., fixed panel or table column).
-        float width = size.X;
+        float width = boundsSize.X;
         if (width == 0) {
             // Otherwise, derive remaining width from the parent layout relative to current cursor offset.
             ref readonly var parent = ref layoutStack[layoutStackCount - 1];
             width = parent.boundsSize.X - (parent.cursor.X - parent.startCursor.X);
         }
         // Use explicit height if specified (e.g., fixed panel or table column).
-        float height = size.Y;
+        float height = boundsSize.Y;
         if (height == 0) {
             // Otherwise, derive remaining height from the parent layout relative to current cursor offset.
             ref readonly var parent = ref layoutStack[layoutStackCount - 1];
