@@ -63,7 +63,7 @@ public class Tests_ImDraw_headless
     }
     
     private readonly GuiStyle redButtonStyle = new() {
-        color = new GuiColor {
+        colors = new GuiColors {
             ButtonColor = 0xaa4444ff,
             ButtonHover = 0xcc6666ff,
             ButtonDown  = 0x882222ff,
@@ -73,7 +73,7 @@ public class Tests_ImDraw_headless
     };
     
     private readonly GuiStyle greenButtonStyle = new() {
-        color = new GuiColor {
+        colors = new GuiColors {
             ButtonColor = 0x229922ff,
             ButtonHover = 0x44bb44ff,
             ButtonDown  = 0x007700ff,

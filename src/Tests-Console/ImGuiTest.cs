@@ -26,7 +26,7 @@ public class ImGuiRenderer : IRenderer
     private             float                   volume;
     
     private readonly GuiStyle redButtonStyle = new() {
-        color = new GuiColor {
+        colors = new GuiColors {
             ButtonColor = 0xaa4444ff,
             ButtonHover = 0xcc6666ff,
             ButtonDown  = 0x882222ff,
@@ -36,7 +36,7 @@ public class ImGuiRenderer : IRenderer
     };
     
     private readonly GuiStyle greenButtonStyle = new() {
-        color = new GuiColor {
+        colors = new GuiColors {
             ButtonColor = 0x229922ff,
             ButtonHover = 0x44bb44ff,
             ButtonDown  = 0x007700ff,
@@ -129,7 +129,7 @@ public class ImGuiRenderer : IRenderer
         using (var space = gui.BeginSpace(new(64, 64), "sprite")) {
             if (space.isFired) Console.WriteLine("Clicked: Sprite");
             var srcPos  = new Vector2(3 * 64, 3 * 64);  // tile pos in Sheet (6,2)        
-            var tint = gui.Color.ButtonState(space.widgetState);
+            var tint = gui.Colors.ButtonState(space.widgetState);
             gui.Draw.DrawSpriteRegion(myTextureView, space.pos, space.size, srcPos, space.size, new(1024, 1024), tint);
         }
         gui.Spacer();
@@ -228,13 +228,13 @@ public static class GuiExtensions
         var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(pos, size, 8, widget.Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, size, 8, widget.Colors.ButtonState(widgetState)); // background
 
         if (isFocused) {
             widget.DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Color.ButtonText);
+        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
         
         window.MoveCursor(size);
         return widget.IsFired(widgetState, isFocused);

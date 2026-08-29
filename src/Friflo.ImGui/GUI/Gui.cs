@@ -21,7 +21,8 @@ public readonly ref struct Gui
 {
     public readonly     GuiWidget   widget;     // 32 bytes
     
-    public ref readonly GuiColor    Color       { [DebuggerStepThrough] get => ref widget.Color; }
+    public ref readonly GuiColors   Colors      { [DebuggerStepThrough] get => ref widget.Colors; }
+    public ref readonly GuiSizes    Sizes       { [DebuggerStepThrough] get => ref widget.Sizes; }
     public              ImDraw      Draw        => widget.draw;
     public              float       LineHeight  => widget.draw.Font.lineHeight;
     public              GuiInput    Input       => widget.input;

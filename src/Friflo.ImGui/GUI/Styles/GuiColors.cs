@@ -26,7 +26,7 @@ public enum ColorId
 }
 
 
-public struct GuiColor
+public struct GuiColors
 {
     public Color32  WindowColor     { readonly get => windowColor;   set => windowColor  = Add(ColorId.WindowColor,  value); }
     
@@ -81,7 +81,7 @@ public struct GuiColor
         return color;
     }
     
-    internal static void ApplyOverrides(in GuiColor source, ref GuiColor target, Bitset64<ColorId> overrides)
+    internal static void ApplyOverrides(in GuiColors source, ref GuiColors target, Bitset64<ColorId> overrides)
     {
         foreach (var colorState in overrides)
         {
@@ -100,7 +100,7 @@ public struct GuiColor
     }
 #endregion
     
-    public void AddOverrides(in GuiColor source)
+    public void AddOverrides(in GuiColors source)
     {
         foreach (var colorState in source.overrides)
         {

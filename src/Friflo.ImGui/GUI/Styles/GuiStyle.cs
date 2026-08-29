@@ -8,10 +8,10 @@ namespace Friflo.ImGui;
 
 public sealed class GuiStyle
 {
-    public GuiColor     color;
-    public GuiPadding   padding;
+    public  GuiColors   colors;
+    public  GuiSizes    sizes;
 
-    public override string ToString() => $"colors: {color.Overrides.Count}  paddings: {padding.Overrides.Count}";
+    public override string ToString() => $"colors: {colors.Overrides.Count}  sizes: {sizes.Overrides.Count}";
 
 #region internal
     internal void PushOverrides(GuiStyle style, ref RevertStyle revertStyle)
@@ -19,24 +19,24 @@ public sealed class GuiStyle
         // --- Backup colors and paddings that will be changed
         // revertStyle.color.overrides = style.color.overrides;
         // GuiColor.ApplyOverrides(color, ref revertStyle.color, revertStyle.color.overrides);
-        revertStyle.color               = color; // simply copy all colors - faster than copy each color one by one
-        revertStyle.color.overrides     = style.color.overrides;
+        revertStyle.colors               = colors; // simply copy all colors - faster than copy each color one by one
+        revertStyle.colors.overrides     = style.colors.overrides;
 
         // --- Apply override colors
-        GuiColor.ApplyOverrides(style.color, ref color, revertStyle.color.overrides);
+        GuiColors.ApplyOverrides(style.colors, ref colors, revertStyle.colors.overrides);
         
         // --- padding
-        revertStyle.padding             = padding;
-        revertStyle.padding.overrides   = style.padding.overrides;
+        revertStyle.sizes             = sizes;
+        revertStyle.sizes.overrides   = style.sizes.overrides;
         
-        GuiPadding.ApplyOverrides(style.padding, ref padding, revertStyle.padding.overrides);
+        GuiSizes.ApplyOverrides(style.sizes, ref sizes, revertStyle.sizes.overrides);
     }
     
     internal void PopOverrides(in RevertStyle revertStyle)
     {
-        GuiColor.ApplyOverrides  (revertStyle.color,   ref color,   revertStyle.color.overrides);
+        GuiColors.ApplyOverrides(revertStyle.colors,  ref colors,  revertStyle.colors.overrides);
         
-        GuiPadding.ApplyOverrides(revertStyle.padding, ref padding, revertStyle.padding.overrides);
+        GuiSizes.ApplyOverrides (revertStyle.sizes,   ref sizes,   revertStyle.sizes.overrides);
     }
 #endregion
 }

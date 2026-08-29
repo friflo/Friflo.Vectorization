@@ -68,7 +68,7 @@ public readonly ref partial struct GuiWidget
 	        size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
 	    );
 		draw.PushScissor(parentStartCursor, finalSize); // Push scissor region for clipping
-		draw.FillRect(parentStartCursor, size, Color.ScrollAreaColor);
+		draw.FillRect(parentStartCursor, size, Colors.ScrollAreaColor);
 
 	    window.PushScrollAreaInfo(childId, parentStartCursor, finalSize);
 
@@ -215,12 +215,12 @@ public readonly ref partial struct GuiWidget
 
 	    // Visual feedback on hover/drag
 	    bool isCurrentDragging = scrollState.isDragging && scrollState.dragAxis == axis;
-	    Color32 thumbColor = isCurrentDragging ? Color.ScrollThumbActive 
-	                       : isThumbHovered    ? Color.ScrollThumbHover 
-	                                           : Color.ScrollThumb;
+	    Color32 thumbColor = isCurrentDragging ? Colors.ScrollThumbActive 
+	                       : isThumbHovered    ? Colors.ScrollThumbHover 
+	                                           : Colors.ScrollThumb;
 
 	    // Render track and thumb
-	    draw.FillRect(trackPos, trackSize, Color.ScrollTrackBg);
+	    draw.FillRect(trackPos, trackSize, Colors.ScrollTrackBg);
 	    draw.FillRectRounded(thumbPos, thumbSize, 3f, thumbColor);
 	}
 #endregion

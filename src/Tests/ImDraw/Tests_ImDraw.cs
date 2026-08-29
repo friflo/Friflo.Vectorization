@@ -22,23 +22,23 @@ public static class Tests_ImDraw
         var style = new GuiStyle();
         var repeat = 10; // 1_000_000_000   3.95 sec
         for (int n = 0; n < repeat; n++) {
-            style.color.ButtonColor = 0xff0000ff;
+            style.colors.ButtonColor = 0xff0000ff;
         }
-        Assert.That(style.color.Overrides.Count,                    Is.EqualTo(1));
-        Assert.That(style.color.HasOverride(ColorId.ButtonColor),   Is.EqualTo(true));
+        Assert.That(style.colors.Overrides.Count,                    Is.EqualTo(1));
+        Assert.That(style.colors.HasOverride(ColorId.ButtonColor),   Is.EqualTo(true));
         
-        var color = new GuiColor {
+        var color = new GuiColors {
             ButtonDown = 0x110000ff,
             ButtonText = 0x220000ff
         };
-        style.color.AddOverrides(color);
-        Assert.That(style.color.Overrides.Count, Is.EqualTo(3));
+        style.colors.AddOverrides(color);
+        Assert.That(style.colors.Overrides.Count, Is.EqualTo(3));
         
-        style.color.RemoveOverride(ColorId.ButtonDown);
-        Assert.That(style.color.Overrides.Count, Is.EqualTo(2));
+        style.colors.RemoveOverride(ColorId.ButtonDown);
+        Assert.That(style.colors.Overrides.Count, Is.EqualTo(2));
         
-        style.color.ClearOverrides();
-        Assert.That(style.color.Overrides.Count, Is.EqualTo(0));
+        style.colors.ClearOverrides();
+        Assert.That(style.colors.Overrides.Count, Is.EqualTo(0));
     }
     
     private static void Ensure_public_API(Gui gui)
@@ -114,7 +114,7 @@ public static class Tests_ImDraw
         gui.Button("test");
         gui.EndWindow();
         
-        _ = gui.widget.Color.ButtonColor;   // Ensures Color is available
+        _ = gui.widget.Colors.ButtonColor;  // Ensures Colors is available
         _ = gui.LineHeight;                 // Ensures LineHeight is available
         
         batch.DrawCommandList(target, renderPassDesc);

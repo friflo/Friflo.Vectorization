@@ -26,7 +26,8 @@ public readonly ref partial struct GuiWidget
     private readonly    GuiStyle        currentStyle;   //  8 bytes
     
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public ref readonly GuiColor        Color           { [DebuggerStepThrough] get => ref currentStyle.color; }
+    public ref readonly GuiColors       Colors          { [DebuggerStepThrough] get => ref currentStyle.colors; }
+    public ref readonly GuiSizes        Sizes           { [DebuggerStepThrough] get => ref currentStyle.sizes; }
     public              GuiWindow       Window          { [DebuggerStepThrough] get => guiState.window; }
     public              float           LineHeight      { [DebuggerStepThrough] get => draw.Font.lineHeight; }
     public              IFormatProvider FormatProvider  { [DebuggerStepThrough] get => draw.batch.formatProvider; }
@@ -128,14 +129,14 @@ public readonly ref partial struct GuiWidget
         }
 
         // Render background & titlebar
-        draw.FillRectRounded(window.Pos, window.Size, 8, Color.WindowColor);
+        draw.FillRectRounded(window.Pos, window.Size, 8, Colors.WindowColor);
 
-        var headerColor = Color.ButtonState(titleState);
+        var headerColor = Colors.ButtonState(titleState);
         draw.FillRectRounded(window.Pos, titleBarSize, 8, headerColor);
 
         var fontHeight = LineHeight;
         var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
-        draw.DrawText(title, textPos, Color.TextColor);
+        draw.DrawText(title, textPos, Colors.TextColor);
 
         window.SetCursor(window.Pos + new Vector2(10f, titleBarHeight + 10f));
         
@@ -160,7 +161,7 @@ public readonly ref partial struct GuiWidget
     internal void Label(ReadOnlySpan<char> name, Color32 textColor)
     {
         var window = Window;
-        if (textColor.Packed == 0) textColor = Color.TextColor;
+        if (textColor.Packed == 0) textColor = Colors.TextColor;
         
         var size = draw.DrawText(name, window.Cursor, textColor);
         
@@ -188,13 +189,13 @@ public readonly ref partial struct GuiWidget
         bool isFocused  = RegisterFocusable(widgetId, pos, size);
         var widgetState = GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(pos, size, 8, Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, size, 8, Colors.ButtonState(widgetState)); // background
 
         if (isFocused) {
             DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, Color.ButtonText);
+        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
         window.MoveCursor(size);
         return IsFired(widgetState, isFocused);
     }
@@ -218,7 +219,7 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         var boxRect = new Vector2(pos.X, pos.Y + (totalSize.Y - height) / 2f);
-        draw.FillRectRounded(boxRect, new Vector2(height, height), 4, Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(boxRect, new Vector2(height, height), 4, Colors.ButtonState(widgetState)); // background
 
         // Render blue focus outline on box
         if (isFocused) {
@@ -228,10 +229,10 @@ public readonly ref partial struct GuiWidget
         if (value) {
             var padding = height / 6;
             var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.FillRectRounded(innerRect, new Vector2(height - 2 * padding, height - 2 * padding), 8, Color.TextColor);
+            draw.FillRectRounded(innerRect, new Vector2(height - 2 * padding, height - 2 * padding), 8, Colors.TextColor);
         }
         var textPos = new Vector2(boxRect.X + height + 8f, pos.Y + (totalSize.Y - textSize.Y) / 2f);
-        draw.DrawText(name, textPos, Color.TextColor);
+        draw.DrawText(name, textPos, Colors.TextColor);
 
         window.MoveCursor(totalSize);
         return isToggled;
@@ -261,13 +262,13 @@ public readonly ref partial struct GuiWidget
                 changed = true;
             }
         }
-        draw.FillRectRounded(pos, totalSize, 6, Color.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, totalSize, 6, Colors.ButtonState(widgetState)); // background
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        draw.FillRectRounded(pos, fillSize, 6, Color.SliderFill);
+        draw.FillRectRounded(pos, fillSize, 6, Colors.SliderFill);
 
         // Render blue focus outline
         if (isFocused) {
@@ -275,7 +276,7 @@ public readonly ref partial struct GuiWidget
             window.EnsureVisibleInScrollArea(pos, totalSize);
         }
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
-        draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Color.TextColor);
+        draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.TextColor);
 
         window.MoveCursor(totalSize);
         return changed;
@@ -385,7 +386,7 @@ public readonly ref partial struct GuiWidget
     {
         var margin = new Vector2(6, 6);
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
-        draw.StrokeRectRounded(pos - margin, size + 2 * margin, 12, 4, Color.FocusColor);
+        draw.StrokeRectRounded(pos - margin, size + 2 * margin, 12, 4, Colors.FocusColor);
         draw.PopZIndex();
     }
 }

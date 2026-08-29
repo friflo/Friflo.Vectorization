@@ -20,7 +20,7 @@ public enum PaddingId
 
 
 
-public struct GuiPadding
+public struct GuiSizes
 {
     public Padding2D WindowPadding    { readonly get => windowPadding;    set => windowPadding    = Add(PaddingId.WindowPadding,    value); }
     public Padding2D ButtonPadding    { readonly get => buttonPadding;    set => buttonPadding    = Add(PaddingId.ButtonPadding,    value); }
@@ -51,7 +51,7 @@ public struct GuiPadding
         return padding;
     }
 
-    internal static void ApplyOverrides(in GuiPadding source, ref GuiPadding target, Bitset64<PaddingId> overrides)
+    internal static void ApplyOverrides(in GuiSizes source, ref GuiSizes target, Bitset64<PaddingId> overrides)
     {
         foreach (var id in overrides)
         {
@@ -66,7 +66,7 @@ public struct GuiPadding
     }
 #endregion
 
-    public void AddOverrides(in GuiPadding source)
+    public void AddOverrides(in GuiSizes source)
     {
         foreach (var id in source.overrides)
         {

@@ -11,15 +11,15 @@ namespace Friflo.ImGui;
 
 internal struct RevertStyle
 {
-    internal        GuiColor    color;
-    internal        GuiPadding  padding;
-    public override string      ToString() => $"color: {color.ToString()}  padding: {padding.ToString()}";
+    internal        GuiColors   colors;
+    internal        GuiSizes    sizes;
+    public override string      ToString() => $"colors: {colors.ToString()}  sizes: {sizes.ToString()}";
 }
 
 
 internal sealed class GuiState
 {
-    private  readonly   GuiStyle                defaultStyle        = new() { color = CreateDefaultColors(), padding = CreateDefaultPaddings() };
+    private  readonly   GuiStyle                defaultStyle        = new() { colors = CreateDefaultColors(), sizes = CreateDefaultSizes() };
     internal            RevertStyle[]           revertStyles        = [];
     internal            int                     revertStylesCount;
     internal readonly   GuiStyle                currentStyle        = new();
@@ -32,9 +32,9 @@ internal sealed class GuiState
 
     public   override   string                  ToString()          => $"window: {window}";
 
-    private static GuiColor CreateDefaultColors()
+    private static GuiColors CreateDefaultColors()
     {
-        return new GuiColor
+        return new GuiColors
         {
             WindowColor  = 0xaaaaaaff,
             TextColor    = 0x000000ff,
@@ -51,9 +51,9 @@ internal sealed class GuiState
         };
     }
     
-    private static GuiPadding CreateDefaultPaddings()
+    private static GuiSizes CreateDefaultSizes()
     {
-        return new GuiPadding
+        return new GuiSizes
         {
             WindowPadding    = new Padding2D(horizontal: 12f, vertical: 12f),
             ButtonPadding    = new Padding2D(horizontal: 12f, vertical: 6f),
@@ -65,8 +65,8 @@ internal sealed class GuiState
     
     internal void Reset()
     {
-        currentStyle.color      = defaultStyle.color; // 💪
-        currentStyle.padding    = defaultStyle.padding;
+        currentStyle.colors     = defaultStyle.colors; // 💪
+        currentStyle.sizes    	= defaultStyle.sizes;
         revertStylesCount       = 0;
     }
 
