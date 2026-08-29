@@ -31,7 +31,7 @@ public readonly ref partial struct GuiWidget
         draw.PushScissor(parentStartCursor, initialClipSize);
         
         window.SetCursor(parentStartCursor + new Vector2(5f, 5f)); // inner cursor + padding
-        PushLayout(LayoutDirection.Vertical);
+        PushLayout(LayoutDirection.Vertical, size);
         return new ChildScope(this, parentStartCursor, size);
     }
     
@@ -96,7 +96,7 @@ public readonly ref partial struct GuiWidget
 	    Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
-	    PushLayout(LayoutDirection.Vertical);
+	    PushLayout(LayoutDirection.Vertical, size - Sizes.WindowPadding.Size);
 
 		// Reuse the ref struct ChildScope for zero-allocation scope handling
 	    return new ScrollAreaScope(this, childId, parentStartCursor, finalSize);

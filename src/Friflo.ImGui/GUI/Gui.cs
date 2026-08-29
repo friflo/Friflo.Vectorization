@@ -5,16 +5,23 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
 
-public static class HorizontalAlignment
+public static class HorizontalAlignment  // move const values to UI class
 {
     /// <summary> <i>Note:</i> Avoid using <see cref="Left"/> use usual <see cref="Gui.BeginHorizontal"/> instead. </summary>
     public const float Left     = 0f;
     public const float Center   = 0.5f;
     public const float Right    = 1f;
+}
+
+public static class UI
+{
+    /** Fill width & height            */   public static readonly Vector2  Fill    = new Vector2(float.NaN, float.NaN);
+    /** Fill width, height via Content */   public static readonly Vector2  FillX   = new Vector2(float.NaN,        0f);
+    /** Fill height, width via Content */   public static readonly Vector2  FillY   = new Vector2(       0f, float.NaN);
 }
 
 public readonly ref struct Gui
@@ -42,8 +49,8 @@ public readonly ref struct Gui
     public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
         => widget.Label(name, textColor);
     
-    public bool Button(ReadOnlySpan<char> name, GuiStyle? style = null, WidgetID id = default)
-        => widget.Button(name, style, id);
+    public bool Button(ReadOnlySpan<char> name, Vector2 size = default, GuiStyle? style = null, WidgetID id = default)
+        => widget.Button(name, size, style, id);
     
     public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
         => widget.Checkbox(name, ref value, style, id);
@@ -58,16 +65,16 @@ public readonly ref struct Gui
     public StyleScope       PushStyle(GuiStyle style)   => widget.PushStyle(style);
     public void             PopStyle()                  { if (widget.IsSet) widget.PopStyle(); }
 
-    public void             Spacer(float size = 20f)    => widget.Spacer(size);
-    public VerticalScope    BeginVertical()             => widget.BeginVertical();
-    public void             EndVertical()               => widget.EndVertical();
+    public void             Spacer(float size = 20f)                => widget.Spacer(size);
+    public VerticalScope    BeginVertical(Vector2 size = default)   => widget.BeginVertical(size);
+    public void             EndVertical()                           => widget.EndVertical();
     
-    public HorizontalScope  BeginHorizontal()           => widget.BeginHorizontal();
-    public void             EndHorizontal()             => widget.EndHorizontal();
+    public HorizontalScope  BeginHorizontal(Vector2 size = default) => widget.BeginHorizontal(size);
+    public void             EndHorizontal()                         => widget.EndHorizontal();
     
     /// <summary>Begins a horizontal layout group with flexible alignment.</summary>
     /// <param name="align">Alignment position. <br/>Use predefined values like <see cref="HorizontalAlignment.Center"/> (0.5f) or <see cref="HorizontalAlignment.Right"/> (1.0f), or custom floats between 0.0f and 1.0f.</param>
-    public HorizontalCenterScope    BeginHorizontalAligned(int id, float align)          => widget.BeginHorizontalAligned(id, align);
+    public HorizontalCenterScope    BeginHorizontalAligned(int id, float align, Vector2 size = default) => widget.BeginHorizontalAligned(id, align, size);
     public void                     EndHorizontalAligned(in HorizontalCenterScope scope) => widget.EndHorizontalAligned(scope);
     
     public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)  => widget.BeginScrollArea(childId, size);

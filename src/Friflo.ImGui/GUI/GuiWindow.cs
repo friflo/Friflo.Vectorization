@@ -30,12 +30,14 @@ public struct LayoutNode
     public readonly LayoutDirection direction;
     public readonly Vector2         startCursor;
     public          Vector2         cursor;
-    public          Vector2         maxSize;
+    public          Vector2         maxSize;    // Accrued content footprint (grows with widgets)
+    public readonly Vector2         boundsSize; // Total boundary size assigned to this scope
     
-    internal LayoutNode(LayoutDirection direction, Vector2 startCursor) {
+    internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Vector2 boundsSize) {
         this.direction      = direction;
         this.startCursor    = startCursor;
         cursor              = startCursor;
+        this.boundsSize     = boundsSize;
     }
 }
 
@@ -134,7 +136,6 @@ public sealed class GuiWindow
         
         int baseHash = WidgetID.CombineHash(0, title.GetHashCode());
         idStack.Push(baseHash);
-        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, Pos);
     }
 
     internal void ClearScope()
@@ -160,12 +161,19 @@ public sealed class GuiWindow
     {
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
+    
+    internal void InitLayout(Vector2 contentPos, Vector2 contentSize)
+    {
+        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, contentSize);
+        
+        SetCursor(contentPos);
+    }
 
     /// <summary>
     /// Note: Internal state-only push. Must only be invoked via <see cref="GuiWidget.PushLayout"/>
     /// to ensure symmetry with <see cref="GuiWidget.PopLayout"/>.
     /// </summary>
-    internal void PushLayout(LayoutDirection direction)
+    internal void PushLayout(LayoutDirection direction, Vector2 size)
     {
         var count = layoutStack.Length;
         if (layoutStackCount >= count) {
@@ -173,7 +181,21 @@ public sealed class GuiWindow
             Array.Copy(layoutStack, 0, newStack, 0, count);
             layoutStack = newStack;
         }
-        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor);
+        // Use explicit width if specified (e.g., fixed panel or table column).
+        float width = size.X;
+        if (width == 0) {
+            // Otherwise, derive remaining width from the parent layout relative to current cursor offset.
+            ref readonly var parent = ref layoutStack[layoutStackCount - 1];
+            width = parent.boundsSize.X - (parent.cursor.X - parent.startCursor.X);
+        }
+        // Use explicit height if specified (e.g., fixed panel or table column).
+        float height = size.Y;
+        if (height == 0) {
+            // Otherwise, derive remaining height from the parent layout relative to current cursor offset.
+            ref readonly var parent = ref layoutStack[layoutStackCount - 1];
+            height = parent.boundsSize.Y - (parent.cursor.Y - parent.startCursor.Y);
+        }
+        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, new Vector2(width, height));
         layoutStackCount++;
     }
 

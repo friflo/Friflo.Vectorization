@@ -137,13 +137,14 @@ public readonly ref partial struct GuiWidget
         var fontHeight = LineHeight;
         var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawText(title, textPos, Colors.TextColor);
-
-        window.SetCursor(window.Pos + Sizes.WindowPadding.Min + new Vector2(0, titleBarHeight));
         
         // --- Push content scissor rect (clips everything below titlebar) ---
-        var contentPos  = window.Pos + new Vector2(0f, titleBarHeight);
-        var contentSize = new Vector2(window.Size.X, Math.Max(0f, window.Size.Y - titleBarHeight));
-        draw.PushScissor(contentPos, contentSize);
+        var titleOffset = new Vector2(0f, titleBarHeight);
+        var contentPos  = window.Pos  + titleOffset + Sizes.WindowPadding.Min;
+        var contentSize = window.Size - titleOffset - Sizes.WindowPadding.Size;
+        
+        window.InitLayout(contentPos, contentSize);
+        draw.PushScissor(window.Pos + titleOffset, window.Size - titleOffset);
         return new WindowScope(this, true);
     }
     
@@ -175,7 +176,31 @@ public readonly ref partial struct GuiWidget
         MoveCursor(spaceSize);
     }
     
-    internal bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
+    internal Vector2 WidgetSize(Vector2 size, Vector2 defaultSize)
+    {
+        if (size == default) {
+            return defaultSize;
+        }
+        var width = defaultSize.X;
+        if (size.X > 0) {
+            width = size.X;
+        } else if (size.X != 0) {
+            ref readonly var layout = ref Window.CurrentLayout;
+            width = layout.boundsSize.X - (Window.Cursor.X - layout.startCursor.X);
+            if (size.X < 0) width += size.X;    // unchanged if NaN
+        }
+        var height = defaultSize.Y;
+        if (size.Y > 0) {
+            height = size.Y;
+        } else if (size.Y != 0) {
+            ref readonly var layout = ref Window.CurrentLayout;
+            height = layout.boundsSize.Y - (layout.cursor.Y - layout.startCursor.Y);
+            if (size.Y < 0) height += size.Y;  // unchanged if NaN
+        }
+        return new Vector2(width, height);
+    }
+    
+    internal bool Button(ReadOnlySpan<char> name, Vector2 size, GuiStyle? style, WidgetID id)
     {
         var window  = Window;
         using var _ = UseStyle(style);
@@ -185,7 +210,7 @@ public readonly ref partial struct GuiWidget
         
         var pos         = window.Cursor;
         var textSize    = draw.MeasureText(name);
-        var size        = textSize + Sizes.FramePadding.Size;
+        size            = WidgetSize(size, textSize + Sizes.FramePadding.Size);
         var isHover     = window.IsHoverAtCursor(size, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, size);
         var widgetState = GetWidgetState(isHover, widgetId);
@@ -317,30 +342,30 @@ public readonly ref partial struct GuiWidget
 
     
 #region Layout
-    internal VerticalScope BeginVertical()
+    internal VerticalScope BeginVertical(Vector2 size)
     {
-        PushLayout(LayoutDirection.Vertical);
+        PushLayout(LayoutDirection.Vertical, size);
         return new VerticalScope(this);
     }
 
     internal void EndVertical() => PopLayout();
     
-    internal HorizontalScope BeginHorizontal()
+    internal HorizontalScope BeginHorizontal(Vector2 size)
     {
-        PushLayout(LayoutDirection.Horizontal);
+        PushLayout(LayoutDirection.Horizontal, size);
         return new HorizontalScope(this);
     }
     internal void EndHorizontal() => PopLayout();
     
     
     
-    internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align)
+    internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Vector2 size)
     {
-        PushLayout(LayoutDirection.Horizontal);
+        PushLayout(LayoutDirection.Horizontal, size);
         var oldMouseOffset = input.mouseOffset;
         guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
-        BeginHorizontal();
+        BeginHorizontal(size);
         return new HorizontalCenterScope(this, centerId, align, draw.batch.vertexCount, oldMouseOffset);
     }
     
@@ -350,7 +375,9 @@ public readonly ref partial struct GuiWidget
         
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = PopLayout();
-        var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
+        var availableWidth = Window.CurrentLayout.boundsSize.X;
+        var offset = (availableWidth - maxSize.X) * scope.align;
+        // var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
         var batch       = draw.batch;
         var vertices    = batch.vertexBuffer.Span.Slice(scope.vertexStart, batch.vertexCount);
         
@@ -408,9 +435,9 @@ public readonly ref partial struct GuiWidget
         }
     }
     
-    internal void PushLayout(LayoutDirection direction)
+    internal void PushLayout(LayoutDirection direction, Vector2 size)
     {
-        Window.PushLayout(direction);
+        Window.PushLayout(direction, size);
     }
 
     internal Vector2 PopLayout()

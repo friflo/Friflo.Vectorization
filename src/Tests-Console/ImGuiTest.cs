@@ -97,7 +97,7 @@ public class ImGuiRenderer : IRenderer
     
     private void Window1(Gui gui)
     {
-        gui.Label("hello GUI");
+        gui.Button("hello GUI", UI.FillX);
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
@@ -120,7 +120,7 @@ public class ImGuiRenderer : IRenderer
         gui.BeginHorizontal();
             if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
             if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
-            if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
+            if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
         gui.Label("after horizontal");

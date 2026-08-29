@@ -103,7 +103,7 @@ public class Tests_ImDraw_headless
             gui.Spacer(10);
             if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
             gui.Spacer(10);
-            if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
+            if (gui.Button("Red", style: redButtonStyle))       Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
         gui.Label("after horizontal");
