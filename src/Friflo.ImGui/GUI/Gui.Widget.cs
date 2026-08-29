@@ -247,7 +247,8 @@ public readonly ref partial struct GuiWidget
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 
-        float height    = LineHeight;
+        var padding     = Sizes.FramePadding;
+        float height    = LineHeight + padding.Vertical;
         var pos         = window.Cursor;
         var totalSize   = new Vector2(width, height);
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
@@ -270,7 +271,7 @@ public readonly ref partial struct GuiWidget
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        draw.FillRectRounded(pos, fillSize, 6, Colors.SliderFill);
+        draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderFill);
 
         // Render blue focus outline
         if (isFocused) {
