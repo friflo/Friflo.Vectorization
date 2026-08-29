@@ -116,13 +116,16 @@ public readonly ref partial struct GuiWidget
 	    }
 
 	    // Offset inner start cursor by current scroll position
-	    Vector2 innerPadding	 = Sizes.ChildPadding.Min;
-	    Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
+	    var     padding			 = Sizes.ChildPadding;
+	    Vector2 innerStartCursor = parentStartCursor + padding.Min - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
 
-	    // Allow inner layout to extend infinitely so true content bounds can be measured
-	    PushLayout(LayoutDirection.Vertical, new Vector2(float.NaN, float.NaN));
+	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding in 1-Pass)
+	    float effectiveWidth         = MathF.Max(0f, calculatedOuterSize.X - padding.Size.X);
+
+	    // Set concrete width for horizontal alignment while keeping height infinite for vertical scrolling
+	    PushLayout(LayoutDirection.Vertical, new Vector2(effectiveWidth, float.NaN));
 
 	    return new ScrollAreaScope(this, childId, parentStartCursor, size, calculatedOuterSize);
 	}
