@@ -171,7 +171,7 @@ public class ImGuiRenderer : IRenderer
         }
         gui.Spacer();
         gui.Label("scroll area");
-        var scrollArea = gui.BeginScrollArea(3, new Vector2(450, 350));
+        var scrollArea = gui.BeginScrollArea(3, new Vector2(float.NaN, float.NaN));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2");
             
@@ -182,7 +182,7 @@ public class ImGuiRenderer : IRenderer
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
                 gui.Button("Sub 6");
-                gui.Button("Sub 7");
+                gui.Button("Sub last");
             gui.EndScrollArea(area2);
             
             gui.Button("Button 3");
@@ -201,7 +201,7 @@ public class ImGuiRenderer : IRenderer
             gui.Button("Button 6");
             gui.Button("Button 7");
             gui.Button("Button 8");
-            gui.Button("Button 9");
+            gui.Button("Button last");
         
         gui.EndScrollArea(scrollArea);
     }

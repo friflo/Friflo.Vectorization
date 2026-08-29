@@ -87,20 +87,19 @@ public readonly ref partial struct GuiWidget
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    var availableSize = window.Size - (parentStartCursor - window.Pos);
-	    var finalSize = new Vector2(
-	        size.X > 0f ? size.X : Math.Max(0f, availableSize.X),
-	        size.Y > 0f ? size.Y : Math.Max(0f, availableSize.Y)
-	    );
-		draw.PushScissor(parentStartCursor, finalSize); // Push scissor region for clipping
-		draw.FillRect(parentStartCursor, size, Colors.ScrollAreaColor);
+	    // Compute outer bounds (remaining area for NaN)
+	    var calculatedOuterSize = ChildOuterSize(size, out _, out _);
 
-	    window.PushScrollAreaInfo(childId, parentStartCursor, finalSize);
+	    // Scroll areas ALWAYS require scissor clipping against their calculated outer size
+	    draw.PushScissor(parentStartCursor, calculatedOuterSize);
+	    draw.FillRect(parentStartCursor, calculatedOuterSize, Colors.ScrollAreaColor);
 
-	    ref var scrollState = ref window.GetOrCreateScrollState(childId);  // Retrieve or create persistent scroll state
+	    window.PushScrollAreaInfo(childId, parentStartCursor, calculatedOuterSize);
 
-	    // Process mouse wheel input (Vertical by default, Horizontal with Shift)
-	    if (window.IsHoverAt(parentStartCursor, finalSize, draw)) {
+	    ref var scrollState = ref window.GetOrCreateScrollState(childId);
+
+	    // Process mouse wheel input
+	    if (window.IsHoverAt(parentStartCursor, calculatedOuterSize, draw)) {
 	        float wheelY = input.MouseWheel.Y;
 	        float wheelX = input.MouseWheel.X;
 
@@ -116,48 +115,59 @@ public readonly ref partial struct GuiWidget
 	        }
 	    }
 
-		// Offset inner start cursor by current scroll position
+	    // Offset inner start cursor by current scroll position
 	    Vector2 innerPadding = new Vector2(5f, 5f);
 	    Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
-	    PushLayout(LayoutDirection.Vertical, size - Sizes.WindowPadding.Size);
 
-		// Reuse the ref struct ChildScope for zero-allocation scope handling
-	    return new ScrollAreaScope(this, childId, parentStartCursor, finalSize);
+	    // Allow inner layout to extend infinitely so true content bounds can be measured
+	    PushLayout(LayoutDirection.Vertical, new Vector2(float.NaN, float.NaN));
+
+	    return new ScrollAreaScope(this, childId, parentStartCursor, size, calculatedOuterSize);
 	}
 
 	internal void EndScrollArea(in ScrollAreaScope scope)
 	{
 	    var window = Window;
+	    var padding = Sizes.ChildPadding;
 	    
-		// Retrieve total measured content size
+	    // Retrieve total measured content size
 	    var contentSize = PopLayout();
+	    
+	    // Pop scissor unconditionally
 	    draw.PopScissor();
 	    
 	    window.PopScrollAreaInfo();
 
-	    // Clamp scroll offset within valid bounds
+	    // Clamp scroll offset within valid bounds using calculated outer size
 	    ref var scrollState = ref window.GetOrCreateScrollState(scope.childId);
+	    Vector2 boundsSize = scope.calculatedOuterSize;
+
 	    Vector2 maxScroll = new Vector2(
-	        Math.Max(0f, contentSize.X - scope.requestedSize.X),
-	        Math.Max(0f, contentSize.Y - scope.requestedSize.Y)
+	        Math.Max(0f, contentSize.X - boundsSize.X),
+	        Math.Max(0f, contentSize.Y - boundsSize.Y)
 	    );
 	    scrollState.offset = Vector2.Clamp(scrollState.offset, Vector2.Zero, maxScroll);
 
-		// Render scrollbars if content exceeds visible area
-	    if (contentSize.Y > scope.requestedSize.Y) {
-	        DrawScrollbar(scope.childId, scope.parentStartCursor, scope.requestedSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical);
+	    // Render scrollbars whenever content exceeds bounds
+	    if (contentSize.Y > boundsSize.Y) {
+	        DrawScrollbar(scope.childId, scope.parentStartCursor, boundsSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical);
 	    }
-	    if (contentSize.X > scope.requestedSize.X) {
-	        DrawScrollbar(scope.childId, scope.parentStartCursor, scope.requestedSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal);
+	    if (contentSize.X > boundsSize.X) {
+	        DrawScrollbar(scope.childId, scope.parentStartCursor, boundsSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal);
 	    }
 
 	    window.PopScope();
 
-		// Restore parent cursor and advance parent layout
+	    // Advance parent layout
+	    Vector2 finalChildSize = new Vector2(
+	        IsAutoFit(scope.requestedSize.X) ? contentSize.X + padding.Size.X : scope.calculatedOuterSize.X,
+	        IsAutoFit(scope.requestedSize.Y) ? contentSize.Y + padding.Size.Y : scope.calculatedOuterSize.Y
+	    );
+
 	    window.SetCursor(scope.parentStartCursor);
-	    MoveCursor(scope.requestedSize);
+	    MoveCursor(finalChildSize);
 	}
 
 	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis)

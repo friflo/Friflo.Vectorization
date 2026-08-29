@@ -22,13 +22,15 @@ public readonly ref struct ScrollAreaScope
     internal readonly   int         childId;
     internal readonly   Vector2 	parentStartCursor;
     internal readonly   Vector2     requestedSize;
+    internal readonly   Vector2     calculatedOuterSize;
 
-    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 parentStartCursor, Vector2 requestedSize)
+    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 parentStartCursor, Vector2 requestedSize, Vector2 calculatedOuterSize)
     {
-        this.widget             = widget;
-        this.childId            = childId;
-        this.parentStartCursor  = parentStartCursor;
-        this.requestedSize      = requestedSize;
+        this.widget                 = widget;
+        this.childId                = childId;
+        this.parentStartCursor      = parentStartCursor;
+        this.requestedSize          = requestedSize;
+        this.calculatedOuterSize    = calculatedOuterSize;
     }
 
     public void Dispose() => widget.EndScrollArea(this);
