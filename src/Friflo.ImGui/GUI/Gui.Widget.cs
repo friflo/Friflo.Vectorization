@@ -129,16 +129,16 @@ public readonly ref partial struct GuiWidget
         }
 
         // Render background & titlebar
-        draw.FillRectRounded(window.Pos, window.Size, 8, Colors.WindowColor);
+        draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor);
 
         var headerColor = Colors.ButtonState(titleState);
-        draw.FillRectRounded(window.Pos, titleBarSize, 8, headerColor);
+        draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor);
 
         var fontHeight = LineHeight;
         var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
         draw.DrawText(title, textPos, Colors.TextColor);
 
-        window.SetCursor(window.Pos + new Vector2(10f, titleBarHeight + 10f));
+        window.SetCursor(window.Pos + Sizes.WindowPadding.Min + new Vector2(0, titleBarHeight));
         
         // --- Push content scissor rect (clips everything below titlebar) ---
         var contentPos  = window.Pos + new Vector2(0f, titleBarHeight);
@@ -350,7 +350,7 @@ public readonly ref partial struct GuiWidget
         
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = PopLayout();
-        var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
+        var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
         var batch       = draw.batch;
         var vertices    = batch.vertexBuffer.Span.Slice(scope.vertexStart, batch.vertexCount);
         
