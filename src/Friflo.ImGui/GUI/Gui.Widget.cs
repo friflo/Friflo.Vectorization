@@ -187,8 +187,9 @@ public readonly ref partial struct GuiWidget
             width = size.X;
         } else if (size.X != 0) {
             ref readonly var layout = ref Window.CurrentLayout;
-            width = layout.boundsSize.X - (Window.Cursor.X - layout.startCursor.X);
+            width = layout.boundsSize.X - (layout.cursor.X - layout.startCursor.X);
             if (size.X < 0) width += size.X;    // unchanged if NaN
+            if (width < 0f) width = 0f;
         }
         var height = defaultSize.Y;
         if (size.Y > 0) {
@@ -196,7 +197,8 @@ public readonly ref partial struct GuiWidget
         } else if (size.Y != 0) {
             ref readonly var layout = ref Window.CurrentLayout;
             height = layout.boundsSize.Y - (layout.cursor.Y - layout.startCursor.Y);
-            if (size.Y < 0) height += size.Y;  // unchanged if NaN
+            if (size.Y < 0)  height += size.Y;  // unchanged if NaN
+            if (height < 0f) height = 0f;
         }
         return new Vector2(width, height);
     }
