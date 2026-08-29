@@ -19,7 +19,7 @@ public static class HorizontalAlignment  // move const values to UI class
 
 public static class UI
 {
-    /** Fill width & height            */   public static readonly Vector2  Fill    = new Vector2(float.NaN, float.NaN);
+    /** Fill width and height          */   public static readonly Vector2  Fill    = new Vector2(float.NaN, float.NaN);
     /** Fill width, height via Content */   public static readonly Vector2  FillX   = new Vector2(float.NaN,        0f);
     /** Fill height, width via Content */   public static readonly Vector2  FillY   = new Vector2(       0f, float.NaN);
 }
