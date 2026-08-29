@@ -176,7 +176,7 @@ public readonly ref partial struct GuiWidget
 	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis)
 	{
 	    var window = Window;
-	    float trackThickness = 8f;
+	    float trackThickness = Sizes.TrackThickness;
 	    bool isHorizontal = axis == ScrollAxis.Horizontal;
 
 	    // Axis-parameterized geometry setup
@@ -259,7 +259,7 @@ public readonly ref partial struct GuiWidget
 
 	    // Render track and thumb
 	    draw.FillRect(trackPos, trackSize, Colors.ScrollTrackBg);
-	    draw.FillRectRounded(thumbPos, thumbSize, 3f, thumbColor);
+	    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor);
 	}
 #endregion
 }

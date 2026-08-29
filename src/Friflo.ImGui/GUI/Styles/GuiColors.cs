@@ -38,11 +38,11 @@ public struct GuiColors
     public Color32  ButtonDown      { readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
     
     public Color32  SliderFill      { readonly get => sliderFill;    set => sliderFill   = Add(ColorId.SliderFill,   value); }
-    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,   value); }
+    public Color32  SliderColor     { readonly get => sliderColor;   set => sliderColor  = Add(ColorId.SliderColor,  value); }
     
     public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
-    public Color32  ScrollTrackBg       => 0xccccccff;
+    public Color32  ScrollTrackBg       => 0xffffff00; // transparent
     public Color32  ScrollThumb         => 0x888888ff;
     public Color32  ScrollThumbActive   => 0x666666ff;
     public Color32  ScrollThumbHover    => 0xffffffff;
