@@ -44,7 +44,8 @@ public readonly struct Padding2D : IEquatable<Padding2D>
     public  float   Right   => Max.X;
     public  float   Bottom  => Max.Y;
 
-    public  Vector2 Size    => Min + Max;
+    public  Vector2 Size            => Min + Max;
+    public  float   Vertical        => Min.Y + Max.Y;
 
     public static Padding2D Zero => default;
 

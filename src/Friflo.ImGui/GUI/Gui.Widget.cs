@@ -190,7 +190,7 @@ public readonly ref partial struct GuiWidget
         bool isFocused  = RegisterFocusable(widgetId, pos, size);
         var widgetState = GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(pos, size, 8, Colors.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, size, Sizes.CornerRadius, Colors.ButtonState(widgetState)); // background
 
         if (isFocused) {
             DrawFocus(pos, size);
@@ -208,10 +208,13 @@ public readonly ref partial struct GuiWidget
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
 
-        var height      = LineHeight;
+        var padding = Sizes.FramePadding;
+        
+        float boxSize   = LineHeight + padding.Vertical; // quadratic box
         var pos         = window.Cursor;
         var textSize    = draw.MeasureText(name);
-        var totalSize   = new Vector2(height + 8f + textSize.X, Math.Max(height, textSize.Y));
+
+        var totalSize   = new Vector2(boxSize + padding.Size.X + textSize.X, boxSize);
         var isHover     = window.IsHoverAtCursor(totalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, totalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
@@ -219,20 +222,18 @@ public readonly ref partial struct GuiWidget
         if (isToggled) {
             value = !value;
         }
-        var boxRect = new Vector2(pos.X, pos.Y + (totalSize.Y - height) / 2f);
-        draw.FillRectRounded(boxRect, new Vector2(height, height), 4, Colors.ButtonState(widgetState)); // background
+        var boxRectSize = new Vector2(boxSize, boxSize);
+        draw.FillRectRounded(pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState)); // background
 
-        // Render blue focus outline on box
         if (isFocused) {
-            DrawFocus(boxRect, new Vector2(height, height));
-            window.EnsureVisibleInScrollArea(boxRect, new Vector2(height, height));
+            DrawFocus(pos, boxRectSize);
+            window.EnsureVisibleInScrollArea(pos, boxRectSize);
         }
         if (value) {
-            var padding = height / 6;
-            var innerRect = new Vector2(boxRect.X + padding, boxRect.Y + padding);
-            draw.FillRectRounded(innerRect, new Vector2(height - 2 * padding, height - 2 * padding), 8, Colors.TextColor);
+            var fillOffset = new Vector2(8, 8);
+            draw.FillRectRounded(pos + fillOffset, boxRectSize - 2 * fillOffset, Sizes.CornerRadius, Colors.TextColor);
         }
-        var textPos = new Vector2(boxRect.X + height + 8f, pos.Y + (totalSize.Y - textSize.Y) / 2f);
+        var textPos = new Vector2(pos.X + boxSize + padding.Min.X, pos.Y + padding.Min.Y);
         draw.DrawText(name, textPos, Colors.TextColor);
 
         window.MoveCursor(totalSize);

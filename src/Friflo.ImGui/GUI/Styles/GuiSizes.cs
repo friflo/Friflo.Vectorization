@@ -22,6 +22,9 @@ public enum PaddingId
 
 public struct GuiSizes
 {
+    public float     CornerRadius => 8;
+    
+    
     public Padding2D WindowPadding    { readonly get => windowPadding;    set => windowPadding    = Add(PaddingId.WindowPadding,    value); }
     public Padding2D FramePadding     { readonly get => framePadding;     set => framePadding     = Add(PaddingId.FramePadding,     value); }
     public Padding2D ItemSpacing      { readonly get => itemSpacing;      set => itemSpacing      = Add(PaddingId.ItemSpacing,      value); }
