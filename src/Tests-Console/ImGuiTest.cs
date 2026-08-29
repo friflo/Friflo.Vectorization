@@ -173,11 +173,11 @@ public class ImGuiRenderer : IRenderer
         gui.Label("scroll area");
         var scrollArea = gui.BeginScrollArea(3, new Vector2(float.NaN, float.NaN));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
-            gui.Button("Button 2", UI.FillX);
+            gui.Button("Button 2 - UI.FillX", UI.FillX);
             
-            var area2  = gui.BeginScrollArea(4, new Vector2(400, 200));
+            var area2  = gui.BeginScrollArea(4, new Vector2(float.NaN, 200));
                 gui.Button("Sub 1");
-                gui.Button("Sub 2");
+                gui.Button("Sub 2 - UI.FillX", UI.FillX);
                 gui.Button("Sub 3");
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
