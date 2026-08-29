@@ -375,7 +375,9 @@ public sealed class GuiWindow
         if (scrollArea.childId == 0) return; // Not inside an active ScrollArea
 
         ref var scrollState = ref GetOrCreateScrollState(scrollArea.childId);
-        float padding = 8f;
+        
+        // Generous padding to ensure focused elements have breathing room at the edges
+        float padding = 30f;
 
         // Check and adjust vertical scrolling (Y-Axis)
         float widgetTop = pos.Y;
