@@ -116,7 +116,7 @@ public readonly ref partial struct GuiWidget
 	    }
 
 	    // Offset inner start cursor by current scroll position
-	    Vector2 innerPadding = new Vector2(5f, 5f);
+	    Vector2 innerPadding	 = Sizes.ChildPadding.Min;
 	    Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
@@ -132,15 +132,16 @@ public readonly ref partial struct GuiWidget
 	    var window = Window;
 	    var padding = Sizes.ChildPadding;
 	    
-	    // Retrieve total measured content size
-	    var contentSize = PopLayout();
+	    // Retrieve total measured content size and include padding for bottom/right margins
+	    Vector2 rawContent = PopLayout();
+	    Vector2 contentSize = rawContent + padding.Size;
 	    
 	    // Pop scissor unconditionally
 	    draw.PopScissor();
 	    
 	    window.PopScrollAreaInfo();
 
-	    // Clamp scroll offset within valid bounds using calculated outer size
+	    // Clamp scroll offset within valid bounds using the content size (inclusive of padding)
 	    ref var scrollState = ref window.GetOrCreateScrollState(scope.childId);
 	    Vector2 boundsSize = scope.calculatedOuterSize;
 
@@ -160,12 +161,11 @@ public readonly ref partial struct GuiWidget
 
 	    window.PopScope();
 
-	    // Advance parent layout
+	    // Advance parent layout considering potential auto-fit expansion
 	    Vector2 finalChildSize = new Vector2(
-	        IsAutoFit(scope.requestedSize.X) ? contentSize.X + padding.Size.X : scope.calculatedOuterSize.X,
-	        IsAutoFit(scope.requestedSize.Y) ? contentSize.Y + padding.Size.Y : scope.calculatedOuterSize.Y
+	        IsAutoFit(scope.requestedSize.X) ? contentSize.X : scope.calculatedOuterSize.X,
+	        IsAutoFit(scope.requestedSize.Y) ? contentSize.Y : scope.calculatedOuterSize.Y
 	    );
-
 	    window.SetCursor(scope.parentStartCursor);
 	    MoveCursor(finalChildSize);
 	}
