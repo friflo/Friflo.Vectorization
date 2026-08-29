@@ -38,6 +38,13 @@ public readonly struct Padding2D : IEquatable<Padding2D>
         Min = min;
         Max = max;
     }
+    
+    // Grouped by axis: X-Axis (Left, Right), Y-Axis (Top, Bottom)
+    public Padding2D(float left, float right, float top, float bottom)
+    {
+        Min = new Vector2(left, top);
+        Max = new Vector2(right, bottom);
+    }
 
     public  float   Left    => Min.X;
     public  float   Top     => Min.Y;
