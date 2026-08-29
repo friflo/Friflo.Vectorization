@@ -55,11 +55,11 @@ internal sealed class GuiState
     {
         return new GuiSizes
         {
-            WindowPadding    = new Padding2D(horizontal: 12f, vertical: 12f),
-            ButtonPadding    = new Padding2D(horizontal: 12f, vertical: 6f),
-            SliderPadding    = new Padding2D(horizontal: 8f,  vertical: 4f),
-            CellPadding      = new Padding2D(horizontal: 6f,  vertical: 4f),
-            ContainerPadding = new Padding2D(horizontal: 8f,  vertical: 8f)
+            WindowPadding    	= new Padding2D(horizontal: 12f, vertical: 12f),
+            FramePadding    	= new Padding2D(horizontal: 12f, vertical: 6f),
+            ItemSpacing    		= new Padding2D(horizontal: 8f,  vertical: 4f),
+            CellPadding      	= new Padding2D(horizontal: 6f,  vertical: 4f),
+            ContainerPadding 	= new Padding2D(horizontal: 8f,  vertical: 8f)
         };
     }
     

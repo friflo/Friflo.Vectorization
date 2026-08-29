@@ -12,8 +12,8 @@ namespace Friflo.ImGui;
 public enum PaddingId
 {
     WindowPadding,
-    ButtonPadding,
-    SliderPadding,
+    FramePadding,
+    ItemSpacing,
     CellPadding,
     ContainerPadding
 }
@@ -23,8 +23,8 @@ public enum PaddingId
 public struct GuiSizes
 {
     public Padding2D WindowPadding    { readonly get => windowPadding;    set => windowPadding    = Add(PaddingId.WindowPadding,    value); }
-    public Padding2D ButtonPadding    { readonly get => buttonPadding;    set => buttonPadding    = Add(PaddingId.ButtonPadding,    value); }
-    public Padding2D SliderPadding    { readonly get => sliderPadding;    set => sliderPadding    = Add(PaddingId.SliderPadding,    value); }
+    public Padding2D FramePadding     { readonly get => framePadding;     set => framePadding     = Add(PaddingId.FramePadding,     value); }
+    public Padding2D ItemSpacing      { readonly get => itemSpacing;      set => itemSpacing      = Add(PaddingId.ItemSpacing,      value); }
     public Padding2D CellPadding      { readonly get => cellPadding;      set => cellPadding      = Add(PaddingId.CellPadding,      value); }
     public Padding2D ContainerPadding { readonly get => containerPadding; set => containerPadding = Add(PaddingId.ContainerPadding, value); }
 
@@ -37,8 +37,8 @@ public struct GuiSizes
 
 #region internal
     [Browse(Never)] private     Padding2D   windowPadding;
-    [Browse(Never)] private     Padding2D   buttonPadding;
-    [Browse(Never)] private     Padding2D   sliderPadding;
+    [Browse(Never)] private     Padding2D   framePadding;
+    [Browse(Never)] private     Padding2D   itemSpacing;
     [Browse(Never)] private     Padding2D   cellPadding;
     [Browse(Never)] private     Padding2D   containerPadding;
 
@@ -56,11 +56,11 @@ public struct GuiSizes
         foreach (var id in overrides)
         {
             switch (id) {
-                case PaddingId.WindowPadding:    target.windowPadding    = source.windowPadding;    break;
-                case PaddingId.ButtonPadding:    target.buttonPadding    = source.buttonPadding;    break;
-                case PaddingId.SliderPadding:    target.sliderPadding    = source.sliderPadding;    break;
-                case PaddingId.CellPadding:      target.cellPadding      = source.cellPadding;      break;
-                case PaddingId.ContainerPadding: target.containerPadding = source.containerPadding; break;
+                case PaddingId.WindowPadding:       target.windowPadding    = source.windowPadding;     break;
+                case PaddingId.FramePadding:        target.framePadding     = source.framePadding;      break;
+                case PaddingId.ItemSpacing:         target.itemSpacing      = source.itemSpacing;       break;
+                case PaddingId.CellPadding:         target.cellPadding      = source.cellPadding;       break;
+                case PaddingId.ContainerPadding:    target.containerPadding = source.containerPadding;  break;
             }
         }
     }
@@ -71,11 +71,11 @@ public struct GuiSizes
         foreach (var id in source.overrides)
         {
             switch (id) {
-                case PaddingId.WindowPadding:    WindowPadding    = source.windowPadding;    break;
-                case PaddingId.ButtonPadding:    ButtonPadding    = source.buttonPadding;    break;
-                case PaddingId.SliderPadding:    SliderPadding    = source.sliderPadding;    break;
-                case PaddingId.CellPadding:      CellPadding      = source.cellPadding;      break;
-                case PaddingId.ContainerPadding: ContainerPadding = source.containerPadding; break;
+                case PaddingId.WindowPadding:       WindowPadding       = source.windowPadding;     break;
+                case PaddingId.FramePadding:        FramePadding        = source.framePadding;      break;
+                case PaddingId.ItemSpacing:         ItemSpacing         = source.itemSpacing;       break;
+                case PaddingId.CellPadding:         CellPadding         = source.cellPadding;       break;
+                case PaddingId.ContainerPadding:    ContainerPadding    = source.containerPadding;  break;
             }
         }
     }
