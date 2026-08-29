@@ -140,11 +140,12 @@ public readonly ref partial struct GuiWidget
         
         // --- Push content scissor rect (clips everything below titlebar) ---
         var titleOffset = new Vector2(0f, titleBarHeight);
-        var contentPos  = window.Pos  + titleOffset + Sizes.WindowPadding.Min;
-        var contentSize = window.Size - titleOffset - Sizes.WindowPadding.Size;
+        var innerSize   = Vector2.Max(Vector2.Zero, window.Size - titleOffset);
+        var contentPos  = window.Pos + titleOffset + Sizes.WindowPadding.Min;
+        var contentSize = Vector2.Max(Vector2.Zero, innerSize - Sizes.WindowPadding.Size);
         
         window.InitLayout(contentPos, contentSize);
-        draw.PushScissor(window.Pos + titleOffset, window.Size - titleOffset);
+        draw.PushScissor(window.Pos + titleOffset, innerSize);
         return new WindowScope(this, true);
     }
     
