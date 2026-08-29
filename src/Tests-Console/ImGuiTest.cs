@@ -222,7 +222,8 @@ public static class GuiExtensions
         int parentHash  = window.GetCurrentScopeHash();
         int widgetId    = id.Resolve(name, parentHash);
         
-        var size        = draw.MeasureText(name);
+        var textSize    = draw.MeasureText(name);
+        var size        = textSize + widget.Sizes.FramePadding.Size;
         var pos         = window.Cursor;
         var isHover     = window.IsHoverAtCursor(size, draw);
         var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
@@ -234,7 +235,7 @@ public static class GuiExtensions
             widget.DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
+        draw.DrawTextInRect(name, pos + widget.Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
         
         window.MoveCursor(size);
         return widget.IsFired(widgetState, isFocused);

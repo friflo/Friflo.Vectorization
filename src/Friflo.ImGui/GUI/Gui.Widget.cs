@@ -184,7 +184,8 @@ public readonly ref partial struct GuiWidget
         int widgetId    = id.Resolve(name, parentHash);
         
         var pos         = window.Cursor;
-        var size        = draw.MeasureText(name);
+        var textSize    = draw.MeasureText(name);
+        var size        = textSize + Sizes.FramePadding.Size;
         var isHover     = window.IsHoverAtCursor(size, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, size);
         var widgetState = GetWidgetState(isHover, widgetId);
@@ -195,7 +196,7 @@ public readonly ref partial struct GuiWidget
             DrawFocus(pos, size);
             window.EnsureVisibleInScrollArea(pos, size);
         }
-        draw.DrawTextInRect(name, pos, size, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
+        draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
         window.MoveCursor(size);
         return IsFired(widgetState, isFocused);
     }
