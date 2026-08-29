@@ -165,14 +165,14 @@ public readonly ref partial struct GuiWidget
         
         var size = draw.DrawText(name, window.Cursor, textColor);
         
-        window.MoveCursor(size);
+        MoveCursor(size);
     }
     
     internal void Spacer(float size)
     {
         var window      = Window;
         var spaceSize   = window.CurrentLayout.direction == LayoutDirection.Horizontal ? new Vector2(size, 0) : new Vector2(0, size);
-        window.MoveCursor(spaceSize);
+        MoveCursor(spaceSize);
     }
     
     internal bool Button(ReadOnlySpan<char> name, GuiStyle? style, WidgetID id)
@@ -197,7 +197,7 @@ public readonly ref partial struct GuiWidget
             window.EnsureVisibleInScrollArea(pos, size);
         }
         draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
-        window.MoveCursor(size);
+        MoveCursor(size);
         return IsFired(widgetState, isFocused);
     }
     
@@ -236,7 +236,7 @@ public readonly ref partial struct GuiWidget
         var textPos = new Vector2(pos.X + boxSize + padding.Min.X, pos.Y + padding.Min.Y);
         draw.DrawText(name, textPos, Colors.TextColor);
 
-        window.MoveCursor(totalSize);
+        MoveCursor(totalSize);
         return isToggled;
     }
     
@@ -281,7 +281,7 @@ public readonly ref partial struct GuiWidget
         var labelText = StringBuilder().AppendFloat(value, format.IsEmpty ? "F1" : format, FormatProvider);
         draw.DrawTextInRect(labelText.Span(), pos, totalSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.TextColor);
 
-        window.MoveCursor(totalSize);
+        MoveCursor(totalSize);
         return changed;
     }
     
@@ -301,7 +301,7 @@ public readonly ref partial struct GuiWidget
             widgetState     = GetWidgetState(isHover, widgetId);
             isFocused       = RegisterFocusable(widgetId, pos, size);
         }
-        window.MoveCursor(size);
+        MoveCursor(size);
 
         bool isFired = IsFired(widgetState, isFocused);
         return new SpaceScope(this, pos, size, isFired, isFocused, widgetState);
@@ -319,24 +319,24 @@ public readonly ref partial struct GuiWidget
 #region Layout
     internal VerticalScope BeginVertical()
     {
-        Window.PushLayout(LayoutDirection.Vertical);
+        PushLayout(LayoutDirection.Vertical);
         return new VerticalScope(this);
     }
 
-    internal void EndVertical() => Window.PopLayout();
+    internal void EndVertical() => PopLayout();
     
     internal HorizontalScope BeginHorizontal()
     {
-        Window.PushLayout(LayoutDirection.Horizontal);
+        PushLayout(LayoutDirection.Horizontal);
         return new HorizontalScope(this);
     }
-    internal void EndHorizontal() => Window.PopLayout();
+    internal void EndHorizontal() => PopLayout();
     
     
     
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align)
     {
-        Window.PushLayout(LayoutDirection.Horizontal);
+        PushLayout(LayoutDirection.Horizontal);
         var oldMouseOffset = input.mouseOffset;
         guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
@@ -349,7 +349,7 @@ public readonly ref partial struct GuiWidget
         EndHorizontal();
         
         input.mouseOffset = scope.oldMouseOffset;
-        var maxSize     = Window.PopLayout();
+        var maxSize     = PopLayout();
         var offset      = (Window.Size.X - 2 * 10f - maxSize.X) * scope.align;
         var batch       = draw.batch;
         var vertices    = batch.vertexBuffer.Span.Slice(scope.vertexStart, batch.vertexCount);
@@ -391,6 +391,33 @@ public readonly ref partial struct GuiWidget
         draw.PushZIndexLocal(draw.ZIndexLocal + 1);
         draw.StrokeRectRounded(pos - margin, size + 2 * margin, 12, 4, Colors.FocusColor);
         draw.PopZIndex();
+    }
+    
+    public void MoveCursor(Vector2 widgetSize)
+    {
+        ref var node = ref Window.CurrentLayoutRef;
+
+        if (node.direction == LayoutDirection.Vertical) {
+            node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
+            node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
+            node.cursor.Y  += widgetSize.Y + Sizes.ItemSpacing.Y;
+        } else {
+            node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
+            node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
+            node.cursor.X  += widgetSize.X + Sizes.ItemSpacing.X;
+        }
+    }
+    
+    internal void PushLayout(LayoutDirection direction)
+    {
+        Window.PushLayout(direction);
+    }
+
+    internal Vector2 PopLayout()
+    {
+        var maxSize = Window.PopLayout();
+        MoveCursor(maxSize);
+        return maxSize;
     }
 }
 

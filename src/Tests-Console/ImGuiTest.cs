@@ -119,9 +119,7 @@ public class ImGuiRenderer : IRenderer
         
         gui.BeginHorizontal();
             if (gui.Button("First"))                            Console.WriteLine("Clicked: First");
-            gui.Spacer(10);
             if (gui.Button("Second"))                           Console.WriteLine("Clicked: Second");
-            gui.Spacer(10);
             if (gui.Button("Red", redButtonStyle))              Console.WriteLine("Clicked: Red");
         gui.EndHorizontal();
         
@@ -237,7 +235,7 @@ public static class GuiExtensions
         }
         draw.DrawTextInRect(name, pos + widget.Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, widget.Colors.ButtonText);
         
-        window.MoveCursor(size);
+        widget.MoveCursor(size);
         return widget.IsFired(widgetState, isFocused);
     }
 }

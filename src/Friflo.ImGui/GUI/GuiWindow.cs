@@ -101,7 +101,7 @@ public sealed class GuiWindow
     private                 LayoutNode[]    layoutStack         = [default];
     private                 int             layoutStackCount;
     public   ref readonly   LayoutNode      CurrentLayout       => ref layoutStack[layoutStackCount - 1];
-    private         ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
+    internal        ref     LayoutNode      CurrentLayoutRef    => ref layoutStack[layoutStackCount - 1];
     public                  Vector2         Cursor              =>     layoutStack[layoutStackCount - 1].cursor;
     
     private  readonly       Dictionary<int, ScrollState>    scrollStates        = new(64);
@@ -161,6 +161,10 @@ public sealed class GuiWindow
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
 
+    /// <summary>
+    /// Note: Internal state-only push. Must only be invoked via <see cref="GuiWidget.PushLayout"/>
+    /// to ensure symmetry with <see cref="GuiWidget.PopLayout"/>.
+    /// </summary>
     internal void PushLayout(LayoutDirection direction)
     {
         var count = layoutStack.Length;
@@ -173,13 +177,14 @@ public sealed class GuiWindow
         layoutStackCount++;
     }
 
+    /// <summary>
+    /// Note: Internal state-only pop. Must only be invoked via <see cref="GuiWidget.PopLayout"/>
+    /// to ensure the parent layout cursor is advanced with spacing.
+    /// </summary>
     internal Vector2 PopLayout()
     {
         if (layoutStackCount <= 1) throw new InvalidOperationException();
         var finishedLayout  = layoutStack[--layoutStackCount];
-
-        MoveCursor(finishedLayout.maxSize);
-
         return finishedLayout.maxSize;
     }
     
@@ -201,22 +206,6 @@ public sealed class GuiWindow
         CurrentLayoutRef.cursor = value;
     }
 
-    public void MoveCursor(Vector2 widgetSize)
-    {
-        const float spacing = 6f;
-        ref var node = ref layoutStack[layoutStackCount - 1];
-
-        if (node.direction == LayoutDirection.Vertical) {
-            node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
-            node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
-            node.cursor.Y  += widgetSize.Y + spacing;
-        } else {
-            node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
-            node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
-            node.cursor.X  += widgetSize.X + spacing;
-        }
-    }
-    
     internal void SetTopWindow()
     {
         host.SetTopWindow(this);

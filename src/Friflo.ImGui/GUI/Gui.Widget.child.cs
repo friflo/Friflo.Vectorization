@@ -31,7 +31,7 @@ public readonly ref partial struct GuiWidget
         draw.PushScissor(parentStartCursor, initialClipSize);
         
         window.SetCursor(parentStartCursor + new Vector2(5f, 5f)); // inner cursor + padding
-        window.PushLayout(LayoutDirection.Vertical);
+        PushLayout(LayoutDirection.Vertical);
         return new ChildScope(this, parentStartCursor, size);
     }
     
@@ -39,7 +39,7 @@ public readonly ref partial struct GuiWidget
     {
         var window = Window;
         var padding = new Vector2(5f, 5f);
-        Vector2 contentSize = window.PopLayout(); // returns accumulated bounding box of inner widgets
+        Vector2 contentSize = PopLayout(); // returns accumulated bounding box of inner widgets
 
         draw.PopScissor();
         window.PopScope();
@@ -50,7 +50,7 @@ public readonly ref partial struct GuiWidget
             scope.requestedSize.Y > 0f ? scope.requestedSize.Y : contentSize.Y + (padding.Y * 2f)
         );
         window.SetCursor(scope.parentStartCursor);
-        window.MoveCursor(finalChildSize);
+        MoveCursor(finalChildSize);
     }
 #endregion
 
@@ -96,7 +96,7 @@ public readonly ref partial struct GuiWidget
 	    Vector2 innerStartCursor = parentStartCursor + innerPadding - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
-	    window.PushLayout(LayoutDirection.Vertical);
+	    PushLayout(LayoutDirection.Vertical);
 
 		// Reuse the ref struct ChildScope for zero-allocation scope handling
 	    return new ScrollAreaScope(this, childId, parentStartCursor, finalSize);
@@ -107,7 +107,7 @@ public readonly ref partial struct GuiWidget
 	    var window = Window;
 	    
 		// Retrieve total measured content size
-	    var contentSize = window.PopLayout();
+	    var contentSize = PopLayout();
 	    draw.PopScissor();
 	    
 	    window.PopScrollAreaInfo();
@@ -132,7 +132,7 @@ public readonly ref partial struct GuiWidget
 
 		// Restore parent cursor and advance parent layout
 	    window.SetCursor(scope.parentStartCursor);
-	    window.MoveCursor(scope.requestedSize);
+	    MoveCursor(scope.requestedSize);
 	}
 
 	private void DrawScrollbar(int childId, Vector2 pos, Vector2 size, float totalContentSize, ref ScrollState scrollState, ScrollAxis axis)
