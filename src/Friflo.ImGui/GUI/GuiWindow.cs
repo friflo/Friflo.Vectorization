@@ -211,9 +211,9 @@ public sealed class GuiWindow
         host.SetTopWindow(this);
     }
     
-    public bool IsHoverAt(Vector2 widgetPos, Vector2 widgetSize, ImDraw draw)
+    public bool IsHoverAt(Vector2 pos, Vector2 size, ImDraw draw)
     {
-        var widgetRect = new RectVector2(widgetPos, widgetSize);
+        var widgetRect = new RectVector2(pos, size);
         
         // Is the mouse cursor inside the widget bounds?
         if (!widgetRect.Contains(host.input.MousePos)) {
@@ -227,9 +227,9 @@ public sealed class GuiWindow
         return host.IsTopWindowAt(host.input.MousePos, this);
     }
 
-    public bool IsHoverAtCursor(Vector2 widgetSize, ImDraw draw)
+    public bool IsHoverAtCursor(Vector2 size, ImDraw draw)
     {
-        return IsHoverAt(Cursor, widgetSize, draw);
+        return IsHoverAt(Cursor, size, draw);
     }
     
 #region resize
@@ -344,7 +344,7 @@ public sealed class GuiWindow
         }
     }
     
-    public void EnsureVisibleInScrollArea(Vector2 widgetPos, Vector2 widgetSize)
+    public void EnsureVisibleInScrollArea(Vector2 pos, Vector2 size)
     {
         if (!host.input.JustNavigated) {
             return;
@@ -356,8 +356,8 @@ public sealed class GuiWindow
         float padding = 8f;
 
         // Check and adjust vertical scrolling (Y-Axis)
-        float widgetTop = widgetPos.Y;
-        float widgetBottom = widgetPos.Y + widgetSize.Y;
+        float widgetTop = pos.Y;
+        float widgetBottom = pos.Y + size.Y;
         float areaTop = scrollArea.pos.Y;
         float areaBottom = scrollArea.pos.Y + scrollArea.size.Y;
 
@@ -370,8 +370,8 @@ public sealed class GuiWindow
         }
 
         // Check and adjust horizontal scrolling (X-Axis)
-        float widgetLeft = widgetPos.X;
-        float widgetRight = widgetPos.X + widgetSize.X;
+        float widgetLeft = pos.X;
+        float widgetRight = pos.X + size.X;
         float areaLeft = scrollArea.pos.X;
         float areaRight = scrollArea.pos.X + scrollArea.size.X;
 

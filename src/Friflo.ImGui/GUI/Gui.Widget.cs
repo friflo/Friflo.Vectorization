@@ -393,18 +393,18 @@ public readonly ref partial struct GuiWidget
         draw.PopZIndex();
     }
     
-    public void MoveCursor(Vector2 widgetSize)
+    public void MoveCursor(Vector2 size)
     {
         ref var node = ref Window.CurrentLayoutRef;
 
         if (node.direction == LayoutDirection.Vertical) {
-            node.maxSize.X  = MathF.Max(node.maxSize.X, widgetSize.X);
-            node.maxSize.Y  = node.cursor.Y + widgetSize.Y - node.startCursor.Y;
-            node.cursor.Y  += widgetSize.Y + Sizes.ItemSpacing.Y;
+            node.maxSize.X  = MathF.Max(node.maxSize.X, size.X);
+            node.maxSize.Y  = node.cursor.Y + size.Y - node.startCursor.Y;
+            node.cursor.Y  += size.Y + Sizes.ItemSpacing.Y;
         } else {
-            node.maxSize.X  = node.cursor.X + widgetSize.X - node.startCursor.X;
-            node.maxSize.Y  = MathF.Max(node.maxSize.Y, widgetSize.Y);
-            node.cursor.X  += widgetSize.X + Sizes.ItemSpacing.X;
+            node.maxSize.X  = node.cursor.X + size.X - node.startCursor.X;
+            node.maxSize.Y  = MathF.Max(node.maxSize.Y, size.Y);
+            node.cursor.X  += size.X + Sizes.ItemSpacing.X;
         }
     }
     
