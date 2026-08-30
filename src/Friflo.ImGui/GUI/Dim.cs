@@ -76,57 +76,51 @@ public readonly struct Dim
         return $"{x}, {y}";
     }
 
-    #region Size
-    /// <summary>Creates explicit fixed pixel bounds for both axes.</summary>
+#region Size
+    /// <summary>Sizes both axes to explicit pixel values.</summary>
     [DebuggerHidden]
-    public static Dim   Size(float width, float height)    => new(width,   Sizing.Exact,   height, Sizing.Exact);
+    public static Dim   Size(float width, float height) => new(width,   Sizing.Exact,   height, Sizing.Exact);
     
+    /// <summary>Sizes both axes to explicit vector pixel values.</summary>
     [DebuggerHidden]
-    public static Dim   Size(Vector2 size)                  => new(size.X, Sizing.Exact,   size.Y, Sizing.Exact);
+    public static Dim   Size(Vector2 size)              => new(size.X,  Sizing.Exact,   size.Y, Sizing.Exact);
     
-/// <summary>Sets exact width and explicitly specifies Y sizing mode.</summary>
+    /// <summary>Sizes the width to an explicit value and height to inner content bounds.</summary>
     [DebuggerHidden]
-    public static Dim   Size(float width, Fit _)          => new(width, Sizing.Exact, 0f, Sizing.Content);
+    public static Dim   Size(float width, Fit _)        => new(width,   Sizing.Exact,   0f,     Sizing.Content);
 
-    /// <summary>Sets exact height and explicitly specifies X sizing mode.</summary>
+    /// <summary>Sizes the width to inner content bounds and height to an explicit value.</summary>
     [DebuggerHidden]
-    public static Dim   Size(Fit _, float height)         => new(0f, Sizing.Content, height, Sizing.Exact);
+    public static Dim   Size(Fit _, float height)       => new(0f,      Sizing.Content, height, Sizing.Exact);
 #endregion  
 
 
 #region Fill
+    /// <summary>Fills remaining parent width with a right margin and sets explicit height.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_X(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
+    public static Dim   Fill_X(float distRight, float height)   => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
 
+    /// <summary>Fills remaining parent width with a right margin and sizes height to content.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_X(float distRight, Fit _)           => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
+    public static Dim   Fill_X(float distRight, Fit _)          => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
     
+    /// <summary>Sizes width to an explicit value and fills remaining parent height with a bottom margin.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_Y(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
+    public static Dim   Fill_Y(float width, float distBottom)   => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
 
+    /// <summary>Sizes width to inner content bounds and fills remaining parent height with a bottom margin.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_Y(Fit _,       float distBottom)    => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
+    public static Dim   Fill_Y(Fit _,       float distBottom)   => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
     
+    /// <summary>Fills all available parent space on both axes.</summary>
     [DebuggerHidden]
     public static Dim   Fill()                                  => new(0f,          Sizing.Fill,    0f,         Sizing.Fill);
 #endregion
 
+
+#region Content
     /// <summary>Sizes both axes according to inner content bounds.</summary>
     [DebuggerHidden]
-    public static Dim   Content()               => new(0f,      Sizing.Content, 0f,     Sizing.Content);
-
-    // --- Operator Conversions ---
-
-    /// <summary>Allows passing explicit pixel sizes as a Vector2 tuple directly.</summary>
-    [DebuggerHidden]
-    public static implicit operator Dim((float width, float height) tuple) => Size(tuple.width, tuple.height);
-    
-    [DebuggerHidden]
-    public static implicit operator Dim((float width, Fit fit) tuple) => Size(tuple.width, Fit.Content);
-    
-    [DebuggerHidden]
-    public static implicit operator Dim((Fit fit, float height) tuple) => Size(Fit.Content, tuple.height);
-
-    
-    // [DebuggerHidden] public static implicit operator Dim(Vector2 size) => Size(size.X, size.Y);
+    public static Dim   Content() => default;
+#endregion
 }
