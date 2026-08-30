@@ -2,7 +2,6 @@
 // See LICENSE file in the project root for full license information.
 
 
-using System;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -66,12 +65,12 @@ public readonly struct Dim
     {
         var x = sizingX switch {
             Sizing.Content  =>   "width: Content",
-            Sizing.Fill     =>  $"width: fill {DistRight} from right",
+            Sizing.Fill     =>  $"width: {DistRight} |⬅",
             _               =>  $"width: {Width}"
         };
         var y = sizingY switch {
             Sizing.Content  =>   "height: Content",
-            Sizing.Fill     =>  $"height: fill {DistBottom} from bottom",
+            Sizing.Fill     =>  $"height: fill {DistBottom} ⬆",
             _               =>  $"height: {Height}"
         };
         return $"{x}, {y}";
