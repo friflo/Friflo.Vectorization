@@ -16,30 +16,21 @@ namespace Friflo.ImGui;
 public readonly ref partial struct GuiWidget
 {
 #region child
-	private Vector2 ChildOuterSize(Dim size, out Dim innerLayoutSize, out bool hasScissor)
-	{
-	    var available	= Window.CurrentLayout.Available;
-	    hasScissor		= size.IsBounded;
-	    var outerSize	= size.ToSizeVector2(available, default);
-	    innerLayoutSize	= Dim.Size(outerSize - Sizes.ChildPadding.Size);
-	    return outerSize;
-	}
-
 	internal ChildScope BeginChild(WidgetID childId, Dim size)
 	{
 	    var window = Window;
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    var calculatedOuterSize = ChildOuterSize(size, out Dim innerLayoutSize, out bool hasScissor);
-
-	    if (hasScissor) {
-	        draw.PushScissor(parentStartCursor, calculatedOuterSize);
+	    var outerSize = size.ToSizeVector2(Window.CurrentLayout.Available, default);
+	    if (size.IsBounded) {
+	        draw.PushScissor(parentStartCursor, outerSize);
 	    }
 	    window.SetCursor(parentStartCursor + Sizes.ChildPadding.Min);
+	    var innerLayoutSize	= Dim.Size(outerSize - Sizes.ChildPadding.Size);
 	    PushLayout(LayoutDirection.Vertical, innerLayoutSize);
 
-	    return new ChildScope(this, parentStartCursor, size, calculatedOuterSize);
+	    return new ChildScope(this, parentStartCursor, size, outerSize);
 	}
 
 	internal void EndChild(in ChildScope scope)
@@ -71,18 +62,18 @@ public readonly ref partial struct GuiWidget
 	    window.PushScope(childId);
 
 	    // Compute outer bounds for the scroll area viewport
-	    var calculatedOuterSize = ChildOuterSize(size, out _, out _);
+	    var outerSize = size.ToSizeVector2(Window.CurrentLayout.Available, default);
 
 	    // Scroll areas ALWAYS require scissor clipping against their calculated outer size
-	    draw.PushScissor(parentStartCursor, calculatedOuterSize);
-	    draw.FillRect(parentStartCursor, calculatedOuterSize, Colors.ScrollAreaColor);
+	    draw.PushScissor(parentStartCursor, outerSize);
+	    draw.FillRect(parentStartCursor, outerSize, Colors.ScrollAreaColor);
 
-	    window.PushScrollAreaInfo(childId, parentStartCursor, calculatedOuterSize);
+	    window.PushScrollAreaInfo(childId, parentStartCursor, outerSize);
 
 	    ref var scrollState = ref window.GetOrCreateScrollState(childId);
 
 	    // Process mouse wheel input
-	    if (window.IsHoverAt(parentStartCursor, calculatedOuterSize, draw)) {
+	    if (window.IsHoverAt(parentStartCursor, outerSize, draw)) {
 	        float wheelY = input.MouseWheel.Y;
 	        float wheelX = input.MouseWheel.X;
 
@@ -105,12 +96,12 @@ public readonly ref partial struct GuiWidget
 	    window.SetCursor(innerStartCursor);
 
 	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding)
-	    float effectiveWidth = MathF.Max(0f, calculatedOuterSize.X - padding.Size.X);
+	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X);
 
 		// Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
 		PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
 
-	    return new ScrollAreaScope(this, childId, parentStartCursor, size, calculatedOuterSize);
+	    return new ScrollAreaScope(this, childId, parentStartCursor, size, outerSize);
 	}
 
 	internal void EndScrollArea(in ScrollAreaScope scope)
