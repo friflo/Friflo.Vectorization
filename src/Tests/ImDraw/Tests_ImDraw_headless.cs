@@ -33,7 +33,7 @@ public class Tests_ImDraw_headless
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
         long        start = 0;
-        const int   repeat  = 10; // 100_000 - 0.98 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
+        const int   repeat  = 10; // 500_000 - 3.5 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
         
         for (int n = 0; n < repeat; n++)
         {
