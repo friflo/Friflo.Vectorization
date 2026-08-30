@@ -50,7 +50,7 @@ public class Tests_ImDraw_headless
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(2));
-        Assert.That(verticesLen,        Is.EqualTo(2376));
+        Assert.That(verticesLen,        Is.EqualTo(1608));
         
         int vertexSum = 0;
         int indexSum  = 0;

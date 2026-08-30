@@ -130,10 +130,10 @@ public readonly ref partial struct GuiWidget
         }
 
         // Render background & titlebar
-        draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor);
+        draw.FillRectRounded(window.Pos, window.Size, Sizes.CornerRadius, Colors.WindowColor, GuiSizes.CornerSegments);
 
         var headerColor = Colors.ButtonState(titleState);
-        draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor);
+        draw.FillRectRounded(window.Pos, titleBarSize, Sizes.CornerRadius, headerColor, GuiSizes.CornerSegments);
 
         var fontHeight = LineHeight;
         var textPos    = window.Pos + new Vector2(10f, (titleBarHeight - fontHeight) / 2f);
@@ -198,7 +198,7 @@ public readonly ref partial struct GuiWidget
         var widgetState = GetWidgetState(isHover, widgetId);
 
         // Background
-        draw.FillRectRounded(pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState));
+        draw.FillRectRounded(pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
 
         if (isFocused) {
             DrawFocus(pos, finalSize);
@@ -234,7 +234,7 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         var boxRectSize = new Vector2(boxSize, boxSize);
-        draw.FillRectRounded(pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
 
         if (isFocused) {
             DrawFocus(pos, boxRectSize);
@@ -242,7 +242,7 @@ public readonly ref partial struct GuiWidget
         }
         if (value) {
             var fillOffset = new Vector2(8, 8);
-            draw.FillRectRounded(pos + fillOffset, boxRectSize - 2 * fillOffset, Sizes.CornerRadius, Colors.TextColor);
+            draw.FillRectRounded(pos + fillOffset, boxRectSize - 2 * fillOffset, Sizes.CornerRadius, Colors.TextColor, GuiSizes.CornerSegments);
         }
         var textPos = new Vector2(pos.X + boxSize + padding.Min.X, pos.Y + padding.Min.Y);
         draw.DrawText(name, textPos, Colors.TextColor);
@@ -276,13 +276,13 @@ public readonly ref partial struct GuiWidget
                 changed = true;
             }
         }
-        draw.FillRectRounded(pos, totalSize, 6, Colors.ButtonState(widgetState)); // background
+        draw.FillRectRounded(pos, totalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
-        draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderFill);
+        draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderFill, GuiSizes.CornerSegments);
 
         // Render blue focus outline
         if (isFocused) {

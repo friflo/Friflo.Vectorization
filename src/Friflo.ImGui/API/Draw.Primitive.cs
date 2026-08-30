@@ -191,7 +191,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Draws a filled rounded rectangle.
     /// </summary>
-    public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 8)
+    public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 4)
     {
         if (radius <= 0f) {
             FillRect(position, size, color);

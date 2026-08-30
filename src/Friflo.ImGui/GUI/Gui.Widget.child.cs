@@ -249,7 +249,7 @@ public readonly ref partial struct GuiWidget
 
 	    // Render track and thumb
 	    draw.FillRect(trackPos, trackSize, Colors.ScrollTrackBg);
-	    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor);
+	    draw.FillRectRounded(thumbPos, thumbSize, Sizes.CornerRadius, thumbColor, GuiSizes.CornerSegments);
 	}
 #endregion
 }
