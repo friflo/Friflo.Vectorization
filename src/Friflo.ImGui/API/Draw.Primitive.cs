@@ -223,7 +223,7 @@ public readonly ref partial struct ImDraw
     {
         if (segments < 1) segments = 1;
 
-        if (segments <= 10)
+        if (segments <= ArcLookups.CornerTableLength)
         {
             ReadOnlySpan<Vector2> lookup = ArcLookups.CornerTables[segments];
             ArcLookups.GetCornerTransform(corner, out float signX, out float signY, out bool swapXY);
