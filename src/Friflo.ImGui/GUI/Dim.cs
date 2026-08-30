@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using System.Numerics;
 
+// ReSharper disable UnusedParameter.Global
 // ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable InconsistentNaming
@@ -87,11 +88,11 @@ public readonly struct Dim
     
     /// <summary>Sizes the width to an explicit value and height to inner content bounds.</summary>
     [DebuggerHidden]
-    public static Dim   Size(float width, Fit _)        => new(width,   Sizing.Exact,   0f,     Sizing.Content);
+    public static Dim   Size(float width, Fit Content)  => new(width,   Sizing.Exact,   0f,     Sizing.Content);
 
     /// <summary>Sizes the width to inner content bounds and height to an explicit value.</summary>
     [DebuggerHidden]
-    public static Dim   Size(Fit _, float height)       => new(0f,      Sizing.Content, height, Sizing.Exact);
+    public static Dim   Size(Fit Content, float height) => new(0f,      Sizing.Content, height, Sizing.Exact);
 #endregion  
 
 
@@ -102,7 +103,7 @@ public readonly struct Dim
 
     /// <summary>Fills remaining parent width with a right margin and sizes height to content.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_X(float distRight, Fit _)          => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
+    public static Dim   Fill_X(float distRight, Fit Content)    => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
     
     /// <summary>Sizes width to an explicit value and fills remaining parent height with a bottom margin.</summary>
     [DebuggerHidden]
@@ -110,7 +111,7 @@ public readonly struct Dim
 
     /// <summary>Sizes width to inner content bounds and fills remaining parent height with a bottom margin.</summary>
     [DebuggerHidden]
-    public static Dim   Fill_Y(Fit _,       float distBottom)   => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
+    public static Dim   Fill_Y(Fit Content, float distBottom)   => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
     
     /// <summary>Fills all available parent space on both axes.</summary>
     [DebuggerHidden]
