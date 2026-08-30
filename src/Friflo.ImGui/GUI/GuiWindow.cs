@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable MergeIntoPattern
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable InvertIf
@@ -185,11 +186,8 @@ public sealed class GuiWindow
             layoutStack = newStack;
         }
 
-        ref readonly var parent = ref layoutStack[layoutStackCount - 1];
-
         // Calculate remaining space inside the parent layout relative to current cursor offset
-        var available       = parent.Available;
-        var size            = boundsSize.ToSizeVector2(available, default);
+        var size = WidgetSize(boundsSize, default);
         layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, size);
         layoutStackCount++;
     }
@@ -403,4 +401,21 @@ public sealed class GuiWindow
         }
     }
 #endregion
+
+    internal Vector2 WidgetSize(in Dim size, Vector2 defaultSize)
+    {
+        var width = size.sizingX switch {
+            Sizing.Exact   => size.Width,
+            Sizing.Fill    => MathF.Max(0f, CurrentLayout.Available.X - size.DistRight),
+            Sizing.Content => defaultSize.X,
+            _              => defaultSize.X
+        };
+        var height = size.sizingY switch {
+            Sizing.Exact   => size.Height,
+            Sizing.Fill    => MathF.Max(0f, CurrentLayout.Available.Y - size.DistBottom),
+            Sizing.Content => defaultSize.Y,
+            _              => defaultSize.Y
+        };
+        return new Vector2(width, height);
+    }
 }

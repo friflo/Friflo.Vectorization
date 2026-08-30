@@ -51,25 +51,8 @@ public readonly struct Dim
     internal            bool    IsAutoHeight    => sizingY != Sizing.Exact;
     
     // Returns true if both axes are explicitly bounded rather than auto-sized by content
-    public              bool    IsBounded       => !IsAutoWidth && !IsAutoHeight;
+    internal            bool    IsBounded       => sizingX == Sizing.Exact && sizingY == Sizing.Exact;
     
-    
-    internal Vector2 ToSizeVector2(Vector2 available, Vector2 defaultSize)
-    {
-        var width = sizingX switch {
-            Sizing.Exact   => Width,
-            Sizing.Fill    => MathF.Max(0f, available.X - DistRight),
-            Sizing.Content => defaultSize.X,
-            _              => defaultSize.X
-        };
-        var height = sizingY switch {
-            Sizing.Exact   => Height,
-            Sizing.Fill    => MathF.Max(0f, available.Y - DistBottom),
-            Sizing.Content => defaultSize.Y,
-            _              => defaultSize.Y
-        };
-        return new Vector2(width, height);
-    }
 
     internal Dim(float x, Sizing sizingX, float y, Sizing sizingY)
     {

@@ -178,12 +178,6 @@ public readonly ref partial struct GuiWidget
         MoveCursor(spaceSize);
     }
     
-    internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
-    {
-        var available = Window.CurrentLayout.Available;
-        return size.ToSizeVector2(available, defaultSize);
-    }
-
     internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id)
     {
         var window = Window;
@@ -196,8 +190,8 @@ public readonly ref partial struct GuiWidget
         var textSize = draw.MeasureText(name);
 
         // Calculate final pixel footprint based on measured text size as content fallback
-        Vector2 defaultSize = textSize + Sizes.FramePadding.Size;
-        Vector2 finalSize   = WidgetSize(size, defaultSize);
+        var defaultSize = textSize + Sizes.FramePadding.Size;
+        var finalSize   = Window.WidgetSize(size, defaultSize);
 
         var isHover     = window.IsHoverAtCursor(finalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
