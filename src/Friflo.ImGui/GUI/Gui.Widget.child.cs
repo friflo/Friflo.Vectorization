@@ -20,36 +20,11 @@ public readonly ref partial struct GuiWidget
 	{
 	    ref readonly var layout = ref Window.CurrentLayout;
 
-	    // Retrieve remaining explicit pixel bounds based on current cursor offset
-	    Vector2 consumed = layout.cursor - layout.startCursor;
-	    Vector2 remaining = new Vector2(
-	        MathF.Max(0f, layout.boundsSize.Width  - consumed.X),
-	        MathF.Max(0f, layout.boundsSize.Height - consumed.Y)
-	    );
-	    hasScissor = size.IsBounded;
-
-	    float width = size.sizingX switch {
-	        Sizing.Exact   => size.Width,
-	        Sizing.Fill    => MathF.Max(0f, remaining.X - size.DistRight),
-	        Sizing.Content => 0f,
-	        _              => 0f
-	    };
-	    float height = size.sizingY switch {
-	        Sizing.Exact   => size.Height,
-	        Sizing.Fill    => MathF.Max(0f, remaining.Y - size.DistBottom),
-	        Sizing.Content => 0f,
-	        _              => 0f
-	    };
-	    var padding = Sizes.ChildPadding;
-
-	    // Construct inner Dim preserving sizing modes while subtracting padding for Exact/Fill
-	    float innerWidth  = MathF.Max(0f, width  - padding.Size.X);
-	    float innerHeight = MathF.Max(0f, height - padding.Size.Y);
-
-	    // innerLayoutSize = new Dim(innerWidth, size.sizingX, innerHeight, size.sizingY);
-	    innerLayoutSize = Dim.Size(innerWidth, innerHeight);
-
-	    return new Vector2(width, height);
+	    var available	= layout.Available;
+	    hasScissor		= size.IsBounded;
+	    var outerSize	= size.ToSizeVector2(available, default);
+	    innerLayoutSize	= Dim.Size(outerSize - Sizes.ChildPadding.Size);
+	    return outerSize;
 	}
 
 	internal ChildScope BeginChild(WidgetID childId, Dim size)

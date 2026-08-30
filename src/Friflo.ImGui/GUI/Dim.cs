@@ -2,9 +2,11 @@
 // See LICENSE file in the project root for full license information.
 
 
+using System;
 using System.Diagnostics;
 using System.Numerics;
 
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArrangeThisQualifier
@@ -50,6 +52,24 @@ public readonly struct Dim
     
     // Returns true if both axes are explicitly bounded rather than auto-sized by content
     public              bool    IsBounded       => !IsAutoWidth && !IsAutoHeight;
+    
+    
+    internal Vector2 ToSizeVector2(Vector2 available, Vector2 defaultSize)
+    {
+        var width = sizingX switch {
+            Sizing.Exact   => Width,
+            Sizing.Fill    => MathF.Max(0f, available.X - DistRight),
+            Sizing.Content => defaultSize.X,
+            _              => defaultSize.X
+        };
+        var height = sizingY switch {
+            Sizing.Exact   => Height,
+            Sizing.Fill    => MathF.Max(0f, available.Y - DistBottom),
+            Sizing.Content => defaultSize.Y,
+            _              => defaultSize.Y
+        };
+        return new Vector2(width, height);
+    }
 
     internal Dim(float x, Sizing sizingX, float y, Sizing sizingY)
     {
@@ -63,12 +83,12 @@ public readonly struct Dim
     {
         var x = sizingX switch {
             Sizing.Content  =>   "width: Content",
-            Sizing.Fill     =>  $"width: fill {DistRight}",
+            Sizing.Fill     =>  $"width: fill {DistRight} from right",
             _               =>  $"width: {Width}"
         };
         var y = sizingY switch {
             Sizing.Content  =>   "height: Content",
-            Sizing.Fill     =>  $"height: fill {DistBottom}",
+            Sizing.Fill     =>  $"height: fill {DistBottom} from bottom",
             _               =>  $"height: {Height}"
         };
         return $"{x}, {y}";

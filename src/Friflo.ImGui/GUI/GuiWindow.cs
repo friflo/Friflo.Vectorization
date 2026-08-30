@@ -39,6 +39,9 @@ public struct LayoutNode
         cursor              = startCursor;
         this.boundsSize     = boundsSize;
     }
+    
+    internal Vector2 Available => new(MathF.Max(0f, boundsSize.Width  - (cursor.X - startCursor.X)),
+                                      MathF.Max(0f, boundsSize.Height - (cursor.Y - startCursor.Y)));
 }
 
 internal enum ScrollAxis
@@ -185,29 +188,9 @@ public sealed class GuiWindow
         ref readonly var parent = ref layoutStack[layoutStackCount - 1];
 
         // Calculate remaining space inside the parent layout relative to current cursor offset
-        float remainingX = MathF.Max(0f, parent.boundsSize.Width  - (parent.cursor.X - parent.startCursor.X));
-        float remainingY = MathF.Max(0f, parent.boundsSize.Height - (parent.cursor.Y - parent.startCursor.Y));
-
-        // Resolve horizontal layout mode
-        float width = boundsSize.sizingX switch
-        {
-            Sizing.Exact   => boundsSize.Width,
-            Sizing.Fill    => MathF.Max(0f, remainingX - boundsSize.DistRight),
-            Sizing.Content => 0f,
-            _              => 0f
-        };
-
-        // Resolve vertical layout mode
-        float height = boundsSize.sizingY switch
-        {
-            Sizing.Exact   => boundsSize.Height,
-            Sizing.Fill    => MathF.Max(0f, remainingY - boundsSize.DistBottom),
-            Sizing.Content => 0f,
-            _              => 0f
-        };
-
-        // Construct node with the explicit sizing mode preserved
-        Dim resolvedBounds = new Dim(width, boundsSize.sizingX, height, boundsSize.sizingY);
+        var available       = parent.Available;
+        var size            = boundsSize.ToSizeVector2(available, default);
+        var resolvedBounds  = Dim.Size(size);
         layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, resolvedBounds);
         layoutStackCount++;
     }

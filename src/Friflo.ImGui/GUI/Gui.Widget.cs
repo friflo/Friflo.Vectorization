@@ -181,26 +181,8 @@ public readonly ref partial struct GuiWidget
     internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
     {
         ref readonly var layout = ref Window.CurrentLayout;
-
-        // Retrieve remaining layout space relative to current cursor offset
-        Vector2 consumed = layout.cursor - layout.startCursor;
-        Vector2 remaining = new Vector2(
-            MathF.Max(0f, layout.boundsSize.Width  - consumed.X),
-            MathF.Max(0f, layout.boundsSize.Height - consumed.Y)
-        );
-        float width = size.sizingX switch {
-            Sizing.Exact   => size.Width,
-            Sizing.Fill    => MathF.Max(0f, remaining.X - size.DistRight),
-            Sizing.Content => defaultSize.X,
-            _              => defaultSize.X
-        };
-        float height = size.sizingY switch {
-            Sizing.Exact   => size.Height,
-            Sizing.Fill    => MathF.Max(0f, remaining.Y - size.DistBottom),
-            Sizing.Content => defaultSize.Y,
-            _              => defaultSize.Y
-        };
-        return new Vector2(width, height);
+        var available = layout.Available;
+        return size.ToSizeVector2(available, defaultSize);
     }
 
     internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id)
