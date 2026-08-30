@@ -65,12 +65,12 @@ public readonly struct Dim
     {
         var x = sizingX switch {
             Sizing.Content  =>   "width: Content",
-            Sizing.Fill     =>  $"width: Fill {DistRight} |⬅",
+            Sizing.Fill     =>  $"width: Fill {DistRight} ➡️",
             _               =>  $"width: {Width}"
         };
         var y = sizingY switch {
             Sizing.Content  =>   "height: Content",
-            Sizing.Fill     =>  $"height: Fill {DistBottom} ⬆",
+            Sizing.Fill     =>  $"height: Fill {DistBottom} ⬇️",
             _               =>  $"height: {Height}"
         };
         return $"{x}  {y}";
