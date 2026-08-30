@@ -59,6 +59,7 @@ internal struct ScrollState
     public ScrollAxis   dragAxis;
     public Vector2      dragStartMouse;
     public Vector2      dragStartOffset;
+    public Vector2      lastContentSize;     // Cached from previous frame
 }
 
 internal struct ScrollAreaInfo

@@ -95,11 +95,15 @@ public readonly ref partial struct GuiWidget
 
 	    window.SetCursor(innerStartCursor);
 
-	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding)
-	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X);
+	    // Account for vertical scrollbar visibility based on last frame's content size
+	    bool hasVertScrollbar = scrollState.lastContentSize.Y > outerSize.Y;
+	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
 
-		// Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
-		PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
+	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding and scrollbar)
+	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - scrollbarWidth);
+
+	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
+	    PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
 
 	    return new ScrollAreaScope(this, childId, parentStartCursor, size, outerSize);
 	}
@@ -120,6 +124,10 @@ public readonly ref partial struct GuiWidget
 
 	    // Clamp scroll offset within valid bounds using the content size (inclusive of padding)
 	    ref var scrollState = ref window.GetOrCreateScrollState(scope.childId);
+	    
+	    // Cache current content size for the next frame's layout pass
+	    scrollState.lastContentSize = contentSize;
+
 	    Vector2 boundsSize = scope.calculatedOuterSize;
 
 	    Vector2 maxScroll = new Vector2(
