@@ -14,8 +14,13 @@ using System.Numerics;
 namespace Friflo.ImGui;
 
 
+public enum Fit {
+    Content
+}
+
+
 /// <summary>  Defines how a layout dimension is calculated. </summary>
-public enum Sizing : byte
+internal enum Sizing : byte
 {
     /** Size is determined by the inner content (children or text). */      Content,
     /** Explicit pixel size determined by the developer. */                 Exact,
@@ -36,10 +41,10 @@ public readonly struct Dim
     internal            float   DistRight   => X;
     internal            float   DistBottom  => Y;
     
-    public readonly Sizing  sizingX;
-    public readonly Sizing  sizingY;
+    internal readonly Sizing  sizingX;
+    internal readonly Sizing  sizingY;
 
-    public Dim(float x, Sizing sizingX, float y, Sizing sizingY)
+    internal Dim(float x, Sizing sizingX, float y, Sizing sizingY)
     {
         this.X          = x;
         this.sizingX    = sizingX;
@@ -47,17 +52,18 @@ public readonly struct Dim
         this.sizingY    = sizingY;
     }
 
-#region Exact
+#region Size
     /// <summary>Creates explicit fixed pixel bounds for both axes.</summary>
     [DebuggerStepThrough]
-    public static Dim   Exact(float width, float height)    => new(width,   Sizing.Exact,   height, Sizing.Exact);
+    public static Dim   Size(float width, float height)    => new(width,   Sizing.Exact,   height, Sizing.Exact);
     
-    /// <summary>Creates explicit fixed pixel bounds for a single axis while keeping the other at Content.</summary>
+/// <summary>Sets exact width and explicitly specifies Y sizing mode.</summary>
     [DebuggerStepThrough]
-    public static Dim   ExactX(float width)     => new(width,   Sizing.Exact,   0f,     Sizing.Content);
+    public static Dim   Size(float width, Fit _)          => new(width, Sizing.Exact, 0f, Sizing.Content);
 
+    /// <summary>Sets exact height and explicitly specifies X sizing mode.</summary>
     [DebuggerStepThrough]
-    public static Dim   ExactY(float height)    => new(0f,      Sizing.Content, height, Sizing.Exact);
+    public static Dim   Size(Fit _, float height)         => new(0f, Sizing.Content, height, Sizing.Exact);
 #endregion  
 
 
@@ -66,26 +72,16 @@ public readonly struct Dim
     public static Dim   FillX(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
 
     [DebuggerStepThrough]
-    public static Dim   FillX()                                 => new(0f,          Sizing.Fill,    0f,         Sizing.Content);
+    public static Dim   FillX(float distRight, Fit _)           => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
     
     [DebuggerStepThrough]
     public static Dim   FillY(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
 
     [DebuggerStepThrough]
-    public static Dim   FillY()                                 => new(0f,          Sizing.Content, 0f,         Sizing.Fill);
+    public static Dim   FillY(Fit _,       float distBottom)    => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
     
-
-    /// <summary>Fills remaining space in both directions.</summary>
     [DebuggerStepThrough]
-    public static Dim   Fill()                  => new(0f,      Sizing.Fill,    0f,     Sizing.Fill);
-    
-    /// <summary>Fills remaining horizontal space while explicitly specifying Y sizing mode.</summary>
-    [DebuggerStepThrough]
-    public static Dim   FillX(Sizing sizingY)   => new(0f,      Sizing.Fill,    0f,     sizingY);
-
-    /// <summary>Fills remaining vertical space while explicitly specifying X sizing mode.</summary>
-    [DebuggerStepThrough]
-    public static Dim   FillY(Sizing sizingX)   => new(0f,      sizingX,        0f,     Sizing.Fill);
+    public static Dim   Fill()                                  => new(0f,      Sizing.Fill,    0f,     Sizing.Fill);
 #endregion
 
     /// <summary>Sizes both axes according to inner content bounds.</summary>
@@ -97,10 +93,10 @@ public readonly struct Dim
     /// <summary>Allows passing explicit pixel sizes as a Vector2 tuple directly.</summary>
     [DebuggerStepThrough]
     public static implicit operator Dim((float width, float height) tuple) 
-        => Exact(tuple.width, tuple.height);
+        => Size(tuple.width, tuple.height);
 
     /// <summary>Allows passing an explicit Vector2 directly for Fixed sizing.</summary>
     [DebuggerStepThrough]
     public static implicit operator Dim(Vector2 size) 
-        => Exact(size.X, size.Y);
+        => Size(size.X, size.Y);
 }
