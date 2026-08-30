@@ -73,7 +73,7 @@ public readonly struct Dim
             Sizing.Fill     =>  $"height: fill {DistBottom} ⬆",
             _               =>  $"height: {Height}"
         };
-        return $"{x}, {y}";
+        return $"{x}  {y}";
     }
 
 #region Size
