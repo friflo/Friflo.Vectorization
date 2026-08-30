@@ -192,7 +192,7 @@ public readonly ref partial struct ImDraw
     /// <summary>
     /// Draws a filled rounded rectangle.
     /// </summary>
-    public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 4)
+    public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 8)
     {
         if (radius <= 0f) {
             FillRect(position, size, color);
@@ -219,7 +219,7 @@ public readonly ref partial struct ImDraw
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void FillCornerArc(Vector2 center, float radius, ArcCorner corner, Color32 color, int segments = 4)
+    public void FillCornerArc(Vector2 center, float radius, ArcCorner corner, Color32 color, int segments)
     {
         if (segments < 1) segments = 1;
 
