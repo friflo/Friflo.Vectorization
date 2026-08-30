@@ -94,16 +94,16 @@ public readonly struct Dim
 
 #region Fill
     [DebuggerHidden]
-    public static Dim   FillX(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
+    public static Dim   Fill_X(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
 
     [DebuggerHidden]
-    public static Dim   FillX(float distRight, Fit _)           => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
+    public static Dim   Fill_X(float distRight, Fit _)           => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
     
     [DebuggerHidden]
-    public static Dim   FillY(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
+    public static Dim   Fill_Y(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
 
     [DebuggerHidden]
-    public static Dim   FillY(Fit _,       float distBottom)    => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
+    public static Dim   Fill_Y(Fit _,       float distBottom)    => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
     
     [DebuggerHidden]
     public static Dim   Fill()                                  => new(0f,          Sizing.Fill,    0f,         Sizing.Fill);

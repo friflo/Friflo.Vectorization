@@ -97,7 +97,7 @@ public class ImGuiRenderer : IRenderer
     
     private void Window1(Gui gui)
     {
-        gui.Button("hello GUI", Dim.FillX(0, Fit.Content));
+        gui.Button("hello GUI", Dim.Fill_X(0, Fit.Content));
         gui.Spacer();
         using (gui.PushStyle(greenButtonStyle)) {
             if (gui.Button("hello"))                            Console.WriteLine("Clicked: hello");
@@ -159,26 +159,26 @@ public class ImGuiRenderer : IRenderer
     private void Window2(Gui gui)
     {
         gui.Label("fixed child");
-        using (gui.BeginChild(1, Dim.FillX(0, 90))) {
-            gui.Button("Button 1 clipped", Dim.FillX(0, Fit.Content));
+        using (gui.BeginChild(1, Dim.Fill_X(0, 90))) {
+            gui.Button("Button 1 clipped", Dim.Fill_X(0, Fit.Content));
             gui.Button("Button 2 clipped");
         }
         gui.Spacer();
         gui.Label("auto-fit child");
         using (gui.BeginChild(2, Dim.Fill())) {
-            gui.Button("Button 1 unclipped",  Dim.FillX(0, Fit.Content));
+            gui.Button("Button 1 unclipped",  Dim.Fill_X(0, Fit.Content));
             gui.Button("Button 2 unclipped");
         }
         gui.Spacer();
         gui.Label("scroll area");
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill());
             gui.Button("Button 1 - more to to enable horizontal scrolling");
-            gui.Button("Button 2 -  Dim.FillX(0, Fit.Content)",  Dim.FillX(0, Fit.Content));
+            gui.Button("Button 2 -  Dim.FillX(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
             
-            var area2  = gui.BeginScrollArea(4, Dim.FillX(0, 200));
+            var area2  = gui.BeginScrollArea(4, Dim.Fill_X(0, 200));
                 gui.Button("Sub 1");
-                gui.Button("Sub 2 -  Dim.FillX(0, Fit.Content)",  Dim.FillX(0, Fit.Content));
-                gui.Button("Sub 3 - size: new(-10, 0)",  Dim.FillX(10, Fit.Content));
+                gui.Button("Sub 2 -  Dim.FillX(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
+                gui.Button("Sub 3 - size: new(-10, 0)",  Dim.Fill_X(10, Fit.Content));
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
                 gui.Button("Sub 6");
