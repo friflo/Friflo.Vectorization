@@ -92,8 +92,15 @@ public readonly struct Dim
 
     /// <summary>Allows passing explicit pixel sizes as a Vector2 tuple directly.</summary>
     [DebuggerStepThrough]
-    public static implicit operator Dim((float width, float height) tuple) 
-        => Size(tuple.width, tuple.height);
+    public static implicit operator Dim((float width, float height) tuple) => Size(tuple.width, tuple.height);
+    
+    [DebuggerStepThrough]
+    public static implicit operator Dim((float width, Fit fit) tuple) => Size(tuple.width, Fit.Content);
+    
+    [DebuggerStepThrough]
+    public static implicit operator Dim((Fit fit, float height) tuple) => Size(Fit.Content, tuple.height);
+
+
 
     /// <summary>Allows passing an explicit Vector2 directly for Fixed sizing.</summary>
     [DebuggerStepThrough]
