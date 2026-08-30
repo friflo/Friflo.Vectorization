@@ -191,7 +191,7 @@ public readonly ref partial struct GuiWidget
 
         // Calculate final pixel footprint based on measured text size as content fallback
         var defaultSize = textSize + Sizes.FramePadding.Size;
-        var finalSize   = Window.WidgetSize(size, defaultSize);
+        var finalSize   = window.WidgetSize(size, defaultSize);
 
         var isHover     = window.IsHoverAtCursor(finalSize, draw);
         bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);

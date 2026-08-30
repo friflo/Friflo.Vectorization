@@ -22,7 +22,7 @@ public readonly ref partial struct GuiWidget
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    var outerSize = Window.WidgetSize(size, default);
+	    var outerSize = window.WidgetSize(size, default);
 	    if (size.IsBounded) {
 	        draw.PushScissor(parentStartCursor, outerSize);
 	    }
@@ -62,7 +62,7 @@ public readonly ref partial struct GuiWidget
 	    window.PushScope(childId);
 
 	    // Compute outer bounds for the scroll area viewport
-	    var outerSize = Window.WidgetSize(size, default);
+	    var outerSize = window.WidgetSize(size, default);
 
 	    // Scroll areas ALWAYS require scissor clipping against their calculated outer size
 	    draw.PushScissor(parentStartCursor, outerSize);
