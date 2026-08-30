@@ -31,17 +31,17 @@ public struct LayoutNode
     public readonly Vector2         startCursor;
     public          Vector2         cursor;
     public          Vector2         maxSize;    // Accrued content footprint (grows with widgets)
-    public readonly Dim             boundsSize; // Total boundary size assigned to this scope
+    public readonly Vector2         boundsSize; // Total boundary size assigned to this scope
     
-    internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Dim boundsSize) {
+    internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Vector2 boundsSize) {
         this.direction      = direction;
         this.startCursor    = startCursor;
         cursor              = startCursor;
         this.boundsSize     = boundsSize;
     }
     
-    internal Vector2 Available => new(MathF.Max(0f, boundsSize.Width  - (cursor.X - startCursor.X)),
-                                      MathF.Max(0f, boundsSize.Height - (cursor.Y - startCursor.Y)));
+    internal Vector2 Available => new(MathF.Max(0f, boundsSize.X - (cursor.X - startCursor.X)),
+                                      MathF.Max(0f, boundsSize.Y - (cursor.Y - startCursor.Y)));
 }
 
 internal enum ScrollAxis
@@ -165,7 +165,7 @@ public sealed class GuiWindow
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
     
-    internal void InitLayout(Vector2 contentPos, Dim contentSize)
+    internal void InitLayout(Vector2 contentPos, Vector2 contentSize)
     {
         layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, contentSize);
         
@@ -190,8 +190,7 @@ public sealed class GuiWindow
         // Calculate remaining space inside the parent layout relative to current cursor offset
         var available       = parent.Available;
         var size            = boundsSize.ToSizeVector2(available, default);
-        var resolvedBounds  = Dim.Size(size);
-        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, resolvedBounds);
+        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, size);
         layoutStackCount++;
     }
 

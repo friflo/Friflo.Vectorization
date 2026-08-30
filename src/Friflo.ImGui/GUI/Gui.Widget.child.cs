@@ -18,9 +18,7 @@ public readonly ref partial struct GuiWidget
 #region child
 	private Vector2 ChildOuterSize(Dim size, out Dim innerLayoutSize, out bool hasScissor)
 	{
-	    ref readonly var layout = ref Window.CurrentLayout;
-
-	    var available	= layout.Available;
+	    var available	= Window.CurrentLayout.Available;
 	    hasScissor		= size.IsBounded;
 	    var outerSize	= size.ToSizeVector2(available, default);
 	    innerLayoutSize	= Dim.Size(outerSize - Sizes.ChildPadding.Size);

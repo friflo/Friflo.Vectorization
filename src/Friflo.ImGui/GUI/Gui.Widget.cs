@@ -145,7 +145,7 @@ public readonly ref partial struct GuiWidget
         var contentPos  = window.Pos + titleOffset + Sizes.WindowPadding.Min;
         var contentSize = Vector2.Max(Vector2.Zero, innerSize - Sizes.WindowPadding.Size);
         
-        window.InitLayout(contentPos, Dim.Size(contentSize));
+        window.InitLayout(contentPos, contentSize);
         draw.PushScissor(window.Pos + titleOffset, innerSize);
         return new WindowScope(this, true);
     }
@@ -180,8 +180,7 @@ public readonly ref partial struct GuiWidget
     
     internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
     {
-        ref readonly var layout = ref Window.CurrentLayout;
-        var available = layout.Available;
+        var available = Window.CurrentLayout.Available;
         return size.ToSizeVector2(available, defaultSize);
     }
 
@@ -368,7 +367,7 @@ public readonly ref partial struct GuiWidget
         
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = PopLayout();
-        var availableWidth = Window.CurrentLayout.boundsSize.Width;
+        var availableWidth = Window.CurrentLayout.boundsSize.X;
         var offset = (availableWidth - maxSize.X) * scope.align;
         // var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
         var batch       = draw.batch;
