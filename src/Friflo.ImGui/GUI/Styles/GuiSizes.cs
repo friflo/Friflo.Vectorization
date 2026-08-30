@@ -24,7 +24,7 @@ public enum SizeId
 public struct GuiSizes
 {
     public float        CornerRadius    => 8;
-    public Padding2D    ChildPadding    => new(16, right: 16, 6, 6); // right should be greater TrackThickness
+    public Padding2D    ChildPadding    => new(6, 6);
     public float        TrackThickness  => 12;
     
     
