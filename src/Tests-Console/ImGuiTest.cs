@@ -201,6 +201,12 @@ public class ImGuiRenderer : IRenderer
             gui.Button("Button 6");
             gui.Button("Button 7");
             gui.Button("Button 8");
+            using (gui.BeginHorizontalAligned(123, HorizontalAlignment.Right)) {
+                gui.Button("Right");
+            }
+            using (gui.BeginHorizontalAligned(456, HorizontalAlignment.Center)) {
+                gui.Button("Center");
+            }
             gui.Button("Button last");
         
         gui.EndScrollArea(scrollArea);
