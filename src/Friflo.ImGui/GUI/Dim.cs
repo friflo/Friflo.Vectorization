@@ -4,6 +4,8 @@
 
 using System.Diagnostics;
 using System.Numerics;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ArrangeThisQualifier
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -25,16 +27,23 @@ public enum Sizing : byte
 /// </summary>
 public readonly struct Dim
 {
-    public readonly float   width;
-    public readonly float   height;
+    internal readonly   float   X;
+    internal readonly   float   Y;
+    
+    internal            float   Width       => X;
+    internal            float   Height      => Y;
+
+    internal            float   DistRight   => X;
+    internal            float   DistBottom  => Y;
+    
     public readonly Sizing  sizingX;
     public readonly Sizing  sizingY;
 
-    public Dim(float width, Sizing sizingX, float height, Sizing sizingY)
+    public Dim(float x, Sizing sizingX, float y, Sizing sizingY)
     {
-        this.width      = width;
+        this.X          = x;
         this.sizingX    = sizingX;
-        this.height     = height;
+        this.Y          = y;
         this.sizingY    = sizingY;
     }
 
@@ -53,19 +62,18 @@ public readonly struct Dim
 
 
 #region Fill
-    /// <summary>Fills remaining horizontal space. Height is optionally fixed or defaults to Content.</summary>
     [DebuggerStepThrough]
-    public static Dim   FillX(float height)     => new(0f,      Sizing.Fill,    height, Sizing.Exact);
+    public static Dim   FillX(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
 
     [DebuggerStepThrough]
-    public static Dim   FillX()                 => new(0f,      Sizing.Fill,    0f,     Sizing.Content);
-
-    /// <summary>Fills remaining vertical space. Width is optionally fixed or defaults to Content.</summary>
+    public static Dim   FillX()                                 => new(0f,          Sizing.Fill,    0f,         Sizing.Content);
+    
     [DebuggerStepThrough]
-    public static Dim   FillY(float width)      => new(width,   Sizing.Exact,   0f,     Sizing.Fill);
+    public static Dim   FillY(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
 
     [DebuggerStepThrough]
-    public static Dim   FillY()                 => new(0f,      Sizing.Content, 0f,     Sizing.Fill);
+    public static Dim   FillY()                                 => new(0f,          Sizing.Content, 0f,         Sizing.Fill);
+    
 
     /// <summary>Fills remaining space in both directions.</summary>
     [DebuggerStepThrough]
