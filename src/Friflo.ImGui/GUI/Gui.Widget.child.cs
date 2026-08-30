@@ -3,8 +3,8 @@
 
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable SuggestVarOrType_SimpleTypes
 // ReSharper disable SuggestVarOrType_BuiltInTypes
@@ -16,38 +16,49 @@ namespace Friflo.ImGui;
 public readonly ref partial struct GuiWidget
 {
 #region child
-	/// <summary>
-	/// Determines whether the given axis size represents auto-sizing (<c>0.0f</c> or <see cref="float.NaN"/>).
-	/// </summary>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static bool IsAutoFit(float value) => value == 0f || float.IsNaN(value);
-
-	private Vector2 ChildOuterSize(Vector2 size, out Vector2 innerLayoutSize, out bool hasScissor)
+	private Vector2 ChildOuterSize(Dim size, out Dim innerLayoutSize, out bool hasScissor)
 	{
 	    ref readonly var layout = ref Window.CurrentLayout;
-	    Vector2 remaining = Vector2.Max(Vector2.Zero, layout.boundsSize - (layout.cursor - layout.startCursor));
 
-	    hasScissor = !IsAutoFit(size.X) || !IsAutoFit(size.Y);
-
-	    float width  = size.X > 0f ? size.X : (size.X < 0f ? MathF.Max(0f, remaining.X + size.X) : remaining.X);
-	    float height = size.Y > 0f ? size.Y : (size.Y < 0f ? MathF.Max(0f, remaining.Y + size.Y) : remaining.Y);
-
-	    // invariant: width & height are not NaN at this point
-	    var padding = Sizes.ChildPadding;
-	    innerLayoutSize = new Vector2(
-	        MathF.Max(0f, width  - padding.Size.X),
-	        MathF.Max(0f, height - padding.Size.Y)
+	    // Retrieve remaining explicit pixel bounds based on current cursor offset
+	    Vector2 consumed = layout.cursor - layout.startCursor;
+	    Vector2 remaining = new Vector2(
+	        MathF.Max(0f, layout.boundsSize.Width  - consumed.X),
+	        MathF.Max(0f, layout.boundsSize.Height - consumed.Y)
 	    );
+	    hasScissor = size.IsBounded;
+
+	    float width = size.sizingX switch {
+	        Sizing.Exact   => size.Width,
+	        Sizing.Fill    => MathF.Max(0f, remaining.X - size.DistRight),
+	        Sizing.Content => 0f,
+	        _              => 0f
+	    };
+	    float height = size.sizingY switch {
+	        Sizing.Exact   => size.Height,
+	        Sizing.Fill    => MathF.Max(0f, remaining.Y - size.DistBottom),
+	        Sizing.Content => 0f,
+	        _              => 0f
+	    };
+	    var padding = Sizes.ChildPadding;
+
+	    // Construct inner Dim preserving sizing modes while subtracting padding for Exact/Fill
+	    float innerWidth  = MathF.Max(0f, width  - padding.Size.X);
+	    float innerHeight = MathF.Max(0f, height - padding.Size.Y);
+
+	    // innerLayoutSize = new Dim(innerWidth, size.sizingX, innerHeight, size.sizingY);
+	    innerLayoutSize = Dim.Size(innerWidth, innerHeight);
+
 	    return new Vector2(width, height);
 	}
 
-	internal ChildScope BeginChild(WidgetID childId, Vector2 size)
+	internal ChildScope BeginChild(WidgetID childId, Dim size)
 	{
 	    var window = Window;
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    var calculatedOuterSize = ChildOuterSize(size, out Vector2 innerLayoutSize, out bool hasScissor);
+	    var calculatedOuterSize = ChildOuterSize(size, out Dim innerLayoutSize, out bool hasScissor);
 
 	    if (hasScissor) {
 	        draw.PushScissor(parentStartCursor, calculatedOuterSize);
@@ -60,19 +71,18 @@ public readonly ref partial struct GuiWidget
 
 	internal void EndChild(in ChildScope scope)
 	{
-	    var window = Window;
+		var window = Window;
 	    var padding = Sizes.ChildPadding;
 	    Vector2 contentSize = PopLayout();
 
-	    bool hasScissor = !IsAutoFit(scope.requestedSize.X) || !IsAutoFit(scope.requestedSize.Y);
-	    if (hasScissor) {
+	    if (scope.requestedSize.IsBounded) {
 	        draw.PopScissor();
 	    }
 	    window.PopScope();
 
 	    Vector2 finalChildSize = new Vector2(
-	        IsAutoFit(scope.requestedSize.X) ? contentSize.X + padding.Size.X : scope.calculatedOuterSize.X,
-	        IsAutoFit(scope.requestedSize.Y) ? contentSize.Y + padding.Size.Y : scope.calculatedOuterSize.Y
+	        scope.requestedSize.IsAutoWidth  ? contentSize.X + padding.Size.X : scope.calculatedOuterSize.X,
+	        scope.requestedSize.IsAutoHeight ? contentSize.Y + padding.Size.Y : scope.calculatedOuterSize.Y
 	    );
 	    window.SetCursor(scope.parentStartCursor);
 	    MoveCursor(finalChildSize);
@@ -81,13 +91,13 @@ public readonly ref partial struct GuiWidget
 
 
 #region scroll area
-	internal ScrollAreaScope BeginScrollArea(int childId, Vector2 size)
+	internal ScrollAreaScope BeginScrollArea(int childId, Dim size)
 	{
 	    var window = Window;
 	    var parentStartCursor = window.Cursor;
 	    window.PushScope(childId);
 
-	    // Compute outer bounds (remaining area for NaN)
+	    // Compute outer bounds for the scroll area viewport
 	    var calculatedOuterSize = ChildOuterSize(size, out _, out _);
 
 	    // Scroll areas ALWAYS require scissor clipping against their calculated outer size
@@ -108,24 +118,24 @@ public readonly ref partial struct GuiWidget
 	            wheelY = 0f;
 	        }
 	        if (wheelY != 0f) {
-	            scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - wheelY * LineHeight);
+	            scrollState.offset.Y = MathF.Max(0f, scrollState.offset.Y - wheelY * LineHeight);
 	        }
 	        if (wheelX != 0f) {
-	            scrollState.offset.X = Math.Max(0f, scrollState.offset.X - wheelX * LineHeight);
+	            scrollState.offset.X = MathF.Max(0f, scrollState.offset.X - wheelX * LineHeight);
 	        }
 	    }
 
 	    // Offset inner start cursor by current scroll position
-	    var     padding			 = Sizes.ChildPadding;
+	    var padding = Sizes.ChildPadding;
 	    Vector2 innerStartCursor = parentStartCursor + padding.Min - scrollState.offset;
 
 	    window.SetCursor(innerStartCursor);
 
-	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding in 1-Pass)
-	    float effectiveWidth         = MathF.Max(0f, calculatedOuterSize.X - padding.Size.X);
+	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding)
+	    float effectiveWidth = MathF.Max(0f, calculatedOuterSize.X - padding.Size.X);
 
-	    // Set concrete width for horizontal alignment while keeping height infinite for vertical scrolling
-	    PushLayout(LayoutDirection.Vertical, new Vector2(effectiveWidth, float.NaN));
+		// Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
+		PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
 
 	    return new ScrollAreaScope(this, childId, parentStartCursor, size, calculatedOuterSize);
 	}
@@ -149,8 +159,8 @@ public readonly ref partial struct GuiWidget
 	    Vector2 boundsSize = scope.calculatedOuterSize;
 
 	    Vector2 maxScroll = new Vector2(
-	        Math.Max(0f, contentSize.X - boundsSize.X),
-	        Math.Max(0f, contentSize.Y - boundsSize.Y)
+	        MathF.Max(0f, contentSize.X - boundsSize.X),
+	        MathF.Max(0f, contentSize.Y - boundsSize.Y)
 	    );
 	    scrollState.offset = Vector2.Clamp(scrollState.offset, Vector2.Zero, maxScroll);
 
@@ -164,10 +174,10 @@ public readonly ref partial struct GuiWidget
 
 	    window.PopScope();
 
-	    // Advance parent layout considering potential auto-fit expansion
+	    // Advance parent layout consistently with EndChild auto-sizing semantics
 	    Vector2 finalChildSize = new Vector2(
-	        IsAutoFit(scope.requestedSize.X) ? contentSize.X : scope.calculatedOuterSize.X,
-	        IsAutoFit(scope.requestedSize.Y) ? contentSize.Y : scope.calculatedOuterSize.Y
+	        scope.requestedSize.IsAutoWidth  ? contentSize.X : scope.calculatedOuterSize.X,
+	        scope.requestedSize.IsAutoHeight ? contentSize.Y : scope.calculatedOuterSize.Y
 	    );
 	    window.SetCursor(scope.parentStartCursor);
 	    MoveCursor(finalChildSize);

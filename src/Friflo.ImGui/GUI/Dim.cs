@@ -4,9 +4,10 @@
 
 using System.Diagnostics;
 using System.Numerics;
+
+// ReSharper disable ConvertToAutoPropertyWhenPossible
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArrangeThisQualifier
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ConvertToPrimaryConstructor
@@ -32,8 +33,8 @@ internal enum Sizing : byte
 /// </summary>
 public readonly struct Dim
 {
-    internal readonly   float   X;
-    internal readonly   float   Y;
+    private  readonly   float   X;
+    private  readonly   float   Y;
     
     internal            float   Width       => X;
     internal            float   Height      => Y;
@@ -41,8 +42,14 @@ public readonly struct Dim
     internal            float   DistRight   => X;
     internal            float   DistBottom  => Y;
     
-    internal readonly Sizing  sizingX;
-    internal readonly Sizing  sizingY;
+    internal readonly   Sizing  sizingX;
+    internal readonly   Sizing  sizingY;
+    
+    internal            bool    IsAutoWidth     => sizingX != Sizing.Exact;
+    internal            bool    IsAutoHeight    => sizingY != Sizing.Exact;
+    
+    // Returns true if both axes are explicitly bounded rather than auto-sized by content
+    public              bool    IsBounded       => !IsAutoWidth && !IsAutoHeight;
 
     internal Dim(float x, Sizing sizingX, float y, Sizing sizingY)
     {
@@ -52,58 +59,72 @@ public readonly struct Dim
         this.sizingY    = sizingY;
     }
 
-#region Size
+    public override string ToString()
+    {
+        var x = sizingX switch {
+            Sizing.Content  =>   "width: Content",
+            Sizing.Fill     =>  $"width: fill {DistRight}",
+            _               =>  $"width: {Width}"
+        };
+        var y = sizingY switch {
+            Sizing.Content  =>   "height: Content",
+            Sizing.Fill     =>  $"height: fill {DistBottom}",
+            _               =>  $"height: {Height}"
+        };
+        return $"{x}, {y}";
+    }
+
+    #region Size
     /// <summary>Creates explicit fixed pixel bounds for both axes.</summary>
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   Size(float width, float height)    => new(width,   Sizing.Exact,   height, Sizing.Exact);
     
+    [DebuggerHidden]
+    public static Dim   Size(Vector2 size)                  => new(size.X, Sizing.Exact,   size.Y, Sizing.Exact);
+    
 /// <summary>Sets exact width and explicitly specifies Y sizing mode.</summary>
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   Size(float width, Fit _)          => new(width, Sizing.Exact, 0f, Sizing.Content);
 
     /// <summary>Sets exact height and explicitly specifies X sizing mode.</summary>
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   Size(Fit _, float height)         => new(0f, Sizing.Content, height, Sizing.Exact);
 #endregion  
 
 
 #region Fill
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   FillX(float distRight, float height)    => new(distRight,   Sizing.Fill,    height,     Sizing.Exact);
 
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   FillX(float distRight, Fit _)           => new(distRight,   Sizing.Fill,    0f,         Sizing.Content);
     
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   FillY(float width, float distBottom)    => new(width,       Sizing.Exact,   distBottom, Sizing.Fill);
 
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   FillY(Fit _,       float distBottom)    => new(0f,          Sizing.Content, distBottom, Sizing.Fill);
     
-    [DebuggerStepThrough]
-    public static Dim   Fill()                                  => new(0f,      Sizing.Fill,    0f,     Sizing.Fill);
+    [DebuggerHidden]
+    public static Dim   Fill()                                  => new(0f,          Sizing.Fill,    0f,         Sizing.Fill);
 #endregion
 
     /// <summary>Sizes both axes according to inner content bounds.</summary>
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static Dim   Content()               => new(0f,      Sizing.Content, 0f,     Sizing.Content);
 
     // --- Operator Conversions ---
 
     /// <summary>Allows passing explicit pixel sizes as a Vector2 tuple directly.</summary>
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static implicit operator Dim((float width, float height) tuple) => Size(tuple.width, tuple.height);
     
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static implicit operator Dim((float width, Fit fit) tuple) => Size(tuple.width, Fit.Content);
     
-    [DebuggerStepThrough]
+    [DebuggerHidden]
     public static implicit operator Dim((Fit fit, float height) tuple) => Size(Fit.Content, tuple.height);
 
-
-
-    /// <summary>Allows passing an explicit Vector2 directly for Fixed sizing.</summary>
-    [DebuggerStepThrough]
-    public static implicit operator Dim(Vector2 size) 
-        => Size(size.X, size.Y);
+    
+    // [DebuggerHidden] public static implicit operator Dim(Vector2 size) => Size(size.X, size.Y);
 }

@@ -17,12 +17,6 @@ public static class HorizontalAlignment  // move const values to UI class
     public const float Right    = 1f;
 }
 
-public static class UI
-{
-    /** Fill width and height          */   public static readonly Vector2  Fill    = new Vector2(float.NaN, float.NaN);
-    /** Fill width, height via Content */   public static readonly Vector2  FillX   = new Vector2(float.NaN,        0f);
-    /** Fill height, width via Content */   public static readonly Vector2  FillY   = new Vector2(       0f, float.NaN);
-}
 
 public readonly ref struct Gui
 {
@@ -43,13 +37,13 @@ public readonly ref struct Gui
     
     /// <summary>Begins a clipped, isolated child area within the current window.</summary>
     /// <param name="size">Target size. Use &gt; 0 for fixed dimensions or 0 for dynamic auto-fit/remaining space.</param>
-    public ChildScope   BeginChild(WidgetID id, Vector2 size)                   => widget.BeginChild(id, size);
+    public ChildScope   BeginChild(WidgetID id, Dim size)                   => widget.BeginChild(id, size);
     public void         EndChild(in ChildScope scope)  => widget.EndChild(scope);
     
     public void Label(ReadOnlySpan<char> name, Color32 textColor = default)
         => widget.Label(name, textColor);
     
-    public bool Button(ReadOnlySpan<char> name, Vector2 size = default, GuiStyle? style = null, WidgetID id = default)
+    public bool Button(ReadOnlySpan<char> name, Dim size = default, GuiStyle? style = null, WidgetID id = default)
         => widget.Button(name, size, style, id);
     
     public bool Checkbox(ReadOnlySpan<char> name, ref bool value, GuiStyle? style = null, WidgetID id = default)
@@ -65,19 +59,19 @@ public readonly ref struct Gui
     public StyleScope       PushStyle(GuiStyle style)   => widget.PushStyle(style);
     public void             PopStyle()                  { if (widget.IsSet) widget.PopStyle(); }
 
-    public void             Spacer(float size = 20f)                => widget.Spacer(size);
-    public VerticalScope    BeginVertical(Vector2 size = default)   => widget.BeginVertical(size);
-    public void             EndVertical()                           => widget.EndVertical();
+    public void             Spacer(float size = 20f)            => widget.Spacer(size);
+    public VerticalScope    BeginVertical(Dim size = default)   => widget.BeginVertical(size);
+    public void             EndVertical()                       => widget.EndVertical();
     
-    public HorizontalScope  BeginHorizontal(Vector2 size = default) => widget.BeginHorizontal(size);
-    public void             EndHorizontal()                         => widget.EndHorizontal();
+    public HorizontalScope  BeginHorizontal(Dim size = default) => widget.BeginHorizontal(size);
+    public void             EndHorizontal()                     => widget.EndHorizontal();
     
     /// <summary>Begins a horizontal layout group with flexible alignment.</summary>
     /// <param name="align">Alignment position. <br/>Use predefined values like <see cref="HorizontalAlignment.Center"/> (0.5f) or <see cref="HorizontalAlignment.Right"/> (1.0f), or custom floats between 0.0f and 1.0f.</param>
-    public HorizontalCenterScope    BeginHorizontalAligned(int id, float align, Vector2 size = default) => widget.BeginHorizontalAligned(id, align, size);
+    public HorizontalCenterScope    BeginHorizontalAligned(int id, float align, Dim size = default) => widget.BeginHorizontalAligned(id, align, size);
     public void                     EndHorizontalAligned(in HorizontalCenterScope scope) => widget.EndHorizontalAligned(scope);
     
-    public ScrollAreaScope  BeginScrollArea(int childId, Vector2 size)  => widget.BeginScrollArea(childId, size);
-    public void             EndScrollArea(in ScrollAreaScope scope)     => widget.EndScrollArea(scope);
+    public ScrollAreaScope  BeginScrollArea(int childId, Dim size)  => widget.BeginScrollArea(childId, size);
+    public void             EndScrollArea(in ScrollAreaScope scope) => widget.EndScrollArea(scope);
     
 }

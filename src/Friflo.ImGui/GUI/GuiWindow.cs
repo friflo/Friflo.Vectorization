@@ -31,9 +31,9 @@ public struct LayoutNode
     public readonly Vector2         startCursor;
     public          Vector2         cursor;
     public          Vector2         maxSize;    // Accrued content footprint (grows with widgets)
-    public readonly Vector2         boundsSize; // Total boundary size assigned to this scope
+    public readonly Dim             boundsSize; // Total boundary size assigned to this scope
     
-    internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Vector2 boundsSize) {
+    internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Dim boundsSize) {
         this.direction      = direction;
         this.startCursor    = startCursor;
         cursor              = startCursor;
@@ -162,7 +162,7 @@ public sealed class GuiWindow
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
     
-    internal void InitLayout(Vector2 contentPos, Vector2 contentSize)
+    internal void InitLayout(Vector2 contentPos, Dim contentSize)
     {
         layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, contentSize);
         
@@ -173,7 +173,7 @@ public sealed class GuiWindow
     /// Note: Internal state-only push. Must only be invoked via <see cref="GuiWidget.PushLayout"/>
     /// to ensure symmetry with <see cref="GuiWidget.PopLayout"/>.
     /// </summary>
-    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
+    internal void PushLayout(LayoutDirection direction, Dim boundsSize)
     {
         var count = layoutStack.Length;
         if (layoutStackCount >= count) {
@@ -181,21 +181,34 @@ public sealed class GuiWindow
             Array.Copy(layoutStack, 0, newStack, 0, count);
             layoutStack = newStack;
         }
-        // Use explicit width if specified (e.g., fixed panel or table column).
-        float width = boundsSize.X;
-        if (width == 0) {
-            // Otherwise, derive remaining width from the parent layout relative to current cursor offset.
-            ref readonly var parent = ref layoutStack[layoutStackCount - 1];
-            width = parent.boundsSize.X - (parent.cursor.X - parent.startCursor.X);
-        }
-        // Use explicit height if specified (e.g., fixed panel or table column).
-        float height = boundsSize.Y;
-        if (height == 0) {
-            // Otherwise, derive remaining height from the parent layout relative to current cursor offset.
-            ref readonly var parent = ref layoutStack[layoutStackCount - 1];
-            height = parent.boundsSize.Y - (parent.cursor.Y - parent.startCursor.Y);
-        }
-        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, new Vector2(width, height));
+
+        ref readonly var parent = ref layoutStack[layoutStackCount - 1];
+
+        // Calculate remaining space inside the parent layout relative to current cursor offset
+        float remainingX = MathF.Max(0f, parent.boundsSize.Width  - (parent.cursor.X - parent.startCursor.X));
+        float remainingY = MathF.Max(0f, parent.boundsSize.Height - (parent.cursor.Y - parent.startCursor.Y));
+
+        // Resolve horizontal layout mode
+        float width = boundsSize.sizingX switch
+        {
+            Sizing.Exact   => boundsSize.Width,
+            Sizing.Fill    => MathF.Max(0f, remainingX - boundsSize.DistRight),
+            Sizing.Content => 0f,
+            _              => 0f
+        };
+
+        // Resolve vertical layout mode
+        float height = boundsSize.sizingY switch
+        {
+            Sizing.Exact   => boundsSize.Height,
+            Sizing.Fill    => MathF.Max(0f, remainingY - boundsSize.DistBottom),
+            Sizing.Content => 0f,
+            _              => 0f
+        };
+
+        // Construct node with the explicit sizing mode preserved
+        Dim resolvedBounds = new Dim(width, boundsSize.sizingX, height, boundsSize.sizingY);
+        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, resolvedBounds);
         layoutStackCount++;
     }
 

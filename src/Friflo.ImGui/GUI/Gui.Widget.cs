@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+// ReSharper disable RedundantSwitchExpressionArms
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -144,7 +145,7 @@ public readonly ref partial struct GuiWidget
         var contentPos  = window.Pos + titleOffset + Sizes.WindowPadding.Min;
         var contentSize = Vector2.Max(Vector2.Zero, innerSize - Sizes.WindowPadding.Size);
         
-        window.InitLayout(contentPos, contentSize);
+        window.InitLayout(contentPos, Dim.Size(contentSize));
         draw.PushScissor(window.Pos + titleOffset, innerSize);
         return new WindowScope(this, true);
     }
@@ -177,55 +178,62 @@ public readonly ref partial struct GuiWidget
         MoveCursor(spaceSize);
     }
     
-    internal Vector2 WidgetSize(Vector2 size, Vector2 defaultSize)
+    internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
     {
-        if (size == default) {
-            return defaultSize;
-        }
-        var width = defaultSize.X;
-        if (size.X > 0) {
-            width = size.X;
-        } else if (size.X != 0) {
-            ref readonly var layout = ref Window.CurrentLayout;
-            width = layout.boundsSize.X - (layout.cursor.X - layout.startCursor.X);
-            if (size.X < 0) width += size.X;    // unchanged if NaN
-            if (width < 0f) width = 0f;
-        }
-        var height = defaultSize.Y;
-        if (size.Y > 0) {
-            height = size.Y;
-        } else if (size.Y != 0) {
-            ref readonly var layout = ref Window.CurrentLayout;
-            height = layout.boundsSize.Y - (layout.cursor.Y - layout.startCursor.Y);
-            if (size.Y < 0)  height += size.Y;  // unchanged if NaN
-            if (height < 0f) height = 0f;
-        }
+        ref readonly var layout = ref Window.CurrentLayout;
+
+        // Retrieve remaining layout space relative to current cursor offset
+        Vector2 consumed = layout.cursor - layout.startCursor;
+        Vector2 remaining = new Vector2(
+            MathF.Max(0f, layout.boundsSize.Width  - consumed.X),
+            MathF.Max(0f, layout.boundsSize.Height - consumed.Y)
+        );
+        float width = size.sizingX switch {
+            Sizing.Exact   => size.Width,
+            Sizing.Fill    => MathF.Max(0f, remaining.X - size.DistRight),
+            Sizing.Content => defaultSize.X,
+            _              => defaultSize.X
+        };
+        float height = size.sizingY switch {
+            Sizing.Exact   => size.Height,
+            Sizing.Fill    => MathF.Max(0f, remaining.Y - size.DistBottom),
+            Sizing.Content => defaultSize.Y,
+            _              => defaultSize.Y
+        };
         return new Vector2(width, height);
     }
-    
-    internal bool Button(ReadOnlySpan<char> name, Vector2 size, GuiStyle? style, WidgetID id)
+
+    internal bool Button(ReadOnlySpan<char> name, Dim size, GuiStyle? style, WidgetID id)
     {
-        var window  = Window;
+        var window = Window;
         using var _ = UseStyle(style);
-        
-        int parentHash  = window.GetCurrentScopeHash();
-        int widgetId    = id.Resolve(name, parentHash);
-        
-        var pos         = window.Cursor;
-        var textSize    = draw.MeasureText(name);
-        size            = WidgetSize(size, textSize + Sizes.FramePadding.Size);
-        var isHover     = window.IsHoverAtCursor(size, draw);
-        bool isFocused  = RegisterFocusable(widgetId, pos, size);
+
+        int parentHash = window.GetCurrentScopeHash();
+        int widgetId   = id.Resolve(name, parentHash);
+
+        var pos      = window.Cursor;
+        var textSize = draw.MeasureText(name);
+
+        // Calculate final pixel footprint based on measured text size as content fallback
+        Vector2 defaultSize = textSize + Sizes.FramePadding.Size;
+        Vector2 finalSize   = WidgetSize(size, defaultSize);
+
+        var isHover     = window.IsHoverAtCursor(finalSize, draw);
+        bool isFocused  = RegisterFocusable(widgetId, pos, finalSize);
         var widgetState = GetWidgetState(isHover, widgetId);
-        
-        draw.FillRectRounded(pos, size, Sizes.CornerRadius, Colors.ButtonState(widgetState)); // background
+
+        // Background
+        draw.FillRectRounded(pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState));
 
         if (isFocused) {
-            DrawFocus(pos, size);
-            window.EnsureVisibleInScrollArea(pos, size);
+            DrawFocus(pos, finalSize);
+            window.EnsureVisibleInScrollArea(pos, finalSize);
         }
+
         draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
-        MoveCursor(size);
+        
+        MoveCursor(finalSize);
+        
         return IsFired(widgetState, isFocused);
     }
     
@@ -345,7 +353,7 @@ public readonly ref partial struct GuiWidget
 
     
 #region Layout
-    internal VerticalScope BeginVertical(Vector2 size)
+    internal VerticalScope BeginVertical(Dim size)
     {
         PushLayout(LayoutDirection.Vertical, size);
         return new VerticalScope(this);
@@ -353,7 +361,7 @@ public readonly ref partial struct GuiWidget
 
     internal void EndVertical() => PopLayout();
     
-    internal HorizontalScope BeginHorizontal(Vector2 size)
+    internal HorizontalScope BeginHorizontal(Dim size)
     {
         PushLayout(LayoutDirection.Horizontal, size);
         return new HorizontalScope(this);
@@ -362,7 +370,7 @@ public readonly ref partial struct GuiWidget
     
     
     
-    internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Vector2 size)
+    internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
         PushLayout(LayoutDirection.Horizontal, size);
         var oldMouseOffset = input.mouseOffset;
@@ -378,7 +386,7 @@ public readonly ref partial struct GuiWidget
         
         input.mouseOffset = scope.oldMouseOffset;
         var maxSize     = PopLayout();
-        var availableWidth = Window.CurrentLayout.boundsSize.X;
+        var availableWidth = Window.CurrentLayout.boundsSize.Width;
         var offset = (availableWidth - maxSize.X) * scope.align;
         // var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
         var batch       = draw.batch;
@@ -438,7 +446,7 @@ public readonly ref partial struct GuiWidget
         }
     }
     
-    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
+    internal void PushLayout(LayoutDirection direction, Dim boundsSize)
     {
         Window.PushLayout(direction, boundsSize);
     }
