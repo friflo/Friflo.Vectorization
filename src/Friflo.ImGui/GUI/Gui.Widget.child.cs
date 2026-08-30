@@ -99,8 +99,8 @@ public readonly ref partial struct GuiWidget
 	    bool hasVertScrollbar = scrollState.lastContentSize.Y > outerSize.Y;
 	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
 
-	    // Provide concrete viewport width for UI.FillX elements (accounting for full horizontal padding and scrollbar)
-	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - scrollbarWidth);
+	    // Provide concrete viewport width for UI.FillX elements (accounting for padding, focus clearance, and scrollbar)
+	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
 
 	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
 	    PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
@@ -112,35 +112,43 @@ public readonly ref partial struct GuiWidget
 	{
 	    var window = Window;
 	    var padding = Sizes.ChildPadding;
+	    Vector2 boundsSize = scope.calculatedOuterSize;
 	    
-	    // Retrieve total measured content size and include padding for bottom/right margins
+	    // Measure base content including padding and focus outline clearance
 	    Vector2 rawContent = PopLayout();
-	    Vector2 contentSize = rawContent + padding.Size;
-	    
+	    Vector2 baseContentSize = rawContent + padding.Size + 2 * Sizes.FocusOutlineThickness;
+
+	    ref var scrollState = ref window.GetOrCreateScrollState(scope.childId);
+
+	    // Determine actual visibility decoupled from mutation
+	    bool showVert  = baseContentSize.Y > boundsSize.Y;
+	    bool showHoriz = baseContentSize.X > boundsSize.X;
+
+	    // Build effective content size without cross-contaminating initial triggers
+	    Vector2 contentSize = baseContentSize;
+	    if (showVert)  contentSize.X += Sizes.TrackThickness;
+	    if (showHoriz) contentSize.Y += Sizes.TrackThickness;
+
+	    // Cache current content size for the next frame's layout pass
+	    scrollState.lastContentSize = contentSize;
+
 	    // Pop scissor unconditionally
 	    draw.PopScissor();
 	    
 	    window.PopScrollAreaInfo();
 
-	    // Clamp scroll offset within valid bounds using the content size (inclusive of padding)
-	    ref var scrollState = ref window.GetOrCreateScrollState(scope.childId);
-	    
-	    // Cache current content size for the next frame's layout pass
-	    scrollState.lastContentSize = contentSize;
-
-	    Vector2 boundsSize = scope.calculatedOuterSize;
-
+	    // Clamp scroll offset within valid bounds
 	    Vector2 maxScroll = new Vector2(
 	        MathF.Max(0f, contentSize.X - boundsSize.X),
 	        MathF.Max(0f, contentSize.Y - boundsSize.Y)
 	    );
 	    scrollState.offset = Vector2.Clamp(scrollState.offset, Vector2.Zero, maxScroll);
 
-	    // Render scrollbars whenever content exceeds bounds
-	    if (contentSize.Y > boundsSize.Y) {
+	    // Render scrollbars based on exact visibility criteria
+	    if (showVert) {
 	        DrawScrollbar(scope.childId, scope.parentStartCursor, boundsSize, contentSize.Y, ref scrollState, ScrollAxis.Vertical);
 	    }
-	    if (contentSize.X > boundsSize.X) {
+	    if (showHoriz) {
 	        DrawScrollbar(scope.childId, scope.parentStartCursor, boundsSize, contentSize.X, ref scrollState, ScrollAxis.Horizontal);
 	    }
 
