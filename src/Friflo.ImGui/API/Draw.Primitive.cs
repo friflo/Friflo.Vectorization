@@ -5,6 +5,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UseWithExpressionToCopyStruct
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable MemberCanBePrivate.Global
@@ -211,10 +212,39 @@ public readonly ref partial struct ImDraw
         Vector2 br = position + new Vector2(size.X - radius, size.Y - radius);
         Vector2 bl = position + new Vector2(radius,          size.Y - radius);
 
-        FillArc(tl, radius, MathF.PI,        MathF.PI * 1.5f,   color, segments);
-        FillArc(tr, radius, MathF.PI * 1.5f, MathF.PI * 2f,     color, segments);
-        FillArc(br, radius, 0f,              MathF.PI * 0.5f,   color, segments);
-        FillArc(bl, radius, MathF.PI * 0.5f, MathF.PI,          color, segments);
+        FillCornerArc(tl, radius, ArcCorner.TopLeft,     color, segments);
+        FillCornerArc(tr, radius, ArcCorner.TopRight,    color, segments);
+        FillCornerArc(br, radius, ArcCorner.BottomRight, color, segments);
+        FillCornerArc(bl, radius, ArcCorner.BottomLeft,  color, segments);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FillCornerArc(Vector2 center, float radius, ArcCorner corner, Color32 color, int segments = 4)
+    {
+        if (segments < 1) segments = 1;
+
+        if (segments <= 10)
+        {
+            ReadOnlySpan<Vector2> lookup = ArcLookups.CornerTables[segments];
+            ArcLookups.GetCornerTransform(corner, out float signX, out float signY, out bool swapXY);
+
+            for (int i = 0; i < segments; i += 2)
+            {
+                Vector2 u0 = lookup[i];
+                Vector2 u1 = lookup[i + 1];
+                Vector2 u2 = (i + 2 <= segments) ? lookup[i + 2] : u1;
+
+                Vector2 dir0 = swapXY ? new Vector2(u0.Y * signX, u0.X * signY) : new Vector2(u0.X * signX, u0.Y * signY);
+                Vector2 dir1 = swapXY ? new Vector2(u1.Y * signX, u1.X * signY) : new Vector2(u1.X * signX, u1.Y * signY);
+                Vector2 dir2 = swapXY ? new Vector2(u2.Y * signX, u2.X * signY) : new Vector2(u2.X * signX, u2.Y * signY);
+
+                FillQuad(center, center + dir0 * radius, center + dir1 * radius, center + dir2 * radius, color);
+            }
+            return;
+        }
+
+        var (startAngle, endAngle) = ArcLookups.GetCornerAngles(corner);
+        FillArc(center, radius, startAngle, endAngle, color, segments);
     }
 
     public void FillArc(Vector2 center, float radius, float startAngle, float endAngle, Color32 color, int segments)
