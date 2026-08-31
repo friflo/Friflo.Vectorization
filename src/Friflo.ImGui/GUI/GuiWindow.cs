@@ -179,6 +179,8 @@ public sealed class GuiWindow
         return idStack.Count > 0 ? idStack.Peek() : 0;
     }
     
+    
+#region layout
     internal void InitLayout(Vector2 contentPos, Vector2 contentSize)
     {
         layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, contentSize);
@@ -222,6 +224,30 @@ public sealed class GuiWindow
         return finishedLayout.maxSize;
     }
     
+    internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
+    {
+        var width = size.sizingX switch {
+            Sizing.Exact   => size.Width,
+            Sizing.Fill    => CurrentLayout.WidgetFillWidth(size.DistRight),
+            Sizing.Content => defaultSize.X,
+            _              => defaultSize.X
+        };
+        var height = size.sizingY switch {
+            Sizing.Exact   => size.Height,
+            Sizing.Fill    => CurrentLayout.WidgetFillHeight(size.DistBottom),
+            Sizing.Content => defaultSize.Y,
+            _              => defaultSize.Y
+        };
+        return new Vector2(width, height);
+    }
+    
+    internal void SetCursor(Vector2 value)
+    {
+        CurrentLayoutRef.cursor = value;
+    }
+#endregion
+    
+    
     internal ref ScrollState GetOrCreateScrollState(int id)
     {
         ref var state = ref CollectionsMarshal.GetValueRefOrAddDefault(scrollStates, id, out bool exists);
@@ -233,11 +259,6 @@ public sealed class GuiWindow
             };
         }
         return ref state;
-    }
-    
-    internal void SetCursor(Vector2 value)
-    {
-        CurrentLayoutRef.cursor = value;
     }
 
     internal void SetTopWindow()
@@ -420,21 +441,4 @@ public sealed class GuiWindow
         }
     }
 #endregion
-
-    internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
-    {
-        var width = size.sizingX switch {
-            Sizing.Exact   => size.Width,
-            Sizing.Fill    => CurrentLayout.WidgetFillWidth(size.DistRight),
-            Sizing.Content => defaultSize.X,
-            _              => defaultSize.X
-        };
-        var height = size.sizingY switch {
-            Sizing.Exact   => size.Height,
-            Sizing.Fill    => CurrentLayout.WidgetFillHeight(size.DistBottom),
-            Sizing.Content => defaultSize.Y,
-            _              => defaultSize.Y
-        };
-        return new Vector2(width, height);
-    }
 }
