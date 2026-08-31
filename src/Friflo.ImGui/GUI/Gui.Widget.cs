@@ -350,8 +350,6 @@ public readonly ref partial struct GuiWidget
     
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
-        var boundsSize = Window.WidgetSize(size, default);
-        PushLayout(LayoutDirection.Horizontal, boundsSize);
         var oldMouseOffset = input.mouseOffset;
         guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
@@ -361,10 +359,9 @@ public readonly ref partial struct GuiWidget
     
     internal void EndHorizontalAligned(in HorizontalCenterScope scope)
     {
-        EndHorizontal();
+        var maxSize = PopLayout();
         
         input.mouseOffset = scope.oldMouseOffset;
-        var maxSize     = PopLayout();
         var availableWidth = Window.CurrentLayout.boundsSize.X;
         var offset = (availableWidth - maxSize.X) * scope.align;
         // var offset      = (Window.Size.X - Sizes.WindowPadding.Size.X - maxSize.X) * scope.align;
