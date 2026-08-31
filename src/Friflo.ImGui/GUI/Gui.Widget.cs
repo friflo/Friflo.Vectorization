@@ -108,7 +108,8 @@ public readonly ref partial struct GuiWidget
             //       in this same frame pass the IsTopWindowAt() check and process clicks immediately.
             host.SetTopWindow(window);
         }
-        draw.PushZIndex((uint)host.windowOrder.IndexOf(window) + 1); // +1, so 0 is background;
+        var zindex = (uint)host.windowOrder.IndexOf(window) + 1;  // +1, so 0 is background;
+        draw.PushZIndex(zindex);
         
         window.ResetScope();
         int parentHash = window.GetCurrentScopeHash();
