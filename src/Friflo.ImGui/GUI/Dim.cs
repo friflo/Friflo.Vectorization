@@ -53,7 +53,7 @@ public readonly struct Dim
     internal            bool    IsAutoHeight    => sizingY != Sizing.Exact;
     
     // Returns true if both axes are explicitly bounded rather than auto-sized by content
-    internal            bool    IsBounded       => sizingX == Sizing.Exact && sizingY == Sizing.Exact;
+    internal            bool    IsBounded       => sizingX != Sizing.Content && sizingY != Sizing.Content;
     
 
     internal Dim(float x, Sizing sizingX, float y, Sizing sizingY)
