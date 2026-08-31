@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // ReSharper disable RedundantSwitchExpressionArms
@@ -41,8 +42,19 @@ public struct LayoutNode
         this.boundsSize     = boundsSize;
     }
 
-    internal readonly float  AvailableX  => MathF.Max(0f, boundsSize.X - (cursor.X - startCursor.X));
-    internal readonly float  AvailableY  => MathF.Max(0f, boundsSize.Y - (cursor.Y - startCursor.Y));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal readonly float WidgetFillWidth(float distRight)
+    {
+        var remaining = boundsSize.X - (cursor.X - startCursor.X) - distRight;
+        return remaining > 0f ? remaining : 0f;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal readonly float WidgetFillHeight(float distBottom)
+    {
+        var remaining = boundsSize.Y - (cursor.Y - startCursor.Y) - distBottom;
+        return remaining > 0f ? remaining : 0f;
+    }
 }
 
 internal enum ScrollAxis
@@ -407,13 +419,13 @@ public sealed class GuiWindow
     {
         var width = size.sizingX switch {
             Sizing.Exact   => size.Width,
-            Sizing.Fill    => MathF.Max(0f, CurrentLayout.AvailableX - size.DistRight),
+            Sizing.Fill    => CurrentLayout.WidgetFillWidth(size.DistRight),
             Sizing.Content => defaultSize.X,
             _              => defaultSize.X
         };
         var height = size.sizingY switch {
             Sizing.Exact   => size.Height,
-            Sizing.Fill    => MathF.Max(0f, CurrentLayout.AvailableY - size.DistBottom),
+            Sizing.Fill    => CurrentLayout.WidgetFillHeight(size.DistBottom),
             Sizing.Content => defaultSize.Y,
             _              => defaultSize.Y
         };
