@@ -192,17 +192,23 @@ public sealed class GuiWindow
     /// </summary>
     internal void PushLayout(LayoutDirection direction, Dim boundsSize)
     {
-        var count = layoutStack.Length;
-        if (layoutStackCount >= count) {
-            var newStack = new LayoutNode[2 * count];
-            Array.Copy(layoutStack, 0, newStack, 0, count);
-            layoutStack = newStack;
+        var count = layoutStackCount;
+        var stack = layoutStack;
+        if (count >= stack.Length) {
+            stack = ResizeLayoutStack();
         }
-
         // Calculate remaining space inside the parent layout relative to current cursor offset
         var size = WidgetSize(boundsSize, default);
-        layoutStack[layoutStackCount] = new LayoutNode(direction, Cursor, size);
-        layoutStackCount++;
+        stack[count] = new LayoutNode(direction, stack[count - 1].cursor, size);
+        layoutStackCount = count + 1;
+    }
+    
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private LayoutNode[] ResizeLayoutStack()
+    {
+        var newStack = new LayoutNode[2 * layoutStack.Length];
+        Array.Copy(layoutStack, 0, newStack, 0, layoutStack.Length);
+        return layoutStack = newStack;
     }
 
     /// <summary>
