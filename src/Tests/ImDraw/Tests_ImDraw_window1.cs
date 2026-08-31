@@ -11,7 +11,7 @@ using Tests.Utils;
 // ReSharper disable once InconsistentNaming
 namespace Tests.ImDraw;
 
-public class Tests_ImDraw_headless
+public class Tests_ImDraw_window1
 {
     private bool    mouseCircle;
     private bool    monocraft;
@@ -27,12 +27,12 @@ public class Tests_ImDraw_headless
     }
     
     [Test]
-    public void Tests_ImDraw_headless_window1()
+    public void Tests_ImDraw_window1_headless()
     {
         var         backend = new HeadlessBackend();
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
-        long        start = 0;
+        long        start   = 0;
         const int   repeat  = 10; // 500_000 - 3.5 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
         
         for (int n = 0; n < repeat; n++)
