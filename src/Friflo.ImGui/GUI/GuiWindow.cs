@@ -40,9 +40,9 @@ public struct LayoutNode
         cursor              = startCursor;
         this.boundsSize     = boundsSize;
     }
-    
-    internal Vector2 Available => new(MathF.Max(0f, boundsSize.X - (cursor.X - startCursor.X)),
-                                      MathF.Max(0f, boundsSize.Y - (cursor.Y - startCursor.Y)));
+
+    internal readonly float  AvailableX  => MathF.Max(0f, boundsSize.X - (cursor.X - startCursor.X));
+    internal readonly float  AvailableY  => MathF.Max(0f, boundsSize.Y - (cursor.Y - startCursor.Y));
 }
 
 internal enum ScrollAxis
@@ -407,13 +407,13 @@ public sealed class GuiWindow
     {
         var width = size.sizingX switch {
             Sizing.Exact   => size.Width,
-            Sizing.Fill    => MathF.Max(0f, CurrentLayout.Available.X - size.DistRight),
+            Sizing.Fill    => MathF.Max(0f, CurrentLayout.AvailableX - size.DistRight),
             Sizing.Content => defaultSize.X,
             _              => defaultSize.X
         };
         var height = size.sizingY switch {
             Sizing.Exact   => size.Height,
-            Sizing.Fill    => MathF.Max(0f, CurrentLayout.Available.Y - size.DistBottom),
+            Sizing.Fill    => MathF.Max(0f, CurrentLayout.AvailableY - size.DistBottom),
             Sizing.Content => defaultSize.Y,
             _              => defaultSize.Y
         };
