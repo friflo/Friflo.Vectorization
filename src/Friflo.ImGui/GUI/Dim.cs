@@ -16,8 +16,11 @@ using System.Numerics;
 // ReSharper disable once CheckNamespace
 namespace Friflo.ImGui;
 
-
+/// <summary>
+/// Specifies how a control dimensions itself relative to its content or parent.
+/// </summary>
 public enum Fit {
+    /// <summary> Sizes the control automatically to fit its internal content. </summary>
     Content
 }
 
