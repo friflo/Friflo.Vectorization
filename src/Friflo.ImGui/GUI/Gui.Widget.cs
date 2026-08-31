@@ -414,12 +414,12 @@ public readonly ref partial struct GuiWidget
         ref var node = ref Window.CurrentLayoutRef;
 
         if (node.direction == LayoutDirection.Vertical) {
-            node.maxSize.X  = MathF.Max(node.maxSize.X, size.X);
+            if (size.X > node.maxSize.X) node.maxSize.X = size.X;
             node.maxSize.Y  = node.cursor.Y + size.Y - node.startCursor.Y;
             node.cursor.Y  += size.Y + Sizes.ItemSpacing.Y;
         } else {
             node.maxSize.X  = node.cursor.X + size.X - node.startCursor.X;
-            node.maxSize.Y  = MathF.Max(node.maxSize.Y, size.Y);
+            if (size.Y > node.maxSize.Y) node.maxSize.Y = size.Y;
             node.cursor.X  += size.X + Sizes.ItemSpacing.X;
         }
     }
