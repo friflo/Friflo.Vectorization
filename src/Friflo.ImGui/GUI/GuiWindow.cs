@@ -358,22 +358,22 @@ public sealed class GuiWindow
         var newSize = Size;
         var startSize = activeResizeSize;
         if ((edge & ResizeEdge.Right) != 0) {
-            newSize.X = Math.Max(minSize.X, startSize.X + offset.X);
+            newSize.X = MathF.Max(minSize.X, startSize.X + offset.X);
         }
         // Horizontal: Left
         if ((edge & ResizeEdge.Left) != 0) {
-            float newWidth = Math.Max(minSize.X, startSize.X - offset.X);
+            float newWidth = MathF.Max(minSize.X, startSize.X - offset.X);
             newPos.X += newSize.X - newWidth;
             newSize.X = newWidth;
         }
         // Vertical: Bottom
         if ((edge & ResizeEdge.Bottom) != 0) {
-            newSize.Y = Math.Max(minSize.Y, startSize.Y + offset.Y);
+            newSize.Y = MathF.Max(minSize.Y, startSize.Y + offset.Y);
         }
         // Vertical: Top
         if ((edge & ResizeEdge.Top) != 0)
         {
-            float newHeight = Math.Max(minSize.Y, startSize.Y - offset.Y);
+            float newHeight = MathF.Max(minSize.Y, startSize.Y - offset.Y);
             newPos.Y += newSize.Y - newHeight;
             newSize.Y = newHeight;
         }
@@ -418,21 +418,21 @@ public sealed class GuiWindow
 
         if (widgetTop < areaTop + padding) {
             float delta = (areaTop + padding) - widgetTop;
-            scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - delta);
+            scrollState.offset.Y = MathF.Max(0f, scrollState.offset.Y - delta);
         } else if (widgetBottom > areaBottom - padding) {
             float delta = widgetBottom - (areaBottom - padding);
             scrollState.offset.Y += delta;
         }
 
         // Check and adjust horizontal scrolling (X-Axis)
-        float widgetLeft = pos.X;
-        float widgetRight = pos.X + size.X;
-        float areaLeft = scrollArea.pos.X;
-        float areaRight = scrollArea.pos.X + scrollArea.size.X;
+        float widgetLeft    = pos.X;
+        float widgetRight   = pos.X + size.X;
+        float areaLeft      = scrollArea.pos.X;
+        float areaRight     = scrollArea.pos.X + scrollArea.size.X;
 
         if (widgetLeft < areaLeft + padding) {
             float delta = (areaLeft + padding) - widgetLeft;
-            scrollState.offset.X = Math.Max(0f, scrollState.offset.X - delta);
+            scrollState.offset.X = MathF.Max(0f, scrollState.offset.X - delta);
         } else if (widgetRight > areaRight - padding) {
             float delta = widgetRight - (areaRight - padding);
             scrollState.offset.X += delta;

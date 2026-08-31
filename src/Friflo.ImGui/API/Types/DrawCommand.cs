@@ -78,13 +78,13 @@ public readonly struct RectVector2 (Vector2 pos, Vector2 size) : IEquatable<Rect
     /// <summary> Computes the intersection (overlapping region) of two rectangles. </summary>
     public RectVector2 Intersect(in RectVector2 other)
     {
-        float x1 = Math.Max(pos.X, other.pos.X);
-        float y1 = Math.Max(pos.Y, other.pos.Y);
-        float x2 = Math.Min(pos.X + size.X, other.pos.X + other.size.X);
-        float y2 = Math.Min(pos.Y + size.Y, other.pos.Y + other.size.Y);
+        float x1 = MathF.Max(pos.X, other.pos.X);
+        float y1 = MathF.Max(pos.Y, other.pos.Y);
+        float x2 = MathF.Min(pos.X + size.X, other.pos.X + other.size.X);
+        float y2 = MathF.Min(pos.Y + size.Y, other.pos.Y + other.size.Y);
 
-        float w = Math.Max(0f, x2 - x1);
-        float h = Math.Max(0f, y2 - y1);
+        float w = MathF.Max(0f, x2 - x1);
+        float h = MathF.Max(0f, y2 - y1);
 
         return new RectVector2(new Vector2(x1, y1), new Vector2(w, h));
     }

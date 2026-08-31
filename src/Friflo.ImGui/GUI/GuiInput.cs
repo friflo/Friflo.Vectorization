@@ -273,7 +273,7 @@ public sealed class GuiInput
             float crossDist = 0f;
 
             // --- HORIZONTAL NAVIGATION (Left / Right) ---
-            if (Math.Abs(direction.X) > 0f) {
+            if (MathF.Abs(direction.X) > 0f) {
                 bool isRight = direction.X > 0f;
 
                 // Edge-to-Edge distance on main axis
@@ -282,9 +282,9 @@ public sealed class GuiInput
                     : current.pos.X - (candidate.pos.X + candidate.size.X);
 
                 // Calculate overlap on Y-axis
-                float overlapTop    = Math.Max(current.pos.Y, candidate.pos.Y);
-                float overlapBottom = Math.Min(current.pos.Y + current.size.Y, candidate.pos.Y + candidate.size.Y);
-                crossOverlap        = Math.Max(0f, overlapBottom - overlapTop);
+                float overlapTop    = MathF.Max(current.pos.Y, candidate.pos.Y);
+                float overlapBottom = MathF.Min(current.pos.Y + current.size.Y, candidate.pos.Y + candidate.size.Y);
+                crossOverlap        = MathF.Max(0f, overlapBottom - overlapTop);
 
                 // Edge-to-Edge distance on cross axis (if not overlapping)
                 if (crossOverlap <= 0f) {
@@ -303,9 +303,9 @@ public sealed class GuiInput
                     : current.pos.Y - (candidate.pos.Y + candidate.size.Y);
 
                 // Calculate overlap on X-axis
-                float overlapLeft = Math.Max(current.pos.X, candidate.pos.X);
-                float overlapRight = Math.Min(current.pos.X + current.size.X, candidate.pos.X + candidate.size.X);
-                crossOverlap = Math.Max(0f, overlapRight - overlapLeft);
+                float overlapLeft   = MathF.Max(current.pos.X, candidate.pos.X);
+                float overlapRight  = MathF.Min(current.pos.X + current.size.X, candidate.pos.X + candidate.size.X);
+                crossOverlap        = MathF.Max(0f, overlapRight - overlapLeft);
 
                 // Edge-to-Edge distance on cross axis (if not overlapping)
                 if (crossOverlap <= 0f) {
@@ -317,7 +317,7 @@ public sealed class GuiInput
 
             // Candidate must be in front of current widget (allow tiny negative tolerance for alignment borders)
             if (primaryDist < -2f) continue;
-            primaryDist = Math.Max(0f, primaryDist);
+            primaryDist = MathF.Max(0f, primaryDist);
 
             // Scoring: Overlapping elements get massive priority (crossOverlap reduces score)
             // Non-overlapping elements get penalized by cross-edge distance

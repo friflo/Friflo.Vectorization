@@ -155,8 +155,8 @@ public readonly ref partial struct ImDraw
             return;
         }
 
-        radius = MathF.Min(radius, MathF.Min(size.X, size.Y) * 0.5f);
-        thickness = MathF.Min(thickness, radius);
+        radius      = MathF.Min(radius, MathF.Min(size.X, size.Y) * 0.5f);
+        thickness   = MathF.Min(thickness, radius);
 
         float innerRadius = radius - thickness;
         float x = position.X;

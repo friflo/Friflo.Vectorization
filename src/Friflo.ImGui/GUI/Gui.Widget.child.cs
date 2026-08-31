@@ -181,7 +181,7 @@ public readonly ref partial struct GuiWidget
 
 	    float viewLength			= isHorizontal ? size.X : size.Y;
 	    float visibleRatio			= viewLength / totalContentSize;
-	    float thumbLength			= Math.Max(20f, viewLength * visibleRatio);
+	    float thumbLength			= MathF.Max(20f, viewLength * visibleRatio);
 	    float scrollableRange		= totalContentSize - viewLength;
 	    float thumbScrollableRange	= viewLength - thumbLength;
 
@@ -215,11 +215,11 @@ public readonly ref partial struct GuiWidget
 	    else if (isTrackHovered && !isThumbHovered && isDown && !scrollState.isDragging) {
 	        float clickPos = isHorizontal ? (input.MousePos.X - trackPos.X) : (input.MousePos.Y - trackPos.Y);
 	        if (clickPos < thumbOffset) {
-	            if (isHorizontal) scrollState.offset.X = Math.Max(0f, scrollState.offset.X - size.X);
-	            else              scrollState.offset.Y = Math.Max(0f, scrollState.offset.Y - size.Y);
+	            if (isHorizontal) scrollState.offset.X = MathF.Max(0f, scrollState.offset.X - size.X);
+	            else              scrollState.offset.Y = MathF.Max(0f, scrollState.offset.Y - size.Y);
 	        } else if (clickPos > thumbOffset + thumbLength) {
-	            if (isHorizontal) scrollState.offset.X = Math.Min(scrollableRange, scrollState.offset.X + size.X);
-	            else              scrollState.offset.Y = Math.Min(scrollableRange, scrollState.offset.Y + size.Y);
+	            if (isHorizontal) scrollState.offset.X = MathF.Min(scrollableRange, scrollState.offset.X + size.X);
+	            else              scrollState.offset.Y = MathF.Min(scrollableRange, scrollState.offset.Y + size.Y);
 	        }
 	    }
 
