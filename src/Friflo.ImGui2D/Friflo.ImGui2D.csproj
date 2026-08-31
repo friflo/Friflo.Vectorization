@@ -5,8 +5,8 @@
     <TargetFramework>net8</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Friflo.ImGui</RootNamespace>
-    <AssemblyName>Friflo.ImGui</AssemblyName>
+    <RootNamespace>Friflo.ImGui2D</RootNamespace>
+    <AssemblyName>Friflo.ImGui2D</AssemblyName>
     <LangVersion>14.0</LangVersion>
     
     <!--

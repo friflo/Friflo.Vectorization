@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.WGSL.Transpiler", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.Generators.CodeFixes", "src\Friflo.Generators.CodeFixes\Friflo.Generators.CodeFixes.csproj", "{1AD07C07-E282-44D4-9780-069FEBD22DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.ImGui", "src\Friflo.ImGui\Friflo.ImGui.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friflo.ImGui2D", "src\Friflo.ImGui2D\Friflo.ImGui2D.csproj", "{C79EDF8C-9DA8-42B1-9C22-35BF1364A398}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

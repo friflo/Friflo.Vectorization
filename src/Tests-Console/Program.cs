@@ -12,7 +12,7 @@ Console.OutputEncoding = System.Text.Encoding.UTF8; // support UTF-8 chars like 
 
 
 
-SdlWindow.Run("ImGui",         1280, 1000, wgpu => new ImGuiRenderer(wgpu));
+SdlWindow.Run("ImGui2D",       1280, 1000, wgpu => new ImGuiRenderer(wgpu));
 SdlWindow.Run("ImDraw",        1280,  720, wgpu => new ImDrawRenderer(wgpu));
 
 SdlWindow.Run("Particles",      1280, 720, wgpu => new Shaders.Particles.Renderer(wgpu));

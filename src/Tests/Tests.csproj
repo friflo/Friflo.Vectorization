@@ -39,7 +39,7 @@
       <ProjectReference Include="..\Vectorization.Attributes\Friflo.Vectorization.Attributes.csproj" />
       <ProjectReference Include="..\Friflo.GPU\Friflo.GPU.csproj" />
       <ProjectReference Include="..\Friflo.WGPU\Friflo.WGPU.csproj" />
-      <ProjectReference Include="..\Friflo.ImGui\Friflo.ImGui.csproj" />
+      <ProjectReference Include="..\Friflo.ImGui2D\Friflo.ImGui2D.csproj" />
     </ItemGroup>
     
     <ItemGroup>
