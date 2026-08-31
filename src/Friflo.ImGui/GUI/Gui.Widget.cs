@@ -330,7 +330,8 @@ public readonly ref partial struct GuiWidget
 #region Layout
     internal VerticalScope BeginVertical(Dim size)
     {
-        PushLayout(LayoutDirection.Vertical, size);
+        var boundsSize = Window.WidgetSize(size, default);
+        PushLayout(LayoutDirection.Vertical, boundsSize);
         return new VerticalScope(this);
     }
 
@@ -338,7 +339,8 @@ public readonly ref partial struct GuiWidget
     
     internal HorizontalScope BeginHorizontal(Dim size)
     {
-        PushLayout(LayoutDirection.Horizontal, size);
+        var boundsSize = Window.WidgetSize(size, default);
+        PushLayout(LayoutDirection.Horizontal, boundsSize);
         return new HorizontalScope(this);
     }
     internal void EndHorizontal() => PopLayout();
@@ -347,7 +349,8 @@ public readonly ref partial struct GuiWidget
     
     internal HorizontalCenterScope BeginHorizontalAligned(int centerId, float align, Dim size)
     {
-        PushLayout(LayoutDirection.Horizontal, size);
+        var boundsSize = Window.WidgetSize(size, default);
+        PushLayout(LayoutDirection.Horizontal, boundsSize);
         var oldMouseOffset = input.mouseOffset;
         guiState.mouseOffsets.TryGetValue(centerId, out input.mouseOffset);
         
@@ -421,7 +424,7 @@ public readonly ref partial struct GuiWidget
         }
     }
     
-    internal void PushLayout(LayoutDirection direction, Dim boundsSize)
+    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
     {
         Window.PushLayout(direction, boundsSize);
     }

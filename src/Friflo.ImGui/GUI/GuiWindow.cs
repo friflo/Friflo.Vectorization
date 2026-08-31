@@ -192,16 +192,14 @@ public sealed class GuiWindow
     /// Note: Internal state-only push. Must only be invoked via <see cref="GuiWidget.PushLayout"/>
     /// to ensure symmetry with <see cref="GuiWidget.PopLayout"/>.
     /// </summary>
-    internal void PushLayout(LayoutDirection direction, Dim boundsSize)
+    internal void PushLayout(LayoutDirection direction, Vector2 boundsSize)
     {
         var count = layoutStackCount;
         var stack = layoutStack;
         if (count >= stack.Length) {
             stack = ResizeLayoutStack();
         }
-        // Calculate remaining space inside the parent layout relative to current cursor offset
-        var size = WidgetSize(boundsSize, default);
-        stack[count] = new LayoutNode(direction, stack[count - 1].cursor, size);
+        stack[count] = new LayoutNode(direction, stack[count - 1].cursor, boundsSize);
         layoutStackCount = count + 1;
     }
     

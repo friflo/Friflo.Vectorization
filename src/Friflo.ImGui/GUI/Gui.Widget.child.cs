@@ -27,7 +27,7 @@ public readonly ref partial struct GuiWidget
 	        draw.PushScissor(parentStartCursor, outerSize);
 	    }
 	    window.SetCursor(parentStartCursor + Sizes.ChildPadding.Min);
-	    var innerLayoutSize	= Dim.Size(outerSize - Sizes.ChildPadding.Size);
+	    var innerLayoutSize	= outerSize - Sizes.ChildPadding.Size;
 	    PushLayout(LayoutDirection.Vertical, innerLayoutSize);
 
 	    return new ChildScope(this, parentStartCursor, size, outerSize);
@@ -103,7 +103,8 @@ public readonly ref partial struct GuiWidget
 	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
 
 	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
-	    PushLayout(LayoutDirection.Vertical, Dim.Size(effectiveWidth, Fit.Content));
+	    var boundsSize = new Vector2(effectiveWidth, 0);
+	    PushLayout(LayoutDirection.Vertical, boundsSize);
 
 	    return new ScrollAreaScope(this, childId, parentStartCursor, size, outerSize);
 	}
