@@ -99,7 +99,7 @@ public readonly ref partial struct GuiWidget
 	    bool hasVertScrollbar = scrollState.lastContentSize.Y > outerSize.Y;
 	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
 
-	    // Provide concrete viewport width for UI.FillX elements (accounting for padding, focus clearance, and scrollbar)
+	    // Provide concrete viewport width for UI.Fill_X elements (accounting for padding, focus clearance, and scrollbar)
 	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
 
 	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)

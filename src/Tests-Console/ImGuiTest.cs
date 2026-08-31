@@ -173,11 +173,11 @@ public class ImGuiRenderer : IRenderer
         gui.Label("scroll area");
         var scrollArea = gui.BeginScrollArea(3, Dim.Fill());
             gui.Button("Button 1 - more to to enable horizontal scrolling");
-            gui.Button("Button 2 -  Dim.FillX(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
+            gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
             
             var area2  = gui.BeginScrollArea(4, Dim.Fill_X(0, 200));
                 gui.Button("Sub 1");
-                gui.Button("Sub 2 -  Dim.FillX(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
+                gui.Button("Sub 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
                 gui.Button("Sub 3 - size: new(-10, 0)",  Dim.Fill_X(10, Fit.Content));
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
