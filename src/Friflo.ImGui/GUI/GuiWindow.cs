@@ -403,7 +403,7 @@ public sealed class GuiWindow
     }
 #endregion
 
-    internal Vector2 WidgetSize(in Dim size, Vector2 defaultSize)
+    internal Vector2 WidgetSize(Dim size, Vector2 defaultSize)
     {
         var width = size.sizingX switch {
             Sizing.Exact   => size.Width,
