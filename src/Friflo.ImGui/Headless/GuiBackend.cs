@@ -6,7 +6,7 @@ using System;
 // ReSharper disable EmptyConstructor
 // ReSharper disable RedundantOverriddenMember
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui.Headless;
+namespace Friflo.ImGui2D.Headless;
 
 public sealed class HeadlessBackend : ImGuiBackend
 {

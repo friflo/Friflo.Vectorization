@@ -8,7 +8,7 @@ using System.Numerics;
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 
 public enum ImEventType

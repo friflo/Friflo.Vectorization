@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 
 public enum LayoutDirection

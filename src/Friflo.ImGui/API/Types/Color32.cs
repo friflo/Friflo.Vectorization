@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 
 /// <summary>

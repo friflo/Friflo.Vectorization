@@ -1,8 +1,8 @@
 ﻿
 using System;
 using System.Globalization;
-using Friflo.ImGui;
-using Friflo.ImGui.Headless;
+using Friflo.ImGui2D;
+using Friflo.ImGui2D.Headless;
 using NUnit.Framework;
 using Tests.Utils;
 

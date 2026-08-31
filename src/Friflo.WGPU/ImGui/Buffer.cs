@@ -4,11 +4,11 @@
 
 using System;
 using Friflo.GPU;
-using Friflo.ImGui;
+using Friflo.ImGui2D;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.ImGui;
+namespace Friflo.WGPU.ImGui2D;
 
 internal sealed class ImWgpuBuffer<T> : ImBuffer<T> where T : unmanaged
 {

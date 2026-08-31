@@ -8,7 +8,7 @@ using System;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui.Headless;
+namespace Friflo.ImGui2D.Headless;
 
 public sealed class HeadlessTexture
 {

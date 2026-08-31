@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Friflo.GPU;
 using Friflo.GPU.Runtime;
 using Friflo.WGPU;
-using Friflo.ImGui;
+using Friflo.ImGui2D;
 using Friflo.WGPU.Runtime;
 using NUnit.Framework;
 

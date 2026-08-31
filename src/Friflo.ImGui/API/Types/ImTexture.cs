@@ -8,7 +8,7 @@ using System;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 /// <summary>
 /// A struct containing a reference or an opaque handle to a backend-specific texture.<br/>

@@ -14,7 +14,7 @@ using StbTrueTypeSharp;
 // ReSharper disable InconsistentNaming
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 public enum TextAlignment
 {

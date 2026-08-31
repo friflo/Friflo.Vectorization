@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Friflo.ImGui;
+using Friflo.ImGui2D;
 using Friflo.WGPU;
-using Friflo.WGPU.ImGui;
+using Friflo.WGPU.ImGui2D;
 using NUnit.Framework;
 using StbImageWriteSharp;
 

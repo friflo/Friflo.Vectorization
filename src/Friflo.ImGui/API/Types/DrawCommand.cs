@@ -8,7 +8,7 @@ using System.Numerics;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 public readonly struct MemoryView
 {

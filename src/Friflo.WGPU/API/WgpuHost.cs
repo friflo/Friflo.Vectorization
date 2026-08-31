@@ -4,7 +4,7 @@
 using System;
 using System.Numerics;
 using Friflo.GPU;
-using Friflo.WGPU.ImGui;
+using Friflo.WGPU.ImGui2D;
 using Friflo.WGPU.Runtime;
 
 // ReSharper disable ClassNeverInstantiated.Global

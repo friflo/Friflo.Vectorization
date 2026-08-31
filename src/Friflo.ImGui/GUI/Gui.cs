@@ -7,7 +7,7 @@ using System.Numerics;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 public static class HorizontalAlignment  // move const values to UI class
 {

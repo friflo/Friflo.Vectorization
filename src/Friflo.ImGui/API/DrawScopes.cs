@@ -3,7 +3,7 @@
 
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 
 public readonly ref struct ScissorScope(ImDraw draw)

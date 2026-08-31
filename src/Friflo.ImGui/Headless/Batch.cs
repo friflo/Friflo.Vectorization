@@ -5,7 +5,7 @@ using System.Numerics;
 
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.ImGui.Headless;
+namespace Friflo.ImGui2D.Headless;
 
 public sealed class HeadlessBatch : ImBatch
 {

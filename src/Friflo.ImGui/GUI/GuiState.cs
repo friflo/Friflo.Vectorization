@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 
 internal struct RevertStyle

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Friflo.GPU;
-using Friflo.ImGui;
+using Friflo.ImGui2D;
 using Friflo.WGPU.Runtime;
 using Shaders.Imdraw;
 
@@ -13,7 +13,7 @@ using Shaders.Imdraw;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable CheckNamespace
-namespace Friflo.WGPU.ImGui;
+namespace Friflo.WGPU.ImGui2D;
 
 // Note: Copied from source generated file to avoid build deadlock in case of generator issues.
 public sealed partial class WgpuBatch

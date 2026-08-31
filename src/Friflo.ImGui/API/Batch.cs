@@ -11,7 +11,7 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 /// <summary>
 /// Provides <see cref="ImDraw"/> for low-level geometry drawing and <see cref="Gui"/> for high-level widgets and interaction.<br/>

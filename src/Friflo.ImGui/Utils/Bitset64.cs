@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable ConvertToPrimaryConstructor
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 // ReSharper disable once CheckNamespace
-namespace Friflo.ImGui;
+namespace Friflo.ImGui2D;
 
 [DebuggerDisplay("Count = {Count}")]
 [DebuggerTypeProxy(typeof(Bitset64DebugView<>))]
