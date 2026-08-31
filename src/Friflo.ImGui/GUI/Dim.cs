@@ -40,15 +40,14 @@ public readonly struct Dim
 {
     private  readonly   float   X;
     private  readonly   float   Y;
+    internal readonly   Sizing  sizingX;
+    internal readonly   Sizing  sizingY;
     
     internal            float   Width       => X;
     internal            float   Height      => Y;
 
     internal            float   DistRight   => X;
     internal            float   DistBottom  => Y;
-    
-    internal readonly   Sizing  sizingX;
-    internal readonly   Sizing  sizingY;
     
     internal            bool    IsAutoWidth     => sizingX != Sizing.Exact;
     internal            bool    IsAutoHeight    => sizingY != Sizing.Exact;
