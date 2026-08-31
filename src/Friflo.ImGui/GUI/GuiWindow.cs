@@ -125,7 +125,7 @@ public sealed class GuiWindow
     
     private  readonly       Dictionary<int, ScrollState>    scrollStates        = new(64);
     
-    // --- tab / 2D array key navigation
+    // --- 2D arrow key navigation
     internal readonly       List<FocusableEntry>            currentFocusables   = new(32);
     internal readonly       List<FocusableEntry>            prevFocusables      = new(32);
 
@@ -139,7 +139,7 @@ public sealed class GuiWindow
     
     internal void NewFrame()
     {
-        // --- tab / 2D array key navigation ---
+        // --- 2D arrow key navigation ---
         // Swap buffer for spatial queries
         prevFocusables.Clear();
         prevFocusables.AddRange(currentFocusables);
