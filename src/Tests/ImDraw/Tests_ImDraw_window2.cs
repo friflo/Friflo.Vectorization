@@ -1,6 +1,4 @@
 ﻿
-using System;
-using System.Globalization;
 using Friflo.ImGui;
 using Friflo.ImGui.Headless;
 using NUnit.Framework;
