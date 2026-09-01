@@ -35,10 +35,8 @@ public class Tests_ImDraw_window2
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(10));
-        Assert.That(verticesLen,        Is.EqualTo(3180));
+        Assert.That(verticesLen,        Is.EqualTo(3192));
     }
-    
-
     
     private static void Window2(Gui gui)
     {
@@ -55,14 +53,14 @@ public class Tests_ImDraw_window2
         }
         gui.Spacer();
         gui.Label("scroll area");
-        var scrollArea = gui.BeginScrollArea(3, Dim.Fill());
+        var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
             
             var area2  = gui.BeginScrollArea(4, Dim.Fill_X(0, 200));
                 gui.Button("Sub 1");
-                gui.Button("Sub 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
-                gui.Button("Sub 3 - size: new(-10, 0)",  Dim.Fill_X(10, Fit.Content));
+                gui.Button("Sub 2 - Dim.Fill_X(0, Fit.Content)",   Dim.Fill_X(0, Fit.Content));
+                gui.Button("Sub 3 - Dim.Fill_X(20, Fit.Content)",  Dim.Fill_X(20, Fit.Content));
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
                 gui.Button("Sub 6");
@@ -78,8 +76,6 @@ public class Tests_ImDraw_window2
                 gui.Button("Hori D");
                 gui.Button("Hori E");
                 gui.Button("Hori F");
-                gui.Button("Hori G");
-                gui.Button("Hori H");
             gui.EndHorizontal();
             gui.Button("Button 5");
             gui.Button("Button 6");
@@ -94,5 +90,6 @@ public class Tests_ImDraw_window2
             gui.Button("Button last");
         
         gui.EndScrollArea(scrollArea);
+        gui.Button("after scroll area");
     }
 }

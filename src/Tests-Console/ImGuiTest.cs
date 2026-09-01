@@ -156,7 +156,7 @@ public class ImGuiRenderer : IRenderer
         }
     }
     
-    private void Window2(Gui gui)
+    private static void Window2(Gui gui)
     {
         gui.Label("fixed child");
         using (gui.BeginChild(1, Dim.Fill_X(0, 90))) {
