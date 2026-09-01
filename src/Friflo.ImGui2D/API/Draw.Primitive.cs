@@ -81,6 +81,7 @@ public readonly ref partial struct ImDraw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FillTriangle(Vector2 v0, Vector2 v1, Vector2 v2, Color32 color)
     {
+        if (color.Packed == 0) return;
         FillQuad(v0, v1, v2, v2, color);
     }
 
@@ -89,6 +90,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeLine(Vector2 start, Vector2 end, float thickness, Color32 color)
     {
+        if (color.Packed == 0) return;
         Vector2 dir = end - start;
         float len = dir.Length();
         if (len < 0.0001f) return;
@@ -148,6 +150,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void StrokeRectRounded(Vector2 position, Vector2 size, float radius, float thickness, Color32 color, int segments = 8)
     {
+        if (color.Packed == 0) return;
         if (thickness <= 0f) return;
 
         if (radius <= 0f) {
@@ -194,6 +197,7 @@ public readonly ref partial struct ImDraw
     /// </summary>
     public void FillRectRounded(Vector2 position, Vector2 size, float radius, Color32 color, int segments = 8)
     {
+        if (color.Packed == 0) return;
         if (radius <= 0f) {
             FillRect(position, size, color);
             return;

@@ -16,6 +16,7 @@ public enum ColorId
     
     ButtonText ,
     ButtonColor,
+    ButtonBorder,
     ButtonHover,
     ButtonDown,
     
@@ -34,6 +35,7 @@ public struct GuiColors
     
     public Color32  ButtonText      { readonly get => buttonText;    set => buttonText   = Add(ColorId.ButtonText,   value); }
     public Color32  ButtonColor     { readonly get => buttonColor;   set => buttonColor  = Add(ColorId.ButtonColor,  value); }
+    public Color32  ButtonBorder    { readonly get => buttonBorder;  set => buttonBorder = Add(ColorId.ButtonBorder, value); }
     public Color32  ButtonHover     { readonly get => buttonHover;   set => buttonHover  = Add(ColorId.ButtonHover,  value); }
     public Color32  ButtonDown      { readonly get => buttonDown;    set => buttonDown   = Add(ColorId.ButtonDown,   value); }
     
@@ -43,11 +45,11 @@ public struct GuiColors
     public Color32  FocusColor      { readonly get => focusColor;    set => focusColor   = Add(ColorId.FocusColor,   value); }
     
     public Color32  ScrollTrackBg       => 0xffffff00; // transparent
-    public Color32  ScrollThumb         => 0x888888ff;
-    public Color32  ScrollThumbActive   => 0x666666ff;
-    public Color32  ScrollThumbHover    => 0xffffffff;
+    public Color32  ScrollThumb         => 0xd0d0d0ff;
+    public Color32  ScrollThumbActive   => 0x999999ff;
+    public Color32  ScrollThumbHover    => 0xaaaaaaff;
     
-    public Color32  ScrollAreaColor     => 0x00000010;
+    public Color32  ScrollAreaColor     => 0x00000000;
      
     
     public  readonly            Bitset64<ColorId>   Overrides                   => overrides;
@@ -64,6 +66,7 @@ public struct GuiColors
     
     [Browse(Never)] private     Color32 buttonText;
     [Browse(Never)] private     Color32 buttonColor;
+    [Browse(Never)] private     Color32 buttonBorder;
     [Browse(Never)] private     Color32 buttonHover;
     [Browse(Never)] private     Color32 buttonDown;
     
@@ -90,6 +93,7 @@ public struct GuiColors
                 case ColorId.TextColor:     target.textColor    = source.textColor;     break;
                 case ColorId.ButtonText:    target.buttonText   = source.buttonText;    break;
                 case ColorId.ButtonColor:   target.buttonColor  = source.buttonColor;   break;
+                case ColorId.ButtonBorder:  target.buttonBorder = source.buttonBorder;  break;
                 case ColorId.ButtonHover:   target.buttonHover  = source.buttonHover;   break;
                 case ColorId.ButtonDown:    target.buttonDown   = source.buttonDown;    break;
                 case ColorId.SliderFill:    target.sliderFill   = source.sliderFill;    break;
@@ -109,6 +113,7 @@ public struct GuiColors
                 case ColorId.TextColor:     TextColor    = source.textColor;     break;
                 case ColorId.ButtonText:    ButtonText   = source.buttonText;    break;
                 case ColorId.ButtonColor:   ButtonColor  = source.buttonColor;   break;
+                case ColorId.ButtonBorder:  ButtonBorder = source.buttonBorder;  break;
                 case ColorId.ButtonHover:   ButtonHover  = source.buttonHover;   break;
                 case ColorId.ButtonDown:    ButtonDown   = source.buttonDown;    break;
                 case ColorId.SliderFill:    SliderFill   = source.sliderFill;    break;

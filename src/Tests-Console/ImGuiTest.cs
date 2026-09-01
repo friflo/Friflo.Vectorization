@@ -28,20 +28,22 @@ public class ImGuiRenderer : IRenderer
     private readonly GuiStyle redButtonStyle = new() {
         colors = new GuiColors {
             ButtonColor = 0xaa4444ff,
+            ButtonBorder= 0, 
             ButtonHover = 0xcc6666ff,
             ButtonDown  = 0x882222ff,
             ButtonText  = 0xffffffff,
-            FocusColor  = 0xffffffff,
+            FocusColor  = 0xaa4444ff,
         }
     };
     
     private readonly GuiStyle greenButtonStyle = new() {
         colors = new GuiColors {
             ButtonColor = 0x229922ff,
+            ButtonBorder= 0,
             ButtonHover = 0x44bb44ff,
             ButtonDown  = 0x007700ff,
             ButtonText  = 0xffffffff,
-            FocusColor  = 0xffffffff,
+            FocusColor  = 0x229922ff,
         }
     };
     
@@ -232,7 +234,8 @@ public static class GuiExtensions
         var isFocused   = widget.RegisterFocusable(widgetId, pos, size);
         var widgetState = widget.GetWidgetState(isHover, widgetId);
         
-        draw.FillRectRounded(pos, size, 8, widget.Colors.ButtonState(widgetState)); // background
+        draw.FillRectRounded  (pos, size, widget.Sizes.CornerRadius, widget.Colors.ButtonState(widgetState)); // background
+        draw.StrokeRectRounded(pos, size, widget.Sizes.CornerRadius, 2, widget.Colors.ButtonBorder, GuiSizes.CornerSegments);
 
         if (isFocused) {
             widget.DrawFocus(pos, size);

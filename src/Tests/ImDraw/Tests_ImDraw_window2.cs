@@ -18,7 +18,7 @@ public class Tests_ImDraw_window2
         var         batch   = backend.CreateBatch();
 
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 7.9 sec
+        const int   repeat  = 10; // 500_000 - 14.8 sec
         
         for (int n = 0; n < repeat; n++)
         {
@@ -35,7 +35,7 @@ public class Tests_ImDraw_window2
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(10));
-        Assert.That(verticesLen,        Is.EqualTo(3240));
+        Assert.That(verticesLen,        Is.EqualTo(5096));
     }
     
     private static void Window2(Gui gui)

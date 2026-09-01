@@ -36,13 +36,14 @@ internal sealed class GuiState
     {
         return new GuiColors
         {
-            WindowColor  = 0xaaaaaaff,
+            WindowColor  = 0xf7f8f9ff,
             TextColor    = 0x000000ff,
             
             ButtonText   = 0x000000ff,
-            ButtonColor  = 0xddddddff,
-            ButtonHover  = 0xeeeeeeff,
-            ButtonDown   = 0xbbbbbbff,
+            ButtonColor  = 0xffffffff,
+            ButtonBorder = 0xe0e0e0ff,
+            ButtonHover  = 0xe0e0e0ff,
+            ButtonDown   = 0xb0b0b0ff,
             
             SliderFill   = 0xffffffff,
             SliderColor  = 0xbbbbbbff,

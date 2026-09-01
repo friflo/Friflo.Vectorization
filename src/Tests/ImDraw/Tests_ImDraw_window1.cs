@@ -33,7 +33,7 @@ public class Tests_ImDraw_window1
         var         batch   = backend.CreateBatch();
         EnsureBatchApi(batch);
         long        start   = 0;
-        const int   repeat  = 10; // 500_000 - 3.5 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
+        const int   repeat  = 10; // 500_000 - 8.3 sec    bottleneck: FillArc() - GuiSizes.CornerSegments = 4
         
         for (int n = 0; n < repeat; n++)
         {
@@ -50,7 +50,7 @@ public class Tests_ImDraw_window1
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(2));
-        Assert.That(verticesLen,        Is.EqualTo(1656));
+        Assert.That(verticesLen,        Is.EqualTo(3000));
         
         int vertexSum = 0;
         int indexSum  = 0;

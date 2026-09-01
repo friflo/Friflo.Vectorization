@@ -205,6 +205,7 @@ public readonly ref partial struct GuiWidget
 
         // Background
         draw.FillRectRounded(pos, finalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments);
+        draw.StrokeRectRounded(pos, finalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
 
         if (isFocused) {
             DrawFocus(pos, finalSize);
@@ -212,6 +213,7 @@ public readonly ref partial struct GuiWidget
         }
 
         draw.DrawTextInRect(name, pos + Sizes.FramePadding.Min, textSize, TextAlignment.Center, VerticalAlignment.Middle, Colors.ButtonText);
+
         
         MoveCursor(finalSize);
         
@@ -240,7 +242,8 @@ public readonly ref partial struct GuiWidget
             value = !value;
         }
         var boxRectSize = new Vector2(boxSize, boxSize);
-        draw.FillRectRounded(pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
+        draw.FillRectRounded  (pos, boxRectSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
+        draw.StrokeRectRounded(pos, boxRectSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
 
         if (isFocused) {
             DrawFocus(pos, boxRectSize);
@@ -282,13 +285,14 @@ public readonly ref partial struct GuiWidget
                 changed = true;
             }
         }
-        draw.FillRectRounded(pos, totalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
+        draw.FillRectRounded  (pos, totalSize, Sizes.CornerRadius, Colors.ButtonState(widgetState), GuiSizes.CornerSegments); // background
 
         // Fill bar
         float tVal = Math.Clamp((value - min) / (max - min), 0f, 1f);
         var fillSize = new Vector2(width * tVal, height);
         
         draw.FillRectRounded(pos, fillSize, Sizes.CornerRadius, Colors.SliderFill, GuiSizes.CornerSegments);
+        draw.StrokeRectRounded(pos, totalSize, Sizes.CornerRadius, 2, Colors.ButtonBorder, GuiSizes.CornerSegments);
 
         // Render blue focus outline
         if (isFocused) {
@@ -328,6 +332,7 @@ public readonly ref partial struct GuiWidget
     {
         if (!space.isFocused) return;
         DrawFocus(space.pos, space.size);
+        Window.EnsureVisibleInScrollArea(space.pos, space.size);
     }
 
 #endregion
