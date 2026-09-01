@@ -52,7 +52,7 @@ public readonly ref partial struct GuiWidget
 	    return new RectVector2(innerStartCursor, boundsSize);
     }
     
-    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 scrollSize, Vector2 outerSize)
+    private void PopScrollArea(int childId, Vector2 startCursor, Vector2 outerSize, Vector2 scrollSize)
     {
 	    var window = Window;
 	    
