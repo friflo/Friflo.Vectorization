@@ -24,7 +24,7 @@ public readonly ref partial struct GuiWidget
 	    var innerLayoutSize	= outerSize - Sizes.ChildPadding.Size;
 	    PushLayout(LayoutDirection.Vertical, innerLayoutSize);
 
-	    return new ChildScope(this, parentStartCursor, size, outerSize);
+	    return new ChildScope(this, parentStartCursor, outerSize, size);
 	}
 
 	internal void EndChild(in ChildScope scope)
@@ -67,7 +67,7 @@ public readonly ref partial struct GuiWidget
 	    window.SetCursor(scrollRect.pos);
 	    PushLayout(LayoutDirection.Vertical, scrollRect.size);
 
-	    return new ScrollAreaScope(this, childId, startCursor, size, outerSize);
+	    return new ScrollAreaScope(this, childId, startCursor, outerSize);
 	}
 
 	internal void EndScrollArea(in ScrollAreaScope scope)

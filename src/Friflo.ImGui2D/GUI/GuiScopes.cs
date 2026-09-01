@@ -21,15 +21,13 @@ public readonly ref struct ScrollAreaScope
     private  readonly   GuiWidget 	widget;
     internal readonly   int         childId;
     internal readonly   Vector2 	startCursor;
-    internal readonly   Dim         requestedSize;
     internal readonly   Vector2     outerSize;
 
-    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 startCursor, Dim requestedSize, Vector2 outerSize)
+    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 startCursor, Vector2 outerSize)
     {
         this.widget         = widget;
         this.childId        = childId;
         this.startCursor    = startCursor;
-        this.requestedSize  = requestedSize;
         this.outerSize      = outerSize;
     }
 
@@ -40,15 +38,15 @@ public readonly ref struct ChildScope
 {
     private  readonly   GuiWidget   widget;
     internal readonly   Vector2 	startCursor;
-    internal readonly   Dim 	    requestedSize;
     internal readonly   Vector2     outerSize;
+    internal readonly   Dim 	    requestedSize;
 
-    internal ChildScope(GuiWidget widget, Vector2 startCursor, Dim requestedSize, Vector2 outerSize)
+    internal ChildScope(GuiWidget widget, Vector2 startCursor, Vector2 outerSize, Dim requestedSize)
     {
         this.widget         = widget;
         this.startCursor    = startCursor;
-        this.requestedSize  = requestedSize;
         this.outerSize      = outerSize;
+        this.requestedSize  = requestedSize;
     }
 
     public void Dispose() => widget.EndChild(this);
