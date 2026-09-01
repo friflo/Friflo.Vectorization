@@ -8,12 +8,15 @@ using System.Numerics;
 namespace Friflo.ImGui2D;
 
 
-public readonly ref struct WindowScope(GuiWidget widget, bool isOpen)
+public readonly ref struct WindowScope(GuiWidget widget, bool isOpen, int windowId, Vector2 startCursor, Vector2 outerSize)
 {
-    private readonly GuiWidget  widget     = widget;
-    private readonly bool       isOpen  = isOpen;
+    private  readonly   GuiWidget   widget      = widget;
+    private  readonly   bool        isOpen      = isOpen;
+    internal readonly   int         windowId    = windowId;
+    internal readonly   Vector2     startCursor = startCursor;
+    internal readonly   Vector2     outerSize   = outerSize;
 
-    public void Dispose() => widget.EndWindow();
+    public void Dispose() => widget.EndWindow(this);
 }
 
 public readonly ref struct ScrollAreaScope

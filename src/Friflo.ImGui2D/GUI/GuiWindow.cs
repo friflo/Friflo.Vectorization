@@ -34,7 +34,9 @@ public struct LayoutNode
     public          Vector2         cursor;
     public          Vector2         maxSize;    // Accrued content footprint (grows with widgets)
     public readonly Vector2         boundsSize; // Total boundary size assigned to this scope
-    
+
+    public override string ToString() => $"startCursor: {startCursor}  cursor: {cursor}  maxSize: {maxSize}  boundsSize: {boundsSize}";
+
     internal LayoutNode(LayoutDirection direction, Vector2 startCursor, Vector2 boundsSize) {
         this.direction      = direction;
         this.startCursor    = startCursor;
@@ -181,9 +183,9 @@ public sealed class GuiWindow
     
     
 #region layout
-    internal void InitLayout(Vector2 contentPos, Vector2 contentSize)
+    internal void InitLayout(Vector2 contentPos, Vector2 boundsSize)
     {
-        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, contentSize);
+        layoutStack[0] = new LayoutNode(LayoutDirection.Vertical, contentPos, boundsSize);
         
         SetCursor(contentPos);
     }

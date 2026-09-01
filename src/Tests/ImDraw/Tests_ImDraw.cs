@@ -109,10 +109,10 @@ public static class Tests_ImDraw
         
         guiBackend.NewFrame(); // not necessary
         var gui = batch.BeginGui(target.TargetSize.width, target.TargetSize.height);
-        gui.BeginWindow("Test Window");
+        var windowScope = gui.BeginWindow("Test Window");
         gui.Button("hello");
         gui.Button("test");
-        gui.EndWindow();
+        gui.EndWindow(windowScope);
         
         _ = gui.widget.Colors.ButtonColor;  // Ensures Colors is available
         _ = gui.LineHeight;                 // Ensures LineHeight is available

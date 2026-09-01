@@ -35,7 +35,7 @@ public class Tests_ImDraw_window2
         var drawList    = batch.DrawList;
         var verticesLen = batch.Vertices.Length;
         Assert.That(drawList.Length,    Is.EqualTo(10));
-        Assert.That(verticesLen,        Is.EqualTo(3192));
+        Assert.That(verticesLen,        Is.EqualTo(3240));
     }
     
     private static void Window2(Gui gui)

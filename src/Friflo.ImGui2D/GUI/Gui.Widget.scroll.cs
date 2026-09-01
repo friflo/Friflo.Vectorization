@@ -44,10 +44,11 @@ public readonly ref partial struct GuiWidget
 	    float scrollbarWidth  = hasVertScrollbar ? Sizes.TrackThickness : 0f;
 
 	    // Provide concrete viewport width for UI.Fill_X elements (accounting for padding, focus clearance, and scrollbar)
-	    float effectiveWidth = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
+	    float effectiveWidth  = MathF.Max(0f, outerSize.X - padding.Size.X - 2 * Sizes.FocusOutlineThickness.X - scrollbarWidth);
+	    float effectiveHeight = MathF.Max(0f, outerSize.Y - padding.Size.Y - 2 * Sizes.FocusOutlineThickness.Y);
 
 	    // Exact width (effectiveWidth) and Content height (0f, Sizing.Content)
-	    var boundsSize = new Vector2(effectiveWidth, 0);
+	    var boundsSize = new Vector2(effectiveWidth, effectiveHeight);
         
 	    return new RectVector2(innerStartCursor, boundsSize);
     }
