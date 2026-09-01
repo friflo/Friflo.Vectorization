@@ -86,7 +86,7 @@ public readonly ref partial struct GuiWidget
 	    window.PopScope();
 	    
 	    window.SetCursor(scope.startCursor);
-	    MoveCursor(scope.outerSize + padding.Max);
+	    MoveCursor(scope.outerSize);
 	}
 #endregion
 }
