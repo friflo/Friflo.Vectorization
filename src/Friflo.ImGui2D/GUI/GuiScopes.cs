@@ -20,17 +20,17 @@ public readonly ref struct ScrollAreaScope
 {
     private  readonly   GuiWidget 	widget;
     internal readonly   int         childId;
-    internal readonly   Vector2 	parentStartCursor;
+    internal readonly   Vector2 	startCursor;
     internal readonly   Dim         requestedSize;
-    internal readonly   Vector2     calculatedOuterSize;
+    internal readonly   Vector2     outerSize;
 
-    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 parentStartCursor, Dim requestedSize, Vector2 calculatedOuterSize)
+    internal ScrollAreaScope(GuiWidget widget, int childId, Vector2 startCursor, Dim requestedSize, Vector2 outerSize)
     {
-        this.widget                 = widget;
-        this.childId                = childId;
-        this.parentStartCursor      = parentStartCursor;
-        this.requestedSize          = requestedSize;
-        this.calculatedOuterSize    = calculatedOuterSize;
+        this.widget         = widget;
+        this.childId        = childId;
+        this.startCursor    = startCursor;
+        this.requestedSize  = requestedSize;
+        this.outerSize      = outerSize;
     }
 
     public void Dispose() => widget.EndScrollArea(this);
@@ -39,16 +39,16 @@ public readonly ref struct ScrollAreaScope
 public readonly ref struct ChildScope
 {
     private  readonly   GuiWidget   widget;
-    internal readonly   Vector2 	parentStartCursor;
+    internal readonly   Vector2 	startCursor;
     internal readonly   Dim 	    requestedSize;
-    internal readonly   Vector2     calculatedOuterSize;
+    internal readonly   Vector2     outerSize;
 
-    internal ChildScope(GuiWidget widget, Vector2 parentStartCursor, Dim requestedSize, Vector2 calculatedOuterSize)
+    internal ChildScope(GuiWidget widget, Vector2 startCursor, Dim requestedSize, Vector2 outerSize)
     {
-        this.widget              = widget;
-        this.parentStartCursor   = parentStartCursor;
-        this.requestedSize       = requestedSize;
-        this.calculatedOuterSize = calculatedOuterSize;
+        this.widget         = widget;
+        this.startCursor    = startCursor;
+        this.requestedSize  = requestedSize;
+        this.outerSize      = outerSize;
     }
 
     public void Dispose() => widget.EndChild(this);

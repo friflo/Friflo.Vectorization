@@ -171,7 +171,7 @@ public class ImGuiRenderer : IRenderer
         }
         gui.Spacer();
         gui.Label("scroll area");
-        var scrollArea = gui.BeginScrollArea(3, Dim.Fill());
+        var scrollArea = gui.BeginScrollArea(3, Dim.Fill(0, 60));
             gui.Button("Button 1 - more to to enable horizontal scrolling");
             gui.Button("Button 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
             
@@ -194,8 +194,6 @@ public class ImGuiRenderer : IRenderer
                 gui.Button("Hori D");
                 gui.Button("Hori E");
                 gui.Button("Hori F");
-                gui.Button("Hori G");
-                gui.Button("Hori H");
             gui.EndHorizontal();
             gui.Button("Button 5");
             gui.Button("Button 6");
@@ -210,6 +208,7 @@ public class ImGuiRenderer : IRenderer
             gui.Button("Button last");
         
         gui.EndScrollArea(scrollArea);
+        gui.Button("after scroll area");
     }
 }
 
