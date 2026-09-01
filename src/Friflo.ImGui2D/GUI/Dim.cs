@@ -118,6 +118,10 @@ public readonly struct Dim
     /// <summary>Fills all available parent space on both axes.</summary>
     [DebuggerHidden]
     public static Dim   Fill()                                  => new(0f,          Sizing.Fill,    0f,         Sizing.Fill);
+    
+    /// <summary>Fills remaining parent space on both axes with a right and bottom margin.</summary>
+    [DebuggerHidden]
+    public static Dim   Fill(float distRight, float distBottom) => new(distRight,   Sizing.Fill,    distBottom, Sizing.Fill);
 #endregion
 
 
