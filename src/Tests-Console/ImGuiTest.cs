@@ -177,8 +177,8 @@ public class ImGuiRenderer : IRenderer
             
             var area2  = gui.BeginScrollArea(4, Dim.Fill_X(0, 200));
                 gui.Button("Sub 1");
-                gui.Button("Sub 2 -  Dim.Fill_X(0, Fit.Content)",  Dim.Fill_X(0, Fit.Content));
-                gui.Button("Sub 3 - size: new(-10, 0)",  Dim.Fill_X(10, Fit.Content));
+                gui.Button("Sub 2 - Dim.Fill_X(0, Fit.Content)",   Dim.Fill_X(0, Fit.Content));
+                gui.Button("Sub 3 - Dim.Fill_X(20, Fit.Content)",  Dim.Fill_X(20, Fit.Content));
                 gui.Button("Sub 4");
                 gui.Button("Sub 5");
                 gui.Button("Sub 6");
